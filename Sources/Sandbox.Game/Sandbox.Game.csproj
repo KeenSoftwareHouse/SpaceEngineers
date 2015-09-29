@@ -796,6 +796,7 @@
     <Compile Include="Game\World\Triggers\MyTriggerPositionLeft.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerTimeLimit.cs" />
+    <Compile Include="ModAPI\Blocks\MyJumpDrive_ModAPI.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorSuspension_ModAPI.cs" />
     <Compile Include="ModAPI\MyHudNotification_ModAPI.cs" />

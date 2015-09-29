@@ -204,7 +204,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public void RequestJump(string destinationName, Vector3D destination, long userId)
+        public void RequestJump(string destinationName, Vector3D destination, long userId, bool skipDialog = false)
         {
             if (!IsJumpValid(userId))
             {
@@ -225,28 +225,37 @@ namespace Sandbox.Game.GameSystems
 
             if (actualDistance < MIN_JUMP_DISTANCE)
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    buttonType: MyMessageBoxButtonsType.OK,
-                    messageText: GetWarningText(actualDistance),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)
-                    ));
+                if (!skipDialog)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: GetWarningText(actualDistance),
+                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)
+                        ));
+                }
             }
             else
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                    size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
-                    {
-                        if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
+                if (!skipDialog)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.YES_NO,
+                        messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
+                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                        size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                         {
-                            SyncObject.RequestJump(m_selectedDestination, userId);
+                            if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
+                            {
+                                SyncObject.RequestJump(m_selectedDestination, userId);
+                            }
                         }
-                    }
-                    ));
+                        ));
+                }
+                else if (IsJumpValid(userId))
+                {
+                    SyncObject.RequestJump(m_selectedDestination, userId);
+                }
             }
-
         }
 
         private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)
@@ -299,7 +308,7 @@ namespace Sandbox.Game.GameSystems
             return result;
         }
 
-        private double GetMass()
+        public double GetMass()
         {
             double mass = 0f;
 
