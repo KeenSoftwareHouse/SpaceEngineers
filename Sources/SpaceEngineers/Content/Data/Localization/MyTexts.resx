@@ -6566,6 +6566,9 @@ Enables flora for planets</value>
   <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
     <value>Medium</value>
   </data>
+  <data name="BlockPropertiesText_CryoChamberOccupant" xml:space="preserve">
+    <value>Occupied by {0}</value>
+  </data>
   <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
     <value>Tonemapping</value>
   </data>

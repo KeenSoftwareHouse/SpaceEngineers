@@ -174,7 +174,9 @@
     <Compile Include="ModAPI\IMyVoxelShapeCapsule.cs" />
     <Compile Include="ModAPI\IMyVoxelShapeRamp.cs" />
     <Compile Include="ModAPI\IMyVoxelShapeSphere.cs" />
+    <Compile Include="ModAPI\Ingame\AstronautInfo.cs" />
     <Compile Include="ModAPI\Ingame\IMyAirVent.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCryoChamber.cs" />
     <Compile Include="ModAPI\Ingame\IMyPowerProducer.cs" />
     <Compile Include="ModAPI\Ingame\IMyRadioAntenna.cs" />
     <Compile Include="ModAPI\Ingame\IMyAssembler.cs" />
