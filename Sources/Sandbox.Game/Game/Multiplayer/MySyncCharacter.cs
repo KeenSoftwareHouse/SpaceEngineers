@@ -162,12 +162,13 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(7417, P2PMessageEnum.Unreliable)]
-        struct UpdateOxygenMsg : IEntityMessage
+        struct UpdateStatsMsg : IEntityMessage
         {
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            public float OxygenAmount;
+            public ushort Stat;
+            public float Amount;
         }
 
         [MessageId(7418, P2PMessageEnum.Reliable)]
@@ -237,7 +238,7 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, ConfirmFactionMessageMsg>(OnConfirmFactionMessageSuccess, MyMessagePermissions.FromServer, Engine.Multiplayer.MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, UpdateOxygenMsg>(OnUpdateOxygen, MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncCharacter, UpdateStatsMsg>(OnUpdateStat, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, RefillFromBottleMsg>(OnRefillFromBottle, MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, PlaySecondarySoundMsg>(OnSecondarySoundPlay, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
@@ -1010,18 +1011,33 @@ namespace Sandbox.Game.Multiplayer
 
         #endregion
 
-        public void UpdateOxygen(float oxygenAmount)
+        public enum UpdateStatEnum
         {
-            var msg = new UpdateOxygenMsg();
+            HEALTH = 0,
+            OXYGEN
+        }
+
+        public void UpdateStat(UpdateStatEnum stat, float amount)
+        {
+            var msg = new UpdateStatsMsg();
             msg.CharacterEntityId = Entity.EntityId;
-            msg.OxygenAmount = oxygenAmount;
+            msg.Stat = (ushort)stat;
+            msg.Amount = amount;
 
             Sync.Layer.SendMessageToAll(ref msg);
         }
 
-        private static void OnUpdateOxygen(MySyncCharacter syncObject, ref UpdateOxygenMsg message, MyNetworkClient sender)
+        private static void OnUpdateStat(MySyncCharacter syncObject, ref UpdateStatsMsg msg, MyNetworkClient sender)
         {
-            syncObject.Entity.SuitOxygenAmount = message.OxygenAmount;
+            switch((UpdateStatEnum)msg.Stat)
+            {
+                case UpdateStatEnum.HEALTH:
+                    syncObject.Entity.SetHealth(msg.Amount, false);
+                    break;
+                case UpdateStatEnum.OXYGEN:
+                    syncObject.Entity.SuitOxygenAmount = msg.Amount;
+                    break;
+            }
         }
 
         public void SendRefillFromBottle()
