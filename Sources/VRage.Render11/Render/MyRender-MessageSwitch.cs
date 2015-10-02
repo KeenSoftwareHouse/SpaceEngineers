@@ -1097,7 +1097,10 @@ namespace VRageRender
                     MyEnvironment.SunSizeMultiplier = rMessage.SunSizeMultiplier;
                     MyEnvironment.SunBillboardEnabled = rMessage.SunBillboardEnabled;
 
-                    var skybox = rMessage.BackgroundTexture;
+                    MyEnvironment.DaySkybox = rMessage.BackgroundTexture;
+                    MyEnvironment.DaySkyboxPrefiltered = String.Empty;
+                    MyEnvironment.NightSkybox = rMessage.BackgroundTexture;
+                    MyEnvironment.NightSkyboxPrefiltered = String.Empty;
 
                     m_resetEyeAdaptation = m_resetEyeAdaptation || rMessage.ResetEyeAdaptation;
 
