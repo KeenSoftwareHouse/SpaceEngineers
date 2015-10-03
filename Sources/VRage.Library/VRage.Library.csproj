@@ -114,6 +114,7 @@
     <Compile Include="Collections\MyUniqueList.cs" />
     <Compile Include="Collections\SerializableDictionary.cs" />
     <Compile Include="Collections\StackReader.cs" />
+    <Compile Include="Compiler\IlCompilerErrorInfo.cs" />
     <Compile Include="Compiler\IlCompiler.cs" />
     <Compile Include="Compiler\IlInjector.cs" />
     <Compile Include="Compiler\TestScriptHelpers.cs" />

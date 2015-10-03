@@ -39,7 +39,7 @@ namespace Sandbox.Game.Gui
         private MyGuiControlLabel m_TextTooLongMessage;
         private MyGuiControlLabel m_LetterCounter;
         private MyGuiControlMultilineEditableText m_editorWindow;
-        List<string> m_compilerErrors = new List<string>();
+        List<IlCompilerErrorMessage> m_compilerErrors = new List<IlCompilerErrorMessage>();
         Action m_saveCodeCallback = null;
 
         public MyGuiScreenEditor(
@@ -149,12 +149,12 @@ namespace Sandbox.Game.Gui
                     compilerErrors += FormatError(error) + "\n";
                 }
                 var errorListScreen = new MyGuiScreenMission(missionTitle: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailed),
-                currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorList),
-                currentObjective: "",
-                description: compilerErrors,
-                canHideOthers: false,
-                enableBackgroundFade:true,
-                style: MyMissionScreenStyleEnum.RED);
+                    currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorList),
+                    currentObjective: "",
+                    description: compilerErrors,
+                    canHideOthers: false,
+                    enableBackgroundFade: true,
+                    style: MyMissionScreenStyleEnum.RED);
 
                 MyScreenManager.AddScreen(errorListScreen);
             }
@@ -175,36 +175,23 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        string FormatError(string error)
+        static string FormatError(IlCompilerErrorMessage error)
         {
-            char[] sepators = new char[] { ':', ')', '(',',' };
-            string[] errorParts = error.Split(sepators);
-            if (errorParts.Length > 2)
+            if (error.Line.HasValue)
             {
-                int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
-                string description = errorParts[6];
-                for (int i = 7; i < errorParts.Count(); ++i)
-                {
-                    if (string.IsNullOrWhiteSpace(errorParts[i]))
-                    {
-                        continue;
-                    }
-                    description += "," + errorParts[i];
-                }
-                return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat), line, description);
+                return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat),
+                    error.Line,
+                    error.Message);
             }
-            else
-            {
-                return error;
-            }
+            return error.Message;
         }
 
-        public static bool CompileProgram(string program, List<string> errors,ref Assembly assembly)
+        public static bool CompileProgram(string program, List<IlCompilerErrorMessage> errors, ref Assembly assembly)
         {
-            if (program != null && program.Length > 0)
+            if (!String.IsNullOrEmpty(program))
             {
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
-                if (true == IlCompiler.CompileStringIngame("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
+                if (IlCompiler.CompileStringIngame("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
                 {
                     return true;
                 }

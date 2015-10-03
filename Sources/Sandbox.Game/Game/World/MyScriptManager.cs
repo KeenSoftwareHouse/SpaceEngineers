@@ -37,7 +37,7 @@ namespace Sandbox.Game.World
 		public Dictionary<string, Type> StatScripts = new Dictionary<string, Type>();
         public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(MyStringId.Comparer); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>(MyStringId.Comparer);
-        private List<string> m_errors = new List<string>();
+        private List<IlCompilerErrorMessage> m_errors = new List<IlCompilerErrorMessage>();
         private List<string> m_cachedFiles = new List<string>();
         static Dictionary<string, bool> testFiles = new Dictionary<string, bool>();
 
