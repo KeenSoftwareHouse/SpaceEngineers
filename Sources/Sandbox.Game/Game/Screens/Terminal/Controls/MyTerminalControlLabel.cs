@@ -9,7 +9,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Terminal.Controls
 {
-    public class MyTerminalControlLabel<TBlock> : MyTerminalValueControl<TBlock, bool>       
+    public class MyTerminalControlLabel<TBlock> : MyTerminalValueControl<TBlock, string>       
         where TBlock : MyTerminalBlock
     {
         public readonly MyStringId Label;
@@ -26,30 +26,29 @@ namespace Sandbox.Game.Screens.Terminal.Controls
             return new MyGuiControlBlockProperty(MyTexts.GetString(Label), null, m_label, MyGuiControlBlockPropertyLayoutEnum.Horizontal);
         }
 
-
-
-        public override bool GetValue(TBlock block)
+        public override string GetValue(TBlock block)
         {
-            return true;
+            return MyTexts.GetString(Label);
         }
 
-        public override void SetValue(TBlock block, bool value)
+        // label is readonly
+        public override void SetValue(TBlock block, string value)
         {
         }
 
-        public override bool GetDefaultValue(TBlock block)
+        public override string GetDefaultValue(TBlock block)
         {
-            return false;
+            return "";
         }
 
-        public override bool GetMininum(TBlock block)
+        public override string GetMininum(TBlock block)
         {
-            return false;
+            return "";
         }
 
-        public override bool GetMaximum(TBlock block)
+        public override string GetMaximum(TBlock block)
         {
-            return true;
+            return "";
         }
     }
 }

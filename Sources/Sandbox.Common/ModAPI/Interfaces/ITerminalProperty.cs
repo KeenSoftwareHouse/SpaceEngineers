@@ -58,6 +58,11 @@ namespace Sandbox.ModAPI.Interfaces
             return property.As<bool>();
         }
 
+        public static ITerminalProperty<string> AsString(this ITerminalProperty property)
+        {
+            return property.As<string>();
+        }
+
         public static float GetValueFloat(this Ingame.IMyTerminalBlock block, string propertyId)
         {
             return block.GetValue<float>(propertyId);
@@ -76,6 +81,16 @@ namespace Sandbox.ModAPI.Interfaces
         public static void SetValueBool(this Ingame.IMyTerminalBlock block, string propertyId, bool value)
         {
             block.SetValue<bool>(propertyId, value);
+        }
+
+        public static string GetValueString(this Ingame.IMyTerminalBlock block, string propertyId)
+        {
+            return block.GetValue<string>(propertyId);
+        }
+
+        public static void SetValueString(this Ingame.IMyTerminalBlock block, string propertyId, string value)
+        {
+            block.SetValue<string>(propertyId, value);
         }
 
         public static void SetValue<T>(this Ingame.IMyTerminalBlock block, string propertyId, T value)
