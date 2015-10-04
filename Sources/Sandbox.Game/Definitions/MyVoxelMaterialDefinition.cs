@@ -16,6 +16,8 @@ namespace Sandbox.Definitions
         public float MinedOreRatio;
         public bool CanBeHarvested;
         public bool IsRare;
+        public string MaterialType;
+        public int SpawnFrequencyWeight;
         public float DamageRatio;
         public int MinVersion;
         public bool SpawnsInAsteroids;
@@ -64,6 +66,8 @@ namespace Sandbox.Definitions
             this.MinedOreRatio          = builder.MinedOreRatio;
             this.CanBeHarvested         = builder.CanBeHarvested;
             this.IsRare                 = builder.IsRare;
+            this.MaterialType           = builder.MaterialType;
+            this.SpawnFrequencyWeight   = builder.SpawnFrequencyWeight;
             this.SpawnsInAsteroids      = builder.SpawnsInAsteroids;
             this.SpawnsFromMeteorites   = builder.SpawnsFromMeteorites;
             this.DamageRatio            = builder.DamageRatio;
@@ -85,6 +89,8 @@ namespace Sandbox.Definitions
             ob.MinedOreRatio            = this.MinedOreRatio;
             ob.CanBeHarvested           = this.CanBeHarvested;
             ob.IsRare                   = this.IsRare;
+            ob.MaterialType             = this.MaterialType;
+            ob.SpawnFrequencyWeight     = this.SpawnFrequencyWeight;
             ob.SpawnsInAsteroids        = this.SpawnsInAsteroids;
             ob.SpawnsFromMeteorites     = this.SpawnsFromMeteorites;
             ob.DamageRatio              = this.DamageRatio;
