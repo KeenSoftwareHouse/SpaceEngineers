@@ -203,15 +203,18 @@ namespace Sandbox.Graphics.GUI
                     }
                     else if (character == TAB)
                     {
-                        m_currentCarriageLine = CalculateNewCarriageLine(CarriagePositionIndex);
-                        m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
-                        AddToUndo(m_text.ToString());
-                        var missingChars = TAB_SIZE - (m_currentCarriageColumn % TAB_SIZE);
-                        for (int i = 0; i < missingChars; ++i)
+                        if (!MyInput.Static.IsAnyShiftKeyPressed())
                         {
-                            InsertChar(' ');
+                            m_currentCarriageLine = CalculateNewCarriageLine(CarriagePositionIndex);
+                            m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
+                            AddToUndo(m_text.ToString());
+                            var missingChars = TAB_SIZE - (m_currentCarriageColumn % TAB_SIZE);
+                            for (int i = 0; i < missingChars; ++i)
+                            {
+                                InsertChar(' ');
+                            }
+                            textChanged = missingChars > 0;
                         }
-                        textChanged = missingChars > 0;
                     }
                 }
                 else
