@@ -805,6 +805,7 @@
     <Compile Include="ModAPI\MyGridTerminalSystem_ModAPI.cs" />
     <Compile Include="ModAPI\MyLargeTurretBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyLaserAntenna_ModAPI.cs" />
+    <Compile Include="ModAPI\MyOxygenBottle_ModAPI.cs" />
     <Compile Include="ModAPI\MyVoxelShapes_ModAPI.cs" />
     <Compile Include="Game\EntityComponents\Renders\MyRenderComponentEnvironmentItems.cs" />
     <Compile Include="MySplashScreen.cs">
