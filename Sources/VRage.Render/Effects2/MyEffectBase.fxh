@@ -389,7 +389,7 @@ float4 UnpackTangent(float4 packedTangent)
 	// clear last bit of Y
 	if(z_sign > 0)
 		packedTangent.y -= 128.0f;
-	if(sign)
+	if(sign > 0)
 		packedTangent.w -= 128.0f;
 
 	// construct X and Y into format <0, 32767>

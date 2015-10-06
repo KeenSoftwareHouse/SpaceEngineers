@@ -14,6 +14,8 @@ namespace Sandbox.Engine.Utils
 {
     public static class MyBattleHelper
     {
+        public const int MAX_BATTLE_PLAYERS = 32;
+
         private static List<MySlimBlock> m_tmpBlocks = new List<MySlimBlock>();
 
         public static ulong GetBattlePoints(MyCubeGrid grid)
@@ -118,8 +120,8 @@ namespace Sandbox.Engine.Utils
 
         public static ulong GetBattlePoints(MyDefinitionId defId)
         {
-            MyCubeBlockDefinition definition = MyDefinitionManager.Static.GetCubeBlockDefinition(defId);
-            if (definition == null)
+            MyCubeBlockDefinition definition;
+            if (!MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out definition))
             {
                 Debug.Fail("No cube block definition found to get battle points");
                 return 0;
@@ -132,12 +134,12 @@ namespace Sandbox.Engine.Utils
             return (ulong)(definition.Points > 0 ? definition.Points : 1);
         }
 
-        public static void FillDefaultBattleServerSettings(MyObjectBuilder_SessionSettings settings)
+        public static void FillDefaultBattleServerSettings(MyObjectBuilder_SessionSettings settings, bool dedicated)
         {
             settings.GameMode = MyGameModeEnum.Survival;
             settings.Battle = true;
             settings.OnlineMode = MyOnlineModeEnum.PUBLIC;
-            settings.MaxPlayers = 6;
+            settings.MaxPlayers = dedicated ? (short)MAX_BATTLE_PLAYERS : (short)6;
             settings.PermanentDeath = false;
             settings.AutoSave = false;
 

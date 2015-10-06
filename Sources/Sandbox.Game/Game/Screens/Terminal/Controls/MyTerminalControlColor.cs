@@ -10,17 +10,15 @@ using Sandbox.Game.World;
 using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.Utils;
 using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Game.Localization;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
     class MyTerminalControlColor<TBlock> : MyTerminalValueControl<TBlock, Color>
         where TBlock : MyTerminalBlock
     {
-        public Func<TBlock, Color> Getter;
-        public Action<TBlock, Color> Setter;
-
         public readonly MyStringId Title;
 
         private MyGuiControlColor m_color;
@@ -30,11 +28,12 @@ namespace Sandbox.Game.Gui
             : base(id)
         {
             Title = title;
+            Serializer = delegate(BitStream stream, ref Color value) { stream.Serialize(ref value.PackedValue); };
         }
 
         protected override MyGuiControlBase CreateGui()
         {
-            m_color = new MyGuiControlColor(MyTexts.Get(Title), 0.95f, Vector2.Zero, Color.White, Color.White, placeSlidersVertically: true);
+            m_color = new MyGuiControlColor(MyTexts.Get(Title), 0.95f, Vector2.Zero, Color.White, Color.White, MySpaceTexts.DialogAmount_SetValueCaption, placeSlidersVertically: true);
             m_changeColor = OnChangeColor;
             m_color.OnChange += m_changeColor;
             m_color.Size = new Vector2(PREFERRED_CONTROL_WIDTH, m_color.Size.Y);
@@ -44,7 +43,7 @@ namespace Sandbox.Game.Gui
         void OnChangeColor(MyGuiControlColor obj)
         {
             foreach (var item in TargetBlocks)
-                Setter(item, obj.GetColor());
+                SetValue(item, obj.GetColor());
         }
 
         protected override void OnUpdateVisual()
@@ -54,19 +53,14 @@ namespace Sandbox.Game.Gui
             if (first != null)
             {
                 m_color.OnChange -= m_changeColor;
-                m_color.SetColor(Getter(first));
+                m_color.SetColor(GetValue(first));
                 m_color.OnChange += m_changeColor;
             }
         }
 
-        public override Color GetValue(TBlock block)
-        {
-            return Getter(block);
-        }
-
         public override void SetValue(TBlock block, Color value)
         {
-            Setter(block, new Color(Vector4.Clamp(value.ToVector4(), Vector4.Zero, Vector4.One)));
+            base.SetValue(block, new Color(Vector4.Clamp(value.ToVector4(), Vector4.Zero, Vector4.One)));
         }
 
         public override Color GetDefaultValue(TBlock block)

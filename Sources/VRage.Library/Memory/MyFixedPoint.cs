@@ -174,6 +174,11 @@ namespace VRage
             return a;
         }
 
+        public static MyFixedPoint operator-(MyFixedPoint a)
+        {
+            return new MyFixedPoint(-a.RawValue);
+        }
+
         public static bool operator <(MyFixedPoint a, MyFixedPoint b)
         {
             return a.RawValue < b.RawValue;

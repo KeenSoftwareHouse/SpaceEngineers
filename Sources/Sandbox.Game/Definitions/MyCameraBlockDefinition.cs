@@ -1,6 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
-
-using Sandbox.Engine.Utils;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -8,6 +6,7 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_CameraBlockDefinition))]
     public class MyCameraBlockDefinition : MyCubeBlockDefinition
     {
+	    public string ResourceSinkGroup;
         public float RequiredPowerInput;
         public string OverlayTexture;
 
@@ -20,6 +19,7 @@ namespace Sandbox.Definitions
 
             var obCamera = builder as MyObjectBuilder_CameraBlockDefinition;
             MyDebug.AssertDebug(obCamera != null, "Initializing camera definition using wrong object builder.!");
+	        ResourceSinkGroup = obCamera.ResourceSinkGroup;
             RequiredPowerInput = obCamera.RequiredPowerInput;
             OverlayTexture = obCamera.OverlayTexture;
 

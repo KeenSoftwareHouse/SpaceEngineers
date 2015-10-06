@@ -74,6 +74,12 @@ namespace Sandbox.Game.Gui
         }
 
         static float m_shortcutsOffset = 0;
+
+        public static float VerticalTextOffset
+        {
+            get { return m_shortcutsOffset; }
+        }
+
         static HashSet<UInt16> m_enabledShortcutKeys = new HashSet<ushort>();
 
         SortedSet<MyShortcut> m_shortCuts = new SortedSet<MyShortcut>(MyShortcutComparer.Static);

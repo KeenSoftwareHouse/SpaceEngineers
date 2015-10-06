@@ -15,6 +15,8 @@ using Sandbox.Game.World;
 using SteamSDK;
 using VRage.Trace;
 using VRage.Utils;
+using VRage.Network;
+using VRage.Library.Utils;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -37,8 +39,11 @@ namespace Sandbox.Engine.Multiplayer
     {
         [ProtoBuf.ProtoMember]
         public string Text;
-    }
 
+        [ProtoBuf.ProtoMember]
+        public ulong Author; // Ignored when sending message from client to server
+    }
+    
     public enum JoinResult
     {
         OK,
@@ -93,7 +98,7 @@ namespace Sandbox.Engine.Multiplayer
     #endregion
 
 
-    public abstract class MyDedicatedServerBase : MyMultiplayerBase
+    public abstract class MyDedicatedServerBase : MyMultiplayerServerBase
     {
         #region Fields
 
@@ -234,6 +239,7 @@ namespace Sandbox.Engine.Multiplayer
         protected MyDedicatedServerBase(MySyncLayer syncLayer)
             : base(syncLayer)
         {
+            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
         }
 
         protected void Initialize(IPEndPoint serverEndpoint)
@@ -244,8 +250,8 @@ namespace Sandbox.Engine.Multiplayer
 
             HostName = "Dedicated server";
 
-            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.Any);
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
+            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             m_membersCollection = new MemberCollection(m_members);
             SetMemberLimit(MaxPlayers);
@@ -410,9 +416,9 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyLog.Default.WriteLineAndConsole("Server ValidateAuthTicketResponse (" + response.ToString() + "), owner: " + steamOwner.ToString());
 
-            if (response == AuthSessionResponseEnum.k_EAuthSessionResponseOK)
+            if (response == AuthSessionResponseEnum.OK)
             {
-                if (MemberLimit > 0 && m_members.Count >= MemberLimit)
+                if (MemberLimit > 0 && m_members.Count - 1 >= MemberLimit) // Unfortunately, DS counds into the members, so subtract it
                 {
                     UserRejected(steamID, JoinResult.ServerFull);
                 }
@@ -439,25 +445,25 @@ namespace Sandbox.Engine.Multiplayer
                 JoinResult joinResult = JoinResult.TicketInvalid;
                 switch (response)
                 {
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseAuthTicketCanceled:
+                    case AuthSessionResponseEnum.AuthTicketCanceled:
                         joinResult = JoinResult.TicketCanceled;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseAuthTicketInvalidAlreadyUsed:
+                    case AuthSessionResponseEnum.AuthTicketInvalidAlreadyUsed:
                         joinResult = JoinResult.TicketAlreadyUsed;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseLoggedInElseWhere:
+                    case AuthSessionResponseEnum.LoggedInElseWhere:
                         joinResult = JoinResult.LoggedInElseWhere;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseNoLicenseOrExpired:
+                    case AuthSessionResponseEnum.NoLicenseOrExpired:
                         joinResult = JoinResult.NoLicenseOrExpired;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseUserNotConnectedToSteam:
+                    case AuthSessionResponseEnum.UserNotConnectedToSteam:
                         joinResult = JoinResult.UserNotConnected;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseVACBanned:
+                    case AuthSessionResponseEnum.VACBanned:
                         joinResult = JoinResult.VACBanned;
                         break;
-                    case AuthSessionResponseEnum.k_EAuthSessionResponseVACCheckTimedOut:
+                    case AuthSessionResponseEnum.VACCheckTimedOut:
                         joinResult = JoinResult.VACCheckTimedOut;
                         break;
                 }
@@ -615,9 +621,13 @@ namespace Sandbox.Engine.Multiplayer
         {
             ChatMsg msg = new ChatMsg();
             msg.Text = text;
+            msg.Author = MySteam.UserId;
 
-            SendControlMessageToAllAndSelf(ref msg);
+            // This will send the message to every client except message author
+            OnChatMessage(ref msg, MySteam.UserId);
         }
+
+        protected abstract void OnChatMessage(ref ChatMsg msg, ulong sender);
 
         public void SendJoinResult(ulong sendTo, JoinResult joinResult, ulong adminID = 0)
         {
@@ -763,7 +773,7 @@ namespace Sandbox.Engine.Multiplayer
             }
 
             AuthSessionResponseEnum res = SteamSDK.SteamServerAPI.Instance.GameServer.BeginAuthSession(msg.SteamID, msg.Token);
-            if (res != AuthSessionResponseEnum.k_EAuthSessionResponseOK)
+            if (res != AuthSessionResponseEnum.OK)
             {
                 MyLog.Default.WriteLineAndConsole("Authentication failed (" + res.ToString() + ")");
                 SendJoinResult(msg.SteamID, JoinResult.TicketInvalid);

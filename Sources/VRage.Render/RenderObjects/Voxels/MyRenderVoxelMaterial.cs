@@ -1,5 +1,6 @@
 ﻿using VRage;
 using VRage.Utils;
+using VRageMath;
 using VRageRender.Textures;
 using VRageRender.Utils;
 
@@ -19,6 +20,13 @@ namespace VRageRender
         public float SpecularIntensity { get; set; }
         public float SpecularPower { get; set; }
         public bool UseFlag;
+        
+        public Vector4 DistancesAndScale;
+        public Vector4 DistancesAndScaleFar;
+        public Vector2 DistancesAndScaleFar3;
+        public Color Far3Color;
+        public float ExtensionDetailScale;
+
 
         byte m_materialIndex;
         MyVoxelMaterialTextures m_textures;
@@ -26,6 +34,7 @@ namespace VRageRender
         string m_diffuseY;
         string m_normalXZ;
         string m_normalY;
+
         
         //  Parameter 'useTwoTexturesPerMaterial' tells us if we use two textures per material. One texture for axis XZ and second for axis Y.
         //  Use it for rock/stone materials. Don't use it for gold/silver, because there you don't need to make difference between side and bottom materials.
@@ -42,6 +51,12 @@ namespace VRageRender
             SpecularIntensity = data.SpecularShininess;
             SpecularPower = data.SpecularPower;
             m_materialIndex = data.Index;
+
+            DistancesAndScale = data.DistanceAndScale;
+            DistancesAndScaleFar = data.DistanceAndScaleFar;
+            ExtensionDetailScale = data.ExtensionDetailScale;
+            DistancesAndScaleFar3 = data.DistanceAndScaleFar3;
+            Far3Color = data.Far3Color;
         }
 
         //

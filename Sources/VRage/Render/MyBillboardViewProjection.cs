@@ -9,6 +9,5 @@ namespace VRageRender
         public MyViewport Viewport;
         public VRageMath.Vector3D CameraPosition;
         public bool DepthRead;
-        public float FarPlane;
     }
 }

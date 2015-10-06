@@ -75,7 +75,10 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             m_simulator.ForceRecalc();
         }
 
-
+        public void ForceRecalculation()
+        {
+            m_simulator.ForceRecalc();
+        }
 
         private int DestructionDelay = 10;
         private int m_destructionDelayCounter = 0;

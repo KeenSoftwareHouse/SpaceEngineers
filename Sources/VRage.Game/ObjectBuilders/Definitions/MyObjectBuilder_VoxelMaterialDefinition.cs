@@ -15,6 +15,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_VoxelMaterialDefinition : MyObjectBuilder_DefinitionBase
     {
+		[ProtoMember]
+		public string MaterialTypeName = "Rock";
+
         [ProtoMember]
         public string MinedOre;
         
@@ -72,5 +75,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public bool SpawnsFlora = false;
+
+        [ProtoMember]
+        [XmlArrayItem("Channel")]
+        public int[] SpawnChannels;
     }
+
 }

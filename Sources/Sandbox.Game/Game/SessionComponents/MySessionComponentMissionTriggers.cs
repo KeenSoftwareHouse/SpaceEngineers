@@ -13,6 +13,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems;
+using Sandbox.Engine.Networking;
 
 namespace Sandbox.Game.SessionComponents
 {
@@ -86,7 +87,10 @@ namespace Sandbox.Game.SessionComponents
             if (!mtrig.Won)
                 mtrig.UpdateLose(player, entity);
             else
+            {
                 m_someoneWon = true;
+                MyAnalyticsHelper.ReportTutorialEnd();
+            }
             return mtrig.Lost;
         }
 

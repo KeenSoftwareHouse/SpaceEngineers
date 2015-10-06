@@ -52,7 +52,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MySyncLayer.RegisterMessage<ChangeRadioAntennaMsg>(ChangeRadioBroadcasterRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeRadioAntennaMsg>(ChangeRadioBroadcasterSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ChangeRadioAntennaDisplayNameMsg>(ChangeRadioAntennaDisplayName, MyMessagePermissions.Any);
+            MySyncLayer.RegisterMessage<ChangeRadioAntennaDisplayNameMsg>(ChangeRadioAntennaDisplayName, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
         }
 
         public MySyncRadioBroadcaster(MyRadioBroadcaster broadcaster)
@@ -89,14 +89,20 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_broadcaster.Parent.EntityId;
             msg.ShowShipName = showShipName;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Request);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Request);
         }
 
         static void ChangeRadioAntennaDisplayName(ref ChangeRadioAntennaDisplayNameMsg msg, MyNetworkClient sender)
         {
             MyEntity entity;
             if (MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            {
                 (entity as MyRadioAntenna).ShowShipName = msg.ShowShipName;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
+            }
         
         }
 

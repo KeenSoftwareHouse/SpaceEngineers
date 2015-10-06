@@ -76,6 +76,8 @@
     <Compile Include="Components\MyPhysicsComponentBase.cs" />
     <Compile Include="Components\MyPositionComponentBase.cs" />
     <Compile Include="Components\MyRenderComponentBase.cs" />
+    <Compile Include="Components\MyResourceSinkComponentBase.cs" />
+    <Compile Include="Components\MyResourceSourceComponentBase.cs" />
     <Compile Include="Components\MySyncComponentBase.cs" />
     <Compile Include="Components\MyUseObjectsComponentBase.cs" />
     <Compile Include="Entity\MyEntityIdentifier.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeSelectorNode.cs" />
     <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeSequenceNode.cs" />
     <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BotMemory.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryBool.cs" />
     <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryFloat.cs" />
     <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryInt.cs" />
     <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryLong.cs" />
@@ -104,6 +107,7 @@
     <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_Bot.cs" />
     <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_HumanoidBot.cs" />
     <Compile Include="ObjectBuilders\AI\Events\MyObjectBuilder_BarbarianWaveEvent.cs" />
+    <Compile Include="ObjectBuilders\AI\MyAIBehaviorData.cs" />
     <Compile Include="ObjectBuilders\AI\MyObjectBuilder_AiTarget.cs" />
     <Compile Include="ObjectBuilders\Audio\MyAudioDefinition.cs" />
     <Compile Include="ObjectBuilders\Audio\MyCurveDefinition.cs" />
@@ -123,18 +127,25 @@
     <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_WheelBlock.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventory.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventoryAggregate.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterSoundComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterStatComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentContainer.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityStatComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_FractureComponentCubeBlock.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_FractureComponentBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryAggregate.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryBase.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_RespawnComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_UseObjectsComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_AIComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BarbarianComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BattleSystemComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_FloraComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_PirateAntennas.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ScriptManager.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TimerComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_WeatherComponent.cs" />
     <Compile Include="ObjectBuilders\Conveyors\SerializableLineSectionInformation.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AiCommandBehaviorDefinition.cs" />
@@ -159,9 +170,13 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AmmoMagazineDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AnimalBotDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AnimationDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DestructionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PirateAntennaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AssemblerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BatteryBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BattleDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BeaconDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlueprintClassDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BotDefinition.cs" />
@@ -174,6 +189,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelsBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentSubstitutionDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompositeBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompoundBlockTemplateDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Configuration.cs" />
@@ -186,6 +202,9 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CubeBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebrisDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere3Definition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere2Definition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere1Definition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DecalDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionBase.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Definitions.cs" />
@@ -200,6 +219,8 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Faction.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FireLightBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FracturedBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasContainerObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasProperties.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GlobalEventDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorSphereDefinition.cs" />
@@ -214,7 +235,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LightingBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LockableDrumDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LockBlockDefinition.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MaterialSoundsDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MaterialPropertiesDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalSourceBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalSubBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalTransferBlockDefinition.cs" />
@@ -231,19 +252,21 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenFarmDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenGeneratorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasTankDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenTankDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalModelDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PistonBaseDefinition.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetGeneratorDefinition.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetPrefabDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PoweredCargoContainerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PowerProducerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabThrowerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProductionBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProgrammableBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProjectileAmmoDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProjectorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RadioAntennaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ReactorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RefineryDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ReflectorBlockDefinition.cs" />
@@ -252,11 +275,13 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RopeDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinitions.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScriptedGroupDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SensorBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipControllerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipDrillDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SolarPanelDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SoundBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SoundCategoryDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpaceBallDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpawnGroupDefinition.cs" />
@@ -264,6 +289,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SwitchBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TextPanelDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ThrustDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TimerBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ToolItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TorsionSpringBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TransparentMaterialDefinition.cs" />
@@ -315,6 +341,8 @@
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiScreen.cs" />
     <Compile Include="ObjectBuilders\MyCharacterName.cs" />
     <Compile Include="ObjectBuilders\MyComponentBlockEntry.cs" />
+    <Compile Include="ObjectBuilders\MyGroupedIds.cs" />
+    <Compile Include="ObjectBuilders\MyMappedId.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AdvancedDoor.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightDoorGeneric.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightHangarDoor.cs" />
@@ -358,6 +386,9 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubeGrid.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubePlacer.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere3.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere2.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere1.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Decoy.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItem.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItems.cs" />
@@ -367,6 +398,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Encounters.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStat.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogicGrassland.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentItems.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FactionCollection.cs" />
@@ -375,6 +407,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FunctionalBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GasTank.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GlobalEventBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GlobalEvents.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Gps.cs" />
@@ -467,6 +500,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAnimation.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemBot.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemCubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemEmpty.cs" />
@@ -491,13 +525,15 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Welder.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Wheel.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_World.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ResourceDistributionGroup.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_TreesMedium.cs" />
-    <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_Planet.cs" />
     <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_VoxelMap.cs" />
     <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
     <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
+    <Compile Include="ObjectBuilder\DynamicObjectBuilderAttribute.cs" />
     <Compile Include="ObjectBuilder\MyAbstractXmlSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderDynamicSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
     <Compile Include="ObjectBuilder\MyObjectFactory.cs" />
@@ -505,6 +541,7 @@
     <Compile Include="ObjectBuilder\MyObjectBuilder_EntityBase.cs" />
     <Compile Include="ObjectBuilder\SerializableDefinitionId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Systems\MyGroupScriptBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Character\" />

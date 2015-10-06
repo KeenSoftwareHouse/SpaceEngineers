@@ -38,7 +38,7 @@ namespace Sandbox.Engine.Physics
                 if (group.Small != null && group.Small.Public)
                 {
                     AllocateForDefinition(group.Small.Model, group.Small, PREALLOCATE_COUNT);
-                    foreach (var model in group.Large.BuildProgressModels)
+                    foreach (var model in group.Small.BuildProgressModels)
                         AllocateForDefinition(model.File, group.Small, PREALLOCATE_COUNT);
                 }
             }
@@ -52,7 +52,7 @@ namespace Sandbox.Engine.Physics
             var data = MyModels.GetModelOnlyData(model);
             if (MyFakes.LAZY_LOAD_DESTRUCTION && data.HavokBreakableShapes == null)
             {
-                MyDestructionData.Static.LoadModelDestruction(model, definition, false, data.BoundingBoxSize);
+                MyDestructionData.Static.LoadModelDestruction(model, definition, data.BoundingBoxSize);
             }               
             if (data.HavokBreakableShapes != null && data.HavokBreakableShapes.Length > 0)
             {

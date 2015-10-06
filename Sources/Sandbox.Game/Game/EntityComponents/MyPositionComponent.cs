@@ -35,7 +35,7 @@ namespace Sandbox.Game.Components
             {
                 m_localAABB = value;
                 m_localVolume = BoundingSphere.CreateFromBoundingBox(m_localAABB);
-                UpdateWorldVolume();
+                m_worldVolumeDirty = true;
                 Container.Entity.UpdateGamePruningStructure();
             }
         }
@@ -100,158 +100,171 @@ namespace Sandbox.Game.Components
         /// </summary>
         /// <param name="worldMatrix">The world matrix.</param>
         /// <param name="source">The source object that caused this change or null when not important.</param>
-        public override void SetWorldMatrix(MatrixD worldMatrix, object source = null)
+        public override void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false)
         {
+            if (Entity.Parent != null && source != Entity.Parent)
+                return;
             MyUtils.AssertIsValid(worldMatrix);
 
-            ProfilerShort.Begin("Scale");
             if (Scale != null)
             {
+                //ProfilerShort.Begin("Scale");
                 MyUtils.Normalize(ref worldMatrix, out worldMatrix);
                 worldMatrix = MatrixD.CreateScale(Scale.Value) * worldMatrix;
+                //ProfilerShort.End();
             }
-            ProfilerShort.End();
-            MatrixD localMatrix = MatrixD.Identity;
+            if (m_worldMatrix.EqualsFast(ref worldMatrix) && !forceUpdate)
+                return;
+
+            //MatrixD localMatrix;
+
+
+            //m_previousWorldMatrix = this.m_worldMatrix;
 
             if (this.Container.Entity.Parent == null)
             {
-                m_previousParentWorldMatrix = this.m_worldMatrix;
-                this.m_worldMatrix = worldMatrix;
-                localMatrix = worldMatrix;
+                m_localMatrix = worldMatrix;
             }
             else
             {
-               MatrixD matParentInv = MatrixD.Invert(this.Container.Entity.Parent.WorldMatrix);
-               localMatrix = (Matrix)(worldMatrix * matParentInv);
+               //MatrixD matParentInv = MatrixD.Invert();
+               m_localMatrix = (Matrix)(worldMatrix * this.Container.Entity.Parent.WorldMatrixInvScaled);
             }
+            this.m_worldMatrix = worldMatrix;
 
-            ProfilerShort.Begin("EqualsFast");
-            if (!m_localMatrix.EqualsFast(ref localMatrix) || !m_previousParentWorldMatrix.EqualsFast(ref worldMatrix))
+            //ProfilerShort.Begin("EqualsFast");
+            //if (/*!m_localMatrix.EqualsFast(ref localMatrix) ||*/ !m_previousWorldMatrix.EqualsFast(ref worldMatrix))
             {
-                ProfilerShort.BeginNextBlock("UpdateWM");
-                m_localMatrixChanged = true;
-                this.m_localMatrix = localMatrix;
-                UpdateWorldMatrix(source);
-                ProfilerShort.BeginNextBlock("sync");
+                //ProfilerShort.BeginNextBlock("UpdateWM");
+                //m_localMatrixChanged = true;
+                //this.m_localMatrix = localMatrix;
+                OnWorldPositionChanged(source);
+                //ProfilerShort.BeginNextBlock("sync");
                 if (MyPerGameSettings.MultiplayerEnabled)
                 {
                     if (this.Container.Entity.InScene && source != m_syncObject && ShouldSync && this.Container.Entity.Parent == null)
                     {
-                        m_syncObject.UpdatePosition();
+                        m_syncObject.MarkPhysicsDirty();
                     }
                 }
             }
-            ProfilerShort.End();
+            //ProfilerShort.End();
         }
 
         /// <summary>
         /// Updates the world matrix (change caused by this entity)
         /// </summary>
-        public override void UpdateWorldMatrix(object source = null)
-        {
-            if (this.Container.Entity.Parent != null)
-            {
-                MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
-                UpdateWorldMatrix(ref parentWorldMatrix, source);
-                return;
-            }
+        //protected override void UpdateWorldMatrix(object source = null)
+        //{
 
-            //UpdateWorldVolume();
-            ProfilerShort.Begin("OnChanged");
-            OnWorldPositionChanged(source);
+        //    //if (this.Container.Entity.Parent != null)
+        //    //{
+        //    //    //ProfilerShort.Begin("Parent!=null");
+        //    //    MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
+        //    //    UpdateWorldMatrix(ref parentWorldMatrix, source);
+        //    //    //ProfilerShort.End();
+        //    //    return;
+        //    //}
 
-            ProfilerShort.BeginNextBlock("Physics.Onchanged");
-            if (this.Container.Entity.Physics != null && this.m_physics.Enabled && this.m_physics != source)
-            {
-                this.m_physics.OnWorldPositionChanged(source);
-            }
-            ProfilerShort.End();
-            m_normalizedInvMatrixDirty = true;
-            m_invScaledMatrixDirty = true;
-            // NotifyEntityChange(source);
-        }
+        //    if (Entity.Parent == null)
+        //    {
+        //        MyGamePruningStructure.Move(Container.Entity as MyEntity);
+        //        OnWorldPositionChanged(source);
+        //    }
+        //    else
+        //    {
+        //        var parentWM = Entity.Parent.PositionComp.WorldMatrix;
+        //        UpdateWorldMatrix(ref parentWM, source);
+        //    }
 
-        /// <summary>
-        /// Updates the world matrix (change caused by parent)
-        /// </summary>
-        public override void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
-        {
-            if (!m_previousParentWorldMatrix.EqualsFast(ref parentWorldMatrix) || m_localMatrixChanged)
-			{
-		//		if (this.Entity is MyCubeBlock && !(this.Entity is MyCompoundCubeBlock)) Debugger.Break();
+        //    //Container.Entity.Render.InvalidateRenderObjects();
 
-                m_localMatrixChanged = false;
-                MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
-                m_previousParentWorldMatrix = parentWorldMatrix;
-                OnWorldPositionChanged(source);
+        //    //UpdateChildren(source); //update children WMs
+        //    //SetDirty(); //we dont update world volumes and stuff
 
-                if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
-                {
-                    this.m_physics.OnWorldPositionChanged(source);
-                }
+        //    //UpdateWorldVolume();
+        //    //ProfilerShort.Begin("OnChanged");
+        //    //OnWorldPositionChanged(source);
 
-                m_normalizedInvMatrixDirty = true;
-                m_invScaledMatrixDirty = true;
-           }
+        //    //ProfilerShort.BeginNextBlock("Physics.Onchanged");
 
-            //NotifyEntityChange(source);
-        }
+        //    //ProfilerShort.End();
+        //    //m_normalizedInvMatrixDirty = true;
+        //    //m_invScaledMatrixDirty = true;
+        //    // NotifyEntityChange(source);
+
+        //    //if (this.Container.Entity.Physics != null && this.m_physics.Enabled && this.m_physics != source)
+        //    //{
+        //    //    this.m_physics.OnWorldPositionChanged(source);
+        //    //}
+
+        //    //ProfilerShort.Begin("Raise");
+        //    //RaiseOnPositionChanged(this);
+
+        //    ////ProfilerShort.BeginNextBlock("Action");
+        //    //if (WorldPositionChanged != null)
+        //    //{
+        //    //    WorldPositionChanged(source);
+        //    //}
+        //    //ProfilerShort.End();
+        //}
 
         /// <summary>
         /// Updates the childs of this entity.
         /// </summary>
         protected virtual void UpdateChildren(object source)
         {
+            //ProfilerShort.Begin("Children");
             if (m_hierarchy == null)
             {
+                //ProfilerShort.End();
                 return;
             }
-            for (int i = 0; i < m_hierarchy.Children.Count; i++)
+            foreach (var child in m_hierarchy.Children)
             {
-                m_hierarchy.Children[i].Container.Entity.PositionComp.UpdateWorldMatrix(ref this.m_worldMatrix, source);
+                //child.Container.Entity.PositionComp.SetDirty();
+                child.Container.Entity.PositionComp.UpdateWorldMatrix(ref this.m_worldMatrix, source);
             }
-        }
-
-        /// <summary>
-        /// Updates the volume of this entity.
-        /// </summary>
-        public override void UpdateWorldVolume()
-        {
-            m_worldAABB = m_localAABB.Transform(ref this.m_worldMatrix);
-
-            m_worldVolume.Center = Vector3D.Transform(m_localVolume.Center, ref m_worldMatrix);
-            m_worldVolume.Radius = m_localVolume.Radius;
-            //bad, breaks rotating objects
-            //if (oldWorldAABB.Contains(m_worldAABB) != ContainmentType.Contains)
-            {   //New world AABB is not same as previous world AABB
-                Container.Entity.Render.InvalidateRenderObjects();
-            }
+            //ProfilerShort.End();
         }
 
         /// <summary>
         /// Called when [world position changed].
         /// </summary>
         /// <param name="source">The source object that caused this event.</param>
-        public override void OnWorldPositionChanged(object source)
+        protected override void OnWorldPositionChanged(object source)
         {
+            //ProfilerShort.Begin("OnWorldPositionChanged");
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
-            ProfilerShort.Begin("Volume");
-            UpdateWorldVolume();
-            ProfilerShort.BeginNextBlock("Prunning.Move");
-            MyGamePruningStructure.Move(Container.Entity as MyEntity);
 
-            ProfilerShort.BeginNextBlock("Children");
-            UpdateChildren(source);
+            if (Entity.Parent == null)
+            {
+                Container.Entity.UpdateGamePruningStructure();
+            }
 
-            ProfilerShort.BeginNextBlock("Raise");
+            if (Container.Entity.Render != null)
+                Container.Entity.Render.InvalidateRenderObjects();
+
+            UpdateChildren(source); //update children WMs
+            m_worldVolumeDirty = true;
+            m_normalizedInvMatrixDirty = true;
+            m_invScaledMatrixDirty = true;
+
+            if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
+            {
+                this.m_physics.OnWorldPositionChanged(source);
+            }
+
+            ProfilerShort.Begin("Raise");
             RaiseOnPositionChanged(this);
 
-            ProfilerShort.BeginNextBlock("Action");
+            //ProfilerShort.BeginNextBlock("Action");
             if (WorldPositionChanged != null)
             {
                 WorldPositionChanged(source);
             }
             ProfilerShort.End();
+            //ProfilerShort.End();
         }
         #endregion
 

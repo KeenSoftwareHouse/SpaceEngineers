@@ -22,9 +22,10 @@ namespace VRage.Components
             m_typeToId = new Dictionary<Type, MyStringId>();
 
             RegisterFromAssembly(Assembly.GetCallingAssembly());
+            RegisterFromAssembly(MyPlugins.SandboxAssembly);
             RegisterFromAssembly(MyPlugins.GameAssembly);
-            RegisterFromAssembly(MyPlugins.SandboxGameAssembly);
-            RegisterFromAssembly(MyPlugins.UserAssembly);
+            RegisterFromAssembly(MyPlugins.SandboxGameAssembly);            
+            RegisterFromAssembly(MyPlugins.UserAssembly);            
         }
 
         private static void RegisterFromAssembly(Assembly assembly)

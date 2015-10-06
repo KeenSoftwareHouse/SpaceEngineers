@@ -119,6 +119,32 @@ namespace VRage.Collections
             return obj;
         }
 
+        // TODO (DI): Those mod operations can be removed to improve performance
+        public bool Remove(T item)
+        {
+            int idx = m_head;
+            for (int i = 0; i < m_size; i++, idx++)
+            {
+                if (m_array[idx % m_array.Length].Equals(item))
+                    break;
+            }
+
+            int mod = idx % m_array.Length;
+            int next;
+            int last = (m_tail + m_array.Length - 1) % m_array.Length;
+            while (mod != last)
+            {
+                next = (mod + 1) % m_array.Length;
+                m_array[mod] = m_array[next];
+                mod = next;
+            }
+            m_array[last] = default(T);
+
+            m_tail = last;
+            --m_size;
+            return false;
+        }
+
         private void SetCapacity(int capacity)
         {
             T[] objArray = new T[capacity];

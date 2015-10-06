@@ -52,8 +52,6 @@ namespace VRageRender
 
         internal float TransitionDistance0;
         internal float TransitionDistance1;
-
-        // foliage shit       
     }
 
     struct MyVoxelMaterialTriple

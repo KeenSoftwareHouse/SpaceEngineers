@@ -387,7 +387,7 @@ namespace Sandbox.Game.SessionComponents
 
                     foreach (var entity in m_foundElements)
                     {
-                        if (MySyncVoxel.IsForbiddenEntity(entity))
+                        if (MyVoxelBase.IsForbiddenEntity(entity))
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;

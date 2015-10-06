@@ -43,8 +43,8 @@ namespace VRage
         [DisplayName("Split plane")]
         [Description("Split plane")]
         [Category("Random split")]
-        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e",
-                "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e")]
+        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI",
+        "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI")]
         public string SplitPlane { get; set; }
     }
 }

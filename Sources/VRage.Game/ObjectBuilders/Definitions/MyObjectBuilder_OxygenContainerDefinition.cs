@@ -9,5 +9,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     {
         [ProtoMember]
         public float Capacity;
+
+	    [ProtoMember]
+	    public SerializableDefinitionId StoredGasId;
     }
 }

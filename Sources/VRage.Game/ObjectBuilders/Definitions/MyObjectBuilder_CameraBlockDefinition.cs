@@ -8,6 +8,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CameraBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
         [ProtoMember]
         public float RequiredPowerInput;
         [ProtoMember, ModdableContentFile(".dds")]

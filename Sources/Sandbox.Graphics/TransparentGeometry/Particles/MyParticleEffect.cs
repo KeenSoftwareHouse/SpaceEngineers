@@ -58,6 +58,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public float UserBirthMultiplier;
         public float UserRadiusMultiplier;
         public float UserScale;
+		public Vector3D UserAxisScale;
         public Vector4 UserColorMultiplier;
         public bool UserDraw;
 
@@ -95,6 +96,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             UserBirthMultiplier = 1.0f;
             UserRadiusMultiplier = 1.0f;
             UserScale = 1.0f;
+			UserAxisScale = Vector3.One;
             UserColorMultiplier = Vector4.One;
             UserDraw = false;
             LowRes = false;
@@ -641,6 +643,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         }
 
         #endregion
+
+        public bool IsValid()
+        {
+            foreach (var generation in m_generations)
+            {
+                if (!generation.IsValid())
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
     }
 
 

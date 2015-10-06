@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 
 #endregion
 

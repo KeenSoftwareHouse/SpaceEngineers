@@ -11,7 +11,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Character
 {
-    class MyCharacterBreath
+    public class MyCharacterBreath
     {
         public enum State
         {

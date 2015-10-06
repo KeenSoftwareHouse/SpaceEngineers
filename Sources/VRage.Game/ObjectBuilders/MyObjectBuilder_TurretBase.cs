@@ -1,6 +1,7 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
 using System.ComponentModel;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -42,6 +43,7 @@ namespace Sandbox.Common.ObjectBuilders
         public float Elevation;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_GunBase GunBase;
 
         [ProtoMember]
@@ -50,7 +52,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public bool PreviousIdleRotationState = true;
 
-        [ProtoMember, DefaultValue(true)]
+        [ProtoMember]
         public bool TargetCharacters = true;
 
         [ProtoMember, DefaultValue(true)]

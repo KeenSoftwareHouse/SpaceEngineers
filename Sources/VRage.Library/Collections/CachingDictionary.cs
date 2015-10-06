@@ -22,6 +22,11 @@ namespace VRage.Collections
         private static Predicate<K> m_keyEquals = KeyEquals;
         private static Predicate<KeyValuePair<K, V>> m_keyValueEquals = KeyValueEquals;
 
+        public DictionaryReader<K, V> Reader
+        {
+            get { return m_dictionary; }
+        }
+
         public V this[K key]
         {
             get

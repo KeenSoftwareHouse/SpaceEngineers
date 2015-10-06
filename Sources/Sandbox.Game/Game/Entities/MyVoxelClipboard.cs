@@ -72,6 +72,14 @@ namespace Sandbox.Game.Entities
                 ChangeClipboardPreview(true);
         }
 
+        public void ClearClipboard()
+        {
+            if (IsActive)
+                Deactivate();
+            m_copiedVoxelMapOffsets.Clear();
+            m_copiedVoxelMaps.Clear();
+        }
+
         public void CutVoxelMap(MyVoxelMap voxelMap)
         {
             if (voxelMap == null)

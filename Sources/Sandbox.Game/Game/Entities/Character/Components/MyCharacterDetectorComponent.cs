@@ -56,6 +56,7 @@ namespace Sandbox.Game.Entities.Character
     {
         IMyEntity m_detectedEntity;
         IMyUseObject m_interactiveObject;
+        private static List<MyEntity> m_detectableEntities = new List<MyEntity>();
 
         protected MyHudNotification m_useObjectNotification;
         protected MyHudNotification m_showTerminalNotification;
@@ -113,7 +114,20 @@ namespace Sandbox.Game.Entities.Character
 
         public IMyEntity DetectedEntity
         {
-            protected set { m_detectedEntity = value; }
+            protected set 
+            { 
+                if (m_detectedEntity != null)
+                {
+                    m_detectedEntity.OnMarkForClose -= OnDetectedEntityMarkForClose;
+                }
+
+                m_detectedEntity = value; 
+
+                if (m_detectedEntity != null)
+                {
+                    m_detectedEntity.OnMarkForClose += OnDetectedEntityMarkForClose;
+                }
+            }
             get { return m_detectedEntity; }
         }
 
@@ -129,10 +143,21 @@ namespace Sandbox.Game.Entities.Character
 
         public HkRigidBody HitBody { protected set; get; }
 
+        protected virtual void OnDetectedEntityMarkForClose(IMyEntity obj)
+        {
+            DetectedEntity = null;
+
+            if (UseObject == null)
+                return;
+
+            UseObject = null;
+            MyHud.SelectedObjectHighlight.Visible = false;
+            MyHud.SelectedObjectHighlight.InteractiveObject = null;
+        }
 
         void UseClose()
         {
-            if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.Close))
+            if (Character != null && UseObject != null && UseObject.IsActionSupported(UseActionEnum.Close))
             {
                 UseObject.Use(UseActionEnum.Close, Character);
             }
@@ -140,9 +165,12 @@ namespace Sandbox.Game.Entities.Character
 
         void InteractiveObjectRemoved()
         {
-            Character.RemoveNotification(ref m_useObjectNotification);
-            Character.RemoveNotification(ref m_showTerminalNotification);
-            Character.RemoveNotification(ref m_openInventoryNotification);
+            if (Character != null)
+            {
+                Character.RemoveNotification(ref m_useObjectNotification);
+                Character.RemoveNotification(ref m_showTerminalNotification);
+                Character.RemoveNotification(ref m_openInventoryNotification);
+            }
         }
 
         void InteractiveObjectChanged()
@@ -209,6 +237,39 @@ namespace Sandbox.Game.Entities.Character
             base.OnRemovedFromScene();
 
             InteractiveObjectRemoved();
+        }
+
+        protected void EnableDetectorsInArea(Vector3D from)
+        {
+            Debug.Assert(m_detectableEntities.Count == 0, "Detected entities weren't cleared");
+            var boundingSphere = new BoundingSphereD(from, MyConstants.DEFAULT_INTERACTIVE_DISTANCE);
+            MyGamePruningStructure.GetAllEntitiesInSphere(ref boundingSphere, m_detectableEntities);
+            foreach (var ent in m_detectableEntities)
+            {
+                MyUseObjectsComponentBase use;
+                if (ent.Components.TryGet<MyUseObjectsComponentBase>(out use))
+                {
+                    if (use.DetectorPhysics != null)
+                    {
+                        use.PositionChanged(use.Container.Get<MyPositionComponentBase>());
+                        use.DetectorPhysics.Enabled = true;
+                    }
+                }
+            }
+        }
+
+        protected void DisableDetectors()
+        {
+            foreach (var ent in m_detectableEntities)
+            {
+                MyUseObjectsComponentBase use;
+                if (ent.Components.TryGet<MyUseObjectsComponentBase>(out use))
+                {
+                    if (use.DetectorPhysics != null)
+                        use.DetectorPhysics.Enabled = false;
+                }
+            }
+            m_detectableEntities.Clear();
         }
     }
 }

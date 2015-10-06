@@ -1,11 +1,8 @@
 ﻿using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
@@ -17,8 +14,8 @@ using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.ModAPI;
 using VRage.Serialization;
@@ -28,7 +25,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ButtonPanel))]
-    internal class MyButtonPanel : MyTerminalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMyButtonPanel
+    internal class MyButtonPanel : MyFunctionalBlock, Sandbox.ModAPI.IMyButtonPanel
     {
         [PreloadRequired]
         class MySyncButtonPanel : MySyncEntity
@@ -74,9 +71,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             static MySyncButtonPanel()
             {
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, CheckAccessMsg>(OnCheckAccessChanged, MyMessagePermissions.Any);
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, SetCustomButtonName>(OnButtonCustomNameChanged, MyMessagePermissions.Any);
+                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, CheckAccessMsg>(OnCheckAccessChanged, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer);
+                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, SetCustomButtonName>(OnButtonCustomNameChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
             }
 
             private MyButtonPanel m_panel;
@@ -98,7 +95,7 @@ namespace Sandbox.Game.Entities.Blocks
                 msg.EntityId = m_panel.EntityId;
                 msg.CheckAccess = value;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
 
             public void SendToolbarItemChanged(ToolbarItem item, int index)
@@ -110,7 +107,7 @@ namespace Sandbox.Game.Entities.Blocks
                 msg.Item = item;
                 msg.Index = index;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
 
             public void SendCustonNameChanged(string customName, int index)
@@ -122,7 +119,7 @@ namespace Sandbox.Game.Entities.Blocks
                 msg.CustomName = customName;
                 msg.Index = index;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
 
             private static void OnToolbarItemChanged(MySyncButtonPanel sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
@@ -133,16 +130,29 @@ namespace Sandbox.Game.Entities.Blocks
                     item = ToolbarItem.ToItem(msg.Item);
                 sync.m_panel.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
+
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
 
             private static void OnCheckAccessChanged(MySyncButtonPanel syncObject, ref CheckAccessMsg msg, MyNetworkClient sender)
             {
                 syncObject.m_panel.m_anyoneCanUse = msg.CheckAccess;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
 
             private static void OnButtonCustomNameChanged(MySyncButtonPanel syncObject, ref SetCustomButtonName msg, MyNetworkClient sender)
             {
                 syncObject.m_panel.SetButtonName(msg.CustomName,msg.Index);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
 
         }
@@ -150,9 +160,8 @@ namespace Sandbox.Game.Entities.Blocks
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
         private bool m_anyoneCanUse;
-        private MyPowerReceiver m_powerReciever;
         int m_selectedButton = -1;
-
+		
         public MyToolbar Toolbar { get; set; }
 
         public new MyButtonPanelDefinition BlockDefinition { get { return base.BlockDefinition as MyButtonPanelDefinition; } }
@@ -256,10 +265,16 @@ namespace Sandbox.Game.Entities.Blocks
             AnyoneCanUse = ob.AnyoneCanUse;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
-            PowerReceiver = new MyPowerReceiver(MyConsumerGroupEnum.Utility, false, 0.0001f, () => IsFunctional ? 0.0001f : 0);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.IsPoweredChanged += ComponentStack_IsFunctionalChanged;
-            PowerReceiver.Update();
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+				BlockDefinition.ResourceSinkGroup,
+				0.0001f,
+				() => IsFunctional ? 0.0001f : 0);
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+			sinkComp.IsPoweredChanged += ComponentStack_IsFunctionalChanged;
+	        ResourceSink = sinkComp;
+            ResourceSink.Update();
 
             if (ob.CustomButtonNames != null)
             {
@@ -278,12 +293,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return base.CheckIsWorking() && PowerReceiver.IsPowered;
+			return base.CheckIsWorking() && ResourceSink.IsPowered;
         }
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -349,6 +364,18 @@ namespace Sandbox.Game.Entities.Blocks
             UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
+        public override void OnRegisteredToGridSystems()
+        {
+            base.OnRegisteredToGridSystems();
+            UpdateEmissivity();
+        }
+
+        protected override void OnEnabledChanged()
+        {
+            base.OnEnabledChanged();
+            UpdateEmissivity();
+        }
+
         void UpdateButtonEmissivity(int index)
         {
             if (!InScene)
@@ -357,12 +384,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (Toolbar.GetItemAtIndex(index) == null)
                 c = BlockDefinition.UnassignedButtonColor;
             float emissivity = c.W;
-            if (!IsFunctional || CubeGrid.GridSystems.PowerDistributor.PowerState == GameSystems.Electricity.MyPowerStateEnum.NoPower)
+            if (!IsFunctional || !Enabled || CubeGrid.GridSystems.ResourceDistributor.ResourceState == MyResourceStateEnum.NoPower)
             {
                 c = Color.Red.ToVector4();
                 emissivity = 0;
             }
-            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[index], null, new Color(c.X, c.Y, c.Z), null, null, emissivity);
+            VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[index], new Color(c.X, c.Y, c.Z), emissivity);
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -372,12 +399,6 @@ namespace Sandbox.Game.Entities.Blocks
             ob.AnyoneCanUse = AnyoneCanUse;
             ob.CustomButtonNames = m_customButtonNames;
             return ob;
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
         }
 
         public void PressButton(int i)

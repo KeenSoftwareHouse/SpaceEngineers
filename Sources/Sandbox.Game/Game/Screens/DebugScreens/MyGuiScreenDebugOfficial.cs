@@ -77,14 +77,16 @@ namespace Sandbox.Game.Gui
 
             AddCheckBox(MySpaceTexts.ScreenDebugOfficial_ModelDummies, () => MyDebugDrawSettings.DEBUG_DRAW_MODEL_DUMMIES, (bool b) => MyDebugDrawSettings.DEBUG_DRAW_MODEL_DUMMIES = b, color: Color.White.ToVector4(), checkBoxOffset: cbOffset);
             AddCheckBox(MySpaceTexts.ScreenDebugOfficial_MountPoints, () => MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS, (bool b) => MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS = b, color: Color.White.ToVector4(), checkBoxOffset: cbOffset);
-            AddCheckBox(MySpaceTexts.ScreenDebugOfficial_PhysicsPrimitives, () => MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES, (bool b) => MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES = b, color: Color.White.ToVector4(), checkBoxOffset: cbOffset);
+            AddCheckBox(MySpaceTexts.ScreenDebugOfficial_PhysicsPrimitives, () => MyDebugDrawSettings.DEBUG_DRAW_PHYSICS_SHAPES, (bool b) => { MyDebugDrawSettings.DEBUG_DRAW_PHYSICS |= b; MyDebugDrawSettings.DEBUG_DRAW_PHYSICS_SHAPES = b; }, color: Color.White.ToVector4(), checkBoxOffset: cbOffset);
 
             m_currentPosition.Y += separatorSize;
 
             CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugOfficial_ReloadTextures, ReloadTextures);
             CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugOfficial_ReloadModels, ReloadModels);
             CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugOfficial_SavePrefab, SavePrefab, MyCubeBuilder.Static != null ? MyCubeBuilder.Static.Clipboard.HasCopiedGrids() : false, MySpaceTexts.ToolTipSaveShip);
-            if (MyPerGameSettings.Game == GameEnum.ME_GAME)
+
+            // Don't enable the SE bot debugging in official builds yet
+            if (MyPerGameSettings.Game == GameEnum.ME_GAME || !MyFinalBuildConstants.IS_OFFICIAL)
                 CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugOfficial_BotSettings, OpenBotsScreen); 
 
             AddSubcaption(MyTexts.GetString(MySpaceTexts.ScreenDebugOfficial_ErrorLogCaption), Color.White.ToVector4(), new Vector2(-HIDDEN_PART_RIGHT, 0.0f));

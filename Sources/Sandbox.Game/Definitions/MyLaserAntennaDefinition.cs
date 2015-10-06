@@ -1,14 +1,12 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_LaserAntennaDefinition))]
     public class MyLaserAntennaDefinition : MyCubeBlockDefinition
     {
+	    public MyStringHash ResourceSinkGroup;
         public float PowerInputIdle;
         public float PowerInputTurning;//turning to target
         public float PowerInputLasing;//laser on
@@ -29,6 +27,7 @@ namespace Sandbox.Definitions
 
             var ob = (MyObjectBuilder_LaserAntennaDefinition)builder;
 
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
             PowerInputIdle = ob.PowerInputIdle;
             PowerInputTurning = ob.PowerInputTurning;
             PowerInputLasing = ob.PowerInputLasing;

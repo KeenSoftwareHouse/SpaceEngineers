@@ -33,9 +33,6 @@ namespace VRage.Import
 
         MESH_INSTANCED_GENERIC, //Classic instancing
         MESH_INSTANCED_GENERIC_MASKED,
-
-        ATMOSPHERE,
-        PLANET_SURFACE,
     }
 
     public static class PositionPacker

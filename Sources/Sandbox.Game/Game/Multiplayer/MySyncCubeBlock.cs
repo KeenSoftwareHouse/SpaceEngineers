@@ -17,10 +17,6 @@ namespace Sandbox.Game.Multiplayer
         {
         }
 
-        public override void UpdatePosition()
-        {
-        }
-
         public override void SendCloseRequest()
         {
         }

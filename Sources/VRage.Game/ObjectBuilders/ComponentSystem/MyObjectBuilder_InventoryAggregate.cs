@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders.ComponentSystem
 {
@@ -13,6 +14,7 @@ namespace Sandbox.Common.ObjectBuilders.ComponentSystem
     public class MyObjectBuilder_InventoryAggregate : MyObjectBuilder_InventoryBase
     {
         [ProtoMember, DefaultValue(null)]
+        [DynamicObjectBuilderItem]
         public List<MyObjectBuilder_InventoryBase> Inventories = null;
     }
 }

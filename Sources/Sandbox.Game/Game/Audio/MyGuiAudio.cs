@@ -8,7 +8,6 @@ using System.Text;
 using VRage.Audio;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 
 namespace Sandbox.Game.GUI
 {

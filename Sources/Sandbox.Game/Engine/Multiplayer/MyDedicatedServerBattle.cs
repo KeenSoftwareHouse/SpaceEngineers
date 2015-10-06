@@ -187,9 +187,8 @@ namespace Sandbox.Engine.Multiplayer
         internal MyDedicatedServerBattle(IPEndPoint serverEndpoint)
             : base(new MySyncLayer(new MyTransportLayer(MyMultiplayer.GameEventChannel)))
         {
-            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage);
-            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData);
-            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnJoinResult);
+            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData, MyMessagePermissions.FromServer);
+            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnJoinResult, MyMessagePermissions.FromServer);
 
             Initialize(serverEndpoint);
 
@@ -245,8 +244,9 @@ namespace Sandbox.Engine.Multiplayer
             base.UserAccepted(steamID);
         }
 
-        void OnChatMessage(ref ChatMsg msg, ulong sender)
+        protected override void OnChatMessage(ref ChatMsg msg, ulong sender)
         {
+            msg.Author = sender;
             if (m_memberData.ContainsKey(sender))
             {
                 if (m_memberData[sender].IsAdmin)
@@ -270,6 +270,7 @@ namespace Sandbox.Engine.Multiplayer
                 }
             }
 
+            SendControlMessageToAll(ref msg, msg.Author);            
             RaiseChatMessageReceived(sender, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
 

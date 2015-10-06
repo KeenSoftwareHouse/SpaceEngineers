@@ -52,7 +52,7 @@ namespace Sandbox.Game.World
         public MyPlayer GetPlayer(int serialId)
         {
             var controllerId = new MyPlayer.PlayerId() { SteamId = m_steamUserId, SerialId = serialId };
-            return Sync.Players.TryGetPlayerById(controllerId);
+            return Sync.Players.GetPlayerById(controllerId);
         }
     }
 }

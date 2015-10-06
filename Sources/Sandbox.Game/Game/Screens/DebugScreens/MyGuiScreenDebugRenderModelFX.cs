@@ -60,7 +60,7 @@ namespace Sandbox.Game.Gui
             //m_model = res.Value.Entity.ModelLod0;
 
             m_modelsCombo = AddCombo();
-            var modelList = MyModels.LoadedModels.Values.ToList();
+            var modelList = MyModels.GetLoadedModels();
 
             if (modelList.Count == 0)
                 return;
@@ -100,6 +100,9 @@ namespace Sandbox.Game.Gui
                 m_voxelsCombo.SelectItemByIndex(m_currentSelectedVoxelItem + 1);
                 m_voxelsCombo.ItemSelected += new MyGuiControlCombobox.ItemSelectedDelegate(voxelsCombo_OnSelect);
             }
+
+			if (m_model.GetMeshList().Count <= m_currentSelectedMeshItem)
+				return;
 
             var selectedMesh = m_model.GetMeshList()[m_currentSelectedMeshItem];
             var selectedMaterial = selectedMesh.Material;

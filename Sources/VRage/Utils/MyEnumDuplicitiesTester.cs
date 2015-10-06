@@ -73,13 +73,13 @@ namespace VRage.Utils
 
         static void TestEnumNotDuplicitiesInAssembly(Assembly assembly, HashSet<object> hashSet)
         {
-            foreach (Type type in assembly.GetTypes())
-            {
-                if (!type.IsEnum) continue;
-                if (type.IsGenericType) continue; // don't check enums in generic classes
-                if (type.IsDefined(typeof(DontCheckAttribute), false)) continue;
-                AssertEnumNotDuplicities(type, hashSet);
-            }
+            //foreach (Type type in assembly.GetTypes())
+            //{
+            //    if (!type.IsEnum) continue;
+            //    if (type.IsGenericType) continue; // don't check enums in generic classes
+            //    if (type.IsDefined(typeof(DontCheckAttribute), false)) continue;
+            //    AssertEnumNotDuplicities(type, hashSet);
+            //}
         }
 
         static void AssertEnumNotDuplicities(Type enumType, HashSet<object> hashSet)

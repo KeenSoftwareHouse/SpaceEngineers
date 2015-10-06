@@ -19,7 +19,7 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyVoxelNavigationMesh : MyNavigationMesh
     {
-        private MyVoxelMap m_voxelMap;
+        private MyVoxelBase m_voxelMap;
         private Vector3 m_cellSize;
 
         // Cells that are fully processed and present in the mesh
@@ -83,7 +83,7 @@ namespace Sandbox.Game.AI.Pathfinding
             }
         }
 
-        public MyVoxelNavigationMesh(MyVoxelMap voxelMap, MyNavmeshCoordinator coordinator, Func<long> timestampFunction)
+        public MyVoxelNavigationMesh(MyVoxelBase voxelMap, MyNavmeshCoordinator coordinator, Func<long> timestampFunction)
             : base(coordinator.Links, 16, timestampFunction)
         {
             m_voxelMap = voxelMap;
@@ -257,9 +257,9 @@ namespace Sandbox.Game.AI.Pathfinding
             ProfilerShort.Begin("Triangle preprocessing");
             for (int i = 0; i < generatedMesh.TrianglesCount; i++)
             {
-                short a = generatedMesh.Triangles[i].VertexIndex0;
-                short b = generatedMesh.Triangles[i].VertexIndex1;
-                short c = generatedMesh.Triangles[i].VertexIndex2;
+                ushort a = generatedMesh.Triangles[i].VertexIndex0;
+                ushort b = generatedMesh.Triangles[i].VertexIndex1;
+                ushort c = generatedMesh.Triangles[i].VertexIndex2;
 
                 Vector3 aPos, bPos, cPos;
                 Vector3 vert;
@@ -306,12 +306,12 @@ namespace Sandbox.Game.AI.Pathfinding
             ProfilerShort.Begin("Adding triangles");
             for (int i = 0; i < generatedMesh.TrianglesCount; i++)
             {
-                short a = generatedMesh.Triangles[i].VertexIndex0;
-                short b = generatedMesh.Triangles[i].VertexIndex1;
-                short c = generatedMesh.Triangles[i].VertexIndex2;
-                short setA = (short)m_vertexMapping.Find(a);
-                short setB = (short)m_vertexMapping.Find(b);
-                short setC = (short)m_vertexMapping.Find(c);
+                ushort a = generatedMesh.Triangles[i].VertexIndex0;
+                ushort b = generatedMesh.Triangles[i].VertexIndex1;
+                ushort c = generatedMesh.Triangles[i].VertexIndex2;
+                ushort setA = (ushort)m_vertexMapping.Find(a);
+                ushort setB = (ushort)m_vertexMapping.Find(b);
+                ushort setC = (ushort)m_vertexMapping.Find(c);
 
                 if (setA == setB || setB == setC || setA == setC) continue;
 
@@ -324,7 +324,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 generatedMesh.GetUnpackedPosition(c, out vert);
                 cPos = vert - centerDisplacement;
 
-                if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+                if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
                 {
                     Vector3 normal = (cPos - aPos).Cross(bPos - aPos);
                     normal.Normalize();

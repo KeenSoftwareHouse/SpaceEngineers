@@ -13,6 +13,7 @@ using Sandbox.Common.Components;
 using Sandbox.Game.Components;
 using VRage.Components;
 using VRage.ModAPI;
+using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities.Debris
 {
 
@@ -50,6 +51,7 @@ namespace Sandbox.Game.Entities.Debris
             if (arg1 == typeof(MyGameLogicComponent))
                 m_debrisLogic = arg2 as MyDebrisBaseLogic;
         }
+
 
         public class MyDebrisPhysics : MyPhysicsBody
         {
@@ -170,14 +172,19 @@ namespace Sandbox.Game.Entities.Debris
             }
 
             public override void UpdateAfterSimulation()
-            {
-                
+            {       
                 base.UpdateAfterSimulation();
                 if (m_isStarted)
                 {
                     int age = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_createdTime;
                     if (age > m_lifespanInMiliseconds)
                         MarkForClose();
+                    float dithering = age / (float)m_lifespanInMiliseconds;
+                    float ditherStart = 3.0f / 4.0f;
+                    if (dithering > ditherStart)
+                    {
+                        VRageRender.MyRenderProxy.UpdateRenderEntity((uint)this.Container.Entity.Render.GetRenderObjectID(), null, null, (dithering - ditherStart) / (1.0f - ditherStart));
+                    }
                 }
             }
 

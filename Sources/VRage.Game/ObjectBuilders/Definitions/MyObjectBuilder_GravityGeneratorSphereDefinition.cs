@@ -11,6 +11,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float MinRadius;
         [ProtoMember]
         public float MaxRadius;
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
         [ProtoMember]
         public float BasePowerInput;
         [ProtoMember]

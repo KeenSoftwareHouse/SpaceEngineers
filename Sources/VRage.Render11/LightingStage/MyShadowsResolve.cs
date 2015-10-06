@@ -16,11 +16,11 @@ namespace VRageRender
         static ComputeShaderId m_blur_v;
         const int m_numthreads = 8;
 
-        internal static void Init()
+        internal static new void Init()
         {
-            m_gather = MyShaders.CreateCs("shadows.hlsl", "write_shadow", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads));
-            m_blur_h = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads));
-            m_blur_v = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, "VERTICAL"));
+			m_gather = MyShaders.CreateCs("shadows.hlsl", "write_shadow", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads) + MyRender11.ShaderCascadesNumberHeader());
+			m_blur_h = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, MyRender11.ShaderCascadesNumberDefine()));
+			m_blur_v = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, "VERTICAL", MyRender11.ShaderCascadesNumberDefine()));
         }
 
         internal static void Run()

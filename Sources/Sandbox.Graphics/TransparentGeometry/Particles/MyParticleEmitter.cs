@@ -34,16 +34,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         static List<string> s_emitterTypeStrings = MyParticleEmitterTypeStrings.ToList<string>();
 
         //Version of the emitter for serialization
-        static readonly int Version = 0;
+        static readonly int Version = 3;
 
         private enum MyEmitterPropertiesEnum
         {
             Type,
             Offset,
+            Rotation,
+            AxisScale,
             Size,
             RadiusMin,
             RadiusMax,
-            DirToCamera
+            DirToCamera,
+            LimitAngle
         }
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
@@ -61,6 +64,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         {
             get { return m_properties[(int)MyEmitterPropertiesEnum.Offset] as MyAnimatedPropertyVector3; }
             private set { m_properties[(int)MyEmitterPropertiesEnum.Offset] = value; }
+        }
+
+        public MyAnimatedPropertyVector3 Rotation
+        {
+            get { return m_properties[(int)MyEmitterPropertiesEnum.Rotation] as MyAnimatedPropertyVector3; }
+            private set { m_properties[(int)MyEmitterPropertiesEnum.Rotation] = value; }
+        }
+
+
+        public MyConstPropertyVector3 AxisScale
+        {
+            get { return m_properties[(int)MyEmitterPropertiesEnum.AxisScale] as MyConstPropertyVector3; }
+            private set { m_properties[(int)MyEmitterPropertiesEnum.AxisScale] = value; }
         }
 
         public MyAnimatedPropertyFloat Size
@@ -87,6 +103,12 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             private set { m_properties[(int)MyEmitterPropertiesEnum.DirToCamera] = value; }
         }
 
+        public MyConstPropertyFloat LimitAngle
+        {
+            get { return m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] as MyConstPropertyFloat; }
+            private set { m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] = value; }
+        }
+
 
         public MyParticleEmitter(MyParticleEmitterType type)
         {
@@ -96,16 +118,22 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         {
             AddProperty(MyEmitterPropertiesEnum.Type, new MyConstPropertyEnum("Type", typeof(MyParticleEmitterType), s_emitterTypeStrings));
             AddProperty(MyEmitterPropertiesEnum.Offset, new MyAnimatedPropertyVector3("Offset"));
+            AddProperty(MyEmitterPropertiesEnum.Rotation, new MyAnimatedPropertyVector3("Rotation", true, null));
+            AddProperty(MyEmitterPropertiesEnum.AxisScale, new MyConstPropertyVector3("AxisScale"));
             AddProperty(MyEmitterPropertiesEnum.Size, new MyAnimatedPropertyFloat("Size"));
             AddProperty(MyEmitterPropertiesEnum.RadiusMin, new MyConstPropertyFloat("RadiusMin"));
             AddProperty(MyEmitterPropertiesEnum.RadiusMax, new MyConstPropertyFloat("RadiusMax"));
             AddProperty(MyEmitterPropertiesEnum.DirToCamera, new MyConstPropertyBool("DirToCamera"));
+            AddProperty(MyEmitterPropertiesEnum.LimitAngle, new MyConstPropertyFloat("LimitAngle"));
 
             Offset.AddKey(0, new Vector3(0, 0, 0));
+            Rotation.AddKey(0, new Vector3(0, 0, 0));
+            AxisScale.SetValue(Vector3.One);
             Size.AddKey(0, 1.0f);
             RadiusMin.SetValue(1.0f);
             RadiusMax.SetValue(1.0f);
             DirToCamera.SetValue(false);
+            LimitAngle.SetValue(90.0f);
         }
 
         public void Done()
@@ -138,14 +166,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             return property;
         }
 
-        public void CalculateStartPosition(float elapsedTime, MatrixD worldMatrix, float userScale, out Vector3D startOffset, out Vector3D startPosition)
+        public void CalculateStartPosition(float elapsedTime, MatrixD worldMatrix, Vector3D userAxisScale, float userScale, out Vector3D startOffset, out Vector3D startPosition)
         {
             Vector3 currentOffsetUntransformed;
             Offset.GetInterpolatedValue<Vector3>(elapsedTime, out currentOffsetUntransformed);
 
+            Vector3 currentRotation;
+            Rotation.GetInterpolatedValue<Vector3>(elapsedTime, out currentRotation);
+
             float currentSize;
             Size.GetInterpolatedValue<float>(elapsedTime, out currentSize);
             currentSize *= MyUtils.GetRandomFloat(RadiusMin, RadiusMax) * userScale;
+
+            Vector3D currentAxisScale = userAxisScale * AxisScale;
 
             Vector3 localPos = Vector3.Zero;
             Vector3D worldOffset;
@@ -158,35 +191,58 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
                     break;
 
                 case MyParticleEmitterType.Line:
-                    localPos = Vector3.Forward * MyUtils.GetRandomFloat(0.0f, currentSize);
+                    localPos = Vector3.Forward * MyUtils.GetRandomFloat(0.0f, currentSize) * currentAxisScale;
                     break;
 
                 case MyParticleEmitterType.Sphere:
-                    localPos = MyUtils.GetRandomVector3Normalized() * currentSize;
+                    localPos = MyUtils.GetRandomVector3Normalized() * currentSize * currentAxisScale;
                     break;
 
                 case MyParticleEmitterType.Box:
                     float currentSizeHalf = currentSize * 0.5f;
-                    localPos =  
+                    localPos =
                         new Vector3(
                             MyUtils.GetRandomFloat(-currentSizeHalf, currentSizeHalf),
                             MyUtils.GetRandomFloat(-currentSizeHalf, currentSizeHalf),
                             MyUtils.GetRandomFloat(-currentSizeHalf, currentSizeHalf)
-                            );
+                            ) * currentAxisScale;
                     break;
 
                 case MyParticleEmitterType.Hemisphere:
-                    localPos = MyUtils.GetRandomVector3HemisphereNormalized(Vector3.Forward) * currentSize;
+                    localPos = MyUtils.GetRandomVector3HemisphereNormalized(Vector3.Forward) * currentSize * currentAxisScale;
                     break;
 
                 case MyParticleEmitterType.Circle:
-                    localPos = MyUtils.GetRandomVector3CircleNormalized() * currentSize;
+                    localPos = MyUtils.GetRandomVector3CircleNormalized() * currentSize * currentAxisScale;
                     break;
 
                 default:
                     System.Diagnostics.Debug.Assert(false);
                     break;
             }
+
+            if ((LimitAngle < 90 && (Type == MyParticleEmitterType.Hemisphere)) || 
+                (LimitAngle < 180 && ((Type == MyParticleEmitterType.Sphere) || (Type == MyParticleEmitterType.Box))))
+            {
+                var angleScaleFactor = Type == MyParticleEmitterType.Hemisphere ? LimitAngle / 90.0f : LimitAngle / 180.0f;
+                var normalizedPos = Vector3.Normalize(localPos);
+                var dotProduct = Vector3.Dot(Vector3.Forward, normalizedPos);
+                var currentAngle = (float)Math.Acos(dotProduct);
+                var finalAngle = currentAngle * angleScaleFactor;
+                var rotationAxis = Vector3.Cross(Vector3.Forward,localPos);
+                var rotationMatrix = Matrix.CreateFromAxisAngle(rotationAxis, finalAngle - currentAngle);
+                Vector3.TransformNormal(ref localPos, ref rotationMatrix, out localPos);
+            }
+
+            if (currentRotation.LengthSquared() > 0)
+            {
+                Matrix rotationMatrix = Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.X));
+                rotationMatrix = rotationMatrix * Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.Y));
+                rotationMatrix = rotationMatrix * Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.Z));
+
+                Vector3.TransformNormal(ref localPos, ref rotationMatrix, out localPos);
+            }
+
 
             Vector3D worldPos;
 
@@ -261,10 +317,71 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public void Deserialize(XmlReader reader)
         {
             int version = Convert.ToInt32(reader.GetAttribute("version"), CultureInfo.InvariantCulture);
+            if (version == 0)
+            {
+                DeserializeV0(reader);
+                return;
+            }
+            else if (version == 1)
+            {
+                DeserializeV1(reader);
+                return;
+            }
+            else if (version == 2)
+            {
+                DeserializeV2(reader);
+                return;
+            }
+
             reader.ReadStartElement(); //ParticleEmitter
 
             foreach (IMyConstProperty property in m_properties)
             {
+                property.Deserialize(reader);
+            }
+
+            reader.ReadEndElement(); //ParticleEmitter
+        }
+
+        void DeserializeV0(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleEmitter
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (property.Name == "Rotation" || property.Name == "AxisScale" || property.Name == "AxisScale")
+                    continue;
+
+                property.Deserialize(reader);
+            }
+
+            reader.ReadEndElement(); //ParticleEmitter
+        }
+
+        void DeserializeV1(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleEmitter
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (property.Name == "AxisScale" || property.Name == "LimitAngle")
+                    continue;
+
+                property.Deserialize(reader);
+            }
+
+            reader.ReadEndElement(); //ParticleEmitter
+        }
+
+        void DeserializeV2(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleEmitter
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (property.Name == "LimitAngle")
+                    continue;
+
                 property.Deserialize(reader);
             }
 

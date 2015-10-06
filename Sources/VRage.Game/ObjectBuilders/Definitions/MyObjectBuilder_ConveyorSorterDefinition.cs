@@ -8,6 +8,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConveyorSorterDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float PowerInput = 0.001f;
 

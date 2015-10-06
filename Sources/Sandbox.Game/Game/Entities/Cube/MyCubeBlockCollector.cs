@@ -167,6 +167,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public void CollectMassElements(MyCubeGrid grid, IDictionary<Vector3I, HkMassElement> massResults)
         {
+            if (massResults == null)
+                return;
+
             foreach (var block in grid.GetBlocks())
             {
                 if (block.FatBlock is MyCompoundCubeBlock)
@@ -388,7 +391,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void AddMass(MySlimBlock block, IDictionary<Vector3I, HkMassElement> massResults)
         {
-            float mass = block.GetMass();
+            float mass = block.BlockDefinition.Mass;
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && block.FatBlock is MyCompoundCubeBlock)
             {
                 mass = 0f;

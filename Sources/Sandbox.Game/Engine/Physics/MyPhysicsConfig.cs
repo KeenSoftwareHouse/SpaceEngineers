@@ -28,5 +28,8 @@ namespace Sandbox.Engine.Physics
         public const int MaxContactPoints = 3;
 
         public const int MaxCollidingElements = 256;
+
+        public static float WheelSoftnessRatio = 0.25f;
+        public static float WheelSoftnessVelocity = 20;
     }
 }

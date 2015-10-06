@@ -1,8 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
-using VRageMath;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -10,6 +6,7 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_DoorDefinition))]
     public class MyDoorDefinition : MyCubeBlockDefinition
     {
+	    public string ResourceSinkGroup;
         public float MaxOpen;
         public string OpenSound;
         public string CloseSound;
@@ -21,6 +18,7 @@ namespace Sandbox.Definitions
 
             var doorBuilder = builder as MyObjectBuilder_DoorDefinition;
             MyDebug.AssertDebug(doorBuilder != null);
+	        ResourceSinkGroup = doorBuilder.ResourceSinkGroup;
             MaxOpen = doorBuilder.MaxOpen;
             OpenSound = doorBuilder.OpenSound;
             CloseSound = doorBuilder.CloseSound;

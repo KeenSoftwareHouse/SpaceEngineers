@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
@@ -12,7 +9,7 @@ using SteamSDK;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncBattery : MyBattery.Friend
+    internal class MySyncBattery : MyBattery.Friend
     {
         private MyBattery m_battery;
 

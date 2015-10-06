@@ -5,11 +5,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.Library.Collections;
 
 namespace VRage.Collections
 {
     [DebuggerDisplay("Count = {Count}")]
-    public class MyConcurrentDeque<T>
+    public class MyConcurrentDeque<T> : IMyQueue<T>
     {
         private readonly MyDeque<T> m_deque = new MyDeque<T>();
         private readonly FastResourceLock m_lock = new FastResourceLock();

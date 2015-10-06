@@ -18,5 +18,6 @@ namespace VRage.Audio
 
         bool Plays2D { get; }
         int SourceChannels { get; set; }
+		int LastPlayedWaveNumber { get; set; }
     }    
 }

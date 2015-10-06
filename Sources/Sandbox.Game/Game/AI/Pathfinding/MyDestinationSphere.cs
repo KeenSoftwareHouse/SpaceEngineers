@@ -63,7 +63,7 @@ namespace Sandbox.Game.AI.Pathfinding
             return m_center;
         }
 
-        public Vector3D GetCenter()
+        public Vector3D GetDestination()
         {
             return m_center;
         }

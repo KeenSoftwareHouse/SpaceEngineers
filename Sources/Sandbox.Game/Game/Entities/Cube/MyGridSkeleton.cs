@@ -32,6 +32,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public readonly int BoneDensity;
 
+        public readonly Vector3I[] BoneOffsets;
         static MyGridSkeleton()
         {
             MAX_BONE_ERROR = Vector3UByte.Denormalize(new Vector3UByte(128, 128, 128), 1f).X * 0.75f;
@@ -46,6 +47,16 @@ namespace Sandbox.Game.Entities
         {
             // Many algorithm relies on this
             BoneDensity = 2;
+            BoneOffsets = new Vector3I[BoneDensity * BoneDensity * BoneDensity];
+            int idx = 0;
+            Vector3I offset = Vector3I.Zero;
+            for(;offset.X < BoneDensity; offset.X++)
+                for(offset.Y = 0; offset.Y < BoneDensity; offset.Y++)
+                    for(offset.Z = 0; offset.Z < BoneDensity; offset.Z++)
+                    {
+                        BoneOffsets[idx] = offset;
+                        idx++;
+                    }
         }
 
         public void Reset()
@@ -528,7 +539,7 @@ namespace Sandbox.Game.Entities
         public void RemoveUnusedBones(MyCubeGrid grid)
         {
             ProfilerShort.Begin("RemoveUnusedBones");
-            if (m_tmpRemovedCubes.Count() != 0)
+            if (m_tmpRemovedCubes.Count != 0)
             {
                 Debug.Assert(m_testedCubes.Count() == 0);
                 Debug.Assert(m_usedBones.Count() == 0);

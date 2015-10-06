@@ -15,23 +15,28 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyVoxelPathfinding
     {
-        public struct CellId
+        public struct CellId: IEquatable<CellId>
         {
             public MyVoxelBase VoxelMap;
             public Vector3I Pos;
 
             public override bool Equals(object obj)
             {
+                Debug.Assert(false, "Equals on struct does allocation!");
                 if (ReferenceEquals(null, obj)) return false;
                 if (obj.GetType() != typeof(CellId)) return false;
 
-                CellId other = (CellId)obj;
-                return VoxelMap == other.VoxelMap && Pos == other.Pos;
+                return this.Equals((CellId)obj);
             }
 
             public override int GetHashCode()
             {
                 return VoxelMap.GetHashCode() * 1610612741 + Pos.GetHashCode();
+            }
+
+            public bool Equals(CellId other)
+            {
+                return VoxelMap == other.VoxelMap && Pos == other.Pos;
             }
         }
 
@@ -62,14 +67,14 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private void MyEntities_OnEntityAdd(MyEntity entity)
         {
-            var voxelMap = entity as MyVoxelMap;
+            var voxelMap = entity as MyVoxelBase;
             if (voxelMap == null) return;
 
             m_navigationMeshes.Add(voxelMap, new MyVoxelNavigationMesh(voxelMap, m_coordinator, MyAIComponent.Static.Pathfinding.NextTimestampFunction));
             RegisterVoxelMapEvents(voxelMap);
         }
 
-        private void RegisterVoxelMapEvents(MyVoxelMap voxelMap)
+        private void RegisterVoxelMapEvents(MyVoxelBase voxelMap)
         {
             voxelMap.OnClose += voxelMap_OnClose;
         }

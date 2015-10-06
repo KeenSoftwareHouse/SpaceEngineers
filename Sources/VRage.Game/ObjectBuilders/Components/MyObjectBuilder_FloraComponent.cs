@@ -31,5 +31,9 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public List<HarvestedData> HarvestedItems = new List<HarvestedData>();
+
+        [XmlArrayItem("Item")]
+        [ProtoMember]
+        public HarvestedData[] DecayItems = new HarvestedData[0];
     }
 }

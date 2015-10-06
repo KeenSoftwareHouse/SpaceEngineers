@@ -534,6 +534,7 @@ namespace VRage.Input
 
         void UpdateStates()
         {
+            ProfilerShort.Begin("MyDirectXInput::UpdateStates");
             m_previousMouseState = m_actualMouseState;
             m_keyboardState.UpdateStates();
             //m_actualMouseState = Sandbox.Engine.Input.MyWindowsMouse.GetCurrentState();
@@ -594,6 +595,7 @@ namespace VRage.Input
                 ENABLE_DEVELOPER_KEYS = true;
                 MyLog.Default.WriteLine("DEVELOPER KEYS ENABLED");
             }
+            ProfilerShort.End();
         }
 
 
@@ -602,7 +604,7 @@ namespace VRage.Input
         //  Update keyboard/mouse input and return true if application has focus (is active). Otherwise false.
         public bool Update(bool gameFocused)
         {
-
+            ProfilerShort.Begin("MyDirectXInput::Update");
             bool ret;
 
             if (!m_gameWasFocused && gameFocused)
@@ -616,9 +618,10 @@ namespace VRage.Input
             if (!gameFocused)
             {
                 ClearStates();
+                ProfilerShort.End();
                 return false;
             }
-
+            ProfilerShort.BeginNextBlock("MyDirectXInput::Update2");
 
             //if (m_recordingBeingPlayed != null)
             //    UpdateStatesFromRecording();
@@ -644,12 +647,12 @@ namespace VRage.Input
             //}
 
             ret = true;
-
+            ProfilerShort.BeginNextBlock("MyDirectXInput::Update3");
             //if (m_isRecordingInput)
             //  RecordInputSnapshot();
 
             m_bufferedInputSource.SwapBufferedTextInput(ref m_currentTextInput);
-
+            ProfilerShort.End();
             return ret;
         }
 

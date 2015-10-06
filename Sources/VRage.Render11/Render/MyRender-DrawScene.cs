@@ -103,7 +103,7 @@ namespace VRageRender
             MyPerformanceCounter.PerCameraDraw11Write.MeshesDrawn = m_passStats.Meshes;
             MyPerformanceCounter.PerCameraDraw11Write.SubmeshesDrawn = m_passStats.Submeshes;
             MyPerformanceCounter.PerCameraDraw11Write.ObjectConstantsChanges = m_passStats.ObjectConstantsChanges;
-            MyPerformanceCounter.PerCameraDraw11Write.MaterialConstantsChanges = m_passStats.ObjectConstantsChanges;
+            MyPerformanceCounter.PerCameraDraw11Write.MaterialConstantsChanges = m_passStats.MaterialConstantsChanges;
             MyPerformanceCounter.PerCameraDraw11Write.TrianglesDrawn = m_passStats.Triangles;
             MyPerformanceCounter.PerCameraDraw11Write.InstancesDrawn = m_passStats.Instances;
 
@@ -132,6 +132,10 @@ namespace VRageRender
                 {
                     renderable.OnFrameUpdate();
                 }
+            }
+            foreach (var instanceLodComponent in MyComponentFactory<MyInstanceLodComponent>.GetAll())
+            {
+                instanceLodComponent.OnFrameUpdate();
             }
         }
 
@@ -199,7 +203,6 @@ namespace VRageRender
             MyShadows.MarkCascadesInStencil();
             MyGpuProfiler.IC_EndBlock();
 
-
             MyGpuProfiler.IC_BeginBlock("Shadows resolve");
             MyShadowsResolve.Run();
             MyGpuProfiler.IC_EndBlock();
@@ -214,6 +217,7 @@ namespace VRageRender
                 MyRender11.Context.ClearRenderTargetView(MyScreenDependants.m_ambientOcclusion.m_RTV, Color4.White);
             }
             MyGpuProfiler.IC_EndBlock();
+
 
             MyGpuProfiler.IC_BeginBlock("Lights");
             MyLightRendering.Render();
@@ -235,8 +239,6 @@ namespace VRageRender
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
 
-            MyAtmosphereRenderer.Render();
-
             MyGpuProfiler.IC_BeginBlock("Luminance reduction");
             MyBindableResource avgLum = null;
 
@@ -246,11 +248,13 @@ namespace VRageRender
 
                 MyImmediateRC.RC.Context.ResolveSubresource(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer).m_resource, 0, MyGBuffer.Main.Get(MyGbufferSlot.LBufferResolved).m_resource, 0, SharpDX.DXGI.Format.R11G11B10_Float);
             }
+
             if (m_resetEyeAdaptation)
             {
                 MyImmediateRC.RC.Context.ClearUnorderedAccessView(m_prevLum.m_UAV, Int4.Zero);
                 m_resetEyeAdaptation = false;
             }
+
             avgLum = MyLuminanceAverage.Run(m_reduce0, m_reduce1, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), m_prevLum, m_localLum);
 
             MyGpuProfiler.IC_EndBlock();
@@ -374,7 +378,6 @@ namespace VRageRender
             QueryTexturesFromEntities();
             MyTextures.Load();
             GatherTextures();
-            MyComponents.UpdateCullProxies();
             MyComponents.ProcessEntities();
             MyComponents.SendVisible();
 

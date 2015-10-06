@@ -379,8 +379,8 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private void RefineFoundPath(ref Vector3D begin, ref Vector3D end, MyPath<MyNavigationPrimitive> path)
         {
-            Debug.Assert(MyFakes.ENABLE_PATHFINDING, "Pathfinding is not enabled!");
-            if (!MyFakes.ENABLE_PATHFINDING)
+            Debug.Assert(MyPerGameSettings.EnablePathfinding, "Pathfinding is not enabled!");
+            if (!MyPerGameSettings.EnablePathfinding)
             {
                 return;
             }

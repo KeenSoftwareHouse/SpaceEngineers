@@ -47,6 +47,7 @@ SurfaceInterface surfaceFromMaterial(MaterialOutputInterface mat, float3 positio
 	return surface;
 }
 
+#ifdef CASCADES_NUM
 float4 shade_forward(SurfaceInterface surface, float3 position) {
 	float4 shaded = 0;
 
@@ -57,11 +58,12 @@ float4 shade_forward(SurfaceInterface surface, float3 position) {
 	shaded.w = 1;
 	return shaded;
 }
+#endif
 
 void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 
 	PixelInterface pixel;
-	pixel.screen_position = input.position.xy;
+	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 	init_ps_interface(pixel);
 	pixel.position_ws = input.worldPosition;

@@ -43,6 +43,8 @@ namespace Sandbox.Game.Entities
         MySkinnedEntity m_skinnedEntity;
         string m_name;
 
+        Dictionary<float, string[]> m_boneLODs;
+
         #endregion
 
         #region Properties
@@ -50,23 +52,24 @@ namespace Sandbox.Game.Entities
         #endregion
 
 
-        public MyAnimationPlayerBlendPair(MySkinnedEntity skinnedEntity, string[] bones, string name)
+        public MyAnimationPlayerBlendPair(MySkinnedEntity skinnedEntity, string[] bones, Dictionary<float, string[]> boneLODs, string name)
         {
             m_bones = bones;
             m_skinnedEntity = skinnedEntity;
+            m_boneLODs = boneLODs;
             m_name = name;
         }
 
 
-        public void UpdateBones()
+        public void UpdateBones(float distance)
         {
             if (m_state != AnimationBlendState.Stopped)
             {
                 if (BlendPlayer.IsInitialized)
-                    BlendPlayer.UpdateBones();
+                    BlendPlayer.UpdateBones(distance);
 
                 if (ActualPlayer.IsInitialized)
-                    ActualPlayer.UpdateBones();
+                    ActualPlayer.UpdateBones(distance);
             }
         }
 
@@ -163,15 +166,13 @@ namespace Sandbox.Game.Entities
             if (animation.Animations.Clips.Count <= animationDefinition.ClipIndex)
                 return;
 
-            AnimationClip clip = animation.Animations.Clips[animationDefinition.ClipIndex];
-
             if (ActualPlayer.IsInitialized)
             {
                 BlendPlayer.Initialize(ActualPlayer);
             }
 
             // Create a clip player and assign it to this model                        
-            ActualPlayer.Initialize(clip, m_skinnedEntity, 1, timeScale, frameOption, m_bones);
+            ActualPlayer.Initialize(animation, m_name, animationDefinition.ClipIndex, m_skinnedEntity, 1, timeScale, frameOption, m_bones, m_boneLODs);
 
             m_state = AnimationBlendState.BlendIn;
             m_currentBlendTime = 0;
@@ -193,6 +194,11 @@ namespace Sandbox.Game.Entities
         public AnimationBlendState GetState()
         {
             return m_state;
+        }
+
+        public void SetBoneLODs(Dictionary<float, string[]> boneLODs)
+        {
+            m_boneLODs = boneLODs;
         }
     }
 }

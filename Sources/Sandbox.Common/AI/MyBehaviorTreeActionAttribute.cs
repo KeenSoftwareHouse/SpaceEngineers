@@ -70,4 +70,15 @@ namespace Sandbox.Common.AI
             ReturnsRunning = true;
         }
     }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class MyBehaviorDescriptorAttribute : Attribute
+    {
+        public readonly string DescriptorCategory;
+
+        public MyBehaviorDescriptorAttribute(string category)
+        {
+            DescriptorCategory = category;
+        }
+    }
 }

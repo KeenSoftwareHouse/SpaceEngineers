@@ -364,7 +364,9 @@ namespace Sandbox.Engine.Voxels
 
         public override void DebugDraw(MyVoxelBase referenceVoxelMap, MyVoxelDebugDrawMode mode)
         {
-            Matrix worldMatrix = Matrix.CreateTranslation(referenceVoxelMap.PositionLeftBottomCorner);
+			Matrix worldMatrix = referenceVoxelMap.WorldMatrix;//Matrix.CreateTranslation(referenceVoxelMap.PositionLeftBottomCorner);
+			worldMatrix.Translation = referenceVoxelMap.PositionLeftBottomCorner;
+
             Color color;
             color = Color.CornflowerBlue;
             color.A = 25;
@@ -400,6 +402,32 @@ namespace Sandbox.Engine.Voxels
                     {
                         var world = MatrixD.CreateTranslation(referenceVoxelMap.PositionLeftBottomCorner);
                         m_dataProvider.DebugDraw(ref world);
+                    }
+                    break;
+                case MyVoxelDebugDrawMode.FullCells:
+                    {
+                        //MyStorageDataCache m_cache = new MyStorageDataCache();
+                        var size = referenceVoxelMap.Storage.Size;
+                        //m_temporaryCache.Resize(Vector3I.Zero, size);
+                        //referenceVoxelMap.Storage.ReadRange(m_temporaryCache, MyStorageDataTypeFlags.Content, 0, ref Vector3I.Zero, ref size);
+
+                        var world = MatrixD.CreateTranslation(referenceVoxelMap.PositionLeftBottomCorner);
+
+                        for (int z = 0; z < size.Z / 2; z++)
+                            for (int y = 0; y < size.Y ; y++)
+                                for (int x = 0; x < size.X / 2; x++)
+                                {
+                                    byte content = m_temporaryCache.Get(MyStorageDataTypeEnum.Content, x, y, z);
+
+                                    if (content != 0 && content != 255)
+                                    {
+                                        BoundingBoxD bb = new BoundingBoxD(
+                                            referenceVoxelMap.PositionLeftBottomCorner + new Vector3D(x, y, z) * MyVoxelConstants.VOXEL_SIZE_IN_METRES + new Vector3(MyVoxelConstants.VOXEL_SIZE_IN_METRES),
+                                            referenceVoxelMap.PositionLeftBottomCorner + new Vector3D(x, y, z) * MyVoxelConstants.VOXEL_SIZE_IN_METRES);
+
+                                        MyRenderProxy.DebugDrawAABB(bb, new Color(content, content, content, content), 0.5f, 1, false);
+                                    }
+                                }
                     }
                     break;
             }

@@ -216,9 +216,14 @@ namespace Sandbox.Definitions
         public bool IsAirTight = false;
 
         /// <summary>
-        /// Building type - always lower case.
+        /// Building type - always lower case (wall, ...).
         /// </summary>
         public string BuildType;
+
+        /// <summary>
+        /// Build material - always lower case (for walls - "stone", "wood"). 
+        /// </summary>
+        public string BuildMaterial;
 
         /// <summary>
         /// Allowed cube block directions.
@@ -292,6 +297,7 @@ namespace Sandbox.Definitions
         private string m_mirroringBlock;
 
         public MySoundPair PrimarySound;
+        public MySoundPair ActionSound;
         public MySoundPair DamagedSound;
 
         public int Points;
@@ -352,6 +358,7 @@ namespace Sandbox.Definitions
             this.Mirrored              = ob.Mirrored;
             this.RandomRotation        = ob.RandomRotation;
             this.BuildType             = ob.BuildType != null ? ob.BuildType.ToLower() : null;
+            this.BuildMaterial         = ob.BuildMaterial != null ? ob.BuildMaterial.ToLower() : null;
             this.BuildProgressToPlaceGeneratedBlocks = ob.BuildProgressToPlaceGeneratedBlocks;
             this.GeneratedBlockType    = MyStringId.GetOrCompute(ob.GeneratedBlockType != null ? ob.GeneratedBlockType.ToLower() : null);
             if (ob.DamageEffectId != 0)
@@ -530,9 +537,10 @@ namespace Sandbox.Definitions
             CheckBuildProgressModels();
             // Components and CriticalComponent will be initialized elsewhere
 
-            this.PrimarySound = new MySoundPair(ob.PrimarySound);
+            PrimarySound = new MySoundPair(ob.PrimarySound);
+            ActionSound = new MySoundPair(ob.ActionSound);
             if (ob.DamagedSound!=null)
-                this.DamagedSound = new MySoundPair(ob.DamagedSound);
+                DamagedSound = new MySoundPair(ob.DamagedSound);
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -561,6 +569,7 @@ namespace Sandbox.Definitions
             ob.Direction = this.Direction;
             ob.Mirrored = this.Mirrored;
             ob.BuildType = this.BuildType;
+            ob.BuildMaterial = this.BuildMaterial;
             ob.GeneratedBlockType = this.GeneratedBlockType.ToString();
             ob.DamageEffectId = this.DamageEffectID.HasValue ? this.DamageEffectID.Value : 0;
             ob.CompoundTemplates = this.CompoundTemplates;

@@ -1,33 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Lights;
-using Sandbox.Game.Screens;
 using Sandbox.Game.World;
 
 using VRageMath;
-using VRageRender;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Weapons.Guns;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.GameSystems.Electricity;
 using System.Diagnostics;
-using VRage.Trace;
 using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.Graphics;
 using Sandbox.Common;
 using Sandbox.Game.Components;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Utils;
 using VRage.ObjectBuilders;
@@ -35,7 +24,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyPowerConsumer
+    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>
     {
         public static float GLARE_SIZE = 0.068f;
 
@@ -97,11 +86,13 @@ namespace Sandbox.Game.Weapons
         private bool m_tryingToShoot;
 
         private bool m_wasPowered;
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
+
+		private MyResourceSinkComponent m_sinkComp;
+		public MyResourceSinkComponent SinkComp
+		{
+			get { return m_sinkComp; }
+			set { if (Components.Contains(typeof(MyResourceSinkComponent))) Components.Remove<MyResourceSinkComponent>(); Components.Add<MyResourceSinkComponent>(value); m_sinkComp = value; }
+		}
 
         public bool IsShooting
         {
@@ -189,11 +180,12 @@ namespace Sandbox.Game.Weapons
 
             m_sensor = new MyDrillSensorRayCast(0f, 1.8f);
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute("Utility"),
                 MyEnergyConstants.REQUIRED_INPUT_ENGINEERING_TOOL,
                 CalculateRequiredPower);
+	        SinkComp = sinkComp;
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
         }
 
@@ -204,7 +196,7 @@ namespace Sandbox.Game.Weapons
 
         protected float CalculateRequiredPower()
         {
-            return ShouldBePowered() ? PowerReceiver.MaxRequiredInput : 0.0f;
+			return ShouldBePowered() ? SinkComp.MaxRequiredInput : 0.0f;
         }
 
         private void UpdatePower()
@@ -213,7 +205,7 @@ namespace Sandbox.Game.Weapons
             if (shouldBePowered != m_wasPowered)
             {
                 m_wasPowered = shouldBePowered;
-                PowerReceiver.Update();
+				SinkComp.Update();
             }
         }
 
@@ -317,9 +309,9 @@ namespace Sandbox.Game.Weapons
                     m_targetDistanceSq = (float)Vector3D.DistanceSquared(m_targetPosition, m_gunBase.GetMuzzleWorldPosition());
                 }
             }
-            PowerReceiver.Update();
+			SinkComp.Update();
 
-            if (IsShooting && !PowerReceiver.IsPowered)
+			if (IsShooting && !SinkComp.IsPowered)
             {
                 EndShoot(MyShootActionEnum.PrimaryAction);
             }
@@ -388,8 +380,8 @@ namespace Sandbox.Game.Weapons
 
             m_shootFrameCounter++;
             m_tryingToShoot = true;
-            PowerReceiver.Update();
-            if (!PowerReceiver.IsPowered)
+			SinkComp.Update();
+			if (!SinkComp.IsPowered)
             {
                 CurrentEffect = 0;
                 return;
@@ -421,7 +413,7 @@ namespace Sandbox.Game.Weapons
                 StopLoopSound();
                 ShakeAmount = 0.0f;
                 m_tryingToShoot = false;
-                PowerReceiver.Update();
+				SinkComp.Update();
                 m_activated = false;
                 m_shootFrameCounter = 0;
             }

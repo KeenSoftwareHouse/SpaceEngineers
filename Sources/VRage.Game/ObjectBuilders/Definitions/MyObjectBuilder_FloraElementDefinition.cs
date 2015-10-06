@@ -5,12 +5,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using VRage.Game.ObjectBuilders;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
-    public enum MyAreaTransformType
+    public enum MyAreaTransformType : byte
     {
+        NONE = 0,
         ENRICHING,
         EXPANDING,
     }
@@ -36,7 +38,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         {
             [ProtoMember]
             [XmlAttribute]
-            public int SubModelId = -1;
+            public int GroupInsId = -1; // 0 is the first
 
             [ProtoMember]
             [XmlAttribute]
@@ -54,8 +56,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         }
 
         [ProtoMember, DefaultValue(null)]
-        [XmlArrayItem("Item")]
-        public EnvItem[] EnvironmentItems = null;
+        [XmlArrayItem("Group")]
+        public string[] AppliedGroups;
 
         [ProtoMember]
         public float SpawnProbability = 1;
@@ -81,5 +83,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(null)]
         public GatheredItemDef GatheredItem = null;
+
+        [ProtoMember, DefaultValue(0)]
+        public float DecayTime = 0;
     }
 }

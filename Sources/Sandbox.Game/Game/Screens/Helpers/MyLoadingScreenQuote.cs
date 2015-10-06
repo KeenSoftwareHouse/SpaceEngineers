@@ -2,7 +2,6 @@
 using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Screens.Helpers

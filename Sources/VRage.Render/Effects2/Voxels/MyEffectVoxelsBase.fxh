@@ -7,9 +7,13 @@
 
 const static int NUM_SCALES = 5;
 //	Voxel 'texture scale by distance' trick (this is not about LOD at all)
-const static float TEXTURE_SCALE[] = { 10, 50, 250, 1250, 6250};
+float TEXTURE_DISTANCE[] = { 25, 100, 750, 5000, 10000};
+float TEXTURE_SCALE[] =    { 10, 40, 400, 20000, 40000};
 
-int EnablePerVertexAmbient = 1;
+int EnableVoxelAo = 1;
+float VoxelAoMin;
+float VoxelAoMax;
+float VoxelAoOffset;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	Material
@@ -272,9 +276,9 @@ float GetNearScaleIndex(float distance)
 {
 	for (int i = NUM_SCALES-1; i > -1; --i)
 	{
-		if (TEXTURE_SCALE[i] <= distance)
+		if (TEXTURE_DISTANCE[i] <= distance)
 		{
-			return i;
+			return i + 1;
 		}
 	}
 	return 0;
@@ -298,14 +302,39 @@ VoxelPixelData GetPixelData(int materialIndex, float3 localPosition, float3 trip
 	//float baseScale = 1 + 9 * step(1100, viewDistance);
 
 	int nearScaleIndex = GetNearScaleIndex(viewDistance);
-	float SCALE_NEAR = TEXTURE_SCALE[nearScaleIndex];
-	float SCALE_FAR = TEXTURE_SCALE[min(nearScaleIndex + 1, NUM_SCALES)];
+
+	float dists[NUM_SCALES + 2];
+	dists[0] = 0;
+	dists[NUM_SCALES + 1] = TEXTURE_DISTANCE[NUM_SCALES - 1];
+	for (int i = 1; i < NUM_SCALES + 1; i++)
+	{
+		dists[i] = TEXTURE_DISTANCE[i - 1];
+	}
+
+	float scales2[NUM_SCALES + 2];
+	scales2[0] = 0.5f;
+	scales2[NUM_SCALES + 1] = 1.0f / TEXTURE_SCALE[NUM_SCALES - 1];
+	for (int i = 1; i < NUM_SCALES + 1; i++)
+	{
+		scales2[i] = 1.0f / TEXTURE_SCALE[i - 1];
+	}
+
+
+	float SCALE_NEAR = scales2[nearScaleIndex];
+	float SCALE_FAR = scales2[nearScaleIndex + 1];
+
+	float DIST_NEAR = dists[nearScaleIndex];
+	float DIST_FAR = dists[nearScaleIndex + 1];
 
 	//	Voxel 'texture scale by distance' trick (this is not about LOD at all)
-	float interpolatorForTextureByDistance = saturate((viewDistance - SCALE_NEAR) / (SCALE_FAR - SCALE_NEAR));
+	//float interpolatorForTextureByDistance = saturate((viewDistance - dists[nearScaleIndex]) / (SCALE_FAR - SCALE_NEAR));
 
-	float3 texCoordNear = localPosition.xyz / SCALE_NEAR;
-	float3 texCoordFar = localPosition.xyz / SCALE_FAR;
+	//float interpolatorForTextureByDistance = saturate(saturate((viewDistance - DIST_NEAR) / (DIST_FAR - DIST_NEAR) - 0.25f) * 1.5f);
+	float interpolatorForTextureByDistance = saturate(saturate((viewDistance - DIST_NEAR) / (DIST_FAR - DIST_NEAR) - 0.25f) * 1.5f);
+
+
+	float3 texCoordNear = localPosition.xyz * SCALE_NEAR;
+	float3 texCoordFar = localPosition.xyz * SCALE_FAR;
 
 	//	Near texture
 	float2 uvForAxisX_Near = texCoordNear.zy;
@@ -340,7 +369,12 @@ VoxelPixelData GetPixelData(int materialIndex, float3 localPosition, float3 trip
 		float highAmbientFull = 2500;
 		float ambientMultiplier = lerp(1.0f, 1.5f, (viewDistance - highAmbientStart) / (highAmbientFull - highAmbientStart));
 		ambientMultiplier = clamp(ambientMultiplier, 1, 1.5f);
-		diffuseTexture.xyz += EnablePerVertexAmbient * perVertexAmbient * diffuseTexture.xyz * ambientMultiplier;
+		float finalAmbient = EnableVoxelAo * (perVertexAmbient - VoxelAoMin) * rcp(VoxelAoMax - VoxelAoMin) + VoxelAoOffset;
+		diffuseTexture.xyz -= finalAmbient * diffuseTexture.xyz * ambientMultiplier;
+#if 0
+		float a = 1.0f - finalAmbient;
+		diffuseTexture.xyz = float3(a,a,a);
+#endif
 	}
 
 	VoxelPixelData ret;

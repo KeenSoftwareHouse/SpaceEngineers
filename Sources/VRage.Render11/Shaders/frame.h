@@ -6,11 +6,11 @@ struct FrameConstants {
 	//
 	matrix 	view_projection_matrix;
 	matrix	view_matrix;
-	matrix	projection_matrix;	
+	matrix	projection_matrix;
 	matrix 	inv_view_matrix;
 	matrix  inv_proj_matrix;
 	matrix 	inv_view_proj_matrix;
-	
+
 	matrix 	view_projection_matrix_world;
 	float4	world_offset;
 
@@ -23,7 +23,7 @@ struct FrameConstants {
 	float4 	terrain_texture_distances;
 
 	float2 	terrain_material_transition;
-	
+
 	uint 	tiles_num;
 	uint 	tiles_x;
 
@@ -66,10 +66,21 @@ struct FrameConstants {
 	float 	tonemapping_E;
 	float 	tonemapping_F;
 	float 	logLumThreshold;
-	float 	padding2_;
+	float 	debug_voxel_lod;
 
 	// up to 8 lod levels + 16 massive levels
-	float4 voxel_lod_range[12]; 
+	float4 voxel_lod_range[12];
+
+	float skyboxBrightness;
+	float shadowFadeout;
+	float2 _padding;
+
+	float EnableVoxelAo;
+	float VoxelAoMin;
+	float VoxelAoMax;
+	float VoxelAoOffset;
+
+	matrix background_orientation;
 };
 
 cbuffer Frame : register( MERGE(b,FRAME_SLOT) )
@@ -100,7 +111,8 @@ float3 reconstruct_position(float hwDepth, float2 uv) {
 	return depth * V;
 }
 
-float2 get_voxel_lod_range(uint lod) {
+float2 get_voxel_lod_range(uint lod) 
+{
 	lod = min(lod, 8 + 16 - 1);
 	return (lod % 2) ? frame_.voxel_lod_range[lod/2].zw : frame_.voxel_lod_range[lod/2].xy;
 }

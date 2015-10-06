@@ -45,7 +45,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         {
             if (!DebugIsCurrentTreeVerified || DebugLastWindowHandle.ToInt32() != m_toolWindowHandle.ToInt32())
             {
-                int hash = bot.BehaviorTree.GetHashCode();
+                int hash = m_BTDataByName[m_botBehaviorIds[bot]].BehaviorTree.GetHashCode();
                 IntPtr toSend = new IntPtr(hash);
                 WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_VALIDATE_TREE, toSend, IntPtr.Zero);
                 DebugIsCurrentTreeVerified = true;
@@ -113,6 +113,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         public static readonly string DEFAULT_EXTENSION = ".sbc";
 
         private Dictionary<MyStringHash, BTData> m_BTDataByName;
+        private Dictionary<IMyBot, MyStringHash> m_botBehaviorIds;
 
         public bool DebugSelectedTreeHashSent { get; private set; }
         public IntPtr DebugLastWindowHandle { get; private set; }
@@ -133,6 +134,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         public MyBehaviorTreeCollection()
         {
             m_BTDataByName = new Dictionary<MyStringHash, BTData>(MyStringHash.Comparer);
+            m_botBehaviorIds = new Dictionary<IMyBot, MyStringHash>();
             DebugIsCurrentTreeVerified = false;
 
             foreach (var behavior in MyDefinitionManager.Static.GetBehaviorDefinitions())
@@ -143,6 +145,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public void Update()
         {
+            VRage.ProfilerShort.Begin("Behaviors update");
             foreach (var bt in m_BTDataByName.Values)
             {
                 var behaviorTree = bt.BehaviorTree;
@@ -157,17 +160,20 @@ namespace Sandbox.Game.AI.BehaviorTree
 
                         if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION && DebugBot == data.Bot && !DebugBreakDebugging && MyDebugDrawSettings.DEBUG_DRAW_BOTS)
                         {
+                            VRage.ProfilerShort.Begin("Sending debug data");
                             if (TryGetValidToolWindow(out m_toolWindowHandle))
                             {
                                 if (!DebugSelectedTreeHashSent || m_toolWindowHandle != DebugLastWindowHandle
-                                    || DebugCurrentBehaviorTree != DebugBot.BehaviorTree.BehaviorTreeName)
+                                    || DebugCurrentBehaviorTree != m_botBehaviorIds[DebugBot].String)
                                     SendSelectedTreeForDebug(behaviorTree);
                                 SendDataToTool(data.Bot, data.Bot.BotMemory.CurrentTreeBotMemory);
                             }
+                            VRage.ProfilerShort.End();
                         }
                     }
                 }
             }
+            VRage.ProfilerShort.End();
         }
 
         public bool AssignBotToBehaviorTree(string behaviorName, IMyBot bot)
@@ -192,16 +198,38 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         private void AssignBotBehaviorTreeInternal(MyBehaviorTree behaviorTree, IMyBot bot)
         {
-            bot.BehaviorTree = behaviorTree;
             bot.BotMemory.AssignBehaviorTree(behaviorTree);
             m_BTDataByName[behaviorTree.BehaviorTreeId].BotsData.Add(new BotData(bot));
+            m_botBehaviorIds[bot] = behaviorTree.BehaviorTreeId;
         }
 
-        private void UnassignBotBehaviorTree(IMyBot bot)
+        public void UnassignBotBehaviorTree(IMyBot bot)
         {
-            m_BTDataByName[bot.BehaviorTree.BehaviorTreeId].RemoveBot(bot);
+            m_BTDataByName[m_botBehaviorIds[bot]].RemoveBot(bot);
             bot.BotMemory.UnassignCurrentBehaviorTree();
-            bot.BehaviorTree = null;
+            m_botBehaviorIds[bot] = MyStringHash.NullOrEmpty;
+        }
+
+        public MyBehaviorTree TryGetBehaviorTreeForBot(IMyBot bot)
+        {
+            BTData data = null;
+            m_BTDataByName.TryGetValue(m_botBehaviorIds[bot], out data);
+            if (data != null)
+                return data.BehaviorTree;
+            Debug.Assert(false, "Behavior not found");
+            return null;
+        }
+
+        public string GetBehaviorName(IMyBot bot)
+        {
+            MyStringHash hash;
+            m_botBehaviorIds.TryGetValue(bot, out hash);
+            return hash.String;
+        }
+
+        public void SetBehaviorName(IMyBot bot, string behaviorName)
+        {
+            m_botBehaviorIds[bot] = MyStringHash.GetOrCompute(behaviorName);
         }
 
         private bool BuildBehaviorTree(MyBehaviorDefinition behaviorDefinition)
@@ -225,9 +253,10 @@ namespace Sandbox.Game.AI.BehaviorTree
                 return false;
             if (!behaviorTree.IsCompatibleWithBot(bot.ActionCollection))
                 return false;
-            if (bot.BehaviorTree != null)
+            var tree = TryGetBehaviorTreeForBot(bot);
+            if (tree != null)
             {
-                if (bot.BehaviorTree.BehaviorTreeId == behaviorTree.BehaviorTreeId)
+                if (tree.BehaviorTreeId == behaviorTree.BehaviorTreeId)
                     assign = false;
                 else
                 {

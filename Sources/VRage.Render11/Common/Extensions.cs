@@ -6,7 +6,6 @@ using System.Text;
 using VRage.Generics;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
 
 namespace VRageRender
@@ -28,6 +27,15 @@ namespace VRageRender
                 (float) Math.Round(v.X),
                 (float) Math.Round(v.Y),
                 (float) Math.Round(v.Z)
+                );
+        }
+
+        public static Vector3D Round(this Vector3D v)
+        {
+            return new Vector3D(
+                Math.Round(v.X),
+                Math.Round(v.Y),
+                Math.Round(v.Z)
                 );
         }
 

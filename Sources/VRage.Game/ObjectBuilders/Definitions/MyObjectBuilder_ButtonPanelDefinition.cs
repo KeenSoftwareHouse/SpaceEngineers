@@ -8,6 +8,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ButtonPanelDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public int ButtonCount;
 

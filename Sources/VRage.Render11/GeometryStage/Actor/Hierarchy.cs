@@ -141,6 +141,7 @@ namespace VRageRender
 
         internal void RemoveEntity(MyActor actor)
         {
+            m_actors.Remove(actor);
             m_mergeGroup.RemoveEntity(actor.ID);
         }
 
@@ -172,7 +173,7 @@ namespace VRageRender
 
                 DepthShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.DEPTH_ONLY),
                 Shaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
-                ForwardShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
+                ForwardShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
 
                 RenderFlags = MyRenderableProxyFlags.DepthSkipTextures,
 
@@ -313,12 +314,13 @@ namespace VRageRender
         internal void Remove(MyGroupLeafComponent leaf)
         {
             m_mergablesCounter = leaf.m_mergable ? m_mergablesCounter - 1 : m_mergablesCounter;
-            m_children.Remove(leaf.m_owner);
 
             if (m_mergablesCounter < MERGE_THRESHOLD && m_isMerged)
             {
                 TurnIntoSeparateRenderables();
             }
+
+            m_children.Remove(leaf.m_owner);
         }
 
         internal void Merge(MyActor child)

@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 
 namespace VRage.Network
 {
+    public enum MySyncedDataStateEnum : byte
+    {
+        UpToDate = 0,
+        Pending,
+        Outdated,
+    }
+
     public interface IMySyncedValue
     {
         void SetParent(MySyncedClass mySyncedClass);
@@ -16,7 +24,9 @@ namespace VRage.Network
         void SerializeDefault(BitStream bs, int clientIndex);
         void DeserializeDefault(BitStream bs);
 
-        bool IsDirty(int clientIndex);
+        MySyncedDataStateEnum GetDataState(int clientIndex);
         bool IsDefault();
+
+        void ResetPending(int clientIndex);
     }
 }

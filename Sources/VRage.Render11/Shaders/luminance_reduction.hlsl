@@ -38,6 +38,7 @@ cbuffer Constants : register( c1 )
 {
 	uint2 Texture_size;
 	int Texture_texels;
+	float Constant_luminance;
 };
 
 #include <math.h>
@@ -132,6 +133,10 @@ void luminance_reduce(
 #else
 		ReduceOutput[GroupID.xy] = ReduceBuffer[0];
 #endif
+		if (Constant_luminance > 0.0f)
+		{
+			ReduceOutput[GroupID.xy] = Constant_luminance;
+		}
 	}        
 }
 

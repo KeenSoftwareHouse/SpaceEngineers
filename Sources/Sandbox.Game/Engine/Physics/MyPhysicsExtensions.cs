@@ -7,10 +7,11 @@ using Sandbox.Game.Entities;
 using System.Diagnostics;
 using Sandbox.Common.Components;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace Sandbox.Engine.Physics
 {
-    public static class MyPhysicsExtensions
+    public static partial class MyPhysicsExtensions
     {
         public static MyPhysicsBody GetBody(this HkEntity hkEntity)
         {
@@ -22,7 +23,9 @@ namespace Sandbox.Engine.Physics
             var body = hkEntity.GetBody();
             if(body != null)
             {
-                if (body.WeldInfo.Children.Count == 0 || shapeKey > 100)
+                if (shapeKey == 0)
+                    return body.Entity;
+                if (shapeKey > body.WeldInfo.Children.Count)
                     return body.Entity;
                 var shape = body.RigidBody.GetShape().GetContainer().GetShape(shapeKey);
                 if(shape.IsValid)
@@ -31,23 +34,31 @@ namespace Sandbox.Engine.Physics
             return body != null ? body.Entity : null;
         }
 
-        static List<IMyEntity> m_entityList = new List<IMyEntity>();
+        [ThreadStatic]
+        static List<IMyEntity> m_entityList;
+
+        static List<IMyEntity> EntityList
+        {
+            get
+            {
+                if (m_entityList == null)
+                    m_entityList = new List<IMyEntity>();
+                return m_entityList;
+            }
+        }
         public static List<IMyEntity> GetAllEntities(this HkEntity hkEntity)
         {
-            //Debug.Assert(m_entityList.Count == 0, "List was not cleared!");
+            Debug.Assert(EntityList.Count == 0, "List was not cleared!");
 
             var body = hkEntity.GetBody();
             if (body != null)
             {
-                m_entityList.Add(body.Entity);
-                if (body.IsWelded)
-                {
-                    foreach (var child in body.WeldInfo.Children)
-                        m_entityList.Add(child.Entity);
-                }
+                EntityList.Add(body.Entity);
+                foreach (var child in body.WeldInfo.Children)
+                    EntityList.Add(child.Entity);
             }
 
-            return m_entityList;
+            return EntityList;
         }
 
         public static IMyEntity GetSingleEntity(this HkEntity hkEntity)
@@ -77,8 +88,12 @@ namespace Sandbox.Engine.Physics
 
         public static MyPhysicsBody GetPhysicsBody(this HkContactPointEvent eventInfo, int index)
         {
-            var body = eventInfo.Base.GetRigidBody(index).GetBody();
-            if (body.IsWelded)
+            var rb = eventInfo.Base.GetRigidBody(index);
+            if (rb == null)
+                return null;
+
+            var body = rb.GetBody();
+            if (body != null && body.IsWelded)
             {
                 uint shapeKey = 0;
                 int i = 0;
@@ -90,7 +105,7 @@ namespace Sandbox.Engine.Physics
                     }
                 }
                 shapeKey = eventInfo.GetShapeKey(0, i - 1);
-                body = HkRigidBody.FromShape(eventInfo.Base.BodyA.GetShape().GetContainer().GetShape(shapeKey)).GetBody();
+                body = HkRigidBody.FromShape(rb.GetShape().GetContainer().GetShape(shapeKey)).GetBody();
             }
             return body;
         }
@@ -103,6 +118,11 @@ namespace Sandbox.Engine.Physics
         public static IMyEntity GetCollisionEntity(this HkBodyCollision collision)
         {
             return collision.Body != null ? collision.Body.GetEntity(0) : null;
+        }
+
+        public static bool IsInWorldWelded(this MyPhysicsBody body)
+        {
+            return body.IsInWorld || (body.WeldInfo.Parent != null && body.WeldInfo.Parent.IsInWorld);
         }
 
     }

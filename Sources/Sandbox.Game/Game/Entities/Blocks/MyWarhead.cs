@@ -364,6 +364,8 @@ namespace Sandbox.Game.Entities.Cube
             m_warheadsInsideCount = 0;
             foreach (var entity in m_entitiesInShrinkenSphere)
             {
+                if (entity as MyCubeBlock != null && (entity as MyCubeBlock).CubeGrid.Projector != null)
+                    continue;
                 if (Vector3D.DistanceSquared(PositionComp.GetPosition(), entity.PositionComp.GetPosition()) < warheadBlockRadius * shrink * warheadBlockRadius * shrink)
                 {
                     MyWarhead warhead = entity as MyWarhead;
@@ -500,8 +502,8 @@ namespace Sandbox.Game.Entities.Cube
                 MySyncLayer.RegisterMessage<SetTimerMsg>(SetTimerSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
                 MySyncLayer.RegisterMessage<CountdownMsg>(CountdownRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<CountdownMsg>(CountdownSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<ArmMsg>(ArmSuccess, MyMessagePermissions.Any);
-                MySyncLayer.RegisterMessage<DetonateMsg>(DetonateRequest, MyMessagePermissions.Any);
+                MySyncLayer.RegisterMessage<ArmMsg>(ArmSuccess, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
+                MySyncLayer.RegisterMessage<DetonateMsg>(DetonateRequest, MyMessagePermissions.ToServer);
             }
 
             public static void SetTimer(MyWarhead warhead, float newTimerValue)
@@ -617,7 +619,7 @@ namespace Sandbox.Game.Entities.Cube
                 msg.EntityId = warhead.EntityId;
                 msg.IsArmed = armed;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
 
             static void ArmSuccess(ref ArmMsg msg, MyNetworkClient sender)
@@ -626,7 +628,13 @@ namespace Sandbox.Game.Entities.Cube
                 MyEntities.TryGetEntityById(msg.EntityId, out entity);
                 var warhead = entity as MyWarhead;
                 if (warhead != null)
+                {
                     warhead.IsArmed = msg.IsArmed;
+                    if(Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg,sender.SteamUserId);
+                    }
+                }
             }
 
             public static void Detonate(MyWarhead warhead)
