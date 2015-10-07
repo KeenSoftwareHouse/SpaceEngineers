@@ -49,7 +49,7 @@ namespace Sandbox.Game.Weapons.Ammo
             msg.LauncherEntityId = (launcher as MyEntity).EntityId;
             msg.Owner = owner;
 
-            Sync.Layer.SendMessageToAll(msg);
+            Sync.Layer.SendMessageToAll(ref msg);
         }
 
         private static void MissileCreatedSuccess(ref MissileShootMsg msg, MyNetworkClient sender)

@@ -83,7 +83,7 @@ namespace Sandbox.Game.Entities.Character
 
             Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
 
-
+            EnableDetectorsInArea(from);
             //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
             //VRageRender.MyRenderProxy.DebugDrawSphere(headPos, 0.05f, Color.Red.ToVector3(), 1.0f, false);
 
@@ -111,7 +111,6 @@ namespace Sandbox.Game.Entities.Character
                 //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
                 //return;
                 DetectedEntity = entity;
-
                 if (entity != null)
                 {
                     ShapeKey = h.HkHitInfo.GetShapeKey(0);
@@ -148,10 +147,14 @@ namespace Sandbox.Game.Entities.Character
             if (!hasInteractive)
             {
                 if (UseObject != null)
+                {
                     UseObject.OnSelectionLost();
+                }
 
-                UseObject = null;
+                UseObject = null;         
             }
+
+            DisableDetectors();
         }
     }
 }

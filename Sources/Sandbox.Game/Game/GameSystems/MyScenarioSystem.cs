@@ -198,6 +198,8 @@ namespace Sandbox.Game.GameSystems
                         ServerPreparationStartTime = DateTime.UtcNow;
                         MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
                         GameState = MyState.Running;
+                        if (!MySandboxGame.IsDedicated)
+                            StartScenario();
                         return;
                     }
                     if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE || MyMultiplayer.Static != null)
@@ -307,7 +309,8 @@ namespace Sandbox.Game.GameSystems
             }
             GameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
-            MyPlayerCollection.RequestLocalRespawn();
+            if (MySession.LocalHumanPlayer == null || MySession.LocalHumanPlayer.Character == null)
+                MyPlayerCollection.RequestLocalRespawn();
         }
 
         internal static MyOnlineModeEnum GetOnlineModeFromCurrentLobbyType()

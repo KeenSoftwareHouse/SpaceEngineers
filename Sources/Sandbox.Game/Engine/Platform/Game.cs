@@ -59,7 +59,7 @@ namespace Sandbox.Engine.Platform
         {
             get
             {
-                Debug.Assert(Thread.CurrentThread == UpdateThread);
+               // Debug.Assert(Thread.CurrentThread == UpdateThread);
                 return m_updateTime;
             }
         }
@@ -86,7 +86,9 @@ namespace Sandbox.Engine.Platform
         #endregion
 
         #region Public Events
-
+        
+        public event Action OnGameExit;
+        
         #endregion
 
         #region Public Properties
@@ -108,12 +110,15 @@ namespace Sandbox.Engine.Platform
 
         #region Public Methods and Operators
 
-        FixedRenderLoop m_renderLoop = new FixedRenderLoop();
+        FixedLoop m_renderLoop = new FixedLoop(Stats.Generic, "WaitForUpdate");
+
         /// <summary>
         /// Exits the game.
         /// </summary>
         public void Exit()
         {
+            var handler = OnGameExit;
+            if (handler != null) handler();
             m_renderLoop.IsDone = true;
         }
 
@@ -122,6 +127,8 @@ namespace Sandbox.Engine.Platform
         /// </summary>
         protected void RunLoop()
         {
+            MyLog.Default.WriteLine("Timer Frequency: " + MyGameTimer.Frequency);
+            MyLog.Default.WriteLine("Ticks per frame: " + m_renderLoop.TickPerFrame);
             m_renderLoop.Run(RunSingleFrame);
         }
 
@@ -144,12 +151,12 @@ namespace Sandbox.Engine.Platform
         {
             using (Stats.Generic.Measure("BeforeUpdate"))
             {
-                ProfilerShort.Begin("BeforeUpdate");
+                ProfilerShort.Begin("UpdateInternal::BeforeUpdate");
                 VRageRender.MyRenderProxy.BeforeUpdate();
                 ProfilerShort.End();
             }
 
-            ProfilerShort.Begin("Update");
+            ProfilerShort.Begin("UpdateInternal::Update");
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update Start");
 
             m_updateTime = m_gameTimer.Elapsed;
@@ -158,18 +165,19 @@ namespace Sandbox.Engine.Platform
 
             if (!IsDedicated)
             {
-                ProfilerShort.Begin("PrepareForDraw");
+                ProfilerShort.Begin("UpdateInternal::PrepareForDraw");
                 PrepareForDraw();
                 ProfilerShort.End();
             }
 
             using (Stats.Generic.Measure("AfterUpdate"))
             {
-                ProfilerShort.Begin("AfterUpdate");
+                ProfilerShort.Begin("UpdateInternal::AfterUpdate");
                 VRageRender.MyRenderProxy.AfterUpdate(m_updateTime);
                 ProfilerShort.End();
             }
 
+            ProfilerShort.Commit();
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update End");
         }
 

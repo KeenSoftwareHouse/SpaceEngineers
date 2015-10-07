@@ -22,7 +22,7 @@ cbuffer OutlineConstants : register( b4 ) {
 void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 
 	PixelInterface pixel;
-	pixel.screen_position = input.position.xy;
+	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 	init_ps_interface(pixel);
 	pixel.position_ws = input.worldPosition;

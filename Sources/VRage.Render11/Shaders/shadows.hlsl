@@ -29,8 +29,6 @@ Texture2D<float>	DepthBuffer	: register( t0 );
 Texture2D<float> Shadow : register( t0 );
 RWTexture2D<float> Output : register( u0 );
 
-//
-
 static const float2 PoissonSamplesArray[] = {
 	float2( 0.130697, -0.209628),
 	float2( -0.112312, 0.327448),

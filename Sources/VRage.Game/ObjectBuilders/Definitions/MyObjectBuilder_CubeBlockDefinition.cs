@@ -298,34 +298,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         }
 
         [ProtoContract]
-        public class MyAdditionalModelDefinition
-        {
-            [XmlAttribute]
-            [ProtoMember]
-            public string Type;
-
-            [XmlAttribute]
-            [ProtoMember]
-            [ModdableContentFile("mwm")]
-            public string File;
-
-            [XmlAttribute]
-            [ProtoMember, DefaultValue(false)]
-            public bool EnablePhysics = false;
-        }
-
-        [ProtoContract]
-        public class MyGeneratedBlockDefinition
-        {
-            [XmlAttribute]
-            [ProtoMember]
-            public string Type;
-
-            [ProtoMember]
-            public SerializableDefinitionId Id;
-        }
-
-        [ProtoContract]
         public class MySubBlockDefinition
         {
             [XmlAttribute]
@@ -434,8 +406,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public string PrimarySound;
 
+        [ProtoMember]
+        public string ActionSound;
+
         [ProtoMember, DefaultValue(null)] 
         public string BuildType = null;
+
+        [ProtoMember, DefaultValue(null)]
+        public string BuildMaterial = null;
 
         [XmlArrayItem("Template")]
         [ProtoMember, DefaultValue(null)]
@@ -473,7 +451,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(null)]
         public string GeneratedBlockType = null;
 
-        // Defines if the block is mirrored version of some other block (mirrored block is usually used as block stage)
+        // Defines if the block is mirrored version of some other block (mirrored block is usually used as block variant)
         [ProtoMember, DefaultValue(false)]
         public bool Mirrored = false;
 

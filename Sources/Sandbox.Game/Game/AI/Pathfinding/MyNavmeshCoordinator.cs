@@ -59,7 +59,7 @@ namespace Sandbox.Game.AI.Pathfinding
             cellBoundingBox.Inflate(largeCubeSize);
 
             // Furthermore, a triangle cannot lie in a cube under existing block, so we have to extend the bbox even further
-            if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+            if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
             {
                 var min = cellBoundingBox.Min;
                 min.Y -= largeCubeSize;
@@ -89,7 +89,7 @@ namespace Sandbox.Game.AI.Pathfinding
             BoundingBoxD triBB;
             Vector3D aLocal, bLocal, cLocal, gLocal;
             Vector3D g = Vector3D.Zero;
-            if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+            if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
             {
                 g = Vector3.Down * 2.0f;
             }
@@ -184,7 +184,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 foreach (var tri in m_tmpNavTris)
                 {
                     Vector3D posDiff = addedPrimitive.WorldPosition - tri.WorldPosition;
-                    if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+                    if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
                     {
                         if (Math.Abs(posDiff.Y) < 0.3)
                         {

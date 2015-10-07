@@ -61,6 +61,12 @@ namespace Sandbox.Definitions
             SubtypeId = subtypeId;
         }
 
+        public MyDefinitionId(MyRuntimeObjectBuilderId type, MyStringHash subtypeId)
+        {
+            TypeId = (MyObjectBuilderType)type;
+            SubtypeId = subtypeId;
+        }
+
         public override int GetHashCode()
         {
             return (int)((((uint)TypeId.GetHashCode()) << 16) ^ ((uint)SubtypeId.GetHashCode()));

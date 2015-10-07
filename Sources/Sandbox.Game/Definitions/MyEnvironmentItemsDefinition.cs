@@ -7,6 +7,7 @@ using System.Diagnostics;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
+using System;
 
 
 namespace Sandbox.Definitions
@@ -16,6 +17,9 @@ namespace Sandbox.Definitions
     {
         private HashSet<MyStringHash> m_itemDefinitions;
         private List<MyStringHash> m_definitionList;
+
+        private List<float> Frequencies;
+        private float[] Intervals;
 
         private MyObjectBuilderType m_itemDefinitionType = MyObjectBuilderType.Invalid;
         public MyObjectBuilderType ItemDefinitionType { get { return m_itemDefinitionType; } }
@@ -60,15 +64,47 @@ namespace Sandbox.Definitions
             SectorSize = ob.SectorSize;
             ItemSize = ob.ItemSize;
             Material = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
+
+            Frequencies = new List<float>();
         }
 
-        public void AddItemDefinition(MyStringHash definition)
+        public void AddItemDefinition(MyStringHash definition, float frequency, bool recompute = true)
         {
             Debug.Assert(!m_itemDefinitions.Contains(definition));
             if (m_itemDefinitions.Contains(definition)) return;
 
             m_itemDefinitions.Add(definition);
             m_definitionList.Add(definition);
+
+            Frequencies.Add(frequency);
+
+            if (recompute)
+                RecomputeFrequencies();
+        }
+
+        public void RecomputeFrequencies()
+        {
+            if (m_definitionList.Count == 0)
+            {
+                Intervals = null;
+                return;
+            }
+
+            Intervals = new float[m_definitionList.Count-1];
+            float totalFrequency = 0;
+
+            foreach (var f in Frequencies)
+            {
+                totalFrequency += f;
+            }
+
+            float acc = 0;
+
+            for (int i = 0; i < Intervals.Length; i++)
+            {
+                acc += Frequencies[i];
+                Intervals[i] = acc / totalFrequency;
+            }
         }
 
         public MyEnvironmentItemDefinition GetItemDefinition(MyStringHash subtypeId)
@@ -94,8 +130,9 @@ namespace Sandbox.Definitions
         {
             if (m_definitionList.Count == 0) return null;
 
-            int index = MyRandom.Instance.Next(0, m_definitionList.Count);
-            return GetItemDefinition(m_definitionList[index]);
+            float value = MyRandom.Instance.Next(0, 65536) / 65536.0f;
+
+            return GetItemDefinition(m_definitionList[Intervals.BinaryIntervalSearch(value)]);
         }
 
         public bool ContainsItemDefinition(MyStringHash subtypeId)
@@ -103,9 +140,14 @@ namespace Sandbox.Definitions
             return m_itemDefinitions.Contains(subtypeId);
         }
 
+        public bool ContainsItemDefinition(MyDefinitionId definitionId)
+        {
+            return definitionId.TypeId == m_itemDefinitionType && m_itemDefinitions.Contains(definitionId.SubtypeId);
+        }
+
         public bool ContainsItemDefinition(MyEnvironmentItemDefinition itemDefinition)
         {
-            return itemDefinition.Id.TypeId == m_itemDefinitionType && ContainsItemDefinition(itemDefinition.Id.SubtypeId);
+            return ContainsItemDefinition(itemDefinition.Id);
         }
     }
 }

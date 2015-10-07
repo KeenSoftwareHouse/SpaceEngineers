@@ -938,8 +938,7 @@ namespace VRageMath
 
         public static MyOrientedBoundingBoxD Create(BoundingBoxD boundingBox, MatrixD matrix)
         {
-            BoundingBoxD centeredBox = new BoundingBoxD(-boundingBox.Size / 2, boundingBox.Size / 2);
-            MyOrientedBoundingBoxD bb = MyOrientedBoundingBoxD.CreateFromBoundingBox(centeredBox);
+            MyOrientedBoundingBoxD bb = new MyOrientedBoundingBoxD(boundingBox.Center, boundingBox.HalfExtents, Quaternion.Identity);
             bb.Transform(matrix);
             return bb;
         }

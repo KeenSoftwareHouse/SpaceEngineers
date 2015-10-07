@@ -542,7 +542,11 @@ namespace Sandbox.Game.Gui
                         MySession.Static.Unload();
                         MySession.Static = null;
                     }
-                    MyGuiScreenGamePlay.StartLoading(delegate { MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes); });
+                    MyGuiScreenGamePlay.StartLoading(delegate
+                    {
+                        MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
+                        MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+                    });
                 }
                 else
                 {

@@ -1,4 +1,5 @@
-﻿using VRage.ObjectBuilders;
+﻿using System;
+using VRage.ObjectBuilders;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Common.ObjectBuilders.VRageData;
@@ -6,6 +7,7 @@ using VRage.Utils;
 using VRageMath;
 using System.Xml.Serialization;
 using VRage;
+using System.Diagnostics;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -37,7 +39,23 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public SerializableBoundingBoxD WorldBoundaries;
 
         [ProtoMember]
-        public MyObjectBuilder_Toolbar DefaultToolbar;
+        public MyObjectBuilder_Toolbar DefaultToolbar
+        {
+            get { return null; }
+            set { CreativeDefaultToolbar = SurvivalDefaultToolbar = value; }
+        }
+        public bool ShouldSerializeDefaultToolbar() { return false; }
+
+        [ProtoMember]
+        public MyObjectBuilder_Toolbar CreativeDefaultToolbar
+        {
+            get { return m_creativeDefaultToolbar; }
+            set { m_creativeDefaultToolbar = value; }
+        }
+        private MyObjectBuilder_Toolbar m_creativeDefaultToolbar;
+
+        [ProtoMember]
+        public MyObjectBuilder_Toolbar SurvivalDefaultToolbar;
 
         [ProtoMember]
         public MyOBBattleSettings Battle;
@@ -45,7 +63,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public string MainCharacterModel;
 
+        [ProtoMember]
+        public long GameDate = 656385372000000000; // Default game date for Space Engineers
 
+        [ProtoMember]
+        public SerializableVector3 SunDirection = Vector3.Invalid;
 
         [ProtoContract]
         public struct AsteroidClustersSettings
@@ -175,20 +197,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public bool ShouldSerializeBeaconName() { return !string.IsNullOrEmpty(BeaconName); }
 
     }
-
-    [MyObjectBuilderDefinition]
-    [XmlType("AddPlanetPrefab")]
-    public class MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab : MyObjectBuilder_WorldGeneratorOperation
-    {
-        [ProtoMember, XmlAttribute]
-        public string PrefabFile;
-
-        [ProtoMember, XmlAttribute]
-        public string Name;
-    }
-
-
-
 
 
 }

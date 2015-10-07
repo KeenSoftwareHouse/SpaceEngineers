@@ -18,6 +18,7 @@ namespace VRage.Profiler
         {
             public readonly int Id;
             public readonly MyProfilerBlockKey Key;
+            public readonly int ForceOrder;
 
             public string Name { get { return Key.Name; } }
 
@@ -40,6 +41,7 @@ namespace VRage.Profiler
 
             public string TimeFormat;
             public string ValueFormat;
+            public string CallFormat;
 
             public float ManagedDeltaMB
             {
@@ -66,10 +68,11 @@ namespace VRage.Profiler
             public List<MyProfilerBlock> Children = new List<MyProfilerBlock>();
             public MyProfilerBlock Parent = null;
             
-            public MyProfilerBlock(ref MyProfilerBlockKey key, string memberName, int blockId)
+            public MyProfilerBlock(ref MyProfilerBlockKey key, string memberName, int blockId, int forceOrder = int.MaxValue)
             {
                 Id = blockId;
                 Key = key;
+                ForceOrder = forceOrder;
             }
 
             public void Reset()

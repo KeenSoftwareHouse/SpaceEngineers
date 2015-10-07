@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;

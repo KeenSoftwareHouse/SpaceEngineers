@@ -74,7 +74,7 @@ namespace Sandbox.Game.AI.Pathfinding
             return m_center + direction * ((m_innerRadius + m_outerRadius) * 0.5f);
         }
 
-        public Vector3D GetCenter()
+        public Vector3D GetDestination()
         {
             return m_center;
         }

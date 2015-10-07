@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.Gui;
@@ -34,10 +35,19 @@ namespace Sandbox.Game.Entities.Cube
         static MySoundPair DECONSTRUCTION_PROG = new MySoundPair("PrgDeconstrPh02Proc");
         static MySoundPair DECONSTRUCTION_END = new MySoundPair("PrgDeconstrPh03Fin");
 
-        static Dictionary<string, int> m_tmpComponents = new Dictionary<string, int>();
-        static List<MyStockpileItem> m_tmpItemList = new List<MyStockpileItem>();
-        static List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
-        private static readonly List<MySlimBlock> m_tmpBlocks = new List<MySlimBlock>();
+        [ThreadStatic]
+        static Dictionary<string, int> m_tmpComponentsPerThread;
+        [ThreadStatic]
+        static List<MyStockpileItem> m_tmpItemListPerThread;
+        [ThreadStatic]
+        static List<Vector3I> m_tmpCubeNeighboursPerThread;
+        [ThreadStatic]
+        static List<MySlimBlock> m_tmpBlocksPerThread;
+
+        static Dictionary<string, int> m_tmpComponents { get { return MyUtils.Init(ref m_tmpComponentsPerThread); } }
+        static List<MyStockpileItem> m_tmpItemList { get { return MyUtils.Init(ref m_tmpItemListPerThread); } }
+        static List<Vector3I> m_tmpCubeNeighbours { get { return MyUtils.Init(ref m_tmpCubeNeighboursPerThread); } }
+        static List<MySlimBlock> m_tmpBlocks { get { return MyUtils.Init(ref m_tmpBlocksPerThread); } }
 
         private float m_accumulatedDamage;
         public float AccumulatedDamage
@@ -224,10 +234,24 @@ namespace Sandbox.Game.Entities.Cube
         public MyStringHash m_lastDamageType = MyDamageType.Unknown;
 
         // Unique identifier
-        public int UniqueId 
+        public int UniqueId
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Multiblock definition which the block was created from or null.
+        /// </summary>
+        public MyMultiBlockDefinition MultiBlockDefinition;
+        /// <summary>
+        /// Multiblock unique identifier (all blocks in a multiblock have the same identifier). 0 means single block (default).
+        /// </summary>
+        public int MultiBlockId;
+
+        public bool IsMultiBlockPart
+        {
+            get { return MultiBlockId != 0 && MultiBlockDefinition != null; }
         }
 
 
@@ -277,6 +301,15 @@ namespace Sandbox.Game.Entities.Cube
             ComputeMax(BlockDefinition, Orientation, ref Min, out Max);
             Position = ComputePositionInGrid(new MatrixI(Orientation), BlockDefinition, Min);
 
+            if (objectBuilder.MultiBlockId != 0 && objectBuilder.MultiBlockDefinition != null)
+            {
+                MultiBlockDefinition = MyDefinitionManager.Static.TryGetMultiBlockDefinition(objectBuilder.MultiBlockDefinition.Value);
+                if (MultiBlockDefinition != null)
+                {
+                    MultiBlockId = objectBuilder.MultiBlockId;
+                }
+            }
+
             UpdateShowParts();
 
             if (FatBlock == null)
@@ -314,11 +347,11 @@ namespace Sandbox.Game.Entities.Cube
 
             if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
             {//start effect
-                if (CurrentDamage>0)//fix for weird simple blocks having FatBlock - old save?
+                if (CurrentDamage > 0)//fix for weird simple blocks having FatBlock - old save?
                 {
                     FatBlock.SetDamageEffect(true);
                 }
-                
+
             }
 
             UpdateMaxDeformation();
@@ -415,6 +448,12 @@ namespace Sandbox.Game.Entities.Cube
             else
                 builder.ConstructionStockpile = m_stockpile.GetObjectBuilder();
 
+            if (IsMultiBlockPart)
+            {
+                builder.MultiBlockDefinition = MultiBlockDefinition.Id;
+                builder.MultiBlockId = MultiBlockId;
+            }
+
             return builder;
         }
 
@@ -449,23 +488,101 @@ namespace Sandbox.Game.Entities.Cube
 
         private void AddNeighbour(Vector3I pos, Vector3I dir)
         {
-            var blockB = CubeGrid.GetCubeBlock(pos + dir);
+            var otherBlock = CubeGrid.GetCubeBlock(pos + dir);
 
-            if (blockB != null && blockB != this)
+            if (otherBlock != null && otherBlock != this)
             {
-				var thisMountPoints = this.BlockDefinition.GetBuildProgressModelMountPoints(BuildLevelRatio);
-				var bMountPoints = blockB.BlockDefinition.GetBuildProgressModelMountPoints(blockB.BuildLevelRatio);
-                if (MyCubeGrid.CheckMountPointsForSide(this.BlockDefinition, thisMountPoints, ref this.Orientation, ref this.Position, ref dir, blockB.BlockDefinition, bMountPoints, ref blockB.Orientation, ref blockB.Position))
+                if (MyFakes.ENABLE_COMPOUND_BLOCKS)
                 {
-                    if (this.ConnectionAllowed(ref pos, ref dir, blockB) && !Neighbours.Contains(blockB))
+                    if (Neighbours.Contains(otherBlock))
+                        return;
+
+                    var thisCompound = FatBlock as MyCompoundCubeBlock;
+                    var otherCompound = otherBlock.FatBlock as MyCompoundCubeBlock;
+
+                    if (thisCompound != null)
                     {
-                        Debug.Assert(!blockB.Neighbours.Contains(this), "Inconsistent neighbours");
-                        Neighbours.Add(blockB);
-                        blockB.Neighbours.Add(this);
+                        foreach (var thisBlockInCompound in thisCompound.GetBlocks())
+                        {
+                            var thisMountPoints = thisBlockInCompound.BlockDefinition.GetBuildProgressModelMountPoints(thisBlockInCompound.BuildLevelRatio);
+
+                            if (otherCompound != null)
+                            {
+                                foreach (var otherBlockInCompound in otherCompound.GetBlocks())
+                                {
+                                    var otherMountPoints = otherBlockInCompound.BlockDefinition.GetBuildProgressModelMountPoints(otherBlockInCompound.BuildLevelRatio);
+                                    if (AddNeighbour(ref dir, thisBlockInCompound, thisMountPoints, otherBlockInCompound, otherMountPoints, this, otherBlock))
+                                        return;
+                                }
+                            }
+                            else
+                            {
+                                var otherMountPoints = otherBlock.BlockDefinition.GetBuildProgressModelMountPoints(otherBlock.BuildLevelRatio);
+                                if (AddNeighbour(ref dir, thisBlockInCompound, thisMountPoints, otherBlock, otherMountPoints, this, otherBlock))
+                                    return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var thisMountPoints = this.BlockDefinition.GetBuildProgressModelMountPoints(BuildLevelRatio);
+
+                        if (otherCompound != null)
+                        {
+                            foreach (var otherBlockInCompound in otherCompound.GetBlocks())
+                            {
+                                var otherMountPoints = otherBlockInCompound.BlockDefinition.GetBuildProgressModelMountPoints(otherBlockInCompound.BuildLevelRatio);
+                                if (AddNeighbour(ref dir, this, thisMountPoints, otherBlockInCompound, otherMountPoints, this, otherBlock))
+                                    return;
+                            }
+                        }
+                        else
+                        {
+                            var otherMountPoints = otherBlock.BlockDefinition.GetBuildProgressModelMountPoints(otherBlock.BuildLevelRatio);
+                            if (AddNeighbour(ref dir, this, thisMountPoints, otherBlock, otherMountPoints, this, otherBlock))
+                                return;
+                        }
+                    }
+                }
+                else
+                {
+                    var thisMountPoints = this.BlockDefinition.GetBuildProgressModelMountPoints(BuildLevelRatio);
+                    var bMountPoints = otherBlock.BlockDefinition.GetBuildProgressModelMountPoints(otherBlock.BuildLevelRatio);
+                    if (MyCubeGrid.CheckMountPointsForSide(this.BlockDefinition, thisMountPoints, ref this.Orientation, ref this.Position, ref dir, otherBlock.BlockDefinition, bMountPoints, ref otherBlock.Orientation, ref otherBlock.Position))
+                    {
+                        if (this.ConnectionAllowed(ref pos, ref dir, otherBlock) && !Neighbours.Contains(otherBlock))
+                        {
+                            Debug.Assert(!otherBlock.Neighbours.Contains(this), "Inconsistent neighbours");
+                            Neighbours.Add(otherBlock);
+                            otherBlock.Neighbours.Add(this);
+                        }
                     }
                 }
             }
         }
+
+        private static bool AddNeighbour(ref Vector3I dir,
+            MySlimBlock thisBlock, MyCubeBlockDefinition.MountPoint[] thisMountPoints,
+            MySlimBlock otherBlock, MyCubeBlockDefinition.MountPoint[] otherMountPoints,
+            MySlimBlock thisParentBlock, MySlimBlock otherParentBlock)
+        {
+            if (MyCubeGrid.CheckMountPointsForSide(thisBlock.BlockDefinition, thisMountPoints, ref thisBlock.Orientation,
+                ref thisBlock.Position, ref dir, otherBlock.BlockDefinition, otherMountPoints, ref otherBlock.Orientation,
+                ref otherBlock.Position))
+            {
+                if (thisBlock.ConnectionAllowed(ref otherBlock.Position, ref dir, otherBlock))
+                {
+                    Debug.Assert(!otherParentBlock.Neighbours.Contains(thisParentBlock), "Inconsistent neighbours");
+                    // Add parents
+                    thisParentBlock.Neighbours.Add(otherParentBlock);
+                    otherParentBlock.Neighbours.Add(thisParentBlock);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public List<Vector3I> DisconnectFaces = new List<Vector3I>();
         private bool ConnectionAllowed(ref Vector3I otherBlockPos, ref Vector3I faceNormal, MySlimBlock other)
         {
@@ -474,7 +591,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (!CubeGrid.StructuralIntegrity.IsConnectionFine(this, other))
                     return false;
             }
-            if(DisconnectFaces.Count > 0 && DisconnectFaces.Contains(faceNormal))
+            if (DisconnectFaces.Count > 0 && DisconnectFaces.Contains(faceNormal))
                 return false;
             return FatBlock == null || !FatBlock.CheckConnectionAllowed || FatBlock.ConnectionAllowed(ref otherBlockPos, ref faceNormal, other.BlockDefinition);
         }
@@ -518,7 +635,7 @@ namespace Sandbox.Game.Entities.Cube
             m_cachedMaxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
         }
 
-        public int CalculateCurrentModelID()        
+        public int CalculateCurrentModelID()
         {
             var buildPercent = BuildLevelRatio;
             if ((buildPercent < 1.0f) && (BlockDefinition.BuildProgressModels != null) && (BlockDefinition.BuildProgressModels.Length > 0))
@@ -596,29 +713,29 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-		public void FillConstructionStockpile()
-		{
-			if(!MySession.Static.CreativeMode)
-			{
-				EnsureConstructionStockpileExists();
-				bool stockpileChanged = false;
+        public void FillConstructionStockpile()
+        {
+            if (!MySession.Static.CreativeMode)
+            {
+                EnsureConstructionStockpileExists();
+                bool stockpileChanged = false;
 
-				for (int i = 0; i < ComponentStack.GroupCount; i++)
-				{
-					var groupInfo = ComponentStack.GetGroupInfo(i);
+                for (int i = 0; i < ComponentStack.GroupCount; i++)
+                {
+                    var groupInfo = ComponentStack.GetGroupInfo(i);
 
-					var addAmount = groupInfo.TotalCount - groupInfo.MountedCount;
+                    var addAmount = groupInfo.TotalCount - groupInfo.MountedCount;
 
-					if (addAmount > 0)
-					{
-						m_stockpile.AddItems(addAmount, groupInfo.Component.Id);
-						stockpileChanged = true;
-					}
-				}
-				if(stockpileChanged)
-					CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
-			}
-		}
+                    if (addAmount > 0)
+                    {
+                        m_stockpile.AddItems(addAmount, groupInfo.Component.Id);
+                        stockpileChanged = true;
+                    }
+                }
+                if (stockpileChanged)
+                    CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
+            }
+        }
 
         public void MoveItemsToConstructionStockpile(MyInventoryBase fromInventory)
         {
@@ -669,10 +786,38 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
             foreach (var item in m_tmpItemList)
             {
-                var amount = (int)toInventory.ComputeAmountThatFits(item.Content.GetId());
-                amount = Math.Min(amount, item.Amount);
-                toInventory.AddItems(amount, item.Content);
-                m_stockpile.RemoveItems(amount, item.Content);
+                // If the item is just some component that is represented by another components, use the first
+                // ME Example: ScrapWoodComponent has representation as ScrapWood or ScrapWoodBranches
+                MyComponentSubstitutionDefinition substitution;
+                if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(item.Content.GetId(), out substitution))
+                {
+                    Debug.Assert(substitution.ProvidingComponents.Count > 0, "Invalid component substitution definition for: " + item.Content.GetId().ToString());
+                    MyDefinitionId componentId = item.Content.GetId();
+                    int componentAmount = (int)item.Amount;
+                    MyObjectBuilder_Base itemBuilder = item.Content;
+                    if (substitution.ProvidingComponents.Count > 0)
+                    {
+                        componentId = substitution.ProvidingComponents.First().Key;
+                        componentAmount = componentAmount * substitution.ProvidingComponents.First().Value;
+                        itemBuilder = MyObjectBuilderSerializer.CreateNewObject(componentId);
+                    }
+                    var amount = (int)toInventory.ComputeAmountThatFits(componentId);
+                    amount = Math.Min(amount, componentAmount);                   
+                    toInventory.AddItems(amount, itemBuilder);
+                    var removedAmount = amount;
+                    if (substitution.ProvidingComponents.Count > 0)
+                    {
+                        removedAmount = removedAmount / substitution.ProvidingComponents.First().Value;
+                    }
+                    m_stockpile.RemoveItems(amount, item.Content);
+                }
+                else
+                {
+                    var amount = (int)toInventory.ComputeAmountThatFits(item.Content.GetId());
+                    amount = Math.Min(amount, item.Amount);
+                    toInventory.AddItems(amount, item.Content);
+                    m_stockpile.RemoveItems(amount, item.Content);
+                }
             }
             CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
             m_stockpile.ClearSyncList();
@@ -769,7 +914,7 @@ namespace Sandbox.Game.Entities.Cube
 
             BoundingBoxD boundingBox = new BoundingBoxD(CubeGrid.GridIntegerToWorld(Min), CubeGrid.GridIntegerToWorld(Max));
             foreach (var item in m_tmpItemList)
-            {         
+            {
                 var spawnedEntity = MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(item.Amount, item.Content), boundingBox, CubeGrid.Physics);
                 if (spawnedEntity != null)
                 {
@@ -830,7 +975,7 @@ namespace Sandbox.Game.Entities.Cube
             b = Vector3.Transform(b, worldMat);
             Vector3 avgPos = (a + b) / 2;
 
-            Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPoint(avgPos);
+            Vector3 gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(avgPos);
             if (gravity.Length() != 0.0f)
             {
                 gravity.Normalize();
@@ -876,7 +1021,7 @@ namespace Sandbox.Game.Entities.Cube
             float maxBoneMovement = (1.0f - boneMoveFactor) * MaxDeformation;
             if (MaxDeformation != 0 && maxBoneMovement > maxAllowedBoneMovement)
             {
-				boneMoveFactor = 1.0f - maxAllowedBoneMovement / MaxDeformation;	
+                boneMoveFactor = 1.0f - maxAllowedBoneMovement / MaxDeformation;
             }
 
             if (boneMoveFactor == 0.0f)
@@ -908,7 +1053,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
 
-            if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
+            if (FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
             {
                 (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo, attackerId);
                 return;
@@ -937,6 +1082,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
 
             MySession.Static.NegativeIntegrityTotal += damageInfo.Amount;
+            Debug.Assert(damageInfo.Amount > 0);
             AccumulatedDamage += damageInfo.Amount;
 
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
@@ -944,9 +1090,10 @@ namespace Sandbox.Game.Entities.Cube
                 if (MyPerGameSettings.Destruction && hitInfo.HasValue)
                 {
                     AccumulatedDamage = 0;
+
                     var gridPhysics = CubeGrid.Physics;
                     float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
-                    if(Sync.IsServer)
+                    if (Sync.IsServer)
                         Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damageInfo.Amount - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
                 }
                 else
@@ -976,6 +1123,18 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
+        /// Destruction does not apply any damage to block (instead triggers destruction) so it is applied through this method 
+        /// when fracture component is created or when any of internal fratures is removed from component.
+        /// </summary>
+        public void ApplyDestructionDamage(float multiplier = 1f)
+        {
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT && Sync.IsServer && MyPerGameSettings.Destruction)
+            {
+                ((IMyDestroyableObject)this).DoDamage(multiplier * MyDefinitionManager.Static.DestructionDefinition.DestructionDamage, MyDamageType.Destruction, true);
+            }
+        }
+
+        /// <summary>
         /// Do not call explicitly. Will be done automatically by the grid.
         /// </summary>
         public void ApplyAccumulatedDamage(bool addDirtyParts = true)
@@ -991,7 +1150,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_stockpile.ClearSyncList();
                 m_componentStack.ApplyDamage(AccumulatedDamage, m_stockpile);
-  
+
                 if (Sync.IsServer)
                     CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
 
@@ -1067,7 +1226,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventoryBase outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
-			ProfilerShort.Begin("MySlimBlock.IncreaseMountLevel");
+            ProfilerShort.Begin("MySlimBlock.IncreaseMountLevel");
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1097,12 +1256,12 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && !BlockDefinition.RatioEnoughForDamageEffect((Integrity+welderMountAmount) / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && !BlockDefinition.RatioEnoughForDamageEffect((Integrity + welderMountAmount) / MaxIntegrity))
             {//stop effect
                 FatBlock.SetDamageEffect(false);
             }
 
-			bool removeDecals = false;
+            bool removeDecals = false;
 
             if (m_stockpile != null)
             {
@@ -1119,14 +1278,14 @@ namespace Sandbox.Game.Entities.Cube
             if (m_componentStack.IsFullIntegrity)
             {
                 ReleaseConstructionStockpile();
-				removeDecals = true;
+                removeDecals = true;
             }
 
-			ProfilerShort.Begin("ModelChange");
+            ProfilerShort.Begin("ModelChange");
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
-				removeDecals = true;
+                removeDecals = true;
                 if (FatBlock != null)
                 {
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
@@ -1153,18 +1312,18 @@ namespace Sandbox.Game.Entities.Cube
                 PlayConstructionSound(integrityChangeType);
                 CreateConstructionSmokes();
 
-                if (CubeGrid.GridSystems.OxygenSystem != null)
+                if (CubeGrid.GridSystems.GasSystem != null)
                 {
-                    CubeGrid.GridSystems.OxygenSystem.Pressurize();
+                    CubeGrid.GridSystems.GasSystem.Pressurize();
                 }
             }
-			ProfilerShort.End();
+            ProfilerShort.End();
 
             if (HasDeformation)
                 CubeGrid.SetBlockDirty(this);
 
-			if (removeDecals)
-				CubeGrid.RenderData.RemoveDecals(Position);
+            if (removeDecals)
+                CubeGrid.RenderData.RemoveDecals(Position);
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, 0);
             CubeGrid.OnIntegrityChanged(this);
@@ -1177,7 +1336,7 @@ namespace Sandbox.Game.Entities.Cube
                 UpdateProgressGeneratedBlocks(oldPercentage);
             }
 
-			ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         public void DecreaseMountLevel(float grinderAmount, MyInventoryBase outputInventory)
@@ -1273,9 +1432,9 @@ namespace Sandbox.Game.Entities.Cube
                 CreateConstructionSmokes();
             }
 
-            if (CubeGrid.GridSystems.OxygenSystem != null)
+            if (CubeGrid.GridSystems.GasSystem != null)
             {
-                CubeGrid.GridSystems.OxygenSystem.Pressurize();
+                CubeGrid.GridSystems.GasSystem.Pressurize();
             }
 
             if (MyFakes.ENABLE_GENERATED_BLOCKS && !BlockDefinition.IsGeneratedBlock && BlockDefinition.GeneratedBlockDefinitions != null && BlockDefinition.GeneratedBlockDefinitions.Length > 0)
@@ -1321,8 +1480,8 @@ namespace Sandbox.Game.Entities.Cube
                 CreateConstructionSmokes();
             }
 
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-                CubeGrid.GridSystems.OxygenSystem.Pressurize();
+            if (CubeGrid.GridSystems.GasSystem != null)
+                CubeGrid.GridSystems.GasSystem.Pressurize();
         }
 
         private void CreateConstructionSmokes()
@@ -1403,7 +1562,7 @@ namespace Sandbox.Game.Entities.Cube
             max = min + size;
         }
 
-        internal void SetIntegrity(float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
+        public void SetIntegrity(float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
         {
             float oldRatio = m_componentStack.BuildRatio;
             m_componentStack.SetIntegrity(buildIntegrity, integrity);
@@ -1419,11 +1578,11 @@ namespace Sandbox.Game.Entities.Cube
                     FatBlock.SetDamageEffect(false);
             }
 
-			bool removeDecals = IsFullIntegrity;
+            bool removeDecals = IsFullIntegrity;
 
             if (ModelChangeIsNeeded(m_componentStack.BuildRatio, oldRatio))
             {
-				removeDecals = true;
+                removeDecals = true;
                 UpdateVisual();
 
                 if (integrityChangeType != MyCubeGrid.MyIntegrityChangeEnum.Damage)
@@ -1431,14 +1590,14 @@ namespace Sandbox.Game.Entities.Cube
 
                 PlayConstructionSound(integrityChangeType);
 
-                if (CubeGrid.GridSystems.OxygenSystem != null)
+                if (CubeGrid.GridSystems.GasSystem != null)
                 {
-                    CubeGrid.GridSystems.OxygenSystem.Pressurize();
+                    CubeGrid.GridSystems.GasSystem.Pressurize();
                 }
             }
-			
-			if(removeDecals)
-				CubeGrid.RenderData.RemoveDecals(Position);
+
+            if (removeDecals)
+                CubeGrid.RenderData.RemoveDecals(Position);
 
             if (MyFakes.ENABLE_GENERATED_BLOCKS && !BlockDefinition.IsGeneratedBlock && BlockDefinition.GeneratedBlockDefinitions != null && BlockDefinition.GeneratedBlockDefinitions.Length > 0)
             {
@@ -1460,8 +1619,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public void PlayConstructionSound(MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false)
         {
-            if (m_soundEmitter.Entity == null)
-                m_soundEmitter.SetPosition(CubeGrid.PositionComp.GetPosition() + (Position - 1) * CubeGrid.GridSize);
+            //if (m_soundEmitter.Entity == null)
+            m_soundEmitter.SetPosition(CubeGrid.PositionComp.GetPosition() + (Position - 1) * CubeGrid.GridSize);
             switch (integrityChangeType)
             {
                 case MyCubeGrid.MyIntegrityChangeEnum.ConstructionBegin:
@@ -1582,7 +1741,7 @@ namespace Sandbox.Game.Entities.Cube
         public void ComputeScaledHalfExtents(out Vector3 scaledHalfExtents)
         {
             var min = (Vector3)Min * CubeGrid.GridSize;
-            var max = (Vector3)(Max+1) * CubeGrid.GridSize;
+            var max = (Vector3)(Max + 1) * CubeGrid.GridSize;
             scaledHalfExtents = (max - min) * 0.5f;
         }
 
@@ -1639,9 +1798,12 @@ namespace Sandbox.Game.Entities.Cube
                 FatBlock.OnTransformed(ref transform);
         }
 
-        public void GetWorldBoundingBox(out BoundingBoxD aabb)
+        /// <summary>
+        /// Returns world AABB of the block (geometry AABB). If useAABBFromBlockCubes = true then AABB from block cubes is returned.
+        /// </summary>
+        public void GetWorldBoundingBox(out BoundingBoxD aabb, bool useAABBFromBlockCubes = false)
         {
-            if (FatBlock != null)
+            if (FatBlock != null && !useAABBFromBlockCubes)
             {
                 aabb = FatBlock.PositionComp.WorldAABB;
             }
@@ -1654,51 +1816,51 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
-		{
-			hudInfo.Components.Clear();
-			for (int i = 0; i < block.ComponentStack.GroupCount; i++)
-			{
-				var groupInfo = block.ComponentStack.GetGroupInfo(i);
-				var componentInfo = new MyHudBlockInfo.ComponentInfo();
+        {
+            hudInfo.Components.Clear();
+            for (int i = 0; i < block.ComponentStack.GroupCount; i++)
+            {
+                var groupInfo = block.ComponentStack.GetGroupInfo(i);
+                var componentInfo = new MyHudBlockInfo.ComponentInfo();
                 componentInfo.DefinitionId = groupInfo.Component.Id;
-				componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
-				componentInfo.Icon = groupInfo.Component.Icon;
-				componentInfo.TotalCount = groupInfo.TotalCount;
-				componentInfo.MountedCount = groupInfo.MountedCount;
+                componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
+                componentInfo.Icon = groupInfo.Component.Icon;
+                componentInfo.TotalCount = groupInfo.TotalCount;
+                componentInfo.MountedCount = groupInfo.MountedCount;
                 if (availableInventory != null)
                     componentInfo.AvailableAmount = (int)MyCubeBuilder.BuildComponent.GetItemAmountCombined(availableInventory, groupInfo.Component.Id);
 
-				hudInfo.Components.Add(componentInfo);
-			}
+                hudInfo.Components.Add(componentInfo);
+            }
 
-			if (!block.StockpileEmpty)
-			{
-				// For each component
-				foreach (var comp in block.BlockDefinition.Components)
-				{
-					// Get amount in stockpile
-					int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
+            if (!block.StockpileEmpty)
+            {
+                // For each component
+                foreach (var comp in block.BlockDefinition.Components)
+                {
+                    // Get amount in stockpile
+                    int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
 
-					for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
-					{
-						if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
-						{
-							if (block.ComponentStack.IsFullyDismounted)
-							{
-								return;
-							}
-							// Distribute amount in stockpile from bottom to top
-							var info = hudInfo.Components[i];
-							int space = info.TotalCount - info.MountedCount;
-							int movedItems = Math.Min(space, amount);
-							info.StockpileCount = movedItems;
-							amount -= movedItems;
-							hudInfo.Components[i] = info;
-						}
-					}
-				}
-			}
-		}
+                    for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
+                    {
+                        if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
+                        {
+                            if (block.ComponentStack.IsFullyDismounted)
+                            {
+                                return;
+                            }
+                            // Distribute amount in stockpile from bottom to top
+                            var info = hudInfo.Components[i];
+                            int space = info.TotalCount - info.MountedCount;
+                            int movedItems = Math.Min(space, amount);
+                            info.StockpileCount = movedItems;
+                            amount -= movedItems;
+                            hudInfo.Components[i] = info;
+                        }
+                    }
+                }
+            }
+        }
 
         private void UpdateProgressGeneratedBlocks(float oldBuildRatio)
         {
@@ -1706,20 +1868,20 @@ namespace Sandbox.Game.Entities.Cube
             if (oldBuildRatio == currentBuildRatio)
                 return;
 
-			ProfilerShort.Begin("MySlimBlock.UpdateProgressGeneratedBlocks");
+            ProfilerShort.Begin("MySlimBlock.UpdateProgressGeneratedBlocks");
             if (oldBuildRatio < currentBuildRatio)
             {
-				ProfilerShort.Begin("Adding generated blocks");
+                ProfilerShort.Begin("Adding generated blocks");
                 // Check adding of generated blocks
                 if (oldBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
                 {
                     CubeGrid.AdditionalModelGenerators.ForEach(g => g.GenerateBlocks(this));
                 }
-				ProfilerShort.End();
+                ProfilerShort.End();
             }
             else
             {
-				ProfilerShort.Begin("Removing generated blocks");
+                ProfilerShort.Begin("Removing generated blocks");
                 // Check removing of generated blocks
                 if (oldBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
                 {
@@ -1730,10 +1892,81 @@ namespace Sandbox.Game.Entities.Cube
 
                     m_tmpBlocks.Clear();
                 }
-				ProfilerShort.End();
+                ProfilerShort.End();
             }
-			ProfilerShort.End();
+            ProfilerShort.End();
         }
 
+        public MyFractureComponentCubeBlock GetFractureComponent()
+        {
+            return FatBlock != null ? FatBlock.GetFractureComponent() : null;
+        }
+
+        public void RepairFracturedBlockWithFullIntegrity(long toolOwnerId)
+        {
+            Debug.Assert(Sync.IsServer);
+
+            if (!IsFullIntegrity)
+                return;
+
+            var fractureComponent = GetFractureComponent();
+            Debug.Assert(fractureComponent != null);
+            if (fractureComponent == null)
+                return;
+
+            float integrityAfterRepair = Integrity;
+            float buildIntegrity = BuildIntegrity;
+
+            RepairFracturedBlock(toolOwnerId);
+
+            CubeGrid.AdditionalModelGenerators.ForEach(g => g.GenerateBlocks(this));
+        }
+
+        internal void RepairFracturedBlock(long toolOwnerId)
+        {
+            Debug.Assert(FatBlock != null);
+            if (FatBlock == null)
+                return;
+
+            Debug.Assert(FatBlock.Components.Has<MyFractureComponentBase>());
+
+            RepairFracturedBlockInternal();
+
+            List<MySlimBlock> generatedBlocks = new List<MySlimBlock>();
+            CubeGrid.GetGeneratedBlocks(this, generatedBlocks);
+            foreach (var genBlock in generatedBlocks)
+                genBlock.RepairFracturedBlockInternal();
+
+            generatedBlocks.Clear();
+
+            if (Sync.IsServer)
+            {
+                var aabb = FatBlock.PositionComp.WorldAABB;
+                if (BlockDefinition.CubeSize == MyCubeSize.Large)
+                    aabb.Inflate(-0.16);
+                else
+                    aabb.Inflate(-0.04);
+                MyFracturedPiecesManager.Static.RemoveFracturesInBox(ref aabb, 0f);
+
+                CubeGrid.SyncObject.SendFractureComponentRepaired(this, toolOwnerId);
+            }
+        }
+
+        private void RepairFracturedBlockInternal()
+        {
+            if (FatBlock.Components.Has<MyFractureComponentBase>())
+            {
+                FatBlock.Components.Remove<MyFractureComponentBase>();
+                FatBlock.Render.UpdateRenderObject(false);
+                FatBlock.CreateRenderer(FatBlock.Render.PersistentFlags, FatBlock.Render.ColorMaskHsv, FatBlock.Render.ModelStorage);
+                UpdateVisual();
+                FatBlock.Render.UpdateRenderObject(true);
+
+                var existingBlock = CubeGrid.GetCubeBlock(Position);
+                Debug.Assert(existingBlock != null);
+                if (existingBlock != null)
+                    existingBlock.CubeGrid.UpdateBlockNeighbours(existingBlock);
+            }
+        }
     }
 }

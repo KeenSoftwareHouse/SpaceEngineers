@@ -177,26 +177,31 @@ namespace Sandbox.Game.Gui
 
         string FormatError(string error)
         {
-            char[] sepators = new char[] { ':', ')', '(',',' };
-            string[] errorParts = error.Split(sepators);
-            if (errorParts.Length > 2)
+            try
             {
-                int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
-                string description = errorParts[6];
-                for (int i = 7; i < errorParts.Count(); ++i)
+                char[] sepators = new char[] { ':', ')', '(', ',' };
+                string[] errorParts = error.Split(sepators);
+                if (errorParts.Length > 2)
                 {
-                    if (string.IsNullOrWhiteSpace(errorParts[i]))
+                    int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
+                    string description = errorParts[6];
+                    for (int i = 7; i < errorParts.Count(); ++i)
                     {
-                        continue;
+                        if (string.IsNullOrWhiteSpace(errorParts[i]))
+                        {
+                            continue;
+                        }
+                        description += "," + errorParts[i];
                     }
-                    description += "," + errorParts[i];
+                    return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat), line, description);
                 }
-                return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat), line, description);
+                else
+                {
+                    return error;
+                }
             }
-            else
-            {
-                return error;
-            }
+            catch (Exception e) { };//unknown error format
+            return error;
         }
 
         public static bool CompileProgram(string program, List<string> errors,ref Assembly assembly)

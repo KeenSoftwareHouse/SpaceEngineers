@@ -186,13 +186,13 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private static bool IsTriangleDangerous(int triIndex)
         {
-            if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+            if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
             {
                 return triIndex == -1;
             }
             else
             {
-                throw new NotImplementedException();
+                return triIndex == -1;
             }
         }
 

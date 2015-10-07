@@ -202,7 +202,7 @@ namespace VRage.Audio
 
         public void SetVolume(float volume)
         {
-            if (m_voice != null)
+            if (IsValid)
                 m_voice.SetVolume(volume);
         }
 

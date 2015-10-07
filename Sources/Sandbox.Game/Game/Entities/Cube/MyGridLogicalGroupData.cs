@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 
 namespace Sandbox.Game.Entities
 {
     public class MyGridLogicalGroupData : IGroupData<MyCubeGrid>
     {
         internal readonly MyGridTerminalSystem TerminalSystem = new MyGridTerminalSystem();
-        internal readonly MyPowerDistributor PowerDistributor = new MyPowerDistributor();
+		internal readonly MyResourceDistributorComponent ResourceDistributor = new MyResourceDistributorComponent();
         internal readonly MyGridWeaponSystem WeaponSystem = new MyGridWeaponSystem();
 
         public void OnRelease()

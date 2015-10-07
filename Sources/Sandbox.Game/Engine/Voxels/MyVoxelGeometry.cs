@@ -371,7 +371,7 @@ namespace Sandbox.Engine.Voxels
                     // overlap to neighbor; introduces extra data but it makes logic for raycasts simpler (no need to check neighbor cells)
                     min -= 1;
                     max += 2;
-                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false);
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false,false);
                 }
                 else
                 {

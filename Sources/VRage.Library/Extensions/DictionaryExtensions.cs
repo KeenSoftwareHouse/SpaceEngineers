@@ -19,5 +19,12 @@ namespace System.Collections.Generic
             V val;
             return dictionary.TryGetValue(key, out val) ? val : defaultValue;
         }
+
+        public static KeyValuePair<K, V> FirstPair<K, V>(this Dictionary<K, V> dictionary)
+        {
+            var e = dictionary.GetEnumerator();
+            e.MoveNext();
+            return e.Current;
+        }
     }
 }

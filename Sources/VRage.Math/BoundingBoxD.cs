@@ -700,6 +700,9 @@ namespace VRageMath
 
         public double Distance(Vector3D point)
         {
+            if (Contains(point) == ContainmentType.Contains)
+                return 0;
+
             var clamp = Vector3D.Clamp(point, Min, Max);
             return Vector3D.Distance(clamp, point);
         }

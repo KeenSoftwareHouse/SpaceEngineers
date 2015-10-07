@@ -41,6 +41,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public static MyStringHash Asphyxia      = MyStringHash.GetOrCompute("Asphyxia");
         public static MyStringHash LowPressure   = MyStringHash.GetOrCompute("LowPressure");
         public static MyStringHash Bolt          = MyStringHash.GetOrCompute("Bolt");
+        public static MyStringHash Destruction   = MyStringHash.GetOrCompute("Destruction");
     }
 
     public enum MyCustomHitMaterialMethodType

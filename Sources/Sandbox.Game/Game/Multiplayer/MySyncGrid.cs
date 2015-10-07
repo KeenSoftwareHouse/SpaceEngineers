@@ -24,6 +24,8 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Common.ObjectBuilders;
 using VRageMath.PackedVector;
 using SteamSDK;
+using VRage.Library.Collections;
+using VRage.Network;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -41,10 +43,12 @@ namespace Sandbox.Game.Multiplayer
     delegate void RazeBlockInCompoundDelegate(List<Tuple<Vector3I, ushort>> blocksToRemove, List<Tuple<Vector3I, ushort>> removedBlocks);
     delegate void ColorBlocksDelegate(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound);
     delegate void RemoveBlockDelegate(List<Vector3I> blocksToRemove);
+    delegate void RemoveBlockWithIdDelegate(List<MyCubeGrid.BlockPositionId> blocksToRemove);
     delegate void MultipleStateDelegate(MyMultipleEnabledEnum enabled);
     delegate void PowerChangedStateDelegate(MyMultipleEnabledEnum enabled, long playerId);
     delegate void BlockIntegrityChangedDelegate(Vector3I pos, ushort subBlockId, float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long toolOwner);
     delegate void BlockStockpileChangedDelegate(Vector3I pos, ushort subBlockId, List<MyStockpileItem> diff);
+    delegate void FractureComponentRepairedDelegate(Vector3I pos, ushort subBlockId, long toolOwner);
 
     [PreloadRequired]
     partial class MySyncGrid : MySyncEntity
@@ -236,7 +240,7 @@ namespace Sandbox.Game.Multiplayer
             public float Integrity;
             public MyCubeGrid.MyIntegrityChangeEnum IntegrityChangeType;
             public long ToolOwner;
-			public ushort SubBlockId;
+            public ushort SubBlockId;
         }
 
         [ProtoContract]
@@ -247,8 +251,8 @@ namespace Sandbox.Game.Multiplayer
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-			[ProtoMember]
-			public ushort SubBlockId;
+            [ProtoMember]
+            public ushort SubBlockId;
 
             [ProtoMember]
             public Vector3I BlockPosition;
@@ -466,23 +470,7 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public String DisplayName;
         }
-
-        // CH: TODO: Create a better serializer (e.g. compress the list of grid positions)
-        [ProtoContract]
-        [MessageId(15280, P2PMessageEnum.Reliable)]
-        struct CreateSplitMsg : IEntityMessage
-        {
-            [ProtoMember]
-            public long GridEntityId;
-            public long GetEntityId() { return GridEntityId; }
-
-            [ProtoMember]
-            public long NewGridEntityId;
-
-            [ProtoMember]
-            public List<Vector3I> SplitBlocks;
-        }
-
+   
         [ProtoContract]
         [MessageId(15281, P2PMessageEnum.Reliable)]
         struct RemoveSplitMsg : IEntityMessage
@@ -516,6 +504,45 @@ namespace Sandbox.Game.Multiplayer
             public BoolBlit DestructionEnabled;
         }
 
+        [ProtoContract]
+        [MessageId(15284, P2PMessageEnum.Reliable)]
+        struct RemoveBlocksWithIdsMsg : IEntityMessage
+        {
+            [ProtoMember]
+            public long GridEntityId;
+            public long GetEntityId() { return GridEntityId; }
+
+            [ProtoMember]
+            public List<MyCubeGrid.BlockPositionId> LocationsWithGenerator;
+
+            [ProtoMember]
+            public List<MyCubeGrid.BlockPositionId> LocationsWithoutGenerator;
+
+            [ProtoMember]
+            public List<MyCubeGrid.BlockPositionId> DestroyLocations;
+
+
+            private int LocationWithGeneratorCount { get { return LocationsWithGenerator != null ? LocationsWithGenerator.Count : 0; } }
+            private int LocationWithoutGeneratorCount { get { return LocationsWithoutGenerator != null ? LocationsWithoutGenerator.Count : 0; } }
+            private int DestroyCount { get { return DestroyLocations != null ? DestroyLocations.Count : 0; } }
+
+            public override string ToString()
+            {
+                return base.ToString() + String.Format(", {0}, {1}, {2}", LocationWithGeneratorCount, LocationWithoutGeneratorCount, DestroyCount );
+            }
+        }
+
+        [MessageId(15285, P2PMessageEnum.Reliable)]
+        struct FractureComponentRepairedMsg : IEntityMessage
+        {
+            public long GridEntityId;
+            public long GetEntityId() { return GridEntityId; }
+            public Vector3I BlockPosition;
+            public long ToolOwner;
+            public ushort SubBlockId;
+        }
+
+
         static HashSet<MyCubeGrid.MyBlockLocation> m_tmpBuildList = new HashSet<MyCubeGrid.MyBlockLocation>();
 
         static List<Vector3I> m_tmpPositionListSend = new List<Vector3I>(1);
@@ -544,12 +571,13 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncGrid, BonesMultiplyMsg>(OnBonesMultiplied, MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, RemoveBlocksMsg>(OnRemoveBlocks, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request, new MySyncGridRemoveSerializer());
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, RemoveBlocksWithIdsMsg>(OnRemoveBlocksWithIds, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, ReflectorsStateMsg>(OnReflectorStateRequest, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, PowerProducerStateMsg>(OnPowerProducerStateRequest, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ThrustAndTorqueMsg>(OnThrustTorqueReceived, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ThrustMsg>(OnThrustReceived, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ThrustAndTorqueMsg>(OnThrustTorqueReceived, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ThrustMsg>(OnThrustReceived, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, IntegrityChangedMsg>(OnIntegrityChanged, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, StockpileChangedMsg>(OnStockpileChanged, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request, new MySyncGridStockpileSerializer());
@@ -558,7 +586,7 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, SetToConstructionRequestMsg>(OnSetToConstructionRequest, MyMessagePermissions.ToServer);
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ModifyBlockGroupMsg>(OnModifyGroupSuccess, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ModifyBlockGroupMsg>(OnModifyGroupSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, ConvertToShipMsg>(OnConvertedToShipRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, ConvertToShipMsg>(OnConvertedToShipSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
@@ -572,16 +600,16 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeGridOwnershipMsg>(OnChangeGridOwner, MyMessagePermissions.FromServer);
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, SetHandbrakeMsg>(OnSetHandbrake, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, SetHandbrakeMsg>(OnSetHandbrake, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDisplayNameMsg>(OnChangeDisplayNameRequest, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDisplayNameMsg>(OnChangeDisplayName, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDisplayNameMsg>(OnChangeDisplayNameRequest, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDisplayNameMsg>(OnChangeDisplayName, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, CreateSplitMsg>(OnCreateSplit, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, RemoveSplitMsg>(OnRemoveSplit, MyMessagePermissions.FromServer);
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, CreateSplitsMsg>(OnCreateSplits, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request, new MySyncGridSplitsSerializer());
 
-            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDestructibleBlocksMsg>(OnChangeDestructibleBlocks, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDestructibleBlocksMsg>(OnChangeDestructibleBlocks, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, FractureComponentRepairedMsg>(OnFractureComponentRepaired, MyMessagePermissions.FromServer);
         }
 
         public event BuildBlocksAreaRequestDelegate BlocksBuiltAreaRequest;
@@ -601,18 +629,28 @@ namespace Sandbox.Game.Multiplayer
         public event RemoveBlockDelegate BlocksRemovedWithoutGenerator;
         public event RemoveBlockDelegate BlocksDestroyed;
         public event RemoveBlockDelegate BlocksDeformed;
+        public event RemoveBlockWithIdDelegate BlocksDestroyedWithId;
+        public event RemoveBlockWithIdDelegate BlocksWithIdRemovedWithGenerator;
+        public event RemoveBlockWithIdDelegate BlocksWithIdRemovedWithoutGenerator;
         public event MultipleStateDelegate ReflectorStateChanged;
         public event PowerChangedStateDelegate PowerProducerStateChanged;
         public event BlockIntegrityChangedDelegate BlockIntegrityChanged;
         public event BlockStockpileChangedDelegate BlockStockpileChanged;
+        public event FractureComponentRepairedDelegate FractureComponentRepaired;
 
 
         private List<Vector3I> m_removeBlockQueueWithGenerators = new List<Vector3I>();
         private List<Vector3I> m_removeBlockQueueWithoutGenerators = new List<Vector3I>();
 
-
         private List<Vector3I> m_destroyBlockQueue = new List<Vector3I>();
+        private List<MyCubeGrid.BlockPositionId> m_destroyBlockQueueWithId = new List<MyCubeGrid.BlockPositionId>();
+
         private List<Vector3I> m_destructionDeformationQueue = new List<Vector3I>();
+
+        private List<MyCubeGrid.BlockPositionId> m_removeBlockWithIdQueueWithGenerators = new List<MyCubeGrid.BlockPositionId>();
+        private List<MyCubeGrid.BlockPositionId> m_removeBlockWithIdQueueWithoutGenerators = new List<MyCubeGrid.BlockPositionId>();
+
+
         private List<long> m_tmpBlockIdList = new List<long>();
 
         private MySyncGridThrustState m_thrustState = new MySyncGridThrustState();
@@ -627,45 +665,6 @@ namespace Sandbox.Game.Multiplayer
         {
         }
 
-        //interface IBlockMessage : IEntityMessage
-        //{
-        //    Vector3I GetBlockPosition();
-        //}
-
-        //delegate void BlockMessageCallback<TBlock, TMsg>(TBlock block, ref TMsg message, MyPlayer sender)
-        //     where TBlock : MyCubeBlock
-        //    where TMsg : struct, IBlockMessage;
-
-        //class MyCallback<TBlock, TMsg> : MySyncLayer.MyCallbackBase<TMsg>
-        //    where TBlock : MyCubeBlock
-        //    where TMsg : struct, IBlockMessage
-        //{
-        //    public readonly BlockMessageCallback<TBlock, TMsg> Callback;
-
-        //    public MyCallback(MySyncLayer layer, BlockMessageCallback<TBlock, TMsg> callback, MyMessagePermissions permission, ISerializer<TMsg> serializer)
-        //        : base(layer, permission, serializer)
-        //    {
-        //        Callback = callback;
-        //    }
-
-        //    protected override void OnHandle(ref TMsg msg, MyPlayer player)
-        //    {
-        //        MySyncGrid sync = Layer.GetSyncEntity<MySyncGrid, TMsg>(msg.GetEntityId());
-        //        if (sync != null)
-        //        {
-        //            var block = sync.Entity.GetBlock(msg.GetBlockPosition());
-        //            if (block != null)
-        //            {
-        //                var fatBlock = block.FatBlock as TBlock;
-        //                if (fatBlock != null)
-        //                {
-        //                    Callback(fatBlock, ref msg, player);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
         public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
             var msg = new BuildBlockMsg();
@@ -674,7 +673,7 @@ namespace Sandbox.Game.Multiplayer
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
             msg.BlockObjectBuilder = blockObjectBuilder;
             msg.BuilderEntityId = builderEntityId;
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnBuildBlockRequest(MySyncGrid sync, ref BuildBlockMsg msg, MyNetworkClient sender)
@@ -686,23 +685,23 @@ namespace Sandbox.Game.Multiplayer
 
             var buildHandler = sync.BlockBuilt;
             if (buildHandler != null) buildHandler(ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.Location, msg.BlockObjectBuilder, ref builtBlock, builder);
-            
+
             if (Sync.IsServer)
             {
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
             }
-            
+
             var afterHandler = sync.AfterBlockBuilt;
             if (afterHandler != null && builtBlock != null) afterHandler(builtBlock.Value);
         }
-       
+
         public void BuildBlocks(long ownerId, ref MyCubeGrid.MyBlockBuildArea area)
         {
             var msg = new BuildBlocksAreaRequestMsg();
             msg.GridEntityId = Entity.EntityId;
             msg.Area = area;
             msg.OwnerId = ownerId;
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         public void BuildBlocksSuccess(ref MyCubeGrid.MyBlockBuildArea area, HashSet<Vector3UByte> failList, long ownerId, int entityIdSeed)
@@ -716,7 +715,7 @@ namespace Sandbox.Game.Multiplayer
                 successMsg.EntityIdSeed = entityIdSeed;
                 successMsg.FailList = failList;
 
-                Sync.Layer.SendMessageToAll(ref successMsg);
+                Sync.Layer.SendAsRpcToAll(ref successMsg);
             }
         }
 
@@ -742,7 +741,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.Pos = pos;
             msg.Size = size;
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         public void RazeBlocksAreaSuccess(ref Vector3I pos, ref Vector3UByte size, HashSet<Vector3UByte> failList)
@@ -755,7 +754,7 @@ namespace Sandbox.Game.Multiplayer
                 successMsg.Size = size;
                 successMsg.FailList = failList;
 
-                Sync.Layer.SendMessageToAll(ref successMsg);
+                Sync.Layer.SendAsRpcToAll(ref successMsg);
             }
         }
 
@@ -782,7 +781,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Locations = locations;
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
             msg.BuilderEntityId = builderEntityId;
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnBuildBlocksRequest(MySyncGrid sync, ref BuildBlocksMsg msg, MyNetworkClient sender)
@@ -799,9 +798,13 @@ namespace Sandbox.Game.Multiplayer
             MyEntity builder = null;
             MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
 
-            MyCubeBuilder.BuildComponent.GetBlocksPlacementMaterials(msg.Locations, sync.Entity);
-            if (!MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder))
-                return;
+            // Only server needs to check material requirements. The clients should call this method only after request from the server
+            if (Sync.IsServer)
+            {
+                MyCubeBuilder.BuildComponent.GetBlocksPlacementMaterials(msg.Locations, sync.Entity);
+                if (!MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder))
+                    return;
+            }
 
             {
                 var handler = sync.BlocksBuilt;
@@ -812,7 +815,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 // Broadcast to clients, use result collection
                 msg.Locations = m_tmpBuildList;
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
             }
 
             {
@@ -834,7 +837,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.Locations = locations;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnRazeBlocksRequest(MySyncGrid sync, ref RazeBlocksMsg msg, MyNetworkClient sender)
@@ -848,7 +851,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 // Broadcast to clients, use result collection
                 msg.Locations = m_tmpPositionListReceive;
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
             }
         }
 
@@ -861,7 +864,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Max = max;
             msg.PlaySound = playSound;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnColorBlocksRequest(MySyncGrid sync, ref ColorBlocksMsg msg, MyNetworkClient sender)
@@ -872,7 +875,7 @@ namespace Sandbox.Game.Multiplayer
             if (Sync.IsServer)
             {
                 // Broadcast to clients, use result collection
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
             }
         }
 
@@ -882,7 +885,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.LocationsAndIds = locationsAndIds;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnRazeBlockInCompoundBlockRequest(MySyncGrid sync, ref RazeBlockInCompoundBlockMsg msg, MyNetworkClient sender)
@@ -896,7 +899,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 // Broadcast to clients, use result collection
                 msg.LocationsAndIds = m_tmpLocationsAndIdsReceive;
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
             }
         }
 
@@ -916,7 +919,7 @@ namespace Sandbox.Game.Multiplayer
                     msg.MaxBone = maxBone;
                     msg.Bones = m_boneByteList;
 
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    Sync.Layer.SendAsRpcToAll(ref msg);
                 }
             }
         }
@@ -958,7 +961,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Location = blockLocation;
             msg.Multiplier = multiplier;
 
-            Sync.Layer.SendMessageToAll(msg);
+            Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         private static void OnBonesMultiplied(MySyncGrid sync, ref BonesMultiplyMsg msg, MyNetworkClient sender)
@@ -985,11 +988,34 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        /// <summary>
+        /// Server method, adds removed block with compound id into queue
+        /// </summary>
+        public void EnqueueRemovedBlockWithId(Vector3I position, ushort? compoundId, bool generatorsEnabled)
+        {
+            if (Sync.IsServer)
+            {
+                var blockPositionId = new MyCubeGrid.BlockPositionId() { Position = position, CompoundId = compoundId ?? 0xFFFFFFFF };
+                if (generatorsEnabled)
+                    m_removeBlockWithIdQueueWithGenerators.Add(blockPositionId);
+                else
+                    m_removeBlockWithIdQueueWithoutGenerators.Add(blockPositionId);
+            }
+        }
+
         public void EnqueueDestroyedBlock(Vector3I position)
         {
             if (Sync.IsServer)
             {
                 m_destroyBlockQueue.Add(position);
+            }
+        }
+
+        public void EnqueueDestroyedBlockWithId(Vector3I position, ushort? compoundId)
+        {
+            if (Sync.IsServer)
+            {
+                m_destroyBlockQueueWithId.Add(new MyCubeGrid.BlockPositionId() { Position = position, CompoundId = compoundId ?? 0xFFFFFFFF });
             }
         }
 
@@ -1015,7 +1041,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.LocationsWithoutGenerator = m_removeBlockQueueWithoutGenerators;
                 msg.DestroyLocations = m_destroyBlockQueue;
                 msg.DestructionDeformationLocations = m_destructionDeformationQueue;
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
 
                 m_removeBlockQueueWithGenerators.Clear();
                 m_removeBlockQueueWithoutGenerators.Clear();
@@ -1039,13 +1065,46 @@ namespace Sandbox.Game.Multiplayer
             if (handler3 != null && msg.DestructionDeformationLocations != null) handler3(msg.DestructionDeformationLocations);
         }
 
+        /// <summary>
+        /// Server method, sends queued blocks with compound ids to clients
+        /// Not optimized
+        /// </summary>
+        public void SendRemovedBlocksWithIds()
+        {
+            if (Sync.IsServer && (m_removeBlockWithIdQueueWithGenerators.Count > 0 || m_removeBlockWithIdQueueWithoutGenerators.Count > 0 || m_destroyBlockQueueWithId.Count > 0))
+            {
+                var msg = new RemoveBlocksWithIdsMsg();
+                msg.GridEntityId = Entity.EntityId;
+                msg.LocationsWithGenerator = m_removeBlockWithIdQueueWithGenerators;
+                msg.LocationsWithoutGenerator = m_removeBlockWithIdQueueWithoutGenerators;
+                msg.DestroyLocations = m_destroyBlockQueueWithId;
+                Sync.Layer.SendAsRpcToAll(ref msg);
+
+                m_removeBlockWithIdQueueWithGenerators.Clear();
+                m_removeBlockWithIdQueueWithoutGenerators.Clear();
+                m_destroyBlockQueueWithId.Clear();
+            }
+        }
+
+        private static void OnRemoveBlocksWithIds(MySyncGrid sync, ref RemoveBlocksWithIdsMsg msg, MyNetworkClient sender)
+        {
+            var handler = sync.BlocksWithIdRemovedWithGenerator;
+            if (handler != null && msg.LocationsWithGenerator != null) handler(msg.LocationsWithGenerator);
+
+            var handler2 = sync.BlocksWithIdRemovedWithoutGenerator;
+            if (handler2 != null && msg.LocationsWithoutGenerator != null) handler2(msg.LocationsWithoutGenerator);
+
+            var handler3 = sync.BlocksDestroyedWithId;
+            if (handler3 != null && msg.DestroyLocations != null) handler3(msg.DestroyLocations);
+        }
+
         private static void OnReflectorStateRequest(MySyncGrid sync, ref ReflectorsStateMsg msg, MyNetworkClient sender)
         {
             var handler = sync.ReflectorStateChanged;
             if (handler != null) handler(msg.Enabled);
 
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         public void SendReflectorState(MyMultipleEnabledEnum enabledState)
@@ -1054,7 +1113,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.Enabled = enabledState;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnPowerProducerStateRequest(MySyncGrid sync, ref PowerProducerStateMsg msg, MyNetworkClient sender)
@@ -1063,7 +1122,7 @@ namespace Sandbox.Game.Multiplayer
             if (handler != null) handler(msg.Enabled, msg.PlayerId);
 
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         public void SendPowerDistributorState(MyMultipleEnabledEnum enabledState, long playerId)
@@ -1073,7 +1132,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Enabled = enabledState;
             msg.PlayerId = playerId;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         public void SendControlThrustAndTorque(Vector3 controlThrust, Vector3 controlTorque)
@@ -1087,8 +1146,15 @@ namespace Sandbox.Game.Multiplayer
 
             //if (false)
             {
-                sync.Entity.GridSystems.ThrustSystem.ControlThrust = msg.Thrust;
+                var thrustComp = sync.Entity.Components.Get<MyEntityThrustComponent>();
+                if (thrustComp != null)
+                    thrustComp.ControlThrust = msg.Thrust;
+
                 sync.Entity.GridSystems.GyroSystem.ControlTorque = msg.Torque;
+            }
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
             }
         }
 
@@ -1106,34 +1172,41 @@ namespace Sandbox.Game.Multiplayer
                     // Send zero thrust as reliable
                     var zeroMsg = new ThrustZeroMsg();
                     zeroMsg.GridEntityId = Entity.EntityId;
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    Sync.Layer.SendAsRpcToServer(ref msg);
                 }
                 else
                 {
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    Sync.Layer.SendAsRpcToServer(ref msg);
                 }
             }
         }
 
         private static void OnThrustReceived(MySyncGrid sync, ref ThrustMsg msg, MyNetworkClient sender)
         {
-            sync.Entity.GridSystems.ThrustSystem.ControlThrust = msg.Thrust;
+            var thrustComp = sync.Entity.Components.Get<MyEntityThrustComponent>();
+            if (thrustComp != null)
+                thrustComp.ControlThrust = msg.Thrust;
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
-		private ushort GetSubBlockId(MySlimBlock slimBlock)
-		{
-			var block = slimBlock.CubeGrid.GetCubeBlock(slimBlock.Position);
-			MyCompoundCubeBlock compoundBlock = null;
-			if (block != null)
-				compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-			if (compoundBlock != null)
-			{
-				var subBlockId = compoundBlock.GetBlockId(slimBlock);
-				return subBlockId ?? 0;
-			}
+        private ushort GetSubBlockId(MySlimBlock slimBlock)
+        {
+            var block = slimBlock.CubeGrid.GetCubeBlock(slimBlock.Position);
+            MyCompoundCubeBlock compoundBlock = null;
+            if (block != null)
+                compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+            if (compoundBlock != null)
+            {
+                var subBlockId = compoundBlock.GetBlockId(slimBlock);
+                return subBlockId ?? 0;
+            }
 
-			return 0;
-		}
+            return 0;
+        }
 
         public void SendIntegrityChanged(MySlimBlock mySlimBlock, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long toolOwner)
         {
@@ -1146,9 +1219,9 @@ namespace Sandbox.Game.Multiplayer
             msg.BlockPosition = mySlimBlock.Position;
             msg.IntegrityChangeType = integrityChangeType;
             msg.ToolOwner = toolOwner;
-			msg.SubBlockId = GetSubBlockId(mySlimBlock);
+            msg.SubBlockId = GetSubBlockId(mySlimBlock);
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         private static void OnIntegrityChanged(MySyncGrid sync, ref IntegrityChangedMsg msg, MyNetworkClient sender)
@@ -1167,9 +1240,9 @@ namespace Sandbox.Game.Multiplayer
             msg.BlockPosition = mySlimBlock.Position;
             msg.Changes = list;
             Debug.Assert(list != null, "List of stockpile changes was null!");
-			msg.SubBlockId = GetSubBlockId(mySlimBlock);
+            msg.SubBlockId = GetSubBlockId(mySlimBlock);
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         private static void OnStockpileChanged(MySyncGrid sync, ref StockpileChangedMsg msg, MyNetworkClient sender)
@@ -1188,7 +1261,7 @@ namespace Sandbox.Game.Multiplayer
             msg.InventoryIndex = fromInventory.InventoryIdx;
             msg.OwnerEntityId = fromInventory.Owner.EntityId;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnStockpileFillRequest(MySyncGrid sync, ref StockpileFillRequestMsg msg, MyNetworkClient sender)
@@ -1223,7 +1296,7 @@ namespace Sandbox.Game.Multiplayer
             // CH: TODO: Allow bots to set to construction
             msg.RequestingPlayer = MySession.LocalPlayerId;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnSetToConstructionRequest(MySyncGrid sync, ref SetToConstructionRequestMsg msg, MyNetworkClient sender)
@@ -1262,7 +1335,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Blocks = m_tmpBlockIdList.ToArray();
             m_tmpBlockIdList.Clear();
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnModifyGroupSuccess(MySyncGrid sync, ref ModifyBlockGroupMsg msg, MyNetworkClient sender)
@@ -1288,6 +1361,11 @@ namespace Sandbox.Game.Multiplayer
                 }
                 sync.Entity.AddGroup(group);
             }
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
+            }
+
         }
 
         public void RequestConversionToShip()
@@ -1295,7 +1373,7 @@ namespace Sandbox.Game.Multiplayer
             ConvertToShipMsg msg = new ConvertToShipMsg();
             msg.GridEntityId = Entity.EntityId;
 
-            Sync.Layer.SendMessageToServer(ref msg);
+            Sync.Layer.SendAsRpcToServer(ref msg);
         }
 
         private static void OnConvertedToShipRequest(MySyncGrid sync, ref ConvertToShipMsg msg, MyNetworkClient sender)
@@ -1307,7 +1385,7 @@ namespace Sandbox.Game.Multiplayer
             }
 
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                Sync.Layer.SendAsRpcToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         private static void OnConvertedToShipSuccess(MySyncGrid sync, ref ConvertToShipMsg msg, MyNetworkClient sender)
@@ -1330,7 +1408,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridForward = transform.Forward;
             msg.GridUp = transform.Up;
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         private static void OnMergeGridSuccess(MySyncGrid sync, ref MergeMsg msg, MyNetworkClient sender)
@@ -1357,7 +1435,7 @@ namespace Sandbox.Game.Multiplayer
             msg.RequestingPlayer = playerId;
             msg.ShareMode = shareMode;
 
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            Sync.Layer.SendAsRpcToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
         public static void ChangeOwnersRequest(MyOwnershipShareModeEnum shareMode, List<MySingleOwnershipRequest> requests)
@@ -1385,7 +1463,7 @@ namespace Sandbox.Game.Multiplayer
                 if (Sync.IsServer && ((MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle && block.IDModule == null) || (block.IDModule.Owner == 0) || block.IDModule.Owner == msg.RequestingPlayer || (msg.Owner == 0)))
                 {
                     OnChangeOwner(sync, ref msg, sender);
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                    Sync.Layer.SendAsRpcToAll(ref msg, MyTransportMessageEnum.Success);
                 }
                 else
                 {
@@ -1414,7 +1492,7 @@ namespace Sandbox.Game.Multiplayer
                         msg.Requests.RemoveAtFast(c);
                     }
                 }
-                else 
+                else
                 {
                     c++;
                 }
@@ -1455,7 +1533,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Owner = playerId;
             msg.ShareMode = shareMode;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendAsRpcToAllAndSelf(ref msg);
         }
 
         private static void OnChangeGridOwner(MySyncGrid syncObject, ref ChangeGridOwnershipMsg message, MyNetworkClient sender)
@@ -1476,12 +1554,16 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.Handbrake = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendAsRpcToServerAndSelf(ref msg);
         }
 
         private static void OnSetHandbrake(MySyncGrid syncObject, ref SetHandbrakeMsg msg, MyNetworkClient sender)
         {
             syncObject.Entity.GridSystems.WheelSystem.HandBrake = msg.Handbrake;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void ChangeDisplayNameRequest(MyCubeGrid grid, String DisplayName)
@@ -1490,7 +1572,7 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = grid.EntityId;
             msg.DisplayName = DisplayName;
 
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            Sync.Layer.SendAsRpcToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
         private static void OnChangeDisplayNameRequest(MySyncGrid sync, ref ChangeDisplayNameMsg msg, MyNetworkClient sender)
@@ -1504,88 +1586,22 @@ namespace Sandbox.Game.Multiplayer
 
         static void ChangeDisplayName(ref ChangeDisplayNameMsg msg)
         {
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendAsRpcToServerAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         private static void OnChangeDisplayName(MySyncGrid grid, ref ChangeDisplayNameMsg msg, MyNetworkClient sender)
         {
             MyCubeGrid m_grid;
             if (MyEntities.TryGetEntityById(msg.GridEntityId, out m_grid))
+            {
                 m_grid.DisplayName = msg.DisplayName;
-        }
-
-        public void AnnounceCreateSplits(List<MySlimBlock> splitBlocks, List<MyDisconnectHelper.Group> groups)
-        {
-            m_tmpPositionListSend.Clear();
-
-            CreateSplitsMsg msg = new CreateSplitsMsg();
-            msg.GridEntityId = this.Entity.EntityId;
-            msg.Groups = groups;
-            msg.SplitBlocks = m_tmpPositionListSend;
-            foreach (var b in splitBlocks)
-            {
-                msg.SplitBlocks.Add(b.Position);
-            }
-            Sync.Layer.SendMessageToAll(ref msg);
-
-            m_tmpPositionListSend.Clear();
-        }
-
-        private static void OnCreateSplits(MySyncGrid syncGrid, ref CreateSplitsMsg msg, MyNetworkClient sender)
-        {
-            m_tmpBlockListReceive.Clear();
-
-            var grid = syncGrid.Entity;
-            foreach (var b in msg.SplitBlocks)
-            {
-                var block = grid.GetCubeBlock(b);
-                m_tmpBlockListReceive.Add(block); // Add even null, we cannot break the order
-            }
-            MyCubeGrid.CreateSplits(grid, m_tmpBlockListReceive, msg.Groups, false);
-
-            m_tmpBlockListReceive.Clear();
-        }
-
-        public void AnnounceCreateSplit(List<MySlimBlock> blocks, long newEntityId)
-        {
-            var msg = new CreateSplitMsg();
-            msg.GridEntityId = Entity.EntityId;
-            msg.NewGridEntityId = newEntityId;
-
-            m_tmpPositionListSend.Clear();
-            msg.SplitBlocks = m_tmpPositionListSend;
-            foreach (var block in blocks)
-            {
-                msg.SplitBlocks.Add(block.Position);
-            }
-
-            Sync.Layer.SendMessageToAll(ref msg);
-        }
-
-        private static void OnCreateSplit(MySyncGrid grid, ref CreateSplitMsg msg, MyNetworkClient sender)
-        {
-            MyCubeGrid m_grid;
-            if (MyEntities.TryGetEntityById(msg.GridEntityId, out m_grid))
-            {
-                m_tmpBlockListReceive.Clear();
-                foreach (var position in msg.SplitBlocks)
+                if (Sync.IsServer)
                 {
-                    var block = m_grid.GetCubeBlock(position);
-                    Debug.Assert(block != null, "Block was null when trying to create a grid split. Desync?");
-                    if (block == null)
-                    {
-                        MySandboxGame.Log.WriteLine("Block was null when trying to create a grid split. Desync?");
-                        continue;
-                    }
-
-                    m_tmpBlockListReceive.Add(block);
+                    Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
                 }
-
-                MyCubeGrid.CreateSplit(m_grid, m_tmpBlockListReceive, sync: false, newEntityId: msg.NewGridEntityId);
-                m_tmpBlockListReceive.Clear();
             }
         }
-
+  
         public void AnnounceRemoveSplit(List<MySlimBlock> blocks)
         {
             var msg = new RemoveSplitMsg();
@@ -1598,7 +1614,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.RemovedBlocks.Add(block.Position);
             }
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendAsRpcToAll(ref msg);
         }
 
         private static void OnRemoveSplit(MySyncGrid grid, ref RemoveSplitMsg msg, MyNetworkClient sender)
@@ -1632,12 +1648,100 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.DestructionEnabled = destructionEnabled;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendAsRpcToServerAndSelf(ref msg);
         }
 
         private static void OnChangeDestructibleBlocks(MySyncGrid syncObject, ref ChangeDestructibleBlocksMsg msg, MyNetworkClient sender)
         {
             syncObject.Entity.DestructibleBlocks = msg.DestructionEnabled;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendAsRpcToAllButOne(ref msg, sender.SteamUserId);
+            }
+        }
+
+        internal override void OnPositionUpdate(ref PositionUpdateMsg msg, MyNetworkClient sender)
+        {//TODO consider removing this after new netcode implementation
+            if (Entity.PositionComp != null && Entity.GridSystems.JumpSystem != null)
+                if (!Entity.GridSystems.JumpSystem.CheckReceivedCoordinates(ref msg.Position))
+                    return;
+
+            base.OnPositionUpdate(ref msg, sender);
+        }
+
+        public void SendFractureComponentRepaired(MySlimBlock mySlimBlock, long toolOwner)
+        {
+            Debug.Assert(Sync.IsServer, "Other player than server is trying to send block repaired changes");
+
+            var msg = new FractureComponentRepairedMsg();
+            msg.GridEntityId = Entity.EntityId;
+            msg.BlockPosition = mySlimBlock.Position;
+            msg.ToolOwner = toolOwner;
+            msg.SubBlockId = GetSubBlockId(mySlimBlock);
+
+            Sync.Layer.SendAsRpcToAll(ref msg);
+        }
+
+        private static void OnFractureComponentRepaired(MySyncGrid sync, ref FractureComponentRepairedMsg msg, MyNetworkClient sender)
+        {
+            if (sync.FractureComponentRepaired != null)
+                sync.FractureComponentRepaired(msg.BlockPosition, msg.SubBlockId, msg.ToolOwner);
+        }
+
+        public override void SerializePhysics(BitStream stream, MyNetworkClient sender, bool highOrientationCompression = false)
+        {       
+            // Serialize base
+            base.SerializePhysics(stream, sender);
+
+            Vector3D pos = Entity.WorldMatrix.Translation;
+
+            if (stream.Writing)
+            {
+                var g = MyCubeGridGroups.Static.Physical.GetGroup(Entity);
+                stream.WriteByte((byte)(g.Nodes.Count - 1)); // Ignoring self
+                foreach (var node in g.Nodes)
+                {
+                    // Ignore self, already serialized
+                    if (node.NodeData != Entity)
+                    {
+                        var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node.NodeData);
+
+                        // ~26.5 bytes per grid, not bad
+                        NetworkId networkId = MyMultiplayer.Static.ReplicationLayer.GetNetworkIdByObject(target);
+                        PositionUpdateMsg msg = CreatePositionMsg(node.NodeData);
+                        stream.WriteNetworkId(networkId); // ~2 bytes
+
+                        HalfVector3 posDelta = (HalfVector3)(Vector3)(msg.Position - pos);
+                        stream.Serialize(ref posDelta); // 6 bytes
+                        stream.SerializeNorm(ref msg.Orientation); // 6.5 bytes
+                        stream.Serialize(ref msg.LinearVelocity); // 6 bytes
+                        stream.Serialize(ref msg.AngularVelocity); // 6 bytes
+                    }
+                }
+            }
+            else
+            {
+                byte numRecords = stream.ReadByte();
+                for (int i = 0; i < numRecords; i++)
+                {
+                    PositionUpdateMsg msg = default(PositionUpdateMsg);
+                    NetworkId networkId = stream.ReadNetworkId();
+
+                    HalfVector3 posDelta = default(HalfVector3);
+                    stream.Serialize(ref posDelta);
+                    msg.Position = posDelta + pos;
+
+                    stream.SerializeNorm(ref msg.Orientation);
+                    stream.Serialize(ref msg.LinearVelocity);
+                    stream.Serialize(ref msg.AngularVelocity);
+
+                    MyCubeGrid grid = MyMultiplayer.Static.ReplicationLayer.GetObjectByNetworkId(networkId) as MyCubeGrid;
+                    if (grid != null)
+                    {
+                        grid.SyncObject.OnPositionUpdate(ref msg, sender);
+                    }
+                }
+            }
         }
     }
 }

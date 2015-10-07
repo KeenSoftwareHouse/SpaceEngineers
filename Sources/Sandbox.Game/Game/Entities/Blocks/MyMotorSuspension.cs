@@ -3,6 +3,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
@@ -93,12 +94,16 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_friction != value)
                 {
-                    var wheel = (m_rotorBlock as MyWheel);
-                    if (wheel != null)
-                        wheel.Friction = MathHelper.Lerp(1, 8, value);
+                    PropagateFriction(value);
                     m_friction = value;
                 }
             }
+        }
+        private void PropagateFriction(float value)
+        {
+            var wheel = (m_rotorBlock as MyWheel);
+            if (wheel != null)
+                wheel.Friction = MathHelper.Lerp(1, 32, value);
         }
 
         public float Height
@@ -219,8 +224,8 @@ namespace Sandbox.Game.Entities.Cube
             var damping = new MyTerminalControlSlider<MyMotorSuspension>("Damping", MySpaceTexts.BlockPropertyTitle_Motor_Damping, MySpaceTexts.BlockPropertyTitle_Motor_Damping);
             damping.SetLimits(0, 100);
             damping.Getter = (x) => x.GetDampingForTerminal();
-            damping.Setter = (x, v) => x.SyncObject.ChangeDamping(v * 0.002f);
-            damping.Writer = (x, res) => res.AppendInt32((int)(x.Damping / 0.002f)).Append("%");
+            damping.Setter = (x, v) => x.SyncObject.ChangeDamping(v * 0.0002f);
+            damping.Writer = (x, res) => res.AppendInt32((int)(x.GetDampingForTerminal())).Append("%");
             damping.EnableActions();
             damping.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(damping);
@@ -228,8 +233,8 @@ namespace Sandbox.Game.Entities.Cube
             var strength = new MyTerminalControlSlider<MyMotorSuspension>("Strength", MySpaceTexts.BlockPropertyTitle_Motor_Strength, MySpaceTexts.BlockPropertyTitle_Motor_Strength);
             strength.SetLimits(0, 100);
             strength.Getter = (x) => x.GetStrengthForTerminal();
-            strength.Setter = (x, v) => x.SyncObject.ChangeStrength(v * 0.002f);
-            strength.Writer = (x, res) => res.AppendInt32((int)(x.Strength / 0.002f)).Append("%");
+            strength.Setter = (x, v) => x.SyncObject.ChangeStrength(v * 0.0002f);
+            strength.Writer = (x, res) => res.AppendInt32((int)(x.GetStrengthForTerminal())).Append("%");
             strength.EnableActions();
             strength.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(strength);
@@ -275,7 +280,7 @@ namespace Sandbox.Game.Entities.Cube
             Strength = ob.Strength;
             Steering = ob.Steering;
             Propulsion = ob.Propulsion;
-            Friction = ob.Friction;
+            Friction = ob.Friction/4;
             Power = ob.Power;
             Height = ob.Height;
             MaxSteerAngle = ob.MaxSteerAngle;
@@ -283,9 +288,28 @@ namespace Sandbox.Game.Entities.Cube
             SteerReturnSpeed = ob.SteerReturnSpeed;
             InvertSteer = ob.InvertSteer;
             SuspensionTravel = ob.SuspensionTravel;
+            CubeGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
+            CubeGrid.OnHavokSystemIDChanged += CubeGrid_OnHavokSystemIDChanged;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorSuspension(this));
+        }
+
+        void CubeGrid_OnHavokSystemIDChanged(int obj)
+        {
+            CubeGrid_OnPhysicsChanged(CubeGrid);
+        }
+
+
+        void CubeGrid_OnPhysicsChanged(MyEntity obj)
+        {
+            if (m_rotorGrid == null)
+                return;
+            var rotorBody = m_rotorGrid.Physics.RigidBody;
+            if (rotorBody == null)
+                return;
+            var info = HkGroupFilter.CalcFilterInfo(rotorBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
+            rotorBody.SetCollisionFilterInfo(info);
         }
 
         public override void UpdateOnceBeforeFrame()
@@ -304,7 +328,7 @@ namespace Sandbox.Game.Entities.Cube
             ob.Damping = Damping;
             ob.Strength = Strength;
             ob.Propulsion = Propulsion;
-            ob.Friction = Friction;
+            ob.Friction = Friction*4;
             ob.Power = Power;
             ob.Height = Height;
             ob.MaxSteerAngle = MaxSteerAngle;
@@ -384,6 +408,14 @@ namespace Sandbox.Game.Entities.Cube
 
                 m_rotorGrid = m_rotorBlock.CubeGrid;
                 var rotorBody = m_rotorGrid.Physics.RigidBody;
+                rotorBody.MaxAngularVelocity = float.MaxValue;
+                rotorBody.AngularDamping *= 4;
+                if (MyFakes.WHEEL_SOFTNESS)
+                {
+                    HkUtils.SetSoftContact(rotorBody, null, MyPhysicsConfig.WheelSoftnessRatio, MyPhysicsConfig.WheelSoftnessVelocity);
+                }
+                var info = HkGroupFilter.CalcFilterInfo(rotorBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
+                rotorBody.SetCollisionFilterInfo(info);
                 HkWheelConstraintData data = new HkWheelConstraintData();
                 var suspensionAx = PositionComp.LocalMatrix.Forward;
                 var posA = DummyPosition + (suspensionAx * m_height);
@@ -399,7 +431,7 @@ namespace Sandbox.Game.Entities.Cube
                 //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
                 data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height) * SuspensionTravel);
                 data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height) * SuspensionTravel);
-                data.SetInBodySpace(ref posB, ref posA, ref axisB, ref axisA, ref suspensionAx, ref suspensionAx);
+                data.SetInBodySpace( posB,  posA,  axisB,  axisA,  suspensionAx,  suspensionAx, RotorGrid.Physics, CubeGrid.Physics);
                 m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
 
                 m_constraint.WantRuntime = true;
@@ -407,6 +439,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_constraint.Enabled = true;
 
                 m_rotorBlock.Attach(this);
+                PropagateFriction(m_friction);
                 UpdateIsWorking();
 
                 if (updateGroup)
@@ -420,6 +453,8 @@ namespace Sandbox.Game.Entities.Cube
 
             return false;
         }
+
+
 
         public override void ComputeRotorQueryBox(out Vector3D pos, out Vector3 halfExtents, out Quaternion orientation)
         {
@@ -467,14 +502,50 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (!IsWorking)
                 return;
-            if (m_rotorGrid != null && m_rotorGrid.Physics != null)
+            if (m_rotorGrid == null || m_rotorGrid.Physics == null)
+                return;
+            var powerRatio = 1f;// m_rotorGrid.Physics.AngularVelocity.Length();
+
+            if (MyFakes.SUSPENSION_POWER_RATIO)
+            {
+                var wheelDiameter = m_rotorBlock.BlockDefinition.Size.X * m_rotorGrid.GridSize * 0.5f;
+                var lin = 1f;
+                if (MyDebugDrawSettings.DEBUG_DRAW_SUSPENSION_POWER)
+                {
+                    for (int i = 2; i < 20; i++)
+                    {
+                        lin = (i - 1) * 10;
+                        powerRatio = 1 - ((lin - 10) / (CubeGrid.Physics.RigidBody.MaxLinearVelocity - 20));
+                        var vel0 = Math.Min(1, powerRatio);
+
+                        lin = i * 10;
+                        powerRatio = 1 - ((lin - 10) / (CubeGrid.Physics.RigidBody.MaxLinearVelocity - 20));
+                        var vel = Math.Min(1, powerRatio);
+
+                        VRageRender.MyRenderProxy.DebugDrawLine2D(new Vector2(300 + i * 20, 400 - vel * 200),
+                            new Vector2(300 + (i - 1) * 20, 400 - vel0 * 200), Color.Yellow, Color.Yellow);
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300 + (i - 1) * 20, 400), ((i - 1) * 10).ToString(), Color.Yellow, 0.35f);
+
+                    }
+                }
+                lin = m_rotorGrid.Physics.AngularVelocity.Length() * wheelDiameter; // linear velocity at tire surface
+                powerRatio = 1 - ((lin - 10) / (CubeGrid.Physics.RigidBody.MaxLinearVelocity - 20));
+                powerRatio = MathHelper.Clamp(powerRatio, 0, 1);
+                if (MyDebugDrawSettings.DEBUG_DRAW_SUSPENSION_POWER)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300 + lin * 2, 400 - powerRatio * 200), "I", Color.Red, 0.3f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300 - 10, 400 - powerRatio * 200), powerRatio.ToString(), Color.Yellow, 0.35f);
+                }
+            }
+
+            force *= powerRatio;
             {
                 var body = m_rotorGrid.Physics.RigidBody;
                 //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(10, 60), "" + body.LinearVelocity.Length(), Color.Red, 1);
                 if (m_revolveInvert == forward)
-                    body.ApplyAngularImpulse(m_rotorGrid.WorldMatrix.Up * ((3.5f + (float)Math.Pow(body.LinearVelocity.Length(),1.124f)) * force));
+                    body.ApplyAngularImpulse(body.GetRigidBodyMatrix().Up * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(),1.124f)) */ force);
                 else
-                    body.ApplyAngularImpulse(m_rotorGrid.WorldMatrix.Down * ((3.5f + (float)Math.Pow(body.LinearVelocity.Length(), 1.124f)) * force));
+                    body.ApplyAngularImpulse(m_rotorGrid.WorldMatrix.Down * /*((3.5f + (float)Math.Pow(body.LinearVelocity.Length(), 1.124f)) */ force);
                 m_wasAccelerating = true;
             }
         }
@@ -555,12 +626,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public float GetDampingForTerminal()
         {
-            return Damping / 0.002f;
+            return Damping / 0.0002f;
         }
 
         public float GetStrengthForTerminal()
         {
-            return Strength / 0.002f;
+            return Strength / 0.0002f;
         }
 
         public float GetFrictionForTerminal()

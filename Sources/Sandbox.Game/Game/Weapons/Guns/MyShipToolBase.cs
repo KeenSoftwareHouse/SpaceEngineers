@@ -1,6 +1,4 @@
 ﻿using Havok;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -9,33 +7,25 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Lights;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using VRage.ModAPI;
 using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
+    public abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
     {
         private MyInventory m_inventory;
         protected MyInventory Inventory
@@ -56,6 +46,8 @@ namespace Sandbox.Game.Weapons
 
         // State variables
         private bool m_wantsToActivate;
+        protected bool WantsToActivate { get { return m_wantsToActivate; } set { m_wantsToActivate = value; UpdateActivationState(); } }
+
         private bool m_isActivated;
         private bool m_isActivatedOnSomething;
         protected int m_lastTimeActivate;
@@ -75,15 +67,9 @@ namespace Sandbox.Game.Weapons
 
         private bool m_useConveyorSystem;
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         static MyShipToolBase()
@@ -126,23 +112,25 @@ namespace Sandbox.Game.Weapons
             SlimBlock.UsesDeformation = false;
             SlimBlock.DeformationRatio = typedBuilder.DeformationRatio; // 3x times harder for destruction by high speed
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Defense,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+                MyStringHash.GetOrCompute("Defense"),
                 MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_GRINDER,
                 ComputeRequiredPower);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
 
             Enabled = typedBuilder.Enabled;
             UseConveyorSystem = typedBuilder.UseConveyorSystem;
 
-            base.EnabledChanged += MyShipToolBase_EnabledChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             LoadDummies();
 
             UpdateActivationState();
-            PowerReceiver.Update();
+
+            IsWorkingChanged += MyShipToolBase_IsWorkingChanged;
+			ResourceSink.Update();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
         }
@@ -200,17 +188,18 @@ namespace Sandbox.Game.Weapons
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            VRage.ProfilerShort.Begin("ShipToolLeave");
             var entities = body.GetAllEntities();
             foreach (var ientity in entities)
             {
-                if (CanInteractWith(ientity))
+                if (!CanInteractWith(ientity))
                     continue;
 
                 var entity = ientity as MyEntity;
 
                 int entityCounter;
                 bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
-                Debug.Assert(registered, "Unregistering not registered entity from ship tool");
+          //      Debug.Assert(registered, "Unregistering not registered entity from ship tool");
                 if (!registered)
                     continue;
 
@@ -219,14 +208,16 @@ namespace Sandbox.Game.Weapons
                     m_entitiesInContact.Add(entity, entityCounter - 1);
             }
             entities.Clear();
+            VRage.ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            VRage.ProfilerShort.Begin("ShipToolEnter");
             var entities = body.GetAllEntities();
             foreach (var ientity in entities)
             {
-                if (CanInteractWith(ientity))
+                if (!CanInteractWith(ientity))
                     continue;
 
                 var entity = ientity as MyEntity;
@@ -242,6 +233,8 @@ namespace Sandbox.Game.Weapons
                     m_entitiesInContact.Add(entity, 1);
                 }
             }
+            entities.Clear();
+            VRage.ProfilerShort.End();
         }
 
         protected virtual bool CanInteractWithSelf
@@ -263,20 +256,28 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        void MyShipToolBase_EnabledChanged(MyTerminalBlock obj)
+        protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+            WantsToActivate = Enabled;
+
+            base.OnEnabledChanged();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()
         {
-            UpdateActivationState();
             UpdateIsWorking();
+            UpdateActivationState();
+        }
+
+        void MyShipToolBase_IsWorkingChanged(MyCubeBlock obj)
+        {
+            ResourceSink.Update();
+            UpdateActivationState();
         }
 
         public override void OnModelChange()
@@ -288,7 +289,7 @@ namespace Sandbox.Game.Weapons
 
         private void UpdateActivationState()
         {
-            if ((Enabled || m_wantsToActivate) && IsFunctional && PowerReceiver.IsPowered)
+			if ((Enabled || WantsToActivate) && IsFunctional && ResourceSink.IsPowered)
             {
                 StartShooting();
             }
@@ -300,7 +301,7 @@ namespace Sandbox.Game.Weapons
 
         private float ComputeRequiredPower()
         {
-            return (IsFunctional && (Enabled || m_wantsToActivate)) ? PowerReceiver.MaxRequiredInput : 0f;
+			return (IsFunctional && (Enabled || WantsToActivate)) ? ResourceSink.MaxRequiredInput : 0f;
         }
 
         public override void UpdateAfterSimulation()
@@ -426,7 +427,7 @@ namespace Sandbox.Game.Weapons
             protected set;
         }
 
-        public Definitions.MyDefinitionId DefinitionId
+        public MyDefinitionId DefinitionId
         {
             get { return m_defId; }
         }
@@ -450,8 +451,8 @@ namespace Sandbox.Game.Weapons
 
             if (Physics != null)
                 Physics.Enabled = false;
-            if (PowerReceiver != null)
-                PowerReceiver.Update();
+			if (ResourceSink != null)
+				ResourceSink.Update();
 
             m_shootHeatup = 0;
 
@@ -485,6 +486,11 @@ namespace Sandbox.Game.Weapons
         {
             Debug.Assert(index == 0);
             return m_inventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            m_inventory = inventory;
         }
 
         public MyInventoryOwnerTypeEnum InventoryOwnerType
@@ -566,8 +572,8 @@ namespace Sandbox.Game.Weapons
                 return;
             }
 
-            m_wantsToActivate = true;
-            PowerReceiver.Update();
+            WantsToActivate = true;
+			ResourceSink.Update();
         }
 
         public void EndShoot(MyShootActionEnum action)

@@ -10,6 +10,7 @@ using System.Text;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 using VRage.Game.ObjectBuilders;
+using VRage.Game.ObjectBuilders.Definitions;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -184,9 +185,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_CuttingDefinition[] Cuttings;
 
-        [XmlArrayItem("Sounds")]
+        [XmlArrayItem("Properties")]
         [ProtoMember]
-        public MyObjectBuilder_MaterialSoundsDefinition[] MaterialSounds;
+        public MyObjectBuilder_MaterialPropertiesDefinition[] MaterialProperties;
 
         [XmlArrayItem("ControllerSchema")]
         [ProtoMember]
@@ -223,10 +224,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
 
-        [XmlArrayItem("PlanetGeneratorDefinition")]
-        [ProtoMember]
-        public MyObjectBuilder_PlanetGeneratorDefinition[] PlanetGeneratorDefinitions;
-
         [XmlArrayItem("Definition")]
         [ProtoMember]
         public MyObjectBuilder_FloraElementDefinition[] FloraElements;
@@ -239,16 +236,43 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 		[ProtoMember]
 		public MyObjectBuilder_EntityStatDefinition[] StatDefinitions;
 
+		[XmlArrayItem("Gas")]
+		[ProtoMember]
+		public MyObjectBuilder_GasProperties[] GasProperties;
+
+		[XmlArrayItem("DistributionGroup")]
+		[ProtoMember]
+		public MyObjectBuilder_ResourceDistributionGroup[] ResourceDistributionGroups;
+
         [XmlArrayItem("Group")]
         [ProtoMember]
         public MyObjectBuilder_ComponentGroupDefinition[] ComponentGroups;
+
+        [XmlArrayItem("Substitution")]
+        [ProtoMember]
+        public MyObjectBuilder_ComponentSubstitutionDefinition[] ComponentSubstitutions;
 
         [XmlArrayItem("Block")]
         [ProtoMember]
         public MyComponentBlockEntry[] ComponentBlocks;
 
-        [XmlArrayItem("PlanetPrefab")]
+        [XmlArrayItem("Group")]
         [ProtoMember]
-        public MyObjectBuilder_PlanetPrefabDefinition[] PlanetPrefabs;
+        public MyGroupedIds[] EnvironmentGroups;
+
+        [XmlArrayItem("Group")]
+        [ProtoMember]
+        public MyObjectBuilder_ScriptedGroupDefinition[] ScriptedGroups;
+
+        [XmlArrayItem("Map")]
+        [ProtoMember]
+        public MyMappedId[] ScriptedGroupsMap;
+
+        [XmlArrayItem("Antenna")]
+        [ProtoMember]
+        public MyObjectBuilder_PirateAntennaDefinition[] PirateAntennas;
+
+        [ProtoMember]
+        public MyObjectBuilder_DestructionDefinition Destruction;
     }
 }

@@ -401,7 +401,7 @@ namespace VRageRender
                 //Set distance where no slope bias will be applied (because of cockpit artifacts)
                 effectDirectionalLight.SetNearSlopeBiasDistance(3);
 
-                effectDirectionalLight.ShowSplitColors(Settings.ShowCascadeSplits);
+                effectDirectionalLight.ShowSplitColors(Settings.ShowShadowCascadeSplits);
                 
 
                 effectDirectionalLight.SetShadowBias(MyRenderCamera.FieldOfView * 0.0001f * MyRenderConstants.RenderQualityProfile.ShadowBiasMultiplier);

@@ -70,6 +70,8 @@ namespace Sandbox.Game.Screens
             int i = 0;
             foreach (var character in MyDefinitionManager.Static.Characters)
             {
+                if (!character.UsableByPlayer) continue;
+
                 var key = GetDisplayName(character.Name);
                 m_displayModels[key] = i;
                 m_models[i++] = character.Name;

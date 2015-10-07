@@ -37,6 +37,9 @@ namespace Sandbox.Engine.Voxels
             m_detailFrequency    = detailFrequency;
 
             m_potentialHalfDeviation = m_secondaryHalfDeviation + m_detailSize;
+
+            if (m_detailFrequency == 0)
+                m_enableModulation = false;
         }
 
         internal override ContainmentType Contains(ref BoundingBox queryAabb, ref BoundingSphere querySphere, float lodVoxelSize)

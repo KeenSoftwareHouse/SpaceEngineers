@@ -84,8 +84,9 @@ namespace Sandbox.Game.Screens.DebugScreens
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.35f);
 
             AddCheckBox("Enable use object highlight", null, MemberHelper.GetMember(() => MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT));
+            AddCheckBox("Show grids decay", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRIDS_DECAY));
 
-            m_currentPosition += new Vector2(0.00f, 0.23f);
+            m_currentPosition += new Vector2(0.00f, 0.21f);
 
             AddCheckBox("Debug draw all mount points", MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_ALL, onClick_DebugDrawMountPointsAll);
             AddCheckBox("Debug draw mount points", MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS, onClick_DebugDrawMountPoints);

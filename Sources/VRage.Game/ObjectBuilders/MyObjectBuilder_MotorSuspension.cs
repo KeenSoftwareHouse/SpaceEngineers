@@ -15,28 +15,28 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Steering = true;
 
         [ProtoMember]
-        public float Damping = 0.02f;
+        public float Damping = 0.012f;
 
         [ProtoMember]
-        public float Strength = 0.04f;
+        public float Strength = 0.002f;
 
         [ProtoMember]
         public bool Propulsion = true;
 
         [ProtoMember]
-        public float Friction = 1.5f / 8;
+        public float Friction = 0.4f * 4;
 
         [ProtoMember]
-        public float Power = 1;
+        public float Power = 0.1f;
 
         [ProtoMember]
-        public float Height = 0;
+        public float Height = -0.458f;
 
         [ProtoMember]
-        public float MaxSteerAngle = 0.45f;
+        public float MaxSteerAngle = 0.32f;
 
         [ProtoMember]
-        public float SteerSpeed = 0.02f;
+        public float SteerSpeed = 0.01f;
 
         [ProtoMember]
         public float SteerReturnSpeed = 0.01f;

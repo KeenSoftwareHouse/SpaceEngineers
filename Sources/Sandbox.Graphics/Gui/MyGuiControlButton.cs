@@ -329,9 +329,11 @@ namespace Sandbox.Graphics.GUI
 
                     captureInput = this;
                     m_readyToClick = false;
+                    return captureInput;
                 }
+                if (IsMouseOver && MyInput.Static.IsPrimaryButtonPressed())
+                    captureInput = this;//to be first in queue when button is released
             }
-
             return captureInput;
         }
 

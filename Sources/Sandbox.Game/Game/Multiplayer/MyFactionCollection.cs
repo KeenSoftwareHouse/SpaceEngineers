@@ -205,6 +205,21 @@ namespace Sandbox.Game.Multiplayer
             return null;
         }
 
+        public MyFaction TryGetFactionByTag(string tag, IMyFaction doNotCheck = null)
+        {
+            foreach (var entry in m_factions)
+            {
+                var faction = entry.Value;
+
+                if (doNotCheck != null && doNotCheck.FactionId == faction.FactionId)
+                    continue;
+
+                if (string.Equals(tag, faction.Tag, StringComparison.OrdinalIgnoreCase))
+                    return faction;
+            }
+            return null;
+        }
+
         public IMyFaction TryGetPlayerFaction(long playerId)
         {
             if (m_playerFaction.ContainsKey(playerId) && m_factions.ContainsKey(m_playerFaction[playerId]))

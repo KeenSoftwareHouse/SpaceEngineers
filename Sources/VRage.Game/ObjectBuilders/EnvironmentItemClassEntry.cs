@@ -26,6 +26,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(true)]
         public bool Enabled = true;
 
+        [ProtoMember]
+        [XmlAttribute]
+        public float Frequency = 1.0f;
+
         public override bool Equals(object other)
         {
             var otherItem = other as EnvironmentItemsEntry;

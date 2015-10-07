@@ -38,7 +38,7 @@ namespace Sandbox.Game.Entities
         /// Component that has integrity beyond this threshold is considered unmounted.
         /// The integrity of the whole stack will never fall beyond this level (unless the stack is fully dismounted)
         /// </summary>
-        public const float MOUNT_THRESHOLD = 0.000001f;
+        public const float MOUNT_THRESHOLD = 1.0f/(float)ushort.MaxValue;
 
         #region Fields
         readonly MyCubeBlockDefinition m_blockDefinition;

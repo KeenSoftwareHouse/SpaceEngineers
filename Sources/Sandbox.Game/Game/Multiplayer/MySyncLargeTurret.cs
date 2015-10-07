@@ -181,7 +181,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ChangeTargetingMsg>(ChangeTargetingRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeTargetingMsg>(ChangeTargetingSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterMessage<UpdateRotationAndElevationMsg>(OnRotationAndElevationReceived, MyMessagePermissions.Any);
+            MySyncLayer.RegisterMessage<UpdateRotationAndElevationMsg>(OnRotationAndElevationReceived, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterMessage<SetTargetMsg>(SetTargetRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<SetTargetMsg>(SetTargetSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
@@ -303,7 +303,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Rotation = rotation;
             msg.Elevation = elevation;
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         private static void OnRotationAndElevationReceived(ref UpdateRotationAndElevationMsg msg, MyNetworkClient sender)
@@ -314,6 +314,10 @@ namespace Sandbox.Game.Multiplayer
             if (turret != null)
             {
                 turret.UpdateRotationAndElevation(msg.Rotation, msg.Elevation);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
         }
 

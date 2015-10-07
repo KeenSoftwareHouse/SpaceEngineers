@@ -217,20 +217,15 @@ namespace Sandbox.Graphics.GUI
       
         public override MyGuiControlBase HandleInput()
         {
-            MyGuiControlBase ret = base.HandleInput();
-
-            if (ret == null)
+            int tab = GetMouseOverTab();
+            if (tab != -1 && GetTabSubControl(tab).Enabled && MyInput.Static.IsNewPrimaryButtonPressed())
             {
-                int tab = GetMouseOverTab();
-                if (tab != -1 && GetTabSubControl(tab).Enabled && MyInput.Static.IsNewPrimaryButtonPressed())
-                {
-                    MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
-                    SelectedPage = tab;
-                    ret = this;
-                }
+                MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
+                SelectedPage = tab;
+                return this;
             }
 
-            return ret;
+            return base.HandleInput();
         }
 
         public override void ShowToolTip()

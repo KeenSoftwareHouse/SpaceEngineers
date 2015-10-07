@@ -18,13 +18,12 @@ namespace Sandbox.Game.Entities.Cube
         
         float m_broadcastRadius;
 
-        public MyRadioBroadcaster(MyEntity parent, float broadcastRadius = 100, bool enabled = true)
+        public MyRadioBroadcaster(MyEntity parent, float broadcastRadius = 100)
         {
             SyncObject = new MySyncRadioBroadcaster(this);
             Parent = parent;
             m_broadcastRadius = broadcastRadius;
             parent.OnClose += parent_OnClose;
-            Enabled = enabled;
         }
 
         void parent_OnClose(MyEntity obj)

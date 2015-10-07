@@ -75,7 +75,10 @@ namespace Sandbox.Engine.Voxels
             if (m_enableModulation)
             {
                 Debug.Assert(m_deviationFrequency != 0f);
-                float normalizer = m_deviationFrequency * m_radius / distance;
+                float distScale = 0f;
+                if (distance != 0f)
+                    distScale = 1f / distance;
+                float normalizer = m_deviationFrequency * m_radius * distScale;
                 var tmp = localPosition * normalizer;
                 halfDeviationRatio = (float)macroModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
             }

@@ -208,6 +208,18 @@ namespace VRageMath
             else if (t >= l) return Vector3.DistanceSquared(p, w);  // Beyond the 'w' end of the segment
             else return Vector3.DistanceSquared(p, v + (t / l) * d);        // On the segment
         }
+
+        /**
+         * Clamp the provided value to an interval.
+         */
+        public static float Clamp(float val, float min, float max)
+        {
+            if (val < min)
+                return min;
+            if (val > max)
+                return max;
+            return val;
+        }
     }
 
     /// <summary>

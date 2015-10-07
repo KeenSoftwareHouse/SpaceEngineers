@@ -96,8 +96,8 @@ namespace VRage
         [DisplayName("Splinter split plane")]
         [Description("Splinter split plane")]
         [Category("Splinter")]
-        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e",
-                "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e")]
+        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI",
+         "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI")]
         public string SplinterSplittingPlane { get; set; }
 
         [DisplayName("Use custom split axis")]
@@ -187,8 +187,8 @@ namespace VRage
         [DisplayName("Board split plane")]
         [Description("Board split plane")]
         [Category("Board")]
-        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e",
-                "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI, Version=2015.1.225.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e")]
+        [Editor("Telerik.WinControls.UI.PropertyGridBrowseEditor, Telerik.WinControls.UI",
+                "Telerik.WinControls.UI.BaseInputEditor, Telerik.WinControls.UI")]
         public string BoardSplittingPlane { get; set; }
 
         [DisplayName("Use custom split axis")]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -36,6 +37,7 @@ namespace Sandbox.Common.ObjectBuilders
             public string Item;
 
             [ProtoMember]
+            [DynamicObjectBuilder]
             public MyObjectBuilder_ToolbarItem Data;
         }
 
@@ -51,6 +53,7 @@ namespace Sandbox.Common.ObjectBuilders
 		#region Obsolete
 
 		[ProtoMember, DefaultValue(null)]
+        [NoSerialize]
 		// Obsolete
         public List<Vector3> ColorMaskHSVList = null;
 		public bool ShouldSerializeColorMaskHSVList() { return false; }	// Moved to MyPlayer

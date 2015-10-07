@@ -12,7 +12,7 @@ struct Output
 void __pixel_shader(PixelStageInput input, out Output output) {
 
 	PixelInterface pixel;
-	pixel.screen_position = input.position.xy;
+	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 
 	MaterialOutputInterface material_output;

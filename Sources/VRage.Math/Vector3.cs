@@ -32,6 +32,7 @@ namespace VRageMath
         public static Vector3 Backward = new Vector3(0.0f, 0.0f, 1f);
         public static Vector3 MaxValue = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         public static Vector3 MinValue = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        public static Vector3 Invalid = new Vector3(float.NaN);
         /// <summary>
         /// Gets or sets the x-component of the vector.
         /// </summary>
@@ -270,7 +271,7 @@ namespace VRageMath
 
         public static Vector3 Abs(Vector3 value)
         {
-            return new Vector3(value.X < 0 ? -value.X : value.X, value.Y < 0 ? -value.Y : value.Y, value.Z < 0 ? -value.Z : value.Z);
+            return new Vector3(Math.Abs(value.X), Math.Abs(value.Y), Math.Abs(value.Z));
         }
 
         public static Vector3 Sign(Vector3 value)

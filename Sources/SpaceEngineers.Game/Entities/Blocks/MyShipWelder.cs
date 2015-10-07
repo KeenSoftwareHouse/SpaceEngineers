@@ -161,7 +161,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 {
                     foreach (var info in blocks)
                     {
-                        var componentId = info.hitCube.BlockDefinition.Components[0].Definition.Id;
+                        var components=info.hitCube.BlockDefinition.Components;
+                        if (components == null || components.Length == 0)
+                            continue;
+                        var componentId = components[0].Definition.Id;
                         MyGridConveyorSystem.ItemPullRequest(this, Inventory, OwnerId, componentId, 1);
                     }
                 }
@@ -350,7 +353,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             static MySyncShipWelder()
             {
-                MySyncLayer.RegisterEntityMessage<MySyncShipWelder, ChangeHelperModeMsg>(OnHelpOthersChanged, MyMessagePermissions.Any);
+                MySyncLayer.RegisterEntityMessage<MySyncShipWelder, ChangeHelperModeMsg>(OnHelpOthersChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf);
             }
 
             public MySyncShipWelder(MyShipWelder shipWelder)
@@ -365,12 +368,17 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 msg.EntityId = m_shipWelder.EntityId;
                 msg.HelpOthers = newHelperMode;
 
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
 
             private static void OnHelpOthersChanged(MySyncShipWelder syncObject, ref ChangeHelperModeMsg message, MyNetworkClient sender)
             {
                 syncObject.m_shipWelder.m_helpOthers = message.HelpOthers;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref message, sender.SteamUserId);
+                }
+               
             }
         }
         #endregion

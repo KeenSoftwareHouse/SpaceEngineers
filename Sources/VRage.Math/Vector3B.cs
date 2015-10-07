@@ -17,6 +17,12 @@ namespace VRageMath
         public sbyte Z;
 
         public static readonly Vector3B Zero = new Vector3B();
+        public static Vector3B Up = new Vector3B(0, 1, 0);
+        public static Vector3B Down = new Vector3B(0, -1, 0);
+        public static Vector3B Right = new Vector3B(1, 0, 0);
+        public static Vector3B Left = new Vector3B(-1, 0, 0);
+        public static Vector3B Forward = new Vector3B(0, 0, -1);
+        public static Vector3B Backward = new Vector3B(0, 0, 1);
 
         public Vector3B(sbyte x, sbyte y, sbyte z)
         {
@@ -86,6 +92,10 @@ namespace VRageMath
         public static bool operator !=(Vector3B a, Vector3B b)
         {
             return !(a == b);
+        }
+
+        public static Vector3B operator-(Vector3B me) {
+            return new Vector3B((sbyte)-me.X, (sbyte)-me.Y, (sbyte)-me.Z);
         }
 
         /// <summary>

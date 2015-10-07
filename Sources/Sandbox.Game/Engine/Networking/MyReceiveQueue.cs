@@ -210,11 +210,10 @@ namespace Sandbox.Engine.Networking
                     ProcessMessages(handler, delay);
                 }
 
-                // Read and process one-by-one to keep memory usage low
-                while (ReceiveOne())
-                {
-                    ProcessMessages(handler, delay);
-                }
+                // Read and process all of them cuz it might ping-pong msgs between server-client all the time
+                while (ReceiveOne());
+
+                ProcessMessages(handler, delay);
             }
             else
             {
@@ -228,8 +227,10 @@ namespace Sandbox.Engine.Networking
             long processTime = Stopwatch.GetTimestamp() - delayTicks;
 
             Message msg;
-            while (m_receiveQueue.TryPeek(out msg) && (processTime > msg.ReceiveTime))
+            int count = m_receiveQueue.Count;
+            while (m_receiveQueue.TryPeek(out msg) && (processTime > msg.ReceiveTime) && count != 0)
             {
+                count--;
                 if (m_receiveQueue.TryDequeue(out msg)) // Can fail when queue was cleared
                 {
                     if (msg.Timestamp != TimeSpan.Zero)

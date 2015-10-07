@@ -10,20 +10,24 @@ using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRageMath;
 using System.Diagnostics;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Game.Components
 {
+    [MyComponentBuilder(typeof(MyObjectBuilder_UseObjectsComponent))]
     public class MyUseObjectsComponent : MyUseObjectsComponentBase
     {
         private struct DetectorData
         {
             public IMyUseObject UseObject;
             public Matrix Matrix;
+            public string DetectorName;
 
-            public DetectorData(IMyUseObject useObject, Matrix mat)
+            public DetectorData(IMyUseObject useObject, Matrix mat, string name)
             {
                 UseObject = useObject;
                 Matrix = mat;
+                DetectorName = name;
             }
         }
 
@@ -31,8 +35,10 @@ namespace Sandbox.Game.Components
         static readonly List<HkShape> m_shapes = new List<HkShape>();
         
         private Dictionary<uint, DetectorData> m_detectorInteractiveObjects = new Dictionary<uint, DetectorData>();
+        private List<uint> m_customAddedDetectors = new List<uint>();
 
         private MyPhysicsBody m_detectorPhysics;
+        private MyObjectBuilder_UseObjectsComponent m_objectBuilder = null;
         public override MyPhysicsComponentBase DetectorPhysics
         {
             get { return m_detectorPhysics; }
@@ -103,7 +109,7 @@ namespace Sandbox.Game.Components
             var interactiveObject = CreateInteractiveObject(detectorName, dummyName, dummyData, shapeKey);
             if (interactiveObject != null)
             {
-                m_detectorInteractiveObjects.Add(shapeKey, new DetectorData(interactiveObject, dummyData.Matrix));
+                m_detectorInteractiveObjects.Add(shapeKey, new DetectorData(interactiveObject, dummyData.Matrix, detectorName));
             }
 
             return shapeKey;
@@ -126,7 +132,9 @@ namespace Sandbox.Game.Components
             var detectorName = name.ToLower();
             var dummyName = "detector_" + detectorName;
             MyModelDummy modelDummy = new MyModelDummy() { CustomData = null, Matrix = dummyMatrix };
-            return AddDetector(detectorName, dummyName, modelDummy);
+            var detector = AddDetector(detectorName, dummyName, modelDummy);
+            m_customAddedDetectors.Add(detector);
+            return detector;
         }
 
         public override void RecreatePhysics()
@@ -162,12 +170,18 @@ namespace Sandbox.Game.Components
                 var listShape = new HkListShape(m_shapes.GetInternalArray(), m_shapes.Count, HkReferencePolicy.TakeOwnership);
                 m_detectorPhysics = new MyPhysicsBody(Container.Entity, RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE);
                 m_detectorPhysics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, positionComponent.WorldMatrix);
-                m_detectorPhysics.Enabled = true;
+                //m_detectorPhysics.Enabled = true;
                 listShape.Base.RemoveReference();
 
-                positionComponent.OnPositionChanged += positionComponent_OnPositionChanged;
+                //positionComponent.OnPositionChanged += positionComponent_OnPositionChanged;
             }
 
+        }
+
+        public override void PositionChanged(MyPositionComponentBase obj)
+        {
+            if (m_detectorPhysics != null)
+                m_detectorPhysics.OnWorldPositionChanged(obj);
         }
 
         void positionComponent_OnPositionChanged(MyPositionComponentBase obj)
@@ -202,7 +216,55 @@ namespace Sandbox.Game.Components
             var positionComponent = Container.Get<MyPositionComponentBase>();
             if (positionComponent != null)
             {
-                positionComponent.OnPositionChanged -= positionComponent_OnPositionChanged;
+                //positionComponent.OnPositionChanged -= positionComponent_OnPositionChanged;
+            }
+        }
+
+        public override bool IsSerialized()
+        {
+            return m_customAddedDetectors.Count > 0;
+        }
+
+        public override Common.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        {
+            var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_UseObjectsComponent;
+            builder.CustomDetectorsCount = (uint)m_customAddedDetectors.Count;
+
+            int i = 0;
+            if (builder.CustomDetectorsCount > 0)
+            {
+                builder.CustomDetectorsMatrices = new Matrix[builder.CustomDetectorsCount];
+                builder.CustomDetectorsNames = new string[builder.CustomDetectorsCount];
+                foreach (var detector in m_customAddedDetectors)
+                {
+                    builder.CustomDetectorsNames[i] = m_detectorInteractiveObjects[detector].DetectorName;
+                    builder.CustomDetectorsMatrices[i] = m_detectorInteractiveObjects[detector].Matrix;
+                    i++;
+                }
+            }
+
+            return builder;
+        }
+
+        public override void Deserialize(Common.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase builder)
+        {
+            base.Deserialize(builder);
+            m_objectBuilder = builder as MyObjectBuilder_UseObjectsComponent;            
+        }
+        
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+            if (m_objectBuilder != null)
+            {
+                for (int i = 0; i < m_objectBuilder.CustomDetectorsCount; ++i)
+                {
+                    if (!m_detectors.ContainsKey(m_objectBuilder.CustomDetectorsNames[i]))
+                    {
+                        AddDetector(m_objectBuilder.CustomDetectorsNames[i], m_objectBuilder.CustomDetectorsMatrices[i]);
+                    }
+                }
+                RecreatePhysics();
             }
         }
     }

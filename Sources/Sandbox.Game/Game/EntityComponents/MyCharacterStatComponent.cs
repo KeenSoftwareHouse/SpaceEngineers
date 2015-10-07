@@ -75,7 +75,7 @@ namespace Sandbox.Game.Components
 		{
 			if (m_character != null && !m_character.IsDead)
 			{
-				m_character.PlayDamageSound(oldHealth);
+				m_character.SoundComp.PlayDamageSound(oldHealth);
 			}
 			else
 				return;

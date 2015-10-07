@@ -79,7 +79,7 @@ namespace Sandbox.Game.Entities
             {
                 m_inventory = Components.Get<MyInventoryBase>() as MyInventory;
 				Debug.Assert(m_inventory != null);
-                m_inventory.Owner = this;
+                //m_inventory.Owner = this;
             }
 
             if(MyPerGameSettings.InventoryMass)
@@ -112,14 +112,6 @@ namespace Sandbox.Game.Entities
             return cargoBuilder;
         }
 
-        internal override float GetMass()
-        {
-            var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
-                return mass + (float)m_inventory.CurrentMass;
-            else 
-                return mass;
-        }
         public void SpawnRandomCargo()
         {
             if (m_containerType == null) return;
@@ -138,6 +130,23 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(index == 0);
             return m_inventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if(m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged -= Inventory_ContentsChanged;
+            }
+
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
         }
 
         String IMyInventoryOwner.DisplayNameText

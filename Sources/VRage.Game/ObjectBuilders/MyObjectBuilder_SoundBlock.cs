@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -14,6 +15,7 @@ namespace Sandbox.Common.ObjectBuilders
         public float Volume = 1;
 
         [ProtoMember]
+        [Nullable]
         public string CueName = null;
 
         [ProtoMember]

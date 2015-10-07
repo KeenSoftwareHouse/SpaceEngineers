@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.EnvironmentItems;
 using Sandbox.Game.GameSystems;
@@ -7,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using VRage;
 using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -27,19 +31,28 @@ namespace Sandbox.Game.Entities
             public long EntityId;
         }
 
-        public struct BlockInfo
+        public struct ComponentInfo
         {
-            public long GridEntityId;
+            public long EntityId;
             public Vector3I BlockPosition;
             public MyDefinitionId ComponentDefinitionId;
             public int ComponentCount;
+            public bool IsBlock;           
+        }
+
+        public struct CollectibleInfo
+        {
+            public long EntityId;
+            public MyDefinitionId DefinitionId;
+            public MyFixedPoint Amount;
         }
 
         private static List<MyFracturedPiece> m_tmpFracturePieceList = new List<MyFracturedPiece>();
         private static List<MyEnvironmentItems.ItemInfo> m_tmpEnvItemList = new List<MyEnvironmentItems.ItemInfo>();
         private static List<ItemInfo> m_tmpItemInfoList = new List<ItemInfo>();
 
-        private static List<BlockInfo> m_retvalBlockInfos = new List<BlockInfo>();
+        private static List<ComponentInfo> m_retvalBlockInfos = new List<ComponentInfo>();
+        private static List<CollectibleInfo> m_retvalCollectibleInfos = new List<CollectibleInfo>();
 
         public static bool FindClosestTreeInRadius(Vector3D fromPosition, float radius, out ItemInfo result)
         {
@@ -211,12 +224,13 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        public static bool FindCollectableItemInRadius(Vector3D position, float radius, HashSet<MyDefinitionId> itemDefs, Vector3D initialPosition, float ignoreRadius, out BlockInfo result)
+        public static bool FindCollectableItemInRadius(Vector3D position, float radius, HashSet<MyDefinitionId> itemDefs, Vector3D initialPosition, float ignoreRadius, out ComponentInfo result)
         {
             BoundingSphereD sphere = new BoundingSphereD(position, radius);
             var entities = MyEntities.GetEntitiesInSphere(ref sphere);
 
-            result = default(BlockInfo);
+            result = default(ComponentInfo);
+
             double closestCubeDistanceSq = double.MaxValue;
 
             foreach (var entity in entities)
@@ -240,10 +254,27 @@ namespace Sandbox.Game.Entities
                             if (cubeDistanceFromCharacterSq < closestCubeDistanceSq)
                             {
                                 closestCubeDistanceSq = cubeDistanceFromCharacterSq;
-                                result.GridEntityId = cubeGrid.EntityId;
+                                result.EntityId = cubeGrid.EntityId;
                                 result.BlockPosition = first.Position;
                                 result.ComponentDefinitionId = GetComponentId(first);
+                                result.IsBlock = true;
                             }
+                        }
+                    }
+                }
+
+                if (entity is MyFloatingObject)
+                {
+                    var fo = entity as MyFloatingObject;
+                    var id = fo.Item.Content.GetId();
+                    if (itemDefs.Contains(id))
+                    {
+                        var foToPlayerDistSq = Vector3D.DistanceSquared(fo.PositionComp.WorldMatrix.Translation, position);
+                        if (foToPlayerDistSq < closestCubeDistanceSq)
+                        {
+                            closestCubeDistanceSq = foToPlayerDistSq;
+                            result.EntityId = fo.EntityId;
+                            result.IsBlock = false;
                         }
                     }
                 }
@@ -253,10 +284,11 @@ namespace Sandbox.Game.Entities
             return closestCubeDistanceSq != double.MaxValue;
         }
 
-        public static bool FindClosestCollectableItemInPlaceArea(Vector3D fromPosition, long entityId, HashSet<MyDefinitionId> itemDefinitions, out BlockInfo result)
+        public static bool FindClosestCollectableItemInPlaceArea(Vector3D fromPosition, long entityId, HashSet<MyDefinitionId> itemDefinitions, out ComponentInfo result)
         {
             List<MyEntity> entities = null;
-            result = default(BlockInfo);
+            result = default(ComponentInfo);
+
             try
             {
                 MyEntity containingEntity = null;
@@ -270,9 +302,10 @@ namespace Sandbox.Game.Entities
                 var areaBoundingBox = area.WorldAABB;
                 entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
 
-                MyCubeGrid closestGrid = null;
+                MyEntity closestObject = null;
                 MySlimBlock first = null;
-                double closestCubeDistanceSq = double.MaxValue;
+                double closestObjectDistanceSq = double.MaxValue;
+                bool closestIsBlock = false;
 
                 foreach (var entity in entities)
                 {
@@ -290,24 +323,43 @@ namespace Sandbox.Game.Entities
                                 var worldPosition = cubeGrid.GridIntegerToWorld(first.Position);
                                 var cubeDistanceFromCharacterSq = Vector3D.DistanceSquared(worldPosition, fromPosition);
 
-                                if (cubeDistanceFromCharacterSq < closestCubeDistanceSq)
+                                if (cubeDistanceFromCharacterSq < closestObjectDistanceSq)
                                 {
-                                    closestCubeDistanceSq = cubeDistanceFromCharacterSq;
-                                    closestGrid = cubeGrid;
+                                    closestObjectDistanceSq = cubeDistanceFromCharacterSq;
+                                    closestObject = cubeGrid;
+                                    closestIsBlock = true;
                                 }
+                            }
+                        }
+                    }
+
+                    if (entity is MyFloatingObject)
+                    {
+                        var fo = entity as MyFloatingObject;
+                        var id = fo.Item.Content.GetId();
+                        if (itemDefinitions.Contains(id))
+                        {
+                            var foToPlayerDistSq = Vector3D.DistanceSquared(fo.PositionComp.WorldMatrix.Translation, fromPosition);
+                            if (foToPlayerDistSq < closestObjectDistanceSq)
+                            {
+                                closestObjectDistanceSq = foToPlayerDistSq;
+                                closestObject = fo;
+                                closestIsBlock = false;
                             }
                         }
                     }
                 }
 
-                if (closestGrid == null)
+                if (closestObject == null)
                     return false;
 
-                first = closestGrid.CubeBlocks.First();
-
-                result.GridEntityId = closestGrid.EntityId;
-                result.BlockPosition = first.Position;
-                result.ComponentDefinitionId = GetComponentId(first);
+                result.IsBlock = closestIsBlock;
+                result.EntityId = closestObject.EntityId;
+                if (closestIsBlock)
+                {
+                    result.BlockPosition = first.Position;
+                    result.ComponentDefinitionId = GetComponentId(first);
+                }
 
                 return true;
             }
@@ -320,7 +372,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public static List<BlockInfo> FindComponentsInRadius(Vector3D fromPosition, double radius)
+        public static List<ComponentInfo> FindComponentsInRadius(Vector3D fromPosition, double radius)
         {
             Debug.Assert(m_retvalBlockInfos.Count == 0, "The result of the last call of FindComponentsInRadius was not cleared!");
 
@@ -329,29 +381,88 @@ namespace Sandbox.Game.Entities
             var entities = MyEntities.GetEntitiesInSphere(ref sphere);
             foreach (var entity in entities)
             {
-                MyCubeBlock block = null;
-                MyCubeGrid grid = TryGetAsComponent(entity, out block);
-                if (grid == null) continue;
-
-                BlockInfo info = new BlockInfo();
-                info.GridEntityId = grid.EntityId;
-                info.BlockPosition = block.Position;
-                info.ComponentDefinitionId = GetComponentId(block.SlimBlock);
-
-                if (block.BlockDefinition.Components != null)
-                    info.ComponentCount = block.BlockDefinition.Components[0].Count;
+                if (entity is MyFloatingObject)
+                {
+                    var floatingObject = entity as MyFloatingObject;
+                    if (floatingObject.Item.Content is MyObjectBuilder_Component)
+                    {
+                        ComponentInfo info = new ComponentInfo();
+                        info.EntityId = floatingObject.EntityId;
+                        info.BlockPosition = Vector3I.Zero;
+                        info.ComponentDefinitionId = floatingObject.Item.Content.GetObjectId();
+                        info.IsBlock = false;
+                        info.ComponentCount = (int)floatingObject.Item.Amount;
+                        m_retvalBlockInfos.Add(info);
+                    }
+                }
                 else
                 {
-                    Debug.Assert(false, "Block definition does not have any components!");
-                    info.ComponentCount = 0;
-                }
+                    MyCubeBlock block = null;
+                    MyCubeGrid grid = TryGetAsComponent(entity, out block);
+                    if (grid == null) continue;
 
-                m_retvalBlockInfos.Add(info);
+                    ComponentInfo info = new ComponentInfo();
+                    info.IsBlock = true;
+                    info.EntityId = grid.EntityId;
+                    info.BlockPosition = block.Position;
+                    info.ComponentDefinitionId = GetComponentId(block.SlimBlock);
+
+                    if (block.BlockDefinition.Components != null)
+                        info.ComponentCount = block.BlockDefinition.Components[0].Count;
+                    else
+                    {
+                        Debug.Assert(false, "Block definition does not have any components!");
+                        info.ComponentCount = 0;
+                    }
+                    m_retvalBlockInfos.Add(info);
+                }               
             }
 
 			entities.Clear();
 
             return m_retvalBlockInfos;
+        }
+
+        public static List<CollectibleInfo> FindCollectiblesInRadius(Vector3D fromPosition, double radius)
+        {
+            Debug.Assert(m_retvalCollectibleInfos.Count == 0, "The result of the last call of FindComponentsInRadius was not cleared!");
+
+            BoundingSphereD sphere = new BoundingSphereD(fromPosition, radius);
+            var entities = MyEntities.GetEntitiesInSphere(ref sphere);
+            foreach (var entity in entities)
+            {
+                CollectibleInfo info = new CollectibleInfo();
+                MyCubeBlock block = null;
+                MyCubeGrid grid = TryGetAsComponent(entity, out block);
+                if (grid != null)
+                {
+                    info.EntityId = grid.EntityId;
+                    info.DefinitionId = GetComponentId(block.SlimBlock);
+                    if (block.BlockDefinition.Components != null)
+                        info.Amount = block.BlockDefinition.Components[0].Count;
+                    else
+                    {
+                        Debug.Assert(false, "Block definition does not have any components!");
+                        info.Amount = 0;
+                    }
+                    m_retvalCollectibleInfos.Add(info);
+                }
+                else if (entity is MyFloatingObject)
+                {
+                    var floatingObj = entity as MyFloatingObject;
+                    var defId = floatingObj.Item.Content.GetObjectId();
+                    if (MyDefinitionManager.Static.GetPhysicalItemDefinition(defId).Public)
+                    {
+                        info.EntityId = floatingObj.EntityId;
+                        info.DefinitionId = defId;
+                        info.Amount = floatingObj.Item.Amount;
+                        m_retvalCollectibleInfos.Add(info);
+                    }
+                }
+            }
+            entities.Clear();
+
+            return m_retvalCollectibleInfos;
         }
 
         public static MyCubeGrid TryGetAsComponent(MyEntity entity, out MyCubeBlock block, bool blockManipulatedEntity = true )
@@ -369,6 +480,7 @@ namespace Sandbox.Game.Entities
             if (grid.GridSizeEnum != MyCubeSize.Small) return null;
             if (grid.CubeBlocks.Count != 1) return null;
             if (grid.IsStatic) return null;
+            if (!MyCubeGrid.IsGridInCompleteState(grid)) return null;
 
             var enumerator = grid.CubeBlocks.GetEnumerator();
             enumerator.MoveNext();
@@ -423,9 +535,10 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public static bool FindRandomCollectableItemInPlaceArea(long entityId, HashSet<MyDefinitionId> itemDefinitions, out BlockInfo result)
+        public static bool FindRandomCollectableItemInPlaceArea(long entityId, HashSet<MyDefinitionId> itemDefinitions, out ComponentInfo result)
         {
-            result = default(BlockInfo);
+            result = default(ComponentInfo);
+            result.IsBlock = true;
 
             MyPlaceArea area = MyPlaceArea.FromEntity(entityId);
             if (area == null) return false;
@@ -436,7 +549,6 @@ namespace Sandbox.Game.Entities
             {
                 entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
 
-                MySlimBlock first = null;
                 for (int i = entities.Count - 1; i >= 0; i--)
                 {
                     var entity = entities[i];
@@ -448,30 +560,54 @@ namespace Sandbox.Game.Entities
                     }
 
                     var cubeGrid = entity as MyCubeGrid;
-                    if (cubeGrid == null || cubeGrid.BlocksCount != 1)
+                    var fo = entity as MyFloatingObject;
+                    if (fo == null && (cubeGrid == null || cubeGrid.BlocksCount != 1))
                     {
                         entities.RemoveAtFast(i);
                         continue;
                     }
 
-                    first = cubeGrid.CubeBlocks.First();
-                    if (!itemDefinitions.Contains(first.BlockDefinition.Id))
+                    if (cubeGrid != null)
                     {
-                        entities.RemoveAtFast(i);
-                        continue;
+                        MySlimBlock first = cubeGrid.CubeBlocks.First();
+                        if (!itemDefinitions.Contains(first.BlockDefinition.Id))
+                        {
+                            entities.RemoveAtFast(i);
+                            continue;
+                        }
+                    }
+                    else if (fo != null)
+                    {
+                        var id = fo.Item.Content.GetId();
+                        if (!itemDefinitions.Contains(id))
+                        {
+                            entities.RemoveAtFast(i);
+                            continue;
+                        }
                     }
                 }
 
                 if (entities.Count() == 0)
                     return false;
 
-                int cubeIndex = (int)Math.Round(MyRandom.Instance.NextFloat() * (entities.Count() - 1));
-                var selectedCube = entities[cubeIndex] as MyCubeGrid;
-                first = selectedCube.GetBlocks().First();
+                int randIdx = (int)Math.Round(MyRandom.Instance.NextFloat() * (entities.Count() - 1));
+                var selectedEntity = entities[randIdx];
+                result.EntityId = selectedEntity.EntityId;
 
-                result.GridEntityId = selectedCube.EntityId;
-                result.BlockPosition = first.Position;
-                result.ComponentDefinitionId = GetComponentId(first);
+                if (selectedEntity is MyCubeGrid)
+                {
+                    var selectedCube = selectedEntity as MyCubeGrid;
+                    var first = selectedCube.GetBlocks().First();
+
+                    result.EntityId = selectedCube.EntityId;
+                    result.BlockPosition = first.Position;
+                    result.ComponentDefinitionId = GetComponentId(first);
+                    result.IsBlock = true;
+                }
+                else
+                {
+                    result.IsBlock = false;
+                }
 
                 return true;
             }
@@ -560,6 +696,33 @@ namespace Sandbox.Game.Entities
 
             result.EntityId = selectedTarget.EntityId;
             result.Target = selectedTarget.PositionComp.GetPosition();
+            return true;
+        }
+
+        public static bool FindClosestPlaceAreaInSphere(BoundingSphereD sphere, string typeName, ref MyBBMemoryTarget foundTarget)
+        {
+            var foundAreas = new List<MyPlaceArea>();
+            MyPlaceAreas.Static.GetAllAreasInSphere(sphere, foundAreas);
+
+            var areaType = MyStringHash.GetOrCompute(typeName);
+
+            double closestDistanceSq = sphere.Radius * sphere.Radius;
+            MyPlaceArea closestArea = null;
+            foreach (var area in foundAreas)
+            {
+                if (area.Container.Entity == null || area.AreaType != areaType)
+                    continue;
+
+                double distanceSq = area.DistanceSqToPoint(sphere.Center);
+                if (distanceSq < closestDistanceSq)
+                {
+                    closestDistanceSq = distanceSq;
+                    closestArea = area;
+                }
+            }
+
+            if (closestArea == null) return false;
+            MyBBMemoryTarget.SetTargetEntity(ref foundTarget, MyAiTargetEnum.ENTITY, closestArea.Container.Entity.EntityId);
             return true;
         }
 

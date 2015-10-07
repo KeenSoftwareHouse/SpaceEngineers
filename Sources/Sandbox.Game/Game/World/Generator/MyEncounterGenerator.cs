@@ -139,7 +139,7 @@ namespace Sandbox.Game.World.Generator
                         continue;
                     }
                     m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
-                    Vector3D newPosition = placePosition + (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
+                    Vector3D newPosition = placePosition + (numEncoutersToPlace - 1) * (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
                     Vector3D savedPosition = Vector3D.Zero;
                     if (true == m_movedOnlyEncounters.Dictionary.TryGetValue(encounterPosition, out savedPosition))
                     {
@@ -173,7 +173,7 @@ namespace Sandbox.Game.World.Generator
                 {
                     for (int i = 0; i < m_randomEncounters.Count; ++i)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        SpawnEncounter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
                     }
                 }
             }
@@ -193,22 +193,26 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
+        private static void SpawnEncounter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
         {
-            foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
+            var spawnGroup = candidates[selectedEncounter];
+
+            long ownerId = 0; // 0 means that the owner won't be changed
+            if (spawnGroup.IsPirate)
+                ownerId = MyPirateAntennas.GetPiratesId();
+
+            foreach (var selectedPrefab in spawnGroup.Prefabs)
             {
                 m_createdGrids.Clear();
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
 
-                var spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                var spawningOptions = spawnGroup.ReactorsOn ? Sandbox.ModAPI.SpawningOptions.None : Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
                 if (selectedPrefab.Speed > 0.0f)
                 {
                     spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
                                      Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      Sandbox.ModAPI.SpawningOptions.DisableDampeners;
-
-
 
                     float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
                     direction = -Vector3D.Normalize(placePosition);
@@ -224,26 +228,18 @@ namespace Sandbox.Game.World.Generator
                 }
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 
-                var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(selectedPrefab.SubtypeId);
-                Vector3D prefabPosDeltaValue = Vector3D.Zero;
-                if (prefabDefinition.CubeGrids.Length > 0)
-                {
-                    if (prefabDefinition.CubeGrids[0].PositionAndOrientation.HasValue)
-                    {
-                        prefabPosDeltaValue = prefabDefinition.CubeGrids[0].PositionAndOrientation.Value.Position;
-                    }
-                }
-                prefabPosDeltaValue -= prefabDefinition.BoundingSphere.Center;
+                if (selectedPrefab.PlaceToGridOrigin) spawningOptions |= SpawningOptions.UseGridOrigin;
 
                 MyPrefabManager.Static.SpawnPrefab(
                    resultList: m_createdGrids,
                    prefabName: selectedPrefab.SubtypeId,
-                   position: placePosition + selectedPrefab.Position - prefabPosDeltaValue,
+                   position: placePosition + selectedPrefab.Position,
                    forward: direction,
                    up:upVector,
                    beaconName: selectedPrefab.BeaconText,
                    initialLinearVelocity: direction * selectedPrefab.Speed,
-                   spawningOptions: spawningOptions,
+                   spawningOptions: spawningOptions | SpawningOptions.UseGridOrigin,
+                   ownerId: ownerId,
                    updateSync: true);
 
                 ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);

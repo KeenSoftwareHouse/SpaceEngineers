@@ -7,6 +7,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AirtightDoorGenericDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+		[ProtoMember]
+		public string ResourceSinkGroup;
         [ProtoMember]
         public float PowerConsumptionIdle;
         [ProtoMember]

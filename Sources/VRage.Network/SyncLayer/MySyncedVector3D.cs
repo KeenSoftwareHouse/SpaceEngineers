@@ -1,4 +1,5 @@
-﻿using VRageMath;
+﻿using VRage.Library.Collections;
+using VRageMath;
 
 namespace VRage.Network
 {
@@ -7,20 +8,16 @@ namespace VRage.Network
     {
         public sealed override void Write(ref Vector3D value, BitStream s)
         {
-            s.Write(value.X);
-            s.Write(value.Y);
-            s.Write(value.Z);
+            s.WriteDouble(value.X);
+            s.WriteDouble(value.Y);
+            s.WriteDouble(value.Z);
         }
 
-        public sealed override bool Read(out Vector3D value, BitStream s)
+        public sealed override void Read(out Vector3D value, BitStream s)
         {
-            bool success;
-
-            success = s.Read(out value.X);
-            success &= s.Read(out value.Y);
-            success &= s.Read(out value.Z);
-
-            return success;
+            value.X = s.ReadDouble();
+            value.Y = s.ReadDouble();
+            value.Z = s.ReadDouble();
         }
     }
 }

@@ -17,7 +17,6 @@ using Sandbox.Engine.Utils;
 using VRage.Plugins;
 using Sandbox.Game;
 using System.ComponentModel.DataAnnotations;
-using Sandbox.Game;
 using Sandbox.Game.Screens.Helpers;
 using System.IO;
 
@@ -52,6 +51,7 @@ namespace VRage.Dedicated
                 m_serviceController = new ServiceController(serviceName);
             }
 
+            this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); 
             InitializeComponent();
 
             this.logoPictureBox.Image = LogoImage;
@@ -65,7 +65,7 @@ namespace VRage.Dedicated
         private void startButton_Click(object sender, EventArgs e)
         {
             if (MyFakes.ENABLE_BATTLE_SYSTEM && battleButton.Checked && m_selectedSessionSettings != null)
-                MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
+                MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings, true);
 
             saveConfigButton_Click(sender, e);
 
@@ -75,8 +75,9 @@ namespace VRage.Dedicated
             }
             else // Local / Console
             {
+                // When running without host process, console is not properly attached on debug (no console output)
                 string[] cmdLine = Environment.GetCommandLineArgs();
-                Process.Start(cmdLine[0], ((cmdLine.Length > 1) ? String.Join(" ", cmdLine, 1, cmdLine.Length - 1 ) : "") + " -console -ignorelastsession");
+                Process.Start(cmdLine[0].Replace(".vshost.exe", ".exe"), ((cmdLine.Length > 1) ? String.Join(" ", cmdLine, 1, cmdLine.Length - 1 ) : "" ) + " -console -ignorelastsession");
                 Close();
             }
         }
@@ -291,7 +292,7 @@ namespace VRage.Dedicated
                 m_selectedSessionSettings = checkpoint.Settings;
 
                 if (m_selectedSessionSettings != null && battleButton.Checked)
-                    MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
+                    MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings, true);
 
                 MySandboxGame.ConfigDedicated.Mods.Clear();
                 foreach (var mod in checkpoint.Mods)
@@ -373,7 +374,7 @@ namespace VRage.Dedicated
                     }
 
                     if (m_selectedSessionSettings != null)
-                        MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
+                        MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings, true);
                 }
                 else
                 {
@@ -388,11 +389,8 @@ namespace VRage.Dedicated
                     //enable tool shake needs to be true for new world, but false for old saved worlds.                                
                     m_selectedSessionSettings.EnableToolShake = true;
 
-                    m_selectedSessionSettings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
-                    m_selectedSessionSettings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
                     m_selectedSessionSettings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
-                    m_selectedSessionSettings.EnableStationVoxelSupport = MyPerGameSettings.Game == GameEnum.SE_GAME;
-                    m_selectedSessionSettings.CargoShipsEnabled = !m_selectedSessionSettings.EnablePlanets;
+                    m_selectedSessionSettings.CargoShipsEnabled = true;
 
                     m_selectedSessionSettings.Battle = false;
                 }

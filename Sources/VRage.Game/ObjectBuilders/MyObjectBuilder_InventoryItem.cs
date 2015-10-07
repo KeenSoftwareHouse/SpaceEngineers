@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 using VRage;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -17,6 +18,7 @@ namespace Sandbox.Common.ObjectBuilders
         public MyFixedPoint Amount;
 
         [XmlElement("AmountDecimal")]
+        [NoSerialize]
         public decimal Obsolete_AmountDecimal
         {
             get { return (decimal)Amount; }
@@ -27,6 +29,7 @@ namespace Sandbox.Common.ObjectBuilders
         /// <summary>
         /// Obsolete. It is here only to keep backwards compatibility with old saves
         /// </summary>
+        [NoSerialize]
         public MyObjectBuilder_Base Content
         {
             get { return PhysicalContent; }
@@ -70,6 +73,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         [XmlElement("PhysicalContent", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_PhysicalObject>))]
+        [DynamicObjectBuilder]
         public MyObjectBuilder_PhysicalObject PhysicalContent;
 
         [ProtoMember]

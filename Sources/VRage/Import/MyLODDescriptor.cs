@@ -6,6 +6,14 @@ using System.Text;
 
 namespace VRage.Import
 {
+    public enum MyFacingEnum : byte
+    {
+        None = 0,
+        Vertical = 1,
+        Full = 2,
+        Impostor = 3
+    }
+
 	public class MyLODDescriptor
 	{
         public float Distance; //In meters
@@ -23,8 +31,8 @@ namespace VRage.Import
 			return true;
 		}
 
-		public bool Read(BinaryReader reader)
-		{
+        public bool Read(BinaryReader reader)
+        {
             Distance = reader.ReadSingle();
             Model = reader.ReadString();
             if (String.IsNullOrEmpty(Model))
@@ -32,7 +40,7 @@ namespace VRage.Import
             RenderQuality = reader.ReadString();
             if (String.IsNullOrEmpty(RenderQuality))
                 RenderQuality = null;
-			return true;
-		}
+            return true;
+        }
 	}
 }

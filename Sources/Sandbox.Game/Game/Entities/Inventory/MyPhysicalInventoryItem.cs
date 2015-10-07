@@ -4,6 +4,7 @@ using Sandbox.Game.Entities;
 using System.Diagnostics;
 using VRage;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
 
@@ -13,6 +14,7 @@ namespace Sandbox.Game
     {
         public MyFixedPoint Amount;
 
+        [DynamicObjectBuilder]
         public MyObjectBuilder_PhysicalObject Content;
 
         public uint ItemId;
@@ -51,7 +53,9 @@ namespace Sandbox.Game
 
         public MyEntity Spawn(MyFixedPoint amount, BoundingBoxD box, MyEntity owner = null)
         {
-            var entity = Spawn(amount, MatrixD.Identity, owner);
+            MatrixD spawnMatrix = MatrixD.Identity;
+            spawnMatrix.Translation = box.Center;
+            var entity = Spawn(amount, spawnMatrix, owner);
             var size = entity.PositionComp.LocalVolume.Radius;
             var halfSize = box.Size / 2 - new Vector3(size);
             halfSize = Vector3.Max(halfSize, Vector3.Zero);

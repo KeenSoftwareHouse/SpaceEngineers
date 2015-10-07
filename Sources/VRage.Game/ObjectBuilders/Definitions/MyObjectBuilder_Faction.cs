@@ -49,5 +49,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public bool AutoAcceptPeace;
+
+        [ProtoMember]
+        public bool EnableFriendlyFire = true;
     }
 }

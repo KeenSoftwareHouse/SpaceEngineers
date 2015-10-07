@@ -34,6 +34,8 @@ namespace VRageRender
             mapping.stream.Write((uint)size.X);
             mapping.stream.Write((uint)size.Y);
             mapping.stream.Write(texelsNum);
+            mapping.stream.Write(MyRender11.Postprocess.EnableEyeAdaptation ? -1.0f : MyRender11.Postprocess.ConstantLuminance);
+
             mapping.Unmap();
 
             RC.CSSetCB(0, MyCommon.FrameConstants);

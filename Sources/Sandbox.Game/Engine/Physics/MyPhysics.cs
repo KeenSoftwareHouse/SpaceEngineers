@@ -62,7 +62,8 @@ namespace Sandbox.Engine.Physics
             //public StackTrace dbgTrace;
         }
         // Layer that doesn't collide with static grids and voxels
-		public const int NotCollideWithStaticLayer = 12;
+        public static int VoxelLod1CollisionLayer = 11;
+        public const int NotCollideWithStaticLayer = 12;
         // Static grids
         public const int StaticCollisionLayer = 13;
         public const int CollideWithStaticLayer = 14;
@@ -139,7 +140,7 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, DebrisCollisionLayer);
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, CharacterNetworkCollisionLayer);
 
-			world.DisableCollisionsBetween(NotCollideWithStaticLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(NotCollideWithStaticLayer, StaticCollisionLayer);
             world.DisableCollisionsBetween(NotCollideWithStaticLayer, VoxelCollisionLayer);
 
             world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, DefaultCollisionLayer);
@@ -266,7 +267,32 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(RagdollCollisionLayer, CollideWithStaticLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, CollectorCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, AmmoLayer);
+            if (!MyFakes.ENABLE_JETPACK_RAGDOLL_COLLISIONS)
+            {
+                world.DisableCollisionsBetween(RagdollCollisionLayer, RagdollCollisionLayer);
+            }
             
+
+            if(MyFakes.USE_LOD1_VOXEL_PHYSICS)
+            {
+                world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, VoxelCollisionLayer);
+                world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, VoxelCollisionLayer);
+                world.DisableCollisionsBetween(DefaultCollisionLayer, VoxelCollisionLayer);
+                world.DisableCollisionsBetween(CollideWithStaticLayer, VoxelCollisionLayer);
+                world.DisableCollisionsBetween(DebrisCollisionLayer, VoxelCollisionLayer);
+
+                world.DisableCollisionsBetween(CharacterCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(CharacterNetworkCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(FloatingObjectCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(RagdollCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(ExplosionRaycastLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(CollectorCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(GravityPhantomLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(NoCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(VirtualMassLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, VoxelLod1CollisionLayer);
+                world.DisableCollisionsBetween(NotCollideWithStaticLayer, VoxelLod1CollisionLayer);
+            }
 
                     }
 
@@ -290,7 +316,7 @@ namespace Sandbox.Engine.Physics
             HkBaseSystem.EnableAssert(-258736554, false);
             HkBaseSystem.EnableAssert(524771844, false);
             HkBaseSystem.EnableAssert(1081361407, false);
-
+            HkBaseSystem.EnableAssert(-1383504214, false); //we have more shapeKeys in contact point data
             ThreadId = Thread.CurrentThread.ManagedThreadId;
 
             if(MyPerGameSettings.SingleCluster)
@@ -336,7 +362,7 @@ namespace Sandbox.Engine.Physics
 
         public static HkWorld CreateHkWorld(float broadphaseSize = 100000)
         {
-            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, MySession.Static.Settings.PhysicsIterations);
+            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, MyFakes.WHEEL_SOFTNESS ? float.MaxValue : RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, MySession.Static.Settings.PhysicsIterations);
 
             hkWorld.MarkForWrite();
 
@@ -461,12 +487,18 @@ namespace Sandbox.Engine.Physics
 
             ProfilerShort.Begin("HavokWorld.Step");
 
-            foreach (HkWorld world in Clusters.GetList())
+            if (MyFakes.CLIENTS_SIMULATE_SINGLE_WORLD && !Sync.IsServer)
             {
-                //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(100, 100), "Constr:" + world.GetConstraintCount(), Color.Red, 0.9f);
-                world.UnmarkForWrite();
-                world.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
-                world.MarkForWrite();
+                var world = Clusters.GetClusterForPosition(MySector.MainCamera.Position);
+                if(world != null)
+                    StepWorld((HkWorld)world);
+            }
+            else
+            {
+                foreach (HkWorld world in Clusters.GetList())
+                {
+                    StepWorld(world);
+                }
             }
 
             ProfilerShort.End();
@@ -523,10 +555,19 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("HavokWorld.StepVDB");
             foreach (HkWorld world in Clusters.GetList())
             {
-                world.StepVDB(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                //if (MySession.ControlledEntity.Entity.GetTopMostParent().Physics.HavokWorld == world)
+                    world.StepVDB(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
             }
 
             ProfilerShort.End();
+        }
+
+        private static void StepWorld(HkWorld world)
+        {
+            world.UnmarkForWrite();
+            world.StepSimulation(MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+            world.StepSimulation(MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+            world.MarkForWrite();
         }
 
 

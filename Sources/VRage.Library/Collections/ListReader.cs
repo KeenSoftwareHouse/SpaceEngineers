@@ -22,10 +22,15 @@ namespace VRage.Collections
         {
             return new ListReader<T>(list);
         }
-
+        
         public int Count
         {
             get { return m_list.Count; }
+        }
+
+        public T this[int index]
+        {
+            get { return m_list[index]; }
         }
 
         public T ItemAt(int index)

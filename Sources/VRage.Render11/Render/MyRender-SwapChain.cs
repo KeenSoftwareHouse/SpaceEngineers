@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using VRageMath;
 using VRageRender.Resources;
 using Resource = SharpDX.Direct3D11.Resource;
-using System.Diagnostics;
 
-using System.Timers;
 
 namespace VRageRender
 {
@@ -48,17 +44,57 @@ namespace VRageRender
             }
         }
 
-        public static int Resolution(this MyShadowsQuality shadowQuality)
+        public static int ShadowCascadeResolution(this MyShadowsQuality shadowQuality)
         {
             switch (shadowQuality)
             {
                 case MyShadowsQuality.LOW:
                     return 512;
+				case MyShadowsQuality.MEDIUM:
+					return 1024;
                 case MyShadowsQuality.HIGH:
                     return 1024;
             }
             return -1;
         }
+
+		public static int BackOffset(this MyShadowsQuality shadowQuality)
+		{
+			switch(shadowQuality)
+			{
+				case MyShadowsQuality.LOW:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+				case MyShadowsQuality.MEDIUM:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+				case MyShadowsQuality.HIGH:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+			}
+			return -1;
+		}
+
+		public static float ShadowCascadeSplit(this MyShadowsQuality shadowQuality, int cascade)
+		{
+			if (cascade == 0)
+				return 1.0f;
+
+            var lastCascadeSplit = MyRender11.Settings.ShadowCascadeMaxDistance;
+			switch(shadowQuality)
+			{
+				case MyShadowsQuality.MEDIUM:
+                    lastCascadeSplit *= MyRender11.Settings.ShadowCascadeMaxDistanceMultiplierMedium;
+					break;
+				case MyShadowsQuality.HIGH:
+                    lastCascadeSplit *= MyRender11.Settings.ShadowCascadeMaxDistanceMultiplierHigh;
+					break;
+			}
+			//float lerpAmount = 0.00f;
+			var spreadFactor = MyRender11.Settings.ShadowCascadeSpreadFactor;
+			float logSplit = (float)Math.Pow(lastCascadeSplit, (cascade + spreadFactor) / (4.0 + spreadFactor));
+			//float uniformSplit = 1.0f + (cascade4 - 1.0f) * cascade / 4.0f;
+			//float practicalSplit = MathHelper.Lerp(logSplit, uniformSplit, lerpAmount);
+			//float usedSplit = practicalSplit;
+			return logSplit;
+		}
 
         public static int MipmapsToSkip(this MyTextureQuality quality, int width, int height)
         {
@@ -123,6 +159,16 @@ namespace VRageRender
             return MyShaderHelpers.FormatMacros(MyRender11.ShaderMultisamplingDefine());
         }
 
+		internal static string ShaderCascadesNumberDefine()
+		{
+			return "CASCADES_NUM " + MyRender11.Settings.ShadowCascadeCount;
+		}
+
+		internal static string ShaderCascadesNumberHeader()
+		{
+			return MyShaderHelpers.FormatMacros(ShaderCascadesNumberDefine());
+		}
+
         internal static OnSettingsChangedDelegate m_settingsChangedListeners;
 
         internal static void RegisterSettingsChangedListener(OnSettingsChangedDelegate func)
@@ -166,6 +212,11 @@ namespace VRageRender
             MyRenderProxy.Settings.EnableCameraInterpolation = settings.InterpolationEnabled;
             MyRenderProxy.Settings.EnableObjectInterpolation = settings.InterpolationEnabled;
 
+            MyRenderProxy.Settings.GrassDensityFactor = settings.GrassDensityFactor;
+
+     //       if(settings.GrassDensityFactor != prevSettings.GrassDensityFactor)
+     //           MyRenderProxy.ReloadGrass();
+
             if (settings.ShadowQuality != prevSettings.ShadowQuality)
             {
                 MyShadows.ResizeCascades();
@@ -186,7 +237,8 @@ namespace VRageRender
 
             if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
             {
-                UpdateTextureSampler();
+                UpdateTextureSampler(m_textureSamplerState, TextureAddressMode.Wrap);
+                UpdateTextureSampler(m_alphamaskarraySamplerState, TextureAddressMode.Clamp);
             }
             
             if(settings.TextureQuality != prevSettings.TextureQuality)

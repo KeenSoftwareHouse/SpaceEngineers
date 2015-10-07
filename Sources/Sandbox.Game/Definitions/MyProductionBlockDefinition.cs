@@ -1,7 +1,4 @@
-﻿
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game;
 using Sandbox.Game.Localization;
 using System.Collections.Generic;
@@ -18,6 +15,7 @@ namespace Sandbox.Definitions
         public float InventoryMaxVolume;
         public Vector3 InventorySize;
 
+	    public MyStringHash ResourceSinkGroup;
         public float StandbyPowerConsumption;
         public float OperationalPowerConsumption;
         public List<MyBlueprintClassDefinition> BlueprintClasses;
@@ -34,6 +32,7 @@ namespace Sandbox.Definitions
 
             this.InventoryMaxVolume = obDefinition.InventoryMaxVolume;
             this.InventorySize = obDefinition.InventorySize;
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(obDefinition.ResourceSinkGroup);
             this.StandbyPowerConsumption = obDefinition.StandbyPowerConsumption;
             this.OperationalPowerConsumption = obDefinition.OperationalPowerConsumption;
 

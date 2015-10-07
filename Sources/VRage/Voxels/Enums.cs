@@ -30,7 +30,6 @@ namespace VRage.Voxels
     {
         // Used as indices to array of LoD groups.
         Normal, // asteroid-sized
-        Massive, // planet-sized
     }
 
 }

@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -23,6 +24,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         [XmlArrayItem("Item")]
+        [Serialize(MyObjectFlags.Nullable)]
         public QueueItem[] OtherQueue;
 
         [ProtoMember]

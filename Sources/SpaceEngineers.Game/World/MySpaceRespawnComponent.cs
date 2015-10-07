@@ -28,10 +28,13 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Game.SessionComponents;
 using VRage.Components;
+using VRage.Network;
+using Sandbox.Game.GameSystems;
 
 namespace SpaceEngineers.Game.Players
 {
     [PreloadRequired]
+    [StaticEventOwner]
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
     public class MySpaceRespawnComponent : MyRespawnComponentBase
     {
@@ -226,7 +229,7 @@ namespace SpaceEngineers.Game.Players
             SyncCooldownResponseMessage response = new SyncCooldownResponseMessage();
             response.RespawnTimes = m_tmpRespawnTimes.ToArray();
 
-            Sync.Layer.SendMessage(response, steamId);
+            Sync.Layer.SendMessage(ref response, steamId);
             m_tmpRespawnTimes.Clear();
         }
 
@@ -329,18 +332,29 @@ namespace SpaceEngineers.Game.Players
         {
             if (MyFakes.SHOW_FACTIONS_GUI && !MySession.Static.CreativeMode)
             {
-                //First check all the Cryo Chambers
-                if (!TryFindCryoChamberCharacter(MySession.LocalHumanPlayer))
-                {
-                    //If nothing was found, go to respawn screen
-                    MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
-                }
+                ulong playerId = MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.Id.SteamId : 0;
+                int serialId = MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.Id.SerialId : 0;
+                MyMultiplayer.RaiseStaticEvent(s => RespawnRequest_Implementation, playerId, serialId);
             }
             else
+            {
                 MyPlayerCollection.RespawnRequest(MySession.LocalHumanPlayer == null, false, 0, null);
+            }
         }
 
-        private bool TryFindCryoChamberCharacter(MyPlayer player)
+        [Event, Reliable, Server]
+        static void RespawnRequest_Implementation(ulong steamPlayerId, int serialId)
+        {
+            var playerId = new MyPlayer.PlayerId(steamPlayerId, serialId);
+            var player = Sync.Players.GetPlayerById(playerId);
+
+            if(false == TryFindCryoChamberCharacter(player))
+            {
+                MyMultiplayer.RaiseStaticEvent(s => ShowMedicalScreen_Implementation, new EndpointId(steamPlayerId));
+            }
+        }
+
+        static bool TryFindCryoChamberCharacter(MyPlayer player)
         {
             if (player == null)
             {
@@ -368,9 +382,15 @@ namespace SpaceEngineers.Game.Players
             return false;
         }
 
+        [Event, Reliable, Client]
+        static void ShowMedicalScreen_Implementation()
+        {
+            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
+        }
+
         public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
         {
-            MyPlayer player = Sync.Players.TryGetPlayerById(playerId);
+            MyPlayer player = Sync.Players.GetPlayerById(playerId);
 
             bool spawnAsNewPlayer = newIdentity || player == null;
             Debug.Assert(player == null || player.Identity != null, "Respawning player has no identity!");
@@ -389,6 +409,20 @@ namespace SpaceEngineers.Game.Players
 
             if (!spawnAsNewPlayer)
             {
+                if (spawnPosition.HasValue)
+                {
+                    Vector3D gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(spawnPosition.Value);
+                    if (Vector3D.IsZero(gravity))
+                        gravity = Vector3D.Down;
+                    else
+                        gravity.Normalize();
+                    Vector3D perpendicular;
+                    gravity.CalculatePerpendicularVector(out perpendicular);
+                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, true);
+
+                    return true;
+                }
+
                 // Find respawn block to spawn at
                 MyRespawnComponent foundRespawn = null;
                 if (medicalRoomId == 0 || !MyFakes.SHOW_FACTIONS_GUI)
@@ -629,7 +663,7 @@ namespace SpaceEngineers.Game.Players
                 matrix.Translation = respawnGrids[0].PositionComp.WorldAABB.Center + respawnGrids[0].PositionComp.WorldAABB.HalfExtents;
             }
 
-            character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, cockpit: cockpit);
+            character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, cockpit: cockpit,playerSteamId: player.Id.SteamId);
 
             if (cockpit != null)
             {
@@ -721,7 +755,7 @@ namespace SpaceEngineers.Game.Players
 
         public override MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName)
         {
-            return Sync.Players.CreateNewIdentity(identityName, "Default_Astronaut");
+            return Sync.Players.CreateNewIdentity(identityName, modelName);
         }
 
         public override void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args)

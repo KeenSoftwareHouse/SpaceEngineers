@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
+using VRage.Serialization;
 
 namespace VRage
 {
@@ -24,9 +25,11 @@ namespace VRage
         }
 
         [ProtoMember, XmlAttribute]
+        [NoSerialize]
         public int x { get { return X; } set { X = value; } }
 
         [ProtoMember, XmlAttribute]
+        [NoSerialize]
         public int y { get { return Y; } set { Y = value; } }
 
         public static implicit operator Vector2I(SerializableVector2I v)

@@ -1,4 +1,5 @@
 ﻿using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using System;
 using System.Collections.Concurrent;
@@ -26,13 +27,12 @@ namespace Sandbox.Game.World.Generator
         public MyCsgShapeBase[] RemovedShapes;
         public MyVoxelMaterialDefinition DefaultMaterial;
         public MyCompositeShapeOreDeposit[] Deposits;
-    }   
+    }
 
     [MyStorageDataProvider(10002)]
     class MyCompositeShapeProvider : IMyStorageDataProvider
     {
-        const uint CURRENT_VERSION = 2;
-        const uint VERSION_WITHOUT_PLANETS = 1;
+        const uint CURRENT_VERSION = 1;
 
         [ThreadStatic]
         private static List<MyCsgShapeBase> m_overlappedRemovedShapes;
@@ -76,12 +76,7 @@ namespace Sandbox.Game.World.Generator
             public int Generator;
             public int Seed;
             public float Size;
-            public uint IsPlanet;
         }
-
-        private MyCsgShapePlanetMaterialAttributes m_materialAttributes;
-        private MyCsgShapePlanetShapeAttributes m_shapeAttributes;
-        private float m_maxHillHeight;
 
         private State m_state;
 
@@ -96,37 +91,13 @@ namespace Sandbox.Game.World.Generator
         {
             var result = new MyCompositeShapeProvider();
             result.m_state.Version = CURRENT_VERSION;
-            if (generatorEntry > MyCompositeShapes.AsteroidGenerators.Length - 1)
-                generatorEntry = MyCompositeShapes.AsteroidGenerators.Length - 1;
-            else if (generatorEntry <0)
+            if (generatorEntry <0)
                 generatorEntry = 0;
             result.m_state.Generator = generatorEntry;
             result.m_state.Seed = seed;
             result.m_state.Size = size;
-            result.m_state.IsPlanet = 0;
 
             MyCompositeShapes.AsteroidGenerators[result.m_state.Generator](seed, size, out result.m_data);
-
-            return result;
-        }
-
-        // Do NOT use! Work in progress which is likely to change, breaking all saves that use this.
-        public static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
-            ref MyCsgShapePlanetShapeAttributes shapeAttributes,
-            float maxHillHeight,
-            ref MyCsgShapePlanetMaterialAttributes materialAttributes)
-        {
-            var result = new MyCompositeShapeProvider();
-            result.m_state.Version = CURRENT_VERSION;
-            result.m_state.Generator = generatorEntry;
-            result.m_state.Seed = shapeAttributes.Seed;
-            result.m_state.Size = shapeAttributes.Diameter;
-            result.m_state.IsPlanet = 1;
-            result.m_materialAttributes = materialAttributes;
-            result.m_shapeAttributes = shapeAttributes;
-            result.m_maxHillHeight = maxHillHeight;
-
-            MyCompositeShapes.PlanetGenerators[result.m_state.Generator](ref shapeAttributes, maxHillHeight, ref materialAttributes, out result.m_data);
 
             return result;
         }
@@ -151,7 +122,7 @@ namespace Sandbox.Game.World.Generator
                 localMax += lodVoxelSizeHalf;
             }
             queryBox = new BoundingBox(localMin, localMax);
-            querySphere = BoundingSphere.CreateFromBoundingBox(queryBox);
+            BoundingSphere.CreateFromBoundingBox(ref queryBox, out querySphere);
             ProfilerShort.End();
         }
 
@@ -227,15 +198,22 @@ namespace Sandbox.Game.World.Generator
             }
 
             ProfilerShort.Begin("Distance field computation");
-            Vector3I v;
+            Vector3I v = minInLod;
+            Vector3 localPos = v * lodVoxelSize;
+            Vector3 localPosStart = v * lodVoxelSize;
+            var writeOffsetLoc = writeOffset - minInLod;
             for (v.Z = minInLod.Z; v.Z <= maxInLod.Z; ++v.Z)
             {
                 for (v.Y = minInLod.Y; v.Y <= maxInLod.Y; ++v.Y)
                 {
-                    for (v.X = minInLod.X; v.X <= maxInLod.X; ++v.X)
+                    v.X = minInLod.X;
+                    var write2 = v + writeOffsetLoc;
+                    var write = target.ComputeLinear(ref write2);
+                    for (; v.X <= maxInLod.X; ++v.X)
                     {
-                        Vector3 localPos = v * lodVoxelSize;
+                        //Vector3 localPos = v * lodVoxelSize;
 
+                        //ProfilerShort.Begin("Dist filled");
                         float distFill;
                         if (testFill == ContainmentType.Contains)
                         {
@@ -243,18 +221,19 @@ namespace Sandbox.Game.World.Generator
                         }
                         else
                         {
+                            //ProfilerShort.Begin("shape distances");
                             distFill = 1f;
                             foreach (var shape in overlappedFilledShapes)
                             {
-                                ProfilerShort.Begin("shape distance");
                                 distFill = Math.Min(distFill, shape.SignedDistance(ref localPos, lodVoxelSize, m_data.MacroModule, m_data.DetailModule));
-                                ProfilerShort.End();
                                 if (distFill <= -1)
                                     break;
                                 
                             }
+                            //ProfilerShort.End();
                         }
 
+                        //ProfilerShort.BeginNextBlock("Dist removed");
                         float distRemoved = 1f;
                         if (testRemove != ContainmentType.Disjoint)
                         {
@@ -264,16 +243,23 @@ namespace Sandbox.Game.World.Generator
                                 if (distRemoved <= -1)
                                     break;
                             }
-                        }
-                        ProfilerShort.Begin("content");
+                        }                          
+                        //ProfilerShort.BeginNextBlock("content");
                         float signedDist = MathHelper.Max(distFill, -distRemoved);
 
                         var fillRatio = MathHelper.Clamp(-signedDist, -1f, 1f) * 0.5f + 0.5f;
-                        var write = v - minInLod + writeOffset;
-                        target.Content(ref write, (byte)(fillRatio * MyVoxelConstants.VOXEL_CONTENT_FULL));
-                        ProfilerShort.End();
+                        byte content = (byte)(fillRatio * MyVoxelConstants.VOXEL_CONTENT_FULL);
+                        target.Content(write, content);
+                        Debug.Assert(Math.Abs((((float)content) / MyVoxelConstants.VOXEL_CONTENT_FULL) - fillRatio) <= 0.5f);
+                        //ProfilerShort.End();
+                        write += target.StepLinear;
+                        localPos.X += lodVoxelSize;
                     }
+                    localPos.Y += lodVoxelSize;
+                    localPos.X = localPosStart.X;
                 }
+                localPos.Z += lodVoxelSize;
+                localPos.Y = localPosStart.Y;
             }
             ProfilerShort.End();
         }
@@ -311,32 +297,60 @@ namespace Sandbox.Game.World.Generator
                 }
             }
 
-            ProfilerShort.Begin("Material computation");
-            Vector3I v;
-            for (v.Z = minInLod.Z; v.Z <= maxInLod.Z; ++v.Z)
+            // Check if any material provides occlusion.
+            m_hasOcclusionHint = false;
+            foreach (var deposit in overlappedDeposits)
             {
-                for (v.Y = minInLod.Y; v.Y <= maxInLod.Y; ++v.Y)
+                if (deposit.ProvidesOcclusionHint)
                 {
-                    for (v.X = minInLod.X; v.X <= maxInLod.X; ++v.X)
+                    m_hasOcclusionHint = true;
+                }
+            };
+
+            ProfilerShort.Begin("Material computation");
+            if (overlappedDeposits.Count == 1)
+            {
+                var deposit = overlappedDeposits.First();
+
+                deposit.ReadMaterialRange(target, ref writeOffset, lodIndex, ref minInLod, ref maxInLod, lodVoxelSizeHalf);
+            }
+            else
+            {
+                bool thisHinted;
+
+                Vector3I v;
+                for (v.Z = minInLod.Z; v.Z <= maxInLod.Z; ++v.Z)
+                {
+                    for (v.Y = minInLod.Y; v.Y <= maxInLod.Y; ++v.Y)
                     {
-                        Vector3 localPos = v * lodVoxelSize;
-
-                        float closestDistance = 1f;
-                        byte closestMaterialIdx = m_data.DefaultMaterial.Index;
-                        foreach (var deposit in overlappedDeposits)
+                        for (v.X = minInLod.X; v.X <= maxInLod.X; ++v.X)
                         {
-                            float distance = deposit.Shape.SignedDistance(ref localPos, MyVoxelConstants.VOXEL_SIZE_IN_METRES, m_data.MacroModule, m_data.DetailModule);
-                            if (distance < 0f && distance <= closestDistance)
-                            {
-                                closestDistance = distance;
-                                // DA: Pass default material to the layered deposit so only that does these if-s.
-                                var materialDef = deposit.GetMaterialForPosition(ref localPos, lodVoxelSize);
-                                closestMaterialIdx = materialDef == null ? m_data.DefaultMaterial.Index : materialDef.Index;
-                            }
-                        }
+                            Vector3 localPos = v * lodVoxelSize;
 
-                        var write = v - minInLod + writeOffset;
-                        target.Material(ref write, closestMaterialIdx);
+                            float closestDistance = 1f;
+                            byte closestMaterialIdx = m_data.DefaultMaterial.Index;
+                            thisHinted = false;
+                            if (!MyFakes.DISABLE_COMPOSITE_MATERIAL)
+                            {
+                                foreach (var deposit in overlappedDeposits)
+                                {
+                                    float distance = deposit.Shape.SignedDistance(ref localPos, MyVoxelConstants.VOXEL_SIZE_IN_METRES, m_data.MacroModule, m_data.DetailModule);
+                                    if (distance < 0f && distance <= closestDistance)
+                                    {
+                                        closestDistance = distance;
+                                        // DA: Pass default material to the layered deposit so only that does these if-s.
+                                        var materialDef = deposit.GetMaterialForPosition(ref localPos, lodVoxelSize);
+                                        closestMaterialIdx = materialDef == null ? m_data.DefaultMaterial.Index : materialDef.Index;
+                                        thisHinted = deposit.ProvidesOcclusionHint;
+                                    }
+                                }
+                            }
+
+                            var write = v - minInLod + writeOffset;
+                            target.Material(ref write, closestMaterialIdx);
+                            if (m_hasOcclusionHint && !thisHinted)
+                                target.Content(ref write, (byte)(target.Content(ref write) >> 4));
+                        }
                     }
                 }
             }
@@ -354,53 +368,23 @@ namespace Sandbox.Game.World.Generator
             stream.WriteNoAlloc(m_state.Generator);
             stream.WriteNoAlloc(m_state.Seed);
             stream.WriteNoAlloc(m_state.Size);
-            stream.WriteNoAlloc(m_state.IsPlanet);
-
-            if (m_state.IsPlanet == 1)
-            { // DA: Try to reduce saved data for planets to just seed, as is done for normal asteroids.
-
-                m_materialAttributes.WriteTo(stream);
-                m_shapeAttributes.WriteTo(stream);
-                stream.WriteNoAlloc(m_maxHillHeight);
-            }
         }
 
         void IMyStorageDataProvider.ReadFrom(ref MyOctreeStorage.ChunkHeader header, Stream stream, ref bool isOldFormat)
         {
-            m_state.Version = stream.ReadUInt32();
+            m_state.Version   = stream.ReadUInt32();
             if (m_state.Version != CURRENT_VERSION)
             {
                 // Making sure this gets saved in new format and serialized cache holding old format is discarded.
                 isOldFormat = true;
+                m_state.Version = CURRENT_VERSION;
             }
 
             m_state.Generator = stream.ReadInt32();
-            m_state.Seed = stream.ReadInt32();
-            m_state.Size = stream.ReadFloat();
+            m_state.Seed      = stream.ReadInt32();
+            m_state.Size      = stream.ReadFloat();
 
-            if (m_state.Version == VERSION_WITHOUT_PLANETS)
-            {
-                m_state.IsPlanet = 0;
-            }
-            else
-            {
-                m_state.IsPlanet = stream.ReadUInt32();
-            }
-
-            if (m_state.IsPlanet != 0)
-            {
-                m_materialAttributes.ReadFrom(stream);
-                m_shapeAttributes.ReadFrom(stream);
-                m_maxHillHeight = stream.ReadFloat();
-
-                MyCompositeShapes.PlanetGenerators[m_state.Generator](ref m_shapeAttributes, m_maxHillHeight, ref m_materialAttributes, out m_data);
-            }
-            else
-            {
-                MyCompositeShapes.AsteroidGenerators[m_state.Generator](m_state.Seed, m_state.Size, out m_data);
-            }
-
-            m_state.Version = CURRENT_VERSION;
+            MyCompositeShapes.AsteroidGenerators[m_state.Generator](m_state.Seed, m_state.Size, out m_data);
         }
 
         void IMyStorageDataProvider.ReadRange(MyStorageDataCache target, MyStorageDataTypeEnum dataType, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
@@ -456,11 +440,11 @@ namespace Sandbox.Game.World.Generator
             return nearest;
         }
 
-        public bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPosition)
+        public MyVoxelMaterialDefinition GetMaterialAtPosition(ref Vector3D worldPosition)
         {
-            Vector3 localFloat = (Vector3)localPosition;
+			Vector3 localFloat = (Vector3)worldPosition;
             var materialDef = m_data.Deposits[0].GetMaterialForPosition(ref localFloat, 1);
-            return materialDef == null ?  m_data.DefaultMaterial.SpawnsFlora : materialDef.SpawnsFlora;
+            return materialDef == null ?  m_data.DefaultMaterial : materialDef;
         }
 
         public bool HasMaterialSpawningFlora()
@@ -475,17 +459,12 @@ namespace Sandbox.Game.World.Generator
             return false;
         }
 
-        public void ReleaseHeightMaps()
-        {
-            foreach (var deposit in m_data.Deposits)
-            {
-                deposit.ReleaseMaps();
-            }
+        private bool m_hasOcclusionHint;
 
-            foreach (var shape in m_data.FilledShapes)
-            {
-                shape.ReleaseMaps();
-            }
+
+        public bool ProvidesOcclusionHint
+        {
+            get { return m_hasOcclusionHint; }
         }
     }
 }

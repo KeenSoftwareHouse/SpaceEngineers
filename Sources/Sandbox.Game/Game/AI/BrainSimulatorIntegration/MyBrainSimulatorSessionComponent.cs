@@ -45,7 +45,7 @@ namespace Sandbox.Game.AI.BrainSimulatorIntegration
         {
             base.BeforeStart();
 
-            m_botPlayer = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(Sync.MyId, 1));
+            m_botPlayer = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(Sync.MyId, 1));
         }
 
         protected override void UnloadData()
@@ -58,7 +58,7 @@ namespace Sandbox.Game.AI.BrainSimulatorIntegration
 
         void Players_NewPlayerRequestSucceeded(int playerSerialId)
         {
-            m_botPlayer = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(Sync.MyId, 1));
+            m_botPlayer = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(Sync.MyId, 1));
         }
 
         void Players_NewPlayerRequestFailed(int playerSerialId)
@@ -95,8 +95,8 @@ namespace Sandbox.Game.AI.BrainSimulatorIntegration
 
                         /*
                         // Enabling/disabling the jetpack
-                        character.EnableJetpack(true);
-                        character.EnableJetpack(false);
+                        character.TurnOnJetpack(true);
+                        character.TurnOnJetpack(false);
 
                         // Querying position and orientation of the character:
                         Vector3D positionInWorld = character.PositionComp.GetPosition();

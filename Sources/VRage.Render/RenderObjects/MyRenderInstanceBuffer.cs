@@ -61,10 +61,11 @@ namespace VRageRender
                     new VertexElement(1, (short)(sizeof(HalfVector4) * 1), DeclarationType.HalfFour, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 2),
                     new VertexElement(1, (short)(sizeof(HalfVector4) * 2), DeclarationType.HalfFour, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 3),
                     new VertexElement(1, (short)(sizeof(HalfVector4) * 3), DeclarationType.HalfFour, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 4),
+                    new VertexElement(1, (short)(sizeof(HalfVector4) * 4), DeclarationType.HalfTwo, DeclarationMethod.Default, DeclarationUsage.TextureCoordinate, 5),
                 };
 
                 Stride = Marshal.SizeOf(typeof(MyInstanceData));
-                Debug.Assert(Stride == 32, "Instance data stride has unexpected size");
+                Debug.Assert(Stride == 40, "Instance data stride has unexpected size");
             }
             
         }

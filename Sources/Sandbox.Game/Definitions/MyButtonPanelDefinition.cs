@@ -1,17 +1,13 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Utils;
 using VRageMath;
-using Sandbox.Engine.Utils;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_ButtonPanelDefinition))]
     public class MyButtonPanelDefinition : MyCubeBlockDefinition
     {
+	    public MyStringHash ResourceSinkGroup;
         public int ButtonCount;
         public string[] ButtonSymbols;
         public Vector4[] ButtonColors;
@@ -21,6 +17,7 @@ namespace Sandbox.Definitions
         {
             base.Init(builder);
             var ob = builder as MyObjectBuilder_ButtonPanelDefinition;
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
             ButtonCount = ob.ButtonCount;
             ButtonSymbols = ob.ButtonSymbols;
             ButtonColors = ob.ButtonColors;

@@ -18,6 +18,7 @@ using System.IO;
 using VRage;
 using VRage.Utils;
 using VRage.Trace;
+using VRage.Library.Utils;
 
 
 #endregion
@@ -27,7 +28,7 @@ namespace Sandbox.Engine.Multiplayer
     /// <summary>
     /// Container of multiplayer classes
     /// </summary>
-    public class MyMultiplayerLobby : MyMultiplayerBase
+    public class MyMultiplayerLobby : MyMultiplayerServerBase
     {
         public readonly Lobby Lobby;
 
@@ -272,7 +273,8 @@ namespace Sandbox.Engine.Multiplayer
                 SyncLayer.TransportLayer.IsBuffering = true;
             }
 
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
+            Debug.Assert(IsServer, "Wrong object created");
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer);
 
             MySteam.API.Matchmaking.LobbyChatUpdate += Matchmaking_LobbyChatUpdate;
             MySteam.API.Matchmaking.LobbyChatMsg += Matchmaking_LobbyChatMsg;
@@ -282,7 +284,10 @@ namespace Sandbox.Engine.Multiplayer
 
         void MyMultiplayerLobby_ClientLeft(ulong userId, ChatMemberStateChangeEnum stateChange)
         {
-            Peer2Peer.CloseSession(userId);
+            if (userId == ServerId)
+            {
+                Peer2Peer.CloseSession(userId);
+            }
 
             MySandboxGame.Log.WriteLineAndConsole("Player left: " + GetMemberName(userId) + " (" + userId + ")");
             MyTrace.Send(TraceWindow.Multiplayer, "Player left: " + stateChange.ToString());
@@ -378,8 +383,10 @@ namespace Sandbox.Engine.Multiplayer
             for (int i = 0; i < Lobby.MemberCount; i++)
             {
                 var member = Lobby.GetLobbyMemberByIndex(i);
-                if (member != MySteam.UserId)
+                if (member != MySteam.UserId && member == ServerId)
+                {
                     Peer2Peer.AcceptSession(member);
+                }
             }
         }
 
@@ -412,7 +419,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             System.Diagnostics.Debug.Fail("Ban is not supported in lobbies");
         }
-       
+
         public override void Tick()
         {
             base.Tick();

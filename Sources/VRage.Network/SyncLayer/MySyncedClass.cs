@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 
 namespace VRage.Network
 {
@@ -27,8 +28,8 @@ namespace VRage.Network
             m_parent = parent;
         }
 
-        protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
-        public bool IsDirty(int clientIndex)
+        protected MySyncedDataStateEnum[] m_dirty = new MySyncedDataStateEnum[64]; // TODO:SK eek
+        public MySyncedDataStateEnum GetDataState(int clientIndex)
         {
             Debug.Assert(clientIndex < m_dirty.Length);
             return m_dirty[clientIndex];
@@ -37,24 +38,31 @@ namespace VRage.Network
         private List<MySyncedClass> m_syncedClass = new List<MySyncedClass>();
         private List<IMySyncedValue> m_syncedVariables = new List<IMySyncedValue>();
 
-        private Dictionary<ulong, uint> m_pending;
-
-        public void InitPending()
+        public void ResetPending(int clientIndex)
         {
-            Debug.Assert(m_pending == null);
-            m_pending = new Dictionary<ulong, uint>();
-        }
+            Debug.Assert(clientIndex < m_dirty.Length);
+            if (m_dirty[clientIndex] == MySyncedDataStateEnum.Pending)
+            {
+                m_dirty[clientIndex] = MySyncedDataStateEnum.UpToDate;
+            }
 
-        public bool IsPending(ulong steamID)
-        {
-            Debug.Assert(steamID != 0);
-            Debug.Assert(m_pending != null);
-            return m_pending.ContainsKey(steamID);
+            foreach (var mySyncedObject in m_syncedClass)
+            {
+                mySyncedObject.ResetPending(clientIndex);
+            }
+
+            foreach (var mySynced in m_syncedVariables)
+            {
+                mySynced.ResetPending(clientIndex);
+            }
         }
 
         public void Invalidate()
         {
-            m_dirty.SetAll(true);
+            for (int i = 0; i < m_dirty.Length; i++)
+            {
+                m_dirty[i] = MySyncedDataStateEnum.Outdated;
+            }
             if (m_parent != null)
             {
                 m_parent.Invalidate();
@@ -83,8 +91,8 @@ namespace VRage.Network
 
         public void Serialize(BitStream bs, int clientIndex)
         {
-            var dirty = m_dirty[clientIndex];
-            bs.Write(dirty);
+            var dirty = m_dirty[clientIndex] != MySyncedDataStateEnum.UpToDate;
+            bs.WriteBool(dirty);
             if (dirty)
             {
                 foreach (var mySyncedObject in m_syncedClass)
@@ -96,17 +104,13 @@ namespace VRage.Network
                 {
                     mySynced.Serialize(bs, clientIndex);
                 }
-                m_dirty[clientIndex] = false;
+                m_dirty[clientIndex] = MySyncedDataStateEnum.Pending;
             }
         }
 
         public void Deserialize(BitStream bs)
         {
-            bool success;
-
-            bool fieldExists;
-            success = bs.Read(out fieldExists);
-            Debug.Assert(success, "Failed to read synced class existance");
+            bool fieldExists = bs.ReadBool();
 
             if (fieldExists)
             {
@@ -146,7 +150,7 @@ namespace VRage.Network
         public void SerializeDefault(BitStream bs, int clientIndex = -1)
         {
             bool isDefault = IsDefault();
-            bs.Write(!isDefault);
+            bs.WriteBool(!isDefault);
             if (!isDefault)
             {
                 foreach (var syncObj in m_syncedClass)
@@ -162,22 +166,21 @@ namespace VRage.Network
 
             if (clientIndex == -1)
             {
-                m_dirty.SetAll(false);
+                for (int i = 0; i < m_dirty.Length; i++)
+                {
+                    m_dirty[i] = MySyncedDataStateEnum.Pending;
+                }
             }
             else
             {
                 Debug.Assert(clientIndex < m_dirty.Length);
-                m_dirty[clientIndex] = false;
+                m_dirty[clientIndex] = MySyncedDataStateEnum.Pending;
             }
         }
 
         public void DeserializeDefault(BitStream bs)
         {
-            bool success;
-
-            bool isDefault;
-            success = bs.Read(out isDefault);
-            Debug.Assert(success, "Failed to read synced class defaultness");
+            bool isDefault = bs.ReadBool();
 
             if (!isDefault)
             {

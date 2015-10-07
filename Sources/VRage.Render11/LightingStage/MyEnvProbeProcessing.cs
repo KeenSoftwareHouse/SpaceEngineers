@@ -23,7 +23,7 @@ namespace VRageRender
             m_blend = MyShaders.CreateCs("EnvPrefiltering.hlsl", "blend");
         }
 
-        internal static void RunForwardPostprocess(RenderTargetView rt, ShaderResourceView depth, ref Matrix viewMatrix)
+        internal unsafe static void RunForwardPostprocess(RenderTargetView rt, ShaderResourceView depth, ref Matrix viewMatrix, uint? atmosphereId)
         {
             var mapping = MyMapping.MapDiscard(RC.Context, MyCommon.ProjectionConstants);
             mapping.stream.Write(Matrix.Transpose(viewMatrix));

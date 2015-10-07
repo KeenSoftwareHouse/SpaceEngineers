@@ -147,11 +147,6 @@ namespace Sandbox.Game.Gui
             if (MyProceduralWorldGenerator.Static == null)
                 return;
 
-            if (m_drawAroundCamera)
-            {
-                MyProceduralWorldGenerator.Static.OverlapAllPlanetSeedsInSphere(new BoundingSphereD(MySector.MainCamera.Position, MySector.MainCamera.FarPlaneDistance * 2), m_tmpSeedsList);
-            }
-
             MyProceduralWorldGenerator.Static.GetAllExisting(m_tmpSeedsList);
 
             double max_distance = 100 * 2 * 60 * 60;

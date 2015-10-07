@@ -87,6 +87,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinGame(GameServerItem server)
         {
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Join);
             if (server.ServerVersion != MyFinalBuildConstants.APP_VERSION)
             {
                 var sb = new StringBuilder();

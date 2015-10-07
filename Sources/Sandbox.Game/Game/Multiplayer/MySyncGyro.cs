@@ -44,9 +44,9 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncGyro()
         {
-            MySyncLayer.RegisterMessage<ChangeGyroPowerMsg>(ChangeGyroPowerSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<OverrideGyroControlMsg>(OverrideGyroControlSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<OverrideGyroTorqueMsg>(OverrideGyroTorqueSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeGyroPowerMsg>(ChangeGyroPowerSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<OverrideGyroControlMsg>(OverrideGyroControlSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<OverrideGyroTorqueMsg>(OverrideGyroTorqueSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MySyncGyro(MyGyro block)
@@ -60,7 +60,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.GyroPower = gyroPower;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void ChangeGyroPowerSuccess(ref ChangeGyroPowerMsg msg, MyNetworkClient sender)
@@ -69,7 +69,13 @@ namespace Sandbox.Game.Multiplayer
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             var block = entity as MyGyro;
             if (block != null)
+            {
                 block.GyroPower = msg.GyroPower;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
+            }
         }
 
         public void SendGyroOverrideRequest(bool v)
@@ -78,7 +84,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.Override = v;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void OverrideGyroControlSuccess(ref OverrideGyroControlMsg msg, MyNetworkClient sender)
@@ -87,7 +93,13 @@ namespace Sandbox.Game.Multiplayer
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             var block = entity as MyGyro;
             if (block != null)
+            {
                 block.SetGyroOverride(msg.Override);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
+            }
         }
 
         public void SendGyroTorqueRequest(Vector3 torque)
@@ -96,7 +108,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.Torque = torque;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void OverrideGyroTorqueSuccess(ref OverrideGyroTorqueMsg msg, MyNetworkClient sender)
@@ -105,7 +117,13 @@ namespace Sandbox.Game.Multiplayer
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             var block = entity as MyGyro;
             if (block != null)
+            {
                 block.SetGyroTorque(msg.Torque);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
+            }
         }
     }
 }

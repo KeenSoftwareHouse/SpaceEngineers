@@ -84,12 +84,20 @@ namespace VRage.Voxels
                 ((UInt64)CoordInLod.Z) << SHIFT_Z_64;
         }
 
+        public static UInt64 GetClipmapCellHash(uint clipmap, ulong cellId)
+        {
+            ulong hash = (ulong)(cellId * 997);
+            hash = (hash * 397) ^ (ulong)(clipmap * 997);
+            return hash;
+        }
+
+
         public override string ToString()
         {
             return string.Format("{0}, {1}", Lod, CoordInLod);
         }
 
-        // Do not changes these settings of bits! It will break backward compatibility.
+        // Do not change these settings of bits! It will break backward compatibility.
         const int BITS_LOD = 4;
 
         const int BITS_X_32 = 10;

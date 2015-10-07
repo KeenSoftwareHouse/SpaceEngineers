@@ -5,11 +5,30 @@ using VRageMath;
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
     [ProtoContract]
+	public class MyFuelConverterInfo
+	{
+		[ProtoMember]
+		public SerializableDefinitionId FuelId = new SerializableDefinitionId();
+
+		[ProtoMember]
+		public float Efficiency = 1f;
+	}
+
+    [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ThrustDefinition : MyObjectBuilder_CubeBlockDefinition
     {
         static readonly Vector4 DefaultThrustColor = new Vector4(Color.CornflowerBlue.ToVector3() * 0.7f, 0.75f);
-        
+
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
+        [ProtoMember]
+        public MyFuelConverterInfo FuelConverter = new MyFuelConverterInfo();
+
+	    [ProtoMember]
+	    public float SlowdownFactor = 10;
+
         [ProtoMember]
         public float ForceMagnitude;
 
@@ -51,5 +70,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float FlameDamage = 0.5f;
+
+        [ProtoMember]
+        public float EffectivenessAtMaxInfluence = 1f;
+
+        [ProtoMember]
+        public float EffectivenessAtMinInfluence = 1f;
     }
 }

@@ -21,7 +21,7 @@ namespace Sandbox.Game.Gui
         public static MyHudScenarioInfo ScenarioInfo = new MyHudScenarioInfo();
         public static MyHudBlockInfo BlockInfo = new MyHudBlockInfo();
         public static MyHudGravityIndicator GravityIndicator = new MyHudGravityIndicator();
-        public static MyHudConsumerGroupInfo ConsumerGroupInfo = new MyHudConsumerGroupInfo();
+        public static MyHudSinkGroupInfo SinkGroupInfo = new MyHudSinkGroupInfo();
         public static MyHudSelectedObject SelectedObjectHighlight = new MyHudSelectedObject();
         public static MyHudLocationMarkers LocationMarkers = new MyHudLocationMarkers();
         public static MyHudGpsMarkers ButtonPanelMarkers = new MyHudGpsMarkers();
@@ -81,7 +81,7 @@ namespace Sandbox.Game.Gui
             Notifications.ReloadTexts();
             ShipInfo.Reload();
             CharacterInfo.Reload();
-            ConsumerGroupInfo.Reload();
+            SinkGroupInfo.Reload();
             ScenarioInfo.Reload();
         }
 
@@ -133,7 +133,7 @@ namespace Sandbox.Game.Gui
             CharacterInfo.Hide();
             BlockInfo.Visible = false;
             GravityIndicator.Hide();
-            ConsumerGroupInfo.Visible = false;
+            SinkGroupInfo.Visible = false;
             LargeTurretTargets.Visible = false;
         }
     }

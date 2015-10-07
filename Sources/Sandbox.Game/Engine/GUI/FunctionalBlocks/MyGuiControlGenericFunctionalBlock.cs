@@ -138,12 +138,17 @@ namespace Sandbox.Graphics.GUI
                 block.VisibilityChanged += block_VisibilityChanged;
             }
 
+            Sync.Players.IdentitiesChanged += Players_IdentitiesChanged;
+
             UpdateDetailedInfo();
 
             Size = new Vector2(0.595f, 0.64f);
         }
 
-
+        void Players_IdentitiesChanged()
+        {
+            UpdateOwnerGui();
+        }
 
         void block_OwnershipChanged(MyTerminalBlock sender)
         {
@@ -168,6 +173,8 @@ namespace Sandbox.Graphics.GUI
                 block.OwnershipChanged -= block_OwnershipChanged;
                 block.VisibilityChanged -= block_VisibilityChanged;
             }
+
+            Sync.Players.IdentitiesChanged -= Players_IdentitiesChanged;
 
             base.OnRemoving();
         }
@@ -629,15 +636,7 @@ namespace Sandbox.Graphics.GUI
 
         void OnNewNpcClick(MyGuiControlButton button)
         {
-            string npcName = "NPC " + MyRandom.Instance.Next(1000, 9999);
-            var identity = Sync.Players.CreateNewIdentity(npcName);
-            Sync.Players.MarkIdentityAsNPC(identity.IdentityId);
-            UpdateOwnerGui();
-            
-            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                buttonType: MyMessageBoxButtonsType.OK,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionInfo),
-                messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.NPCIdentityAdded), npcName)));
+            Sync.Players.RequestNewNpcIdentity();
         }
     }
 }

@@ -3,7 +3,6 @@ using Sandbox.Graphics.GUI;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
