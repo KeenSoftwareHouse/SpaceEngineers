@@ -2326,6 +2326,19 @@ namespace Sandbox.Game.Entities
             return null;
         }
 
+        bool IMyRemoteControl.RequestJump(IMyJumpDrive jumpDrive)
+        {
+            if (!MySession.Static.Players.IdentityIsNpc(this.OwnerId))
+                return false;
+
+            if (jumpDrive == null || !jumpDrive.CanJump)
+                return false;
+
+            var jumpCoords = jumpDrive.GetJumpCoords(this);
+
+            return CubeGrid.GridSystems.JumpSystem.RequestJumpWithoutPrompt(jumpCoords, this.OwnerId);
+        }
+
         [PreloadRequired]
         public class MySyncRemoteControl : MySyncShipController
         {

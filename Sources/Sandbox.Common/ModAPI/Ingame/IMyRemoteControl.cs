@@ -14,6 +14,14 @@ namespace Sandbox.ModAPI.Ingame
 
         void ClearWaypoints();
         void AddWaypoint(Vector3D point, string name);
+        
+        /// <summary>
+        /// Requests a jump, can only be done my NPC factions.
+        /// </summary>
+        /// <param name="jumpDrive">Jumpdrive to use.</param>
+        /// <returns>If the jump request was successful.</returns>
+        bool RequestJump(IMyJumpDrive jumpDrive);
+        
         void SetAutoPilotEnabled(bool enabled);
 
         // CH: TODO: Uncomment later for drones

@@ -7,6 +7,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -162,7 +163,7 @@ namespace Sandbox.Game.Entities
             return m_jumpTarget != null;
         }
 
-        private void RemoveSelected()
+        public void RemoveSelected()
         {
             if (CanRemove())
             {
@@ -212,20 +213,18 @@ namespace Sandbox.Game.Entities
 
                     if (shipController != null && (shipController.IsMainCockpit || !CubeGrid.HasMainCockpit()))
                     {
+                        string jumpName;
                         if (m_jumpTarget != null)
                         {
-                            CubeGrid.GridSystems.JumpSystem.RequestJump(m_jumpTarget.Name, m_jumpTarget.Coords, shipController.OwnerId);
+                            jumpName = m_jumpTarget.Name;
                         }
                         else
                         {
-                            Vector3 localForward = Base6Directions.GetVector(shipController.Orientation.Forward);
-                            Vector3D forward = Vector3D.Transform(localForward, shipController.CubeGrid.WorldMatrix.GetOrientation());
-
-                            forward.Normalize();
-
-                            Vector3D jumpCoords = CubeGrid.WorldMatrix.Translation + forward * ComputeMaxDistance();
-                            CubeGrid.GridSystems.JumpSystem.RequestJump("Blind Jump", jumpCoords, shipController.OwnerId);
+                            jumpName = "Blind Jump";
                         }
+
+                        var jumpCoords = GetJumpCoords(shipController);
+                        CubeGrid.GridSystems.JumpSystem.RequestJump(jumpName, jumpCoords, shipController.OwnerId);
                     }
                 }
             }
@@ -237,7 +236,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private double ComputeMaxDistance()
+        public double ComputeMaxDistance()
         {
             double maxDistance = CubeGrid.GridSystems.JumpSystem.GetMaxJumpDistance(IDModule.Owner);
             if (maxDistance < MyGridJumpDriveSystem.MIN_JUMP_DISTANCE)
@@ -668,11 +667,27 @@ namespace Sandbox.Game.Entities
                 public BoolBlit Recharging;
             }
 
+            [ProtoBuf.ProtoContract]
+            [MessageIdAttribute(8406, P2PMessageEnum.Reliable)]
+            protected struct SetTargetMsg : IEntityMessage
+            {
+                [ProtoBuf.ProtoMember]
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                [ProtoBuf.ProtoMember]
+                public Vector3D Coords;
+
+                [ProtoBuf.ProtoMember]
+                public string Name;
+            }
+
             private MyJumpDrive m_jumpDrive;
 
             static MySyncJumpDrive()
             {
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SelectTargetMsg>(OnTargetSelected, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf);
+                MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SetTargetMsg>(OnSetTarget, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, RemoveTargetMsg>(OnTargetRemoved, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SetJumpDistanceRatioMsg>(OnJumpDistanceRatioSet, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, UpdateStoredPowerMsg>(OnUpdateStoredPower, MyMessagePermissions.FromServer);
@@ -698,6 +713,25 @@ namespace Sandbox.Game.Entities
             private static void OnTargetSelected(MySyncJumpDrive syncObject, ref SelectTargetMsg msg, MyNetworkClient sender)
             {
                 syncObject.m_jumpDrive.OnTargetSelected(msg.GpsHash);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
+            }
+
+            public void SendSetTarget(Vector3D cords, string name)
+            {
+                var msg = new SetTargetMsg();
+                msg.EntityId = m_jumpDrive.EntityId;
+                msg.Coords = cords;
+                msg.Name = name;
+
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
+            }
+
+            private static void OnSetTarget(MySyncJumpDrive syncObject, ref SetTargetMsg msg, MyNetworkClient sender)
+            {
+                syncObject.m_jumpDrive.OnSetTarget(msg.Coords, msg.Name);
                 if (Sync.IsServer)
                 {
                     Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
@@ -793,6 +827,94 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+        #endregion
+
+        #region Programmatic Control
+
+        bool IMyJumpDrive.IsJumping
+        {
+            get { return IsJumping; }
+        }
+
+        public float JumpDistanceRatio
+        {
+            get { return m_jumpDistanceRatio; }
+        }
+
+        public void RequestJumpDistanceRatio(float ratio)
+        {
+            var clampedValue = VRageMath.MathHelper.Clamp(ratio, 0f, 100f);
+            SetJumpDistanceRatio(clampedValue);
+        }
+
+        public float PowerNeededForJump
+        {
+            get { return BlockDefinition.PowerNeededForJump; }
+        }
+
+        public float StoredPower
+        {
+            get { return m_storedPower; }
+        }
+
+        public float RechargeTimeRemaining
+        {
+            get { return m_timeRemaining; }
+        }
+
+        public bool Recharging
+        {
+            get { return m_isRecharging; }
+        }
+
+        public void RequestRecharging(bool enabled)
+        {
+            SetRecharging(enabled);
+        }
+
+        public void SetTarget(Vector3D cords, string name)
+        {
+            if(name == null)
+                throw new ArgumentNullException("name");
+
+            SyncObject.SendSetTarget(cords, name);
+        }
+
+        public Vector3D GetJumpCoords(IMyShipController shipController)
+        {
+            Debug.Assert(shipController != null);
+
+            if (m_jumpTarget != null)
+            {
+                return m_jumpTarget.Coords;
+            }
+            else
+            {
+                Vector3 localForward = Base6Directions.GetVector(shipController.Orientation.Forward);
+                Vector3D forward = Vector3D.Transform(localForward, shipController.CubeGrid.WorldMatrix.GetOrientation());
+
+                forward.Normalize();
+
+                Vector3D jumpCoords = CubeGrid.WorldMatrix.Translation + forward * ComputeMaxDistance();
+                return jumpCoords;
+            }
+        }
+
+        private void OnSetTarget(Vector3D coords, string name)
+        {
+            var gpsEntry = new MyObjectBuilder_Gps.Entry
+            {
+                coords = coords,
+                name = name,
+                description = "",
+                isFinal = true,
+                showOnHud = false
+            };
+
+            m_jumpTarget = new MyGps(gpsEntry);
+            RaisePropertiesChangedJumpDrive();
+        }
+
         #endregion
     }
 }
