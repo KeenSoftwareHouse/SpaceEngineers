@@ -887,7 +887,7 @@ namespace VRageRender
 
             bool drawNear = !Settings.SkipLOD_NEAR && m_currentSetup.EnableNear.HasValue && m_currentSetup.EnableNear.Value;
 
-            if (currentLodDrawPass == MyLodTypeEnum.LOD0 || currentLodDrawPass == MyLodTypeEnum.LOD_BACKGROUND) // LOD0
+            if (currentLodDrawPass == MyLodTypeEnum.LOD0) // LOD0
             {
                 GetRenderProfiler().StartProfilingBlock("DrawNearObjects");
                 if (drawNear && currentLodDrawPass == MyLodTypeEnum.LOD0)
@@ -932,7 +932,6 @@ namespace VRageRender
                 MyStateObjects.WireframeClockwiseRasterizerState.Apply();
 
             GetRenderProfiler().StartProfilingBlock("Draw(false);");
-            m_currentLodDrawPass = MyLodTypeEnum.LOD_BACKGROUND;     
             DrawScene_OneLodLevel_Draw(false, true, currentLodDrawPass);
             GetRenderProfiler().EndProfilingBlock();
 
@@ -1042,113 +1041,6 @@ namespace VRageRender
             DrawRenderElementsAlternative(m_sortedTransparentElements, m_currentLodDrawPass, out ibChangesStats);
         }
 
-        internal static void DrawAtmosphere(bool backgroundObjects)
-        {
-            m_sortedElements.Clear();
-            m_renderObjectListForDraw.Clear();
-            if (backgroundObjects)
-            {
-                DepthStencilState.BackgroundAtmosphereObjects.Apply();
-            }
-            else
-            {
-               MyStateObjects.DepthStencil_WriteNearAtmosphere.Apply();
-            }
-
-            GetAtmosphereRenderObjects(backgroundObjects, m_renderAtmospheresForNearPlanetSurface);
-
-            foreach (MyRenderObject renderObject in m_renderAtmospheresForNearPlanetSurface)
-            {
-                MyRenderAtmosphere atmosphereObject = (renderObject as MyRenderAtmosphere);
-                if (atmosphereObject.IsSurface == false)
-                {
-                    m_renderObjectListForDraw.Add(renderObject);
-                    renderObject.BeforeDraw();
-                }
-            }
-
-            DrawModelsLod(backgroundObjects? MyLodTypeEnum.LOD_BACKGROUND:MyLodTypeEnum.LOD0, false, false);
-
-            BlendState.Opaque.Apply();
-        }
-
-        internal static void DrawNearPlanetSurfaceFromSpace()
-        {
-            m_renderObjectListForDraw.Clear();
-            m_sortedElements.Clear();
-            m_renderAtmospheresForNearPlanetSurface.Clear();
-
-            MyStateObjects.DepthStencil_RenderNearPlanetSurfaceInAtmosphere.Apply();
-
-            GetAtmosphereRenderObjects(false, m_renderAtmospheresForNearPlanetSurface);
-
-            foreach (MyRenderObject renderObject in m_renderAtmospheresForNearPlanetSurface)
-            {
-                MyRenderAtmosphere atmosphereObject = (renderObject as MyRenderAtmosphere);
-                if (false == atmosphereObject.IsInside(MyRenderCamera.Position) && atmosphereObject.IsSurface)
-                {
-                    m_renderObjectListForDraw.Add(renderObject);
-                    renderObject.BeforeDraw();
-                }
-            }
-            if (m_renderObjectListForDraw.Count > 0)
-            {
-                DrawModelsLod(MyLodTypeEnum.LOD0, false, false);
-            }
-
-        }
-
-        internal static void DrawNearPlanetSurfaceFromAtmosphere()
-        {
-            m_renderObjectListForDraw.Clear();
-            m_sortedElements.Clear();
-            m_renderAtmospheresForNearPlanetSurface.Clear();
-
-            DepthStencilState.BackgroundAtmospherePlanetSurfaceState.Apply();
-
-            Matrix optProjection = Matrix.CreatePerspectiveFieldOfView(MyRenderCamera.FieldOfView, MyRenderCamera.AspectRatio, MyRenderCamera.NEAR_PLANE_DISTANCE, MyRenderCamera.FAR_PLANE_FOR_BACKGROUND);
-            m_cameraFrustum.Matrix = MyRenderCamera.ViewMatrix * optProjection;
-            m_cameraPosition = MyRenderCamera.Position;
-
-            m_atmospherePurunnigStructure.OverlapAllFrustum(ref m_cameraFrustum, m_renderAtmospheresForNearPlanetSurface);
-
-            foreach (MyRenderObject renderObject in m_renderAtmospheresForNearPlanetSurface)
-            {
-                MyRenderAtmosphere atmosphereObject = (renderObject as MyRenderAtmosphere);
-                if (atmosphereObject.IsInside(MyRenderCamera.Position) && atmosphereObject.IsSurface)
-                {
-                    m_renderObjectListForDraw.Add(renderObject);
-                    renderObject.BeforeDraw();
-                }
-            }
-
-            if (m_renderObjectListForDraw.Count > 0)
-            {
-                DrawModelsLod( MyLodTypeEnum.LOD0, false, false);
-            }
-        }
-
-        private static void SetupAtmosphereShader()
-        {
-            MyEffectAtmosphere effectPointLight = (MyEffectAtmosphere)MyRender.GetEffect(MyEffects.Atmosphere);
-            var invViewMatrix = Matrix.Invert(MyRenderCamera.ViewMatrixAtZero);
-            effectPointLight.SetInvViewMatrix(invViewMatrix);
-            SharpDX.Direct3D9.Texture diffuseRT = MyRender.GetRenderTarget(MyRenderTargets.Diffuse);
-            effectPointLight.SetDepthsRT(MyRender.GetRenderTarget(MyRenderTargets.Depth));
-            effectPointLight.SetSourceRT(MyRender.GetRenderTarget(MyRenderTargets.Auxiliary1));
-
-            effectPointLight.SetHalfPixel(diffuseRT.GetLevelDescription(0).Width, diffuseRT.GetLevelDescription(0).Height);
-            effectPointLight.SetScale(GetScaleForViewport(diffuseRT));
-        }
-
-        private static void GetAtmosphereRenderObjects(bool backgroundObjects,List<MyElement> renderObjects)
-        {
-            Matrix optProjection = Matrix.CreatePerspectiveFieldOfView(MyRenderCamera.FieldOfView, MyRenderCamera.AspectRatio, backgroundObjects ? MyRenderCamera.FAR_PLANE_DISTANCE : MyRenderCamera.NEAR_PLANE_DISTANCE, backgroundObjects ? MyRenderCamera.FAR_PLANE_FOR_BACKGROUND : MyRenderCamera.FAR_PLANE_DISTANCE);
-            m_cameraFrustum.Matrix = MyRenderCamera.ViewMatrix * optProjection;
-            m_cameraPosition = MyRenderCamera.Position;
-
-            m_atmospherePurunnigStructure.OverlapAllFrustum(ref m_cameraFrustum, renderObjects);
-        }
         #endregion
 
         #region Modules
@@ -1584,7 +1476,7 @@ namespace VRageRender
 
                         isVisibleFromQuery = query.OcclusionQuery.PixelCount > 0;
 
-                        //Holy ATI shit
+                        //Holy ATI 
                         if (query.OcclusionQuery.PixelCount < 0)
                         {
                             isVisibleFromQuery = true;

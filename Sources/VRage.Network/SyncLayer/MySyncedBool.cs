@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 
 namespace VRage.Network
 {
@@ -10,19 +11,19 @@ namespace VRage.Network
     {
         public sealed override void Write(ref bool value, BitStream s)
         {
-            s.Write(value);
+            s.WriteBool(value);
         }
 
-        public sealed override bool Read(out bool value, BitStream s)
+        public sealed override void Read(out bool value, BitStream s)
         {
-            return s.Read(out value);
+            value = s.ReadBool();
         }
 
         public sealed override void Serialize(BitStream bs, int clientIndex)
         {
             lock (this)
             {
-                bs.Write(m_value);
+                bs.WriteBool(m_value);
             }
         }
 
@@ -30,8 +31,7 @@ namespace VRage.Network
         {
             lock (this)
             {
-                bool success = Read(out m_value, bs);
-                Debug.Assert(success, "Failed to read synced value");
+                Read(out m_value, bs);
             }
         }
 

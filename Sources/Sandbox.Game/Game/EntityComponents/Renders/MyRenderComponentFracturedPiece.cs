@@ -15,6 +15,8 @@ namespace Sandbox.Game.Components
 {
     public class MyRenderComponentFracturedPiece : MyRenderComponent
     {
+        private const string EMPTY_MODEL = @"Models\Debug\Error.mwm";
+
         struct ModelInfo
         {
             public String Name;
@@ -26,8 +28,15 @@ namespace Sandbox.Game.Components
         public void AddPiece(string modelName, MatrixD localTransform)
         {
             if (string.IsNullOrEmpty(modelName))
-                modelName = @"Models\Debug\Error.mwm";
+                modelName = EMPTY_MODEL;
             Models.Add(new ModelInfo() { Name = modelName, LocalTransform = localTransform });
+        }
+
+        public void RemovePiece(string modelName)
+        {
+            if (string.IsNullOrEmpty(modelName))
+                modelName = EMPTY_MODEL;
+            Models.RemoveAll(m => m.Name == modelName);
         }
 
         public override void InvalidateRenderObjects(bool sortIntoCullobjects = false)

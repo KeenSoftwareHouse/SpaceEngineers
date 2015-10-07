@@ -44,7 +44,7 @@ namespace Sandbox.Game.Screens.Helpers
                     AnimationSubtypeName = animationDefinition.Id.SubtypeName,
                     BlendTime = 0.2f,
                     PlaybackCommand = MyPlaybackCommand.Play,
-                    FrameOption = animationDefinition.Loop ? MyFrameOption.Loop : MyFrameOption.None,
+                    FrameOption = animationDefinition.Loop ? MyFrameOption.Loop : MyFrameOption.PlayOnce,
                     TimeScale = 1
                 },
                 true);

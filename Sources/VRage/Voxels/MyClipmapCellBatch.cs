@@ -10,7 +10,7 @@ namespace VRage.Voxels
     public struct MyClipmapCellBatch
     {
         public MyVertexFormatVoxelSingleData[] Vertices;
-        public short[] Indices;
+        public ushort[] Indices;
         public int Material0;
         public int Material1;
         public int Material2;

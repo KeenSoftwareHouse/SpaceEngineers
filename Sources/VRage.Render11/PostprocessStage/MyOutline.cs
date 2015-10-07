@@ -72,8 +72,8 @@ namespace VRageRender
         internal static void Run()
         {
             // set resolved depth/ stencil
-            // render all shit with proper depth-stencil state
-            // bluuuur
+            // render all with proper depth-stencil state
+            // blur
             // blend to main target testing with stencil again
 
             MyOutlinePass.Instance.ViewProjection = MyEnvironment.ViewProjectionAt0;

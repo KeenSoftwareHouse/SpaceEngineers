@@ -98,33 +98,6 @@ namespace Sandbox.Engine.Utils
     //    }
 
 
-    //    //	This tells if a sphere is BEHIND, in FRONT, or INTERSECTS a plane, also it's distance
-    //    public static MySpherePlaneIntersectionEnum GetSpherePlaneIntersection(ref BoundingSphereD sphere, ref MyPlane plane, out float distanceFromPlaneToSphere)
-    //    {
-    //        //  First we need to find the distance our polygon plane is from the origin.
-    //        float planeDistance = plane.GetPlaneDistance();
-
-    //        //  Here we use the famous distance formula to find the distance the center point
-    //        //  of the sphere is from the polygon's plane.  
-    //        distanceFromPlaneToSphere = (float)(plane.Normal.X * sphere.Center.X + plane.Normal.Y * sphere.Center.Y + plane.Normal.Z * sphere.Center.Z + planeDistance);
-
-    //        //  If the absolute value of the distance we just found is less than the radius, 
-    //        //  the sphere intersected the plane.
-    //        if (Math.Abs(distanceFromPlaneToSphere) < sphere.Radius)
-    //        {
-    //            return MySpherePlaneIntersectionEnum.INTERSECTS;
-    //        }
-    //        else if (distanceFromPlaneToSphere >= sphere.Radius)
-    //        {
-    //            //  Else, if the distance is greater than or equal to the radius, the sphere is
-    //            //  completely in FRONT of the plane.
-    //            return MySpherePlaneIntersectionEnum.FRONT;
-    //        }
-
-    //        //  If the sphere isn't intersecting or in FRONT of the plane, it must be BEHIND
-    //        return MySpherePlaneIntersectionEnum.BEHIND;
-    //    }
-
     //    //  Method returns intersection point between sphere and triangle (which is defined by vertexes and plane).
     //    //  If no intersection found, method returns null.
     //    //  See below how intersection point can be calculated, because it's not so easy - for example sphere vs. triangle will 

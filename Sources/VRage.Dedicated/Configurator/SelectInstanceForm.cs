@@ -51,6 +51,7 @@ namespace VRage.Dedicated.Configurator
         {
             m_serviceRootPath = servicePath;
             m_serviceExeName = serviceExe;
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             InitializeComponent();
         }
 

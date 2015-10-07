@@ -27,6 +27,8 @@ namespace Sandbox.Definitions
         public AnimationStatus Status = AnimationStatus.Unchecked;
         public MyDefinitionId LeftHandItem;
 
+        public AnimationSet[] AnimationSets = null;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -48,6 +50,8 @@ namespace Sandbox.Definitions
             {
                 this.LeftHandItem = ob.LeftHandItem;
             }
+
+            this.AnimationSets = ob.AnimationSets;
         }
     }
 }

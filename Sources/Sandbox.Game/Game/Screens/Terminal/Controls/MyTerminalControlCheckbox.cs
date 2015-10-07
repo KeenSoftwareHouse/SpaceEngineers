@@ -10,6 +10,7 @@ using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
@@ -17,9 +18,6 @@ namespace Sandbox.Game.Gui
         where TBlock : MyTerminalBlock
     {
         Action<TBlock> m_action;
-
-        public Func<TBlock, bool> Getter;
-        public Action<TBlock, bool> Setter;
 
         private MyGuiControlCheckbox m_checkbox;
         private Action<MyGuiControlCheckbox> m_checkboxClicked;
@@ -36,6 +34,7 @@ namespace Sandbox.Game.Gui
             OnText = on ?? MySpaceTexts.SwitchText_On;
             OffText = off ?? MySpaceTexts.SwitchText_Off;
             Tooltip = tooltip;
+            Serializer = delegate(BitStream stream, ref bool value) { stream.Serialize(ref value); };
         }
 
         protected override MyGuiControlBase CreateGui()
@@ -50,7 +49,7 @@ namespace Sandbox.Game.Gui
         {
             foreach (var item in TargetBlocks)
             {
-                Setter(item, obj.IsChecked);
+                SetValue(item, obj.IsChecked);
             }
         }
 
@@ -61,28 +60,28 @@ namespace Sandbox.Game.Gui
             var first = FirstBlock;
             if (first != null)
                 m_checkbox.IsCheckedChanged = null;
-            m_checkbox.IsChecked = Getter(first);
+            m_checkbox.IsChecked = GetValue(first);
             m_checkbox.IsCheckedChanged = m_checkboxClicked;
         }
 
         void SwitchAction(TBlock block)
         {
-            Setter(block, !Getter(block));
+            SetValue(block, !GetValue(block));
         }
 
         void CheckAction(TBlock block)
         {
-            Setter(block, true);
+            SetValue(block, true);
         }
 
         void UncheckAction(TBlock block)
         {
-            Setter(block, false);
+            SetValue(block, false);
         }
 
         void Writer(TBlock block, StringBuilder result, StringBuilder onText, StringBuilder offText)
         {
-            result.Append(Getter(block) ? onText : offText);
+            result.Append(GetValue(block) ? onText : offText);
         }
 
         public MyTerminalAction<TBlock> EnableAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
@@ -91,16 +90,6 @@ namespace Sandbox.Game.Gui
             Actions = new MyTerminalAction<TBlock>[] { action };
 
             return action;
-        }
-
-        public override bool GetValue(TBlock block)
-        {
-            return Getter(block);
-        }
-
-        public override void SetValue(TBlock block, bool value)
-        {
-            Setter(block, value);
         }
 
         public override bool GetDefaultValue(TBlock block)

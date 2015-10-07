@@ -62,6 +62,9 @@ namespace Sandbox.Game.Weapons
                 float coefficient = (MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS * 0.001f) / targets.Count;             
                 foreach (var block in targets)
                 {
+                    if ((MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) && !block.CubeGrid.BlocksDestructionEnabled)
+                        continue;
+
                     m_otherGrid = block.CubeGrid;
 
                     float damage = MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient;

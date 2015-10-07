@@ -52,7 +52,6 @@ namespace VRageRender
             MyScreenDecals.Init();
             MyEnvProbeProcessing.Init();
             MyShadowsResolve.Init();
-            MyAtmosphereRenderer.Init();
             MyAAEdgeMarking.Init(); 
             MyScreenPass.Init();
             MyCopyToRT.Init();
@@ -205,6 +204,7 @@ namespace VRageRender
         internal static MyUnorderedAccessTexture m_reduce0;
         internal static MyUnorderedAccessTexture m_reduce1;
         internal static MyUnorderedAccessTexture m_uav3;
+		internal static MyUnorderedAccessTexture m_cloudLayerFogTargetUAV;
         internal static MyUnorderedAccessTexture m_prevLum;
         internal static MyUnorderedAccessTexture m_localLum;
 
@@ -231,6 +231,7 @@ namespace VRageRender
                 m_reduce0.Release();
                 m_reduce1.Release();
                 m_uav3.Release();
+				m_cloudLayerFogTargetUAV.Release();
                 m_localLum.Release();
                 m_div2.Release();
                 m_div4.Release();
@@ -275,6 +276,9 @@ namespace VRageRender
             m_reduce1 = new MyUnorderedAccessTexture(width, height, Format.R32G32_Float);
             m_reduce1.SetDebugName("reduce1");
             m_uav3 = new MyUnorderedAccessTexture(width, height, Format.R11G11B10_Float);
+
+			m_cloudLayerFogTargetUAV = new MyUnorderedAccessTexture(width, height, Format.R11G11B10_Float);
+			m_cloudLayerFogTargetUAV.SetDebugName("Cloud layer fog target");
 
             m_localLum = new MyUnorderedAccessTexture(
                 (width + MyLuminanceAverage.NumThreads - 1) / MyLuminanceAverage.NumThreads,

@@ -181,9 +181,18 @@ namespace Sandbox.Game.Gui
             return base.Draw();
         }
 
+        protected override void OnClosed()
+        {
+            base.OnClosed();
+
+            MyAnalyticsHelper.ReportActivityEnd(null, "show_workshop");
+        }
+
         protected override void OnShow()
         {
             base.OnShow();
+
+            MyAnalyticsHelper.ReportActivityStart(null, "show_workshop", string.Empty, "gui", string.Empty);
 
             if (m_listNeedsReload)
                 FillList();

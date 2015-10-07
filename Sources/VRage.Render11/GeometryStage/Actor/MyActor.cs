@@ -85,6 +85,8 @@ namespace VRageRender
 
         internal uint ID { get { return m_ID.ID; } }
 
+        internal bool IsDestroyed { get { return m_ID.Value == null; } }
+
         internal void MarkRenderDirty()
         {
             m_renderProxyDirty = true;
@@ -201,6 +203,11 @@ namespace VRageRender
         internal MyGroupLeafComponent GetGroupLeaf()
         {
             return GetComponent(MyActorComponentEnum.GroupLeaf) as MyGroupLeafComponent;
+        }
+        
+        internal MyInstanceLodComponent GetInstanceLod()
+        {
+            return GetComponent(MyActorComponentEnum.InstanceLod) as MyInstanceLodComponent;
         }
     };
 }

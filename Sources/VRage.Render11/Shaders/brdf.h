@@ -63,7 +63,7 @@ float g_smithschlick(float nl, float nv, float a) {
 
 float d_ggx(float nh, float a) 
 {
-	float a2 = a*a;
+	float a2 = max(a*a, 0.00001f);
 	float denom = pow(nh*nh * (a2-1) + 1, 2);
 	return a2 * M_1_PI / denom;
 }
@@ -128,7 +128,7 @@ float3 material_radiance(float3 albedo, float3 f0, float gloss, float3 N, float3
 	float nh = saturate(dot(N, H));
 	float vh = saturate(dot(V, H));	
 
-	return diffuse_brdf(albedo, gloss, nl, nv) + specular_brdf(f0, gloss, nl, nh, nv, vh);
+	return diffuse_brdf(albedo, gloss, nl, nv) + gloss * saturate(specular_brdf(f0, gloss, nl, nh, nv, vh));
 }
 
 float3 material_response(float3 base_color, float metalness, float gloss, float id,

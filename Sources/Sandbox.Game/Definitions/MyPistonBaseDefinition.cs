@@ -1,9 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Engine.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
@@ -14,6 +10,7 @@ namespace Sandbox.Definitions
         public float Maximum;
         public string TopPart;
         public float MaxVelocity;
+	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
@@ -25,6 +22,7 @@ namespace Sandbox.Definitions
             Maximum = ob.Maximum;
             TopPart = ob.TopPart;
             MaxVelocity = ob.MaxVelocity;
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
             RequiredPowerInput = ob.RequiredPowerInput;
         }
     }

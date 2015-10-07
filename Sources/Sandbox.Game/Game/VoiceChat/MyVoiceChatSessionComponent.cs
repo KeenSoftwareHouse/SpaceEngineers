@@ -253,7 +253,7 @@ namespace Sandbox.Game.VoiceChat
         {
             if (!m_voices.ContainsKey(playerId))
             {
-                var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(playerId));
+                var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(playerId));
                 m_voices[playerId] = new MyEntity3DSoundEmitter(player.Character);
             }
 
@@ -297,7 +297,7 @@ namespace Sandbox.Game.VoiceChat
                 bool update = false;
                 var playerId = id;
                 var data = m_receivedVoiceData[id];
-                var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(playerId));
+                var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(playerId));
                 float maxDistance = 0;
                 MySoundDimensions dimension = MySoundDimensions.D2;
                 if (data.Timestamp != MyTimeSpan.Zero && m_voiceChatLogic.ShouldPlayVoice(player, data.Timestamp, out dimension, out maxDistance))
@@ -362,7 +362,7 @@ namespace Sandbox.Game.VoiceChat
                     var localUser = MySteam.UserId;
                     if (!m_voices.ContainsKey(localUser))
                     {
-                        var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(localUser));
+                        var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(localUser));
                         m_voices[localUser] = new MyEntity3DSoundEmitter(player.Character);
                     }
 
@@ -395,7 +395,7 @@ namespace Sandbox.Game.VoiceChat
             {
                 if (pair.Value.SpeakerTimestamp != MyTimeSpan.Zero)
                 {
-                    var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(pair.Key, 0));
+                    var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(pair.Key, 0));
                     var position = player.Character.PositionComp.GetPosition() + new Vector3D(0, 2.2, 0);
                     var color = Color.White;
                     MyTransparentGeometry.AddPointBillboard("VoiceChatSpeaker", color, position, 0.25f, 0, 0, true);

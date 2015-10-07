@@ -66,6 +66,7 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_FRIEND_SECTOR_USER_ID = "LastFriendSectorUserId";
         readonly string LAST_FRIEND_SECTOR_POSITION = "LastFriendSectorPosition";
         readonly string LAST_MY_SANDBOX_SECTOR = "LastMySandboxSector";
+        readonly string FIRST_TIME_RUN = "FirstTimeRun";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
         readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
@@ -87,6 +88,7 @@ namespace Sandbox.Engine.Utils
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
+        readonly string GRASS_DENSITY = "GrassDensity";
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
         readonly string ENABLE_VOICE_CHAT = "VoiceChat";
         readonly string UI_TRANSPARENCY = "UiTransparency";
@@ -164,6 +166,18 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(NEED_SHOW_TUTORIAL_QUESTION, value);
+            }
+        }
+
+        public bool FirstTimeRun
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(FIRST_TIME_RUN), true);
+            }
+            set
+            {
+                SetParameterValue(FIRST_TIME_RUN, value);
             }
         }
 
@@ -274,6 +288,19 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(RENDER_INTERPOLATION, value);
+            }
+        }
+
+        public float GrassDensityFactor
+        {
+            get
+            {
+                return MyUtils.GetFloatFromString(GetParameterValue(GRASS_DENSITY), 1.0f);
+            }
+
+            set
+            {
+                SetParameterValue(GRASS_DENSITY, value);
             }
         }
 
@@ -734,13 +761,13 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public float UITransparency
+        public float UIOpacity
         {
             get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 0.0f); }
             set { SetParameterValue(UI_TRANSPARENCY, value); }
         }
 
-        public float UIBkTransparency
+        public float UIBkOpacity
         {
             get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 0.0f); }
             set { SetParameterValue(UI_BK_TRANSPARENCY, value); }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
+using VRage.Serialization;
 
 namespace VRage
 {
@@ -27,12 +28,15 @@ namespace VRage
         }
 
         [ProtoMember, XmlAttribute]
+        [NoSerialize]
         public float x { get { return X; } set { X = value; } }
 
         [ProtoMember, XmlAttribute]
+        [NoSerialize]
         public float y { get { return Y; } set { Y = value; } }
 
         [ProtoMember, XmlAttribute]
+        [NoSerialize]
         public float z { get { return Z; } set { Z = value; } }
 
         public bool IsZero { get { return X == 0.0f && Y == 0.0f && Z == 0.0f; }  }

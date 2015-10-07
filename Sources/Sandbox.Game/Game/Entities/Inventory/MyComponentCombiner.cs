@@ -29,6 +29,16 @@ namespace Sandbox.Game.Entities.Inventory
             var group = MyDefinitionManager.Static.GetGroupForComponent(contentId, out amount);
             if (group == null)
             {
+                MyComponentSubstitutionDefinition substitutions;
+                if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(contentId, out substitutions))
+                {                    
+                    foreach (var providingComponent in substitutions.ProvidingComponents)
+                    {
+                        amount += (int)inventory.GetItemAmount(providingComponent.Key) / providingComponent.Value;
+                    }
+                    return amount;
+                }
+
                 return inventory.GetItemAmount(contentId);
             }
             else
@@ -52,21 +62,39 @@ namespace Sandbox.Game.Entities.Inventory
             {
                 int itemValue = 0;
                 int neededAmount = item.Value;
-                var group = MyDefinitionManager.Static.GetGroupForComponent(item.Key, out itemValue);
+
+                MyComponentGroupDefinition group = null;
+                
+                group = MyDefinitionManager.Static.GetGroupForComponent(item.Key, out itemValue);
                 if (group == null)
                 {
                     MyFixedPoint itemAmount;
-                    if (!m_componentCounts.TryGetValue(item.Key, out itemAmount))
+                    // Checking if this component is not provided by the group
+                    MyComponentSubstitutionDefinition substitutions;
+                    if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(item.Key, out substitutions))
+                    {
+                        int providedAmount;
+                        if (!substitutions.IsProvidedByComponents(m_componentCounts, out providedAmount))
+                        {
+                            result = false;
+                            break;
+                        }
+                        else if (providedAmount < neededAmount)
+                        {
+                            result = false;
+                            break;
+                        }
+                    }
+                    else if (!m_componentCounts.TryGetValue(item.Key, out itemAmount))
                     {
                         result = false;
                         break;
                     }
-
-                    if (itemAmount < neededAmount)
+                    else if (itemAmount < neededAmount)
                     {
                         result = false;
                         break;
-                    }
+                    }                    
                 }
                 else
                 {
@@ -74,7 +102,10 @@ namespace Sandbox.Game.Entities.Inventory
                 }
             }
 
-            result &= Solve(m_componentCounts);
+            if (result)
+            {
+                result &= Solve(m_componentCounts);
+            }
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
             {
@@ -130,8 +161,28 @@ namespace Sandbox.Game.Entities.Inventory
                 // The component does not belong to any component group => we are looking exactly for the given component
                 if (group == null)
                 {
-                    inventory.RemoveItemsOfType(material.Value, material.Key);
-                    continue;
+                    MyComponentSubstitutionDefinition substitutionDefinition = null;
+                    if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(material.Key, out substitutionDefinition))
+                    {
+                        int amountToRemove = material.Value;
+                        foreach (var entry in substitutionDefinition.ProvidingComponents)
+                        {
+                            if (amountToRemove > 0)
+                            {
+                                var removed = inventory.RemoveItemsOfType(amountToRemove * entry.Value, entry.Key);
+                                amountToRemove -= (int)removed;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        inventory.RemoveItemsOfType(material.Value, material.Key);
+                        continue;
+                    }
                 }
                 else
                 {
@@ -237,6 +288,8 @@ namespace Sandbox.Game.Entities.Inventory
             m_componentCounts.Clear();
         }
 
+
+        // Adds the component to be checked if can be provided by some of the components in the inventory
         public void AddItem(MyDefinitionId groupId, int itemValue, int amount)
         {
             List<int> items = null;
@@ -259,6 +312,11 @@ namespace Sandbox.Game.Entities.Inventory
                     items.Add(0);
                 }
                 m_groups.Add(groupId, items);
+            }
+            else
+            {
+                // this group is already 
+
             }
 
             items[itemValue] += amount;
@@ -385,6 +443,7 @@ namespace Sandbox.Game.Entities.Inventory
 
         private int TryCreatingItemsByMerge(MyComponentGroupDefinition group, int itemValue, int itemCount)
         {
+            // Removal buffer is here so that the method does not do anything until it's clear that the operation can be successful
             List<int> removalBuffer = m_listAllocator.Allocate();
             removalBuffer.Clear();
             for (int i = 0; i <= group.GetComponentNumber(); ++i)
@@ -430,11 +489,15 @@ namespace Sandbox.Game.Entities.Inventory
                     {
                         int present = 0;
                         m_presentItems.TryGetValue(j, out present);
+                        // If there is some present item that is not planned to be removed, use it
                         if (present > removalBuffer[j])
                         {
                             MyDefinitionId removedComponentId = group.GetComponentDefinition(j).Id;
                             MyDefinitionId addedComponentId = group.GetComponentDefinition(j - remainder).Id;
                             AddChangeToSolution(removedComponentId, addedComponentId, 1);
+                            int removed = TryRemovePresentItems(j, 1);
+                            AddPresentItems(j - remainder, 1);
+                            Debug.Assert(removed == 1);
                             remainder = 0;
                             break;
                         }

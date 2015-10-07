@@ -89,6 +89,8 @@ namespace VRage.ModAPI
         /// Entity updated once before first frame.
         /// </summary>
         NeedsUpdateBeforeNextFrame = 1 << 17,
+
+		DrawOutsideViewDistance = 1 << 18,
     }
 
     [Flags]
@@ -127,6 +129,7 @@ namespace VRage.ModAPI
         bool MarkedForClose { get; }
         void Delete();
         bool Closed { get; }
+        bool DebugAsyncLoading { get; } // Will be eventually removed
         MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false);
         bool Save { get; set; }
         MyPersistentEntityFlags2 PersistentFlags { get; set; }

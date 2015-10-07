@@ -9,5 +9,11 @@ namespace Sandbox.Common.ObjectBuilders.AI.Bot
     {
         [ProtoMember]
         public MyObjectBuilder_AiTarget AiTarget;
+
+        [ProtoMember]
+        public bool RemoveAfterDeath;
+
+        [ProtoMember]
+        public int RespawnCounter;
     }
 }

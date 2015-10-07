@@ -24,5 +24,11 @@ namespace VRage.Game.ObjectBuilders
 
 		[ProtoMember]
 		public float Density;
+
+		[ProtoMember]
+		public int MaxLifeTime;
+
+		[ProtoMember]
+		public int MaxParticles;
 	}
 }

@@ -41,6 +41,12 @@ namespace VRageRender
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadTextures; } }
     }
 
+    public class MyRenderMessageReloadGrass : IMyRenderMessage
+    {
+        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadGrass; } }
+    }
+
     public class MyRenderMessageUpdateEnvironmentMap : IMyRenderMessage
     {
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }

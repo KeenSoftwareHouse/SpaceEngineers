@@ -36,7 +36,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPowered
         {
-            get { return CubeGrid.GridSystems.GyroSystem.PowerReceiver.IsPowered; }
+            get { return CubeGrid.GridSystems.GyroSystem.ResourceSink.IsPowered; }
         }
 
         protected override bool CheckIsWorking()

@@ -29,6 +29,7 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.Components;
+using VRage.Voxels;
 
 #endregion
 
@@ -594,11 +595,20 @@ namespace Sandbox.Game
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Voxel or collision");
 
+                bool first = true;
+
                 //  If explosion sphere intersects a voxel map, we need to cut out a sphere, spawn debrises, etc
-                MyVoxelBase voxelMap = explosionInfo.AffectVoxels ? MySession.Static.VoxelMaps.GetOverlappingWithSphere(ref m_explosionSphere) : null;
-                if (voxelMap != null)
+                List<MyVoxelBase> voxelMaps = MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref m_explosionSphere);
+                voxelMaps.Sort(delegate(MyVoxelBase x, MyVoxelBase y) {
+                    return y.GetOrePriority() - x.GetOrePriority();
+                });
+
+                foreach(var voxelMap in voxelMaps)
                 {
-                    bool createDebris = true; // We want to create debris
+                    // If the voxel is to be ignored.
+                    if (voxelMap.GetOrePriority() == MyVoxelConstants.PRIORITY_IGNORE_EXTRACTION) continue;
+
+                    bool createDebris = first; // We want to create debris
 
                     if (explosionInfo.HitEntity != null) // but not when we hit prefab
                     {
@@ -610,7 +620,9 @@ namespace Sandbox.Game
                     CutOutVoxelMap((float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, explosionInfo.VoxelExplosionCenter, voxelMap, createDebris);
 
                     //Sync
-                    voxelMap.GetSyncObject.RequestVoxelCutoutSphere(explosionInfo.VoxelExplosionCenter, (float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, createDebris);
+                    voxelMap.RequestVoxelCutoutSphere(explosionInfo.VoxelExplosionCenter, (float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, createDebris);
+
+                    first = false;
                 }
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
@@ -950,7 +962,8 @@ namespace Sandbox.Game
         static MySoundPair m_explPlayer = new MySoundPair("WepExplOnPlay");
         static MySoundPair m_smMissileShip = new MySoundPair("WepSmallMissileExplShip");
         static MySoundPair m_smMissileExpl = new MySoundPair("WepSmallMissileExpl");
-        static MySoundPair m_bombExpl = new MySoundPair("WepBombExplosion");
+        static MySoundPair m_lrgWarheadExpl = new MySoundPair("WepLrgWarheadExpl");
+        static MySoundPair m_smWarheadExpl = new MySoundPair("WepSmallWarheadExpl");
         static MySoundPair m_missileExpl = new MySoundPair("WepMissileExplosion");
 
         MySoundPair GetCueByExplosionType(MyExplosionTypeEnum explosionType)
@@ -988,9 +1001,16 @@ namespace Sandbox.Game
 
                         break;
                     }
-                case MyExplosionTypeEnum.BOMB_EXPLOSION:
+                case MyExplosionTypeEnum.WARHEAD_EXPLOSION_02:
+                case MyExplosionTypeEnum.WARHEAD_EXPLOSION_15:
                     {
-                        cueEnum = m_bombExpl;
+                        cueEnum = m_smWarheadExpl;
+                        break;
+                    }
+                case MyExplosionTypeEnum.WARHEAD_EXPLOSION_30:
+                case MyExplosionTypeEnum.WARHEAD_EXPLOSION_50:
+                    {
+                        cueEnum = m_lrgWarheadExpl;
                         break;
                     }
                 default:

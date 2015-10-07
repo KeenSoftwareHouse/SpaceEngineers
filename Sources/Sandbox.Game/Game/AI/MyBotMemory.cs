@@ -9,7 +9,7 @@ namespace Sandbox.Game.AI
     public class MyBotMemory
     {
         private IMyBot m_memoryUser;
-        private MyBehaviorTree CurrentBehaviorTree { get { return m_memoryUser.BehaviorTree; } }
+        private MyBehaviorTree m_behaviorTree;
 
         private MyPerTreeBotMemory m_treeBotMemory;
         public MyPerTreeBotMemory CurrentTreeBotMemory 
@@ -28,7 +28,6 @@ namespace Sandbox.Game.AI
         {
             LastRunningNodeIndex = -1;
             m_memoryUser = bot;
-            m_treeBotMemory = new MyPerTreeBotMemory();
             m_newNodePath = new Stack<int>(20);
             m_oldNodePath = new HashSet<int>();
         }
@@ -52,6 +51,7 @@ namespace Sandbox.Game.AI
                         treeBotMemory.AddBlackboardMemoryInstance(bbMemInstance.MemberName, bbMemInstance.Value);
                     }
                 }
+                CurrentTreeBotMemory = treeBotMemory;
             }
 
             if (builder.OldPath != null)
@@ -73,7 +73,7 @@ namespace Sandbox.Game.AI
 
             // tree memory + blackboard
             var behaviorTreeMemory = new MyObjectBuilder_BotMemory.BehaviorTreeNodesMemory();
-            behaviorTreeMemory.BehaviorName = CurrentBehaviorTree.BehaviorTreeName;
+            behaviorTreeMemory.BehaviorName = m_behaviorTree.BehaviorTreeName;
             behaviorTreeMemory.Memory = new List<MyObjectBuilder_BehaviorTreeNodeMemory>(CurrentTreeBotMemory.NodesMemoryCount);
             foreach (var nodeMemory in CurrentTreeBotMemory.NodesMemory)
                 behaviorTreeMemory.Memory.Add(nodeMemory.GetObjectBuilder());
@@ -92,7 +92,7 @@ namespace Sandbox.Game.AI
 
         public void AssignBehaviorTree(MyBehaviorTree behaviorTree)
         {
-            if (CurrentBehaviorTree == null || behaviorTree.BehaviorTreeId == CurrentBehaviorTree.BehaviorTreeId)
+            if (CurrentTreeBotMemory == null && (m_behaviorTree == null || behaviorTree.BehaviorTreeId == m_behaviorTree.BehaviorTreeId))
             {
                 CurrentTreeBotMemory = CreateBehaviorTreeMemory(behaviorTree);
             }
@@ -106,6 +106,8 @@ namespace Sandbox.Game.AI
                     ResetMemoryInternal(behaviorTree, CurrentTreeBotMemory);
                 }
             }
+
+            m_behaviorTree = behaviorTree;
         }
 
         private MyPerTreeBotMemory CreateBehaviorTreeMemory(MyBehaviorTree behaviorTree)
@@ -151,23 +153,21 @@ namespace Sandbox.Game.AI
             LastRunningNodeIndex = -1;
         }
 
-        public void ResetMemory(MyBehaviorTree behaviorTree, bool clearMemory = false)
+        public void ResetMemory(bool clearMemory = false)
         {
+            if (m_behaviorTree == null)
+                return;
             if (clearMemory)
                 ClearPathMemory(true);
-
-            if (CurrentBehaviorTree.BehaviorTreeId == behaviorTree.BehaviorTreeId)
-                CurrentTreeBotMemory.Clear();
-            else
-                CurrentTreeBotMemory = new MyPerTreeBotMemory();
-
-            ResetMemoryInternal(behaviorTree, CurrentTreeBotMemory);
+            CurrentTreeBotMemory.Clear();
+            ResetMemoryInternal(m_behaviorTree, CurrentTreeBotMemory);
         }
 
         public void UnassignCurrentBehaviorTree()
         {
             ClearPathMemory(true);
             CurrentTreeBotMemory = null;
+            m_behaviorTree = null;
         }
 
         private void ResetMemoryInternal(MyBehaviorTree behaviorTree, MyPerTreeBotMemory treeMemory)
@@ -186,10 +186,10 @@ namespace Sandbox.Game.AI
 
         private void PostTickPaths()
         {
-            if (CurrentBehaviorTree != null)
+            if (m_behaviorTree != null)
             {
-                CurrentBehaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_oldNodePath);
-                CurrentBehaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_newNodePath);
+                m_behaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_oldNodePath);
+                m_behaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_newNodePath);
             }
         }
 
@@ -198,7 +198,7 @@ namespace Sandbox.Game.AI
             if (HasOldPath)
             {
                 m_oldNodePath.ExceptWith(m_newNodePath);
-                CurrentBehaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_oldNodePath);
+                m_behaviorTree.CallPostTickOnPath(m_memoryUser, CurrentTreeBotMemory, m_oldNodePath);
                 ClearOldPath();
             }
         }
@@ -215,7 +215,7 @@ namespace Sandbox.Game.AI
 
         public void PrepareForNewNodePath()
         {
-            Debug.Assert(m_oldNodePath.Count == 0, "Old node path is not empty");
+            //Debug.Assert(m_oldNodePath.Count == 0, "Old node path is not empty");
             m_oldNodePath.Clear();
             m_oldNodePath.UnionWith(m_newNodePath);
             LastRunningNodeIndex = m_newNodePath.Peek();

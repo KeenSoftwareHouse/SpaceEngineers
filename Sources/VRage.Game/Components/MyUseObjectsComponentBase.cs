@@ -104,6 +104,7 @@ namespace VRage.Components
                 DetectorPhysics.Deactivate();
             }
         }
+        public abstract void PositionChanged(MyPositionComponentBase obj);
 
         public override string ComponentTypeDebugString
         {

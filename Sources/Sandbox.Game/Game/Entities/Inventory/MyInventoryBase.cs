@@ -64,11 +64,13 @@ namespace Sandbox.Game
         public abstract bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item);
         public abstract bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item);
 
-        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount);
+        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount, bool stack = true);
         public abstract bool Remove(IMyInventoryItem item, MyFixedPoint amount);
 
         public abstract void CountItems(Dictionary<MyDefinitionId, MyFixedPoint> itemCounts);
         public abstract void ApplyChanges(List<MyComponentChange> changes);
+
+        public abstract List<MyPhysicalInventoryItem> GetItems();
 
         //TODO: This should be deprecated, we shoud add IMyInventoryItems objects only , instead of items based on their objectbuilder
         /// <summary>
@@ -78,7 +80,7 @@ namespace Sandbox.Game
         /// <param name="objectBuilder"></param>
         /// <param name="index"></param>
         /// <returns>true if items were added, false if items didn't fit</returns>
-        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1);        
+        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1, bool stack = true);        
 
         /// <summary>
         /// Remove items of a given amount and definition
@@ -90,10 +92,10 @@ namespace Sandbox.Game
         public abstract MyFixedPoint RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false);
 
         /// <summary>
-        /// Transfers safely given item from one to another inventory, uses ItemsCanBeAdded and ItemsCanBeRemoved checks
+        /// Transfers safely given item from one to another inventory, uses ItemsCanBeAdded and ItemsCanBeRemoved checks. If sourceInventory == destionationInventory, it splits the amount.
         /// </summary>
         /// <returns>true if items were succesfully transfered, otherwise, false</returns>
-        public static bool TransferItems(MyInventoryBase sourceInventory, MyInventoryBase destinationInventory, IMyInventoryItem item, MyFixedPoint amount)
+        public static bool TransferItems(MyInventoryBase sourceInventory, MyInventoryBase destinationInventory, IMyInventoryItem item, MyFixedPoint amount, bool stack)
         {
             if (sourceInventory == null)
             {
@@ -115,29 +117,40 @@ namespace Sandbox.Game
                 return true;
             }
 
-            if (destinationInventory.ItemsCanBeAdded(amount, item) && sourceInventory.ItemsCanBeRemoved(amount, item))
+            if ((destinationInventory.ItemsCanBeAdded(amount, item) || destinationInventory == sourceInventory ) && sourceInventory.ItemsCanBeRemoved(amount, item))
             {
                 if (Sync.IsServer)
                 {
-                    if (destinationInventory.Add(item, amount))
+                    if (destinationInventory != sourceInventory)
                     {
-                        if (sourceInventory.Remove(item, amount))
+                        // try to add first and then remove to ensure this items don't disappear
+                        if (destinationInventory.Add(item, amount, stack))
                         {
-                            // successfull transaction
+                            if (sourceInventory.Remove(item, amount))
+                            {
+                                // successfull transaction
+                                return true;
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Fail("Error! Items were added to inventory, but can't be removed!");
+                            }
+                        }                        
+                    }
+                    else
+                    {
+                        // same inventory transfer = splitting amount, need to remove first and add second
+                        if (sourceInventory.Remove(item, amount) && destinationInventory.Add(item, amount, stack))
+                        {
                             return true;
                         }
                         else
                         {
-                            System.Diagnostics.Debug.Fail("Error! Items were added to inventory, but can't be removed!");
+                            System.Diagnostics.Debug.Fail("Error! Unsuccesfull splitting!");
                         }
                     }
                 }
-                else
-                {
-                    MySyncInventory.SendTransferItemsMessage(sourceInventory, destinationInventory, item, amount);
-                }
-            }
-            
+            }     
             return false;
         }
 

@@ -20,6 +20,7 @@ using Sandbox.Engine.Physics;
 using Havok;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using Sandbox.Game.World;
 
 
 #endregion
@@ -48,6 +49,8 @@ namespace Sandbox.Game.Entities.Character
                 AddAnimationPlayer(bones.Key, bones.Value);
             }
 
+            SetBoneLODs(m_characterDefinition.BoneLODs);
+
             FindBone(m_characterDefinition.HeadBone, out m_headBoneIndex);
             FindBone(m_characterDefinition.Camera3rdBone, out m_camera3rdBoneIndex);
             if (m_camera3rdBoneIndex == -1)
@@ -66,17 +69,8 @@ namespace Sandbox.Game.Entities.Character
             FindBone(m_characterDefinition.LeftHandItemBone, out m_leftHandItemBone);
             FindBone(m_characterDefinition.RighHandItemBone, out m_rightHandItemBone);
             FindBone(m_characterDefinition.SpineBone, out m_spineBone);
-
-            FindBone(m_characterDefinition.ModelRootBoneName, out m_rootBone);
-            FindBone(m_characterDefinition.LeftHipBoneName, out m_leftHipBone);
-            FindBone(m_characterDefinition.LeftKneeBoneName, out m_leftKneeBone);
-            FindBone(m_characterDefinition.LeftAnkleBoneName, out m_leftAnkleBone);
-            FindBone(m_characterDefinition.RightHipBoneName, out m_rightHipBone);
-            FindBone(m_characterDefinition.RightKneeBoneName, out m_rightKneeBone);
-            FindBone(m_characterDefinition.RightAnkleBoneName, out m_rightAnkleBone);           
-
-  
-            UpdateAnimation();
+            
+            UpdateAnimation(0);
         }
 
 
@@ -105,11 +99,11 @@ namespace Sandbox.Game.Entities.Character
 
 
 
-        protected override void CalculateTransforms()
+        protected override void CalculateTransforms(float distance)
         {
             ProfilerShort.Begin("MyCharacter.CalculateTransforms");
 
-            base.CalculateTransforms();
+            base.CalculateTransforms(distance);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("UpdateLeftHandItemPosition");
             if (m_leftHandItem != null)
@@ -119,8 +113,14 @@ namespace Sandbox.Game.Entities.Character
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Calculate Hand IK");
 
-            m_aimedPoint = GetAimedPointFromCamera();
 
+            if (this == MySession.ControlledEntity)
+            {
+                // (OM) Note: only controlled character can get it's aimed point from camera, otherwise all character's will aim the same direction
+                // set the aimed point explicitly using AimedPoint property
+                m_aimedPoint = GetAimedPointFromCamera();
+            }
+            
             if (m_currentWeapon != null)
             {
                 if (!MyPerGameSettings.UseAnimationInsteadOfIK)
@@ -175,7 +175,7 @@ namespace Sandbox.Game.Entities.Character
 
         #region Animations update
 
-        public override void UpdateAnimation()
+        public override void UpdateAnimation(float distance)
         {
             MyAnimationPlayerBlendPair leftHandPlayer;
             if (TryGetAnimationPlayer("LeftHand", out leftHandPlayer))
@@ -187,7 +187,7 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
-            base.UpdateAnimation();
+            base.UpdateAnimation(distance);
 
             Render.UpdateThrustMatrices(BoneAbsoluteTransforms);
 
@@ -205,14 +205,15 @@ namespace Sandbox.Game.Entities.Character
 
         protected override void OnAnimationPlay(MyAnimationDefinition animDefinition,MyAnimationCommand command, ref string bonesArea, ref MyFrameOption frameOption, ref bool useFirstPersonVersion)
         {
-            if (GetCurrentMovementState() != MyCharacterMovementEnum.Standing &&
-                    GetCurrentMovementState() != MyCharacterMovementEnum.RotatingLeft &&
-                    GetCurrentMovementState() != MyCharacterMovementEnum.RotatingRight &&
+            var currentMovementState = GetCurrentMovementState();
+            if (currentMovementState != MyCharacterMovementEnum.Standing &&
+                    currentMovementState != MyCharacterMovementEnum.RotatingLeft &&
+                    currentMovementState != MyCharacterMovementEnum.RotatingRight &&                    
                      command.ExcludeLegsWhenMoving)
                             {
                                 //In this case, we must stop all upper animations correctly
                                 bonesArea = TopBody;
-                                frameOption = MyFrameOption.None;
+                                frameOption = frameOption != MyFrameOption.JustFirstFrame ? MyFrameOption.PlayOnce : frameOption;
                             }
 
             useFirstPersonVersion = IsInFirstPersonView;

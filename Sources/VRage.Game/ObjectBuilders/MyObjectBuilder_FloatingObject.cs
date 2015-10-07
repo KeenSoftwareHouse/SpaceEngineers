@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -16,6 +17,7 @@ namespace Sandbox.Common.ObjectBuilders
         public MyObjectBuilder_InventoryItem Item;
 
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public string OreSubtypeId;
     }
 }

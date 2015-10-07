@@ -50,7 +50,7 @@ namespace Sandbox.Engine.Networking
         private static string[] m_oreTypes;
         private static readonly CommonRequiredData m_requiredData;
 
-        private static bool AnalyticsEnabled = MyFinalBuildConstants.IS_OFFICIAL && !MyCompilationSymbols.RenderOrGpuProfiling;
+        private static bool AnalyticsEnabled = MyFinalBuildConstants.IS_OFFICIAL && !MyCompilationSymbols.PerformanceOrMemoryProfiling;
 
         static MyAnalyticsTracker()
         {

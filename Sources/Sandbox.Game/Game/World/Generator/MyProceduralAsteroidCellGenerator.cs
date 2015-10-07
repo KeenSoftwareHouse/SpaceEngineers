@@ -208,7 +208,14 @@ namespace Sandbox.Game.World.Generator
                         case MyObjectSeedType.EncounterSingle:
                         case MyObjectSeedType.EncounterMulti:
                             ProfilerShort.Begin("Encounter");
-                            MyEncounterGenerator.PlaceEncounterToWorld(objectSeed.BoundingVolume, objectSeed.Seed, objectSeed.Type);
+                            bool doSpawn = true;
+                            foreach (var start in MySession.Static.Scenario.PossiblePlayerStarts)
+                            {
+                                Vector3D? startPos = start.GetStartingLocation();
+                                if (!startPos.HasValue) startPos = Vector3D.Zero;
+                                if ((startPos.Value - objectSeed.BoundingVolume.Center).LengthSquared() < (15000 * 15000)) doSpawn = false;
+                            }
+                            if (doSpawn) MyEncounterGenerator.PlaceEncounterToWorld(objectSeed.BoundingVolume, objectSeed.Seed, objectSeed.Type);
                             ProfilerShort.End();
                             break;
                         default:

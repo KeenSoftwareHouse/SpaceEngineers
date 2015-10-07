@@ -1383,7 +1383,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             }
 
             var grid = GetGrid();
-            m_isWorking = grid.GridSystems.ConveyorSystem.PowerReceiver.IsPowered;
+            m_isWorking = grid.GridSystems.ConveyorSystem.ResourceSink.IsPowered;
         }
 
         private bool UpdateIsFunctionalInternal()

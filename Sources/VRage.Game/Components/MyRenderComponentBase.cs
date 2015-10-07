@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
-using VRage;
-using VRage.Components;
-using VRage.ObjectBuilders;
-using VRage.ModAPI;
 
 namespace VRage.Components
 {
@@ -106,9 +101,9 @@ namespace VRage.Components
 
         public virtual void InvalidateRenderObjects(bool sortIntoCullobjects = false)
         {
-            var m = Container.Get<MyPositionComponentBase>().WorldMatrix;
             if ((Container.Entity.Visible || Container.Entity.CastShadows) && Container.Entity.InScene && Container.Entity.InvalidateOnMove)
             {
+                var m = Container.Entity.PositionComp.WorldMatrix;//Container.Get<MyPositionComponentBase>().WorldMatrix;
                 foreach (uint renderObjectID in m_renderObjectIDs)
                 {
                     VRageRender.MyRenderProxy.UpdateRenderObject(renderObjectID, ref m, sortIntoCullobjects);
@@ -160,21 +155,24 @@ namespace VRage.Components
         {
             if (!Container.Entity.InScene && visible)
                 return;
+            MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
 
             if (visible)
             {
-                MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
-                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible))
+                if (hierarchyComponent != null)
                 {
-                    if (CanBeAddedToRender())
+                    if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible))
                     {
-                        if (!IsRenderObjectAssigned(0))
+                        if (CanBeAddedToRender())
                         {
-                            AddRenderObjects();
-                        }
-                        else
-                        {
-                            UpdateRenderObjectVisibility(visible);
+                            if (!IsRenderObjectAssigned(0))
+                            {
+                                AddRenderObjects();
+                            }
+                            else
+                            {
+                                UpdateRenderObjectVisibility(visible);
+                            }
                         }
                     }
                 }
@@ -188,13 +186,15 @@ namespace VRage.Components
                 RemoveRenderObjects();
             }
 
-            MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
-            foreach (var child in hierarchy.Children)
+            if (hierarchyComponent != null)
             {
-                MyRenderComponentBase renderComponent = null;
-                if (child.Container.TryGet(out renderComponent))
+                foreach (var child in hierarchyComponent.Children)
                 {
-                    renderComponent.UpdateRenderObject(visible);
+                    MyRenderComponentBase renderComponent = null;
+                    if (child.Container.TryGet(out renderComponent))
+                    {
+                        renderComponent.UpdateRenderObject(visible);
+                    }
                 }
             }
         }
@@ -211,15 +211,18 @@ namespace VRage.Components
         {
             UpdateRenderObjectVisibility(visible);
 
-            MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
-            foreach (var child in hierarchy.Children)
+            MyHierarchyComponentBase hierarchy;
+            if (Container.TryGet<MyHierarchyComponentBase>(out hierarchy))
             {
-                MyRenderComponentBase renderComponent = null;
-                if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
+                foreach (var child in hierarchy.Children)
                 {
-                    renderComponent.UpdateRenderObjectVisibilityIncludingChildren(visible);
+                    MyRenderComponentBase renderComponent = null;
+                    if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
+                    {
+                        renderComponent.UpdateRenderObjectVisibilityIncludingChildren(visible);
+                    }
                 }
-            }    
+            }
         }
 
         public Color GetDiffuseColor() { return m_diffuseColor; }
@@ -253,15 +256,18 @@ namespace VRage.Components
                     VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(m_renderObjectIDs[0], Visible, NearFlag);
                 }
 
-                MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
-                foreach (var child in hierarchy.Children)
+                MyHierarchyComponentBase hierarchy;
+                if (Container.TryGet<MyHierarchyComponentBase>(out hierarchy))
                 {
-                    MyRenderComponentBase renderComponent = null;
-                    if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
+                    foreach (var child in hierarchy.Children)
                     {
-                        renderComponent.NearFlag = value;
+                        MyRenderComponentBase renderComponent = null;
+                        if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
+                        {
+                            renderComponent.NearFlag = value;
+                        }
                     }
-                }             
+                }
             }
         }
      
@@ -361,6 +367,25 @@ namespace VRage.Components
             }
         }
 
+		public bool DrawOutsideViewDistance
+		{
+			get
+			{
+				return (Container.Entity.Flags & EntityFlags.DrawOutsideViewDistance) != 0;
+			}
+			set
+			{
+				if (value)
+				{
+					Container.Entity.Flags |= EntityFlags.DrawOutsideViewDistance;
+				}
+				else
+				{
+					Container.Entity.Flags &= ~EntityFlags.DrawOutsideViewDistance;
+				}
+			}
+		}
+
         public bool ShadowBoxLod
         {
             get
@@ -382,23 +407,25 @@ namespace VRage.Components
 
         public float Transparency;
 
-        public virtual VRageRender.RenderFlags GetRenderFlags()
+        public virtual RenderFlags GetRenderFlags()
         {
-            VRageRender.RenderFlags renderFlags = 0;
+            RenderFlags renderFlags = 0;
             if (NearFlag)
-                renderFlags |= VRageRender.RenderFlags.Near;
+				renderFlags |= RenderFlags.Near;
             if (CastShadows)
-                renderFlags |= VRageRender.RenderFlags.CastShadows;
+				renderFlags |= RenderFlags.CastShadows;
             if (Visible)
-                renderFlags |= VRageRender.RenderFlags.Visible;
+				renderFlags |= RenderFlags.Visible;
             if (NeedsResolveCastShadow)
-                renderFlags |= VRageRender.RenderFlags.NeedsResolveCastShadow;
+				renderFlags |= RenderFlags.NeedsResolveCastShadow;
             if (FastCastShadowResolve)
-                renderFlags |= VRageRender.RenderFlags.FastCastShadowResolve;
+				renderFlags |= RenderFlags.FastCastShadowResolve;
             if (SkipIfTooSmall)
-                renderFlags |= VRageRender.RenderFlags.SkipIfTooSmall;
+				renderFlags |= RenderFlags.SkipIfTooSmall;
+			if (DrawOutsideViewDistance)
+				renderFlags |= RenderFlags.DrawOutsideViewDistance;
             if (ShadowBoxLod)
-                renderFlags |= VRageRender.RenderFlags.ShadowLodBox;
+				renderFlags |= RenderFlags.ShadowLodBox;
             return renderFlags;
         }
 

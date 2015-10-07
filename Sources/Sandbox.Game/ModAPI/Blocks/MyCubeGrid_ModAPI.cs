@@ -61,13 +61,6 @@ namespace Sandbox.Game.Entities
             return retVal;
         }
 
-        IMyCubeGrid IMyCubeGrid.MergeGrid_CopyPaste(IMyCubeGrid gridToMerge, VRageMath.MatrixI mergeTransform)
-        {
-            if (gridToMerge is MyCubeGrid)
-                return MergeGrid_CopyPaste(gridToMerge as MyCubeGrid, mergeTransform);
-            return null;
-        }
-
         IMyCubeGrid IMyCubeGrid.MergeGrid_MergeBlock(IMyCubeGrid gridToMerge, VRageMath.Vector3I gridOffset)
         {
             if (gridToMerge is MyCubeGrid)

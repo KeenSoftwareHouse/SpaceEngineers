@@ -200,6 +200,7 @@ namespace Sandbox.Game.Gui
                         var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
                         checkpoint.Briefing = save.Item2.Briefing;
                         MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+                        MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Scenario);
                         MyScenarioSystem.LoadMission(sessionPath, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
                     }
                     else
@@ -209,7 +210,10 @@ namespace Sandbox.Game.Gui
                 });
             }
             else
+            {
+                MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Scenario);
                 MyScenarioSystem.LoadMission(save.Item1, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
+            }
         }
 
         private MySteamWorkshop.SubscribedItem FindWorkshopScenario(ulong workshopId)

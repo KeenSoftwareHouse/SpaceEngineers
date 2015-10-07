@@ -302,7 +302,8 @@ namespace Sandbox.Game.Gui
             msg.WorkshopId = (ulong)m_publishedItemId;
             msg.Name = m_blueprintName;
             var playerId = (ulong)m_sendToCombo.GetSelectedKey();
-            Sync.Layer.SendMessage(ref msg, playerId);
+            msg.SendToId = playerId;
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         void OnOpenInWorkshop(MyGuiControlButton button) 

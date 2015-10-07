@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System.ComponentModel;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -12,6 +13,7 @@ namespace Sandbox.Common.ObjectBuilders
         public MyObjectBuilder_Inventory Inventory = null;
 
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public string ContainerType = null;
         public bool ShouldSerializeContainerType() { return ContainerType != null; }
 

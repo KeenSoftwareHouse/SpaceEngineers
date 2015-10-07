@@ -106,8 +106,10 @@ namespace VRageRender
 
             code.AppendLine("__position_object = unpack_voxel_position(input.position);");
             code.AppendLine("__material_weights = unpack_voxel_weights(input.position.w);");
+            code.AppendLine("__ambient_occlusion = unpack_voxel_ao(input.position.w);");
             code.AppendLine("__position_object_morph = unpack_voxel_position(input.position_morph);");
             code.AppendLine("__material_weights_morph = unpack_voxel_weights(input.position_morph.w);");
+            code.AppendLine("__ambient_occlusion_morph = unpack_voxel_ao(input.position_morph.w);");
         }
     }
 
@@ -299,9 +301,11 @@ namespace VRageRender
             AddSingle("TEXCOORD", "float4 matrix_row1", Format.R16G16B16A16_Float, component, list, dict, declaration, code);
             AddSingle("TEXCOORD", "float4 matrix_row2", Format.R16G16B16A16_Float, component, list, dict, declaration, code);
             AddSingle("TEXCOORD", "float4 colormask", Format.R16G16B16A16_Float, component, list, dict, declaration, code);
+            AddSingle("TEXCOORD", "float2 uvOffset", Format.R16G16B16A16_Float, component, list, dict, declaration, code);
 
             code.AppendLine("__instance_matrix = construct_matrix_43( input.matrix_row0, input.matrix_row1, input.matrix_row2);");
             code.AppendLine("__colormask = input.colormask;");
+            code.AppendLine("__uvOffset = input.uvOffset;");
         }
     }
 

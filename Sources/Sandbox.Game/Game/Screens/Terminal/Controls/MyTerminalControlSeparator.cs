@@ -26,10 +26,5 @@ namespace Sandbox.Game.Gui
             control.AddHorizontal(Vector2.Zero, 1);
             return control;
         }
-
-        protected override void OnUpdateVisual()
-        {
-            base.OnUpdateVisual();
-        }
     }
 }

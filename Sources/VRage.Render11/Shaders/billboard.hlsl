@@ -131,7 +131,8 @@ float4 ps(VsOut vertex) : SV_Target0
 		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
 
 		float4 finalR = float4(cDirt, max(dirt.w, billboard_color.w));
-		finalR.xyz *= 0.1;
+		finalR.w *= 1.65f;
+		finalR.xyz *= finalR.w * 0.25f;
 		return finalR;	
 	}
 

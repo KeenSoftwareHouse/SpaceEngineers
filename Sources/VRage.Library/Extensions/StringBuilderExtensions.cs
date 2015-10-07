@@ -279,7 +279,7 @@ namespace System.Text
         public static StringBuilder TrimTrailingWhitespace(this StringBuilder sb)
         {
             int i = sb.Length;
-            while (i > 0 && sb[i - 1] == ' ' || sb[i - 1] == '\r' || sb[i - 1] == '\n')
+            while (i > 0 && (sb[i - 1] == ' ' || sb[i - 1] == '\r' || sb[i - 1] == '\n'))
                 i--;
             sb.Length = i;
             return sb;

@@ -11,6 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         IN = 1 << 0,
         OUT = 1 << 1,
         IN_OUT = IN | OUT,
+        PARAMETER = 1 << 2,
     }
 
     [ProtoContract]

@@ -28,6 +28,9 @@ namespace Sandbox.Engine.Voxels
             m_deviationFrequency = deviationFrequency;
             m_detailFrequency = detailFrequency;
 
+            if (deviationFrequency == 0)
+                m_enableModulation = false;
+
             m_potentialHalfDeviation = m_halfDeviation + m_detailSize;
         }
 

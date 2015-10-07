@@ -223,22 +223,32 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         static public MyParticleEffect CreateParticleEffect(int id)
         {
-            return m_libraryEffects[id].CreateInstance();
+            if (m_libraryEffects.ContainsKey(id))
+            {
+                return m_libraryEffects[id].CreateInstance();
+            }
+            return null;
         }
 
         static public void RemoveParticleEffectInstance(MyParticleEffect effect)
         {
             effect.Close(false);
             //if (effect.Enabled)
+            if (m_libraryEffects.ContainsKey(effect.GetID()))
             {
-                if (m_libraryEffects[effect.GetID()].GetInstances().Contains(effect))
+                var instances = m_libraryEffects[effect.GetID()].GetInstances();
+                if (instances != null)
                 {
-                    MyParticlesManager.EffectsPool.Deallocate(effect);
-                    m_libraryEffects[effect.GetID()].RemoveInstance(effect);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.Assert(false, "Effect deleted twice!");
+                    if (instances.Contains(effect))
+                    {
+                        MyParticlesManager.EffectsPool.Deallocate(effect);
+                        m_libraryEffects[effect.GetID()].RemoveInstance(effect);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Assert(false, "Effect deleted twice!");
+
+                    }
                 }
             }
         }

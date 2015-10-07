@@ -73,6 +73,12 @@ namespace VRageRender.Resources
             {
                 for (int m = 0; m < mipmaps; m++)
                 {
+
+                    if (((Texture2D)MyTextures.Textures.Data[mergeList[a].Index].Resource).Description.Format != ((Texture2D)Resource).Description.Format)
+                    {
+                        MyRender11.Log.WriteLine(String.Format("Inconsistent format in textures array {0}", MyTextures.Textures.Data[mergeList[a].Index].Name));
+                    }
+
                     MyRender11.Context.CopySubresourceRegion(MyTextures.Textures.Data[mergeList[a].Index].Resource, Resource.CalculateSubResourceIndex(m, 0, mipmaps), null, Resource,
                         Resource.CalculateSubResourceIndex(m, a, mipmaps));
                 }
@@ -90,6 +96,22 @@ namespace VRageRender.Resources
             }
 
             base.Dispose();
+        }
+
+        internal static MyTextureArray FromStringArray(string[] mergeList, MyTextureEnum type)
+        {
+            if (mergeList == null)
+            {
+                return null;
+            }
+
+            TexId[] ids = new TexId[mergeList.Length];
+            for (int i = 0; i < ids.Length; i++)
+            {
+                ids[i] = MyTextures.GetTexture(mergeList[i], type, true);
+            }
+
+            return new MyTextureArray(ids);
         }
     }
 }

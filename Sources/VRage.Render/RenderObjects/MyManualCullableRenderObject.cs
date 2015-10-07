@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using VRageMath;
 using VRage.Utils;
 using System;
-using VRage.Utils;
 using VRage;
 using VRage.Library.Utils;
 

@@ -59,6 +59,9 @@ namespace Sandbox.Game.World
         public TimeSpan ActivationTime { private set; get; }
         public bool Enabled { get; set; }
 
+        // Set during the handling if a periodic event should be removed after the handler exits
+        public bool RemoveAfterHandlerExit { get; set; }
+
         public virtual void InitFromDefinition(MyGlobalEventDefinition definition)
         {
             Definition = definition;
@@ -72,6 +75,7 @@ namespace Sandbox.Game.World
                 RecalculateActivationTime();
             }
             Enabled = true;
+            RemoveAfterHandlerExit = false;
         }
 
         public virtual void Init(MyObjectBuilder_GlobalEventBase ob)
@@ -80,6 +84,7 @@ namespace Sandbox.Game.World
             Action = MyGlobalEventFactory.GetEventHandler(ob.GetId());
             ActivationTime = TimeSpan.FromMilliseconds(ob.ActivationTimeMs);
             Enabled = ob.Enabled;
+            RemoveAfterHandlerExit = false;
         }
 
         public virtual MyObjectBuilder_GlobalEventBase GetObjectBuilder()

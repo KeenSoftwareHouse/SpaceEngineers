@@ -17,20 +17,25 @@ using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using SteamSDK;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Common;
+using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Import;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirVent))]
-    class MyAirVent : MyFunctionalBlock, IMyPowerConsumer, IMyOxygenConsumer, IMyOxygenProducer, IMyAirVent, IMyConveyorEndpointBlock
+    class MyAirVent : MyFunctionalBlock, IMyAirVent, IMyGasBlock
     {
-        private static string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
+        private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
 
         MyModelDummy VentDummy
         {
@@ -45,6 +50,12 @@ namespace Sandbox.Game.Entities.Blocks
         private Color m_prevColor = Color.White;
         private int m_prevFillCount = -1;
 
+        private int m_lastOutputUpdateTime;
+        private int m_lastInputUpdateTime;
+        private int m_updateCounter;
+        private bool m_updateSink = false;
+        private float m_nextGasTransfer;
+
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
         private MyParticleEffect m_effect;
@@ -55,54 +66,37 @@ namespace Sandbox.Game.Entities.Blocks
 
         private bool? m_wasRoomFull;
         private bool? m_wasRoomEmpty;
+        private readonly MyDefinitionId m_oxygenGasId = new MyDefinitionId(typeof (MyObjectBuilder_GasProperties), "Oxygen");
 
-        public bool CanVent
-        {
-            get
-            {
-                return MySession.Static.Settings.EnableOxygen && PowerReceiver.IsPowered && IsWorking && Enabled && IsFunctional;
-            }
-        }
+        public bool CanVent { get { return (MySession.Static.Settings.EnableOxygen) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsWorking && Enabled && IsFunctional && !IsDepressurizing; } }
+
+        private float GasOutputPerSecond { get { return (SourceComp.ProductionEnabledByType(m_oxygenGasId) ? SourceComp.CurrentOutputByType(m_oxygenGasId) : 0f); } }
+        private float GasInputPerSecond { get { return ResourceSink.CurrentInputByType(m_oxygenGasId); } }
+        private float GasOutputPerUpdate { get { return GasOutputPerSecond * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
+        private float GasInputPerUpdate { get { return GasInputPerSecond * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
 
         private bool m_isDepressurizing;
-        public bool IsDepressurizing
+        public bool IsDepressurizing { get { return m_isDepressurizing; } set { SetDepressurizing(value); } }
+
+        private MyResourceSourceComponent m_sourceComp;
+        public MyResourceSourceComponent SourceComp
         {
-            get
-            {
-                return m_isDepressurizing;
-            }
-            set
-            {
-                m_isDepressurizing = value;
-            }
+            get { return m_sourceComp; }
+            set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
-        }
 
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
-        public IMyConveyorEndpoint ConveyorEndpoint
-        {
-            get
-            {
-                return m_conveyorEndpoint;
-            }
-        }
+        public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
 
-        private new MyAirVentDefinition BlockDefinition
-        {
-            get { return (MyAirVentDefinition)base.BlockDefinition; }
-        }
+        private new MyAirVentDefinition BlockDefinition { get { return (MyAirVentDefinition)base.BlockDefinition; } }
 
         #region Initialization
         static MyAirVent()
         {
             var isDepressurizing = new MyTerminalControlOnOffSwitch<MyAirVent>("Depressurize", MySpaceTexts.BlockPropertyTitle_Depressurize, MySpaceTexts.BlockPropertyDescription_Depressurize);
-            isDepressurizing.Getter = (x) => (x as MyAirVent).IsDepressurizing;
-            isDepressurizing.Setter = (x, v) => (x as MyAirVent).SyncObject.ChangeDepressurizationMode(v);
+            isDepressurizing.Getter = (x) => x.IsDepressurizing;
+            isDepressurizing.Setter = (x, v) => x.SyncObject.ChangeDepressurizationMode(v);
             isDepressurizing.EnableToggleAction();
             isDepressurizing.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(isDepressurizing);
@@ -137,7 +131,12 @@ namespace Sandbox.Game.Entities.Blocks
                 });
             toolbarButton.SupportsMultipleBlocks = false;
             MyTerminalControlFactory.AddControl(toolbarButton);
+        }
 
+        public MyAirVent()
+        {
+            ResourceSink = new MyResourceSinkComponent(2);
+            SourceComp = new MyResourceSourceComponent();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -148,31 +147,37 @@ namespace Sandbox.Game.Entities.Blocks
 
             var builder = (MyObjectBuilder_AirVent)objectBuilder;
 
-            m_isDepressurizing = builder.IsDepressurizing;
-
             InitializeConveyorEndpoint();
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Factory,
-                false,
-                BlockDefinition.OperationalPowerConsumption,
-                ComputeRequiredPower);
-            PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
-            PowerReceiver.Update();
+            SourceComp.Init(BlockDefinition.ResourceSourceGroup, new MyResourceSourceInfo { ResourceTypeId = m_oxygenGasId, DefinedOutput = BlockDefinition.VentilationCapacityPerSecond, ProductionToCapacityMultiplier = 1 });
+            SourceComp.OutputChanged += Source_OutputChanged;
+            var sinkDataList = new List<MyResourceSinkInfo>
+	        {
+				new MyResourceSinkInfo {ResourceTypeId = MyResourceDistributorComponent.ElectricityId, MaxRequiredInput = BlockDefinition.OperationalPowerConsumption, RequiredInputFunc = ComputeRequiredPower},
+				new MyResourceSinkInfo {ResourceTypeId = m_oxygenGasId, MaxRequiredInput = BlockDefinition.VentilationCapacityPerSecond, RequiredInputFunc = () => VentingCapacity(1f)},
+	        };
+
+            ResourceSink.Init(
+                BlockDefinition.ResourceSinkGroup,
+                sinkDataList);
+			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink.CurrentInputChanged += Sink_CurrentInputChanged;
+
+            m_updateCounter = 0;
+            m_lastOutputUpdateTime = m_updateCounter;
+            m_lastInputUpdateTime = m_updateCounter;
+            m_nextGasTransfer = 0f;
 
             m_actionToolbar = new MyToolbar(MyToolbarType.ButtonPanel, 2, 1);
             m_actionToolbar.DrawNumbers = false;
             m_actionToolbar.Init(null, this);
 
             if (builder.OnFullAction != null)
-            {
                 m_onFullAction = MyToolbarItemFactory.CreateToolbarItem(builder.OnFullAction);
-            }
+
             if (builder.OnEmptyAction != null)
-            {
                 m_onEmptyAction = MyToolbarItemFactory.CreateToolbarItem(builder.OnEmptyAction);
-            }
 
             UpdateEmissivity();
             UdpateTexts();
@@ -180,6 +185,9 @@ namespace Sandbox.Game.Entities.Blocks
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_conveyorEndpoint));
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
+            IsWorkingChanged += MyAirVent_IsWorkingChanged;
+
+            SetDepressurizing(builder.IsDepressurizing);
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -188,13 +196,10 @@ namespace Sandbox.Game.Entities.Blocks
 
             builder.IsDepressurizing = m_isDepressurizing;
             if (m_onFullAction != null)
-            {
                 builder.OnFullAction = m_onFullAction.GetObjectBuilder();
-            }
+
             if (m_onEmptyAction != null)
-            {
                 builder.OnEmptyAction = m_onEmptyAction.GetObjectBuilder();
-            }
 
             return builder;
         }
@@ -206,6 +211,38 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Update, power and functionality
+
+        public override void UpdateAfterSimulation()
+        {
+            base.UpdateAfterSimulation();
+
+            ++m_updateCounter;
+
+            int sourceUpdateFrames = (m_updateCounter - m_lastOutputUpdateTime);
+            int sinkUpdateFrames = (m_updateCounter - m_lastInputUpdateTime);
+
+            float gasInput = GasInputPerUpdate * sinkUpdateFrames;
+            float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
+
+            float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
+            if (CheckTransfer(totalTransfer))
+            {
+                Transfer(totalTransfer);
+                ResourceSink.Update();
+                m_lastOutputUpdateTime = m_updateCounter;
+                m_lastInputUpdateTime = m_updateCounter;
+            }
+        }
+
+        public override void UpdateAfterSimulation10()
+        {
+            base.UpdateAfterSimulation10();
+
+            if (Sync.IsServer && CanVent)
+                UpdateActions();
+
+            UpdateEmissivity();
+        }
         public override void UpdateAfterSimulation100()
         {
             base.UpdateAfterSimulation100();
@@ -227,14 +264,71 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             if (MyFakes.ENABLE_OXYGEN_SOUNDS)
-            {
                 UpdateSound();
-            }
 
             m_isProducing = m_producedSinceLastUpdate;
             m_producedSinceLastUpdate = false;
+            var block = GetOxygenBlock();
+
+            int sourceUpdateFrames = (m_updateCounter - m_lastOutputUpdateTime);
+            int sinkUpdateFrames = (m_updateCounter - m_lastInputUpdateTime);
+
+            float gasInput = GasInputPerUpdate * sinkUpdateFrames;
+            float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
+            float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
+            Transfer(totalTransfer);
+
+            SourceComp.SetRemainingCapacityByType(m_oxygenGasId, (float)(block.Room != null ? block.Room.OxygenAmount : 0));
+
+            m_updateCounter = 0;
+            m_lastOutputUpdateTime = m_updateCounter;
+            m_lastInputUpdateTime = m_updateCounter;
+            ResourceSink.Update();
 
             UdpateTexts();
+        }
+
+        private void Source_OutputChanged(MyDefinitionId changedResourceId, float oldOutput, MyResourceSourceComponent source)
+        {
+            float timeSinceLastUpdateSeconds = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastOutputUpdateTime) / 1000f * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            float outputAmount = oldOutput * timeSinceLastUpdateSeconds;
+            m_nextGasTransfer -= outputAmount;
+            m_lastOutputUpdateTime = m_updateCounter;
+        }
+
+        private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
+        {
+            if (resourceTypeId != m_oxygenGasId)
+                return;
+
+            float timeSinceLastUpdateSeconds = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastInputUpdateTime) / 1000f * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            float inputAmount = oldInput * timeSinceLastUpdateSeconds;
+            m_nextGasTransfer += inputAmount;
+            m_lastInputUpdateTime = m_updateCounter;
+        }
+
+        private void Transfer(float transferAmount)
+        {
+            if (transferAmount > 0)
+                VentToRoom(transferAmount);
+            else if (transferAmount < 0)
+                DrainFromRoom(-transferAmount);
+        }
+
+        private bool CheckTransfer(float testTransfer)
+        {
+            if (testTransfer == 0f)
+                return false;
+
+            float remainingCapacity = SourceComp.RemainingCapacityByType(m_oxygenGasId);
+            float nextCapacity = remainingCapacity + testTransfer;
+            float gasTransferPerUpdate = GasInputPerUpdate - GasOutputPerUpdate;
+            float paddedNextCapacity = nextCapacity + gasTransferPerUpdate*15;
+            var maxCapacity = paddedNextCapacity + 1;
+            var block = GetOxygenBlock();
+            if (block.Room != null)
+                maxCapacity = (float)block.Room.MaxOxygen(CubeGrid.GridSize);
+            return (paddedNextCapacity <= 0f || paddedNextCapacity >= maxCapacity);
         }
 
         private void UpdateSound()
@@ -300,17 +394,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public override void UpdateAfterSimulation10()
-        {
-            base.UpdateAfterSimulation10();
-
-            if (Sync.IsServer && IsWorking && Enabled && IsFunctional)
-            {
-                UpdateActions();
-            }
-            UpdateEmissivity();
-        }
-
         private void UpdateActions()
         {   
             float oxygenLevel = GetRoomOxygen();
@@ -321,13 +404,9 @@ namespace Sandbox.Game.Entities.Blocks
                 m_wasRoomFull = false;
 
                 if (oxygenLevel > 0.99f)
-                {
                     m_wasRoomFull = true;
-                }
                 else if (oxygenLevel < 0.01f)
-                {
                     m_wasRoomEmpty = true;
-                }
                 return;
             }
 
@@ -369,33 +448,49 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float ComputeRequiredPower()
         {
-            if (!MySession.Static.Settings.EnableOxygen)
-            {
+            if (!MySession.Static.Settings.EnableOxygen && Enabled && IsFunctional)
                 return 0f;
-            }
 
-            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption
-                                                             : BlockDefinition.StandbyPowerConsumption
-                                             : 0.0f;
+            return m_isProducing ? BlockDefinition.OperationalPowerConsumption : BlockDefinition.StandbyPowerConsumption;
         }
 
         void PowerReceiver_IsPoweredChanged()
         {
             UpdateIsWorking();
-            UpdateEmissivity();
         }
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+            SourceComp.Enabled = IsWorking;
+            ResourceSink.Update();
             UpdateEmissivity();
         }
 
         protected override void OnEnabledChanged()
         {
             base.OnEnabledChanged();
-            PowerReceiver.Update();
+            SourceComp.Enabled = IsWorking;
+            ResourceSink.Update();
             UpdateEmissivity();
+        }
+
+        void MyAirVent_IsWorkingChanged(MyCubeBlock obj)
+        {
+            SourceComp.Enabled = IsWorking;
+            ResourceSink.Update();
+            UpdateEmissivity();
+        }
+
+        protected override bool CheckIsWorking()
+        {
+            return base.CheckIsWorking() && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId);
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         public override void OnAddedToScene(object source)
@@ -410,26 +505,6 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateVisual();
 
             UpdateEmissivity();
-        }
-
-        public override void OnRegisteredToGridSystems()
-        {
-            base.OnRegisteredToGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.RegisterOxygenBlock(this);
-            }
-        }
-
-        public override void OnUnregisteredFromGridSystems()
-        {
-            base.OnUnregisteredFromGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
-            }
         }
 
         private float GetRoomOxygen()
@@ -452,19 +527,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void UpdateEmissivity()
         {
-            if (CanVent)
+            if (CanVent || IsDepressurizing)
             {
                 var oxygenBlock = GetOxygenBlock();
                 if (oxygenBlock.Room != null && oxygenBlock.Room.IsPressurized)
                 {
-                    if (m_isDepressurizing)
-                    {
-                        SetEmissive(Color.Teal, oxygenBlock.OxygenLevel(CubeGrid.GridSize));
-                    }
-                    else
-                    {
-                        SetEmissive(Color.Green, oxygenBlock.OxygenLevel(CubeGrid.GridSize));
-                    }
+                    SetEmissive(m_isDepressurizing ? Color.Teal : Color.Green, oxygenBlock.OxygenLevel(CubeGrid.GridSize));
                 }
                 else
                 {
@@ -482,6 +550,14 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private void SetDepressurizing(bool newValue)
+        {
+            m_isDepressurizing = newValue;
+
+            SourceComp.SetProductionEnabledByType(m_oxygenGasId, newValue);
+            ResourceSink.Update();
+        }
+
         void UdpateTexts()
         {
             DetailedInfo.Clear();
@@ -489,7 +565,7 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
 
             if (!MySession.Static.Settings.EnableOxygen)
@@ -518,25 +594,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 for (int i = 0; i < m_emissiveNames.Length; i++)
                 {
-                    if (i <= fillCount)
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 0);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0);
-                    }
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], i <= fillCount ? color : Color.Black, 0);
                 }
                 m_prevColor = color;
                 m_prevFillCount = fillCount;
             }
-        }
-
-        public override void OnModelChange()
-        {
-            base.OnModelChange();
-
-            m_prevFillCount = -1;
         }
 
         protected override void Closing()
@@ -544,9 +606,8 @@ namespace Sandbox.Game.Entities.Blocks
             base.Closing();
 
             if (m_effect != null)
-            {
                 m_effect.Stop();
-            }
+
             m_soundEmitter.StopSound(true);
         }
         #endregion
@@ -562,121 +623,68 @@ namespace Sandbox.Game.Entities.Blocks
             MatrixD dummyLocal = MatrixD.Normalize(VentDummy.Matrix);
             MatrixD worldMatrix = MatrixD.Multiply(dummyLocal, WorldMatrix);
 
-            return CubeGrid.GridSystems.OxygenSystem.GetOxygenBlock(worldMatrix.Translation);
+            return CubeGrid.GridSystems.GasSystem.GetOxygenBlock(worldMatrix.Translation);
         }
 
-        bool IMyOxygenBlock.IsWorking()
+        bool IMyGasBlock.IsWorking()
         {
             return CanVent;
         }
 
-        int IMyOxygenConsumer.GetPriority()
+        float VentingCapacity(float deltaTime)
         {
-            return 0;
-        }
-
-        float IMyOxygenConsumer.ConsumptionNeed(float deltaTime)
-        {
-            if (IsDepressurizing || !CanVent)
-            {
+            if (!CanVent)
                 return 0f;
-            }
 
             var oxygenBlock = GetOxygenBlock();
             if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
-            {
                 return 0f;
-            }
 
             float neededOxygen = (float)oxygenBlock.Room.MissingOxygen(CubeGrid.GridSize);
 
             if (neededOxygen <= 0f)
-            {
                 neededOxygen = 0f;
-            }
 
             return Math.Min(neededOxygen, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
         }
 
-        void IMyOxygenConsumer.Consume(float amount)
+        void VentToRoom(float amount)
         {
             if (amount == 0f || IsDepressurizing)
-            {
                 return;
-            }
 
-            Debug.Assert(CanVent, "Vent asked to vent when it is unable to do so");
             Debug.Assert(!IsDepressurizing, "Vent asked to vent when it is supposed to depressurize");
             Debug.Assert(amount >= 0f);
 
             var oxygenBlock = GetOxygenBlock();
             if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
-            {
                 return;
-            }
 
             oxygenBlock.Room.OxygenAmount += amount;
             if (oxygenBlock.Room.OxygenLevel(CubeGrid.GridSize) > 1f)
-            {
                 oxygenBlock.Room.OxygenAmount = oxygenBlock.Room.MaxOxygen(CubeGrid.GridSize);
-            }
+
+            SourceComp.SetRemainingCapacityByType(m_oxygenGasId, (float)oxygenBlock.Room.OxygenAmount);
+
+            m_nextGasTransfer = 0;
 
             if (amount > 0)
-            {
                 m_producedSinceLastUpdate = true;
-            }
         }
 
-        int IMyOxygenProducer.GetPriority()
-        {
-            return 0;
-        }
-
-        float IMyOxygenProducer.ProductionCapacity(float deltaTime)
-        {
-            if (!IsDepressurizing || !CanVent)
-            {
-                return 0f;
-            }
-
-            var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null)
-            {
-                return 0f;
-            }
-
-            if (oxygenBlock.Room.IsPressurized)
-            {
-                float oxygenLeft = (float)oxygenBlock.Room.OxygenAmount;
-
-                if (oxygenLeft <= 0f)
-                {
-                    oxygenLeft = 0f;
-                }
-
-                return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
-            }
-            else
-            {
-                return BlockDefinition.VentilationCapacityPerSecond * MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) * deltaTime;
-            }
-        }
-
-        void IMyOxygenProducer.Produce(float amount)
+        void DrainFromRoom(float amount)
         {
             if (amount == 0f || !IsDepressurizing)
-            {
                 return;
-            }
-            Debug.Assert(CanVent, "Vent asked to depressurize when it is unable to do so");
+
             Debug.Assert(IsDepressurizing, "Vent asked to depressurize when it is supposed to pressurize");
             Debug.Assert(amount >= 0f);
 
             var oxygenBlock = GetOxygenBlock();
+            float oxygenInRoom = oxygenBlock.Room == null ? 0f : (float)oxygenBlock.Room.OxygenAmount;
+            SourceComp.SetRemainingCapacityByType(m_oxygenGasId, oxygenInRoom);
             if (oxygenBlock.Room == null)
-            {
                 return;
-            }
 
             if (oxygenBlock.Room.IsPressurized)
             {
@@ -687,16 +695,15 @@ namespace Sandbox.Game.Entities.Blocks
                 }
 
                 if (amount > 0)
-                {
                     m_producedSinceLastUpdate = true;
-                }
             }
             else
             {
                 //Take from environment, nothing to do
-                Debug.Assert(MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) > 0f);
                 m_producedSinceLastUpdate = true;
             }
+
+            m_nextGasTransfer = 0f;
         }
         #endregion
 
@@ -715,20 +722,17 @@ namespace Sandbox.Game.Entities.Blocks
 
                 var oxygenBlock = GetOxygenBlock();
                 if (oxygenBlock.Room == null)
-                {
                     return false;
-                }
 
                 return oxygenBlock.Room.IsPressurized;
             }
         }
+
         public float GetOxygenLevel()
         {
             var oxygenBlock = GetOxygenBlock();
             if (oxygenBlock.Room == null)
-            {
                 return 0f;
-            }
 
             return oxygenBlock.OxygenLevel(CubeGrid.GridSize);
         }
@@ -739,13 +743,7 @@ namespace Sandbox.Game.Entities.Blocks
             return new MySyncAirVent(this);
         }
 
-        internal new MySyncAirVent SyncObject
-        {
-            get
-            {
-                return (MySyncAirVent)base.SyncObject;
-            }
-        }
+        internal new MySyncAirVent SyncObject { get { return (MySyncAirVent)base.SyncObject; } }
 
         [PreloadRequired]
         internal class MySyncAirVent : MySyncEntity
@@ -779,12 +777,12 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
 
-            private MyAirVent m_airVent;
+            private readonly MyAirVent m_airVent;
 
             static MySyncAirVent()
             {
-                MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeDepressurizationModeMsg>(OnStockipleModeChanged, MyMessagePermissions.Any);
-                MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
+                MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeDepressurizationModeMsg>(OnStockipleModeChanged, MyMessagePermissions.FromServer|MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf);
+                MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf);
             }
 
             public MySyncAirVent(MyAirVent airVent)
@@ -799,12 +797,16 @@ namespace Sandbox.Game.Entities.Blocks
                 msg.EntityId = m_airVent.EntityId;
                 msg.IsDepressurizing = newDepressurizationMode;
 
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
 
             private static void OnStockipleModeChanged(MySyncAirVent syncObject, ref ChangeDepressurizationModeMsg message, World.MyNetworkClient sender)
             {
-                syncObject.m_airVent.IsDepressurizing = message.IsDepressurizing;
+                syncObject.m_airVent.SetDepressurizing(message.IsDepressurizing);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref message, sender.SteamUserId);
+                }
             }
 
             public void SendToolbarItemChanged(ToolbarItem item, int index)
@@ -815,7 +817,7 @@ namespace Sandbox.Game.Entities.Blocks
                 msg.Item = item;
                 msg.Index = index;
 
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
 
             private static void OnToolbarItemChanged(MySyncAirVent sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
@@ -863,6 +865,11 @@ namespace Sandbox.Game.Entities.Blocks
                     sync.m_airVent.m_onEmptyAction = item;
                 }
                 sync.m_airVent.RaisePropertiesChanged();
+
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
 
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
-using VRage;
 using VRage.Import;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -139,44 +138,6 @@ namespace VRageRender
                             renderEntity.LoadContent();
                             ProfilerShort.End();
                         }
-
-                        ProfilerShort.Begin("AddRenderObjectFromProxy");
-                        AddRenderObjectFromProxy(renderEntity);
-                        ProfilerShort.End();
-
-                        break;
-                    }
-
-                case MyRenderMessageEnum.CreateRenderEntityAtmosphere:
-                    {
-                        var rMessage = (MyRenderMessageCreateRenderEntityAtmosphere)message;
-
-                        MyRenderEntity renderEntity;
-
-
-                        ProfilerShort.Begin("CreateRenderEntity-Atmosphere");
-                        renderEntity = new MyRenderAtmosphere(
-                            rMessage.ID,
-                            rMessage.DebugName,
-                            rMessage.Model,
-                            rMessage.WorldMatrix,
-                            rMessage.Technique,
-                            rMessage.Flags,
-                            rMessage.AtmosphereRadius,
-                            rMessage.PlanetRadius,
-                            rMessage.AtmosphereWavelengths
-                        );
-                        ProfilerShort.End();
-
-                        if (renderEntity.Lods.Count == 0)
-                            return;
-
-                        ProfilerShort.Begin("SetMaxDist");
-                        renderEntity.MaxViewDistance = rMessage.MaxViewDistance;
-                        ProfilerShort.End();
-                        ProfilerShort.Begin("renderEntity.LoadContent");
-                        renderEntity.LoadContent();
-                        ProfilerShort.End();
 
                         ProfilerShort.Begin("AddRenderObjectFromProxy");
                         AddRenderObjectFromProxy(renderEntity);
@@ -664,6 +625,7 @@ namespace VRageRender
                         break;
                     }
 
+                case MyRenderMessageEnum.ReloadGrass:
                 case MyRenderMessageEnum.ReloadEffects:
                     {
                         MyRender.RootDirectoryEffects = MyRender.RootDirectoryDebug;
@@ -674,6 +636,7 @@ namespace VRageRender
 
                         break;
                     }
+
 
                 case MyRenderMessageEnum.ReloadModels:
                     {
@@ -701,6 +664,20 @@ namespace VRageRender
 
                         for (int i = 0; i < rMessage.Materials.Length; ++i)
                             MyRenderVoxelMaterials.Add(ref rMessage.Materials[i]);
+
+                        rMessage.Materials = null;
+
+
+                        break;
+                    }
+
+                case MyRenderMessageEnum.UpdateRenderVoxelMaterials:
+                    {
+                        MyRenderVoxelMaterials.Clear();
+
+                        var rMessage = (MyRenderMessageUpdateRenderVoxelMaterials)message;
+
+                        MyRenderVoxelMaterials.Add(ref rMessage.Materials[0]);
 
                         rMessage.Materials = null;
 
@@ -842,6 +819,41 @@ namespace VRageRender
                         }
 
 
+
+                        break;
+                    }
+                case MyRenderMessageEnum.UpdateColorEmissivity:
+                    {
+                        var rMessage = (MyRenderMessageUpdateColorEmissivity)message;
+
+                        MyRenderObject renderObject;
+                        if (m_renderObjects.TryGetValue(rMessage.ID, out renderObject))
+                        {
+                            MyRenderEntity renderEntity = renderObject as MyRenderEntity;
+                            List<MyRenderMeshMaterial> materials = renderEntity.Lods[rMessage.LOD].MeshMaterials;
+                            MyRenderModel model = renderEntity.Lods[rMessage.LOD].Model;
+                            MyRenderMeshMaterial material = null;
+
+                            model.HasSharedMaterials = false;
+
+                            if (rMessage.MaterialName != null)
+                            {
+                                foreach (var rMaterial in materials)
+                                {
+                                    if (rMaterial.MaterialName == rMessage.MaterialName)
+                                    {
+                                        material = rMaterial;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (material != null)
+                            {
+                                material.DiffuseColor = rMessage.DiffuseColor.ToVector3();
+                                material.Emissivity = rMessage.Emissivity;
+                            }
+                        }
 
                         break;
                     }

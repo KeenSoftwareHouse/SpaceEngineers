@@ -18,6 +18,7 @@ using System.Linq;
 using VRage.Input;
 using VRageMath;
 using VRage.ObjectBuilders;
+using Sandbox.Engine.Networking;
 
 #endregion
 
@@ -227,6 +228,9 @@ namespace Sandbox.Game.Weapons
             if (!block.CanContinueBuild(character.GetInventory()))
             {
                 status = MyGunStatusEnum.Failed;
+                if (!block.IsFullIntegrity)
+                    if (Owner != null && Owner == MySession.LocalCharacter)
+                        BeginFailReactionLocal(0, 0);
                 return false;
             }
 
@@ -256,8 +260,10 @@ namespace Sandbox.Game.Weapons
 
         public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
-            base.Shoot(action, direction, gunAction);
-            
+            MyAnalyticsHelper.ReportActivityStartIf(!m_activated, this.Owner, "Welding", "Character", "HandTools","Welder",false);
+
+            base.Shoot(action, direction, gunAction);            
+
             if (action == MyShootActionEnum.PrimaryAction/* && IsPreheated*/ && Sync.IsServer)
             {
                 var block = GetTargetBlock();

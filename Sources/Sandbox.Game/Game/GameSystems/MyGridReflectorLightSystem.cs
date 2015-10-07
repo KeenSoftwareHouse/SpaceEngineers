@@ -9,7 +9,6 @@ using Sandbox.Game.Entities.Interfaces;
 using VRage;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics;
-using VRage;
 
 namespace Sandbox.Game.GameSystems
 {

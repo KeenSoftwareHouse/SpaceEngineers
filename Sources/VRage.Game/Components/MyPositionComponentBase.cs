@@ -17,7 +17,7 @@ namespace VRage.Components
         
         static private BoundingBoxD m_invalidBox = BoundingBoxD.CreateInvalid();
         protected MatrixD m_worldMatrix = MatrixD.Identity;
-        protected MatrixD m_previousParentWorldMatrix = MatrixD.Identity;
+        //protected MatrixD m_previousWorldMatrix = MatrixD.Identity;
         /// <summary>
         /// Internal local matrix relative to parent of entity.
         /// </summary>
@@ -29,16 +29,21 @@ namespace VRage.Components
         protected Vector3 m_localVolumeOffset;
         protected BoundingBoxD m_worldAABB;   //world AABB of this entity
         protected BoundingSphereD m_worldVolume;   //sphere volume
+        protected bool m_worldVolumeDirty = false;
         private BoundingBoxD m_worldAABBHr;   //world AABB of this entity including children
         private BoundingSphereD m_worldVolumeHr;   //sphere volume including children
-        protected bool m_localMatrixChanged = false;
+        float? m_scale;
+        //protected bool m_localMatrixChanged = false;
         #region Properties
         /// <summary>
         /// World matrix of this physic object. Use it whenever you want to do world-matrix transformations with this physic objects.
         /// </summary>
         public MatrixD WorldMatrix
         {
-            get { return this.m_worldMatrix; }
+            get 
+            {
+                return this.m_worldMatrix; 
+            }
             set { SetWorldMatrix(value); }
         }
 
@@ -59,9 +64,22 @@ namespace VRage.Components
         /// </summary>
         public BoundingBoxD WorldAABB
         {
-            get { return m_worldAABB; }
+            get 
+            {
+                if (m_worldVolumeDirty)
+                {
+                    UpdateWorldVolume();
+                }
+                return m_worldAABB; 
+            }
             //Protected
-            set { m_worldAABB = value; }
+            set 
+            { 
+                m_worldAABB = value;
+                //not true, what is the correct response here?
+                //m_localAABB = new BoundingBox(value.Transform(WorldMatrixNormalizedInv));
+                m_worldVolumeDirty = false; 
+            }
         }
 
         /// <summary>
@@ -69,7 +87,14 @@ namespace VRage.Components
         /// </summary>
         public BoundingSphereD WorldVolume
         {
-            get { return m_worldVolume; }
+            get 
+            { 
+                if(m_worldVolumeDirty)
+                {
+                    UpdateWorldVolume();
+                }
+                return m_worldVolume; 
+            }
             //Protected
             set { m_worldVolume = value; }
         }
@@ -112,8 +137,7 @@ namespace VRage.Components
             {
                 m_localAABB = value;
                 m_localVolume = BoundingSphere.CreateFromBoundingBox(m_localAABB);
-                UpdateWorldVolume();
-                //UpdateGamePruningStructure();
+                m_worldVolumeDirty = true;
             }
         }
 
@@ -149,7 +173,7 @@ namespace VRage.Components
                 m_localVolume = value;
                 m_localAABB = MyMath.CreateFromInsideRadius(value.Radius);
                 m_localAABB = m_localAABB.Translate(value.Center);
-                UpdateWorldVolume();
+                m_worldVolumeDirty = true;
             }
         }
 
@@ -169,7 +193,7 @@ namespace VRage.Components
             set
             {
                 this.m_localVolumeOffset = value;
-                UpdateWorldVolume();
+                m_worldVolumeDirty = true;
             }
         }
 
@@ -178,12 +202,11 @@ namespace VRage.Components
         protected void RaiseOnPositionChanged(MyPositionComponentBase component)
         {
             var handle = OnPositionChanged;
-            if (handle != null) handle(component);
+            if (handle != null)
+            {
+                handle(component);
+            }
         }
-
-        #endregion
-
-        #region Position And Movement Methods
 
         protected virtual bool ShouldSync
         {
@@ -193,36 +216,81 @@ namespace VRage.Components
             }
         }
 
+        public float? Scale
+        {
+            get { return m_scale; }
+            set
+            {
+                if (m_scale != value)
+                {
+                    m_scale = value;
+
+                    var localMatrix = LocalMatrix;
+                    if (m_scale != null)
+                    {
+                        System.Diagnostics.Debug.Assert(!MyUtils.IsZero(m_scale.Value));
+                        var worldMatrix = WorldMatrix;
+
+                        if (Container.Entity.Parent == null)
+                        {
+                            MyUtils.Normalize(ref worldMatrix, out worldMatrix);
+                            WorldMatrix = Matrix.CreateScale(m_scale.Value) * worldMatrix;
+                        }
+                        else
+                        {
+                            MyUtils.Normalize(ref localMatrix, out localMatrix);
+                            LocalMatrix = Matrix.CreateScale(m_scale.Value) * localMatrix;
+                        }
+                    }
+                    else
+                    {
+                        MyUtils.Normalize(ref localMatrix, out localMatrix);
+                        LocalMatrix = localMatrix;
+                    }
+
+                    UpdateWorldMatrix();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Position And Movement Methods
         /// <summary>
         /// Sets the world matrix.
         /// </summary>
         /// <param name="worldMatrix">The world matrix.</param>
         /// <param name="source">The source object that caused this change or null when not important.</param>
-        public virtual void SetWorldMatrix(MatrixD worldMatrix, object source = null)
+        public virtual void SetWorldMatrix(MatrixD worldMatrix, object source = null, bool forceUpdate = false)
         {
+            if (Entity.Parent != null && source != Entity.Parent)
+                return;
+
             if (Scale != null)
             {
                 MyUtils.Normalize(ref worldMatrix, out worldMatrix);
                 worldMatrix = MatrixD.CreateScale(Scale.Value) * worldMatrix;
             }
 
-            MatrixD localMatrix;
+            if (m_worldMatrix.EqualsFast(ref worldMatrix) && !forceUpdate)
+                return;
+
 
             if (this.Container.Entity.Parent == null)
             {
                 this.m_worldMatrix = worldMatrix;
-                localMatrix = worldMatrix;
+                m_localMatrix = worldMatrix;
             }
             else
             {
                 MatrixD matParentInv = MatrixD.Invert(this.Container.Entity.Parent.WorldMatrix);
-                localMatrix = worldMatrix * matParentInv;
+                m_localMatrix = worldMatrix * matParentInv;
             }
 
-            if (!m_localMatrix.EqualsFast(ref localMatrix))
+            //if (!m_localMatrix.EqualsFast(ref localMatrix))
             {
-                m_localMatrixChanged = true;
-                this.m_localMatrix = localMatrix;
+                //m_localMatrixChanged = true;
+                //this.m_localMatrix = localMatrix;
                 UpdateWorldMatrix(source);
             }       
         }
@@ -236,7 +304,7 @@ namespace VRage.Components
         {
             if (this.m_localMatrix != localMatrix)
             {
-                m_localMatrixChanged = true;
+                //m_localMatrixChanged = true;
                 this.m_localMatrix = localMatrix;
                 UpdateWorldMatrix(source);
             }
@@ -348,22 +416,18 @@ namespace VRage.Components
         /// <summary>
         /// Updates the world matrix (change caused by this entity)
         /// </summary>
-        public virtual void UpdateWorldMatrix(object source = null)
+        protected virtual void UpdateWorldMatrix(object source = null)
         {
             if (this.Container.Entity.Parent != null)
             {
                 MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
                 UpdateWorldMatrix(ref parentWorldMatrix, source);
-
                 return;
             }
-
 
             //UpdateWorldVolume();
             OnWorldPositionChanged(source);
 
-            m_normalizedInvMatrixDirty = true;
-            m_invScaledMatrixDirty = true;
             // NotifyEntityChange(source);
         }
 
@@ -372,26 +436,32 @@ namespace VRage.Components
         /// </summary>
         public virtual void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
-            MatrixD oldWorldMatrix = m_worldMatrix;
             MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
+            OnWorldPositionChanged(source);
 
-            if (!m_worldMatrix.EqualsFast(ref oldWorldMatrix))
-            {
-                OnWorldPositionChanged(source);
-                //if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
-                //{
-                //    this.m_physics.OnWorldPositionChanged(source);
-                //}
-                m_normalizedInvMatrixDirty = true;
-                m_invScaledMatrixDirty = true;
-            }
+
+            //MatrixD oldWorldMatrix = m_worldMatrix;
+            //MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
+            //SetDirty();
+            //return;
+            ////parent matrix changed significantly 
+            ////if (!m_worldMatrix.EqualsFast(ref oldWorldMatrix))
+            //{
+            //    OnWorldPositionChanged(source);
+            //    //if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
+            //    //{
+            //    //    this.m_physics.OnWorldPositionChanged(source);
+            //    //}
+            //    m_normalizedInvMatrixDirty = true;
+            //    m_invScaledMatrixDirty = true;
+            //}
             //NotifyEntityChange(source);
         }
 
         /// <summary>
         /// Updates the volume of this entity.
         /// </summary>
-        public virtual void UpdateWorldVolume()
+        protected virtual void UpdateWorldVolume()
         {
             BoundingBoxD oldWorldAABB = m_worldAABB;
 
@@ -401,11 +471,6 @@ namespace VRage.Components
 
             m_worldVolume = new BoundingSphereD(mat.Translation, m_localVolume.Radius);
 
-            //bad, breaks rotating objects
-            //if (oldWorldAABB.Contains(m_worldAABB) != ContainmentType.Contains)
-            //{   //New world AABB is not same as previous world AABB
-            //    InvalidateRenderObjects();
-            //}
         }
 
         /// <summary>
@@ -432,55 +497,18 @@ namespace VRage.Components
         /// Called when [world position changed].
         /// </summary>
         /// <param name="source">The source object that caused this event.</param>
-        public virtual void OnWorldPositionChanged(object source)
+        protected virtual void OnWorldPositionChanged(object source)
         {
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
 
-            UpdateWorldVolume();
-
-            //UpdateGamePruningStructure();
-            //UpdateChildren(source);
+            m_worldVolumeDirty = true;
+            m_normalizedInvMatrixDirty = true;
+            m_invScaledMatrixDirty = true;
 
             RaiseOnPositionChanged(this);
         }
 
-        float? m_scale;
-        public float? Scale
-        {
-            get { return m_scale; }
-            set
-            {
-                if (m_scale != value)
-                {
-                    m_scale = value;
-
-                    var localMatrix = LocalMatrix;
-                    if (m_scale != null)
-                    {
-                        System.Diagnostics.Debug.Assert(!MyUtils.IsZero(m_scale.Value));
-                        var worldMatrix = WorldMatrix;
-
-                        if (Container.Entity.Parent == null)
-                        {
-                            MyUtils.Normalize(ref worldMatrix, out worldMatrix);
-                            WorldMatrix = Matrix.CreateScale(m_scale.Value) * worldMatrix;
-                        }
-                        else
-                        {
-                            MyUtils.Normalize(ref localMatrix, out localMatrix);
-                            LocalMatrix = Matrix.CreateScale(m_scale.Value) * localMatrix;
-                        }
-                    }
-                    else
-                    {
-                        MyUtils.Normalize(ref localMatrix, out localMatrix);
-                        LocalMatrix = localMatrix;
-                    }
-
-                    UpdateWorldMatrix();
-                }
-            }
-        }
+        
         #endregion
 
         public override string ComponentTypeDebugString

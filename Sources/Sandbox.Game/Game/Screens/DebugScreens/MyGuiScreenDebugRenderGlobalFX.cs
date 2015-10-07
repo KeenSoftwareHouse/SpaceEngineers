@@ -45,8 +45,9 @@ namespace Sandbox.Game.Gui
                 AddCheckBox("Enable fog", MySector.FogProperties, MemberHelper.GetMember(() => MySector.FogProperties.EnableFog));
                 AddSlider("Fog near distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogNear));
                 AddSlider("Fog far distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogFar));
-                AddSlider("Fog multiplier", 0.0f, 1.0f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogMultiplier));
+                AddSlider("Fog multiplier", 0.0f, 0.5f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogMultiplier));
                 AddSlider("Fog backlight multiplier", 0.0f, 5.0f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogBacklightMultiplier));
+                AddSlider("Fog density (DX11)", 0.0f, 0.2f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogDensity));
                 AddColor(new StringBuilder("Fog color"), fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogColor));
             }
 

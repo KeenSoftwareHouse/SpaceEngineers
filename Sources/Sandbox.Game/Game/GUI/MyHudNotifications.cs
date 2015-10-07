@@ -45,6 +45,7 @@ namespace Sandbox.Game.Gui
         CopyPasteAsteoridObstructed,
         TextPanelReadOnly,
         GameplayOptions,
+        IncompleteGrid,
     }
 
     public class MyHudNotifications
@@ -112,6 +113,7 @@ namespace Sandbox.Game.Gui
             Register(MyNotificationSingletons.SuitEnergyLow,                 new MyHudNotification(font: MyFontEnum.Red, priority: 2, text: MySpaceTexts.NotificationSuitEnergyLow));
             Register(MyNotificationSingletons.SuitEnergyCritical,            new MyHudNotification(font: MyFontEnum.Red, priority: 2, text: MySpaceTexts.NotificationSuitEnergyCritical));
             Register(MyNotificationSingletons.InventoryFull,                 new MyHudNotification(font: MyFontEnum.Red, priority: 2, text: MySpaceTexts.NotificationInventoryFull));
+            Register(MyNotificationSingletons.IncompleteGrid,                new MyHudNotification(font: MyFontEnum.Red, priority: 2, text: MySpaceTexts.NotificationIncompleteGrid));
 
             Register(MyNotificationSingletons.DisabledWeaponsAndTools,       new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.NotificationToolDisabled, disappearTimeMs: 0));
             Register(MyNotificationSingletons.WeaponDisabledInWorldSettings, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.NotificationWeaponDisabledInSettings));

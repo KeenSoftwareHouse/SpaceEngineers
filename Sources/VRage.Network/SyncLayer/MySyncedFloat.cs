@@ -1,15 +1,16 @@
-﻿namespace VRage.Network
+﻿using VRage.Library.Collections;
+namespace VRage.Network
 {
     public class MySyncedFloat : MySyncedBase<float>
     {
         public sealed override void Write(ref float value, BitStream s)
         {
-            s.Write(value);
+            s.WriteFloat(value);
         }
 
-        public sealed override bool Read(out float value, BitStream s)
+        public sealed override void Read(out float value, BitStream s)
         {
-            return s.Read(out value);
+            value = s.ReadFloat();
         }
     }
 }

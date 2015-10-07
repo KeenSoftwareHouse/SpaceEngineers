@@ -1,4 +1,5 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
@@ -28,11 +29,20 @@ namespace Sandbox.Game.Screens.Helpers
 			private static MyGuiCompositeTexture m_arrowUp = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_UP.Texture);
 			private static MyGuiCompositeTexture m_arrowDown = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_DOWN.Texture);
 
-			private float m_statRegenLeft = 0.0f;
 			private float m_lastTotalValue = 0.0f;
+            private float m_potentialChange = 0.0f;
 
 			private bool m_recalculatePotential = false;
-			public float StatRegenLeft { get { return m_statRegenLeft; } set { m_statRegenLeft = value; } }
+            public float PotentialChange
+            {
+                get { return m_potentialChange; }
+                set 
+                { 
+                    m_potentialChange = value;
+                    m_progressBar.PotentialBar.Visible = value != 0.0f;
+                    m_recalculatePotential = value != 0.0f; 
+                }
+            }
 
             public MyGuiControlStat(MyEntityStat stat, Vector2 position, Vector2 size, MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
 				: base(position: position, size: size, originAlign: originAlign)
@@ -60,7 +70,7 @@ namespace Sandbox.Game.Screens.Helpers
 
 				if (m_stat != null)
 				{
-					var totalValue = 0.0f;
+                    var totalValue = m_potentialChange;
 					var effects = m_stat.GetEffects();
 					foreach(var effect in effects)
 					{
@@ -134,7 +144,7 @@ namespace Sandbox.Game.Screens.Helpers
 				RecalculateStatRegenLeft();
 				var pixelHorizontal = 1.01f / MyGuiManager.GetFullscreenRectangle().Height;
 				var pixelVertical = 1.01f / MyGuiManager.GetFullscreenRectangle().Height;
-				m_progressBar.PotentialBar.Size = new Vector2(m_progressBar.Size.X * (MathHelper.Clamp((m_stat.StatRegenLeft + m_stat.Value) / m_stat.MaxValue, 0f, 1f)) - pixelHorizontal, m_progressBar.Size.Y - 2.0f * pixelVertical);
+				m_progressBar.PotentialBar.Size = new Vector2(m_progressBar.Size.X * (MathHelper.Clamp((m_stat.StatRegenLeft + m_stat.Value + m_potentialChange) / m_stat.MaxValue, 0f, 1f)) - pixelHorizontal, m_progressBar.Size.Y - 2.0f * pixelVertical);
 			}
 
 			public void RecreateControls()
@@ -198,7 +208,7 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         private MyCharacterStatComponent m_statComponent;
-		private List<MyGuiControlStat> m_statControls;
+		private Dictionary<MyStringHash, MyGuiControlStat> m_statControls;
 
 		private List<MyEntityStat> m_sortedStats = new List<MyEntityStat>();
 
@@ -245,9 +255,12 @@ namespace Sandbox.Game.Screens.Helpers
 			if (stats.Count == 0)
 				return;
 
-			OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-			var position = new Vector2(0.025f, 0.016f);
-			Position = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref position);
+            OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            if (Position == Vector2.Zero)
+            {                
+                var position = new Vector2(0.025f, 0.016f);
+                Position = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref position);
+            }
 
 			ColorMask = new Vector4(ColorMask.X, ColorMask.Y, ColorMask.Z, 0.75f);
 
@@ -262,8 +275,8 @@ namespace Sandbox.Game.Screens.Helpers
 			var statControlHeight = 0.025f - 2.0f*statControlPadding.Y;
 			var statControlGap = statControlHeight/4.0f;
 			Size = new Vector2(0.191f, 4.0f*verticalPadding + statControlHeight*heightMultiplier + (stats.Count-1)*statControlGap );
-			
-			m_statControls = new List<MyGuiControlStat>();
+
+            m_statControls = new Dictionary<MyStringHash, MyGuiControlStat>();
 
 			var statControlWidth = Size.X - 2.0f*statControlPadding.X;
 			var nextStatControlY = -Size.Y/2.0f + verticalPadding;
@@ -274,11 +287,37 @@ namespace Sandbox.Game.Screens.Helpers
 														position: new Vector2(0.0f, nextStatControlY) + statControlPadding,
 														originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP,
 														size: new Vector2(statControlWidth, stat.StatDefinition.GuiDef.HeightMultiplier * statControlHeight));
-				m_statControls.Add(statControl);
+				m_statControls.Add(stat.StatId, statControl);
 				Elements.Add(statControl);
 				statControl.RecreateControls();
 				nextStatControlY += statControl.Size.Y + statControlGap;
 			}
+        }
+
+        private void SetPotentialStatChange(string id, float value)
+        {
+            var hashId = MyStringHash.Get(id);
+            MyGuiControlStat statControl;
+            if (m_statControls.TryGetValue(hashId, out statControl))
+                statControl.PotentialChange = value;
+        }
+
+        public void SetPotentialStatChange(MyDefinitionId consumableId)
+        {
+            var definition = MyDefinitionManager.Static.GetDefinition(consumableId) as MyConsumableItemDefinition;
+            foreach (var statValue in definition.Stats)
+            {
+                SetPotentialStatChange(statValue.Name, statValue.Value * statValue.Time);
+            }
+        }
+
+        public void ClearPotentialStatChange(MyDefinitionId consumableId)
+        {
+            var definition = MyDefinitionManager.Static.GetDefinition(consumableId) as MyConsumableItemDefinition;
+            foreach (var statValue in definition.Stats)
+            {
+                SetPotentialStatChange(statValue.Name, 0.0f);
+            }
         }
     }
 }

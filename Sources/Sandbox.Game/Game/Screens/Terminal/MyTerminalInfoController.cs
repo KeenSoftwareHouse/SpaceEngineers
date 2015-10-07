@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Trace;
 using VRageMath;
@@ -183,21 +184,29 @@ namespace Sandbox.Game.Gui
                 }
             }
 
+	        int thrustCount = 0;
+	        var thrustComp = m_grid.Components.Get<MyEntityThrustComponent>();
+	        if (thrustComp != null)
+		        thrustCount = thrustComp.ThrustCount;
+	        MyGuiControlLabel thrustCountLabel = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Thrusters)).AppendInt32(thrustCount).ToString());
+
             MyGuiControlLabel polygonCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Triangles)).AppendInt32(polygonCounter).ToString());
             polygonCount.SetToolTip(MySpaceTexts.TerminalTab_Info_TrianglesTooltip);
             MyGuiControlLabel cubeCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Blocks)).AppendInt32(m_grid.GetBlocks().Count).ToString());
             cubeCount.SetToolTip(MySpaceTexts.TerminalTab_Info_BlocksTooltip);
             MyGuiControlLabel blockCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_NonArmor)).AppendInt32(m_grid.Hierarchy.Children.Count).ToString());
-            MyGuiControlLabel thrustCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Thrusters)).AppendInt32(m_grid.GridSystems.ThrustSystem.ThrustCount).ToString());
             MyGuiControlLabel lightCount = new MyGuiControlLabel(text: new StringBuilder().Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Lights)).AppendInt32(lightCounter).ToString());
             MyGuiControlLabel reflectorCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Reflectors)).AppendInt32(m_grid.GridSystems.ReflectorLightSystem.ReflectorCount).ToString());
             //MyGuiControlLabel wheelCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Rotors)).AppendInt32(m_grid.WheelSystem.WheelCount));
             MyGuiControlLabel gravityCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_GravGens)).AppendInt32(gravityCounter).ToString());
             MyGuiControlLabel massCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_VirtualMass)).AppendInt32(massCounter).ToString());
             MyGuiControlLabel conveyorCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Conveyors)).AppendInt32(conveyorCounter).ToString());
-            list.InitControls(new MyGuiControlBase[] { cubeCount, blockCount, conveyorCount, thrustCount, lightCount, reflectorCount, gravityCount, massCount, polygonCount });
-
-
+			var mainCockpit = m_grid.MainCockpit as MyShipController;
+			MyCharacter pilot = null;
+			if (mainCockpit != null)
+				pilot = mainCockpit.Pilot;
+			MyGuiControlLabel gridMass = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_GridMass)).AppendInt32(m_grid.GetCurrentMass(pilot)).ToString());
+			list.InitControls(new MyGuiControlBase[] { cubeCount, blockCount, conveyorCount, thrustCountLabel, lightCount, reflectorCount, gravityCount, massCount, polygonCount, gridMass });
         }
 
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship

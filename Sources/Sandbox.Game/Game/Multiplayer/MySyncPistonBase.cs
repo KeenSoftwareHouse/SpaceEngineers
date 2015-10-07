@@ -82,11 +82,11 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncPistonBase()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, VelocityMsg>(OnSetVelocity, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, MinMsg>(OnSetMin, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, MaxMsg>(OnSetMax, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, AttachMsg>(OnAttach, MyMessagePermissions.FromServer);
-            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, CurrentPositionMsg>(OnSetCurrentPosition, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, VelocityMsg>(OnSetVelocity, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, MinMsg>(OnSetMin, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, MaxMsg>(OnSetMax, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, AttachMsg>(OnAttach, MyMessagePermissions.FromServer|MyMessagePermissions.ToServer);
+            MySyncLayer.RegisterEntityMessage<MySyncPistonBase, CurrentPositionMsg>(OnSetCurrentPosition, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
         }
 
         public new MyPistonBase Entity
@@ -108,7 +108,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Velocity = v;
 
             OnSetVelocity(this, ref msg, Sync.Clients.LocalClient);
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         public void SetMin(float v)
@@ -118,7 +118,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Min = v;
 
             OnSetMin(this, ref msg, Sync.Clients.LocalClient);
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         public void SetMax(float v)
@@ -128,22 +128,34 @@ namespace Sandbox.Game.Multiplayer
             msg.Max = v;
 
             OnSetMax(this, ref msg, Sync.Clients.LocalClient);
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         static void OnSetVelocity(MySyncPistonBase sync, ref VelocityMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Velocity = msg.Velocity;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         static void OnSetMin(MySyncPistonBase sync, ref MinMsg msg, MyNetworkClient sender)
         {
             sync.Entity.MinLimit = msg.Min;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         static void OnSetMax(MySyncPistonBase sync, ref MaxMsg msg, MyNetworkClient sender)
         {
             sync.Entity.MaxLimit = msg.Max;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void AttachTop(MyPistonTop topBlock)
@@ -157,7 +169,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.EntityId = Entity.EntityId;
                 msg.TopEntityId = topBlock.EntityId;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
             else
             {
@@ -171,6 +183,7 @@ namespace Sandbox.Game.Multiplayer
             MyEntity rotorEntity = null;
             if (!MyEntities.TryGetEntityById(msg.TopEntityId, out rotorEntity))
             {
+                pistonBase.RetryAttach(msg.TopEntityId);
                 Debug.Assert(false, "Could not find top entity to attach to base");
                 return;
             }
@@ -178,7 +191,19 @@ namespace Sandbox.Game.Multiplayer
 
             Debug.Assert(pistonBase.CubeGrid != top.CubeGrid, "Trying to attach top to base on the same grid");
 
-            pistonBase.Attach(top);
+            if (top.CubeGrid.InScene == false)
+            {
+                pistonBase.RetryAttach(msg.TopEntityId);
+            }
+            else
+            {
+                pistonBase.Attach(top, false);
+            }
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void SetCurrentPosition(float m_currentPos)
@@ -187,7 +212,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.CurrentPosition = m_currentPos;
 
-            Sync.Layer.SendMessageToAll<CurrentPositionMsg>(ref msg);
+            Sync.Layer.SendMessageToServer<CurrentPositionMsg>(ref msg);
         }
 
         static void OnSetCurrentPosition(MySyncPistonBase sync, ref CurrentPositionMsg msg, MyNetworkClient sender)
@@ -196,6 +221,11 @@ namespace Sandbox.Game.Multiplayer
             if (grid.Physics == null || grid.MarkedForClose || sync.Entity.MarkedForClose)
                 return;
             sync.SyncPosition(msg.CurrentPosition);
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
     }
 }

@@ -14,10 +14,6 @@ namespace VRageRender
         private readonly MyInterpolationQueue<MatrixD> m_interpolation = new MyInterpolationQueue<MatrixD>(3, MatrixD.Slerp);
         private readonly MyClipmap m_clipmapBase;
         Vector3D m_position;
-        float m_atmosphereRadius = 0.0f;
-        float m_planetRadius = 0.0f;
-        bool m_hasAtmosphere = false;
-        Vector3? m_atmosphereWaveLengths = null;
 
         public MyRenderClipmap(MyRenderMessageCreateClipmap msg)
             : base(msg.ClipmapId, "Clipmap")
@@ -25,10 +21,6 @@ namespace VRageRender
             m_clipmapBase = new MyClipmap(msg.ClipmapId, msg.ScaleGroup, msg.WorldMatrix, msg.SizeLod0, this);
             SetDirty();
             m_position = msg.Position;
-            m_atmosphereRadius = msg.AtmosphereRadius;
-            m_planetRadius = msg.PlanetRadius;
-            m_hasAtmosphere = msg.HasAtmosphere;
-            m_atmosphereWaveLengths = msg.AtmosphereWaveLenghts;
         }
 
         public override void UpdateWorldAABB()
@@ -92,9 +84,6 @@ namespace VRageRender
                 case MyClipmapScaleEnum.Normal:
                     return new MyRenderVoxelCell(scaleGroup, cellCoord, ref worldMatrix);
 
-                case MyClipmapScaleEnum.Massive:
-                    return new MyRenderVoxelCellBackground(cellCoord, ref worldMatrix, m_position, m_atmosphereRadius, m_planetRadius, m_hasAtmosphere,m_atmosphereWaveLengths.Value);
-
                 default:
                     throw new InvalidBranchException();
             }
@@ -114,5 +103,5 @@ namespace VRageRender
         {
             MyRender.RemoveRenderObject((MyRenderVoxelCell)cell);
         }
-    }
+        }
 }

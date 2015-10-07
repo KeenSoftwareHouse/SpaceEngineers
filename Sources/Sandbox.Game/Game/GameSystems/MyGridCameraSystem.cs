@@ -2,14 +2,13 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Linq;
-
+using Sandbox.Game.EntityComponents;
 using VRage.Input;
 using VRage.Utils;
 
@@ -18,17 +17,11 @@ namespace Sandbox.Game.GameSystems
     class MyGridCameraSystem
     {
         private MyCubeGrid m_grid;
-        private List<MyCameraBlock> m_cameras;
-        private List<MyCameraBlock> m_relayedCameras;
+        private readonly List<MyCameraBlock> m_cameras;
+        private readonly List<MyCameraBlock> m_relayedCameras;
         private MyCameraBlock m_currentCamera;
 
         private bool m_ignoreNextInput = false;
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
 
         public int CameraCount
         {

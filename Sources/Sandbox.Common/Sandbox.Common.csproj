@@ -107,14 +107,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AI\IMyAiTarget.cs" />
-    <Compile Include="AI\MyAgentBotActionProxy.cs" />
-    <Compile Include="AI\MyAnimalBotActionProxy.cs" />
-    <Compile Include="AI\MyBarbarianBotActionProxy.cs" />
-    <Compile Include="AI\MyAbstractBotActionProxy.cs" />
     <Compile Include="AI\MyBehaviorTreeActionAttribute.cs" />
-    <Compile Include="AI\MyHumanoidBotActionProxy.cs" />
-    <Compile Include="AI\MyPeasantBotActionProxy.cs" />
     <Compile Include="Components\IMyNamedComponent.cs" />
     <Compile Include="Components\IMyUserInputComponent.cs" />
     <Compile Include="Components\MyGameLogicComponent.cs" />
@@ -175,7 +168,6 @@
     <Compile Include="ModAPI\IMyVoxelShapeRamp.cs" />
     <Compile Include="ModAPI\IMyVoxelShapeSphere.cs" />
     <Compile Include="ModAPI\Ingame\IMyAirVent.cs" />
-    <Compile Include="ModAPI\Ingame\IMyPowerProducer.cs" />
     <Compile Include="ModAPI\Ingame\IMyRadioAntenna.cs" />
     <Compile Include="ModAPI\Ingame\IMyAssembler.cs" />
     <Compile Include="ModAPI\Ingame\IMyBatteryBlock.cs" />

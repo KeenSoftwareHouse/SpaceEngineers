@@ -13,6 +13,7 @@ using Sandbox.Graphics.GUI;
 using System;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Engine.Networking;
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -23,13 +24,14 @@ namespace Sandbox.Game.Gui
 {
     public enum MyTerminalPageEnum
     {
+        None =-2,
         Properties = -1,
         Inventory = 0,
         ControlPanel = 1,
         Production = 2,
         Info = 3,
         Factions = 4,
-        Gps = 6
+        Gps = 6,
     }
 
     public partial class MyGuiScreenTerminal : MyGuiScreenBase
@@ -102,7 +104,7 @@ namespace Sandbox.Game.Gui
         private MyGuiScreenTerminal() :
             base(position: new Vector2(0.5f, 0.5f),
                  backgroundColor: MyGuiConstants.SCREEN_BACKGROUND_COLOR,
-                 size: new Vector2(0.99f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
+                 size: new Vector2(0.99f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkOpacity, guiTransition: MySandboxGame.Config.UIOpacity)
         {
             EnabledBackgroundFade = true;
             m_closeHandler = OnInteractedClose;
@@ -1760,6 +1762,8 @@ namespace Sandbox.Game.Gui
             MyGuiScreenGamePlay.ActiveGameplayScreen = null;
             m_interactedEntity = null;
 
+            MyAnalyticsHelper.ReportActivityEnd(m_instance.m_user, "show_terminal");
+
             if (MyFakes.ENABLE_GPS)
                 m_controllerGps.Close();
             m_controllerControlPanel.Close();
@@ -1896,6 +1900,9 @@ namespace Sandbox.Game.Gui
 
             MyGuiSandbox.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_instance);
             m_screenOpen = true;
+
+            string target = interactedEntity != null ? interactedEntity.GetType().Name : "";
+            MyAnalyticsHelper.ReportActivityStart(user, "show_terminal", target, "gui", string.Empty);
         }
 
         internal static void Hide()
@@ -2001,6 +2008,15 @@ namespace Sandbox.Game.Gui
             m_terminalTabs.Visible = true;
             m_propertiesTableParent.Visible = m_terminalTabs.SelectedPage == (int) MyTerminalPageEnum.Properties;
             m_terminalNotConnected.Visible = false;
+        }
+
+        public static MyTerminalPageEnum GetCurrentScreen()
+        {
+            if(IsOpen)
+            {
+                return (MyTerminalPageEnum)m_instance.m_terminalTabs.SelectedPage;
+            }
+            return MyTerminalPageEnum.None;
         }
 
         #endregion

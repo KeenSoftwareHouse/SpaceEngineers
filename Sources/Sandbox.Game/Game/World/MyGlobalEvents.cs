@@ -106,10 +106,17 @@ namespace Sandbox.Game.World
                 }
 
                 // Reschedule periodic events. Test whether the handler did not reschedule the event
-                if (globalEvent.IsPeriodic && !m_globalEvents.Contains(globalEvent))
+                if (globalEvent.IsPeriodic)
                 {
-                    globalEvent.RecalculateActivationTime();
-                    AddGlobalEvent(globalEvent);
+                    if (globalEvent.RemoveAfterHandlerExit)
+                    {
+                        m_globalEvents.Remove(globalEvent);
+                    }
+                    else if (!m_globalEvents.Contains(globalEvent))
+                    {
+                        globalEvent.RecalculateActivationTime();
+                        AddGlobalEvent(globalEvent);
+                    }
                 }
 
                 globalEvent = m_globalEvents.FirstOrDefault();
@@ -122,9 +129,9 @@ namespace Sandbox.Game.World
         {
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_EVENTS)
             {
-                MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Upcoming events:", Color.White, 1.0f);
+                MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 500.0f), "Upcoming events:", Color.White, 1.0f);
                 StringBuilder sb = new StringBuilder();
-                float position = 30.0f;
+                float position = 530.0f;
                 foreach (var globalEvent in m_globalEvents)
                 {
                     int hours = (int)(globalEvent.ActivationTime.TotalHours);
@@ -151,6 +158,19 @@ namespace Sandbox.Game.World
             }
 
             return null;
+        }
+
+        private static Predicate<MyGlobalEventBase> m_removalPredicate = RemovalPredicate;
+        private static MyDefinitionId m_defIdToRemove;
+        private static bool RemovalPredicate(MyGlobalEventBase globalEvent)
+        {
+            return globalEvent.Definition.Id == m_defIdToRemove;
+        }
+
+        public static void RemoveEventsById(MyDefinitionId defIdToRemove)
+        {
+            m_defIdToRemove = defIdToRemove;
+            m_globalEvents.RemoveWhere(m_removalPredicate);
         }
 
         public static void AddGlobalEvent(MyGlobalEventBase globalEvent)

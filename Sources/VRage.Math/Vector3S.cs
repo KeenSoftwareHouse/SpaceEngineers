@@ -14,6 +14,13 @@ namespace VRageMath
         [ProtoBuf.ProtoMember]
         public short Z;
 
+        public static Vector3S Up = new Vector3S(0, 1, 0);
+        public static Vector3S Down = new Vector3S(0, -1, 0);
+        public static Vector3S Right = new Vector3S(1, 0, 0);
+        public static Vector3S Left = new Vector3S(-1, 0, 0);
+        public static Vector3S Forward = new Vector3S(0, 0, -1);
+        public static Vector3S Backward = new Vector3S(0, 0, 1);
+
         public Vector3S(Vector3I vec)
             : this(ref vec)
         {
@@ -31,6 +38,13 @@ namespace VRageMath
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public Vector3S(float x, float y, float z)
+        {
+            X = (short) x;
+            Y = (short) y;
+            Z = (short) z;
         }
 
         public override string ToString()
@@ -87,6 +101,15 @@ namespace VRageMath
         public static Vector3S Round(Vector3 v)
         {
             return new Vector3S((short)Math.Round(v.X), (short)Math.Round(v.Y), (short)Math.Round(v.Z));
+        }
+
+        public static implicit operator Vector3I(Vector3S me)
+        {
+            return new Vector3I(me.X, me.Y, me.Z);
+        }
+
+        public static Vector3I operator-(Vector3S op1, Vector3B op2) {
+            return new Vector3I(op1.X - op2.X, op1.Y - op2.Y, op1.Z - op2.Z);
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿#define USE_SERIAL_MODEL_LOAD
 
 using Sandbox.Game.World;
-
 using System.Collections.Generic;
 using Sandbox.Game.Entities;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Threading;
 using System;
 using Sandbox.Engine.Utils;
@@ -15,17 +13,13 @@ using System.Diagnostics;
 using Sandbox.Definitions;
 using VRage;
 using VRage.Import;
+using VRage.Collections;
 
 namespace Sandbox.Engine.Models
 {
     public static partial class MyModels
     {
-        static Dictionary<string, MyModel> m_models = new Dictionary<string,MyModel>();
-
-        /// <summary>
-        /// Queue of textures to load.
-        /// </summary>
-        private static readonly ConcurrentQueue<MyModel> m_loadingQueue;
+        static MyConcurrentDictionary<string, MyModel> m_models = new MyConcurrentDictionary<string, MyModel>();
 
         /// <summary>
         /// Event that occures when some model needs to be loaded.
@@ -35,7 +29,6 @@ namespace Sandbox.Engine.Models
 
         static MyModels()
         {
-            m_loadingQueue = new ConcurrentQueue<MyModel>();
             m_loadModelEvent = new AutoResetEvent(false);
         }
 
@@ -70,9 +63,9 @@ namespace Sandbox.Engine.Models
 
         public static void UnloadData()
         {
-            foreach (var model in m_models)
+            foreach (var model in GetLoadedModels())
             {
-                model.Value.UnloadData();
+                model.UnloadData();
             }
             m_models.Clear();
         }
@@ -88,7 +81,7 @@ namespace Sandbox.Engine.Models
             if (!m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
-                m_models.Add(modelAsset, model);
+                m_models[modelAsset] = model;
             }
 
             model.LoadData();
@@ -102,7 +95,7 @@ namespace Sandbox.Engine.Models
             if (!m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
-                m_models.Add(modelAsset, model);
+                m_models[modelAsset] = model;
             }
 
             model.LoadAnimationData();
@@ -118,7 +111,7 @@ namespace Sandbox.Engine.Models
             if (!m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
-                m_models.Add(modelAsset, model);
+                m_models[modelAsset] = model;
             }
 
             model.LoadOnlyDummies();
@@ -132,7 +125,7 @@ namespace Sandbox.Engine.Models
             if (!m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
-                m_models.Add(modelAsset, model);
+                m_models[modelAsset] = model;
             }
 
             model.LoadOnlyModelInfo();
@@ -153,9 +146,11 @@ namespace Sandbox.Engine.Models
             return null;
        }
 
-        public static Dictionary<string, MyModel> LoadedModels
+        public static List<MyModel> GetLoadedModels()
         {
-            get { return m_models; }
+            var list = new List<MyModel>();
+            m_models.GetValues(list);
+            return list;
         }
     }
 }

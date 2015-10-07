@@ -24,7 +24,7 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncConveyors()
         {
-            MySyncLayer.RegisterMessage<ChangeUseConveyorsMsg>(ChangeUseConveyorSystemSucess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeUseConveyorsMsg>(ChangeUseConveyorSystemSucess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf, MyTransportMessageEnum.Success);
         }
 
         public static void SendChangeUseConveyorSystemRequest(long entityId, bool newVal)
@@ -32,7 +32,7 @@ namespace Sandbox.Game.Multiplayer
             var msg = new ChangeUseConveyorsMsg();
             msg.ProductionEntityId = entityId;
             msg.Value = newVal;
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void ChangeUseConveyorSystemSucess(ref ChangeUseConveyorsMsg msg, MyNetworkClient sender)
@@ -41,7 +41,13 @@ namespace Sandbox.Game.Multiplayer
             if (MyEntities.TryGetEntityById(msg.GetEntityId(), out entity))
             {
                 if (entity as IMyInventoryOwner != null)
+                {
                     (entity as IMyInventoryOwner).UseConveyorSystem = msg.Value;
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                    }
+                }
             }
         }
     }

@@ -68,7 +68,7 @@ namespace Sandbox.Game.AI.Pathfinding
         public MySmartGoal(IMyDestinationShape goal, MyEntity entity = null)
         {
             m_destination = goal;
-            m_destinationCenter = goal.GetCenter();
+            m_destinationCenter = goal.GetDestination();
             m_endEntity = entity;
             if (m_endEntity != null)
             {
@@ -140,7 +140,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private bool TargetMoved()
         {
-            return Vector3D.DistanceSquared(m_destinationCenter, m_destination.GetCenter()) > 4.0f;
+            return Vector3D.DistanceSquared(m_destinationCenter, m_destination.GetDestination()) > 4.0f;
         }
 
         private void m_endEntity_OnClosing(MyEntity obj)

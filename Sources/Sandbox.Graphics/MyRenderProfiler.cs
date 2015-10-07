@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using System.Diagnostics;
+using VRage;
 using VRage.Input;
 using VRageRender;
 
@@ -11,9 +12,14 @@ namespace Sandbox
 {
     public class MyRenderProfiler
     {
-        [Conditional(VRage.ProfilerShort.Symbol)]
         public static void HandleInput()
         {
+            // Commands are only handled when profiler processing is enabled
+            // e.g. by F12 debug screen, or by default when MyCompilationSymbols.PerformanceProfiling is true
+            // This way profiler can be activated even on release, for network bandwidth profiling (but not for performance profiling which is compilation constant)
+            if (!MyInput.Static.ENABLE_DEVELOPER_KEYS)
+                return;
+
             RenderProfilerCommand? command = null;
             int index = 0;
             bool sleep = false;
@@ -102,10 +108,18 @@ namespace Sandbox
                         command = RenderProfilerCommand.NextFrame;
                 }
 
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.Home))
+                if (MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsNewKeyPressed(MyKeys.Home))
+                {
+                    command = RenderProfilerCommand.Reset;
+                }
+                else if (MyInput.Static.IsNewKeyPressed(MyKeys.Home))
+                {
                     command = RenderProfilerCommand.IncreaseRange;
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.End))
+                }
+                else if (MyInput.Static.IsNewKeyPressed(MyKeys.End))
+                {
                     command = RenderProfilerCommand.DecreaseRange;
+                }
 
                 if (MyInput.Static.IsAnyCtrlKeyPressed()) // Precision mode
                 {

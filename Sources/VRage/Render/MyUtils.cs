@@ -65,7 +65,7 @@ namespace VRageRender
         }
 
         public MyAnimatedPropertyTransparentMaterial(string name, InterpolatorDelegate interpolator)
-            : base(name, interpolator)
+            : base(name, false, interpolator)
         {
         }
 

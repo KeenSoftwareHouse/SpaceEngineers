@@ -33,8 +33,8 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncManipulationTool()
         {
-            MySyncLayer.RegisterMessage<StartManipulationMsg>(StartManipulationCallback, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<StopManipulationMsg>(StopManipulationCallback, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<StartManipulationMsg>(StartManipulationCallback, MyMessagePermissions.ToSelf|MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<StopManipulationMsg>(StopManipulationCallback, MyMessagePermissions.ToSelf | MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
         }
 
         long m_entityId;
@@ -57,8 +57,8 @@ namespace Sandbox.Game.Multiplayer
             if (MyEntities.TryGetEntityById(msg.EntityId, out manipulationTool))
             {
                 manipulationTool.StartManipulation(state, otherEntity, hitPosition, ref ownerWorldHeadMatrix);
-                if(manipulationTool.IsHoldingItem)
-                    MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+                if (!Sync.IsServer && manipulationTool.IsHoldingItem)
+                    MySession.Static.SyncLayer.SendMessageToServer(ref msg);
             }
         }
 
@@ -69,6 +69,10 @@ namespace Sandbox.Game.Multiplayer
             if (MyEntities.TryGetEntityById(msg.EntityId, out manipulationTool) && MyEntities.TryGetEntityById(msg.OtherEntity, out otherEntity))
             {
                 manipulationTool.StartManipulation(msg.ToolState, otherEntity, msg.HitPosition, ref msg.OwnerWorldHeadMatrix, true);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
         }
 
@@ -83,7 +87,7 @@ namespace Sandbox.Game.Multiplayer
             StopManipulationMsg msg = new StopManipulationMsg();
             msg.EntityId = m_entityId;
 
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         static void StopManipulationCallback(ref StopManipulationMsg msg, MyNetworkClient sender)
@@ -91,6 +95,10 @@ namespace Sandbox.Game.Multiplayer
             MyManipulationTool manipulationTool;
             if (MyEntities.TryGetEntityById(msg.EntityId, out manipulationTool))
             {
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
                 manipulationTool.StopManipulation();
             }
         }

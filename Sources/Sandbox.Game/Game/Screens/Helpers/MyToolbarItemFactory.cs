@@ -49,7 +49,13 @@ namespace Sandbox.Game.Screens.Helpers
         #region "auxiliary functions to create toolbar items"
         public static MyObjectBuilder_ToolbarItem ObjectBuilderFromDefinition(MyDefinitionBase defBase)
         {
-            if (defBase is MyPhysicalItemDefinition)
+            if (defBase is MyConsumableItemDefinition)
+            {
+                MyObjectBuilder_ToolbarItemConsumable consumableData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemConsumable>();
+                consumableData.DefinitionId = defBase.Id;
+                return consumableData;
+            }
+            else if ((defBase is MyPhysicalItemDefinition) && (defBase.Id.TypeId == typeof(MyObjectBuilder_PhysicalGunObject)))
             {
                 MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
                 weaponData.DefinitionId = defBase.Id;

@@ -179,5 +179,76 @@ namespace VRage.Import
 
             return true;
         }
+
+        public Vector2I UVTiles
+        {
+            get 
+            { 
+                string val;
+                if (UserData.TryGetValue("UVTiles", out val))
+                {
+                    string[] cmps = val.Split(' ');
+                    if (cmps.Length != 2)
+                        return Vector2I.One;
+
+                    int x, y;
+                    
+                    if (!int.TryParse(cmps[0], out x))
+                        return Vector2I.One;
+
+                    if (!int.TryParse(cmps[1], out y))
+                        return Vector2I.One;
+
+                    return new Vector2I(x, y);
+                }
+
+                return Vector2I.One;
+            }
+        }
+
+        public MyFacingEnum Facing
+        {
+            get
+            {
+                string facingVal;
+                if (UserData.TryGetValue("Facing", out facingVal))
+                {
+                    MyFacingEnum facing;
+                    if (!Enum.TryParse(facingVal, out facing))
+                        return MyFacingEnum.None;
+
+                    return facing;
+                }
+
+                return MyFacingEnum.None;
+            }
+        }
+
+        public Vector2 WindScaleAndFreq
+        {
+            get
+            {
+                string windScaleVal;
+                Vector2 windScaleAndFreq = Vector2.Zero;
+                if (UserData.TryGetValue("WindScale", out windScaleVal))
+                {
+                    float f;
+                    if (!float.TryParse(windScaleVal, out f))
+                        return windScaleAndFreq;
+
+                    windScaleAndFreq.X = f;
+
+                    if (UserData.TryGetValue("WindFrequency", out windScaleVal))
+                    {
+                        if (!float.TryParse(windScaleVal, out f))
+                            return windScaleAndFreq;
+                    }
+
+                    windScaleAndFreq.Y = f;
+                }
+
+                return windScaleAndFreq;
+            }
+        }
     }
 }

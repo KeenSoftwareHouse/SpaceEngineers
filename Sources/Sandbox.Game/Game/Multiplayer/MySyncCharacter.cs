@@ -28,6 +28,8 @@ using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.Audio;
 using Sandbox.Game.Entities.Character.Components;
+using VRage.Library.Collections;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -109,22 +111,6 @@ namespace Sandbox.Game.Multiplayer
             public Vector3 ColorMaskHSV;
         }
 
-        [MessageId(7414, SteamSDK.P2PMessageEnum.Unreliable)]
-        public struct CharacterInputMsg : IEntityMessage
-        {
-            public long CharacterEntityId;
-            public long GetEntityId() { return CharacterEntityId; }
-
-            public Quaternion Orientation;
-            public Vector3D Position;
-
-            public ushort ClientFrameId;
-
-            public Vector3 MoveIndicator;
-            public Vector3 RotationIndicator;
-            public MyCharacterMovementFlags MovementFlags;
-        }
-
         [MessageId(7415, P2PMessageEnum.Reliable)]
         [ProtoContract]
         struct AnimationCommandMsg : IEntityMessage
@@ -155,10 +141,11 @@ namespace Sandbox.Game.Multiplayer
         {
             [ProtoMember]
             public long CharacterEntityId;
-            public long GetEntityId() { return CharacterEntityId; }
 
             [ProtoMember]
             public long CockpitEntityId;
+
+            public long GetEntityId() { return CockpitEntityId; }
         }
 
         [MessageId(7417, P2PMessageEnum.Unreliable)]
@@ -199,7 +186,7 @@ namespace Sandbox.Game.Multiplayer
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember]            
+            [ProtoMember]
             public int TransformsCount;
 
             [ProtoMember]
@@ -215,15 +202,36 @@ namespace Sandbox.Game.Multiplayer
             public Vector3 worldPosition;
         }
 
+        [MessageId(7421, P2PMessageEnum.Unreliable)]
+        public struct UpdateGasFillLevelMsg : IEntityMessage
+        {
+            public long CharacterEntityId;
+            public long GetEntityId() { return CharacterEntityId; }
+
+            public SerializableDefinitionId GasId;
+            public float FillLevel;
+        }
+
+        [ProtoContract]
+        [MessageId(7422, P2PMessageEnum.Reliable)]
+        public struct SetCharacterPhysicsEnabledMsg : IEntityMessage
+        {
+            [ProtoMember]
+            public long CharacterEntityId;
+            public long GetEntityId() { return CharacterEntityId; }
+
+            [ProtoMember]
+            public bool Enabled;
+        }
+
         static MySyncCharacter()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeMovementStateMsg>(OnMovementStateChanged, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, SwitchCharacterModelMsg>(OnSwitchCharacterModel, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeFlagsMsg>(OnFlagsChanged, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeHeadOrSpineMsg>(OnHeadOrSpineChanged, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, CharacterInputMsg>(OnCharacterInput, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, AnimationCommandMsg>(OnAnimationCommand, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncCharacter, AttachToCockpitMsg>(OnAttachToCockpit, MyMessagePermissions.FromServer);
+            //MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeMovementStateMsg>(OnMovementStateChanged, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncCharacter, SwitchCharacterModelMsg>(OnSwitchCharacterModel, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf);
+            //MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeFlagsMsg>(OnFlagsChanged, MyMessagePermissions.Any);
+            //MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeHeadOrSpineMsg>(OnHeadOrSpineChanged, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncCharacter, AnimationCommandMsg>(OnAnimationCommand, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, AttachToCockpitMsg>(OnAttachToCockpit, MyMessagePermissions.FromServer);
 
             //Chat messages
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, SendPlayerMessageMsg>(OnPlayerMessageRequest, MyMessagePermissions.ToServer, Engine.Multiplayer.MyTransportMessageEnum.Request);
@@ -243,6 +251,13 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, PlaySecondarySoundMsg>(OnSecondarySoundPlay, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, RagdollTransformsMsg>(OnRagdollTransformsUpdate, MyMessagePermissions.FromServer);
+
+            MySyncLayer.RegisterEntityMessage<MySyncCharacter, SetCharacterPhysicsEnabledMsg>(OnCharacterPhysicsEnabled, MyMessagePermissions.FromServer);
+        }
+
+        private static void OnCharacterPhysicsEnabled(MySyncCharacter sync, ref SetCharacterPhysicsEnabledMsg msg, MyNetworkClient sender)
+        {
+            sync.Entity.Physics.Enabled = msg.Enabled;
         }
 
         private static void OnRagdollTransformsUpdate(MySyncCharacter syncObject, ref RagdollTransformsMsg message, MyNetworkClient sender)
@@ -252,7 +267,7 @@ namespace Sandbox.Game.Multiplayer
             if (syncObject.Entity.Physics == null) return;
             if (syncObject.Entity.Physics.Ragdoll == null) return;
             if (ragdollComponent.RagdollMapper == null) return;
-            if (!syncObject.Entity.Physics.Ragdoll.IsAddedToWorld) return;
+            if (!syncObject.Entity.Physics.Ragdoll.InWorld) return;
             if (!ragdollComponent.RagdollMapper.IsActive) return;
             Debug.Assert(message.worldOrientation != null && message.worldOrientation != Quaternion.Zero, "Received invalid ragdoll orientation from server!");
             Debug.Assert(message.worldPosition != null && message.worldPosition != Vector3.Zero, "Received invalid ragdoll orientation from server!");
@@ -261,7 +276,7 @@ namespace Sandbox.Game.Multiplayer
             Matrix worldMatrix = Matrix.CreateFromQuaternion(message.worldOrientation);
             worldMatrix.Translation = message.worldPosition;
             Matrix[] transforms = new Matrix[message.TransformsCount];
-                        
+
             for (int i = 0; i < message.TransformsCount; ++i)
             {
                 transforms[i] = Matrix.CreateFromQuaternion(message.transformsOrientations[i]);
@@ -282,7 +297,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.worldOrientation = Quaternion.CreateFromRotationMatrix(world.GetOrientation());
                 msg.transformsPositions = new Vector3[msg.TransformsCount];
                 msg.transformsOrientations = new Quaternion[msg.TransformsCount];
-                for (int i = 0; i < localBodiesTransforms.Count(); ++i )
+                for (int i = 0; i < localBodiesTransforms.Count(); ++i)
                 {
                     msg.transformsPositions[i] = localBodiesTransforms[i].Translation;
                     msg.transformsOrientations[i] = Quaternion.CreateFromRotationMatrix(localBodiesTransforms[i].GetOrientation());
@@ -291,9 +306,21 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        public void SetPhysicsEnabled(bool enabled)
+        {
+            Debug.Assert(Sync.IsServer, "Only server can enable/disable physics of a character");
+            if (!Sync.IsServer) return;
 
-        private ChangeHeadOrSpineMsg m_headMsg;
-        private bool m_headDirty = false;
+            Entity.Physics.Enabled = enabled;
+            var msg = new SetCharacterPhysicsEnabledMsg();
+            msg.CharacterEntityId = Entity.EntityId;
+            msg.Enabled = enabled;
+
+            Sync.Layer.SendMessageToAll(ref msg);
+        }
+
+        //private ChangeHeadOrSpineMsg m_headMsg;
+        //private bool m_headDirty = false;
 
         public event ChangeMovementStateDelegate MovementStateChanged;
         public event SwitchCharacterModelDelegate CharacterModelSwitched;
@@ -313,17 +340,17 @@ namespace Sandbox.Game.Multiplayer
 
         public void ChangeMovementState(MyCharacterMovementEnum state)
         {
-            if (!MyFakes.CHARACTER_SERVER_SYNC)
-            {
-                if (ResponsibleForUpdate(this))
-                {
-                    var msg = new ChangeMovementStateMsg();
-                    msg.CharacterEntityId = Entity.EntityId;
-                    msg.MovementState = state;
+            //if (!MyFakes.CHARACTER_SERVER_SYNC)
+            //{
+            //    if (ResponsibleForUpdate(this))
+            //    {
+            //        var msg = new ChangeMovementStateMsg();
+            //        msg.CharacterEntityId = Entity.EntityId;
+            //        msg.MovementState = state;
 
-                    Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
+            //        Sync.Layer.SendMessageToAll(ref msg);
+            //    }
+            //}
         }
 
         private static void OnMovementStateChanged(MySyncCharacter sync, ref ChangeMovementStateMsg msg, MyNetworkClient sender)
@@ -349,7 +376,7 @@ namespace Sandbox.Game.Multiplayer
             msg.BlendTime = command.BlendTime;
             msg.TimeScale = command.TimeScale;
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         private static void OnAnimationCommand(MySyncCharacter sync, ref AnimationCommandMsg msg, MyNetworkClient sender)
@@ -364,6 +391,10 @@ namespace Sandbox.Game.Multiplayer
                 BlendTime = msg.BlendTime,
                 TimeScale = msg.TimeScale,
             });
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
 
         }
 
@@ -371,18 +402,27 @@ namespace Sandbox.Game.Multiplayer
         {
             if (ResponsibleForUpdate(this))
             {
-                var msg               = new SwitchCharacterModelMsg();
+                var msg = new SwitchCharacterModelMsg();
                 msg.CharacterEntityId = Entity.EntityId;
-                msg.Model             = model;
-                msg.ColorMaskHSV      = colorMaskHSV;
+                msg.Model = model;
+                msg.ColorMaskHSV = colorMaskHSV;
 
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
         }
 
         private static void OnSwitchCharacterModel(MySyncCharacter sync, ref SwitchCharacterModelMsg msg, MyNetworkClient sender)
         {
-            if (sync.ResponsibleForUpdate(sender))
+            if (Sync.IsServer && sync.ResponsibleForUpdate(sender))
+            {
+                var handler = sync.CharacterModelSwitched;
+                if (handler != null)
+                {
+                    handler(msg.Model, msg.ColorMaskHSV);
+                }
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
+            else if (sender.SteamUserId == Sync.ServerId || sender.SteamUserId == Sync.MyId)
             {
                 var handler = sync.CharacterModelSwitched;
                 if (handler != null)
@@ -392,35 +432,34 @@ namespace Sandbox.Game.Multiplayer
 
         public void ChangeFlags(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast, bool targetFromCamera)
         {
-            if (ResponsibleForUpdate(this))
-            {
-                var msg = new ChangeFlagsMsg();
-                msg.CharacterEntityId = Entity.EntityId;
-                msg.Flags = 0;
-                msg.Flags |= enableJetpack ? CharacterFlags.Jetpack : 0;
-                msg.Flags |= enableDampeners ? CharacterFlags.Dampeners : 0;
-                msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
-                msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
-                msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
-                msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
+            //if (ResponsibleForUpdate(this))
+            //{
+            //    var msg = new ChangeFlagsMsg();
+            //    msg.CharacterEntityId = Entity.EntityId;
+            //    msg.Flags = 0;
+            //    msg.Flags |= enableJetpack ? CharacterFlags.Jetpack : 0;
+            //    msg.Flags |= enableDampeners ? CharacterFlags.Dampeners : 0;
+            //    msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
+            //    msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
+            //    msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
+            //    msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
 
-                Sync.Layer.SendMessageToAll(ref msg);
-            }
-            else
-                if (MyFakes.CHARACTER_SERVER_SYNC && !Sync.IsServer)
-                {
-                    var msg = new ChangeFlagsMsg();
-                    msg.CharacterEntityId = Entity.EntityId;
-                    msg.Flags = 0;
-                    msg.Flags |= enableJetpack ? CharacterFlags.Jetpack : 0;
-                    msg.Flags |= enableDampeners ? CharacterFlags.Dampeners : 0;
-                    msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
-                    msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
-                    msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
-                    msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
+            //    Sync.Layer.SendMessageToAll(ref msg);
+            //}
+            //else if (MyFakes.CHARACTER_SERVER_SYNC && !Sync.IsServer)
+            //{
+            //    var msg = new ChangeFlagsMsg();
+            //    msg.CharacterEntityId = Entity.EntityId;
+            //    msg.Flags = 0;
+            //    msg.Flags |= enableJetpack ? CharacterFlags.Jetpack : 0;
+            //    msg.Flags |= enableDampeners ? CharacterFlags.Dampeners : 0;
+            //    msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
+            //    msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
+            //    msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
+            //    msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
 
-                    Sync.Layer.SendMessageToServer(ref msg);
-                }
+            //    Sync.Layer.SendMessageToServer(ref msg);
+            //}
         }
 
         private static void OnFlagsChanged(MySyncCharacter sync, ref ChangeFlagsMsg msg, MyNetworkClient sender)
@@ -435,112 +474,23 @@ namespace Sandbox.Game.Multiplayer
                     Sync.Layer.SendMessageToAll(ref msg);
             }
             else
-            if (sync.ResponsibleForUpdate(sender))
-            {
-                var handler = sync.FlagsChanged;
-                if (handler != null)
-                    handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast, msg.TargetFromCamera);
-            }
+                if (sync.ResponsibleForUpdate(sender))
+                {
+                    var handler = sync.FlagsChanged;
+                    if (handler != null)
+                        handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast, msg.TargetFromCamera);
+                }
         }
 
         public void ChangeHeadOrSpine(float headLocalXAngle, float headLocalYAngle, Quaternion spineRotation,
     Quaternion headRotation, Quaternion handRotation, Quaternion upperHandRotation)
         {
-            if (ResponsibleForUpdate(this))
-            {
-                m_headMsg.CharacterEntityId = Entity.EntityId;
-                m_headMsg.HeadLocalXAngle = headLocalXAngle;
-                m_headMsg.HeadLocalYAngle = headLocalYAngle;
-                m_headMsg.AdditionalSpineRotation = spineRotation != Quaternion.Zero ? spineRotation : m_headMsg.AdditionalSpineRotation;
-                m_headMsg.AdditionalHeadRotation = headRotation;
-                m_headMsg.AdditionalHandRotation = handRotation;
-                m_headMsg.AdditionalUpperHandRotation = upperHandRotation;
-
-                m_headDirty = true;
-                if (MyMultiplayer.Static != null)
-                {
-                    MyMultiplayer.Static.RegisterForTick(this);
-                }
-            }
+            MarkPhysicsDirty();
         }
 
         private void SendHeadMsg()
         {
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > m_updateFrameCount)
-            {
-                ResetUpdateTimer();
-                Sync.Layer.SendMessageToAll(ref m_headMsg);
-                m_headDirty = false;
-            }
-            else if (MyMultiplayer.Static != null)
-            {
-                MyMultiplayer.Static.RegisterForTick(this);
-            }
-        }
-
-        private void ResetUpdateTimer()
-        {
-            if (MyMultiplayer.Static != null)
-            {
-                m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
-            }
-        }
-
-        public override void Tick()
-        {
-            base.Tick();
-
-            if (!Entity.MarkedForClose && m_headDirty)
-            {
-                SendHeadMsg();
-            }
-        }
-
-        private static void OnCharacterInput(MySyncCharacter sync, ref CharacterInputMsg msg, MyNetworkClient sender)
-        {
-            sender.ClientFrameId = msg.ClientFrameId;
-            sync.CachedMovementState = msg;
-
-            var matrix = MatrixD.CreateFromQuaternion(msg.Orientation);
-            matrix.Translation = msg.Position;
-            sync.Entity.WorldMatrix = matrix;
-
-            if (Sync.IsServer)
-                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);            
-        }
-
-
-        public CharacterInputMsg CachedMovementState = new CharacterInputMsg();
-
-        public void MoveAndRotate(Vector3 moveIndicator, Vector3 rotationIndicator, MyCharacterMovementFlags movementFlags)
-        {
-            bool changed = 
-                CachedMovementState.MoveIndicator != moveIndicator ||
-                CachedMovementState.RotationIndicator != rotationIndicator ||
-                CachedMovementState.MovementFlags != movementFlags;
-
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > 60)
-            {  //Send input even if nothing changed, because clients can be moved by other forces and we need to sync them somehow at low framerate
-                ResetUpdateTimer();
-                changed = true;
-            }
-
-            if (changed)
-            {
-                CharacterInputMsg msg = new CharacterInputMsg();
-                msg.CharacterEntityId = Entity.EntityId;
-                msg.MoveIndicator = moveIndicator;
-                msg.RotationIndicator = rotationIndicator;
-                msg.MovementFlags = movementFlags;
-                msg.Orientation = Quaternion.CreateFromRotationMatrix(Entity.WorldMatrix);
-                msg.Position = Entity.WorldMatrix.Translation;
-                CachedMovementState = msg;
-
-                if (!Sync.IsServer)
-                    Sync.Layer.SendMessageToServer(ref msg);
-                else
-                    Sync.Layer.SendMessageToAll(ref msg);            
-            }
+            MarkPhysicsDirty();
         }
 
         private static void OnHeadOrSpineChanged(MySyncCharacter sync, ref ChangeHeadOrSpineMsg msg, MyNetworkClient sender)
@@ -554,9 +504,9 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        
 
-        #region Respawn 
+
+        #region Respawn
 
         public static void SendCharacterCreated(MyObjectBuilder_Character character, MyCockpit cockpit)
         {
@@ -566,16 +516,21 @@ namespace Sandbox.Game.Multiplayer
             msg.CharacterEntityId = character.EntityId;
             msg.CockpitEntityId = cockpit.EntityId;
 
-            Sync.Layer.SendMessageToAll(msg);
+            Sync.Layer.SendMessageToAll(ref msg);
         }
 
-        static void OnAttachToCockpit(MySyncCharacter sync, ref AttachToCockpitMsg msg, MyNetworkClient sender)
+        public static void SendCharacterAttachToCockpit(long character, MyCockpit cockpit)
         {
-            MyCharacter character = sync.Entity;
-            MyCockpit cockpit = MyEntities.GetEntityById(msg.CockpitEntityId) as MyCockpit;
-            Debug.Assert(cockpit != null);
-            if (cockpit == null) return;
+            AttachToCockpitMsg msg = new AttachToCockpitMsg();
+            msg.CharacterEntityId = character;
+            msg.CockpitEntityId = cockpit.EntityId;
+            Sync.Layer.SendMessageToAll(ref msg);
+        }
 
+        static void OnAttachToCockpit(MySyncShipController sync, ref AttachToCockpitMsg msg, MyNetworkClient sender)
+        {
+            MyCockpit cockpit = (MyCockpit)sync.Entity;
+            var character = MyEntities.GetEntityById(msg.CharacterEntityId) as MyCharacter;
             cockpit.AttachPilot(character, false);
         }
 
@@ -623,7 +578,7 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
-         
+
             [ProtoMember]
             public long FactionId1;
             [ProtoMember]
@@ -680,7 +635,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 return;
             }
-            
+
             var receiverId = MySession.Static.Players.TryGetPlayerIdentity(new MyPlayer.PlayerId(msg.ReceiverSteamId));
             var senderId = MySession.Static.Players.TryGetPlayerIdentity(new MyPlayer.PlayerId(msg.SenderSteamId));
 
@@ -732,12 +687,12 @@ namespace Sandbox.Game.Multiplayer
         public void SendNewFactionMessage(long factionId1, long factionId2, MyFactionChatItem chatItem)
         {
             var msg = new SendNewFactionMessageMsg();
-            
+
             msg.CharacterEntityId = Entity.EntityId;
             msg.FactionId1 = factionId1;
             msg.FactionId2 = factionId2;
             msg.ChatItem = chatItem.GetObjectBuilder();
-            
+
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
@@ -754,7 +709,7 @@ namespace Sandbox.Game.Multiplayer
                     }
                 }
             }
-            
+
             return null;
         }
 
@@ -769,7 +724,7 @@ namespace Sandbox.Game.Multiplayer
                 {
                     if (MySession.Static.Players.TryGetPlayerId(member.Value.PlayerId, out playerId) && sendToMember)
                     {
-                        Sync.Layer.SendMessage(confirmMessage, playerId.SteamId, MyTransportMessageEnum.Success);
+                        Sync.Layer.SendMessage(ref confirmMessage, playerId.SteamId, MyTransportMessageEnum.Success);
 
                         //Save chat history on server for non-server players
                         if (member.Value.PlayerId != MySession.LocalPlayerId)
@@ -825,7 +780,7 @@ namespace Sandbox.Game.Multiplayer
                 MyPlayer.PlayerId receiverPlayerId;
                 MySession.Static.Players.TryGetPlayerId(id, out receiverPlayerId);
                 ulong steamId = receiverPlayerId.SteamId;
-                
+
                 Sync.Layer.SendMessage(ref msg, steamId, MyTransportMessageEnum.Success);
             }
 
@@ -839,7 +794,7 @@ namespace Sandbox.Game.Multiplayer
         private static void OnFactionMessageSuccess(MySyncCharacter sync, ref SendNewFactionMessageMsg msg, MyNetworkClient sender)
         {
             long senderIdentityId = MyEntityIdentifier.ConstructId(MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, msg.ChatItem.IdentityIdUniqueNumber);
-            
+
             var factionChatItem = new MyFactionChatItem();
             factionChatItem.Init(msg.ChatItem);
             if (!(Sync.IsServer && senderIdentityId != MySession.LocalPlayerId))
@@ -1010,6 +965,19 @@ namespace Sandbox.Game.Multiplayer
 
         #endregion
 
+        public void UpdateStoredGas(MyDefinitionId gasId, float fillLevel)
+        {
+            var msg = new UpdateGasFillLevelMsg();
+            msg.CharacterEntityId = Entity.EntityId;
+            msg.GasId = gasId;
+            msg.FillLevel = fillLevel;
+        }
+
+        public void OnUpdateStoredGas(MySyncCharacter syncObject, ref UpdateGasFillLevelMsg message, MyNetworkClient sender)
+        {
+            syncObject.Entity.OxygenComponent.UpdateStoredGasLevel(message.GasId, message.FillLevel);
+        }
+
         public void UpdateOxygen(float oxygenAmount)
         {
             var msg = new UpdateOxygenMsg();
@@ -1021,7 +989,7 @@ namespace Sandbox.Game.Multiplayer
 
         private static void OnUpdateOxygen(MySyncCharacter syncObject, ref UpdateOxygenMsg message, MyNetworkClient sender)
         {
-            syncObject.Entity.SuitOxygenAmount = message.OxygenAmount;
+            syncObject.Entity.OxygenComponent.SuitOxygenAmount = message.OxygenAmount;
         }
 
         public void SendRefillFromBottle()
@@ -1030,7 +998,7 @@ namespace Sandbox.Game.Multiplayer
 
             var msg = new RefillFromBottleMsg();
             msg.CharacterEntityId = Entity.EntityId;
-            
+
             Sync.Layer.SendMessageToAll(ref msg);
         }
 
@@ -1038,7 +1006,7 @@ namespace Sandbox.Game.Multiplayer
         {
             if (syncObject.Entity == MySession.LocalCharacter)
             {
-                syncObject.Entity.ShowRefillFromBottleNotification();
+                syncObject.Entity.OxygenComponent.ShowRefillFromBottleNotification();
             }
         }
 
@@ -1064,12 +1032,122 @@ namespace Sandbox.Game.Multiplayer
         {
             if (!MySandboxGame.IsDedicated)
             {
-                syncObject.Entity.StartSecondarySound(msg.SoundId, sync: false);
+                syncObject.Entity.SoundComp.StartSecondarySound(msg.SoundId, sync: false);
             }
 
             if (Sync.IsServer)
             {
                 Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
+        }
+
+        public override void SerializePhysics(BitStream stream, MyNetworkClient sender, bool highOrientationCompression = false)
+        {
+            // Usually 59 B
+
+            // Base stuff (position, orientation, velocities)
+            base.SerializePhysics(stream, sender, true); // 50.5 B
+
+            if (MyFakes.CHARACTER_SERVER_SYNC)
+            {
+                // TODO: Serialize move and rotate when necesary
+            }
+
+            if (stream.Writing)
+            {
+                // Head and spine stuff, 36 - 152b (4.5B - 19 B)
+                stream.WriteHalf(Entity.HeadLocalXAngle); // 2B
+                stream.WriteHalf(Entity.HeadLocalYAngle); // 2B
+
+                // TODO: Spine has only one angle (bending forward backward)
+                stream.WriteQuaternionNormCompressedIdentity(Entity.GetAdditionalRotation(Entity.Definition.SpineBone)); // 1b / 30b
+                stream.WriteQuaternionNormCompressedIdentity(Entity.GetAdditionalRotation(Entity.Definition.HeadBone)); // 1b / 30b
+                stream.WriteQuaternionNormCompressedIdentity(Entity.GetAdditionalRotation(Entity.Definition.LeftForearmBone)); // 1b / 30b
+                stream.WriteQuaternionNormCompressedIdentity(Entity.GetAdditionalRotation(Entity.Definition.LeftUpperarmBone)); // 1b / 30b
+
+                // Movement state, 2B
+                stream.WriteUInt16((ushort)Entity.GetCurrentMovementState());
+
+                // Flags, 6 bits
+                stream.WriteBool(Entity.JetpackComp != null);
+                if (Entity.JetpackComp != null)
+                {
+                    stream.WriteBool(Entity.JetpackComp.TurnedOn);
+                    stream.WriteBool(Entity.JetpackComp.DampenersTurnedOn);
+                }
+
+                stream.WriteBool(Entity.LightEnabled); // TODO: Remove
+                stream.WriteBool(Entity.ZoomMode == MyZoomModeEnum.IronSight);
+                stream.WriteBool(Entity.RadioBroadcaster.WantsToBeEnabled); // TODO: Remove
+                stream.WriteBool(Entity.TargetFromCamera);
+
+                if (MyFakes.CHARACTER_SERVER_SYNC)
+                {
+                    Vector3 temp = Entity.MoveIndicator;
+                    stream.WriteHalf(temp.X);
+                    stream.WriteHalf(temp.Y);
+                    stream.WriteHalf(temp.Z);
+
+                    Vector2 rotation = Entity.RotationIndicator;
+                    stream.WriteHalf(rotation.X);
+                    stream.WriteHalf(rotation.Y);
+
+                    stream.WriteHalf(Entity.Roll);
+
+                }
+            }
+            else
+            {
+                // Head and spine stuff
+                float headX = stream.ReadHalf();
+                float headY = stream.ReadHalf();
+                Quaternion spine = stream.ReadQuaternionNormCompressedIdentity();
+                Quaternion head = stream.ReadQuaternionNormCompressedIdentity();
+                Quaternion hand = stream.ReadQuaternionNormCompressedIdentity();
+                Quaternion upperArm = stream.ReadQuaternionNormCompressedIdentity();
+                var handler0 = HeadOrSpineChanged;
+                if (handler0 != null) handler0(headX, headY, spine, head, hand, upperArm);
+
+                // Movement state
+                MyCharacterMovementEnum movementState = (MyCharacterMovementEnum)stream.ReadUInt16();
+                var handler = MovementStateChanged;
+                if (handler != null && Entity.GetCurrentMovementState() != movementState) handler(movementState);
+
+                // Flags
+                bool hasJetpack = stream.ReadBool();
+                bool jetpack = false;
+                bool dampeners = false;
+
+                if (hasJetpack)
+                {
+                    jetpack = stream.ReadBool();
+                    dampeners = stream.ReadBool();
+                }
+                bool lights = stream.ReadBool(); // TODO: Remove
+                bool ironsight = stream.ReadBool();
+                bool broadcast = stream.ReadBool(); // TODO: Remove
+                bool targetFromCamera = stream.ReadBool();
+
+                if (MyFakes.CHARACTER_SERVER_SYNC)
+                {
+                    Vector3 temp = Vector3.Zero;
+                    temp.X = stream.ReadHalf();
+                    temp.Y = stream.ReadHalf();
+                    temp.Z = stream.ReadHalf();
+
+                    Entity.MoveIndicator = temp;
+
+                    Vector2 rotation = Vector2.Zero;
+                    rotation.X = stream.ReadHalf();
+                    rotation.Y = stream.ReadHalf();
+
+                    Entity.RotationIndicator = rotation;
+
+                    Entity.Roll = stream.ReadHalf();
+                }
+
+                var handler2 = FlagsChanged;
+                if (handler2 != null) handler2(jetpack, dampeners, lights, ironsight, broadcast, targetFromCamera);
             }
         }
     }
