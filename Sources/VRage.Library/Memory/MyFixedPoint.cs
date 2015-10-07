@@ -170,7 +170,7 @@ namespace VRage
 
         public static MyFixedPoint Round(MyFixedPoint a)
         {
-            a.RawValue = (a.RawValue + Divider / 2) / Divider;
+            a.RawValue = ((a.RawValue + (Divider / 2)) / Divider) * Divider;
             return a;
         }
 
@@ -223,12 +223,7 @@ namespace VRage
 
         public static MyFixedPoint operator *(MyFixedPoint a, MyFixedPoint b)
         {
-            long ia = a.RawValue / Divider;
-            long ib = b.RawValue / Divider;
-            long fa = a.RawValue % Divider;
-            long fb = b.RawValue % Divider;
-
-            return new MyFixedPoint(ia * ib * Divider + fa * fb / Divider + ia * fb + ib * fa);
+            return new MyFixedPoint((a.RawValue * b.RawValue) / Divider);
         }
 
         public static MyFixedPoint operator *(MyFixedPoint a, float b)
