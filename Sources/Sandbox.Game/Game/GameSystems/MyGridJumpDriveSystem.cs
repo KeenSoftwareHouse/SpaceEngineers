@@ -210,15 +210,11 @@ namespace Sandbox.Game.GameSystems
         {
             if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
             {
-                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpFromGravity, 1500);
-                MyHud.Notifications.Add(notification);
-                return;
+                return false;
             }
             if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(destination)))
             {
-                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpIntoGravity, 1500);
-                MyHud.Notifications.Add(notification);
-                return;
+                return false;
             }
 
             if (!IsJumpValid(userId))
@@ -242,6 +238,19 @@ namespace Sandbox.Game.GameSystems
 
         public void RequestJump(string destinationName, Vector3D destination, long userId)
         {
+            if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpFromGravity, 1500);
+                MyHud.Notifications.Add(notification);
+                return;
+            }
+            if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(destination)))
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpIntoGravity, 1500);
+                MyHud.Notifications.Add(notification);
+                return;
+            }
+
             if (!IsJumpValid(userId))
             {
                 return;
