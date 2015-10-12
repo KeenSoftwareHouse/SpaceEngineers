@@ -120,7 +120,7 @@ namespace VRage.Audio
         int GetSoundInstancesTotal3D();
         
         void StopUpdatingAll3DCues();
-        bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyCueId cueId);
+        bool SourceIsCloseEnoughToPlaySound(Vector3 position, MyCueId cueId, float? customMaxDistance = 0);
         bool IsLoopable(MyCueId cueId);
 
         object CalculateDspSettingsDebug(IMy3DSoundEmitter source);

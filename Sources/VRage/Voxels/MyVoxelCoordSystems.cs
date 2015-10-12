@@ -12,6 +12,11 @@ namespace VRage.Voxels
     /// </summary>
     public static class MyVoxelCoordSystems
     {
+        public static void WorldPositionToLocalPosition(Vector3D worldPosition, MatrixD worldMatrix, MatrixD worldMatrixInv, Vector3 halfSize, out Vector3D localPosition)
+        {
+            localPosition = Vector3D.Transform(worldPosition + Vector3D.TransformNormal(halfSize, worldMatrix), worldMatrixInv);            
+        }
+
         public static void WorldPositionToLocalPosition(Vector3D referenceVoxelMapPosition, ref Vector3D worldPosition, out Vector3D localPosition)
         {
             localPosition = worldPosition - referenceVoxelMapPosition;
@@ -171,7 +176,7 @@ namespace VRage.Voxels
         }
 
 
-        private const int CELL_SIZE_THRESHOLD_LOD = 4;
+        private const int CELL_SIZE_THRESHOLD_LOD = 5;
 
         public static int RenderCellSizeShiftToLessDetailed(int lod)
         {
@@ -193,7 +198,7 @@ namespace VRage.Voxels
 
         public static int RenderCellSizeInLodVoxelsShift(int lod)
         {
-            return 5 + RenderCellSizeInLodVoxelsShiftDelta(lod);
+            return CELL_SIZE_THRESHOLD_LOD + RenderCellSizeInLodVoxelsShiftDelta(lod);
         }
 
         public static int RenderCellSizeInLodVoxels(int lod)

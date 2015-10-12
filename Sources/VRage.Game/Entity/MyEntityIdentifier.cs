@@ -6,6 +6,8 @@ using VRage.Utils;
 using VRage.Trace;
 using VRage.Library.Utils;
 using VRage.ModAPI;
+using System.Threading;
+using VRage.Collections;
 
 namespace VRage
 {
@@ -13,7 +15,7 @@ namespace VRage
     {
         const int DEFAULT_DICTIONARY_SIZE = 32768;
 
-        static Dictionary<long, IMyEntity> m_entityList = new Dictionary<long, IMyEntity>(DEFAULT_DICTIONARY_SIZE);
+        static MyConcurrentDictionary<long, IMyEntity> m_entityList = new MyConcurrentDictionary<long, IMyEntity>(DEFAULT_DICTIONARY_SIZE);
         static bool m_allocationSuspended = false;
 
         /// <summary>
@@ -41,7 +43,6 @@ namespace VRage
             NPC = 4,         // Obsolete, use IDENTITY instead
             SPAWN_GROUP = 5, // Obsolete, use IDENTITY instead
             ASTEROID = 6,
-            PLANET = 7,
         }
 
         public enum ID_ALLOCATION_METHOD : byte
@@ -54,12 +55,12 @@ namespace VRage
 
         static MyEntityIdentifier()
         {
-            m_lastGeneratedIds = new long[(int)MyEnum<ID_OBJECT_TYPE>.MaxValue.Value + 1];
+            m_lastGeneratedIds = new long[(int)MyEnum<ID_OBJECT_TYPE>.Range.Max + 1];
         }
 
         public static void Reset()
         {
-            for (int i = 0; i < (int)MyEnum<ID_OBJECT_TYPE>.MaxValue.Value + 1; ++i)
+            for (int i = 0; i < (int)MyEnum<ID_OBJECT_TYPE>.Range.Max + 1; ++i)
             {
                 m_lastGeneratedIds[i] = 0;
             }
@@ -108,8 +109,7 @@ namespace VRage
             else
             {
                 Debug.Assert(generationMethod == ID_ALLOCATION_METHOD.SERIAL_START_WITH_1, "Unknown entity ID generation method!");
-                generatedNumber = m_lastGeneratedIds[(byte)objectType] + 1;
-                m_lastGeneratedIds[(byte)objectType] = generatedNumber;
+                generatedNumber = Interlocked.Increment(ref m_lastGeneratedIds[(byte)objectType]);
             }
 
             return ConstructId(objectType, generatedNumber);
@@ -129,7 +129,7 @@ namespace VRage
         public static long ConstructId(ID_OBJECT_TYPE type, long uniqueNumber)
         {
             Debug.Assert(((ulong)uniqueNumber & 0xFF00000000000000) == 0, "Unique number was incorrect!");
-            return (uniqueNumber & 0x00FFFFFFFFFFFFFF) | ((long)ID_OBJECT_TYPE.IDENTITY << 56);
+            return (uniqueNumber & 0x00FFFFFFFFFFFFFF) | ((long)type << 56);
         }
 
         public static long FixObsoleteIdentityType(long id)
@@ -144,13 +144,15 @@ namespace VRage
 
         public static void RemoveEntity(long entityId)
         {
-        //    Debug.Assert(m_entityList.ContainsKey(entityId), "Attempting to remove already removed entity. This shouldn't happen.");
+            //    Debug.Assert(m_entityList.ContainsKey(entityId), "Attempting to remove already removed entity. This shouldn't happen.");
             m_entityList.Remove(entityId);
         }
 
         public static bool TryGetEntity(long entityId, out IMyEntity entity)
         {
-            return m_entityList.TryGetValue(entityId, out entity);
+            bool result = m_entityList.TryGetValue(entityId, out entity);
+            Debug.Assert(!result || !entity.DebugAsyncLoading, "Getting entity which is being asynchronously loaded!");
+            return result;
         }
 
         public static bool TryGetEntity<T>(long entityId, out T entity) where T : class ,IMyEntity
@@ -163,6 +165,7 @@ namespace VRage
 
         public static IMyEntity GetEntityById(long entityId)
         {
+            Debug.Assert(!m_entityList[entityId].DebugAsyncLoading, "Getting entity which is being asynchronously loaded!");
             return m_entityList[entityId];
         }
 
@@ -186,8 +189,8 @@ namespace VRage
             //Debug.Assert(m_entityList[oldId] == entity, "Entity assigned to old ID is different. This can't happen.");
             //Debug.Assert(m_entityList.ContainsValue(entity), "Entity is not in the list. This can't happen.");
 
-            RemoveEntity(oldId);
-            m_entityList[newId] = entity;
+            var result = m_entityList.ChangeKey(oldId, newId);
+            Debug.Assert(result == entity, "Entity had different EntityId");
         }
 
         public static void Clear()

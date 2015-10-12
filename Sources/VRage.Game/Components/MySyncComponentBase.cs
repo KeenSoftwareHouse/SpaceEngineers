@@ -10,9 +10,7 @@ namespace VRage.Components
     public abstract class MySyncComponentBase : MyEntityComponentBase
     {
         public abstract void SendCloseRequest();
-        public abstract void Tick();
-        public abstract void UpdatePosition();
-        public abstract bool UpdatesOnlyOnServer { get; set; }
+        public abstract void MarkPhysicsDirty();
 
         public override string ComponentTypeDebugString
         {

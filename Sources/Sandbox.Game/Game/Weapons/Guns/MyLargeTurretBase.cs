@@ -11,7 +11,6 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
@@ -24,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
@@ -50,7 +50,7 @@ namespace Sandbox.Game.Weapons
     }
 
     [MyCubeBlockType(typeof(MyObjectBuilder_TurretBase))]
-    abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyPowerConsumer, IMyInventoryOwner, IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
+    abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyInventoryOwner, IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
     {
        
         interface IMyPredicionType
@@ -377,12 +377,6 @@ namespace Sandbox.Game.Weapons
 
  //       protected abstract MyAmmoCategoryEnum AmmoType { get; }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         public MyLargeShipGunStatus GetStatus()
         {
             return m_status;
@@ -613,13 +607,14 @@ namespace Sandbox.Game.Weapons
             TargetLargeGrids = builder.TargetLargeGrids;
             TargetStations = builder.TargetStations;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Defense,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_TURRET,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0.0f);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0.0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.Update();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
@@ -750,7 +745,7 @@ namespace Sandbox.Game.Weapons
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
 
@@ -776,13 +771,13 @@ namespace Sandbox.Game.Weapons
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         void Receiver_IsPoweredChanged()
@@ -1238,18 +1233,18 @@ namespace Sandbox.Game.Weapons
             var from = head.Translation;
             var to = from + head.Forward * m_searchingRange;
             m_laserLength = m_searchingRange;
-            MyPhysics.HitInfo? hitInfo = null;
-            if (!MySandboxGame.IsDedicated)
-            {
-                hitInfo = MyPhysics.CastRay(from, to);
-            }
-            if (!hitInfo.HasValue)
+            //MyPhysics.HitInfo? hitInfo = null;
+            //if (!MySandboxGame.IsDedicated)
+            //{
+            //    hitInfo = MyPhysics.CastRay(from, to);
+            //}
+            //if (!hitInfo.HasValue)
                 m_hitPosition = to;
-            else
-            {
-                m_hitPosition = hitInfo.Value.Position;
-                m_laserLength = (m_hitPosition - from).Length();
-            }
+            //else
+            //{
+            //    m_hitPosition = hitInfo.Value.Position;
+            //    m_laserLength = (m_hitPosition - from).Length();
+            //}
         }
 
 
@@ -1739,10 +1734,13 @@ namespace Sandbox.Game.Weapons
 
             var head = WorldMatrix;
             var from = head.Translation - 0.4f * head.Up; //decrease by offset to muzzle
-			var to = target.PositionComp.GetPosition();
+            var to = m_currentPrediction.GetPredictedTargetPosition(target);
 
-            Vector3D pos;
-            Vector3 normal;
+            if (target is MyCharacter)
+            {
+                to = to + Vector3.Transform(target.Physics.Center, target.WorldMatrix.GetOrientation());
+            }
+
             var physTarget = MyPhysics.CastRay(from, to);
 
             IMyEntity hitEntity = null;
@@ -1751,7 +1749,7 @@ namespace Sandbox.Game.Weapons
             {
                 System.Diagnostics.Debug.Assert(physTarget.Value.HkHitInfo.Body.UserObject != null);
 
-                if (physTarget.Value.HkHitInfo.Body.UserObject != null)
+                if (physTarget.Value.HkHitInfo.Body != null && physTarget.Value.HkHitInfo.Body.UserObject != null && physTarget.Value.HkHitInfo.Body.UserObject is MyPhysicsBody)
                 {
                     hitEntity = ((MyPhysicsBody)physTarget.Value.HkHitInfo.Body.UserObject).Entity;
                 }
@@ -1777,38 +1775,73 @@ namespace Sandbox.Game.Weapons
 
             BoundingSphereD bs = new BoundingSphereD(PositionComp.GetPosition(), range);
             m_targetList.Clear();
-            MyGamePruningStructure.GetAllTargetsInSphere(ref bs, m_targetList);
+            MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref bs, m_targetList);
+           
+            int targetCount = m_targetList.Count;
+            for (int i = 0; i < targetCount; i++ )
+            {
+                var grid = m_targetList[i] as MyCubeGrid; //perf: using grid owners to not querry friendly ships for blocks
+                if (grid != null)
+                {
+                    bool enemy = false;
+                    if (grid.BigOwners.Count == 0 && grid.SmallOwners.Count == 0)
+                        enemy = GetUserRelationToOwner(0) == MyRelationsBetweenPlayerAndBlock.Enemies;
+                    else
+                    {
+                        foreach (var owner in grid.BigOwners)
+                        {
+                            MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(owner);
+                            enemy |= relation == MyRelationsBetweenPlayerAndBlock.Enemies;
+                        }
+                        foreach (var owner in grid.SmallOwners)
+                        {
+                            MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(owner);
+                            enemy |= relation == MyRelationsBetweenPlayerAndBlock.Enemies;
+                        }
+                    }
+                    if (enemy)
+                        grid.Hierarchy.QuerySphere<MyEntity>(ref bs, m_targetList);
+                }
+            }
 
             MyEntity nearestTarget = null;
             double minDistanceSq = double.MaxValue;
-            bool isDecoy = false;
+            bool foundDecoy = false;
+            bool isDecoy;
+            bool isEnemy;
 
             foreach (var target in m_targetList)
             {
                 var dist = Vector3D.DistanceSquared(target.PositionComp.GetPosition(), PositionComp.GetPosition());
+                isDecoy = IsDecoy(target);
 
-                if (IsDecoy(target) && IsTarget(target) && IsTargetEnemy(target) && IsTargetInView(target) && IsTargetVisible(target))
+                if (dist >= minDistanceSq && (foundDecoy || !isDecoy))
+                    continue;
+
+                isEnemy = IsTarget(target) & IsTargetEnemy(target);
+                bool isVisible = true;
+                if (isEnemy & !onlyPotential)
+                    isVisible = IsTargetInView(target) && IsTargetVisible(target);
+
+                if (isDecoy && isEnemy && isVisible)
                 {
-                    if (!isDecoy || (isDecoy && dist < minDistanceSq))
+                    if (!foundDecoy || (foundDecoy && dist < minDistanceSq))
                     {
                         nearestTarget = target;
                         minDistanceSq = dist;
                     }
-                    isDecoy = true;
+                    foundDecoy = true;
                 }
 
-                if (isDecoy)
+                if (foundDecoy)
                     continue;
 
-                if (!IsTargetAimed(target) && IsTarget(target) && IsTargetEnemy(target))
+                if (!IsTargetAimed(target) && isEnemy && isVisible)
                 {
-                    if (onlyPotential || (!onlyPotential && IsTargetInView(target) && IsTargetVisible(target)))
+                    if (dist < minDistanceSq)
                     {
-                        if (dist < minDistanceSq)
-                        {
-                            minDistanceSq = dist;
-                            nearestTarget = target;
-                        }
+                        minDistanceSq = dist;
+                        nearestTarget = target;
                     }
                 }
             }
@@ -1838,7 +1871,8 @@ namespace Sandbox.Game.Weapons
             var predPos = m_currentPrediction.GetPredictedTargetPosition(target);
             var lookAtPositionEuler = LookAt(predPos);
             float needElevation = lookAtPositionEuler.X;
-            if (needElevation > m_barrel.BarrelElevationMin && IsInRange(lookAtPositionEuler))
+
+            if (m_barrel != null &&needElevation > m_barrel.BarrelElevationMin && IsInRange(lookAtPositionEuler))
             {
                 return true;
             }
@@ -1853,15 +1887,14 @@ namespace Sandbox.Game.Weapons
 
             if (target is MyCubeGrid)
             {
-                var radioAntennas = (target as MyCubeGrid).GetFatBlocks<MyRadioAntenna>();
-                foreach (var radioAntenna in radioAntennas)
+                if ((target as MyCubeGrid).BigOwners.Count == 0)
                 {
-                    MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(radioAntenna.OwnerId);
-                    if (relation != MyRelationsBetweenPlayerAndBlock.Enemies)
-                        return false;
+                    return true;
                 }
-
-                return true;
+                else
+                {
+                    return false;
+                }
             }
 
             var moduleOwner = target as IMyComponentOwner<MyIDModule>;
@@ -1911,14 +1944,33 @@ namespace Sandbox.Game.Weapons
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyLargeShipGunBase::CheckNearTargets");
 
-            MyEntity nearestTarget = GetNearestVisibleTarget(m_searchingRange, true);
+            MyEntity nearestTarget = null;
+            float targetRange = 0;
+            if (Target != null)
+            {
+                targetRange = (float)(PositionComp.GetPosition() - Target.PositionComp.GetPosition()).Length() + 10;
+                nearestTarget = GetNearestVisibleTarget(targetRange, true);
+                if (nearestTarget == null)
+                    nearestTarget = GetNearestVisibleTarget(m_searchingRange, true);
+            }
+            else
+                nearestTarget = GetNearestVisibleTarget(m_searchingRange, true);
+         
             bool oldPotentialState = m_isPotentialTarget;
 
             m_isPotentialTarget = true;
 
             if (nearestTarget != null)
             {
-                var shootableTarget = GetNearestVisibleTarget(m_shootingRange, false);
+                MyEntity shootableTarget = null;
+                if(Target != null)
+                {
+                    shootableTarget = GetNearestVisibleTarget(Math.Min(targetRange, m_shootingRange), false);
+                    if(shootableTarget == null)
+                        shootableTarget = GetNearestVisibleTarget(m_shootingRange, false);
+                }
+                else
+                    shootableTarget = GetNearestVisibleTarget(m_shootingRange, false);
                 if (shootableTarget != null)
                 {
                     nearestTarget = shootableTarget;
@@ -2020,6 +2072,11 @@ namespace Sandbox.Game.Weapons
         public MyInventory GetInventory(int i)
         {
             return m_ammoInventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {        
+            m_ammoInventory = inventory;
         }
 
         int IMyInventoryOwner.InventoryCount
@@ -2376,6 +2433,8 @@ namespace Sandbox.Game.Weapons
             {
                 return;
             }
+            if (!CanControl())
+                return;
             
             if (MyGuiScreenTerminal.IsOpen)
             {
@@ -2997,7 +3056,7 @@ namespace Sandbox.Game.Weapons
 
         protected void DrawLasers()
         {
-            if (!MySandboxGame.IsDedicated && m_barrel != null)
+            if (!MySandboxGame.IsDedicated && m_barrel != null && MyFakes.ENABLE_TURRET_LASERS)
             {
                 MyGunStatusEnum gunStatus = MyGunStatusEnum.Cooldown;
                 if (IsWorking)

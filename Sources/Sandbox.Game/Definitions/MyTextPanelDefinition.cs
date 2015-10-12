@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using VRageMath;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_TextPanelDefinition))]
     class MyTextPanelDefinition : MyCubeBlockDefinition
     {
+	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
         public int TextureResolution;
         public int TextureAspectRadio;
@@ -20,7 +16,8 @@ namespace Sandbox.Definitions
             base.Init(builder);
 
             var ob = (MyObjectBuilder_TextPanelDefinition)builder;
-                 
+
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
             RequiredPowerInput = ob.RequiredPowerInput;
             TextureResolution = ob.TextureResolution;
             TextureAspectRadio = ob.TextureAspectRadio;

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common.AI;
 using Sandbox.Game.AI.Logic;
+using Sandbox.Game.AI.Actions;
 
 namespace Sandbox.Game.AI
 {
@@ -26,12 +27,12 @@ namespace Sandbox.Game.AI
 
         MyObjectBuilder_Bot GetBotData();
 
-        MyBehaviorTree BehaviorTree { get; set; }
+       // MyBehaviorTree BehaviorTree { get; set; }
         string BehaviorSubtypeName { get; }
         ActionCollection ActionCollection { get; }
         MyBotMemory BotMemory { get; }
         MyBotDefinition BotDefinition { get; }
-        MyAbstractBotActionProxy BotActions { get; set; }
+        MyBotActionsBase BotActions { get; set; }
         MyBotLogic BotLogic { get; }
     }
 }

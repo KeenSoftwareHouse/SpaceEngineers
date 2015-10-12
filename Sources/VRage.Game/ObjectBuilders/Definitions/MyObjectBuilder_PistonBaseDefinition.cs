@@ -19,6 +19,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public float MaxVelocity = 5;
 
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float RequiredPowerInput;
     }

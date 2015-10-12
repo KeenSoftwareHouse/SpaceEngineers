@@ -68,6 +68,7 @@ namespace Sandbox.Definitions
 
     #endregion Nested struct and classes
 
+    [PreloadRequired]
     public static class MyCubeGridDefinitions
     {
         #region Enums

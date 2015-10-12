@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -12,6 +13,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ShouldSerializeCurrentAmmo() { return false; }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_GunBase GunBase;
     }
 }

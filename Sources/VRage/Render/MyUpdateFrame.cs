@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 using VRage.Library.Utils;
 
 namespace VRageRender
@@ -14,6 +15,6 @@ namespace VRageRender
         public bool Processed;
         public MyTimeSpan UpdateTimestamp;
 
-        public readonly List<IMyRenderMessage> RenderInput = new List<IMyRenderMessage>(2048);
+        public readonly MyConcurrentSortableQueue<IMyRenderMessage> RenderInput = new MyConcurrentSortableQueue<IMyRenderMessage>(2048);
     }
 }

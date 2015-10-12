@@ -43,21 +43,21 @@ namespace Sandbox.Game.Components
                     MatrixD.CreateTranslation(minCorner),
                     clipmapSizeLod0,
                     m_voxelMap.ScaleGroup,
-                    Vector3D.Zero));
+                    Vector3D.Zero, additionalFlags: RenderFlags.CastShadows));
         }
 
         public override void InvalidateRenderObjects(bool sortIntoCulling = false)
         {
             if (Visible)
             {
-                var worldMatrix = MatrixD.CreateTranslation(m_voxelMap.PositionLeftBottomCorner);
+                var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
                 MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling);
             }
         }
 
         public void UpdateCells()
         {
-            var worldMatrix = MatrixD.CreateTranslation((Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner);
+            var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
             MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling: false);
         }
 
@@ -106,7 +106,7 @@ namespace Sandbox.Game.Components
             m_renderWorkTracker.InvalidateAll();
         }
 
-        internal void OnCellRequest(MyCellCoord cell, bool highPriority)
+        internal void OnCellRequest(MyCellCoord cell, bool highPriority, Func<int> priorityFunction, Action<Color> debugDraw)
         {
             ProfilerShort.Begin("OnCellRequest");
 
@@ -139,6 +139,8 @@ namespace Sandbox.Game.Components
                     WorkId = workId,
                     RenderWorkTracker = m_renderWorkTracker,
                     IsHighPriority = highPriority,
+                    Priority = priorityFunction,
+                    DebugDraw = debugDraw,
                 });
             }
             finally

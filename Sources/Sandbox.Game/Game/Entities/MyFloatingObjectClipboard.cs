@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities
                 return;
 
             CopyfloatingObject(floatingObject);
-            floatingObject.SyncObject.SendCloseRequest();
+            MyFloatingObjects.RemoveFloatingObject(floatingObject, true);
             Deactivate();
         }
 
@@ -215,7 +215,7 @@ namespace Sandbox.Game.Entities
             }
 
             // CH:TODO: This would probably be safer if it was requested from the server as well
-            MySyncCreate.SendEntitiesCreated(m_tmpPastedBuilders);
+          // MySyncCreate.SendEntitiesCreated(m_tmpPastedBuilders);
 
             Deactivate();
             return retVal;
@@ -227,11 +227,11 @@ namespace Sandbox.Game.Entities
         /// <returns>True when the grid can be pasted</returns>
         private bool CheckPastedFloatingObjects()
         {
-            MyCubeBlockDefinition cbDef;
+            MyPhysicalItemDefinition cbDef;
             foreach (var floatingObjectBuilder in m_copiedFloatingObjects)
             {
-                MyDefinitionId id = new MyDefinitionId(floatingObjectBuilder.TypeId, floatingObjectBuilder.SubtypeId);
-                if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(id, out cbDef) == false)
+                MyDefinitionId id = floatingObjectBuilder.Item.PhysicalContent.GetId();
+                if (MyDefinitionManager.Static.TryGetPhysicalItemDefinition(id, out cbDef) == false)
                 {
                     return false;
                 }
@@ -298,7 +298,8 @@ namespace Sandbox.Game.Entities
                 IsActive = visible;
                 m_visible = visible;
                 MyEntities.Add(previewFloatingObject);
-
+                // MW: we want the floating object to be added to the scene, but we dont want to treat it as a real floating object
+                MyFloatingObjects.UnregisterFloatingObject(previewFloatingObject);
                 previewFloatingObject.Save = false;
                 DisablePhysicsRecursively(previewFloatingObject);
                 m_previewFloatingObjects.Add(previewFloatingObject);
@@ -417,6 +418,7 @@ namespace Sandbox.Game.Entities
                 var offset = worldMatrix2.Translation - m_copiedFloatingObjects[0].PositionAndOrientation.Value.Position; //calculate offset to first pasted grid
                 m_copiedFloatingObjectOffsets[i] = Vector3.TransformNormal(offset, orientationDelta); // Transform the offset to new orientation
                 Vector3 translation = m_pastePosition + m_copiedFloatingObjectOffsets[i]; //correct position
+                worldMatrix2 = worldMatrix2 * orientationDelta;
 
                 worldMatrix2.Translation = Vector3.Zero;
                 worldMatrix2 = Matrix.Orthogonalize(worldMatrix2);
@@ -548,6 +550,14 @@ namespace Sandbox.Game.Entities
             {
                 floatingObject.Render.Visible = visible;
             }
+        }
+
+        public void ClearClipboard()
+        {
+            if (IsActive)
+                Deactivate();
+            m_copiedFloatingObjects.Clear();
+            m_copiedFloatingObjectOffsets.Clear();
         }
 
         #region Pasting transform control

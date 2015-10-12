@@ -22,6 +22,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public WeaponBlockWeaponDefinition WeaponDefinitionId;
 
+		[ProtoMember]
+		public string ResourceSinkGroup;
+
         [ProtoMember]
         public float InventoryMaxVolume;
     }

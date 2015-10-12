@@ -8,6 +8,6 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyProgrammableBlock : IMyFunctionalBlock
     {
         bool IsRunning { get; }
-        string TerminalRunArgument { get; }
+        string TerminalRunArgument { get; set; }
     }
 }

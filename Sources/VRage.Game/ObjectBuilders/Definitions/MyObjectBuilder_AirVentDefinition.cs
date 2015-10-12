@@ -7,10 +7,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AirVentDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
         [ProtoMember]
-        public float StandbyPowerConsumption;
+        public string ResourceSourceGroup;
         [ProtoMember]
         public float OperationalPowerConsumption;
+        [ProtoMember]
+        public float StandbyPowerConsumption;
         [ProtoMember]
         public float VentilationCapacityPerSecond;
         

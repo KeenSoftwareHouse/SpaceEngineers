@@ -1,8 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
-using VRageMath;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -10,6 +6,7 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_MedicalRoomDefinition))]
     public class MyMedicalRoomDefinition : MyCubeBlockDefinition
     {
+	    public string ResourceSinkGroup;
         public string IdleSound;
         public string ProgressSound;
 
@@ -19,6 +16,7 @@ namespace Sandbox.Definitions
 
             var landingGearBuilder = builder as MyObjectBuilder_MedicalRoomDefinition;
             MyDebug.AssertDebug(landingGearBuilder != null);
+	        ResourceSinkGroup = landingGearBuilder.ResourceSinkGroup;
             IdleSound = landingGearBuilder.IdleSound;
             ProgressSound = landingGearBuilder.ProgressSound;
         }

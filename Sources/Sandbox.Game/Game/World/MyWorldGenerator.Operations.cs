@@ -13,6 +13,8 @@ using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
 using System.Reflection;
+using VRage.Library.Utils;
+using Sandbox.Definitions;
 
 namespace Sandbox.Game.World
 {
@@ -205,35 +207,6 @@ namespace Sandbox.Game.World
             }
         }
 
-        [MyWorldGenerator.OperationType(typeof(MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab))]
-        public class OperationAddPlanetPrefab : MyWorldGeneratorOperationBase
-        {
-            public string Name;
-            public string PrefabName;
-
-            public override void Apply()
-            {
-               MyWorldGenerator.AddPlanetPrefab(PrefabName, Name);
-            }
-
-            public override void Init(MyObjectBuilder_WorldGeneratorOperation builder)
-            {
-                base.Init(builder);
-                var ob = builder as MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab;
-
-                Name = ob.Name;
-                PrefabName = ob.PrefabFile;
-            }
-
-            public override MyObjectBuilder_WorldGeneratorOperation GetObjectBuilder()
-            {
-                var ob = base.GetObjectBuilder() as MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab;
-
-                ob.Name = Name;
-                ob.PrefabFile = PrefabName;
-                return ob;
-            }
-        }
 
     }
 }

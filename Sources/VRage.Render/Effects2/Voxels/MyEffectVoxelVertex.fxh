@@ -26,7 +26,16 @@ float3 VoxelVertex_NormalizedToCellRelativePosition( float3 position)
 
 float3 VoxelVertex_CellRelativeToWorldPosition(float3 position)
 {
-    return position + WorldMatrix._m30_m31_m32;
+    //float3 voxelMapWP = WorldMatrix._m30_m31_m32 - VoxelVertex_CellOffset;
+    float3 voxelMapWP = WorldMatrix._m30_m31_m32 - VoxelVertex_CellOffset;
+    float3 untransformedWP = position + WorldMatrix._m30_m31_m32;
+
+    float3 relative = untransformedWP - voxelMapWP;
+    float4x4 rotation = WorldMatrix;
+    rotation._m30_m31_m32 = float3(0,0,0);
+    relative = mul(relative, rotation);
+
+    return relative + voxelMapWP;
 }
 
 float3 VoxelVertex_CellRelativeToLocalPosition(float3 position)

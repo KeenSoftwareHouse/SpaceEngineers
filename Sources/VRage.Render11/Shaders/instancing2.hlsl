@@ -25,8 +25,8 @@ struct VertexPosition {
 
 struct VertexNormal {
 	uint packed_unorm4;
-	uint shit0;
-	uint shit1;
+	uint int0;
+	uint int1;
 };
 
 struct InstanceIndirection {

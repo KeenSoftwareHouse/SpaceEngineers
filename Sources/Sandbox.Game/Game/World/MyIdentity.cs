@@ -117,12 +117,15 @@ namespace Sandbox.Game.World
 
             Character = character;
 
-            character.OnClosing += character_OnClosing;
-            character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
+            if (character != null)
+            {
+                character.OnClosing += character_OnClosing;
+                character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
 
-            SaveModelAndColorFromCharacter();
+                SaveModelAndColorFromCharacter();
 
-            IsDead = character.IsDead;
+                IsDead = character.IsDead;
+            }
 
             if (CharacterChanged != null)
                 CharacterChanged(oldCharacter, Character);

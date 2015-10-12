@@ -235,10 +235,7 @@ namespace VRageRender
             //
             public int RenderableObjectsNum;
             public int ViewFrustumObjectsNum;
-            public int Cascade0ObjectsNum;
-            public int Cascade1ObjectsNum;
-            public int Cascade2ObjectsNum;
-            public int Cascade3ObjectsNum;
+            public int[] ShadowCascadeObjectsNum;
 
             //
             public int MeshesDrawn;
@@ -267,12 +264,10 @@ namespace VRageRender
 
             public void Reset()
             {
+				CheckArrays();
                 RenderableObjectsNum = 0;
                 ViewFrustumObjectsNum = 0;
-                Cascade0ObjectsNum = 0;
-                Cascade1ObjectsNum = 0;
-                Cascade2ObjectsNum = 0;
-                Cascade3ObjectsNum = 0;
+                
 
                 MeshesDrawn = 0;
                 SubmeshesDrawn = 0;
@@ -297,6 +292,16 @@ namespace VRageRender
                 SetBlendState = 0;
                 BindShaderResources = 0;
             }
+
+			void CheckArrays()
+			{
+				if(ShadowCascadeObjectsNum == null || ShadowCascadeObjectsNum.Length != MyRenderProxy.Settings.ShadowCascadeCount)
+					ShadowCascadeObjectsNum = new int[MyRenderProxy.Settings.ShadowCascadeCount];
+			}
+			public MyPerCameraDraw11()
+			{
+				CheckArrays();
+			}
         }
 
         //  These counters are never "reseted", they keep increasing during the whole app lifetime

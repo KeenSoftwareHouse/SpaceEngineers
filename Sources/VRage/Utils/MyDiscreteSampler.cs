@@ -3,12 +3,79 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
 using VRageMath;
 
 namespace VRage.Utils
 {
     /// <summary>
-    /// Provides a simple and efficient way of sampling a discrete probability distribution.
+    /// A templated class for sampling from a set of objects with given probabilities. Uses MyDiscreteSampler.
+    /// </summary>
+    public class MyDiscreteSampler<T>
+    {
+        private T[] m_values;
+        private MyDiscreteSampler m_sampler;
+
+        public bool Initialized
+        {
+            get
+            {
+                return m_sampler.Initialized;
+            }
+        }
+
+        public MyDiscreteSampler(T[] values, IEnumerable<float> densities)
+        {
+            Debug.Assert(values.Length == densities.Count(), "Count of densities does not correspond to the count of values!");
+            m_values = new T[values.Length];
+            Array.Copy(values, m_values, values.Length);
+            m_sampler = new MyDiscreteSampler();
+            m_sampler.Prepare(densities);
+        }
+
+        public MyDiscreteSampler(List<T> values, IEnumerable<float> densities)
+        {
+            Debug.Assert(values.Count == densities.Count(), "Count of densities does not correspond to the count of values!");
+            m_values = new T[values.Count];
+            for (int i = 0; i < values.Count; ++i)
+            {
+                m_values[i] = values[i];
+            }
+            m_sampler = new MyDiscreteSampler();
+            m_sampler.Prepare(densities);
+        }
+
+        public MyDiscreteSampler(IEnumerable<T> values, IEnumerable<float> densities)
+        {
+            int count = values.Count();
+            Debug.Assert(count == densities.Count(), "Count of densities does not correspond to the count of values!");
+            m_values = new T[count];
+            int i = 0;
+            foreach (var value in values)
+            {
+                m_values[i] = value;
+                i++;
+            }
+            m_sampler = new MyDiscreteSampler();
+            m_sampler.Prepare(densities);
+        }
+
+        public MyDiscreteSampler(Dictionary<T, float> densities)
+            : this(densities.Keys, densities.Values) { }
+
+        public T Sample(MyRandom rng)
+        {
+            return m_values[m_sampler.Sample(rng)];
+        }
+
+        public T Sample()
+        {
+            return m_values[m_sampler.Sample()];
+        }
+    }
+
+    /// <summary>
+    /// Provides a simple and efficient way of sampling a discrete probability distribution as described in http://www.jstatsoft.org/v11/i03/paper
     /// Instances can be reused by calling the Prepare method every time you want to change the distribution.
     /// Sampling a value is O(1), while the storage requirements are O(N), where N is number of possible values
     /// </summary>
@@ -43,6 +110,14 @@ namespace VRage.Utils
         private int m_binCount;
         private bool m_initialized;
 
+        public bool Initialized
+        {
+            get
+            {
+                return m_initialized;
+            }
+        }
+
         public MyDiscreteSampler()
         {
             m_binCount = 0;
@@ -57,31 +132,52 @@ namespace VRage.Utils
         }
 
         /// The list supplied to the method does not have to add up to 1.0f, that's why it's called "densities" instead of "probabilities"
-        public void Prepare(List<float> densities)
+        public void Prepare(IEnumerable<float> densities)
         {
-            if (m_bins == null || m_binCount < densities.Count)
-            {
-                m_bins = new SamplingBin[densities.Count];
-            }
-
-            m_binCount = densities.Count;
-
             float cumul = 0.0f;
+            int count = 0;
             foreach (var d in densities)
             {
                 cumul += d;
+                count++;
             }
 
-            float normalizationFactor = (float)m_binCount / cumul;
-            for (int i = 0; i < m_binCount; i++)
+            if (count == 0) return;
+
+            float normalizationFactor = (float)count / cumul;
+
+            AllocateBins(count);
+            InitializeBins(densities, normalizationFactor);
+            ProcessDonators();
+            m_initialized = true;
+        }
+
+        private void InitializeBins(IEnumerable<float> densities, float normalizationFactor)
+        {
+            int i = 0;
+            foreach (var density in densities)
             {
                 m_bins[i].BinIndex = i;
-                m_bins[i].Split = densities[i] * normalizationFactor;
+                m_bins[i].Split = density * normalizationFactor;
                 m_bins[i].Donator = 0;
+                i++;
+            }
+            Debug.Assert(m_binCount == i);
+            Array.Sort<SamplingBin>(m_bins, 0, m_binCount, BinComparer.Static);
+        }
+
+        private void AllocateBins(int numDensities)
+        {
+            if (m_bins == null || m_binCount < numDensities)
+            {
+                m_bins = new SamplingBin[numDensities];
             }
 
-            Array.Sort<SamplingBin>(m_bins, 0, m_binCount, BinComparer.Static);
+            m_binCount = numDensities;
+        }
 
+        private void ProcessDonators()
+        {
             int receiver = 0;
             int lower = 1;
             int upper = m_binCount - 1;
@@ -107,8 +203,21 @@ namespace VRage.Utils
             }
 
             Debug.Assert(lower == upper + 1);
+        }
 
-            m_initialized = true;
+        public int Sample(MyRandom rng)
+        {
+            Debug.Assert(m_initialized && m_bins != null, "Sampling fron an uninitialized sampler!");
+            int entryIndex = rng.Next(m_binCount);
+            var entry = m_bins[entryIndex];
+            if (rng.NextFloat() <= entry.Split)
+            {
+                return entry.BinIndex;
+            }
+            else
+            {
+                return entry.Donator;
+            }
         }
 
         public int Sample()

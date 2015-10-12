@@ -121,7 +121,7 @@ namespace Sandbox.Game.Gui
             playerCharacter.PlayCharacterAnimation(
                 m_animationComboA.GetSelectedKey().ToString(),
                 MyBlendOption.Immediate,
-                MyFrameOption.None,                
+                MyFrameOption.PlayOnce,                
                 m_blendSlider.Value);
 
             playerCharacter.PlayCharacterAnimation(
@@ -149,7 +149,7 @@ namespace Sandbox.Game.Gui
             MySession.LocalCharacter.PlayCharacterAnimation(
                 m_animationCombo.GetSelectedValue().ToString(),
                 MyBlendOption.Immediate,
-                m_loopCheckbox.IsChecked ? MyFrameOption.Loop : MyFrameOption.None,                
+                m_loopCheckbox.IsChecked ? MyFrameOption.Loop : MyFrameOption.PlayOnce,                
                 m_blendSlider.Value
             );
         }

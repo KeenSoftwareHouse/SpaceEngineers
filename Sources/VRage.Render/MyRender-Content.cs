@@ -70,8 +70,6 @@ namespace VRageRender
         VoxelsMRT,
         Gizmo,
 
-        Atmosphere,
-
         //Occlusion queries
         OcclusionQueryDrawMRT,
 
@@ -333,7 +331,6 @@ namespace VRageRender
             m_manualCullingStructure.Clear();
             m_shadowPrunningStructure.Clear();
             m_farObjectsPrunningStructure.Clear();
-            m_atmospherePurunnigStructure.Clear();
             m_nearObjects.Clear();
 
             Clear();
@@ -424,17 +421,6 @@ namespace VRageRender
 
             }
 
-            m_farCullObjectListForDraw.Clear();
-            m_atmospherePurunnigStructure.OverlapAllBoundingBox(ref testAABB, m_farCullObjectListForDraw);
-            count = 0;
-            foreach (var obj in m_farCullObjectListForDraw)
-            {
-                count += ((MyCullableRenderObject)obj).EntitiesContained;
-                Debug.Assert(((MyCullableRenderObject)obj).EntitiesContained == 0, "There are some objects in manual culling structure which are not removed on unload!");
-
-                // ((MyCullableRenderObject)obj).CulledObjects.OverlapAllBoundingBox(ref testAABB, m_renderObjectListForDraw);
-
-            }
         }
 
         internal static void ReloadContent(MyRenderQualityEnum quality)
@@ -602,7 +588,7 @@ namespace VRageRender
                 m_renderTargets[(int)renderTarget] = new Texture(GraphicsDevice, width, height, mipmaps ? 0 : 1, usage, preferredFormat, Pool.Default);
                 m_renderTargets[(int)renderTarget].DebugName = renderTarget.ToString();
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 string formatStr = "Creating render target failed, target: {0}({1}), width: {2}, height: {3}, format: {4}, usage: {5}, mipmaps: {6}";
                 string str = String.Format(formatStr, renderTarget, (int)renderTarget, width, height, preferredFormat, usage, mipmaps);
@@ -815,8 +801,6 @@ namespace VRageRender
                 m_effects[(int)MyEffects.OcclusionQueryDrawMRT] = new MyEffectOcclusionQueryDraw();
                 m_effects[(int)MyEffects.SpriteBatch] = new MyEffectSpriteBatchShader();//prejmenovat enum..
                 m_effects[(int)MyEffects.AmbientMapPrecalculation] = new MyEffectAmbientPrecalculation();
-
-                m_effects[(int)MyEffects.Atmosphere] = new MyEffectAtmosphere();
 
                 //Background
                 m_effects[(int)MyEffects.DistantImpostors] = new MyEffectDistantImpostors();

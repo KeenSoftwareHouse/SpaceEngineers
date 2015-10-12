@@ -21,9 +21,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember, DefaultValue(null)]
-        public string ContainerType = null;
-        public bool ShouldSerializeContainerType() { return ContainerType != null; }
+        [ProtoMember, DefaultValue("")]
+        public string ContainerType = "";
+        public bool ShouldSerializeContainerType() { return ContainerType != ""; }
 
 
         public override void SetupForProjector()

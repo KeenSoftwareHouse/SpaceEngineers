@@ -1,5 +1,7 @@
 ﻿using Sandbox;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Networking;
 using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
@@ -11,6 +13,8 @@ using SpaceEngineers.Game.VoiceChat;
 using System.Collections.Generic;
 using System.Text;
 using VRage.Utils;
+using VRageRender;
+using World;
 
 namespace SpaceEngineers.Game
 {
@@ -77,14 +81,12 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.PastingSettings.StaticGridAlignToCenter = true;
             MyPerGameSettings.BuildingSettings.LargeStaticGrid = MyPerGameSettings.CreationSettings.LargeStaticGrid;
             MyPerGameSettings.Destruction = false;
-            MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
+            //MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
             MyFakes.ENABLE_SUN_BILLBOARD = true;
 
-            MyPerGameSettings.BallFriendlyPhysics = true;
+            MyPerGameSettings.BallFriendlyPhysics = false;
 
-            MyPerGameSettings.EnableAi = false;
-
-            MyPerGameSettings.BotFactoryType = typeof(Sandbox.Game.AI.MySandboxBotFactory);
+            MyPerGameSettings.BotFactoryType = typeof(SpaceEngineers.Game.AI.MySpaceBotFactory);
 
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
@@ -92,8 +94,9 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.EnableTutorials = true;
 
             MyPerGameSettings.EnableJumpDrive = true;
+			MyFakes.ENABLE_DRIVING_PARTICLES = true;
 
-            MyFakes.ENABLE_PATHFINDING = false;
+            MyPerGameSettings.EnablePathfinding = false;
             MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = true;
 
             // RAGDOLL PARAMATERS
@@ -101,8 +104,7 @@ namespace SpaceEngineers.Game
             MyFakes.ENABLE_RAGDOLL_DEFAULT_PROPERTIES = true;
             //MyPerGameSettings.EnableRagdollModels = false;
             MyPerGameSettings.EnableRagdollInJetpack = true;
-            //MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION = false;
-            MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC = true;
+            //MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION = false;            
 
             MyPerGameSettings.EnableKinematicMPCharacter = true;
 
@@ -111,43 +113,55 @@ namespace SpaceEngineers.Game
 
             MyPerGameSettings.EnableWelderAutoswitch = true;
 			MyPerGameSettings.InventoryMass = true;
+			MyPerGameSettings.NonloopingCharacterFootsteps = true;
+			MyPerGameSettings.CompatHelperType = typeof(MySpaceSessionCompatHelper);
 
+			SetupRender();
             FillCredits();
-
-            // Video settings manager has not been initialized yet, so accessing config file directly.
-            if (MySandboxGame.Config != null && // Dedicated server calls this as first thing, even before it has loaded config ... doesn't need render though.
-                MySandboxGame.Config.GraphicsRenderer == DirectX11RendererKey)
-            {
-                MyPostProcessVolumetricSSAO2.MinRadius = 0.095f;
-                MyPostProcessVolumetricSSAO2.MaxRadius = 4.16f;
-                MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
-                MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
-                MyPostProcessVolumetricSSAO2.Bias = 0.25f;
-                MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
-                MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
-
-                MyPostprocessSettingsWrapper.Settings.Brightness = 0;
-                MyPostprocessSettingsWrapper.Settings.Contrast = 0;
-                MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
-                MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
-                MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
-                MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 3;
-                MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
-                MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
-                MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
-                MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
-                MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.147f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.120f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.321f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.699f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.001f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.160f;
-            }
 
             MyPerGameSettings.VoiceChatEnabled = false;
             MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
+            MyRenderSettings.PerInstanceLods = true;
+
+            // This must be done last
+            MyFakesLocal.SetupLocalPerGameSettings();
         }
+
+		static void SetupRender()
+		{
+			// Video settings manager has not been initialized yet, so accessing config file directly.
+			if (MySandboxGame.Config != null && // Dedicated server calls this as first thing, even before it has loaded config ... doesn't need render though.
+				MySandboxGame.Config.GraphicsRenderer == DirectX11RendererKey)
+			{
+				MyPostProcessVolumetricSSAO2.MinRadius = 0.115f;
+				MyPostProcessVolumetricSSAO2.MaxRadius = 25;
+				MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
+				MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
+				MyPostProcessVolumetricSSAO2.Bias = 0.25f;
+				MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
+				MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
+
+				MyPostprocessSettingsWrapper.Settings.Brightness = 0;
+				MyPostprocessSettingsWrapper.Settings.Contrast = 0;
+				MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0.0f;
+				MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
+				MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
+				MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 3;
+				MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
+				MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
+				MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
+				MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
+				MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.147f;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.120f;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.321f;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.699f;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.001f;
+				MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.160f;
+			}
+
+			MyRenderProxy.Settings.ShadowFadeoutMultiplier = 0.2f;
+		}
 
         static void FillCredits()
         {
@@ -303,6 +317,7 @@ namespace SpaceEngineers.Game
             explorationContentCreators.Persons.Add(new MyCreditsPerson(@"jerryfanfan"));
             explorationContentCreators.Persons.Add(new MyCreditsPerson(@"Stone Cold Jane Austen"));
             explorationContentCreators.Persons.Add(new MyCreditsPerson(@"NeXiZ"));
+            explorationContentCreators.Persons.Add(new MyCreditsPerson(@"KillYaSoon"));
 
             MyCreditsDepartment modContributors = new MyCreditsDepartment("Mod Contributors");
             MyPerGameSettings.Credits.Departments.Add(modContributors);

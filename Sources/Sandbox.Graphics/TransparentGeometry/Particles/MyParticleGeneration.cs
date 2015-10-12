@@ -109,7 +109,14 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             SortLayer,
 
             AlphaAnisotropic,
-            Gravity
+            Gravity,
+
+            PivotRotation,
+            PivotDistance,
+            PivotDistVar,
+
+            Acceleration,
+            AccelerationVar            
         }
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyGenerationPropertiesEnum)).Length];
@@ -298,6 +305,36 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             private set { m_properties[(int)MyGenerationPropertiesEnum.Gravity] = value; }
         }
 
+        public MyAnimatedProperty2DVector3 PivotRotation
+        {
+            get { return (MyAnimatedProperty2DVector3)m_properties[(int)MyGenerationPropertiesEnum.PivotRotation]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotRotation] = value; }
+        }
+
+        public MyAnimatedProperty2DFloat PivotDistance
+        {
+            get { return (MyAnimatedProperty2DFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistance]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistance] = value; }
+        }
+
+        public MyConstPropertyFloat PivotDistVar
+        {
+            get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar] = value; }
+        }
+
+        public MyAnimatedProperty2DVector3 Acceleration
+        {
+            get { return (MyAnimatedProperty2DVector3)m_properties[(int)MyGenerationPropertiesEnum.Acceleration]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.Acceleration] = value; }
+        }
+
+        public MyConstPropertyFloat AccelerationVar
+        {
+            get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.AccelerationVar]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.AccelerationVar] = value; }
+        }
+
         //////////////////////////////
 
         #endregion
@@ -371,6 +408,13 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
             AddProperty(MyGenerationPropertiesEnum.Gravity, new MyConstPropertyFloat("Gravity"));
 
+            AddProperty(MyGenerationPropertiesEnum.PivotRotation, new MyAnimatedProperty2DVector3("PivotRotation"));
+            AddProperty(MyGenerationPropertiesEnum.PivotDistance, new MyAnimatedProperty2DFloat("PivotDistance"));
+            AddProperty(MyGenerationPropertiesEnum.PivotDistVar, new MyConstPropertyFloat("PivotDistVar"));
+
+            AddProperty(MyGenerationPropertiesEnum.Acceleration, new MyAnimatedProperty2DVector3("Acceleration"));
+            AddProperty(MyGenerationPropertiesEnum.AccelerationVar, new MyConstPropertyFloat("AccelerationVar"));
+
             Thickness.AddKey(0, 1.0f);
 
             LODBirth.AddKey(0, 1.0f);
@@ -378,6 +422,10 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
             UseLayerSorting.SetValue(false);
             SortLayer.SetValue(-1);
+
+            PivotDistVar.SetValue(1);
+
+            AccelerationVar.SetValue(0);
 
             m_emitter.Init();
         }
@@ -453,6 +501,10 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
             LODBirth.AddKey(0, 1.0f);
             LODRadius.AddKey(0, 1.0f);
+
+            PivotDistVar.SetValue(1.0f);
+
+            AccelerationVar.SetValue(0.0f);
 
             UseLayerSorting.SetValue(false);
             SortLayer.SetValue(-1);
@@ -743,7 +795,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             MyUtils.AssertIsValid(m_effect.WorldMatrix);
 
             Vector3D startOffset;
-            m_emitter.CalculateStartPosition(m_effect.GetElapsedTime(), MatrixD.CreateWorld(interpolatedEffectPosition, m_effect.WorldMatrix.Forward, m_effect.WorldMatrix.Up), m_effect.UserEmitterScale * m_effect.UserScale, out startOffset, out particle.StartPosition);
+            m_emitter.CalculateStartPosition(m_effect.GetElapsedTime(), MatrixD.CreateWorld(interpolatedEffectPosition, m_effect.WorldMatrix.Forward, m_effect.WorldMatrix.Up), m_effect.UserEmitterScale * m_effect.UserAxisScale, m_effect.UserEmitterScale * m_effect.UserScale, out startOffset, out particle.StartPosition);
 
             Vector3D particlePosition = particle.StartPosition;
             m_AABB = m_AABB.Include(ref particlePosition);
@@ -815,6 +867,21 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             particle.Flags = 0;
             particle.Flags |= BlendTextures.GetValue<bool>() ? MyAnimatedParticle.ParticleFlags.BlendTextures : 0;
             particle.Flags |= GetEffect().IsInFrustum ? MyAnimatedParticle.ParticleFlags.IsInFrustum : 0;
+
+            if (PivotRotation.GetKeysCount() > 0 && PivotDistance.GetKeysCount() > 0)
+            {
+                particle.PivotDistance = new MyAnimatedPropertyFloat(PivotDistance.Name); 
+                particle.PivotRotation = new MyAnimatedPropertyVector3(PivotRotation.Name);
+                PivotDistance.GetInterpolatedKeys(m_effect.GetElapsedTime(), PivotDistVar, 1.0f, particle.PivotDistance);
+                PivotRotation.GetInterpolatedKeys(m_effect.GetElapsedTime(), 1.0f, particle.PivotRotation);
+            }
+
+            if (Acceleration.GetKeysCount() > 0)
+            {
+                particle.Acceleration = new MyAnimatedPropertyVector3(Acceleration.Name);
+                float multiplier = MyUtils.GetRandomFloat(1-AccelerationVar, 1+AccelerationVar);
+                Acceleration.GetInterpolatedKeys(m_effect.GetElapsedTime(), multiplier, particle.Acceleration);
+            }
 
             particle.Start(this);
                  
@@ -1060,5 +1127,33 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         }
 
         #endregion
+
+        public bool IsValid()
+        {
+            //System.Diagnostics.Debug.Assert(m_effect == null);
+            //System.Diagnostics.Debug.Assert(m_particles.Count == 0);
+            //System.Diagnostics.Debug.Assert(Birth == null);
+            int keys = Life.GetKeysCount();
+            for (int i = 0; i < keys; ++i )
+            {
+                float time, value;
+                Life.GetKey(i, out time, out value);
+                if (value <= 0)
+                {
+                    return false;
+                }
+            }
+
+            foreach (var particle in m_particles)
+            {
+                if (!particle.IsValid())
+                {
+                    return false;
+                }
+            }
+
+            //return MyUtils.IsValid(m_effect.WorldMatrix);
+            return true;
+        }
     }
 }

@@ -296,8 +296,13 @@ namespace VRageMath.Spatial
                 m_objectsData[id].AABB = aabb;
 
                 BoundingBoxD originalAABB = aabb;
-                Vector3 velocityDir = Vector3.Normalize(velocity);
-
+                Vector3 velocityDir = velocity;
+               
+                if(velocity.LengthSquared() > 0.001f)
+                {
+                   velocityDir = Vector3.Normalize(velocity);
+                }
+                
                 BoundingBoxD extendedAABB = aabb.Include(aabb.Center + velocityDir * 2000);
                 //                BoundingBoxD newClusterAABB = aabb.Include(aabb.Center + velocityDir * IdealClusterSize / 2);
 
@@ -318,6 +323,8 @@ namespace VRageMath.Spatial
 
                             AddObjectToCluster(m_returnedClusters[0], objectData.Id, false);
                         }
+                        else
+                            ReorderClusters(originalAABB.Include(oldAABB), id);
                     }
                     else
                         ReorderClusters(originalAABB.Include(oldAABB), id);
@@ -447,6 +454,13 @@ namespace VRageMath.Spatial
             }
 
             return Vector3D.Zero;
+        }
+
+        public object GetClusterForPosition(Vector3D pos)
+        {
+            var bs = new BoundingSphereD(pos, 1);
+            m_clusterTree.OverlapAllBoundingSphere(ref bs, m_returnedClusters);
+            return m_returnedClusters.Count > 0 ? m_returnedClusters.Single().UserData : null;
         }
 
         public void Dispose()

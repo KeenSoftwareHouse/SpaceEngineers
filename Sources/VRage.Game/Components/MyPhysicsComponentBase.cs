@@ -337,7 +337,7 @@ namespace VRage.Components
 
         public abstract void CreateCharacterCollision(Vector3 center, float characterWidth, float characterHeight,
             float crouchHeight, float ladderHeight, float headSize, float headHeight,
-            MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, bool networkProxy);
+            MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, float maxLimit, bool networkProxy);
 
         /// <summary>
         /// Debug draw of this physics object.

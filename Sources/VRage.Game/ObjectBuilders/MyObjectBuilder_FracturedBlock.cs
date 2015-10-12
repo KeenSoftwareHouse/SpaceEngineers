@@ -24,6 +24,16 @@ namespace Sandbox.Common.ObjectBuilders
             [ProtoMember, DefaultValue(false)]
             public bool Fixed;
         }
+
+        [ProtoContract]
+        public class MyMultiBlockPart
+        {
+            [ProtoMember]
+            public SerializableDefinitionId MultiBlockDefinition;
+            [ProtoMember]
+            public int MultiBlockId;
+        }
+
         [ProtoMember]
         public List<SerializableDefinitionId> BlockDefinitions = new List<SerializableDefinitionId>();
 
@@ -34,5 +44,8 @@ namespace Sandbox.Common.ObjectBuilders
         public List<SerializableBlockOrientation> BlockOrientations = new List<SerializableBlockOrientation>();
 
         public bool CreatingFracturedBlock = false;
+
+        [ProtoMember]
+        public List<MyMultiBlockPart> MultiBlocks = new List<MyMultiBlockPart>();
     }
 }

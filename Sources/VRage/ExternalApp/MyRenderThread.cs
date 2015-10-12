@@ -60,10 +60,12 @@ namespace VRage
 
         public event Action BeforeDraw;
         public event SizeChangedHandler SizeChanged;
+        private readonly bool m_separateThread;
 
         private MyRenderThread(MyGameTimer timer, bool separateThread)
         {
             m_timer = timer;
+            m_separateThread = separateThread;
 
             if (separateThread)
             {
@@ -104,7 +106,10 @@ namespace VRage
 
         public void TickSync()
         {
-            Application.DoEvents();
+            if (MyRenderProxy.EnableAppEventsCall)
+            {
+                Application.DoEvents();
+            }
             RenderCallback();
         }
 
@@ -383,7 +388,10 @@ namespace VRage
             MyRenderProxy.Draw();
             ProfilerShort.End();
 
-            MyRenderProxy.GetRenderProfiler().Commit();
+            if (m_separateThread)
+            {
+                MyRenderProxy.GetRenderProfiler().Commit();
+            }
 
             MyRenderProxy.GetRenderProfiler().Draw();
 

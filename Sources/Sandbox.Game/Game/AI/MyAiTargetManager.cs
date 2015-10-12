@@ -1,4 +1,5 @@
-﻿using Sandbox.Common;
+﻿using ProtoBuf;
+using Sandbox.Common;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.AI;
 using Sandbox.Game.Entities;
@@ -10,6 +11,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.AI
@@ -46,6 +49,46 @@ namespace Sandbox.Game.AI
 			public int SenderSerialId;
 		}
 
+        [MessageId(4660, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct ReserveAreaMsg     
+        {
+            [ProtoMember]
+            public string ReservationName;
+            [ProtoMember]
+            public Vector3D Position;
+            [ProtoMember]
+            public float Radius;
+            [ProtoMember]
+            public long ReservationTimeMs;
+            [ProtoMember]
+            public int SenderSerialId;
+        }
+
+        [MessageId(4661, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct ReserveAreaAllMsg
+        {
+            [ProtoMember]
+            public string ReservationName;
+            [ProtoMember]
+            public Vector3D Position;
+            [ProtoMember]
+            public float Radius;
+            [ProtoMember]
+            public long Id;
+        }
+
+        [MessageId(4662, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct ReserveAreaCancelMsg
+        {
+            [ProtoMember]
+            public string ReservationName;
+            [ProtoMember]
+            public long Id;
+        }
+
 		#endregion
 
 		public struct ReservedEntityData
@@ -58,14 +101,29 @@ namespace Sandbox.Game.AI
 			public MyPlayer.PlayerId ReserverId;
 		}
 
+        public struct ReservedAreaData
+        {
+            public Vector3D WorldPosition;
+            public float Radius;
+            public MyTimeSpan ReservationTimer;
+            public MyPlayer.PlayerId ReserverId;
+        }
+
 		private HashSet<MyAiTargetBase> m_aiTargets = new HashSet<MyAiTargetBase>();
 
 		private static Dictionary<KeyValuePair<long, long>, ReservedEntityData> m_reservedEntities;
+        private static Dictionary<string, Dictionary<long, ReservedAreaData>> m_reservedAreas;
 		private static Queue<KeyValuePair<long, long>> m_removeReservedEntities;
+        private static Queue<KeyValuePair<string, long>> m_removeReservedAreas;
+
+        private static long AreaReservationCounter = 0;
 
 		public static MyAiTargetManager Static;
 		public delegate void ReservationHandler(ref ReservedEntityData entityData, bool success);
 		public static event ReservationHandler OnReservationResult;
+
+        public delegate void AreaReservationHandler(ref ReservedAreaData entityData, bool success);
+        public static event AreaReservationHandler OnAreaReservationResult;
 
 		#region Entity reservation
 
@@ -133,7 +191,6 @@ namespace Sandbox.Game.AI
 				OnReservationResult(ref reservationData, true);
 			}
 		}
-
 
 		private static void OnReserveEntityFailure(ref ReserveEntityMsg msg, MyNetworkClient sender)
 		{
@@ -302,7 +359,123 @@ namespace Sandbox.Game.AI
 
 		#endregion
 
-		static MyAiTargetManager()
+        #region Area reservation
+
+        public void RequestAreaReservation(string reservationName, Vector3D position, float radius, long reservationTimeMs, int senderSerialId)
+        {
+            var msg = new ReserveAreaMsg()
+            {
+                ReservationName = reservationName,
+                Position = position,
+                Radius = radius,
+                ReservationTimeMs = reservationTimeMs,
+                SenderSerialId = senderSerialId,
+            };
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        private static void OnReserveAreaRequest(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        {
+            if (!Sync.IsServer)
+                return;
+
+            if (!m_reservedAreas.ContainsKey(msg.ReservationName))
+                m_reservedAreas.Add(msg.ReservationName, new Dictionary<long, ReservedAreaData>());
+
+            var reservations = m_reservedAreas[msg.ReservationName];
+            bool reservedBySomeone = false;
+            MyPlayer.PlayerId requestId = new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId);
+
+            foreach (var r in reservations)
+            {
+                var currentReservation = r.Value;
+                var sqDist = (currentReservation.WorldPosition - msg.Position).LengthSquared();
+                bool inRadius = sqDist <= currentReservation.Radius * currentReservation.Radius; 
+                
+                if (inRadius)
+                {
+                    reservedBySomeone = true;
+                    break;
+                }
+            }
+
+            if (!reservedBySomeone)
+            {
+                reservations[AreaReservationCounter++] = new ReservedAreaData()
+                {
+                    WorldPosition = msg.Position,
+                    Radius = msg.Radius,
+                    ReservationTimer = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromMiliseconds(msg.ReservationTimeMs),
+                    ReserverId = requestId,
+                };
+
+                var allMsg = new ReserveAreaAllMsg()
+                {
+                    Id = AreaReservationCounter,
+                    Position = msg.Position,
+                    Radius = msg.Radius,
+                    ReservationName = msg.ReservationName,
+                };
+
+                Sync.Layer.SendMessageToAll(ref allMsg, MyTransportMessageEnum.Success);
+                Sync.Layer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }
+            else
+            {
+                Sync.Layer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Failure);
+            }
+
+            
+        }
+
+        private static void OnReserveAreaSuccess(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        {
+            if (OnAreaReservationResult != null)
+            {
+                var reservationData = new ReservedAreaData()
+                {
+                    WorldPosition = msg.Position,
+                    Radius = msg.Radius,
+                    ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                };
+                OnAreaReservationResult(ref reservationData, true);
+            }
+        }
+
+        private static void OnReserveAreaFailure(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        {
+            if (OnAreaReservationResult != null)
+            {
+                var reservationData = new ReservedAreaData()
+                {
+                    WorldPosition = msg.Position,
+                    Radius = msg.Radius,
+                    ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                };
+                OnAreaReservationResult(ref reservationData, false);
+            }
+        }
+
+        private static void OnReserveAreaAllSuccess(ref ReserveAreaAllMsg msg, MyNetworkClient sender)
+        {
+            if (!m_reservedAreas.ContainsKey(msg.ReservationName))
+                m_reservedAreas[msg.ReservationName] = new Dictionary<long, ReservedAreaData>();
+            var reservations = m_reservedAreas[msg.ReservationName];
+            reservations.Add(msg.Id, new ReservedAreaData() { WorldPosition = msg.Position, Radius = msg.Radius });
+        }
+
+        private static void OnReserveAreaCancel(ref ReserveAreaCancelMsg msg, MyNetworkClient sender)
+        {
+            Dictionary<long, ReservedAreaData> reservations;
+            if (m_reservedAreas.TryGetValue(msg.ReservationName, out reservations))
+            {
+                reservations.Remove(msg.Id);
+            }
+        }
+
+        #endregion
+
+        static MyAiTargetManager()
 		{
 			MySyncLayer.RegisterMessage<ReserveEntityMsg>(OnReserveEntityRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
 			MySyncLayer.RegisterMessage<ReserveEntityMsg>(OnReserveEntitySuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
@@ -313,20 +486,25 @@ namespace Sandbox.Game.AI
 			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
 			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-		}
-
-		public MyAiTargetManager()
-		{
-			Static = this;
+            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
+            MySyncLayer.RegisterMessage<ReserveAreaAllMsg>(OnReserveAreaAllSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ReserveAreaCancelMsg>(OnReserveAreaCancel, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 		}
 
 		public override void LoadData()
         {
+            Static = this;
+
 			if (Sync.IsServer)
 			{
 				m_reservedEntities = new Dictionary<KeyValuePair<long, long>, ReservedEntityData>();
 				m_removeReservedEntities = new Queue<KeyValuePair<long, long>>();
+                m_removeReservedAreas = new Queue<KeyValuePair<string, long>>();
 			}
+
+            m_reservedAreas = new Dictionary<string, Dictionary<long, ReservedAreaData>>();
 
             MyEntities.OnEntityRemove += OnEntityRemoved;
         }
@@ -336,13 +514,14 @@ namespace Sandbox.Game.AI
             base.UnloadData();
             m_aiTargets.Clear();
             MyEntities.OnEntityRemove -= OnEntityRemoved;
+            Static = null;
         }
 
 		public override bool IsRequiredByGame
 		{
 			get
 			{
-				return base.IsRequiredByGame && MyPerGameSettings.Game == GameEnum.ME_GAME;
+                return true;
 			}
 		}
 
@@ -357,23 +536,53 @@ namespace Sandbox.Game.AI
 					if (Stopwatch.GetTimestamp() > entity.Value.ReservationTimer)
 						m_removeReservedEntities.Enqueue(entity.Key);
 				}
+
 				foreach (var id in m_removeReservedEntities)
 				{
 					m_reservedEntities.Remove(id);
 				}
-				m_removeReservedEntities.Clear();
+
+                m_removeReservedEntities.Clear();
+
+                foreach (var tag in m_reservedAreas)
+                {
+                    foreach (var area in tag.Value)
+                    {
+                        if (MySandboxGame.Static.UpdateTime > area.Value.ReservationTimer)
+                            m_removeReservedAreas.Enqueue(new KeyValuePair<string, long>(tag.Key, area.Key));
+                    }
+                }
+
+                foreach (var id in m_removeReservedAreas)
+                {
+                    m_reservedAreas[id.Key].Remove(id.Value);
+
+                    var cancelMsg = new ReserveAreaCancelMsg()
+                    {
+                        ReservationName = id.Key,
+                        Id = id.Value,
+                    };
+
+                    Sync.Layer.SendMessageToAll(ref cancelMsg, MyTransportMessageEnum.Success);
+                }
+
+                m_removeReservedAreas.Clear();
 			}
 		}
 
-		public void AddAiTarget(MyAiTargetBase aiTarget)
+		public static void AddAiTarget(MyAiTargetBase aiTarget)
         {
-            Debug.Assert(!m_aiTargets.Contains(aiTarget), "AI target already exists in the manager");
-            m_aiTargets.Add(aiTarget);
+            if (Static == null) return;
+
+            Debug.Assert(!Static.m_aiTargets.Contains(aiTarget), "AI target already exists in the manager");
+            Static.m_aiTargets.Add(aiTarget);
         }
 
-		public void RemoveAiTarget(MyAiTargetBase aiTarget)
+		public static void RemoveAiTarget(MyAiTargetBase aiTarget)
         {
-            m_aiTargets.Remove(aiTarget);
+            if (Static == null) return;
+
+            Static.m_aiTargets.Remove(aiTarget);
         }
 
 		private void OnEntityRemoved(MyEntity entity)
@@ -383,6 +592,20 @@ namespace Sandbox.Game.AI
                 if (aiTarget.TargetEntity == entity)
                     aiTarget.UnsetTarget();
             }
+        }
+
+        public bool IsInReservedArea(string areaName, Vector3D position)
+        {
+            Dictionary<long, ReservedAreaData> reservations = null;
+            if (m_reservedAreas.TryGetValue(areaName, out reservations))
+            {
+                foreach (var areaData in reservations.Values)
+                {
+                    if ((areaData.WorldPosition - position).LengthSquared() < areaData.Radius * areaData.Radius)
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -16,8 +16,6 @@ using VRage.Utils;
 
 using System.Diagnostics;
 using Sandbox.Engine.Utils;
-using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 
@@ -28,6 +26,13 @@ namespace Sandbox
     {
         private static List<HkdShapeInstanceInfo> m_tmpChildrenList = new List<HkdShapeInstanceInfo>();
         private static MyPhysicsMesh m_tmpMesh = new MyPhysicsMesh();
+
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_PILLAR = MyStringId.GetOrCompute("pillar");
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_ARC_LEFT = MyStringId.GetOrCompute("arcleft");
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_ARC_RIGHT = MyStringId.GetOrCompute("arcright");
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_BATTLEMENT_EDGE_LEFT = MyStringId.GetOrCompute("battlementedgeleft");
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_BATTLEMENT_EDGE_RIGHT = MyStringId.GetOrCompute("battlementedgeright");
+        private static readonly MyStringId GENERATED_BLOCK_TYPE_BATTLEMENT_TRIANGLE_EDGE = MyStringId.GetOrCompute("battlementtriangleedge");
 
         public static MyDestructionData Static { get; set; }
         public HkWorld TemporaryWorld { get; private set; }
@@ -82,9 +87,8 @@ namespace Sandbox
                         if (model == null)
                             continue;
 
-                        bool isGenerated = group.Large.IsGeneratedBlock && (group.Large.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                            LoadModelDestruction(group.Large.Model, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                            LoadModelDestruction(group.Large.Model, group.Large, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
                        
                        foreach(var progress in group.Large.BuildProgressModels)
                        {
@@ -93,7 +97,7 @@ namespace Sandbox
                                continue;
 
                            if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                               LoadModelDestruction(progress.File, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                               LoadModelDestruction(progress.File, group.Large, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
                        }
                         
                         
@@ -113,9 +117,9 @@ namespace Sandbox
                         var model = MyModels.GetModel(group.Small.Model);
                         if (model == null)
                             continue;
-                        bool isGenerated = group.Small.IsGeneratedBlock && (group.Small.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
+
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                            LoadModelDestruction(group.Small.Model, group.Small, isGenerated, group.Small.Size * (MyDefinitionManager.Static.GetCubeSize(group.Small.CubeSize)));
+                            LoadModelDestruction(group.Small.Model, group.Small, group.Small.Size * (MyDefinitionManager.Static.GetCubeSize(group.Small.CubeSize)));
 
                         foreach (var progress in group.Small.BuildProgressModels)
                         {
@@ -123,7 +127,7 @@ namespace Sandbox
                             if (model == null)
                                 continue;
                             if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                                LoadModelDestruction(progress.File, group.Small, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                                LoadModelDestruction(progress.File, group.Small, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
                         }
 
                         if (MyFakes.CHANGE_BLOCK_CONVEX_RADIUS)
@@ -143,7 +147,7 @@ namespace Sandbox
 
             foreach (var enviroment in MyDefinitionManager.Static.GetEnvironmentItemDefinitions())
             {
-                LoadModelDestruction(enviroment.Model, enviroment, false, Vector3.One, false, true);
+                LoadModelDestruction(enviroment.Model, enviroment, Vector3.One, false, true);
             }
         }
 
@@ -355,9 +359,16 @@ namespace Sandbox
             shape.RemoveReference();
         }
 
-        public void LoadModelDestruction(string modelName, MyPhysicalModelDefinition modelDef, bool dontCreateFracturePieces, Vector3 defaultSize, bool destructionRequired = true, bool useShapeVolume = false)
+        public void LoadModelDestruction(string modelName, MyPhysicalModelDefinition modelDef, Vector3 defaultSize, bool destructionRequired = true, bool useShapeVolume = false)
         {
             var model = MyModels.GetModelOnlyData(modelName);
+
+            bool dontCreateFracturePieces = false;
+            MyCubeBlockDefinition blockDefinition = modelDef as MyCubeBlockDefinition;
+            if (blockDefinition != null)
+            {
+                dontCreateFracturePieces = IsGeneratedBlockWithDisabledShapes(blockDefinition);
+            }
 
             var material = modelDef.PhysicalMaterial;
 
@@ -618,9 +629,6 @@ namespace Sandbox
             return m_physicalMaterials["Default"];
         }
 
-        private static readonly MyStringId GENERATED_BLOCK_TYPE_PILLAR = MyStringId.GetOrCompute("pillar");
-
-
         private void DisableRefCountRec(HkdBreakableShape bShape)
         {
             bShape.DisableRefCount();
@@ -687,6 +695,18 @@ namespace Sandbox
             var mass = sh.GetMass();
             BlockShapePool.EnqueShape(model, def.Id, sh);
             return mass;    // (OM) NOTE: this currently returns havok mass, we use MyDestructionHelper.MassFromHavok to recompute, if you change to use it here, check this method usage, whether this is not already converted somewhere
+        }
+
+        private static bool IsGeneratedBlockWithDisabledShapes(MyCubeBlockDefinition blockDefinition)
+        {
+            return blockDefinition.IsGeneratedBlock && (
+                blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR
+                || blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_ARC_LEFT
+                || blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_ARC_RIGHT
+                || blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_BATTLEMENT_EDGE_LEFT
+                || blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_BATTLEMENT_EDGE_RIGHT
+                || blockDefinition.GeneratedBlockType == GENERATED_BLOCK_TYPE_BATTLEMENT_TRIANGLE_EDGE
+                );
         }
     }
 }

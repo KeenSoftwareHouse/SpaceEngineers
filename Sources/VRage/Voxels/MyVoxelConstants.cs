@@ -54,6 +54,10 @@ namespace VRage.Voxels
         // Increment this when adding a new generator version
         public const int VOXEL_GENERATOR_VERSION = 2;
         public const int VOXEL_GENERATOR_MIN_ICE_VERSION = 1;
+
+        // Voxel ore priorities
+        public static readonly int PRIORITY_IGNORE_EXTRACTION = -1;
+        public static readonly int PRIORITY_NORMAL = 1;
     }
 
 }

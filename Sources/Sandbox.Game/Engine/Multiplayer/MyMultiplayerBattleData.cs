@@ -7,6 +7,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using SteamSDK;
 using VRage.Utils;
+using Sandbox.Engine.Networking;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -129,7 +130,7 @@ namespace Sandbox.Engine.Multiplayer
         public MyMultiplayerBattleData(MyMultiplayerBase multiplayer)
         {
             m_multiplayer = multiplayer;
-            m_multiplayer.RegisterControlMessage<KeyValueDataMsg>(MyControlMessageEnum.BattleKeyValue, OnKeyValueChanged);
+            m_multiplayer.RegisterControlMessage<KeyValueDataMsg>(MyControlMessageEnum.BattleKeyValue, OnKeyValueChanged, MyMessagePermissions.FromServer);
         }
 
         private void KeyValueChangedRequest(MyStringHash key, string value)
@@ -138,7 +139,8 @@ namespace Sandbox.Engine.Multiplayer
             msg.Key = key;
             msg.Value = value;
 
-            m_multiplayer.SendControlMessageToAllAndSelf(ref msg);
+            OnKeyValueChanged(ref msg, MySteam.UserId);
+            m_multiplayer.SendControlMessageToAll(ref msg);
         }
 
         private void OnKeyValueChanged(ref KeyValueDataMsg msg, ulong sender)

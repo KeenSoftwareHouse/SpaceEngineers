@@ -3,6 +3,7 @@ using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 
 namespace Sandbox.Common.ObjectBuilders
@@ -18,6 +19,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool UseConveyorSystem = true;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_GunBase GunBase;
 
         public override void SetupForProjector()

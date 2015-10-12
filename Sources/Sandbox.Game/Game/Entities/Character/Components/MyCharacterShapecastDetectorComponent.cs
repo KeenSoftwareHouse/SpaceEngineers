@@ -104,6 +104,8 @@ namespace Sandbox.Game.Entities.Character
 
             try
             {
+                EnableDetectorsInArea(from);
+
                 MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
                 int index = 0;
@@ -164,6 +166,8 @@ namespace Sandbox.Game.Entities.Character
 
                 UseObject = null;
             }
+
+            DisableDetectors();
         }
     }
 }

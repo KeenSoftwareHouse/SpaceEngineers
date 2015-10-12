@@ -33,7 +33,8 @@ namespace VRageRender
         Skinning,
         Foliage,
         GroupLeaf,
-        GroupRoot
+        GroupRoot,
+        InstanceLod,
     }
 
     class MyActorComponent
@@ -89,6 +90,9 @@ namespace VRageRender
                     break;
                 case MyActorComponentEnum.GroupRoot:
                     MyComponentFactory<MyGroupRootComponent>.Deallocate(item as MyGroupRootComponent);
+                    break;
+                case MyActorComponentEnum.InstanceLod:
+                    MyComponentFactory<MyInstanceLodComponent>.Deallocate(item as MyInstanceLodComponent);
                     break;
                 case MyActorComponentEnum.Unassigned:
                     Debug.Assert(false, "Can't find component factory");

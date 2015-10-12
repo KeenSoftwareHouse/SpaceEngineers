@@ -16,6 +16,10 @@ namespace Sandbox.Definitions
         public float Volume; // in m3
         public MyStringHash PhysicalMaterial;
         public bool CanSpawnFromScreen;
+        public bool RotateOnSpawnX = false;
+        public bool RotateOnSpawnY = false;
+        public bool RotateOnSpawnZ = false;
+        public int Health;
 
         public bool HasIntegralAmounts
         {
@@ -42,6 +46,10 @@ namespace Sandbox.Definitions
                 this.IconSymbol = MyStringId.GetOrCompute(ob.IconSymbol);
             PhysicalMaterial = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
             CanSpawnFromScreen = ob.CanSpawnFromScreen;
+            RotateOnSpawnX = ob.RotateOnSpawnX;
+            RotateOnSpawnY = ob.RotateOnSpawnY;
+            RotateOnSpawnZ = ob.RotateOnSpawnZ;
+            Health = ob.Health;
         }
     }
 }

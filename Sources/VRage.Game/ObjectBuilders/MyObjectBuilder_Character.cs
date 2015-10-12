@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using VRage.ObjectBuilders;
 using VRage;
+using VRage.Serialization;
 
 
 namespace Sandbox.Common.ObjectBuilders
@@ -127,6 +128,15 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Character : MyObjectBuilder_EntityBase
     {
+        [ProtoContract]
+        public struct StoredGas
+        {
+            [ProtoMember]
+            public SerializableDefinitionId Id;
+
+            [ProtoMember]
+            public float FillLevel;
+        }
         public static Dictionary<string, SerializableVector3> CharacterModels = new Dictionary<string, SerializableVector3>()
         {
             {"Soldier",          new SerializableVector3(0f, 0f, 0.05f)},
@@ -142,11 +152,13 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public string CharacterModel;
 
-        [ProtoMember,DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_Inventory Inventory;
 
         [ProtoMember]
         [XmlElement("HandWeapon", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EntityBase>))]
+        [Nullable, DynamicObjectBuilder]
         public MyObjectBuilder_EntityBase HandWeapon;
 
         [ProtoMember]
@@ -174,8 +186,9 @@ namespace Sandbox.Common.ObjectBuilders
         public bool JetpackEnabled;
 
         [ProtoMember]
+        [NoSerialize]
         public float? Health;
-		public bool ShouldSerializeHealth() { return false; } // Has been moved to MyEntityStatComponent
+        public bool ShouldSerializeHealth() { return false; } // Has been moved to MyEntityStatComponent
 
         [ProtoMember, DefaultValue(false)]
         public bool AIMode = false;
@@ -199,10 +212,15 @@ namespace Sandbox.Common.ObjectBuilders
         public float OxygenLevel = 1f;
 
         [ProtoMember]
+        [Nullable]
+        public List<StoredGas> StoredGases;
+
+        [ProtoMember]
         public MyCharacterMovementEnum MovementState = MyCharacterMovementEnum.Standing;
         public bool ShouldSerializeMovementState() { return MovementState != MyCharacterMovementEnum.Standing; }
 
         [ProtoMember]
+        [Nullable]
         public List<string> EnabledComponents = null;
     }
 }

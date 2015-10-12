@@ -28,7 +28,7 @@ namespace VRageRender
 
         internal int[] BonesMapping;
 
-        internal string Technique; // kind of legacy shit, but can be useful
+        internal string Technique; 
         internal string Material;
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -18,10 +19,12 @@ namespace Sandbox.Common.ObjectBuilders
         public string Name;
 
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<MyObjectBuilder_ToolbarItem> Actions = null;
 
         // Used only when sending over network because ProtoBuf cannot handle nulls in array
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<int> Indexes = null;
 
         public void Remap(IMyRemapHelper remapHelper)

@@ -1,6 +1,4 @@
 ﻿using Havok;
-using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -14,28 +12,24 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using VRage;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Components;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipConnector))]
-    class MyShipConnector : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyShipConnector
+    class MyShipConnector : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipConnector
     {
         private enum Mode
         {
@@ -84,8 +78,7 @@ namespace Sandbox.Game.Entities.Cube
         private Mode m_connectorMode = Mode.Ejector;
         private bool HasConstraint = false;
         
-        private MyPowerReceiver m_receiver;
-        private List<MyEntity> m_detectedGrids = new List<MyEntity>();
+        private HashSet<MyEntity> m_detectedGrids = new HashSet<MyEntity>();
         public string DetectGridsCount 
         {
             get 
@@ -95,12 +88,8 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         private List<IMyEntity> m_detectedFloaters = new List<IMyEntity>();
-        public MyPowerReceiver PowerReceiver
-        {
-            get { return m_receiver; }
-        }
-
-        static MyShipConnector()
+        
+		static MyShipConnector()
         {
             var stateWriter = new MyTerminalControl<MyShipConnector>.WriterDelegate((b, sb) => b.WriteLockStateValue(sb));
 
@@ -207,7 +196,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -230,14 +219,15 @@ namespace Sandbox.Game.Entities.Cube
                 consumption *= 0.01f;
             }
 
-            m_receiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Conveyors,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+                MyStringHash.GetOrCompute("Conveyors"),
                 consumption,
-                () => base.CheckIsWorking() ? PowerReceiver.MaxRequiredInput : 0f
+				() => base.CheckIsWorking() ? ResourceSink.MaxRequiredInput : 0f
             );
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += UpdateReceiver;
             base.EnabledChanged += UpdateReceiver;
@@ -432,6 +422,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private void phantom_LeaveEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            ProfilerShort.Begin("ShipConnectorLeaveEjector");
             var updateEmissivity = (m_detectedFloaters.Count == 2);
             var entities = body.GetAllEntities();
             foreach(var entity in entities)
@@ -439,24 +430,24 @@ namespace Sandbox.Game.Entities.Cube
             entities.Clear();
             if (updateEmissivity)
                 UpdateEmissivity();
+            ProfilerShort.End();
         }
 
         private void phantom_LeaveConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            ProfilerShort.Begin("ShipConnectorLeaveConnector");
             var entities = body.GetAllEntities();
             foreach (var entity in entities)
             {
-                var other = entity as MyCubeGrid;
-                if (other == null || other == this.CubeGrid)
-                    continue;
-
-                m_detectedGrids.Remove(other);
+                m_detectedGrids.Remove(entity as MyCubeGrid);
             }
             entities.Clear();
+            ProfilerShort.End();
         }
 
         private void phantom_EnterEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            ProfilerShort.Begin("ShipConnectorEnterEjector");
             bool updateEmissivity = false;
             var entities = body.GetAllEntities();
             foreach(var entity in entities)
@@ -472,10 +463,12 @@ namespace Sandbox.Game.Entities.Cube
 
             if (updateEmissivity)
                 UpdateEmissivity();
+            ProfilerShort.End();
         }
 
         private void phantom_EnterConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
+            ProfilerShort.Begin("ShipConnectorEnterConnector");
             var entities = body.GetAllEntities();
             using (entities.GetClearToken())
             {
@@ -488,6 +481,7 @@ namespace Sandbox.Game.Entities.Cube
                     m_detectedGrids.Add(other);
                 }
             }
+            ProfilerShort.End();
         }
 
         private void GetBoxFromMatrix(Matrix m, out Vector3 halfExtents, out Vector3 position, out Quaternion orientation)
@@ -499,12 +493,12 @@ namespace Sandbox.Game.Entities.Cube
 
         private void UpdateReceiver(MyTerminalBlock block)
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void UpdateReceiver()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         void Receiver_IsPoweredChanged()
@@ -538,18 +532,18 @@ namespace Sandbox.Game.Entities.Cube
             if (InConstraint)
             {
                 if (Connected)
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, Color.ForestGreen, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.ForestGreen, 1);
                 else
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, Color.Goldenrod, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Goldenrod, 1);
             }
             else
             {
                 if (!IsWorking && m_connectorMode == Mode.Connector)
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, Color.Black, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Black, 1);
                 else if (m_detectedFloaters.Count < 2 || !IsWorking)
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, Color.Gray, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Gray, 1);
                 else
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, Color.Red, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Red, 1);
             }
         }
 
@@ -647,10 +641,12 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 MyParticleEffect effect;
                 MyEntity entity;
+                MyFixedPoint ejectedItemCount = 0;
                 if (items[i].Amount < itemAmount)
                 {
                     volume -= ((float)items[i].Amount * def.Volume);
                     entity = MyFloatingObjects.Spawn(items[i], rndPos, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up, CubeGrid.Physics);
+                    ejectedItemCount = items[i].Amount;
                     m_inventory.RemoveItems(items[i].ItemId);
                     i++;
                 }
@@ -659,10 +655,14 @@ namespace Sandbox.Game.Entities.Cube
                     var tmpItem = new MyPhysicalInventoryItem(items[i].GetObjectBuilder());
                     tmpItem.Amount = itemAmount;
                     entity = MyFloatingObjects.Spawn(tmpItem, rndPos, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up, CubeGrid.Physics);
+                    ejectedItemCount = itemAmount;
                     m_inventory.RemoveItems(items[i].ItemId, itemAmount);
                     volume = 0;
                 }
                 entity.Physics.LinearVelocity += PositionComp.WorldMatrix.Forward * (1);
+
+                if(ejectedItemCount > 0)
+                    m_soundEmitter.PlaySound(m_actionSound);
                 
                 if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Collector, out effect))
                 {
@@ -689,6 +689,8 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var entity in m_detectedGrids)
             {
+                if (entity.MarkedForClose)
+                    continue;
                 Debug.Assert(entity is MyCubeGrid);
                 if (!(entity is MyCubeGrid)) continue;
 
@@ -749,7 +751,7 @@ namespace Sandbox.Game.Entities.Cube
         private void CreateConstraintNosync(MyShipConnector otherConnector, ref Vector3 posA, ref Vector3 posB, ref Vector3 axisA, ref Vector3 axisB)
         {
             var data = new HkHingeConstraintData();
-            data.SetInBodySpace(ref posA, ref posB, ref axisA, ref axisB);
+            data.SetInBodySpace( posA,  posB,  axisA,  axisB, CubeGrid.Physics, otherConnector.CubeGrid.Physics);
             var data2 = new HkMalleableConstraintData();
             data2.SetData(data);
             data.ClearHandle();
@@ -1065,6 +1067,23 @@ namespace Sandbox.Game.Entities.Cube
             return m_inventory;
         }
 
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged -= Inventory_ContentsChanged;
+            }
+
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
+        }
+
         public MyInventoryOwnerTypeEnum InventoryOwnerType
         {
             get { return MyInventoryOwnerTypeEnum.Storage; }
@@ -1170,8 +1189,8 @@ namespace Sandbox.Game.Entities.Cube
                 MySyncLayer.RegisterMessage<ConnectMsg>(OnAttach, MyMessagePermissions.FromServer);
                 MySyncLayer.RegisterMessage<DetachMsg>(OnDetachRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<DetachMsg>(OnDetach, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<ChangePropertyMsg>(OnChangePropertyRequest, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<ChangePropertyMsg>(OnChangeProperty, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+                MySyncLayer.RegisterMessage<ChangePropertyMsg>(OnChangePropertyRequest, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+                MySyncLayer.RegisterMessage<ChangePropertyMsg>(OnChangeProperty, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             }
 
             public static void SendChangePropertyMessage(bool newValue, MyShipConnector block, Properties property)
@@ -1223,7 +1242,7 @@ namespace Sandbox.Game.Entities.Cube
                 msg.EntityId = thisConnector.EntityId;
                 msg.OtherEntityId = otherConnector.EntityId;
 
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
             }
 
             private static void OnApproach(ref ApproachMsg msg, MyNetworkClient sender)

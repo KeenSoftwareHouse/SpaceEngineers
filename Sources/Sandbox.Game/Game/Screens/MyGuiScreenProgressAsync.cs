@@ -6,7 +6,6 @@ using System.Text;
 using Sandbox.Graphics.GUI;
 using ParallelTasks;
 using VRage.Utils;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui

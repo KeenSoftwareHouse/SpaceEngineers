@@ -59,7 +59,9 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        public MyStorageBase() { }
+        public MyStorageBase() 
+        {
+        }
 
         public static MyStorageBase LoadFromFile(string absoluteFilePath)
         {
@@ -83,7 +85,10 @@ namespace Sandbox.Engine.Voxels
                 compressedData = new byte[file.Length];
                 file.Read(compressedData, 0, compressedData.Length);
             }
-            return Load(compressedData);
+      
+            MyStorageBase result =  Load(compressedData);
+
+            return result;
         }
 
         public static MyStorageBase Load(string name)
@@ -101,7 +106,6 @@ namespace Sandbox.Engine.Voxels
             {
                 result = Load(MyMultiplayer.Static.VoxelMapData[name]);
             }
-
             return result;
         }
 
@@ -261,7 +265,7 @@ namespace Sandbox.Engine.Voxels
                 }
                 if ((dataToRead & MyStorageDataTypeFlags.Material) != 0)
                 {
-                    target.ClearMaterials(m_defaultMaterial);
+                    //target.ClearMaterials(m_defaultMaterial);
                 }
 
                 if (rangeSize.X <= threshold.X &&
@@ -345,5 +349,9 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
+        public void Reset()
+        {
+            OnRangeChanged(Vector3I.Zero, Size - 1, MyStorageDataTypeFlags.All);
+        }
     }
 }

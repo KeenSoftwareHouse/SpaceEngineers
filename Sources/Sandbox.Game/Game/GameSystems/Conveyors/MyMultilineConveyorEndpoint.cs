@@ -71,7 +71,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             }
 
             myBlock.SlimBlock.ComponentStack.IsFunctionalChanged += UpdateLineFunctionality;
-            myBlock.CubeGrid.GridSystems.ConveyorSystem.PowerReceiver.IsPoweredChanged += UpdateLineFunctionality;
+            myBlock.CubeGrid.GridSystems.ConveyorSystem.ResourceSink.IsPoweredChanged += UpdateLineFunctionality;
 
             m_pathfindingData = new MyPathfindingData(this);
             ProfilerShort.End();

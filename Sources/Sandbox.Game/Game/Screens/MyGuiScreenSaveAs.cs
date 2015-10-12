@@ -144,7 +144,7 @@ namespace Sandbox.Game.Gui
         {         
             MyStringId? errorType = null;
             if (m_nameTextbox.Text.Length < 5) errorType = MySpaceTexts.ErrorNameTooShort;
-            else if (m_nameTextbox.Text.Length > 30) errorType = MySpaceTexts.ErrorNameTooLong;
+            else if (m_nameTextbox.Text.Length > 128) errorType = MySpaceTexts.ErrorNameTooLong;
 
 
             if (m_existingSessionNames != null)

@@ -2,32 +2,32 @@
 
 namespace VRage.Noise
 {
-    public class MySimplexFast : IMyModule
+    public class MySimplexFast : MyModuleFast
     {
         private static Grad[] grad3 = { new Grad(1,1,0), new Grad(-1, 1,0), new Grad(1,-1, 0), new Grad(-1,-1, 0),
                                         new Grad(1,0,1), new Grad(-1, 0,1), new Grad(1, 0,-1), new Grad(-1, 0,-1),
                                         new Grad(0,1,1), new Grad( 0,-1,1), new Grad(0, 1,-1), new Grad( 0,-1,-1) };
 
-        private int m_seed;
+        private int m_seedSimplex;
 
-        private byte[] m_perm = new byte[512];
-        private byte[] m_grad = new byte[512];
+        private byte[] m_permSimplex = new byte[512];
+        private byte[] m_gradSimplex = new byte[512];
 
-        public int Seed
+        public override int Seed
         {
-            get { return m_seed; }
+            get { return m_seedSimplex; }
             set
             {
-                m_seed = value;
+                m_seedSimplex = value;
 
-                var rnd = new MyRNG(m_seed);
+                var rnd = new MyRNG(m_seedSimplex);
 
                 for (int i = 0; i < 256; i++)
                 {
-                    m_perm[i] = (byte)rnd.NextIntRange(0f, 255f);
-                    m_perm[256 + i] = m_perm[i];
-                    m_grad[i] = (byte)(m_perm[i] % 12);
-                    m_grad[256 + i] = m_grad[i];
+                    m_permSimplex[i] = (byte)rnd.NextIntRange(0f, 255f);
+                    m_permSimplex[256 + i] = m_permSimplex[i];
+                    m_gradSimplex[i] = (byte)(m_permSimplex[i] % 12);
+                    m_gradSimplex[256 + i] = m_gradSimplex[i];
                 }
             }
         }
@@ -40,7 +40,7 @@ namespace VRage.Noise
             Frequency = frequency;
         }
 
-        public double GetValue(double x)
+        public override double GetValue(double x)
         {
             x *= Frequency;
 
@@ -56,15 +56,15 @@ namespace VRage.Noise
             t0 *= t0;
             t1 *= t1;
 
-            n0 = t0*t0 * Dot(grad3[m_grad[ i0      & 0xFF]], x0);
-            n1 = t1*t1 * Dot(grad3[m_grad[(i0 + 1) & 0xFF]], x1);
+            n0 = t0*t0 * Dot(grad3[m_gradSimplex[ i0      & 0xFF]], x0);
+            n1 = t1*t1 * Dot(grad3[m_gradSimplex[(i0 + 1) & 0xFF]], x1);
 
             // The maximum value of this noise is 8*(3/4)^4 = 2.53125
             // A factor of 0.395 scales to fit exactly within [-1,1]
             return 0.395*(n0 + n1);
         }
 
-        public double GetValue(double x, double y)
+        public override double GetValue(double x, double y)
         {
             const double SKEW   = 0.3660254037844386; // ( sqrt(3) - 1 ) / 2
             const double UNSKEW = 0.2113248654051871; // ( 3 - sqrt(3) ) / 6
@@ -103,27 +103,27 @@ namespace VRage.Noise
             else
             {
                 t0 *= t0;
-                n0  = t0*t0 * Dot(grad3[m_grad[(ii + m_perm[jj]) & 0xFF]], x0, y0);
+                n0  = t0*t0 * Dot(grad3[m_gradSimplex[(ii + m_permSimplex[jj]) & 0xFF]], x0, y0);
             }
 
             if (t1 < 0.0) n1 = 0.0;
             else
             {
                 t1 *= t1;
-                n1  = t1*t1 * Dot(grad3[m_grad[(ii + i1 + m_perm[(jj + j1) & 0xFF]) & 0xFF]], x1, y1);
+                n1  = t1*t1 * Dot(grad3[m_gradSimplex[(ii + i1 + m_permSimplex[(jj + j1) & 0xFF]) & 0xFF]], x1, y1);
             }
 
             if (t2 < 0.0) n2 = 0.0;
             else
             {
                 t2 *= t2;
-                n2  = t2*t2 * Dot(grad3[m_grad[(ii + 1 + m_perm[(jj + 1) & 0xFF]) & 0xFF]], x2, y2);
+                n2  = t2*t2 * Dot(grad3[m_gradSimplex[(ii + 1 + m_permSimplex[(jj + 1) & 0xFF]) & 0xFF]], x2, y2);
             }
 
             return 70.0*(n0 + n1 + n2);
         }
 
-        public double GetValue(double x, double y, double z)
+        public override double GetValue(double x, double y, double z)
         {
             // Skewing and unskewing factors
             const double SKEW   = 0.3333333333333333; // 1 / 3
@@ -194,28 +194,28 @@ namespace VRage.Noise
             else
             {
                 t0 *= t0;
-                n0  = t0*t0 * Dot(grad3[m_grad[ii + m_perm[jj + m_perm[kk]]]], x0, y0, z0);
+                n0  = t0*t0 * Dot(grad3[m_gradSimplex[ii + m_permSimplex[jj + m_permSimplex[kk]]]], x0, y0, z0);
             }
 
             if (t1 < 0.0) n1 = 0.0;
             else
             {
                 t1 *= t1;
-                n1  = t1*t1 * Dot(grad3[m_grad[ii + i1 + m_perm[jj + j1 + m_perm[kk + k1]]]], x1, y1, z1);
+                n1  = t1*t1 * Dot(grad3[m_gradSimplex[ii + i1 + m_permSimplex[jj + j1 + m_permSimplex[kk + k1]]]], x1, y1, z1);
             }
 
             if (t2 < 0.0) n2 = 0.0;
             else
             {
                 t2 *= t2;
-                n2  = t2*t2 * Dot(grad3[m_grad[ii + i2 + m_perm[jj + j2 + m_perm[kk + k2]]]], x2, y2, z2);
+                n2  = t2*t2 * Dot(grad3[m_gradSimplex[ii + i2 + m_permSimplex[jj + j2 + m_permSimplex[kk + k2]]]], x2, y2, z2);
             }
 
             if (t3 < 0.0) n3 = 0.0;
             else
             {
                 t3 *= t3;
-                n3  = t3*t3 * Dot(grad3[m_grad[ii + 1 + m_perm[jj + 1 + m_perm[kk + 1]]]], x3, y3, z3);
+                n3  = t3*t3 * Dot(grad3[m_gradSimplex[ii + 1 + m_permSimplex[jj + 1 + m_permSimplex[kk + 1]]]], x3, y3, z3);
             }
 
             // Add contributions from each corner to get the final noise value.

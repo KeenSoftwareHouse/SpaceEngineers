@@ -272,7 +272,7 @@ namespace VRageRender
                     }
                     else
                     {
-                        matrix = MyEnvironment.ViewProjection;
+                        matrix = MyEnvironment.ViewProjectionAt0;
                     }
 
                     if (prevMatrix != matrix)

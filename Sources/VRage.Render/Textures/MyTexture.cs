@@ -347,7 +347,7 @@ namespace VRageRender.Textures
                         MyRender.Log.WriteLine(String.Format("Unsupported texture format: {0}", path));
                     }
                 }
-                catch (SharpDXException e)
+                catch (SharpDXException )
                 {
                     MyRender.Log.WriteLine(String.Format("Error decoding texture, file might be corrupt, quality {1}: {0}", path, quality));
                 }

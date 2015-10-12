@@ -20,6 +20,7 @@ using VRage.Import;
 using Sandbox.Engine.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.Components;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 #endregion
 
@@ -37,6 +38,14 @@ namespace Sandbox.Game.Entities
         public float BlendTime;
         public float TimeScale;
         public bool ExcludeLegsWhenMoving;
+        public bool KeepContinuingAnimations;
+    }
+
+    public struct MyAnimationSetData
+    {
+        public float BlendTime;
+        public string Area;
+        public AnimationSet AnimationSet;
     }
 
     #endregion
@@ -59,6 +68,7 @@ namespace Sandbox.Game.Entities
 
 
         protected ulong m_actualUpdateFrame = 0;
+		internal ulong ActualUpdateFrame { get { return m_actualUpdateFrame; } }
         protected ulong m_actualDrawFrame = 0;
         protected bool m_characterBonesReady = false;
 
@@ -72,6 +82,8 @@ namespace Sandbox.Game.Entities
 
         BoundingBoxD m_actualWorldAABB;
         BoundingBoxD m_aabb;
+
+        List<MyAnimationSetData> m_continuingAnimSets = new List<MyAnimationSetData>();
 
 
         #endregion
@@ -109,28 +121,48 @@ namespace Sandbox.Game.Entities
             AddAnimationPlayer("", null);
         }
 
-        public virtual void UpdateAnimation()
+        public void SetBoneLODs(Dictionary<float, string[]> boneLODs)
         {
-            //if (Render.RenderObjectIDs.Length > 0 && MyRenderProxy.VisibleObjectsRead.Contains(Render.RenderObjectIDs[0]))
+            foreach (var animationPlayer in m_animationPlayers)
             {
+                animationPlayer.Value.SetBoneLODs(boneLODs);
+            }
+        }
+
+        public virtual void UpdateAnimation(float distance)
+        {
+            if (!MyPerGameSettings.AnimateOnlyVisibleCharacters || MySandboxGame.IsDedicated ||
+              (Render != null && Render.RenderObjectIDs.Length > 0 && MyRenderProxy.VisibleObjectsRead != null && MyRenderProxy.VisibleObjectsRead.Contains(Render.RenderObjectIDs[0])))
+            {
+                UpdateContinuingSets();
+
                 AdvanceAnimation();
 
                 ProcessCommands();
 
                 UpdateAnimationState();
 
-                CalculateTransforms();
+                CalculateTransforms(distance);
 
                 UpdateRenderObject();
                     
             }
         }
 
-        void UpdateBones()
+        void UpdateContinuingSets()
+        {
+            foreach (var animationSet in m_continuingAnimSets)
+            {
+                System.Diagnostics.Debug.Assert(animationSet.AnimationSet.Continuous, "Wrong animation set here!");
+                PlayAnimationSet(animationSet);
+            }
+        }
+
+        void UpdateBones(float distance)
         {
             foreach (var animationPlayer in m_animationPlayers)
             {
-                animationPlayer.Value.UpdateBones();
+                animationPlayer.Value.UpdateBones(distance);
             }
         }
 
@@ -213,7 +245,7 @@ namespace Sandbox.Game.Entities
 
         internal void AddAnimationPlayer(string name, string[] bones)
         {
-            m_animationPlayers.Add(name, new MyAnimationPlayerBlendPair(this, bones, name));
+            m_animationPlayers.Add(name, new MyAnimationPlayerBlendPair(this, bones, null, name));
         }
 
         internal bool TryGetAnimationPlayer(string name, out MyAnimationPlayerBlendPair player)
@@ -226,6 +258,72 @@ namespace Sandbox.Game.Entities
             return m_animationPlayers.TryGetValue(name, out player);
         }
 
+        void PlayAnimationSet(MyAnimationSetData animationSetData)
+        {
+            if (MyRandom.Instance.NextFloat(0, 1) < animationSetData.AnimationSet.Probability)
+            {
+                float total = animationSetData.AnimationSet.AnimationItems.Sum(x => x.Ratio);
+                if (total > 0)
+                {
+                    float r = MyRandom.Instance.NextFloat(0, 1);
+                    float rel = 0;
+                    foreach (var animationItem in animationSetData.AnimationSet.AnimationItems)
+                    {
+                        rel += animationItem.Ratio / total;
+
+                        if (r < rel)
+                        {
+                            var command = new MyAnimationCommand()
+                            {
+                                AnimationSubtypeName = animationItem.Animation,
+                                PlaybackCommand = MyPlaybackCommand.Play,
+                                Area = animationSetData.Area,
+                                BlendTime = animationSetData.BlendTime,
+                                TimeScale = 1,
+                                KeepContinuingAnimations = true
+                            };
+
+                            ProcessCommand(ref command);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        internal void PlayersPlay(string bonesArea, MyAnimationDefinition animDefinition, bool firstPerson, MyFrameOption frameOption, float blendTime, float timeScale)
+        {
+            string[] players = bonesArea.Split(' ');
+
+            if (animDefinition.AnimationSets != null)
+            {
+                foreach (var animationSet in animDefinition.AnimationSets)
+                {
+                    var animationSetData = new MyAnimationSetData()
+                        {
+                            BlendTime = blendTime,
+                            Area = bonesArea,
+                            AnimationSet = animationSet
+                        };
+
+                    if (animationSet.Continuous)
+                    {
+                        m_continuingAnimSets.Add(animationSetData);
+                        continue;
+                    }
+
+                    PlayAnimationSet(animationSetData);
+                }
+
+                return;
+            }
+
+            foreach (var player in players)
+            {
+                PlayerPlay(player, animDefinition, firstPerson, frameOption, blendTime, timeScale);
+            }
+        }
+
         internal void PlayerPlay(string playerName, MyAnimationDefinition animDefinition, bool firstPerson, MyFrameOption frameOption, float blendTime, float timeScale)
         {
             MyAnimationPlayerBlendPair player;
@@ -233,8 +331,8 @@ namespace Sandbox.Game.Entities
             {
                 player.Play(animDefinition, firstPerson, frameOption, blendTime, timeScale);
             }
-       //     else
-         //       Debug.Fail("Non existing animation set");
+            //     else
+            //       Debug.Fail("Non existing animation set");
         }
 
         internal void PlayerStop(string playerName, float blendTime)
@@ -254,19 +352,19 @@ namespace Sandbox.Game.Entities
 
         #region Simulation
 
-        protected virtual void CalculateTransforms()
+        protected virtual void CalculateTransforms(float distance)
         {
             ProfilerShort.Begin("MySkinnedEntity.CalculateTransforms");
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Clear bones");
-            foreach (var bone in Bones)
-            {
-                bone.Translation = Vector3.Zero;
-                bone.Rotation = Quaternion.Identity;
-            }
+            //foreach (var bone in Bones)
+            //{
+            //    bone.Translation = Vector3.Zero;
+            //    bone.Rotation = Quaternion.Identity;
+            //}
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Update bones");
 
-            UpdateBones();
+            UpdateBones(distance);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeAbsoluteTransforms");
             for (int i = 0; i < Bones.Count; i++)
@@ -317,54 +415,58 @@ namespace Sandbox.Game.Entities
         {
             if (m_commandQueue.Count > 0)
             {
-                MyAnimationCommand command = m_commandQueue.Peek();
+                MyAnimationCommand command = m_commandQueue.Dequeue();
 
-                if (command.PlaybackCommand == MyPlaybackCommand.Play)
-                {
-                    m_commandQueue.Dequeue();
-
-                    MyAnimationDefinition animDefinition;
-                    if (!TryGetAnimationDefinition(command.AnimationSubtypeName, out animDefinition))
-                        return;
-
-
-                    string bonesArea = animDefinition.InfluenceArea;
-                    var frameOption = command.FrameOption;
-                    bool useFirstPersonVersion = false;
-
-                    OnAnimationPlay(animDefinition, command, ref bonesArea, ref frameOption, ref useFirstPersonVersion);
-
-                    //override bones area if required
-                    if (!string.IsNullOrEmpty(command.Area))
-                        bonesArea = command.Area;
-
-                    if (bonesArea == null)
-                        bonesArea = "";
-
-                    string[] boneAreas = bonesArea.Split(' ');
-                    foreach (var boneArea in boneAreas)
-                    {
-                        PlayerPlay(boneArea, animDefinition, useFirstPersonVersion, frameOption, command.BlendTime, command.TimeScale);
-                    }
-                }
-
-                else
-                {
-                    System.Diagnostics.Debug.Assert(command.PlaybackCommand == MyPlaybackCommand.Stop, "Unknown playback command");
-
-                    m_commandQueue.Dequeue();
-
-                    string bonesArea = command.Area == null ? "" : command.Area;
-                    string[] boneAreas = bonesArea.Split(' ');
-
-                    foreach (var boneArea in boneAreas)
-                    {
-                        PlayerStop(boneArea, command.BlendTime);
-                    }
-                }
+                ProcessCommand(ref command);
             }
         }
 
+        void ProcessCommand(ref MyAnimationCommand command)
+        {
+            if (command.PlaybackCommand == MyPlaybackCommand.Play)
+            {
+                MyAnimationDefinition animDefinition;
+                if (!TryGetAnimationDefinition(command.AnimationSubtypeName, out animDefinition))
+                    return;
+
+                string bonesArea = animDefinition.InfluenceArea;
+                var frameOption = command.FrameOption;
+
+                if (frameOption == MyFrameOption.Default)
+                {
+                    frameOption = animDefinition.Loop ? MyFrameOption.Loop : MyFrameOption.PlayOnce;
+                }
+
+                bool useFirstPersonVersion = false;
+
+                OnAnimationPlay(animDefinition, command, ref bonesArea, ref frameOption, ref useFirstPersonVersion);
+
+                //override bones area if required
+                if (!string.IsNullOrEmpty(command.Area))
+                    bonesArea = command.Area;
+
+                if (bonesArea == null)
+                    bonesArea = "";
+
+                if (!command.KeepContinuingAnimations)
+                    m_continuingAnimSets.Clear();
+
+                PlayersPlay(bonesArea, animDefinition, useFirstPersonVersion, frameOption, command.BlendTime, command.TimeScale);
+            }
+
+            else
+            {
+                System.Diagnostics.Debug.Assert(command.PlaybackCommand == MyPlaybackCommand.Stop, "Unknown playback command");
+
+                string bonesArea = command.Area == null ? "" : command.Area;
+                string[] boneAreas = bonesArea.Split(' ');
+
+                foreach (var boneArea in boneAreas)
+                {
+                    PlayerStop(boneArea, command.BlendTime);
+                }
+            }
+        }
 
         protected void FlushAnimationQueue()
         {
@@ -374,14 +476,13 @@ namespace Sandbox.Game.Entities
 
         public virtual void AddCommand(MyAnimationCommand command, bool sync = false)
         {
-            if (command.PlaybackCommand == MyPlaybackCommand.Play && command.BlendOption == MyBlendOption.Immediate)
-            {
-                m_commandQueue.Clear();
-            }
+            //if (command.PlaybackCommand == MyPlaybackCommand.Play && command.BlendOption == MyBlendOption.Immediate)
+            //{
+            //    m_commandQueue.Clear();
+            //}
 
             m_commandQueue.Enqueue(command);
         }
-
 
         protected virtual void OnAnimationPlay(MyAnimationDefinition animDefinition, MyAnimationCommand command, ref string bonesArea, ref MyFrameOption frameOption, ref bool useFirstPersonVersion)
         {

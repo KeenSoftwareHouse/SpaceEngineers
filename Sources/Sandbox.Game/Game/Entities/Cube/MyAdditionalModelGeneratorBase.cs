@@ -25,6 +25,7 @@ namespace Sandbox.Game.Entities.Cube
     using VRage.Utils;
     using VRage.Library.Utils;
     using VRage;
+    using Sandbox.Game.EntityComponents;
 
     /// <summary>
     /// Base class for additional model geometry with common implementation.
@@ -283,22 +284,20 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(!(block2.FatBlock is MyCompoundCubeBlock));
             Debug.Assert(block1 != block2);
 
-            foreach (var component1 in block1.BlockDefinition.Components)
-            {
-                if (block2.BlockDefinition.Components.Contains(component1))
-                    return true;
-            }
-
-            return false;
+            return block1.BlockDefinition.BuildMaterial == block2.BlockDefinition.BuildMaterial;
         }
 
         protected bool CanGenerateFromBlock(MySlimBlock cube)
         {
+            if (cube == null)
+                return false;
+
             MyCompoundCubeBlock compoundBlock = cube.FatBlock as MyCompoundCubeBlock;
 
             if (!m_enabled || !cube.CubeGrid.InScene || cube.BlockDefinition.IsGeneratedBlock
                 || (compoundBlock != null && compoundBlock.GetBlocksCount() == 0)
-                || (compoundBlock == null && MySession.Static.SurvivalMode && cube.ComponentStack.BuildRatio < cube.BlockDefinition.BuildProgressToPlaceGeneratedBlocks))
+                || (compoundBlock == null && MySession.Static.SurvivalMode && cube.ComponentStack.BuildRatio < cube.BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
+                || MyFakes.ENABLE_FRACTURE_COMPONENT && cube.FatBlock != null && cube.FatBlock.Components.Has<MyFractureComponentBase>())
                 return false;
 
             return true;

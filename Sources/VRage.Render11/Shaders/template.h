@@ -44,11 +44,15 @@ struct ObjectConstants
 	uint 	material_index; // 0-255 material id (mostly for brdf etc), we pack it in gbuffer!
 	uint 	material_flags;
 
-	float2 	__padding0;
+	float   facing;
+	float   voxelLodSize;
 	float3 	voxel_offset;
 	float 	__padding1;
 	float3 	voxel_scale;
 	float 	__padding2;
+	float4 	massive_center_radius;
+	float2 	windScaleAndFreq;
+	float2 	__padding3;
 
 #ifdef USE_SKINNING
 	matrix bone_matrix[60];

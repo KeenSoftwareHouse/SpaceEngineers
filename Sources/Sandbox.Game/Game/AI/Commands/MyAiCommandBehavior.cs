@@ -76,8 +76,9 @@ namespace Sandbox.Game.AI.Commands
 
         private void ChangeAllBehaviors()
         {
-            foreach (var localBot in MyAIComponent.Static.Bots.GetAllBots())
+            foreach (var entry in MyAIComponent.Static.Bots.GetAllBots())
             {
+                var localBot = entry.Value;
                 var agent = localBot as MyAgentBot;
                 if (agent != null && agent.BotDefinition.Commandable)
                 {
@@ -89,8 +90,9 @@ namespace Sandbox.Game.AI.Commands
         private bool TryGetBotForCharacter(MyCharacter character, out MyAgentBot bot)
         {
             bot = null;
-            foreach (var localBot in MyAIComponent.Static.Bots.GetAllBots())
+            foreach (var entry in MyAIComponent.Static.Bots.GetAllBots())
             {
+                var localBot = entry.Value;
                 var agent = localBot as MyAgentBot;
                 if (agent != null && agent.AgentEntity == character)
                 {

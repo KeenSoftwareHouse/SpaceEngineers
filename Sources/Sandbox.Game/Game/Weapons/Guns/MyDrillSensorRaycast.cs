@@ -109,13 +109,23 @@ namespace Sandbox.Game.Weapons.Guns
 					MyCubeGrid grid = rootEntity as MyCubeGrid;
                     if (grid != null)
                     {
-						if (!GetShapeCenter(hitInfo.Body.GetShape(), hitInfo.GetShapeKey(0), grid, ref detectionPoint))
-						{
-							if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
-								detectionPoint += hit.HkHitInfo.Normal * -0.08f;
-							else
-								detectionPoint += hit.HkHitInfo.Normal * -0.02f;
-						}
+                        var shape = hitInfo.Body.GetShape();
+                        int shapeIdx = 0;
+                        if(grid.Physics.IsWelded || grid.Physics.WeldInfo.Children.Count != 0)
+                        {
+                            if (shape.IsContainer())
+                            {
+                                shape = shape.GetContainer().GetShape(hitInfo.GetShapeKey(0));
+                                shapeIdx = 1;
+                            }
+                        }
+                        if (!GetShapeCenter(shape, hitInfo.GetShapeKey(shapeIdx), grid, ref detectionPoint))
+                        {
+                            if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
+                                detectionPoint += hit.HkHitInfo.Normal * -0.08f;
+                            else
+                                detectionPoint += hit.HkHitInfo.Normal * -0.02f;
+                        }
                     }
                     
                     if (m_entitiesInRange.TryGetValue(rootEntity.EntityId, out value))
@@ -142,15 +152,16 @@ namespace Sandbox.Game.Weapons.Guns
                     var rootEntity = segment.Element.GetTopMostParent();
                     if (!IgnoredEntities.Contains(rootEntity))
                     {
-                        if (!(segment.Element is MyCubeBlock)) continue;
+                        MyCubeBlock block = segment.Element as MyCubeBlock;
+                        if (block == null) continue;
 
                         Vector3D point = new Vector3D();
 
-                        MyCubeBlock block = segment.Element as MyCubeBlock;
                         if (block.SlimBlock.HasPhysics == false)
                         {
-                            Vector3D localOrigin = Vector3D.Transform(m_origin, block.PositionComp.WorldMatrixNormalizedInv);
-                            Vector3D localFront = Vector3D.Transform(FrontPoint, block.PositionComp.WorldMatrixNormalizedInv);
+                            MatrixD blockWorldMatrixNormalizedInv = block.PositionComp.WorldMatrixNormalizedInv;
+                            Vector3D localOrigin = Vector3D.Transform(m_origin, ref blockWorldMatrixNormalizedInv);
+                            Vector3D localFront = Vector3D.Transform(FrontPoint, ref blockWorldMatrixNormalizedInv);
                             Ray ray = new Ray(localOrigin, Vector3.Normalize(localFront - localOrigin));
                             //MyRenderProxy.DebugDrawAABB(block.WorldAABB, Color.Red.ToVector3(), 1.0f, 1.0f, false);
                             float? dist = ray.Intersects(block.PositionComp.LocalAABB);

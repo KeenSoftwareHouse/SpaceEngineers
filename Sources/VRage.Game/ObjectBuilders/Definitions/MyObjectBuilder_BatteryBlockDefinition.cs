@@ -1,6 +1,5 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
-using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -11,7 +10,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public float MaxStoredPower;
 
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float RequiredPowerInput;
+
+	    [ProtoMember]
+		public bool AdaptibleInput = true;
     }
 }

@@ -76,7 +76,7 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_ENTITY_IDS)
             {
-                if (this.m_entity.Parent == null)
+                if (this.m_entity.Parent == null || !MyDebugDrawSettings.DEBUG_DRAW_ENTITY_IDS_ONLY_ROOT)
                 {
                     MyRenderProxy.DebugDrawText3D(m_entity.PositionComp.WorldMatrix.Translation, m_entity.EntityId.ToString("X16"), Color.White, 0.6f, false);
                 }

@@ -47,6 +47,7 @@ using System.Collections;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Components;
+using VRage.Network;
 
 #endregion
 
@@ -148,7 +149,6 @@ namespace Sandbox.Game.World
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
         public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport && MyPerGameSettings.Game == GameEnum.SE_GAME; } }
-		public bool EnableFlora { get { return Settings.EnableFlora; } }
         public bool ClientCanSave { get { return Settings.ClientCanSave; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
@@ -173,7 +173,6 @@ namespace Sandbox.Game.World
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
         public bool SimpleSurvival { get { return MyFakes.ENABLE_SIMPLE_SURVIVAL && SurvivalMode && !Battle; } }
-        public float CharacterLootingTime;
 
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods;
         public MyScenarioDefinition Scenario;
@@ -618,7 +617,6 @@ namespace Sandbox.Game.World
 
         public void LoadDataComponents(bool registerEvents = true)
         {
-            CharacterLootingTime = MyPerGameSettings.CharacterDefaultLootingCounter;
             RaiseOnLoading();
 
             if (registerEvents)
@@ -749,6 +747,7 @@ namespace Sandbox.Game.World
 
         public void BeforeStartComponents()
         {
+            MyAnalyticsHelper.ReportGameplayStart();
             foreach (var component in m_sessionComponents)
             {
                 component.BeforeStart();
@@ -1040,7 +1039,7 @@ namespace Sandbox.Game.World
             MySession.Static.Mods = mods;
             MySession.Static.Scenario = generationArgs.Scenario;
             MySession.Static.WorldBoundaries = generationArgs.Scenario.WorldBoundaries;
-            MySession.Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
+            MySession.Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
             string safeName = MyUtils.StripInvalidChars(name);
             MySession.Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
@@ -1058,11 +1057,22 @@ namespace Sandbox.Game.World
 
             MyWorldGenerator.GenerateWorld(generationArgs);
 
+            if (!MySandboxGame.IsDedicated)
+            {
+                var playerId = new Sandbox.Game.World.MyPlayer.PlayerId(MySteam.UserId, 0);
+                MyToolBarCollection.RequestCreateToolbar(playerId);
+            }
+            
             SendSessionStartStats();
             var scenarioName = generationArgs.Scenario.DisplayNameText.ToString();
             MySession.Static.LogSettings(scenarioName, generationArgs.AsteroidAmount);
 
             MySector.InitEnvironmentSettings();
+            if (generationArgs.Scenario.SunDirection.IsValid())
+            {
+                MySector.SunProperties.SunDirectionNormalized = Vector3.Normalize(generationArgs.Scenario.SunDirection);
+                MySector.SunProperties.BaseSunDirectionNormalized = Vector3.Normalize(generationArgs.Scenario.SunDirection);
+            }
 
             //Because blocks fills SubBlocks in this method..
             //TODO: Create LoadPhase2
@@ -1137,6 +1147,7 @@ namespace Sandbox.Game.World
 
         public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, string name, string description)
         {
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
             MySession.Static.Name = name;
             MySession.Static.Description = description;
@@ -1153,6 +1164,7 @@ namespace Sandbox.Game.World
         {
 			MyLog.Default.WriteLine("Loading battle session: " + sessionPath);
 
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
             MySession.Static.Settings = settings;
             Debug.Assert(MySession.Static.Settings.Battle = true);
@@ -1496,6 +1508,12 @@ namespace Sandbox.Game.World
             if (CreativeMode && !MySandboxGame.IsDedicated && LocalHumanPlayer != null && LocalHumanPlayer.Character!=null && LocalHumanPlayer.Character.IsDead)
                 MyPlayerCollection.RequestLocalRespawn();
 
+            if(MyMultiplayer.Static != null && !Sync.IsServer)
+            {
+                Sync.Layer.TransportLayer.SendMessage(MyMessageId.CLIENT_READY, null, true, new EndpointId(Sync.ServerId));
+                ((MyReplicationClient)MyMultiplayer.Static.ReplicationLayer).OnLocalClientReady();
+            }
+
             // Create the player if he/she does not exist (on clients and server)
             if (!MySandboxGame.IsDedicated && LocalHumanPlayer == null)
             {
@@ -1517,6 +1535,7 @@ namespace Sandbox.Game.World
                 if (toolbar == null)
                 {
                     MyToolBarCollection.RequestCreateToolbar(playerId);
+                    MyToolbarComponent.InitCharacterToolbar(Scenario.DefaultToolbar);
                 }
                 else
                 {
@@ -1537,7 +1556,7 @@ namespace Sandbox.Game.World
             Settings.ResetOwnership = false;
 
             if (MyFinalBuildConstants.IS_OFFICIAL && !CreativeMode)
-                MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES = false;
+                MyDebugDrawSettings.DEBUG_DRAW_PHYSICS = false;
 
             VRageRender.MyRenderProxy.CollectGarbage();
         }
@@ -1709,7 +1728,6 @@ namespace Sandbox.Game.World
             if (settings.HackSpeedMultiplier <= 0.0f) settings.HackSpeedMultiplier = defaultSettings.HackSpeedMultiplier;
             if (!settings.PermanentDeath.HasValue) settings.PermanentDeath = true;
             settings.ViewDistance = MathHelper.Clamp(settings.ViewDistance, 1000, 50000);
-            VRageRender.MyRenderProxy.Settings.NightMode = false;
             if (MySandboxGame.IsDedicated)
             {
                 settings.Scenario = false;
@@ -1949,7 +1967,7 @@ namespace Sandbox.Game.World
             {
                 ServerSavingMsg msg = new ServerSavingMsg();
                 msg.SaveStarted = true;
-                this.SyncLayer.SendMessageToAll(msg);
+                this.SyncLayer.SendMessageToAll(ref msg);
             }
             snapshot = new MySessionSnapshot();
 
@@ -1998,7 +2016,7 @@ namespace Sandbox.Game.World
             {
                 ServerSavingMsg msg = new ServerSavingMsg();
                 msg.SaveStarted = false;
-                this.SyncLayer.SendMessageToAll(msg);
+                this.SyncLayer.SendMessageToAll(ref msg);
             }
         }
         public string ThumbPath
@@ -2020,14 +2038,14 @@ namespace Sandbox.Game.World
         }
 
 
-        public MyObjectBuilder_World GetWorld()
+        public MyObjectBuilder_World GetWorld(bool includeEntities = true)
         {
             ProfilerShort.Begin("GetWorld");
 
             var ob = new MyObjectBuilder_World()
             {
                 Checkpoint = GetCheckpoint(Name),
-                Sector = GetSector(),
+                Sector = GetSector(includeEntities),
                 VoxelMaps = new VRage.Serialization.SerializableDictionary<string, byte[]>(MySession.Static.GetVoxelMapsArray())
             };
 
@@ -2036,7 +2054,7 @@ namespace Sandbox.Game.World
             return ob;
         }
 
-        public MyObjectBuilder_Sector GetSector()
+        public MyObjectBuilder_Sector GetSector(bool includeEntities = true)
         {
             ProfilerShort.Begin("GetSector");
 
@@ -2044,7 +2062,11 @@ namespace Sandbox.Game.World
 
             {
                 sector = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
-                sector.SectorObjects = MyEntities.Save();
+                
+                if (includeEntities)
+                {
+                    sector.SectorObjects = MyEntities.Save();
+                }
 
                 sector.SectorEvents = MyGlobalEvents.GetObjectBuilder();
                 sector.Encounters = MyEncounterGenerator.Save();
@@ -2230,12 +2252,16 @@ namespace Sandbox.Game.World
 
         public void Unload()
         {
+            MyAnalyticsHelper.ReportGameplayEnd();
+
             MySandboxGame.Log.WriteLine("MySession::Unload START");
 
             MySessionSnapshot.WaitForSaving();
 
             MySandboxGame.Log.WriteLine("AutoSaveInMinutes: " + AutoSaveInMinutes);
             MySandboxGame.Log.WriteLine("MySandboxGame.IsDedicated: " + MySandboxGame.IsDedicated);
+            MySandboxGame.Log.WriteLine("IsServer: " + Sync.IsServer);
+
             if ((AutoSaveInMinutes > 0) && MySandboxGame.IsDedicated)
             {
                 MySandboxGame.Log.WriteLineAndConsole("Autosave in unload");

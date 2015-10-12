@@ -210,6 +210,7 @@ namespace Sandbox.Game.Weapons
             if (weaponProperties.IsDeviated)
             {
                 projectileForwardVector = GetDeviatedVector(weaponProperties.WeaponDefinition.DeviateShotAngle, direction);
+                projectileForwardVector.Normalize();
             }
 
             MyProjectiles.Add(weaponProperties.GetCurrentAmmoDefinitionAs<MyProjectileAmmoDefinition>(), initialPosition, initialVelocity, projectileForwardVector, m_user);

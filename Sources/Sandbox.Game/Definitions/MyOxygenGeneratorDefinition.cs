@@ -1,16 +1,20 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using System.Collections.Generic;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
+using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_OxygenGeneratorDefinition))]
     public class MyOxygenGeneratorDefinition : MyProductionBlockDefinition
     {
-        public float IceToOxygenRatio;
-        public float OxygenProductionPerSecond;
+		public float IceConsumptionPerSecond;
 
         public MySoundPair GenerateSound;
         public MySoundPair IdleSound;
+
+	    public MyStringHash ResourceSourceGroup;
+	    public List<MyGasGeneratorResourceInfo> ProducedGases;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -18,11 +22,20 @@ namespace Sandbox.Definitions
 
             var obDefinition = builder as MyObjectBuilder_OxygenGeneratorDefinition;
 
-            this.IceToOxygenRatio = obDefinition.IceToOxygenRatio;
-            this.OxygenProductionPerSecond = obDefinition.OxygenProductionPerSecond;
+			IceConsumptionPerSecond = obDefinition.IceConsumptionPerSecond;
 
-            this.GenerateSound = new MySoundPair(obDefinition.GenerateSound);
-            this.IdleSound = new MySoundPair(obDefinition.IdleSound);
+            GenerateSound = new MySoundPair(obDefinition.GenerateSound);
+            IdleSound = new MySoundPair(obDefinition.IdleSound);
+
+			ResourceSourceGroup = MyStringHash.GetOrCompute(obDefinition.ResourceSourceGroup);
+
+	        ProducedGases = null;
+	        if (obDefinition.ProducedGases != null)
+	        {
+				ProducedGases = new List<MyGasGeneratorResourceInfo>(obDefinition.ProducedGases.Count);
+		        foreach(var producedGasInfo in obDefinition.ProducedGases)
+					ProducedGases.Add(producedGasInfo);
+	        }
         }
     }
 }

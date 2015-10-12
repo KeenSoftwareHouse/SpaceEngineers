@@ -21,6 +21,7 @@ namespace VRageRender
         FindMaxChild,
         IncreaseRange,
         DecreaseRange,
+        Reset,
     }
 
     public class MyRenderMessageRenderProfiler : IMyRenderMessage

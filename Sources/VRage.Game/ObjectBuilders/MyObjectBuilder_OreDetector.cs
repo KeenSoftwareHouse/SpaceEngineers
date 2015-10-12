@@ -11,6 +11,6 @@ namespace Sandbox.Common.ObjectBuilders
         public float DetectionRadius;
 
         [ProtoMember]
-        public bool BroadcastUsingAntennas;
+        public bool BroadcastUsingAntennas = true;
     }
 }

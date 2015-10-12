@@ -65,7 +65,6 @@ namespace Sandbox.Game.Gui
         public static MyGuiScreenIntroVideo CreateBackgroundScreen()
         {
             var result = new MyGuiScreenIntroVideo(MyPerGameSettings.GUI.MainMenuBackgroundVideos);
-            result.m_colorMultiplier = new Vector4(0.5f, 0.5f, 0.5f, 1);
             return result;
         }
 

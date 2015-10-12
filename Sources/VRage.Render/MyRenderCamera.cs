@@ -19,7 +19,6 @@ using BoundingFrustum = VRageMath.BoundingFrustum;
 using VRage;
 using VRage.Utils;
 using VRage.Stats;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Voxels;
 

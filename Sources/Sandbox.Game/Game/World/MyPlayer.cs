@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +19,8 @@ namespace Sandbox.Game.World
         {
             public ulong SteamId; // Steam Id that identifies the steam account that the controller belongs to
             public int SerialId;  // Serial Id to differentiate between multiple controllers on one computer
+
+            public bool IsValid { get { return SteamId != 0; } }
 
             public PlayerId(ulong steamId) : this(steamId, 0) {}
 
@@ -364,6 +367,39 @@ namespace Sandbox.Game.World
         public void AddGrid(long gridEntityId)
         {
             Grids.Add(gridEntityId);
+        }
+
+        public static MyPlayer GetPlayerFromCharacter(MyCharacter character)
+        {
+            if (character == null)
+            {
+                Debug.Fail("Invalid argument");
+                return null;
+            }
+
+            if (character.ControllerInfo != null && character.ControllerInfo.Controller != null)
+            {
+                return character.ControllerInfo.Controller.Player;
+            }
+
+            return null;
+        }
+
+        public static MyPlayer GetPlayerFromWeapon(IMyGunBaseUser gunUser)
+        {
+            if (gunUser == null)
+            {
+                Debug.Fail("Invalid argument");
+                return null;
+            }
+
+            MyCharacter gunHolder = gunUser.Owner as MyCharacter;
+            if (gunHolder != null)
+            {
+                return GetPlayerFromCharacter(gunHolder);
+            }
+
+            return null;
         }
     }
 }

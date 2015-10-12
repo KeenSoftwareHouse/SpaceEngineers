@@ -274,13 +274,15 @@ namespace VRage.Audio
             return m_categories;
         }
 
-        internal MyInMemoryWave GetRandomWave(MySoundData cue, MySoundDimensions type, out int waveNumber, out CuePart part)
+        internal MyInMemoryWave GetRandomWave(MySoundData cue, MySoundDimensions type, out int waveNumber, out CuePart part, int tryIgnoreWaveNumber = -1)
         {
             int counter = 0;
             foreach (var w in cue.Waves)
                 if (w.Type == type)
                     counter++;
             waveNumber = MyUtils.GetRandomInt(counter);
+			if (counter > 2 && waveNumber == tryIgnoreWaveNumber)
+				waveNumber = (waveNumber+1) % (counter);	// TODO: Do this better
             var wave = GetWave(cue, type, waveNumber, CuePart.Start);
             if (wave != null)
                 part = CuePart.Start;
@@ -340,19 +342,19 @@ namespace VRage.Audio
             return voice;
         }
 
-        internal MySourceVoice GetVoice(MyCueId cueId, MySoundDimensions type = MySoundDimensions.D2)
+        internal MySourceVoice GetVoice(MyCueId cueId, out int waveNumber, MySoundDimensions type = MySoundDimensions.D2, int tryIgnoreWaveNumber = -1)
         {
+			waveNumber = -1;
             MySoundData cue = GetCue(cueId);
             if ((cue == null) || (cue.Waves == null) || (cue.Waves.Count == 0))
                 return null;
 
-            int waveNumber;
             CuePart part;
-            MyInMemoryWave wave = GetRandomWave(cue, type, out waveNumber, out part);
+            MyInMemoryWave wave = GetRandomWave(cue, type, out waveNumber, out part, tryIgnoreWaveNumber);
             if (wave == null && type == MySoundDimensions.D2)
             {
                 type = MySoundDimensions.D3;
-                wave = GetRandomWave(cue, type, out waveNumber, out part);
+                wave = GetRandomWave(cue, type, out waveNumber, out part, tryIgnoreWaveNumber);
             }
             if (wave == null)
                 return null;

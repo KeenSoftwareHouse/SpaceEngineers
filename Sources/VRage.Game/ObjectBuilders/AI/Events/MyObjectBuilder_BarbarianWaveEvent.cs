@@ -14,5 +14,8 @@ namespace VRage.Game.ObjectBuilders.AI.Events
     {
         [ProtoMember]
         public int BotsRemaining;
+
+        [ProtoMember]
+        public int DayNumber;
     }
 }

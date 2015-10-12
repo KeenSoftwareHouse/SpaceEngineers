@@ -644,7 +644,7 @@ namespace Sandbox.Graphics.GUI
 		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_GLOBE = new MyGuiPaddedTexture()
 		{
 			Texture = @"Textures\GUI\GravityHudGlobe.dds",
-			SizePx = new Vector2(228, 98),
+			SizePx = new Vector2(138, 138),
 			PaddingSizePx = new Vector2(0f, 0f),
 		};
 
@@ -652,6 +652,13 @@ namespace Sandbox.Graphics.GUI
 		{
 			Texture = @"Textures\GUI\GravityHudLine.dds",
 			SizePx = new Vector2(228, 2),
+			PaddingSizePx = new Vector2(0f, 0f),
+		};
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_HORIZON = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\GravityHudHorizon.dds",
+			SizePx = new Vector2(512, 512),
 			PaddingSizePx = new Vector2(0f, 0f),
 		};
 

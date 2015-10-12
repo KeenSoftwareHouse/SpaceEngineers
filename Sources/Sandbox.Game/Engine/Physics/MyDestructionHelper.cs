@@ -17,6 +17,7 @@ using VRage.Components;
 using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRageMath;
+using Sandbox.Game.EntityComponents;
 
 namespace Sandbox.Engine.Physics
 {
@@ -248,6 +249,23 @@ namespace Sandbox.Engine.Physics
             m.Translation = fracturedBlock.CubeGrid.GridIntegerToWorld(fracturedBlock.Position);
             var fp = CreateFracturePiece(ref fracturedBlock.Shape, fracturedBlock.CubeGrid.Physics.HavokWorld.DestructionWorld, ref m, false);
             fp.OriginalBlocks = fracturedBlock.OriginalBlocks;
+
+            MyPhysicalModelDefinition def;
+            if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(fp.OriginalBlocks[0], out def))
+                fp.Physics.MaterialType = def.PhysicalMaterial.Id.SubtypeId;
+
+            if (sync)
+                MySyncDestructions.CreateFracturePiece((Sandbox.Common.ObjectBuilders.MyObjectBuilder_FracturedPiece)fp.GetObjectBuilder());
+
+            return fp;
+        }
+
+        public static MyFracturedPiece CreateFracturePiece(MyFractureComponentCubeBlock fractureBlockComponent, bool sync)
+        {
+            System.Diagnostics.Debug.Assert(Sync.IsServer, "Only on server");
+            var m = fractureBlockComponent.Block.FatBlock.WorldMatrix;
+            var fp = CreateFracturePiece(ref fractureBlockComponent.Shape, fractureBlockComponent.Block.CubeGrid.Physics.HavokWorld.DestructionWorld, ref m, false);
+            fp.OriginalBlocks.Add(fractureBlockComponent.Block.BlockDefinition.Id);
 
             MyPhysicalModelDefinition def;
             if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(fp.OriginalBlocks[0], out def))

@@ -10,24 +10,27 @@ using VRageMath;
 using Sandbox.Game.World;
 using VRage.Utils;
 using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>
+    class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
         where TBlock : MyTerminalBlock
     {
         public delegate StringBuilder GetterDelegate(TBlock block);
         public delegate void SetterDelegate(TBlock block, StringBuilder value);
+        public delegate void SerializerDelegate(BitStream stream, StringBuilder value);
 
+        char[] m_tmpArray = new char[64];
         MyGuiControlTextbox m_textbox;
 
         /// <summary>
         /// Returns borrowed string builder instance which won't be stored or overwritten
         /// </summary>
-        public GetterDelegate Getter;
-        public SetterDelegate Setter;
+        public GetterDelegate Getter { private get; set; }
+        public SetterDelegate Setter { private get; set; }
+        public SerializerDelegate Serializer;
 
         public readonly MyStringId Title;
         public readonly MyStringId Tooltip;
@@ -49,6 +52,32 @@ namespace Sandbox.Game.Gui
         {
             Title = title;
             Tooltip = tooltip;
+            Serializer = (s, sb) => s.Serialize(sb, ref m_tmpArray, Encoding.UTF8);
+        }
+
+        public StringBuilder GetValue(TBlock block)
+        {
+            return Getter(block);
+        }
+
+        public void SetValue(TBlock block, StringBuilder value)
+        {
+            Setter(block, value);
+            block.NotifyTerminalValueChanged(this);
+        }
+
+        public void Serialize(BitStream stream, MyTerminalBlock block)
+        {
+            //if (stream.Reading)
+            //{
+            //    m_tmpText.Clear();
+            //    Serializer(stream, m_tmpText);
+            //    SetValue((TBlock)block, m_tmpText);
+            //}
+            //else
+            //{
+            //    Serializer(stream, GetValue((TBlock)block));
+            //}
         }
 
         protected override MyGuiControlBase CreateGui()
@@ -71,7 +100,7 @@ namespace Sandbox.Game.Gui
 
             foreach (var item in TargetBlocks)
             {
-                Setter(item, m_tmpText);
+                SetValue(item, m_tmpText);
             }
         }
 
@@ -81,7 +110,7 @@ namespace Sandbox.Game.Gui
             var first = FirstBlock;
             if (first != null)
             {
-                StringBuilder newText = Getter(first);
+                StringBuilder newText = GetValue(first);
                 if (!m_textbox.TextEquals(newText))
                 {
                     m_textbox.TextChanged -= m_textChanged;

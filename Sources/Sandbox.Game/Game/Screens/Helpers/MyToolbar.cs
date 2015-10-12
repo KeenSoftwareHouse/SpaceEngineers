@@ -145,6 +145,30 @@ namespace Sandbox.Game.Screens.Helpers
             return this[index];
         }
 
+        public MyToolbarItem GetItemAtSlot(int slot)
+        {
+            if (!IsValidSlot(slot) && !IsHolsterSlot(slot))
+                return null;
+
+            if (IsValidSlot(slot))
+            {
+                return m_items[SlotToIndex(slot)];
+            }
+            return null;
+        }
+
+        public int GetItemIndex(MyToolbarItem item)
+        {
+            for (int i = 0; i < m_items.Length; ++i)
+            {
+                if (m_items[i] == item)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         /// <summary>
         /// Override value for Enabled state of items. null means that per item state is reported, otherwise this value is reported.
         /// </summary>

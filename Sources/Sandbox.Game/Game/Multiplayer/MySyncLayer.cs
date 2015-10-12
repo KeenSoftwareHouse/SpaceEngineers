@@ -15,7 +15,8 @@ using VRage.Serialization;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
 using Sandbox.Engine.Utils;
-
+using System.IO;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -87,17 +88,58 @@ namespace Sandbox.Game.Multiplayer
             return null;
         }
 
-        bool CheckPermissions(ulong sender, MyMessagePermissions permission)
+        public static bool CheckSendPermissions(ulong target, MyMessagePermissions permission)
         {
             bool success;
             switch (permission)
             {
-                case MyMessagePermissions.Any:
-                    success = true;
+
+                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer:
+                    success = Sync.ServerId == target || Sync.IsServer;
                     break;
+
+                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
+                    success = Sync.ServerId == target || Sync.IsServer || Sync.MyId == target;
+                    break;
+
+                case MyMessagePermissions.FromServer:
+                    success = Sync.IsServer;
+                    break;
+
+                case MyMessagePermissions.ToServer:
+                    success = Sync.ServerId == target;
+                    break;
+
+                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
+                    success = Sync.ServerId == target || Sync.MyId == target;
+                    break;
+
+                case MyMessagePermissions.ToSelf:
+                    success = Sync.MyId == target;
+                    break;
+
+                default:
+                    success = false;
+                    break;
+            }
+
+            string format = "Permissions check failed, permission: {0}\nIsServer: {1}, SendingToServer: {2}\nMy id: {3}, server id: {4}, target id: {5}";
+            Debug.Assert(success, String.Format(format, permission, Sync.IsServer, Sync.ServerId == target, Sync.MyId, Sync.ServerId, target));
+            return success;
+        }
+
+        public static bool CheckReceivePermissions(ulong sender, MyMessagePermissions permission)
+        {
+            bool success;
+            switch (permission)
+            {
 
                 case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer:
                     success = Sync.ServerId == sender || Sync.IsServer;
+                    break;
+
+                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
+                    success = Sync.ServerId == sender || Sync.IsServer || Sync.MyId == sender;
                     break;
 
                 case MyMessagePermissions.FromServer:
@@ -108,13 +150,21 @@ namespace Sandbox.Game.Multiplayer
                     success = Sync.IsServer;
                     break;
 
+                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
+                    success = Sync.IsServer || Sync.MyId == sender;
+                    break;
+
+                case MyMessagePermissions.ToSelf:
+                    success = Sync.MyId == sender;
+                    break;
+
                 default:
                     success = false;
                     break;
             }
 
-            //string format = "Permissions check failed, permission: {0}\nIsServer: {1}, CameFromServer: {2}\nMy id: {3}, server id: {4}, sender id: {5}";
-            //Debug.Assert(success, String.Format(format, permission, Sync.IsServer, Sync.ServerId == sender, Sync.MyId, Sync.ServerId, sender));
+            string format = "Permissions check failed, permission: {0}\nIsServer: {1}, CameFromServer: {2}\nMy id: {3}, server id: {4}, sender id: {5}";
+            Debug.Assert(success, String.Format(format, permission, Sync.IsServer, Sync.ServerId == sender, Sync.MyId, Sync.ServerId, sender));
             return success;
         }
 
@@ -162,22 +212,6 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        static ISerializer<T> Serializer<T>()
-        {
-            if (typeof(MyEntity).IsAssignableFrom(typeof(T)))
-            {
-                return (ISerializer<T>)MyEntitySerializer.Default;
-            }
-            else if (Attribute.IsDefined(typeof(T), typeof(ProtoContractAttribute)))
-            {
-                return CreateProto<T>();
-            }
-            else
-            {
-                return CreateBlittable<T>();
-            }
-        }
-
         // Separate methods for each serializer, don't want to to run static constructor on both
         static ISerializer<TMsg> CreateProto<TMsg>()
         {
@@ -194,12 +228,6 @@ namespace Sandbox.Game.Multiplayer
             where TMsg : struct
         {
             SendMessage(ref msg, Sync.ServerId, messageType);
-        }
-
-        public void SendMessage<TMsg>(TMsg msg, ulong sendTo, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
-            where TMsg : struct
-        {
-            SendMessage(ref msg, sendTo, messageType);
         }
 
         public void SendMessage<TMsg>(ref TMsg msg, ulong sendTo, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
@@ -220,12 +248,6 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public void SendMessageToAllButOne<TMsg>(TMsg msg, ulong dontSendTo, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
-            where TMsg : struct
-        {
-            SendMessageToAllButOne(ref msg, dontSendTo, messageType);
-        }
-
         public void SendMessageToAllButOne<TMsg>(ref TMsg msg, ulong dontSendTo, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
             where TMsg : struct
         {
@@ -244,22 +266,22 @@ namespace Sandbox.Game.Multiplayer
             TransportLayer.SendMessage(ref msg, m_recipients, messageType, false);
         }
 
-        public void SendMessageToAll<TMsg>(TMsg msg, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
-            where TMsg : struct
-        {
-            SendMessageToAll(ref msg, messageType);
-        }
-
         public void SendMessageToAll<TMsg>(ref TMsg msg, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
             where TMsg : struct
         {
+            Debug.Assert(Sync.IsServer, "sending message to all not from server");
             SendMessageToRecipients<TMsg>(ref msg, messageType, false);
         }
 
-        public void SendMessageToAllAndSelf<TMsg>(TMsg msg, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
+        public void SendMessageToServerAndSelf<TMsg>(ref TMsg msg, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
             where TMsg : struct
         {
-            SendMessageToAllAndSelf(ref msg, messageType);
+            m_recipients.Clear();
+            if (!Sync.IsServer)
+            {
+                m_recipients.Add(Sync.ServerId);
+            }
+            TransportLayer.SendMessage(ref msg, m_recipients, messageType, true);
         }
 
         /// <summary>
@@ -268,6 +290,7 @@ namespace Sandbox.Game.Multiplayer
         public void SendMessageToAllAndSelf<TMsg>(ref TMsg msg, MyTransportMessageEnum messageType = MyTransportMessageEnum.Request)
             where TMsg : struct
         {
+            Debug.Assert(Sync.IsServer, "sending message to all not from server");
             SendMessageToRecipients(ref msg, messageType, true);
         }
 

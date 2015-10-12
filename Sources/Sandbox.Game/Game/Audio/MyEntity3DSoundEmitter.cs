@@ -24,6 +24,13 @@ namespace Sandbox.Game.Entities
         public static MySoundPair Empty = new MySoundPair();
         static StringBuilder m_cache = new StringBuilder();
 
+		//jn:TODO create properties on cues or something
+		private MyCueId m_arcade;
+		public MyCueId Arcade { get { return m_arcade; } }
+
+		private MyCueId m_realistic;
+		public MyCueId Realistic { get { return m_realistic; } }
+
         public MySoundPair()
         {
             Init(null);
@@ -59,6 +66,13 @@ namespace Sandbox.Game.Entities
                 //Debug.Assert(m_arcade != MySpaceTexts.NullOrEmpty || m_realistic != MySpaceTexts.NullOrEmpty, string.Format("Could not find any sound for '{0}'", cueName));
                 if (m_arcade.Hash == MyStringHash.NullOrEmpty && m_realistic.Hash == MyStringHash.NullOrEmpty)
                     MySandboxGame.Log.WriteLine(string.Format("Could not find any sound for '{0}'", cueName));
+                else
+                {
+                    if (m_arcade.IsNull)
+                        string.Format("Could not find arcade sound for '{0}'", cueName);
+                    if (m_realistic.IsNull)
+                        string.Format("Could not find realistic sound for '{0}'", cueName);
+                }
             }
         }
 
@@ -84,10 +98,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        //jn:TODO create properties on cues or something
-        public MyCueId Arcade { get { return m_arcade; } }
-        public MyCueId Realistic { get { return m_realistic; } }
-
         public MyCueId SoundId
         {
             get
@@ -98,9 +108,6 @@ namespace Sandbox.Game.Entities
                     return m_arcade;
             }
         }
-
-        private MyCueId m_arcade;
-        private MyCueId m_realistic;
 
         public override bool Equals(object obj)
         {
@@ -282,7 +289,7 @@ namespace Sandbox.Game.Entities
 
         private bool IsCloseEnough()
         {
-            return MyAudio.Static.SourceIsCloseEnoughToPlaySound(this, SoundId);
+            return MyAudio.Static.SourceIsCloseEnoughToPlaySound(this.SourcePosition, SoundId, this.CustomMaxDistance);
         }
 
         private bool IsInTerminal()
@@ -334,7 +341,7 @@ namespace Sandbox.Game.Entities
 
         private bool IsInOxygen()
         {
-            return (MySession.LocalCharacter != null && MySession.LocalCharacter.EnvironmentOxygenLevel > 0.1f);
+            return (MySession.LocalCharacter != null && MySession.LocalCharacter.OxygenComponent.EnvironmentOxygenLevel > 0.1f);
         }
 
         private MyCueId SelectCue(MySoundPair sound)
@@ -492,7 +499,10 @@ namespace Sandbox.Game.Entities
         {
             var retVal = EmitterMethods[MethodsEnum.ShouldPlay2D].Count == 0;
             foreach (var func in EmitterMethods[MethodsEnum.ShouldPlay2D])
-                retVal |= ((Func<bool>)func)();
+            {
+                if(func != null)
+                    retVal |= ((Func<bool>)func)();
+            }
             return retVal;
         }
 
@@ -593,6 +603,13 @@ namespace Sandbox.Game.Entities
             get;
             set;
         }
+
+		private int m_lastPlayedWaveNumber = -1;
+		int IMy3DSoundEmitter.LastPlayedWaveNumber
+		{
+			get { return m_lastPlayedWaveNumber; }
+			set { m_lastPlayedWaveNumber = value; }
+		}
 
         #endregion
     }

@@ -250,8 +250,8 @@ namespace VRageRender
         {
             m_vs = MyShaders.CreateVs("billboard.hlsl", "vs");
             m_ps = MyShaders.CreatePs("billboard.hlsl", "ps");
-            m_vsLit = MyShaders.CreateVs("billboard.hlsl", "vs", MyShaderHelpers.FormatMacros("LIT_PARTICLE"));
-            m_psLit = MyShaders.CreatePs("billboard.hlsl", "ps", MyShaderHelpers.FormatMacros("LIT_PARTICLE"));
+            m_vsLit = MyShaders.CreateVs("billboard.hlsl", "vs", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
+			m_psLit = MyShaders.CreatePs("billboard.hlsl", "ps", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.TEXCOORD0_H));
 
             //MyCallbacks.RegisterDeviceResetListener(new OnDeviceResetDelegate(OnDeviceRestart));

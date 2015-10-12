@@ -74,8 +74,11 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private readonly Vector3I m_id;
         private MatrixD m_sectorMatrix;
+        private MatrixD m_sectorInvMatrix;
 
+        FastResourceLock m_instancePartsLock = new FastResourceLock();
         private Dictionary<ModelId, MyModelInstanceData> m_instanceParts = new Dictionary<ModelId, MyModelInstanceData>();
+
         private uint m_instanceBufferId = MyRenderProxy.RENDER_ID_UNASSIGNED;
         private List<MyInstanceData> m_tmpInstanceData = new List<MyInstanceData>();
         private Dictionary<ModelId, MyRenderInstanceInfo> m_instanceInfo = new Dictionary<ModelId, MyRenderInstanceInfo>();
@@ -96,7 +99,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 if (m_invalidateAABB)
                 {
-                    Debug.Assert(IsValid);
                     m_invalidateAABB = false;
                     m_AABB = GetSectorBoundingBox();
                 }
@@ -123,6 +125,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         {
             m_id = id;
             m_sectorMatrix = MatrixD.CreateTranslation(sectorOffset);
+            m_sectorInvMatrix = MatrixD.Invert(m_sectorMatrix);
         }
 
         public void UnloadRenderObjects()
@@ -146,9 +149,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             m_AABB = BoundingBox.CreateInvalid();
             m_sectorItemCount = 0;
 
-            foreach (var item in m_instanceParts)
+            using (m_instancePartsLock.AcquireExclusiveUsing())
             {
-                item.Value.InstanceData.Clear();
+                foreach (var item in m_instanceParts)
+                {
+                    item.Value.InstanceData.Clear();
+                }
             }
         }
 
@@ -166,22 +172,35 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             BoundingBox localAabb, 
             MyInstanceFlagsEnum instanceFlags, 
             float maxViewDistance,
-            Vector4 colorMaskHsv = default(Vector4))
+            Vector4 colorMaskHsv = default(Vector4),
+            Vector2I uvOffset = default(Vector2I))
         {
             MyModelInstanceData builderInstanceData;
-            if (!m_instanceParts.TryGetValue(modelId, out builderInstanceData))
+
+            using (m_instancePartsLock.AcquireExclusiveUsing())
             {
-                builderInstanceData = new MyModelInstanceData(subtypeId, instanceFlags, maxViewDistance, localAabb);
-                m_instanceParts.Add(modelId, builderInstanceData);
+                if (!m_instanceParts.TryGetValue(modelId, out builderInstanceData))
+                {
+                    builderInstanceData = new MyModelInstanceData(subtypeId, instanceFlags, maxViewDistance, localAabb);
+                    m_instanceParts.Add(modelId, builderInstanceData);
+                }
             }
+
+
+            uvOffset = new Vector2I(MyUtils.GetRandomInt(2), MyUtils.GetRandomInt(2));
+            Color green = Color.Green;
+            Vector3 hsv = green.ColorToHSVDX11();
+            hsv.Y = MyUtils.GetRandomFloat(0.0f, 1.0f);
+            colorMaskHsv = new Vector4(hsv, 0);
 
             MySectorInstanceData newInstance = new MySectorInstanceData()
             {
                 LocalId = localId,
                 InstanceData = new MyInstanceData()
                 {
-                ColorMaskHSV = new VRageMath.PackedVector.HalfVector4(colorMaskHsv),
-                LocalMatrix = localMatrix
+                    ColorMaskHSV = new VRageMath.PackedVector.HalfVector4(colorMaskHsv),
+                    LocalMatrix = localMatrix,
+                    UVOffset = new VRageMath.PackedVector.HalfVector2(uvOffset)
                 }
             };
             int sectorInstanceId = builderInstanceData.AddInstanceData(ref newInstance);
@@ -229,14 +248,17 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             // Merge data into one buffer
             Debug.Assert(m_tmpInstanceData.Count == 0, "Instance data is not cleared");
             m_instanceInfo.Clear();
-            foreach (var part in m_instanceParts)
+            using (m_instancePartsLock.AcquireSharedUsing())
             {
-                m_instanceInfo.Add(part.Key, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, part.Value.InstanceData.Count, part.Value.MaxViewDistance, part.Value.Flags));
-                var instanceData = part.Value.InstanceData;
-                if (m_tmpInstanceData.Count + instanceData.Count > m_tmpInstanceData.Capacity)
-                    m_tmpInstanceData.Capacity = m_tmpInstanceData.Count + instanceData.Count;
-                foreach (var instance in instanceData)
-                    m_tmpInstanceData.Add(instance.InstanceData);
+                foreach (var part in m_instanceParts)
+                {
+                    m_instanceInfo.Add(part.Key, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, part.Value.InstanceData.Count, part.Value.MaxViewDistance, part.Value.Flags));
+                    var instanceData = part.Value.InstanceData;
+                    if (m_tmpInstanceData.Count + instanceData.Count > m_tmpInstanceData.Capacity)
+                        m_tmpInstanceData.Capacity = m_tmpInstanceData.Count + instanceData.Count;
+                    foreach (var instance in instanceData)
+                        m_tmpInstanceData.Add(instance.InstanceData);
+                }
             }
 
             if (m_tmpInstanceData.Count > 0)
@@ -244,7 +266,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 MyRenderProxy.UpdateRenderInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f));
             }
             else
-            { 
+            {
                 MyRenderProxy.RemoveRenderObject(m_instanceBufferId);
                 foreach (var renderObjectId in m_instanceGroupRenderObjects.Values)
                     MyRenderProxy.RemoveRenderObject(renderObjectId);
@@ -296,9 +318,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
                 if (hasAnyInstances)
                 {                
+                    MyRenderProxy.SetInstanceBuffer(renderObjectId, item.Value.InstanceBufferId, item.Value.InstanceStart, item.Value.InstanceCount, SectorBox);
                     MyRenderProxy.UpdateRenderEntity(renderObjectId, Vector3.One, Vector3.Zero, useTransparency ? transparency : 0);
                     MyRenderProxy.UpdateRenderObject(renderObjectId, ref m_sectorMatrix, false);
-                    MyRenderProxy.SetInstanceBuffer(renderObjectId, item.Value.InstanceBufferId, item.Value.InstanceStart, item.Value.InstanceCount, SectorBox);
                     //MyMedievalDebugDrawHelper.Static.AddAabb(m_AABB);
                 }
             }
@@ -312,27 +334,35 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         internal void DebugDraw(Vector3I sectorPos, float sectorSize)
         {
-            foreach (var part in m_instanceParts.Values)
+            using (m_instancePartsLock.AcquireSharedUsing())
             {
-                foreach (var data in part.InstanceData)
+                foreach (var part in m_instanceParts.Values)
                 {
-                    var dist = (data.InstanceData.LocalMatrix.Translation - Sandbox.Game.World.MySector.MainCamera.Position).Length();
-                    if (dist < 30)
-                        MyRenderProxy.DebugDrawText3D(data.InstanceData.LocalMatrix.Translation, part.SubtypeId.ToString(), Color.Red, (float)(7.0 / dist), true);
+                    foreach (var data in part.InstanceData)
+                    {
+                        var itemWorldPosition = Vector3D.Transform(data.InstanceData.LocalMatrix.Translation, m_sectorMatrix);
 
-                 
+                        var dist = (itemWorldPosition - Sandbox.Game.World.MySector.MainCamera.Position).Length();
+                         if (dist < 30)
+                        MyRenderProxy.DebugDrawText3D(itemWorldPosition, part.SubtypeId.ToString(), Color.White, 0.7f, true);
+
+
+                    }
                 }
             }
             
-            /*BoundingBoxD bb = new BoundingBoxD(sectorPos * sectorSize, (sectorPos + Vector3I.One) * sectorSize);
-            BoundingBoxD bb2 = new BoundingBoxD(m_AABB.Min, m_AABB.Max);
-            bb2.Min = Vector3D.Max(bb2.Min, bb.Min);
-            bb2.Max = Vector3D.Min(bb2.Max, bb.Max);
-            MyRenderProxy.DebugDrawAABB(bb, Color.Orange, 1.0f, 1.0f, true);
-            MyRenderProxy.DebugDrawAABB(bb2, Color.OrangeRed, 1.0f, 1.0f, true);*/
+            //BoundingBoxD bb = new BoundingBoxD(sectorPos * sectorSize, (sectorPos + Vector3I.One) * sectorSize);
+            //BoundingBoxD bb2 = new BoundingBoxD(m_AABB.Min, m_AABB.Max);
+            //bb2.Min = Vector3D.Max(bb2.Min, bb.Min);
+            //bb2.Max = Vector3D.Min(bb2.Max, bb.Max);
+            //MyRenderProxy.DebugDrawAABB(bb, Color.Orange, 1.0f, 1.0f, true);
+            //MyRenderProxy.DebugDrawAABB(bb2, Color.OrangeRed, 1.0f, 1.0f, true);
+
+            MyRenderProxy.DebugDrawAABB(SectorWorldBox, Color.OrangeRed, 1.0f, 1.0f, true);
+
         }
 
-        internal void GetItems(MatrixD worldMatrix, List<Vector3D> output)
+        internal void GetItems(List<Vector3D> output)
         {
             foreach (var part in m_instanceParts)
             {
@@ -344,7 +374,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
-        internal void GetItemsInRadius(Matrix worldMatrix, Vector3 position, float radius, List<MyEnvironmentItems.ItemInfo> output)
+        internal void GetItemsInRadius(Vector3D position, float radius, List<Vector3D> output)
+        {
+            var local = Vector3D.Transform(position, m_sectorInvMatrix);
+            foreach (var part in m_instanceParts)
+            {
+                var list = part.Value.InstanceData;
+                foreach (var item in list)
+                {
+                    if (Vector3D.DistanceSquared(item.InstanceData.LocalMatrix.Translation, local) < radius * radius)
+                        output.Add(Vector3D.Transform(item.InstanceData.LocalMatrix.Translation, m_sectorMatrix));
+                }
+            }
+        }
+
+        internal void GetItemsInRadius(Vector3 position, float radius, List<MyEnvironmentItems.ItemInfo> output)
         {
             double sqRadius = radius * radius;
             foreach (var part in m_instanceParts)
@@ -366,7 +410,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
-        internal void GetItems(Matrix worldMatrix, List<MyEnvironmentItems.ItemInfo> output)
+        internal void GetItems(List<MyEnvironmentItems.ItemInfo> output)
         {
             foreach (var part in m_instanceParts)
             {
@@ -390,15 +434,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private BoundingBox GetSectorBoundingBox()
         {
+            if (!IsValid)
+                return new BoundingBox(Vector3.Zero, Vector3.Zero);
+
             BoundingBox output = BoundingBox.CreateInvalid();
-            foreach (var modelData in m_instanceParts)
+            using (m_instancePartsLock.AcquireSharedUsing())
             {
-                var modelBox = modelData.Value.ModelBox;
-                foreach (var instance in modelData.Value.InstanceData)
+                foreach (var modelData in m_instanceParts)
                 {
-                    var mat = instance.InstanceData.LocalMatrix;
-                    if (!mat.EqualsFast(ref Matrix.Zero))
-                        output.Include(modelBox.Transform(instance.InstanceData.LocalMatrix));
+                    var modelBox = modelData.Value.ModelBox;
+                    foreach (var instance in modelData.Value.InstanceData)
+                    {
+                        var mat = instance.InstanceData.LocalMatrix;
+                        if (!mat.EqualsFast(ref Matrix.Zero))
+                            output.Include(modelBox.Transform(instance.InstanceData.LocalMatrix));
+                    }
                 }
             }
 

@@ -11,8 +11,10 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using VRage.FileSystem;
+using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Plugins;
+using VRage.Serialization;
 using VRage.Utils;
 
 namespace VRage.ObjectBuilders
@@ -26,7 +28,8 @@ namespace VRage.ObjectBuilders
         static readonly Dictionary<Type, string> m_serializedNameByType = new Dictionary<Type, string>();
 
         public static readonly RuntimeTypeModel Serializer;
-
+        public static readonly MySerializeInfo Dynamic = new MySerializeInfo(MyObjectFlags.Dynamic, MyPrimitiveFlags.None, 0, SerializeDynamic, null, null);
+        
         public enum XmlCompression
         {
             Uncompressed = 0,
@@ -184,7 +187,7 @@ namespace VRage.ObjectBuilders
                         MyLog.Default.WriteLine(e2);
                     }
                 }
-#endif                
+#endif
 
                 sizeInBytes = 0;
 
@@ -208,14 +211,14 @@ namespace VRage.ObjectBuilders
             using (var fileStream = MyFileSystem.OpenRead(path))
             {
                 if (fileStream != null)
-                using (var readStream = fileStream.UnwrapGZip())
-                {
-                    if (readStream != null)
+                    using (var readStream = fileStream.UnwrapGZip())
                     {
-                        fileSize = (ulong)fileStream.Length;
-                        result = DeserializeXML(readStream, out objectBuilder);
+                        if (readStream != null)
+                        {
+                            fileSize = (ulong)fileStream.Length;
+                            result = DeserializeXML(readStream, out objectBuilder);
+                        }
                     }
-                }
             }
 
             if (!result)
@@ -281,15 +284,17 @@ namespace VRage.ObjectBuilders
             return true;
         }
 
-        public MyObjectBuilder_Base ChangeType(MyObjectBuilderType type, string subtypeName)
+        public static void SerializeDynamic(BitStream stream, Type baseType, ref Type obj)
         {
-            using (MemoryStream ms = new MemoryStream())
+            if (stream.Reading)
             {
-                Serializer.Serialize(ms, this);
-                ms.Position = 0;
-
-                var builder = MyObjectBuilderSerializer.CreateNewObject(type, subtypeName);
-                return (MyObjectBuilder_Base)Serializer.Deserialize(ms, builder, m_objectFactory.GetProducedType(type));
+                var typeId = new MyRuntimeObjectBuilderId(stream.ReadUInt16());
+                obj = (MyObjectBuilderType)typeId;
+            }
+            else
+            {
+                var typeId = (MyRuntimeObjectBuilderId)(MyObjectBuilderType)obj;
+                stream.WriteUInt16(typeId.Value);
             }
         }
 

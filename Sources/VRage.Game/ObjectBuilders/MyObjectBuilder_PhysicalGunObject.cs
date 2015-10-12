@@ -3,6 +3,7 @@ using VRage.ObjectBuilders;
 using VRage.Library.Utils;
 using VRage.Utils;
 using System.Xml.Serialization;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -12,6 +13,7 @@ namespace Sandbox.Common.ObjectBuilders
     {
         [ProtoMember]
         [XmlElement("GunEntity", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EntityBase>))]
+        [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]
         public MyObjectBuilder_EntityBase GunEntity;
 
         public MyObjectBuilder_PhysicalGunObject() : this(null) { }

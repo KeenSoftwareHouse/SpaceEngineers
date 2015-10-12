@@ -10,6 +10,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         NO_TARGET,
         GRID,
         CUBE,
+        COMPOUND_BLOCK,
         CHARACTER,
         POSITION,
         ENTITY,
@@ -36,6 +37,9 @@ namespace Sandbox.Common.ObjectBuilders.AI
 
         [ProtoMember]
         public long? EntityId = null;
+
+        [ProtoMember]
+        public ushort? CompoundId = null;
 
         [ProtoMember]
         public Vector3I TargetCube = Vector3I.Zero;

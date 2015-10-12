@@ -479,7 +479,7 @@ namespace Sandbox.Graphics
         //  rotation -> angle in radians. Rotation is always around "origin" coordinate
         //  originNormalized -> the origin of the sprite. Specify (0,0) for the upper-left corner.
         //  RETURN: Method returns rectangle where was sprite/texture drawn in normalized coordinates
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2 originNormalized)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2? originNormalized)
         {
             VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, Vector2.One, color, drawAlign, rotation, Vector2.UnitX, scale, originNormalized);
         }

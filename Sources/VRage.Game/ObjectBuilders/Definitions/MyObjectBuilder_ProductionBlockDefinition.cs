@@ -15,6 +15,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public Vector3 InventorySize;
 
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float StandbyPowerConsumption;
 

@@ -13,7 +13,7 @@ Texture2D<float> Dither8x8 : register( MERGE(t,DITHER_8X8_SLOT) );
 
 struct PixelInterface 
 {
-	float2 screen_position;
+	float3 screen_position;
 	float3 key_color;
 	float custom_alpha;
 	float3 color_mul;
@@ -55,6 +55,9 @@ struct MaterialOutputInterface
 	float emissive;
 	uint coverage;
 	bool DISCARD;
+#ifdef CUSTOM_DEPTH
+	float depth;
+#endif
 };
 
 MaterialOutputInterface make_mat_interface()
@@ -70,6 +73,9 @@ MaterialOutputInterface make_mat_interface()
 	result.emissive = 0;
 	result.coverage = COVERAGE_MASK_ALL;
 	result.DISCARD = 0;
+#ifdef CUSTOM_DEPTH
+	result.depth = 0;
+#endif
 	return result;
 }
 

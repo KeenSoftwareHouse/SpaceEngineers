@@ -12,12 +12,12 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyVoxelConnectionHelper
     {
-        private struct InnerEdgeIndex
+        private struct InnerEdgeIndex: IEquatable<InnerEdgeIndex>
         {
-            public short V0;
-            public short V1;
+            public ushort V0;
+            public ushort V1;
 
-            public InnerEdgeIndex(short vert0, short vert1)
+            public InnerEdgeIndex(ushort vert0, ushort vert1)
             {
                 V0 = vert0;
                 V1 = vert1;
@@ -30,14 +30,19 @@ namespace Sandbox.Game.AI.Pathfinding
 
             public override bool Equals(object obj)
             {
+                Debug.Assert(false, "Equals on struct does allocation!");
                 if (!(obj is InnerEdgeIndex)) return false;
-                var other = (InnerEdgeIndex)obj;
-                return other.V0 == V0 && other.V1 == V1;
+                return this.Equals((InnerEdgeIndex)obj);
             }
 
             public override string ToString()
             {
                 return "{" + V0 + ", " + V1 + "}";
+            }
+
+            public bool Equals(InnerEdgeIndex other)
+            {
+                return other.V0 == V0 && other.V1 == V1;
             }
         }
 
@@ -80,7 +85,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_edgeClassifier.Clear();
         }
 
-        public void PreprocessInnerEdge(short a, short b)
+        public void PreprocessInnerEdge(ushort a, ushort b)
         {
             InnerEdgeIndex thisEdge = new InnerEdgeIndex(a, b);
             InnerEdgeIndex otherEdge = new InnerEdgeIndex(b, a);
@@ -99,7 +104,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_edgeClassifier[otherEdge] = value;
         }
 
-        public bool IsInnerEdge(short v0, short v1)
+        public bool IsInnerEdge(ushort v0, ushort v1)
         {
             return IsInnerEdge(new InnerEdgeIndex(v0, v1));
         }
@@ -111,7 +116,7 @@ namespace Sandbox.Game.AI.Pathfinding
             return m_edgeClassifier[edgeIndex] == 0;
         }
 
-        public int TryGetAndRemoveEdgeIndex(short iv0, short iv1, ref Vector3 posv0, ref Vector3 posv1)
+        public int TryGetAndRemoveEdgeIndex(ushort iv0, ushort iv1, ref Vector3 posv0, ref Vector3 posv1)
         {
             ProfilerShort.Begin("TryGetAndRemoveEdgeIndex");
             int retval = -1;
@@ -132,7 +137,7 @@ namespace Sandbox.Game.AI.Pathfinding
             return retval;
         }
 
-        public void AddEdgeIndex(short iv0, short iv1, ref Vector3 posv0, ref Vector3 posv1, int edgeIndex)
+        public void AddEdgeIndex(ushort iv0, ushort iv1, ref Vector3 posv0, ref Vector3 posv1, int edgeIndex)
         {
             InnerEdgeIndex innerIndex = new InnerEdgeIndex(iv0, iv1);
             if (IsInnerEdge(innerIndex))

@@ -14,11 +14,14 @@ namespace Sandbox.Engine.Voxels
         /// Ambient coefficient in range from -1 to 1.
         /// </summary>
         public float Ambient;
+        public float AmbientMorph;
 
         public Vector3 Normal;
         public Vector3 NormalMorph;
 
         public int Material;
         public int MaterialMorph;
+
+        public Vector3I Cell;
     }
 }

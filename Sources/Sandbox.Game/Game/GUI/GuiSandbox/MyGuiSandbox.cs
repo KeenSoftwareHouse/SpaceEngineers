@@ -41,10 +41,14 @@ namespace Sandbox.Graphics.GUI
         /// </summary>
         public static void LoadData(bool nullGui)
         {
+            ProfilerShort.Begin("Create MyDX9Gui");
             if (!nullGui)
                 Gui = new MyDX9Gui();
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("Gui.LoadData");
             Gui.LoadData();
+            ProfilerShort.End();
         }
 
         public static void LoadContent(MyFontDescription[] fonts)

@@ -14,7 +14,6 @@ using VRageRender.Vertex;
 using VRageMath.PackedVector;
 using VRage;
 using VRage.Utils;
-using VRage.Utils;
 using System.Diagnostics;
 
 namespace VRageRender
@@ -311,6 +310,11 @@ namespace VRageRender
             clipOffset = translation * 2 - 1;
             clipOffset.Y = -clipOffset.Y;
             //clipOffset += new Vector2(0.5f, -0.5f) * clipScale;
+        }
+
+        internal static Vector2 MeasureText(StringBuilder text, float scale)
+        {
+            return MyRender11.DebugFont.MeasureString(text, scale);
         }
 
         internal static float DrawText(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)

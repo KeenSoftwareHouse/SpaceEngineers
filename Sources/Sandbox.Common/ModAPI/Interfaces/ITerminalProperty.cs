@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 using VRageMath;
 
 namespace Sandbox.ModAPI.Interfaces

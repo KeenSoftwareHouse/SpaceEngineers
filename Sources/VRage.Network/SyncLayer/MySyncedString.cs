@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 
 namespace VRage.Network
 {
@@ -9,12 +10,12 @@ namespace VRage.Network
     {
         public override void Write(ref string value, BitStream s)
         {
-            s.Write(value);
+            s.WritePrefixLengthString(value, 0, value.Length, Encoding.UTF8);
         }
 
-        public override bool Read(out string value, BitStream s)
+        public override void Read(out string value, BitStream s)
         {
-            return s.Read(out value);
+            value = s.ReadPrefixLengthString(Encoding.UTF8);
         }
     }
 }
