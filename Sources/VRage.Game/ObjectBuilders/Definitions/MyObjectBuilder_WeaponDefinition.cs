@@ -16,6 +16,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
             [XmlAttribute]
             public string ShootSoundName;
+
+            [XmlAttribute]
+            public int BurstFireRate;
         }
 
         [ProtoContract]
