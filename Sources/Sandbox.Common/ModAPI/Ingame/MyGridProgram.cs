@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -21,7 +23,7 @@ namespace Sandbox.ModAPI.Ingame
     /// </example>
     public abstract class MyGridProgram : IMyGridProgram
     {
-        private string m_storage = "";
+        private JToken m_storage = "";
         private readonly Action<string> m_main;
 
         protected MyGridProgram()
@@ -60,9 +62,15 @@ namespace Sandbox.ModAPI.Ingame
         public virtual TimeSpan ElapsedTime { get; protected set; }
 
         /// <summary>
-        ///     Allows you to store data between game sessions.
+        ///     Allows you to store data between game sessions. If you just need a string, just set it as a string.
+        ///     All you need to get it back is to cast this value into a string. If you need more advanced functionality,
+        ///     see http://www.newtonsoft.com/json
+        /// <example>
+        ///     this.Storage = "My Value";
+        ///     var storedValue = (string)this.Storage;
+        /// </example>
         /// </summary>
-        public virtual string Storage
+        public virtual JToken Storage
         {
             get { return this.m_storage; }
             protected set { this.m_storage = value ?? ""; }
@@ -93,7 +101,12 @@ namespace Sandbox.ModAPI.Ingame
 
         string IMyGridProgram.Storage
         {
-            get { return Storage; }
+            get
+            {
+                if (Storage == null)
+                    return string.Empty;
+                return Storage.ToString(Formatting.None);
+            }
             set { Storage = value; }
         }
 

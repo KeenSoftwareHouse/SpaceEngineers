@@ -78,7 +78,7 @@ namespace Sandbox
         public static Vector2I ScreenSize;
         public static Vector2I ScreenSizeHalf;
         public static MyViewport ScreenViewport;
-        
+
         public static bool IsDirectX11
         {
             get { return MyVideoSettingsManager.RunningGraphicsRenderer == DirectX11RendererKey; }
@@ -91,7 +91,7 @@ namespace Sandbox
                 if (MyPerGameSettings.BlockForVoxels && (MySession.Static == null || MySession.Static.VoxelMaps.Instances.Count == 0))
                 {
                     return false;
-                }
+        }
                 return IsUpdateReady && AreClipmapsReady;
             }
         }
@@ -838,7 +838,7 @@ namespace Sandbox
             if (MyFakes.FORCE_SINGLE_WORKER)
                 Parallel.Scheduler = new FixedPriorityScheduler(1, ThreadPriority.Normal);
             else
-                Parallel.Scheduler = new FixedPriorityScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
+            Parallel.Scheduler = new FixedPriorityScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
             //Parallel.Scheduler = new FixedPriorityScheduler(1, ThreadPriority.Normal);
             //Parallel.Scheduler = new WorkStealingScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
             //Parallel.Scheduler = new SimpleScheduler(NumberOfCores);
@@ -1214,10 +1214,11 @@ namespace Sandbox
             }
             else
             {
-                Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
+            Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
                 IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] {getPath("SpaceEngineers.ObjectBuilders.dll"), "System.Xml.dll", getPath("Sandbox.Game.dll"),
                 getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
-                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */,
+                getPath("Newtonsoft.Json.dll")});
             }
 
             Log.DecreaseIndent();
@@ -1439,7 +1440,7 @@ namespace Sandbox
         public static bool IsPaused
         {
             get 
-            { 
+            {
                 if(Sync.MultiplayerActive == false || (Sync.MultiplayerActive && Sync.IsServer == true  && Sync.Clients.Count < 2)) 
                 {
                     return m_isPaused;
@@ -1459,31 +1460,31 @@ namespace Sandbox
             {
                 if (Sync.MultiplayerActive == false || (Sync.MultiplayerActive && Sync.IsServer == true && Sync.Clients.Count < 2))
                 {
-                    if (m_isPaused != value)
+                if (m_isPaused != value)
+                {
+                    ProfilerShort.Begin("MySandboxGame::IsPaused_set");
+                    m_isPaused = value;
+                    if (IsPaused)
                     {
-                        ProfilerShort.Begin("MySandboxGame::IsPaused_set");
-                        m_isPaused = value;
-                        if (IsPaused)
-                        {
-                            //  Going from non-paused game to PAUSED game
-                            m_pauseStartTimeInMilliseconds = TotalTimeInMilliseconds;
-                            MyAudio.Static.PauseGameSounds();
-                        }
-                        else
-                        {
-                            //  Going from PAUSED game to non-paused game
-                            m_totalPauseTimeInMilliseconds += TotalTimeInMilliseconds - m_pauseStartTimeInMilliseconds;
-                            MyAudio.Static.ResumeGameSounds();
-                        }
-                        ProfilerShort.End();
+                        //  Going from non-paused game to PAUSED game
+                        m_pauseStartTimeInMilliseconds = TotalTimeInMilliseconds;
+                        MyAudio.Static.PauseGameSounds();
                     }
+                    else
+                    {
+                        //  Going from PAUSED game to non-paused game
+                        m_totalPauseTimeInMilliseconds += TotalTimeInMilliseconds - m_pauseStartTimeInMilliseconds;
+                        MyAudio.Static.ResumeGameSounds();
+                    }
+                    ProfilerShort.End();
                 }
+            }
                 else
                 {
                     if (m_isPaused)
                         MyAudio.Static.ResumeGameSounds();
                     m_isPaused = false;
-                }
+        }
             }
         }
 
@@ -1611,7 +1612,7 @@ namespace Sandbox
                         MySession.Static.HandleInput();
                     ProfilerShort.End();
                 }
-            }
+                        }
 
             using (Stats.Generic.Measure("GameLogic"))
             {
@@ -1664,7 +1665,7 @@ namespace Sandbox
                         {
                             MyAudio.Static.Pause();
                             hasFocus = false;
-                        }
+            }
                     }
                     else if (hasFocus == false)//regained focus
                     {
@@ -2085,6 +2086,6 @@ namespace Sandbox
         internal void UpdateMouseCapture()
         {
             MyRenderProxy.UpdateMouseCapture(MySandboxGame.Config.CaptureMouse && MySandboxGame.Config.WindowMode != MyWindowModeEnum.Fullscreen);
-        }
     }
+}
 }
