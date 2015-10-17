@@ -107,7 +107,20 @@ namespace Sandbox.ModAPI.Ingame
                     return string.Empty;
                 return Storage.ToString(Formatting.None);
             }
-            set { Storage = value; }
+            set
+            {
+                // To be backwards compatible, we simply fall back to a simple string if we can't
+                // parse the current storage variable. Next time the value should be valid JSON and we
+                // won't get an exception.
+                try
+                {
+                    this.Storage = JToken.Parse(value);
+                }
+                catch (JsonException)
+                {
+                    this.Storage = value;
+                }
+            }
         }
 
         Action<string> IMyGridProgram.Echo
