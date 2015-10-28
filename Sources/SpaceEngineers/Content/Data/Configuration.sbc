@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Configuration>
-    <CubeSizes Large="2.5" Small="0.5" />
-    <BaseBlockPrefabs SmallDynamic="NewSmallShipPrefab" LargeDynamic="NewLargeShipPrefab" LargeStatic="NewStationPrefab" />
-    <BaseBlockPrefabsSurvival SmallDynamic="NewSmallShipPrefabSurvival" LargeDynamic="NewLargeShipPrefabSurvival" LargeStatic="NewStationPrefabSurvival" />
-  </Configuration>
-</Definitions>

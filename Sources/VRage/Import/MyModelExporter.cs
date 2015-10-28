@@ -869,8 +869,8 @@ namespace VRage.Import
 
                 var debugArray = (string[])tagData[MyImporterConstants.TAG_DEBUG];
                 var debug = new List<string>(debugArray);
-                debug.RemoveAll(x => x.Contains("Version:")); 
-                debug.Add("Version:01068001");
+                debug.RemoveAll(x => x.Contains("Version:"));
+                debug.Add("Version:01097001");
 
                 // Debug info
                 modelExporter.ExportData(MyImporterConstants.TAG_DEBUG, (string[])debug.ToArray());

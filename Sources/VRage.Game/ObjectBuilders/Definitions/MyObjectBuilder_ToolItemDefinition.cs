@@ -20,7 +20,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public int HitCount = 0;
 
             [ProtoMember, DefaultValue(null)]
-            public string Prefab = null;
+            public SerializableDefinitionId PhysicalItemId;
 
             // Removed radius from voxel map.
             [ProtoMember, DefaultValue(0f)]

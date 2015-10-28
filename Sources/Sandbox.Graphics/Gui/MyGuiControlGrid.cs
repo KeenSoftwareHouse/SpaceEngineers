@@ -435,6 +435,10 @@ namespace Sandbox.Graphics.GUI
                 PrepareEventArgs(ref args, emptyIdx);
                 ItemChanged(this, args);
             }
+
+            // Recalculate row count
+            float count = (emptyIdx / this.m_columnsCount) + 1f;
+            this.RowsCount = Math.Max(this.RowsCount, (int)count);
         }
 
         public Item GetItemAt(int index)
@@ -471,6 +475,10 @@ namespace Sandbox.Graphics.GUI
                 PrepareEventArgs(ref args, index);
                 ItemChanged(this, args);
             }
+
+            // Recalculate row count
+            float count = (index / this.m_columnsCount) + 1;
+            this.RowsCount = Math.Max(this.RowsCount, (int)count);
         }
 
         public void SetItemAt(int rowIdx, int colIdx, Item item)
@@ -483,6 +491,9 @@ namespace Sandbox.Graphics.GUI
                 PrepareEventArgs(ref args, index, rowIdx, colIdx);
                 ItemChanged(this, args);
             }
+
+            // Recalculate row count
+            this.RowsCount = Math.Max(this.RowsCount, (rowIdx + 1));
         }
 
         public void blinkSlot(int? slot)
@@ -499,6 +510,8 @@ namespace Sandbox.Graphics.GUI
         {
             for (int i = 0; i < m_items.Count; ++i)
                 m_items[i] = null;
+
+            this.RowsCount = 0;
         }
 
         /// <summary>
@@ -508,6 +521,8 @@ namespace Sandbox.Graphics.GUI
         {
             m_items.Clear();
             m_selectedIndex = null;
+
+            this.RowsCount = 0;
         }
 
         /// <summary>
@@ -524,6 +539,9 @@ namespace Sandbox.Graphics.GUI
 
             if (SelectedIndex.HasValue && !IsValidIndex(SelectedIndex.Value))
                 SelectedIndex = null;
+
+            float count = (index / this.m_columnsCount) + 1;
+            this.RowsCount = Math.Max(this.RowsCount, (int)count);
         }
 
         public Item TryGetItemAt(int rowIdx, int colIdx)
@@ -850,7 +868,7 @@ namespace Sandbox.Graphics.GUI
             if (MyInput.Static.IsNewButtonPressed(button))
             {
                 isDragging = true;
-                m_mouseDragStartPosition = MyGuiManager.MouseCursorPosition;
+                m_mouseDragStartPosition = MyGuiManager.MouseCursorPosition;                
             }
             else if (MyInput.Static.IsButtonPressed(button))
             {

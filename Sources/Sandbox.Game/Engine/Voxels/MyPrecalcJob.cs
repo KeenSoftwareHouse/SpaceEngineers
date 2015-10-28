@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRageMath;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -16,6 +17,8 @@ namespace Sandbox.Engine.Voxels
         /// are not valid, they may still be useful.
         /// </summary>
         public bool IsValid;
+
+        public virtual bool IsCanceled { get { return false; } }
 
         protected MyPrecalcJob(bool enableCompletionCallback)
         {
@@ -37,6 +40,10 @@ namespace Sandbox.Engine.Voxels
         {
             get { return Parallel.DefaultOptions; }
         }
+
+        public virtual int Priority { get { return 0; } }
+
+        public virtual void DebugDraw(Color c) { }
     }
 
     public class MyWorkTracker<TWorkId, TWork> : IEnumerable<KeyValuePair<TWorkId, TWork>>

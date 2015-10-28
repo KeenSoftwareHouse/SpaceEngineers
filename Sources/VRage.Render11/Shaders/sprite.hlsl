@@ -52,5 +52,5 @@ void vs(
 
 void ps(ProcessedVertex input, out float4 output : SV_Target0) {
 	float4 sample = SpriteTexture.Sample(TextureSampler, input.texcoord0);
-	output = float4(srgb_to_rgb(sample.xyz) * input.color.xyz, sample.w * input.color.w);
+	output = float4(sample.xyz * srgb_to_rgb(input.color.xyz), sample.w * input.color.w);
 }

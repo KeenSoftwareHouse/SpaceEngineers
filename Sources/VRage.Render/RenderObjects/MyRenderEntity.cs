@@ -14,7 +14,7 @@ using VRageRender.Utils;
 using System.IO;
 using VRage;
 //using MyUtils = VRageRender.Utils.MyUtils;
-using VRage;
+
 
 #endregion
 

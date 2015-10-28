@@ -1,29 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.World;
-
-using VRage.Trace;
-using VRageMath;
 using Sandbox.Game.Multiplayer;
 using VRage.Utils;
-using Sandbox.Game.Screens;
-using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using VRage;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
-using Sandbox.Game.Entities.Interfaces;
 using VRage.ObjectBuilders;
+using System;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -35,10 +25,9 @@ namespace Sandbox.Game.Entities.Cube
         private bool m_queueNeedsRebuild;
         private bool m_processingLock; // Signal to ignore all inventory contents changed events.
 
-        private List<KeyValuePair<int, MyBlueprintDefinitionBase>> m_tmpSortedBlueprints = new List<KeyValuePair<int, MyBlueprintDefinitionBase>>();
+        private readonly List<KeyValuePair<int, MyBlueprintDefinitionBase>> m_tmpSortedBlueprints = new List<KeyValuePair<int, MyBlueprintDefinitionBase>>();
 
-        public MyRefinery() :
-            base()
+        public MyRefinery()
         {
             m_baseIdleSound.Init("BlockRafinery");
             m_processSound.Init("BlockRafineryProcess");
@@ -67,12 +56,30 @@ namespace Sandbox.Game.Entities.Cube
             UpgradeValues.Add("Effectiveness", 1f);
             UpgradeValues.Add("PowerEfficiency", 1f);
 
-            PowerReceiver.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
+            ResourceSink.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
             UpdateDetailedInfo();
         }
 
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    InputInventory.ContentsChanged -= inventory_OnContentsChanged;
+                    InputInventory = inventory;
+                    InputInventory.ContentsChanged += inventory_OnContentsChanged;
+                    break;
+                case 1:
+                    OutputInventory.ContentsChanged -= inventory_OnContentsChanged;
+                    OutputInventory = inventory;
+                    OutputInventory.ContentsChanged += inventory_OnContentsChanged;
+                    break;
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
@@ -90,7 +97,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void PowerReceiver_RequiredInputChanged(GameSystems.Electricity.MyPowerReceiver receiver, float oldRequirement, float newRequirement)
+        void PowerReceiver_RequiredInputChanged(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver, float oldRequirement, float newRequirement)
         {
             UpdateDetailedInfo();
         }
@@ -196,7 +203,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(GetOperationalPowerConsumption(), DetailedInfo);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.RequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
 
             DetailedInfo.AppendFormat("\n\n");
             DetailedInfo.Append("Productivity: ");

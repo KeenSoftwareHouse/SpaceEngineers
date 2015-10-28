@@ -5,12 +5,40 @@ using System.Text;
 using VRageMath;
 using VRage.Components;
 using VRage.ModAPI;
+using System.Diagnostics;
 
 namespace VRage.Components
 {
     public class MyHierarchyComponentBase : MyEntityComponentBase
     {
         private List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
+
+        HashSet<object> QueryResults
+        {
+            get 
+            {
+                if (m_queryResults == null)
+                    m_queryResults = new HashSet<object>();
+                return m_queryResults;
+            }
+        }
+        HashSet<MyLineSegmentOverlapResult<object>> LineQueryResults
+        {
+            get
+            {
+                if (m_lineQueryResults == null)
+                    m_lineQueryResults = new HashSet<MyLineSegmentOverlapResult<object>>();
+                return m_lineQueryResults;
+            }
+        }
+        [ThreadStatic]
+        HashSet<object> m_queryResults = new HashSet<object>();
+        [ThreadStatic]
+        HashSet<MyLineSegmentOverlapResult<object>> m_lineQueryResults = new HashSet<MyLineSegmentOverlapResult<object>>();
+
+        public Action<BoundingBoxD, HashSet<object>> QueryAABBImpl;
+        public Action<BoundingSphereD, HashSet<object>> QuerySphereImpl;
+        public Action<LineD, HashSet<MyLineSegmentOverlapResult<object>>> QueryLineImpl;
 
         /// <summary>
         /// Return top most parent of this entity
@@ -39,8 +67,46 @@ namespace VRage.Components
             }
         }
 
+        MyEntityComponentContainer m_parentContainer;
+        MyHierarchyComponentBase m_parent;
+        public MyHierarchyComponentBase Parent 
+        { 
+            get { return m_parent; } 
+            set
+            {
+                if (m_parentContainer != null)
+                {
+                    m_parentContainer.ComponentAdded -= Container_ComponentAdded;
+                    m_parentContainer.ComponentRemoved -= Container_ComponentRemoved;
+                    m_parentContainer = null;
+                }
 
-        public MyHierarchyComponentBase Parent { get; set; }
+                m_parent = value;
+
+                if (m_parent != null)
+                {
+                    Debug.Assert(m_parent.Container != null);
+                    m_parentContainer = m_parent.Container;
+
+                    m_parentContainer.ComponentAdded += Container_ComponentAdded;
+                    m_parentContainer.ComponentRemoved += Container_ComponentRemoved;
+                }
+            }
+        }
+
+        void Container_ComponentRemoved(Type arg1, MyEntityComponentBase arg2)
+        {
+            if (arg2 == m_parent)
+                m_parent = null;
+        }
+
+        void Container_ComponentAdded(Type arg1, MyEntityComponentBase arg2)
+        {
+            if (typeof(MyHierarchyComponentBase).IsAssignableFrom(arg1))
+            {
+                m_parent = arg2 as MyHierarchyComponentBase;
+            }
+        }
 
         /// <summary>
         /// Adds the child.
@@ -60,7 +126,7 @@ namespace VRage.Components
 
                 this.Children.Add(childHierarchy);
 
-                child.WorldMatrix = tmpWorldMatrix;
+                child.PositionComp.SetWorldMatrix(tmpWorldMatrix, Entity, true);
             }
             else
             {
@@ -118,6 +184,42 @@ namespace VRage.Components
                 child.OnRemovedFromScene(this);
         }
 
+        public void QueryAABB<T>(ref BoundingBoxD aabb, List<T> result)
+        {
+            if (QueryAABBImpl != null)
+            {
+                QueryAABBImpl(aabb, QueryResults);
+                result.AddHashsetCasting(QueryResults);
+                QueryResults.Clear();
+            }
+        }
+
+        public void QuerySphere<T>(ref BoundingSphereD sphere, List<T> result)
+        {
+            if (QuerySphereImpl != null)
+            {
+                QuerySphereImpl(sphere, QueryResults);
+                result.AddHashsetCasting(QueryResults);
+                QueryResults.Clear();
+            }
+        }
+
+        public void QueryLine<T>(ref LineD line, List<MyLineSegmentOverlapResult<T>> result)
+        {
+            if(QueryLineImpl != null)
+            {
+                QueryLineImpl(line, LineQueryResults);
+                MyLineSegmentOverlapResult<T> overlap = new MyLineSegmentOverlapResult<T>();
+                foreach (var r in LineQueryResults)
+                {
+                    overlap.Element = (T)r.Element;
+                    overlap.Distance = r.Distance;
+                    result.Add(overlap);
+                }
+                LineQueryResults.Clear();
+            }
+        }
+
         public void GetChildrenRecursive(HashSet<IMyEntity> result)
         {
             for (int i = 0; i < Children.Count; i++)
@@ -131,6 +233,20 @@ namespace VRage.Components
         public override string ComponentTypeDebugString
         {
             get { return "Hierarchy"; }
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            if (m_parentContainer != null)
+            {
+                m_parentContainer.ComponentAdded -= Container_ComponentAdded;
+                m_parentContainer.ComponentRemoved -= Container_ComponentRemoved;
+                m_parentContainer = null;
+            }
+
+            m_parent = null;
+
+            base.OnBeforeRemovedFromContainer();
         }
     }
 }

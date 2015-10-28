@@ -176,5 +176,14 @@ namespace VRage.Collections
             m_array = newArray;
             m_capacity *= 2;
         }
+
+        public void QueryAll(List<V> list)
+        {
+            foreach (var heapItem in m_array)
+            {
+                if (heapItem != null)
+                    list.Add((V)heapItem);
+            }
+        }
     }
 }

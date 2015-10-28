@@ -6,7 +6,6 @@ using System.Text;
 
 using VRage.Utils;
 using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Definitions

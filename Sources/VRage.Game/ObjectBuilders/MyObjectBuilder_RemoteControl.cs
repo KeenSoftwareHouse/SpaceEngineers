@@ -4,6 +4,7 @@ using System.ComponentModel;
 using VRageMath;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -31,23 +32,29 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool DockingModeEnabled = false;
+
+        [ProtoMember]
+        public bool CollisionAvoidance = false;
         
         /// <summary>
         /// Obsolete. Use Waypoints instead.
         /// </summary>
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<Vector3D> Coords = null;
 
         /// <summary>
         /// Obsolete. Use Waypoints instead.
         /// </summary>
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<string> Names = null;
 
         /// <summary>
         /// Obsolete. Use Waypoints instead.
         /// </summary>
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_Toolbar AutoPilotToolbar = null;
 
         public override void Remap(IMyRemapHelper remapHelper)

@@ -111,6 +111,12 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
 			[ProtoMember]
 			public float Density;
+
+			[ProtoMember]
+			public int MaxLifeTime;
+
+			[ProtoMember]
+			public int MaxParticles;
 		}
 
 		[ProtoMember, XmlArrayItem("ParticleType")]

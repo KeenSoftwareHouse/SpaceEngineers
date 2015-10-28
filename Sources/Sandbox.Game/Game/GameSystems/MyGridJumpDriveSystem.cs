@@ -173,6 +173,8 @@ namespace Sandbox.Game.GameSystems
 
         private bool IsJumpValid(long userId)
         {
+            if (m_grid.MarkedForClose)
+                return false;
             UpdateConnectedGrids();
             foreach (var grid in m_connectedGrids)
             {
@@ -206,6 +208,19 @@ namespace Sandbox.Game.GameSystems
 
         public void RequestJump(string destinationName, Vector3D destination, long userId)
         {
+            if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpFromGravity, 1500);
+                MyHud.Notifications.Add(notification);
+                return;
+            }
+            if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(destination)))
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpIntoGravity, 1500);
+                MyHud.Notifications.Add(notification);
+                return;
+            }
+
             if (!IsJumpValid(userId))
             {
                 return;
@@ -243,6 +258,8 @@ namespace Sandbox.Game.GameSystems
                         {
                             SyncObject.RequestJump(m_selectedDestination, userId);
                         }
+                        else
+                            AbortJump();
                     }
                     ));
             }
@@ -284,7 +301,7 @@ namespace Sandbox.Game.GameSystems
             result.Append("Jump destination: ").Append(name).Append("\n");
             result.Append("Distance to the proximity of coordinate: ").Append(distance.ToString("N")).Append(" Kilometers\n");
             result.Append("Achievable percentage of the jump: ").Append(percent.ToString("P")).Append(" (").Append(actualDistance.ToString("N")).Append(" Kilometers)\n");
-            result.Append("Weight of transported mass: ").Append(GetMass().ToString("N")).Append(" kg\n");
+			result.Append("Weight of transported mass: ").Append(MyHud.ShipInfo.Mass.ToString("N")).Append(" kg\n");
             result.Append("Operational jump drives: ").Append(operationalJumpDrives).Append("/").Append(totalJumpDrives).Append("\n");
             result.Append("Seated crew on board: ").Append(seatedCharacters).Append("/").Append(totalCharacters).Append("\n");
 
@@ -335,17 +352,20 @@ namespace Sandbox.Game.GameSystems
 
         private BoundingBoxD GetAggregateBBox()
         {
+            if (m_grid.MarkedForClose)
+                return BoundingBoxD.CreateInvalid();
             BoundingBoxD bbox = m_grid.PositionComp.WorldAABB;
             foreach (var grid in m_connectedGrids)
             {
-                bbox.Include(grid.PositionComp.WorldAABB);
+                if(grid.PositionComp != null)
+                    bbox.Include(grid.PositionComp.WorldAABB);
             }
             return bbox;
         }
 
         private void GetCharactersInBoundingBox(BoundingBoxD boundingBox, List<MyCharacter> characters)
         {
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref boundingBox, m_entitiesInRange);
+            MyGamePruningStructure.GetAllEntitiesInBox(ref boundingBox, m_entitiesInRange);
             foreach (var entity in m_entitiesInRange)
             {
                 var character = entity as MyCharacter;
@@ -367,20 +387,7 @@ namespace Sandbox.Game.GameSystems
             regionBBox.Translate(desiredLocation - regionBBox.Center);
 
             
-            MyProceduralWorldGenerator.Static.OverlapAllPlanetSeedsInSphere(new BoundingSphereD(regionBBox.Center, regionBBox.HalfExtents.AbsMax()), m_objectsInRange);
             Vector3D currentSearchPosition = desiredLocation;
-            foreach (var planet in m_objectsInRange)
-            {
-                if (planet.BoundingVolume.Contains(currentSearchPosition) != ContainmentType.Disjoint)
-                {
-                    Vector3D v = currentSearchPosition - planet.BoundingVolume.Center;
-                    v.Normalize();
-                    v *= planet.BoundingVolume.HalfExtents * 1.5;
-                    currentSearchPosition = planet.BoundingVolume.Center + v;
-                    break;
-                }
-            }
-            m_objectsInRange.Clear();
 
             MyProceduralWorldGenerator.Static.OverlapAllAsteroidSeedsInSphere(new BoundingSphereD(regionBBox.Center, regionBBox.HalfExtents.AbsMax()), m_objectsInRange);
             foreach (var asteroid in m_objectsInRange)
@@ -389,12 +396,11 @@ namespace Sandbox.Game.GameSystems
             }
             m_objectsInRange.Clear();
 
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref regionBBox, m_entitiesInRange);
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref regionBBox, m_entitiesInRange);
 
             // Inflate the obstacles so we only need to check the center of the ship for collisions
             foreach (var entity in m_entitiesInRange)
             {
-                if (!(entity is MyPlanet))
                 {
                     m_obstaclesInRange.Add(entity.PositionComp.WorldAABB.GetInflated(shipBBox.HalfExtents));
                 }
@@ -526,6 +532,7 @@ namespace Sandbox.Game.GameSystems
             foreach (var grid in m_connectedGrids)
             {
                 m_shipInfo.Add(grid, grid.WorldMatrix.Translation + m_jumpDirection);
+                grid.GridSystems.JumpSystem.m_jumpStartTime = m_jumpStartTime;
             }
 
             if (IsLocalCharacterAffectedByJump())
@@ -580,11 +587,19 @@ namespace Sandbox.Game.GameSystems
                 {
                     if (Sync.IsServer)
                     {
-                        Vector3? suitableLocation = FindSuitableJumpLocation(m_shipInfo[m_grid]);
-                        if (suitableLocation.HasValue)
+                        if (m_shipInfo.ContainsKey(m_grid))
                         {
-                            SyncObject.SendPerformJump(suitableLocation.Value);
-                            PerformJump(suitableLocation.Value);
+                            Vector3? suitableLocation = FindSuitableJumpLocation(m_shipInfo[m_grid]);
+                            if (suitableLocation.HasValue)
+                            {
+                                SyncObject.SendPerformJump(suitableLocation.Value);
+                                PerformJump(suitableLocation.Value);
+                            }
+                            else
+                            {
+                                SyncObject.SendAbortJump();
+                                AbortJump();
+                            }
                         }
                         else
                         {
@@ -658,10 +673,10 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void AbortJump()
+        public void AbortJump()
         {
             m_soundEmitter.StopSound(true, true);
-            if (IsLocalCharacterAffectedByJump())
+            if (m_isJumping && IsLocalCharacterAffectedByJump())
             {
                 var notification = new MyHudNotification(MySpaceTexts.NotificationJumpAborted, 1500, Common.MyFontEnum.Red, level: MyNotificationLevel.Important);
                 MyHud.Notifications.Add(notification);
@@ -699,6 +714,20 @@ namespace Sandbox.Game.GameSystems
                 float fov = MathHelper.SmoothStep(m_playerFov, maxFov, 1f - t);
                 MySector.MainCamera.FieldOfView = fov;
             }
+        }
+
+        public bool CheckReceivedCoordinates(ref Vector3D pos)
+        {
+            if ((TimeUtil.LocalTime - m_jumpStartTime).TotalSeconds > 20)
+                return true;
+            if (Vector3D.DistanceSquared(m_grid.PositionComp.GetPosition(), pos) > 10000 * 10000)
+            {
+                //most likely comes from packet created before jump
+                MySandboxGame.Log.WriteLine(string.Format("Wrong position packet received, dist={0}, T={1})", Vector3D.Distance(m_grid.PositionComp.GetPosition(), pos), (TimeUtil.LocalTime - m_jumpStartTime).TotalSeconds));
+                return false;
+            }
+            return true;
+
         }
 
         #region Sync
@@ -785,6 +814,7 @@ namespace Sandbox.Game.GameSystems
                 MySyncLayer.RegisterMessage<JumpSuccessMsg>(OnJumpSuccess, MyMessagePermissions.FromServer);
                 MySyncLayer.RegisterMessage<JumpFailureMsg>(OnJumpFailure, MyMessagePermissions.FromServer);
                 MySyncLayer.RegisterMessage<PerformJumpMsg>(OnPerformJump, MyMessagePermissions.FromServer);
+                MySyncLayer.RegisterMessage<AbortJumpMsg>(OnAbortJump, MyMessagePermissions.FromServer);
             }
 
             public MySyncJumpDriveSystem(MyCubeGrid cubeGrid)

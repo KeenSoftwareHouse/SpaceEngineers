@@ -29,7 +29,8 @@ namespace Sandbox.Definitions
             BackgroundColor = new Color(1.0f),
             SunMaterial = "SunDisk",
             SunSizeMultiplier = 200.0f,
-            SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f)
+            SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f),
+            BaseSunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f)
         };
 
         public float LargeShipMaxSpeed = 100;
@@ -137,8 +138,17 @@ namespace Sandbox.Definitions
 			MergeSunProperties(src);
 			MergeFogProperties(src);
 
-			if(src.EnvironmentalParticles != m_defaults.EnvironmentalParticles)
-				EnvironmentalParticles = src.EnvironmentalParticles;
+			if(!src.EnvironmentalParticles.Equals(m_defaults.EnvironmentalParticles))
+			{
+				foreach(var particleEffect in src.EnvironmentalParticles)
+				{
+					if (EnvironmentalParticles.Contains(particleEffect))
+						continue;
+					EnvironmentalParticles.Add(particleEffect);
+				}
+			}
+				
+			
 
 			if (src.LargeShipMaxSpeed != m_defaults.LargeShipMaxSpeed)
 			{
@@ -250,6 +260,11 @@ namespace Sandbox.Definitions
 			{
 				FogProperties.FogColor = src.FogProperties.FogColor;
 			}
+
+            if (src.FogProperties.FogDensity != m_defaults.FogProperties.FogDensity)
+            {
+                FogProperties.FogDensity = src.FogProperties.FogDensity;
+            }
 		}
 		#endregion
     }

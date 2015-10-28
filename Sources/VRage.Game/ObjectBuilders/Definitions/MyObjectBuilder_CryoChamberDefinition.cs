@@ -12,6 +12,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ModdableContentFile("dds")]
         public string OverlayTexture;
 
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float IdlePowerConsumption = 0.001f;
 

@@ -18,5 +18,7 @@ namespace Sandbox.Game.Entities
 
         Vector3 GetWorldGravityGrid(Vector3D worldPoint);
         bool IsPositionInRangeGrid(Vector3D worldPoint);
+
+		float GetGravityMultiplier(Vector3D worldPoint);
     }
 }

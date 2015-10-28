@@ -118,7 +118,6 @@ namespace SpaceEngineers
                 }
                 return;
             }
-
             if (MyFakes.DETECT_LEAKS)
             {
                 //Slow down

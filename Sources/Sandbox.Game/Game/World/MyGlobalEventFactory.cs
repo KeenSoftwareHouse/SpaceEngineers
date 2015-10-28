@@ -11,7 +11,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
-    public delegate void GlobalEventHandler(object sender);
+    public delegate void GlobalEventHandler(MyGlobalEventBase sender);
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     [Obfuscation(Feature = Obfuscator.NoRename, Exclude = true)]

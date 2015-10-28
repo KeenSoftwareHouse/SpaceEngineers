@@ -1,4 +1,5 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using System;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Engine.Utils;
@@ -6,7 +7,6 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using VRage;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -24,8 +24,18 @@ namespace Sandbox.Definitions
         public bool  CentralClusterEnabled;
         public MyStringId[] CreativeModeWeapons;
         public MyStringId[] SurvivalModeWeapons;
-        public MyObjectBuilder_Toolbar DefaultToolbar;
+        public MyObjectBuilder_Toolbar CreativeDefaultToolbar;
+        public MyObjectBuilder_Toolbar SurvivalDefaultToolbar;
         public MyStringId MainCharacterModel;
+
+        public DateTime GameDate;
+
+        public Vector3 SunDirection;
+
+        public MyObjectBuilder_Toolbar DefaultToolbar
+        {
+            get { return MySession.Static.CreativeMode ? CreativeDefaultToolbar : SurvivalDefaultToolbar; }
+        }
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -35,9 +45,14 @@ namespace Sandbox.Definitions
             AsteroidClustersEnabled = ob.AsteroidClusters.Enabled;
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
             CentralClusterEnabled   = ob.AsteroidClusters.CentralCluster;
-            DefaultToolbar = ob.DefaultToolbar;
+            CreativeDefaultToolbar  = ob.CreativeDefaultToolbar;
+            SurvivalDefaultToolbar  = ob.SurvivalDefaultToolbar;
             MainCharacterModel = MyStringId.GetOrCompute(ob.MainCharacterModel);
 
+            GameDate = new DateTime(ob.GameDate);
+
+            SunDirection = ob.SunDirection;
+            
             if (ob.PossibleStartingStates != null && ob.PossibleStartingStates.Length > 0)
             {
                 PossiblePlayerStarts = new MyWorldGeneratorStartingStateBase[ob.PossibleStartingStates.Length];
@@ -85,8 +100,10 @@ namespace Sandbox.Definitions
             ob.AsteroidClusters.Enabled        = AsteroidClustersEnabled;
             ob.AsteroidClusters.Offset         = AsteroidClustersOffset;
             ob.AsteroidClusters.CentralCluster = CentralClusterEnabled;
-            ob.DefaultToolbar = DefaultToolbar;
+            ob.CreativeDefaultToolbar          = CreativeDefaultToolbar;
+            ob.SurvivalDefaultToolbar          = SurvivalDefaultToolbar;
             ob.MainCharacterModel = MainCharacterModel.ToString();
+            ob.GameDate = GameDate.Ticks;
 
             if (PossiblePlayerStarts != null && PossiblePlayerStarts.Length > 0)
             {

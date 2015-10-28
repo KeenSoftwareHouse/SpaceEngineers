@@ -42,7 +42,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public void Update()
         {
-            if (MyFakes.ENABLE_PATHFINDING)
+            if (MyPerGameSettings.EnablePathfinding)
             {
                 m_gridPathfinding.Update();
                 m_voxelPathfinding.Update();
@@ -61,8 +61,8 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public MySmartPath FindPathGlobal(Vector3D begin, IMyDestinationShape end, MyEntity entity = null)
         {
-            Debug.Assert(MyFakes.ENABLE_PATHFINDING, "Pathfinding is not enabled!");
-            if (!MyFakes.ENABLE_PATHFINDING)
+            Debug.Assert(MyPerGameSettings.EnablePathfinding, "Pathfinding is not enabled!");
+            if (!MyPerGameSettings.EnablePathfinding)
             {
                 return null;
             }
@@ -78,12 +78,61 @@ namespace Sandbox.Game.AI.Pathfinding
             return newPath;
         }
 
+        private MyNavigationPrimitive m_reachEndPrimitive;
+        private float m_reachPredicateDistance;
+
+        private bool ReachablePredicate(MyNavigationPrimitive primitive)
+        {
+            return (m_reachEndPrimitive.WorldPosition - primitive.WorldPosition).LengthSquared() <= m_reachPredicateDistance * m_reachPredicateDistance;
+        }
+
+        // MW:TODO optimize or change
+        public bool ReachableUnderThreshold(Vector3D begin, IMyDestinationShape end, float thresholdDistance)
+        {
+            m_reachPredicateDistance = thresholdDistance;
+            var beginPrimitive = FindClosestPrimitive(begin, false);
+            var endPrimitive = FindClosestPrimitive(end.GetDestination(), false);
+
+            if (beginPrimitive == null || endPrimitive == null)
+                return false;
+
+            var beginHL = beginPrimitive.GetHighLevelPrimitive();
+            var endHL = endPrimitive.GetHighLevelPrimitive();
+
+            ProfilerShort.Begin("HL");
+            MySmartGoal goal = new MySmartGoal(end);
+            var path = goal.FindHighLevelPath(this, beginHL);
+            ProfilerShort.End();
+            if (path == null)
+                return false;
+
+            m_reachEndPrimitive = endPrimitive;
+            ProfilerShort.Begin("Prepare for travesal");
+            PrepareTraversal(beginPrimitive, null, ReachablePredicate);
+            ProfilerShort.End();
+            ProfilerShort.Begin("checking for vertices");
+            try
+            {
+                foreach (var vertex in this)
+                {
+                    if (vertex.Equals(m_reachEndPrimitive))
+                        return true;
+                }
+            }
+            finally
+            {
+                ProfilerShort.End();
+            }
+
+            return false;
+        }
+
         public MyPath<MyNavigationPrimitive> FindPathLowlevel(Vector3D begin, Vector3D end)
         {
             MyPath<MyNavigationPrimitive> path = null;
 
-            Debug.Assert(MyFakes.ENABLE_PATHFINDING, "Pathfinding is not enabled!");
-            if (!MyFakes.ENABLE_PATHFINDING)
+            Debug.Assert(MyPerGameSettings.EnablePathfinding, "Pathfinding is not enabled!");
+            if (!MyPerGameSettings.EnablePathfinding)
             {
                 return path;
             }

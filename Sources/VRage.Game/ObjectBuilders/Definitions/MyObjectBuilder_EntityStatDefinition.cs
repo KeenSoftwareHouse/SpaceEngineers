@@ -28,6 +28,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 		[ProtoMember]
 		public float MaxValue = 100;
 
+	    [ProtoMember]
+        public float DefaultValue = 100f;
+
 		[ProtoMember, XmlAttribute(AttributeName = "EnabledInCreative")]
 		public bool EnabledInCreative = true;
 

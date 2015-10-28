@@ -8,6 +8,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ShipDrillDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
         [ProtoMember]
         public float SensorRadius;
 

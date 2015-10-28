@@ -78,6 +78,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Draw ankle desired positions", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_DESIREDPOSITION));
             AddCheckBox("Draw closest support position", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_CLOSESTSUPPORTPOSITION));
             AddCheckBox("Draw IK solvers debug", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_IKSOLVERS));
+            AddCheckBox("Enable/Disable Feet IK", null, MemberHelper.GetMember(() => MyFakes.ENABLE_FOOT_IK));
 
             AddCheckBox("Draw Ragdoll Rig Pose", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_RAGDOLL_ORIGINAL_RIG));
             AddCheckBox("Draw Bones Rig Pose", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_ORIGINAL_RIG));
@@ -90,7 +91,8 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Enable Ragdoll Animation", null, MemberHelper.GetMember(() => MyFakes.ENABLE_RAGDOLL_ANIMATION));
             AddCheckBox("Enable Bones Translation", null, MemberHelper.GetMember(() => MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION));
             
-            AddSlider("Ragdoll simulation time", 10f, 20*60f, () => MyPerGameSettings.CharacterDefaultLootingCounter, (x) => MyPerGameSettings.CharacterDefaultLootingCounter=x); 
+            // MW:TODO change it
+            //AddSlider("Ragdoll simulation time", 10f, 20*60f, () => MyPerGameSettings.CharacterDefaultLootingCounter, (x) => MyPerGameSettings.CharacterDefaultLootingCounter=x); 
             
 
             StringBuilder caption = new StringBuilder("Kill Ragdoll");
@@ -163,7 +165,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             //MyFakes.CHARACTER_CAN_DIE_EVEN_IN_CREATIVE_MODE = false;
         }
 
-
         void ItemChanged(MyGuiControlSlider slider)
         {
             if (updating) return;
@@ -179,7 +180,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
             MyCharacter playerCharacter = MySession.LocalCharacter;
 
-            MyCharacterMovementEnum selected = (MyCharacterMovementEnum)characterMovementStateCombo.GetSelectedKey();
+            MyCharacterMovementEnum selected = MyCharacterMovementEnum.Standing;//(MyCharacterMovementEnum)characterMovementStateCombo.GetSelectedKey();
             playerCharacter.Definition.FeetIKSettings[selected] = ikSettings;
         }
 

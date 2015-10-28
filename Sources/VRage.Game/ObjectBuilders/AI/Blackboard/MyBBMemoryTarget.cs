@@ -22,6 +22,9 @@ namespace Sandbox.Common.ObjectBuilders.AI
 		[ProtoMember]
 		public int? TreeId = null;
 
+        [ProtoMember]
+        public ushort? CompoundId = null;
+
         public Vector3I BlockPosition { get { return Vector3I.Round(Position.Value); } }
         public Vector3I VoxelPosition { get { return Vector3I.Round(Position.Value); } }
 
@@ -73,5 +76,14 @@ namespace Sandbox.Common.ObjectBuilders.AI
             target.TreeId = treeId;
             target.Position = treePosition;
 		}
+
+        public static void SetTargetCompoundBlock(ref MyBBMemoryTarget target, Vector3I blockPosition, long entityId, ushort compoundId)
+        {
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.COMPOUND_BLOCK;
+            target.EntityId = entityId;
+            target.CompoundId = compoundId;
+            target.Position = blockPosition;
+        }
     }
 }

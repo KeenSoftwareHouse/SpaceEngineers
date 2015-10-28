@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using VRage;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 
 namespace Sandbox.Common.ObjectBuilders
@@ -10,12 +11,14 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_Cockpit : MyObjectBuilder_ShipController
     {
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_Character Pilot;
 
         [ProtoMember]
         public MyPositionAndOrientation? PilotRelativeWorld;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable | MyObjectFlags.Dynamic ,DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]
         public MyObjectBuilder_AutopilotBase Autopilot;
 
         public void ClearPilotAndAutopilot()

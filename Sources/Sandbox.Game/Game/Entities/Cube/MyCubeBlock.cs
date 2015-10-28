@@ -26,6 +26,7 @@ using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
+using Sandbox.Game.EntityComponents;
 
 #endregion
 
@@ -34,6 +35,8 @@ namespace Sandbox.Game.Entities
     public partial class MyCubeBlock : MyEntity, IMyComponentOwner<MyIDModule>
     {
         protected static readonly string DUMMY_SUBBLOCK_ID = "subblock_";
+
+        private static List<MyCubeBlockDefinition.MountPoint> m_tmpMountPoints = new List<MyCubeBlockDefinition.MountPoint>();
 
         private class MethodDataIsConnectedTo
         {
@@ -53,6 +56,14 @@ namespace Sandbox.Game.Entities
             {
                 return IDModule == null ? 0 : IDModule.Owner;
             }
+        }
+
+        private MyResourceSinkComponent m_sinkComp;
+
+        public MyResourceSinkComponent ResourceSink
+        {
+            get { return m_sinkComp; }
+            protected set { if (Components.Contains(typeof(MyResourceSinkComponent))) Components.Remove<MyResourceSinkComponent>(); Components.Add<MyResourceSinkComponent>(value); m_sinkComp = value; }
         }
 
         public string GetOwnerFactionTag()
@@ -313,8 +324,6 @@ namespace Sandbox.Game.Entities
             get { return BlockDefinition.DisplayNameText; }
         }
 
-        public static Dictionary<int, List<BoundingBox>> ExcludedAreaForCameraIntersections = new Dictionary<int, List<BoundingBox>>();
-
         static MyCubeBlock()
         {
             m_methodDataIsConnectedTo = new MethodDataIsConnectedTo();
@@ -527,6 +536,61 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public virtual bool ConnectionAllowed(ref Vector3I otherBlockPos, ref Vector3I faceNormal, MyCubeBlockDefinition def)
         {
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT && Components.Has<MyFractureComponentBase>())
+            {
+                MyFractureComponentCubeBlock fractureComponent = GetFractureComponent();
+
+                if (fractureComponent == null || fractureComponent.MountPoints == null)
+                    return true;
+
+                var other = CubeGrid.GetCubeBlock(otherBlockPos);
+                if (other == null)
+                    return true;
+
+                MyBlockOrientation or = other.Orientation;
+                var position = Position;
+                Debug.Assert(m_tmpMountPoints.Count == 0);
+                m_tmpMountPoints.Clear();
+
+                if (other.FatBlock != null && other.FatBlock.Components.Has<MyFractureComponentBase>())
+                {
+                    MyFractureComponentCubeBlock otherFractureComponent = other.GetFractureComponent();
+                    if (otherFractureComponent != null)
+                        m_tmpMountPoints.AddRange(otherFractureComponent.MountPoints);
+                }
+                else if (other.FatBlock is MyCompoundCubeBlock)
+                {
+                    var lst = new List<MyCubeBlockDefinition.MountPoint>();
+                    foreach (var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                    {
+                        MyFractureComponentCubeBlock blockInCompoundFractureComponent = b.GetFractureComponent();
+                        if (blockInCompoundFractureComponent != null)
+                        {
+                            m_tmpMountPoints.AddRange(blockInCompoundFractureComponent.MountPoints);
+                        }
+                        else
+                        {
+                            var mountPoints = b.BlockDefinition.GetBuildProgressModelMountPoints(b.BuildLevelRatio);
+                            lst.Clear();
+                            MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, mountPoints, ref b.Orientation);
+                            m_tmpMountPoints.AddRange(lst);
+                        }
+                    }
+                }
+                else
+                {
+                    var mountPoints = def.GetBuildProgressModelMountPoints(other.BuildLevelRatio);
+                    MyCubeGrid.TransformMountPoints(m_tmpMountPoints, def, mountPoints, ref or);
+                }
+
+                bool result = MyCubeGrid.CheckMountPointsForSide(fractureComponent.MountPoints, ref SlimBlock.Orientation, ref position, BlockDefinition.Id, ref faceNormal, m_tmpMountPoints,
+                    ref or, ref otherBlockPos, def.Id);
+
+                m_tmpMountPoints.Clear();
+
+                return result;
+            }
+
             return true;
         }
 
@@ -589,10 +653,10 @@ namespace Sandbox.Game.Entities
         {
             if (renderObjectId != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(renderObjectId, 0, null, -1,
-                    "Emissive", null, emissivePartColor, null, null, emissivity);
-                VRageRender.MyRenderProxy.UpdateModelProperties(renderObjectId, 0, null, -1,
-                    "Display", null, displayPartColor, null, null, emissivity);
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0,
+                    "Emissive", emissivePartColor, emissivity);
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0,
+                    "Display", displayPartColor, emissivity);
             }
         }
 
@@ -841,7 +905,12 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public virtual void OnCubeGridChanged(MyCubeGrid oldGrid)
         {
-            
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT && Components.Has<MyFractureComponentBase>())
+            {
+                var fractureComponent = GetFractureComponent();
+                if (fractureComponent != null)
+                    fractureComponent.OnCubeGridChanged();
+            }
         }
 
         internal virtual void OnAddedNeighbours()
@@ -870,7 +939,7 @@ namespace Sandbox.Game.Entities
 
         public class MyBlockPosComponent : MyPositionComponent
         {
-            public override void OnWorldPositionChanged(object source)
+            protected override void OnWorldPositionChanged(object source)
             {
                 base.OnWorldPositionChanged(source);
                 (Container.Entity as MyCubeBlock).WorldPositionChanged(source);
@@ -1167,6 +1236,25 @@ namespace Sandbox.Game.Entities
             {
                 handler();
             }
+        }
+
+        public virtual void CreateRenderer(MyPersistentEntityFlags2 persistentFlags, Vector3 colorMaskHsv, object modelStorage)
+        {
+            Render = new Components.MyRenderComponentCubeBlock();
+            Render.ColorMaskHsv = colorMaskHsv;
+            Render.ShadowBoxLod = true;
+            Render.EnableColorMaskHsv = true;
+            Render.SkipIfTooSmall = false;
+            Render.PersistentFlags |= persistentFlags | MyPersistentEntityFlags2.CastShadows;
+            Render.ModelStorage = modelStorage;
+        }
+
+        public MyFractureComponentCubeBlock GetFractureComponent()
+        {
+            MyFractureComponentCubeBlock fractureComponent = null;
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT)
+                fractureComponent = Components.Get<MyFractureComponentBase>() as MyFractureComponentCubeBlock;
+            return fractureComponent;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     { 
                     { MyStringId.GetOrCompute("RagdollComponent"), typeof(MyCharacterRagdollComponent)},
                     { MyStringId.GetOrCompute("InventorySpawnComponent"), typeof(MyInventorySpawnComponent)},
+                    { MyStringId.GetOrCompute("FeetIKComponent"), typeof(MyCharacterFeetIKComponent)},
                     };                    
                 }
                 return m_types;

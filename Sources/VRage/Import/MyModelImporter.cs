@@ -771,7 +771,7 @@ namespace VRage.Import
             return bones;
         }
 
-        static MyLODDescriptor[] ReadLODs(BinaryReader reader)
+        static MyLODDescriptor[] ReadLODs(BinaryReader reader, int version)
         {
             int lodCount = reader.ReadInt32();
             var lods = new MyLODDescriptor[lodCount];
@@ -781,8 +781,7 @@ namespace VRage.Import
             {
                 var lod = new MyLODDescriptor();
                 lods[i++] = lod;
-
-                lod.Read(reader);
+                lod.Read(reader); 
             }
 
             return lods;
@@ -874,6 +873,7 @@ namespace VRage.Import
                 {
                     LoadTagData(reader, tags);
                 }
+                fs.Close(); // OM: Although this shouldn't be needed, we experience problems with opening files with autorefresh, is this isn't called explicitely..
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace VRage.Import
             {
                 //TAG_LODS
                 tagName = reader.ReadString();
-                m_retTagData.Add(tagName, ReadLODs(reader));
+                m_retTagData.Add(tagName, ReadLODs(reader, 01066002));
             }
 
             if (reader.BaseStream.Position < reader.BaseStream.Length)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
 
 namespace Sandbox.Definitions
@@ -11,6 +7,8 @@ namespace Sandbox.Definitions
     class MyCryoChamberDefinition : MyCockpitDefinition
     {
         public string OverlayTexture;
+
+	    public string ResourceSinkGroup;
         public float IdlePowerConsumption;
 
         public MySoundPair OutsideSound;
@@ -21,6 +19,7 @@ namespace Sandbox.Definitions
             base.Init(builder);
             var chamberDef = builder as MyObjectBuilder_CryoChamberDefinition;
             OverlayTexture = chamberDef.OverlayTexture;
+	        ResourceSinkGroup = chamberDef.ResourceSinkGroup;
             IdlePowerConsumption = chamberDef.IdlePowerConsumption;
 
             OutsideSound = new MySoundPair(chamberDef.OutsideSound);

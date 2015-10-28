@@ -14,8 +14,9 @@ using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
+using Sandbox.Definitions;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.ModAPI;
 using VRage.Utils;
@@ -24,7 +25,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TimerBlock))]
-    internal class MyTimerBlock : MyFunctionalBlock, IMyPowerConsumer, IMyTimerBlock
+    internal class MyTimerBlock : MyFunctionalBlock, IMyTimerBlock
     {
         [PreloadRequired]
         internal class MySyncTimerBlock : MySyncEntity
@@ -178,7 +179,7 @@ namespace Sandbox.Game.Entities.Blocks
         private int m_countdownMsStart;
         public bool IsCountingDown { get; private set; }
 
-        private static List<MyToolbar> m_openedToolbars;
+        private static readonly List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
 
         static MyTimerBlock()
@@ -322,16 +323,19 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_countdownMsCurrent > 0)
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+	        var timerBlockDefinition = BlockDefinition as MyTimerBlockDefinition;
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                timerBlockDefinition.ResourceSinkGroup,
                 0.0000001f,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.Update();
+				() => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
 
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
         }
@@ -464,7 +468,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()
@@ -474,7 +478,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void OnAddedToScene(object source)
@@ -497,15 +501,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
         public float TriggerDelay
         {
             get { return Math.Max(m_countdownMsStart, 1000) / 1000; }

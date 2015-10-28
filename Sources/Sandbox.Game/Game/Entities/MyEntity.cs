@@ -33,6 +33,10 @@ using VRage;
 using VRage.Components;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using Sandbox.Definitions;
+using Sandbox.Game.EntityComponents;
+using VRage.Network;
+using VRage.Library.Collections;
 
 #endregion
 
@@ -43,6 +47,8 @@ namespace Sandbox.Game.Entities
     {
         #region Fields
 
+        public MyDefinitionId? DefinitionId = null;
+
         public MyEntityComponentContainer Components { get; private set; }
 
         public string Name;
@@ -52,20 +58,45 @@ namespace Sandbox.Game.Entities
         protected List<MyHudEntityParams> m_hudParams;
 
         MyPositionComponentBase m_position;
-        public MyPositionComponentBase PositionComp { get { return m_position; } set { Components.Add<MyPositionComponentBase>(value); } }
+        public MyPositionComponentBase PositionComp
+        {
+            get
+            {
+                //Debug.Assert(!(m_position is MyNullPositionComponent));
+                return m_position;
+            }
+            set
+            {
+                Components.Add<MyPositionComponentBase>(value);
+            }
+        }
 
         int m_movementCooldown = 0; //number of frames after which we stop update world matrix with same values
 
         MyRenderComponentBase m_render;
-        public MyRenderComponentBase Render { get { return m_render; } set { Components.Add<MyRenderComponentBase>(value); } }
+        public MyRenderComponentBase Render
+        {
+            get
+            {
+                //Debug.Assert(!(m_render is MyNullRenderComponent));
+                return m_render;
+            }
+            set
+            {
+                Components.Add<MyRenderComponentBase>(value);
+            }
+        }
 
         List<MyDebugRenderComponentBase> m_debugRenderers = new List<MyDebugRenderComponentBase>();
 
         public void DebugDraw()
         {
-            foreach (var child in this.Hierarchy.Children)
+            if (this.Hierarchy != null)
             {
-                child.Container.Entity.DebugDraw();
+                foreach (var child in this.Hierarchy.Children)
+                {
+                    child.Container.Entity.DebugDraw();
+                }
             }
 
             foreach (var render in m_debugRenderers)
@@ -93,7 +124,7 @@ namespace Sandbox.Game.Entities
 
         //Rendering
         protected MyModel m_modelCollision;                       //  Collision model, used only for collisions
-
+        
         //Space query structure
         public int GamePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
         public int TopMostPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
@@ -147,6 +178,7 @@ namespace Sandbox.Game.Entities
         //Only debug property, use only for asserts, not for game logic.
         //Consider as being called after delete in C++
         public bool Closed { get; protected set; }
+        public bool DebugAsyncLoading { get; set; } // Will be eventually removed
         public bool MarkedForClose { get; protected set; }
 
         public virtual float MaxGlassDistSq
@@ -224,8 +256,8 @@ namespace Sandbox.Game.Entities
 
         public MatrixD WorldMatrix
         {
-            get { return PositionComp.WorldMatrix; }
-            set { PositionComp.SetWorldMatrix(value); }
+            get { return PositionComp != null ? PositionComp.WorldMatrix : MatrixD.Zero; }
+            set { if (PositionComp != null) PositionComp.SetWorldMatrix(value); }
         }
 
         /// <summary>
@@ -300,11 +332,12 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                bool inScene = ((Render.PersistentFlags & MyPersistentEntityFlags2.InScene) > 0);
-                return inScene;
+                return Render != null && ((Render.PersistentFlags & MyPersistentEntityFlags2.InScene) > 0);
             }
             set
             {
+                if (Render == null)
+                    return;
                 if (value)
                     Render.PersistentFlags |= MyPersistentEntityFlags2.InScene;
                 else
@@ -319,7 +352,7 @@ namespace Sandbox.Game.Entities
 
         public virtual Vector3D LocationForHudMarker
         {
-            get { return PositionComp.GetPosition(); }
+            get { return PositionComp != null ? PositionComp.GetPosition() : Vector3D.Zero; }
         }
 
         public virtual List<MyHudEntityParams> GetHudParams(bool allowBlink)
@@ -329,26 +362,35 @@ namespace Sandbox.Game.Entities
 
         public void UpdateGamePruningStructure()
         {
-            MyGamePruningStructure.Move(this);
-            foreach (var child in Hierarchy.Children) child.Container.Entity.UpdateGamePruningStructure();
+            if (Parent == null && InScene)
+            {
+                //Debug.Assert(this.Parent == null, "Only top most entity should be in prunning structure");
+                MyGamePruningStructure.Move(this);
+                //foreach (var child in Hierarchy.Children) child.Container.Entity.UpdateGamePruningStructure();
+            }
         }
 
         public void AddToGamePruningStructure()
         {
+            if (Parent != null)
+                return;
+            //Debug.Assert(this.Parent == null,"Only top most entity should be in prunning structure");
             MyGamePruningStructure.Add(this);
-            foreach (var child in Hierarchy.Children)
-                child.Container.Entity.AddToGamePruningStructure();
+            //disabled for performance 
+            //to re enable this feature implement way to query hierarchy children
+            //foreach (var child in Hierarchy.Children)
+            //    child.Container.Entity.AddToGamePruningStructure();
         }
 
         public void RemoveFromGamePruningStructure()
         {
             MyGamePruningStructure.Remove(this);
 
-            if (Hierarchy != null)
-            {
-                foreach (var child in Hierarchy.Children)
-                    child.Container.Entity.RemoveFromGamePruningStructure();
-            }
+            //if (Hierarchy != null)
+            //{
+            //    foreach (var child in Hierarchy.Children)
+            //        child.Container.Entity.RemoveFromGamePruningStructure();
+            //}
         }
 
         protected virtual bool CanBeAddedToRender()
@@ -426,7 +468,6 @@ namespace Sandbox.Game.Entities
                          EntityFlags.NeedsResolveCastShadow |
                          EntityFlags.InvalidateOnMove;
 
-
             if (initComponents)
             {
                 this.m_hudParams = new List<MyHudEntityParams>(1);
@@ -443,37 +484,43 @@ namespace Sandbox.Game.Entities
 
         void Components_ComponentAdded(Type t, MyEntityComponentBase c)
         {
-            if (t == typeof(MyPhysicsComponentBase))
+            if ((typeof(MyPhysicsComponentBase)).IsAssignableFrom(t))
                 m_physics = c as MyPhysicsBody;
-            else if (t == typeof(MySyncComponentBase))
+            else if ((typeof(MySyncComponentBase)).IsAssignableFrom(t))
                 m_syncObject = c as MySyncComponentBase;
-            else if (t == typeof(MyGameLogicComponent))
+            else if ((typeof(MyGameLogicComponent)).IsAssignableFrom(t))
                 m_gameLogic = c as MyGameLogicComponent;
-            else if (t == typeof(MyPositionComponentBase))
+            else if ((typeof(MyPositionComponentBase)).IsAssignableFrom(t))
+            {
                 m_position = c as MyPositionComponentBase;
-            else if (t == typeof(MyHierarchyComponentBase))
+                if (m_position == null)
+                    PositionComp = new MyNullPositionComponent();
+            }
+            else if ((typeof(MyHierarchyComponentBase)).IsAssignableFrom(t))
                 m_hierarchy = c as MyHierarchyComponentBase;
-            else if (t == typeof(MyRenderComponentBase))
+            else if ((typeof(MyRenderComponentBase)).IsAssignableFrom(t))
             {
                 m_render = c as MyRenderComponentBase;
+                if (m_render == null)
+                    Render = new MyNullRenderComponent();
             }
         }
 
         void Components_ComponentRemoved(Type t, MyEntityComponentBase c)
         {
-            if (t == typeof(MyPhysicsComponentBase))
+            if ((typeof(MyPhysicsComponentBase)).IsAssignableFrom(t))
                 m_physics = null;
-            else if (t == typeof(MySyncComponentBase))
+            else if ((typeof(MySyncComponentBase)).IsAssignableFrom(t))
                 m_syncObject = null;
-            else if (t == typeof(MyGameLogicComponent))
+            else if ((typeof(MyGameLogicComponent)).IsAssignableFrom(t))
                 m_gameLogic = null;
-            else if (t == typeof(MyPositionComponentBase))
-                m_position = null;
-            else if (t == typeof(MyHierarchyComponentBase))
+            else if ((typeof(MyPositionComponentBase)).IsAssignableFrom(t))
+                PositionComp = new MyNullPositionComponent();
+            else if ((typeof(MyHierarchyComponentBase)).IsAssignableFrom(t))
                 m_hierarchy = null;
-            else if (t == typeof(MyRenderComponentBase))
+            else if ((typeof(MyRenderComponentBase)).IsAssignableFrom(t))
             {
-                m_render = null;
+                Render = new MyNullRenderComponent();
             }
         }
 
@@ -560,66 +607,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        /// <summary>
-        /// Scaling of this object's model. 
-        /// Actualy used only for drawing and JLX collision skins. 
-        /// I don't use it for line-triangleVertexes intersections in octree (but it can be added).
-        /// </summary>
-
-        float? m_scale;
-        public float? Scale
-        {
-            get { return m_scale; }
-            set
-            {
-                if (m_scale != value)
-                {
-                    m_scale = value;
-
-                    var localMatrix = PositionComp.LocalMatrix;
-                    if (m_scale != null)
-                    {
-                        System.Diagnostics.Debug.Assert(!MyUtils.IsZero(m_scale.Value));
-                        var worldMatrix = PositionComp.WorldMatrix;
-                        var localAABB = PositionComp.LocalAABB;
-                        localAABB.Min *= m_scale.Value;
-                        localAABB.Max *= m_scale.Value;
-                        PositionComp.LocalAABB = localAABB;
-
-                        if (Parent == null)
-                        {
-                            MyUtils.Normalize(ref worldMatrix, out worldMatrix);
-                            PositionComp.WorldMatrix = MatrixD.CreateScale(m_scale.Value) * worldMatrix;
-                        }
-                        else
-                        {
-                            MyUtils.Normalize(ref localMatrix, out localMatrix);
-                            PositionComp.LocalMatrix = Matrix.CreateScale(m_scale.Value) * localMatrix;
-                        }
-                    }
-                    else
-                    {
-                        MyUtils.Normalize(ref localMatrix, out localMatrix);
-                        PositionComp.LocalMatrix = localMatrix;
-                    }
-
-                    PositionComp.UpdateWorldMatrix();
-                }
-            }
-        }
-
         public virtual MatrixD GetViewMatrix()
         {
             return PositionComp.WorldMatrixNormalizedInv;
         }
 
-        /// <summary>
-        /// Updates the world matrix (change caused by parent)
-        /// </summary>
-        public virtual void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
-        {
-            PositionComp.UpdateWorldMatrix(ref parentWorldMatrix, source);
-        }
         #endregion
 
         #region Draw Methods
@@ -836,7 +828,8 @@ namespace Sandbox.Game.Entities
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("AddToGamePruningStructure");
-            AddToGamePruningStructure();
+            if (Parent == null)
+                AddToGamePruningStructure();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             Components.OnAddedToScene();
@@ -863,9 +856,6 @@ namespace Sandbox.Game.Entities
         {
             InScene = false;
 
-            if(MyWeldingGroups.Static.GetGroup(this) != null) //because of weird handling of weapons
-                MyWeldingGroups.Static.RemoveNode(this);
-
             if (Hierarchy != null)
             {
                 foreach (var child in Hierarchy.Children)
@@ -878,6 +868,9 @@ namespace Sandbox.Game.Entities
 
             MyEntities.UnregisterForUpdate(this);
             MyEntities.UnregisterForDraw(this);
+
+            if (MyWeldingGroups.Static.GetGroup(this) != null) //because of weird handling of weapons
+                MyWeldingGroups.Static.RemoveNode(this);
 
             if (this.m_physics != null && this.m_physics.Enabled)
             {
@@ -898,7 +891,6 @@ namespace Sandbox.Game.Entities
 
         public event Action<MyEntity> OnPhysicsChanged;
 
-        //public event Action<MyEntity> OnContactEvent;
 
         #endregion
 
@@ -908,11 +900,25 @@ namespace Sandbox.Game.Entities
 
         #endregion
 
+        //jn:TODO this should be on Physics component
         public void RaisePhysicsChanged()
         {
-            var handler = OnPhysicsChanged;
-            if (handler != null)
-                handler(this);
+            var group = MyWeldingGroups.Static.GetGroup(this);
+            if (group != null)
+            {
+                foreach (var entity in group.Nodes)
+                {
+                    var handler = entity.NodeData.OnPhysicsChanged;
+                    if (handler != null)
+                        handler(entity.NodeData);
+                }
+            }
+            else
+            {
+                var handler = OnPhysicsChanged;
+                if (handler != null)
+                    handler(this);
+            }
         }
 
         #region Drawing, objectbuilder, init & close
@@ -925,6 +931,12 @@ namespace Sandbox.Game.Entities
             this.Render.PersistentFlags = MyPersistentEntityFlags2.CastShadows;
             if (objectBuilder != null)
             {
+                if (objectBuilder.EntityDefinitionId.HasValue)
+                {
+                    DefinitionId = objectBuilder.EntityDefinitionId;
+                    InitFromDefinition(objectBuilder, DefinitionId.Value);
+                }
+
                 if (objectBuilder.PositionAndOrientation.HasValue)
                 {
                     var posAndOrient = objectBuilder.PositionAndOrientation.Value;
@@ -932,9 +944,9 @@ namespace Sandbox.Game.Entities
                     MyUtils.AssertIsValid(matrix);
 
                     PositionComp.SetWorldMatrix((MatrixD)matrix);
-                    if(MyPerGameSettings.LimitedWorld)
+                    if (MyPerGameSettings.LimitedWorld)
                     {
-                        ClampToWorld();                    
+                        ClampToWorld();
                     }
                 }
                 // Do not copy EntityID if it gets overwritten later. It might
@@ -1068,7 +1080,7 @@ namespace Sandbox.Game.Entities
 
                         // Set this to false becase no one else is responsible for rendering subparts
                         subpart.Render.NeedsDrawFromParent = false;
-                        
+
                         subpart.PositionComp.LocalMatrix = data.InitialTransform;
                         Subparts[data.Name] = subpart;
 
@@ -1142,7 +1154,11 @@ namespace Sandbox.Game.Entities
 
 
             if (Parent == null) //only root objects are in entities list
+            {
+                // Commented out - causes assertion when pasting grids
+                //Debug.Assert(MyEntities.Exist(this), "Entity does not have parent and is not in MyEntities");
                 MyEntities.Remove(this);
+            }
             else
             {
                 Parent.Hierarchy.Children.Remove(this.Hierarchy);
@@ -1164,19 +1180,19 @@ namespace Sandbox.Game.Entities
 
             CallAndClearOnClose();
 
-			Components.Clear();
+            Components.Clear();
 
             ClearDebugRenderComponents();
 
             Closed = true;
         }
 
-        protected virtual void BeforeDelete() 
+        protected virtual void BeforeDelete()
         {
         }
 
         protected virtual void Closing()
-        { 
+        {
         }
 
         /// <summary>
@@ -1241,6 +1257,11 @@ namespace Sandbox.Game.Entities
                 objBuilder.PersistentFlags = Render.PersistentFlags;
 
                 objBuilder.ComponentContainer = Components.Serialize();
+
+                if (this.DefinitionId.HasValue)
+                {
+                    objBuilder.EntityDefinitionId = DefinitionId.Value;
+                }
             }
             return objBuilder;
         }
@@ -1271,5 +1292,52 @@ namespace Sandbox.Game.Entities
             return this.GetType().Name + " {" + EntityId.ToString("X8") + "}";
         }
 
+
+        public void InitFromDefinition(MyObjectBuilder_EntityBase entityBuilder, MyDefinitionId definitionId)
+        {
+            Debug.Assert(entityBuilder != null, "Invalid arguments!");
+
+            MyPhysicalItemDefinition entityDefinition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(definitionId, out entityDefinition))
+            {
+                Debug.Fail("Definition: " + DefinitionId.ToString() + " was not found!");
+                return;
+            }
+
+            DefinitionId = definitionId;
+
+            Flags |= EntityFlags.Visible | EntityFlags.NeedsDraw | EntityFlags.Sync | EntityFlags.InvalidateOnMove;
+
+            StringBuilder name = new StringBuilder(entityDefinition.DisplayNameText);
+
+            Init(name, entityDefinition.Model, null, null, null);
+
+            CreateSync();
+
+            if (entityBuilder.PositionAndOrientation.HasValue)
+            {
+                MatrixD worldMatrix = MatrixD.CreateWorld(
+                                                        (Vector3D)entityBuilder.PositionAndOrientation.Value.Position,
+                                                        (Vector3)entityBuilder.PositionAndOrientation.Value.Forward,
+                                                        (Vector3)entityBuilder.PositionAndOrientation.Value.Up);
+                PositionComp.SetWorldMatrix(worldMatrix);
+            }
+
+            Name = name.Append("_(").Append(entityBuilder.EntityId).Append(")").ToString();
+
+            Render.UpdateRenderObject(true);
+
+            Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
+            if (ModelCollision != null && ModelCollision.HavokCollisionShapes.Length >= 1)
+            {
+                HkMassProperties massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(entityDefinition.Size / 2, (MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(entityDefinition.Mass) : entityDefinition.Mass)); ;
+                Physics.CreateFromCollisionObject(ModelCollision.HavokCollisionShapes[0], Vector3.Zero, WorldMatrix, massProperties);
+                Physics.RigidBody.AngularDamping = 2;
+                Physics.RigidBody.LinearDamping = 1;
+            }
+            Physics.Enabled = true;
+
+            EntityId = entityBuilder.EntityId;
+        }
     }
 }

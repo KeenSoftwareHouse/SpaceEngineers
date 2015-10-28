@@ -7,7 +7,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 namespace Sandbox.Game.World
 {
 
-    public struct MySunProperties
+    public class MySunProperties //must be class because of debug screens
     {
         // Sun & ambient
         public float SunIntensity;
@@ -25,6 +25,29 @@ namespace Sandbox.Game.World
 
         public Color BackgroundColor;
         public Vector3 SunDirectionNormalized;
+        public Vector3 BaseSunDirectionNormalized;
+
+        public MySunProperties() { }
+        public MySunProperties(MySunProperties from)
+        {
+            SunIntensity = from.SunIntensity;
+            SunDiffuse = from.SunDiffuse;
+            SunSpecular = from.SunSpecular;
+            SunMaterial = from.SunMaterial;
+
+            BackSunIntensity = from.BackSunIntensity;
+            BackSunDiffuse = from.BackSunDiffuse;
+
+            AmbientColor = from.AmbientColor;
+            AmbientMultiplier = from.AmbientMultiplier;
+            EnvironmentAmbientIntensity = from.EnvironmentAmbientIntensity;
+            SunSizeMultiplier = from.SunSizeMultiplier;
+
+            BackgroundColor = from.BackgroundColor;
+            SunDirectionNormalized = from.SunDirectionNormalized;
+            BaseSunDirectionNormalized = from.BaseSunDirectionNormalized;
+        }
+
 
         public static MySunProperties Default = new MySunProperties()
         {
@@ -34,7 +57,8 @@ namespace Sandbox.Game.World
             AmbientColor = new Color(0.1f),
             SunSizeMultiplier = 100,
             BackgroundColor = Color.White,
-            SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f)
+            SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f),
+            BaseSunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f)
         };
 
         /// <param name="interpolator">0 - use this object, 1 - use other object</param>
@@ -77,7 +101,7 @@ namespace Sandbox.Game.World
             builder.SunSizeMultiplier = SunSizeMultiplier;
             builder.BackgroundColor = BackgroundColor.ToVector3();
             builder.SunMaterial = SunMaterial;
-            builder.SunDirection = SunDirectionNormalized;
+            builder.SunDirection = BaseSunDirectionNormalized;
         }
 
         public void Deserialize(MyObjectBuilder_EnvironmentDefinition builder)
@@ -94,6 +118,7 @@ namespace Sandbox.Game.World
             BackgroundColor = new Color((Vector3)builder.BackgroundColor);
             SunMaterial = builder.SunMaterial;
             SunDirectionNormalized = Vector3.Normalize(builder.SunDirection);
+            BaseSunDirectionNormalized = SunDirectionNormalized;
         }
     }
 }

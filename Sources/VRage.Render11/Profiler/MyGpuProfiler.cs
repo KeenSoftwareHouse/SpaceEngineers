@@ -171,7 +171,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void StartFrame()
         {
             if (m_pooledFrames.Count == 0)
@@ -189,7 +189,7 @@ namespace VRageRender
             IC_BeginBlock("Frame");
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void EndFrame()
         {
             if (m_currentFrame == null)
@@ -203,13 +203,13 @@ namespace VRageRender
             m_frames.Enqueue(m_currentFrame);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_BeginBlock(string tag)
         {
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_EndBlock()
         {
             MyImmediateRC.RC.EndProfilingBlock();

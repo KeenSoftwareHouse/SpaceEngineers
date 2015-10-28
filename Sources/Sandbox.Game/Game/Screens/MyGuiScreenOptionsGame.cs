@@ -4,11 +4,10 @@ using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Gui
 {
@@ -24,8 +23,8 @@ namespace Sandbox.Game.Gui
             public bool DisableHeadbob;
             public bool CompressSaveGames;
             public bool ShowPlayerNamesOnHud;
-            public float UITransparency;
-            public float UIBkTransparency;
+            public float UIOpacity;
+            public float UIBkOpacity;
         }
 
         MyGuiControlCombobox m_languageCombobox;
@@ -36,14 +35,14 @@ namespace Sandbox.Game.Gui
         MyGuiControlCheckbox m_disableHeadbobCheckbox;
         MyGuiControlCheckbox m_compressSavesCheckbox;
         MyGuiControlCheckbox m_showPlayerNamesCheckbox;
-        MyGuiControlSlider m_UITransparencySlider;
-        MyGuiControlSlider m_UIBkTransparencySlider;
+        MyGuiControlSlider m_UIOpacitySlider;
+        MyGuiControlSlider m_UIBkOpacitySlider;
         private MyGuiControlButton m_localizationWebButton;
         private MyGuiControlLabel m_localizationWarningLabel;
-        private OptionsGameSettings m_settings = new OptionsGameSettings() { UITransparency = 1.0f, UIBkTransparency = 1.0f };
+        private OptionsGameSettings m_settings = new OptionsGameSettings() { UIOpacity = 1.0f, UIBkOpacity = 1.0f };
 
         public MyGuiScreenOptionsGame()
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, size: new Vector2(0.51f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, size: new Vector2(0.51f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkOpacity, guiTransition: MySandboxGame.Config.UIOpacity)
         {
             EnabledBackgroundFade = true;
 
@@ -133,18 +132,22 @@ namespace Sandbox.Game.Gui
             m_controlHintsCheckbox.IsCheckedChanged += checkboxChanged;
 
             //  Rotation gizmo
-            rowIndex++;
-            var rotationHintsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ShowRotationHints))
+            MyGuiControlLabel rotationHintsLabel = null;
+            if (MyFakes.ENABLE_ROTATION_HINTS)
             {
-                Position = controlsOriginLeft + rowIndex * controlsDelta,
-                OriginAlign = leftAlign
-            };
-            m_rotationHintsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsShowRotationHints))
-            {
-                Position = controlsOriginRight + rowIndex * controlsDelta,
-                OriginAlign = rightAlign,
-            };
-            m_rotationHintsCheckbox.IsCheckedChanged += checkboxChanged;
+                rowIndex++;
+                rotationHintsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ShowRotationHints))
+                {
+                    Position = controlsOriginLeft + rowIndex * controlsDelta,
+                    OriginAlign = leftAlign
+                };
+                m_rotationHintsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsShowRotationHints))
+                {
+                    Position = controlsOriginRight + rowIndex * controlsDelta,
+                    OriginAlign = rightAlign,
+                };
+                m_rotationHintsCheckbox.IsCheckedChanged += checkboxChanged;
+            }
 
             //  Show crosshair?
             rowIndex++;
@@ -202,13 +205,13 @@ namespace Sandbox.Game.Gui
             m_showPlayerNamesCheckbox.IsCheckedChanged += checkboxChanged;
 
             rowIndex++;
-            var UITransparencyLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UITransparency))
+			var UIOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UIOpacity))
             {
                 Position = controlsOriginLeft + rowIndex * controlsDelta,
                 OriginAlign = leftAlign
             };
             rowIndex++;
-            m_UITransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUITransparency), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
+			m_UIOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUIOpacity), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
             {
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
@@ -216,13 +219,13 @@ namespace Sandbox.Game.Gui
             
 
             rowIndex++;
-            var UIBkTransparencyLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UIBkTransparency))
+			var UIBkOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UIBkOpacity))
             {
                 Position = controlsOriginLeft + rowIndex * controlsDelta,
                 OriginAlign = leftAlign
             };
             rowIndex++;
-            m_UIBkTransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUIBkTransparency), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
+			m_UIBkOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUIBkOpacity), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
             {
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
@@ -246,9 +249,11 @@ namespace Sandbox.Game.Gui
             Controls.Add(buildingModeLabel);
             Controls.Add(m_buildingModeCombobox);
             Controls.Add(controlHintsLabel);
-            Controls.Add(rotationHintsLabel);
+            if (rotationHintsLabel != null)
+                Controls.Add(rotationHintsLabel);
             Controls.Add(m_controlHintsCheckbox);
-            Controls.Add(m_rotationHintsCheckbox);
+            if (m_rotationHintsCheckbox != null)
+                Controls.Add(m_rotationHintsCheckbox);
             Controls.Add(crosshairLabel);
             Controls.Add(m_crosshairCheckbox);
             Controls.Add(headbobLabel);
@@ -257,18 +262,18 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_compressSavesCheckbox);
             Controls.Add(showPlayerNamesOnHudLabel);
             Controls.Add(m_showPlayerNamesCheckbox);
-            Controls.Add(UITransparencyLabel);
-            Controls.Add(m_UITransparencySlider);
-            Controls.Add(UIBkTransparencyLabel);
-            Controls.Add(m_UIBkTransparencySlider);
+            Controls.Add(UIOpacityLabel);
+            Controls.Add(m_UIOpacitySlider);
+            Controls.Add(UIBkOpacityLabel);
+            Controls.Add(m_UIBkOpacitySlider);
             Controls.Add(buttonOk);
             Controls.Add(buttonCancel);
 
             //  Update controls with values from config file
             UpdateControls(constructor);
 
-            m_UITransparencySlider.ValueChanged += sliderChanged;
-            m_UIBkTransparencySlider.ValueChanged += sliderChanged;
+            m_UIOpacitySlider.ValueChanged += sliderChanged;
+            m_UIBkOpacitySlider.ValueChanged += sliderChanged;
 
             CloseButtonEnabled = true;
         }
@@ -278,7 +283,7 @@ namespace Sandbox.Game.Gui
         {
             if (obj == m_controlHintsCheckbox)
                 m_settings.ControlHints = obj.IsChecked;
-            else if (obj == m_rotationHintsCheckbox)
+            else if (m_rotationHintsCheckbox != null && obj == m_rotationHintsCheckbox)
                 m_settings.RotationHints = obj.IsChecked;
             else if (obj == m_crosshairCheckbox)
                 m_settings.ShowCrosshair = obj.IsChecked;
@@ -292,14 +297,14 @@ namespace Sandbox.Game.Gui
 
         private void sliderChanged(MyGuiControlSlider obj)
         {
-            if (obj == m_UITransparencySlider)
+            if (obj == m_UIOpacitySlider)
             {
-                m_settings.UITransparency = obj.Value;
+                m_settings.UIOpacity = obj.Value;
                 m_guiTransition = obj.Value;
             }
-            else if (obj == m_UIBkTransparencySlider)
+            else if (obj == m_UIBkOpacitySlider)
             {
-                m_settings.UIBkTransparency = obj.Value;
+                m_settings.UIBkOpacity = obj.Value;
                 m_backgroundTransition = obj.Value;
             }
         }
@@ -355,26 +360,28 @@ namespace Sandbox.Game.Gui
                 m_languageCombobox.SelectItemByKey((int)MySandboxGame.Config.Language);
                 m_buildingModeCombobox.SelectItemByKey((int)MyCubeBuilder.BuildingMode);
                 m_controlHintsCheckbox.IsChecked = MySandboxGame.Config.ControlsHints;
-                m_rotationHintsCheckbox.IsChecked = MySandboxGame.Config.RotationHints;
+                if (m_rotationHintsCheckbox != null)
+                    m_rotationHintsCheckbox.IsChecked = MySandboxGame.Config.RotationHints;
                 m_crosshairCheckbox.IsChecked = MySandboxGame.Config.ShowCrosshair;
                 m_disableHeadbobCheckbox.IsChecked = MySandboxGame.Config.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = MySandboxGame.Config.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = MySandboxGame.Config.ShowPlayerNamesOnHud;
-                m_UITransparencySlider.Value = MySandboxGame.Config.UITransparency;
-                m_UIBkTransparencySlider.Value = MySandboxGame.Config.UIBkTransparency;
+                m_UIOpacitySlider.Value = MySandboxGame.Config.UIOpacity;
+                m_UIBkOpacitySlider.Value = MySandboxGame.Config.UIBkOpacity;
             }
             else
             {
                 m_languageCombobox.SelectItemByKey((int)m_settings.Language);
                 m_buildingModeCombobox.SelectItemByKey((int)m_settings.BuildingMode);
                 m_controlHintsCheckbox.IsChecked = m_settings.ControlHints;
-                m_rotationHintsCheckbox.IsChecked = m_settings.RotationHints;
+                if (m_rotationHintsCheckbox != null)
+                    m_rotationHintsCheckbox.IsChecked = m_settings.RotationHints;
                 m_crosshairCheckbox.IsChecked = m_settings.ShowCrosshair;
                 m_disableHeadbobCheckbox.IsChecked = m_settings.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = m_settings.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = m_settings.ShowPlayerNamesOnHud;
-                m_UITransparencySlider.Value = m_settings.UITransparency;
-                m_UIBkTransparencySlider.Value = m_settings.UIBkTransparency;
+                m_UIOpacitySlider.Value = m_settings.UIOpacity;
+                m_UIBkOpacitySlider.Value = m_settings.UIBkOpacity;
             }
         }
 
@@ -384,13 +391,14 @@ namespace Sandbox.Game.Gui
             MyScreenManager.RecreateControls();
             MyCubeBuilder.BuildingMode = (MyCubeBuilder.BuildingModeEnum)m_buildingModeCombobox.GetSelectedKey();
             MySandboxGame.Config.ControlsHints = m_controlHintsCheckbox.IsChecked;
-            MySandboxGame.Config.RotationHints = m_rotationHintsCheckbox.IsChecked;
+            if (m_rotationHintsCheckbox != null)
+                MySandboxGame.Config.RotationHints = m_rotationHintsCheckbox.IsChecked;
             MySandboxGame.Config.ShowCrosshair = m_crosshairCheckbox.IsChecked;
             MySandboxGame.Config.DisableHeadbob = m_disableHeadbobCheckbox.IsChecked;
             MySandboxGame.Config.CompressSaveGames = m_compressSavesCheckbox.IsChecked;
             MySandboxGame.Config.ShowPlayerNamesOnHud = m_showPlayerNamesCheckbox.IsChecked;
-            MySandboxGame.Config.UITransparency = m_UITransparencySlider.Value;
-            MySandboxGame.Config.UIBkTransparency = m_UIBkTransparencySlider.Value;
+            MySandboxGame.Config.UIOpacity = m_UIOpacitySlider.Value;
+            MySandboxGame.Config.UIBkOpacity = m_UIBkOpacitySlider.Value;
             MySandboxGame.Config.Save();
         }
 

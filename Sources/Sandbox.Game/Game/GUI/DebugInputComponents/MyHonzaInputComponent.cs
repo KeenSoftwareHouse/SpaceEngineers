@@ -5,6 +5,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using System;
@@ -111,10 +112,21 @@ namespace Sandbox.Game.Gui
             AddShortcut(MyKeys.NumPad9, true, false, false, false,
                 () => "",
                 () => { m_drawBodyInfo = !m_drawBodyInfo; m_drawUpdateInfo = !m_drawUpdateInfo; return true; });
+            AddShortcut(MyKeys.NumPad6, true, false, false, false,
+                () => "Prioritize: " + (MyFakes.PRIORITIZE_PRECALC_JOBS ? "On" : "Off"),
+                () => { MyFakes.PRIORITIZE_PRECALC_JOBS = !MyFakes.PRIORITIZE_PRECALC_JOBS; return true; });
         }
 
         private bool Diff()
         {
+            foreach(var ent in MyEntities.GetEntities())
+            {
+                if((ent.PositionComp.GetPosition() - MySession.ControlledEntity.Entity.PositionComp.GetPosition()).Length() > 100)
+                {
+                    ent.Close();
+                }
+            }
+            return true;
             if (!m_snapA.HasValue)
                 m_snapA = HkBaseSystem.GetMemorySnapshot();
             else
@@ -187,7 +199,7 @@ namespace Sandbox.Game.Gui
             }
 
             Vector2 pos = new Vector2(400, 10);
-
+            MyEntity hitEntity = null;
             if (MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsNewLeftMousePressed() && SelectedEntity != null)
                 SelectedEntity = null;
 
@@ -203,6 +215,7 @@ namespace Sandbox.Game.Gui
                 {
                     body = hit.HkHitInfo.Body;
                     if (body == null || body.Layer == MyPhysics.NoCollisionLayer) continue;
+                    hitEntity = hit.HkHitInfo.GetHitEntity() as MyEntity;
                     if (MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsNewLeftMousePressed())
                         SelectedEntity = hit.HkHitInfo.GetHitEntity();
                     var sb = new System.Text.StringBuilder("ShapeKeys: ");
@@ -214,29 +227,31 @@ namespace Sandbox.Game.Gui
                     }
                     VRageRender.MyRenderProxy.DebugDrawText2D(pos, sb.ToString(), Color.White, 0.7f);
                     pos.Y += 20;
-                    if(body.GetBody() != null)
-                        VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Weld: {0}",body.GetBody().WeldInfo.Children.Count), Color.White, 0.7f);
+                    if (hitEntity != null)
+                    {
+                        VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Weld: {0}", hitEntity.Physics.WeldInfo.Children.Count), Color.White, 0.7f);
+                    }
                     pos.Y += 20;
                     break;
                 }
             }
-            if (MySector.MainCamera != null)
-            {
-                LineD line = new LineD(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 100);
-                var intersect = MyEntities.GetIntersectionWithLine(ref line, MySession.ControlledEntity.Entity, null);
-                if (intersect.HasValue)
-                {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(pos, intersect.Value.Entity.ToString() + " "
-                          , Color.White, 0.8f);
-                }
-            }
+            //if (MySector.MainCamera != null)
+            //{
+            //    LineD line = new LineD(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 100);
+            //    var intersect = MyEntities.GetIntersectionWithLine(ref line, MySession.ControlledEntity.Entity, null);
+            //    if (intersect.HasValue)
+            //    {
+            //        VRageRender.MyRenderProxy.DebugDrawText2D(pos, intersect.Value.Entity.ToString() + " "
+            //              , Color.White, 0.8f);
+            //    }
+            //}
 
             if(body != null && m_drawBodyInfo)
             {
                 //VRageRender.MyRenderProxy.DebugDrawText2D(pos, body.GetEntity(0).ToString() + " "
                 //       + MyDestructionHelper.MassFromHavok(body.Mass), Color.White, 0.8f);
                 pos.Y += 20;
-                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Layer: " + body.Layer, Color.White, 0.7f);
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Layer: " + body.Layer, body.Layer == 0 ? Color.Red : Color.White, 0.7f);
                 pos.Y += 20;
                 VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Friction: {0}  Restitution: {1}", body.Friction, body.Restitution), Color.White, 0.7f);
                 pos.Y += 20;
@@ -249,6 +264,8 @@ namespace Sandbox.Game.Gui
                 VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Stat: " + (body.IsFixedOrKeyframed ? "true" : "false"), Color.White, 0.7f);
                 pos.Y += 20;
                 VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Solver: " + (body.Motion.GetDeactivationClass()), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Mass: " + body.Mass, Color.White, 0.7f);
                 pos.Y += 20;
                 //VRageRender.MyRenderProxy.DebugDrawText2D(pos, "CharLin: " + MySession.ControlledEntity.Entity.Physics.LinearVelocity.Length(), Color.White, 0.7f);
             }

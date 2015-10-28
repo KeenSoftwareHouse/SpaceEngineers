@@ -72,8 +72,8 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncHelper()
         {
-            MySyncLayer.RegisterMessage<DoDamageMsg>(DoDamage, MyMessagePermissions.Any);
-            MySyncLayer.RegisterMessage<DoDamageSlimBlockMsg>(DoDamageSlimBlock, MyMessagePermissions.Any);
+            MySyncLayer.RegisterMessage<DoDamageMsg>(DoDamage, MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterMessage<DoDamageSlimBlockMsg>(DoDamageSlimBlock, MyMessagePermissions.FromServer);
 			MySyncLayer.RegisterMessage<KillCharacterMsg>(OnKillCharacter, MyMessagePermissions.FromServer);
         }
 

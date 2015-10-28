@@ -6,6 +6,8 @@ using System.ComponentModel;
 using VRage.Animations;
 using VRageMath;
 using Sandbox.Engine.Utils;
+using Sandbox.Common;
+using VRage.Utils;
 
 
 namespace Sandbox.Game.Entities
@@ -27,7 +29,8 @@ namespace Sandbox.Game.Entities
 
     public enum MyFrameOption
     {
-        None,
+        Default,
+        PlayOnce,
         JustFirstFrame,
         StayOnLastFrame,
         Loop
@@ -40,6 +43,26 @@ namespace Sandbox.Game.Entities
     /// </summary>
     internal class AnimationPlayer
     {
+        #region Static
+
+        public static bool ENABLE_ANIMATION_CACHE = false;
+        public static bool ENABLE_ANIMATION_LODS = true;
+
+        static int GetAnimationPlayerHash(AnimationPlayer player)
+        {
+            float positionPrecision = 10;
+            return (player.Name.GetHashCode() * 397) ^
+                (MyUtils.GetHash(player.m_skinnedEntity.Model.UniqueId) * 397) ^
+                    (((int)(player.m_position.GetHashCode() * positionPrecision)) * 397) ^ 
+                     player.m_currentLODIndex.GetHashCode();
+        }
+
+        static Dictionary<int, AnimationPlayer> CachedAnimationPlayers = new Dictionary<int, AnimationPlayer>();
+
+
+        #endregion
+
+
         #region Fields
 
         /// <summary>
@@ -47,16 +70,17 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private float m_position = 0;
 
-        /// <summary>
-        /// The clip we are playing
-        /// </summary>
-        private AnimationClip m_clip = null;
+        private float m_duration = 0;
 
         /// <summary>
         /// We maintain a BoneInfo class for each bone. This class does
         /// most of the work in playing the animation.
         /// </summary>
         private BoneInfo[] m_boneInfos;
+
+        public MyStringId Name { get; private set; }
+
+        Dictionary<float, List<BoneInfo>> m_boneLODs = new Dictionary<float, List<BoneInfo>>();
 
         /// <summary>
         /// The number of bones
@@ -71,12 +95,17 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// The looping option
         /// </summary>
-        private MyFrameOption m_frameOption = MyFrameOption.None;
+        private MyFrameOption m_frameOption = MyFrameOption.PlayOnce;
 
         private float m_weight = 1;
         private float m_timeScale = 1;
 
         private bool m_initialized = false;
+
+        private int m_currentLODIndex = 0;
+        private List<BoneInfo> m_currentLOD;
+
+        private int m_hash = 0;
 
         #endregion
 
@@ -88,8 +117,8 @@ namespace Sandbox.Game.Entities
             {
                 Position += value * m_timeScale;
 
-                if (m_frameOption == MyFrameOption.StayOnLastFrame && Position > Duration)
-                    Position = Duration;
+                if (m_frameOption == MyFrameOption.StayOnLastFrame && Position > m_duration)
+                    Position = m_duration;
             }
             else
                 Position = 0;
@@ -105,12 +134,12 @@ namespace Sandbox.Game.Entities
             {
                 float newVal = value;
 
-                if (newVal > Duration)
+                if (newVal > m_duration)
                 {
                     if (Looping)
-                        newVal = newVal - Duration;
+                        newVal = newVal - m_duration;
                     else
-                        value = Duration;
+                        value = m_duration;
                 }
 
                 m_position = newVal;
@@ -131,28 +160,86 @@ namespace Sandbox.Game.Entities
             set { m_timeScale = value; }
         }
 
-        public void UpdateBones()
+
+        bool t = true;
+        public void UpdateBones(float distance)
         {
-            for (int i = 0; i < m_boneCount; i++)
+            if (!ENABLE_ANIMATION_LODS)
             {
-                BoneInfo bone = m_boneInfos[i];
-                bone.SetPosition(m_position);
+                for (int i = 0; i < m_boneCount; i++)
+                {
+                    BoneInfo bone = m_boneInfos[i];
+                    bone.SetPosition(m_position);
+                }
+                return;
+            }
+
+
+            m_currentLODIndex = -1;
+            m_currentLOD = null;
+            int tmpLOD = 0;
+
+     
+            List<BoneInfo> boneInfos = null;
+
+            foreach (var boneLOD in m_boneLODs)
+            {
+                if (distance > boneLOD.Key)
+                {
+                    boneInfos = boneLOD.Value;
+                    m_currentLODIndex = tmpLOD;
+                    m_currentLOD = boneInfos;
+                }
+                else
+                    break;
+
+                tmpLOD++;
+            }
+
+            if (boneInfos != null)
+            {
+                AnimationPlayer cachedPlayer;
+                if (CachedAnimationPlayers.TryGetValue(m_hash, out cachedPlayer) && cachedPlayer == this)
+                    CachedAnimationPlayers.Remove(m_hash);
+
+                m_hash = GetAnimationPlayerHash(this);
+
+                if (CachedAnimationPlayers.TryGetValue(m_hash, out cachedPlayer))
+                {
+                    System.Diagnostics.Debug.Assert(cachedPlayer != this, "Cannot be cached like this");
+
+                    var cachedHash = GetAnimationPlayerHash(cachedPlayer);
+                    if (m_hash != cachedHash)
+                    {
+                        CachedAnimationPlayers.Remove(m_hash);
+                        cachedPlayer = null;
+                    }
+                }
+
+                if (cachedPlayer != null)
+                {
+                    for (int b = 0; b < boneInfos.Count; b++)
+                    {
+                        boneInfos[b].Translation = cachedPlayer.m_currentLOD[b].Translation;
+                        boneInfos[b].Rotation = cachedPlayer.m_currentLOD[b].Rotation;
+                        boneInfos[b].AssignToCharacterBone();
+                    }
+                }
+                else
+                {
+                    if (boneInfos.Count > 0)
+                    {
+                        if (ENABLE_ANIMATION_CACHE)
+                            CachedAnimationPlayers[m_hash] = this;
+
+                        foreach (var bone in boneInfos)
+                        {
+                            bone.SetPosition(m_position);
+                        }
+                    }                    
+                }
             }
         }
-
-        /// <summary>
-        /// The associated animation clip
-        /// </summary>
-        [Browsable(false)]
-        public AnimationClip Clip { get { return m_clip; } }
-
-        //public MyCharacter Model { get { return m_skinnedEntity; } }
-
-        /// <summary>
-        /// The clip duration
-        /// </summary>
-        [Browsable(false)]
-        public float Duration { get { return (float)m_clip.Duration; } }
 
 
         /// <summary>
@@ -164,7 +251,7 @@ namespace Sandbox.Game.Entities
 
         public bool AtEnd
         {
-            get { return Position >= Duration && m_frameOption != MyFrameOption.StayOnLastFrame; }
+            get { return Position >= m_duration && m_frameOption != MyFrameOption.StayOnLastFrame; }
         }
 
         #endregion
@@ -183,11 +270,19 @@ namespace Sandbox.Game.Entities
 
         public void Initialize(AnimationPlayer player)
         {
-            m_clip = player.Clip;
+            if (m_hash != 0)
+            {
+                CachedAnimationPlayers.Remove(m_hash);
+                m_hash = 0;
+            }
+
+            Name = player.Name;
+            m_duration = player.m_duration;
             m_skinnedEntity = player.m_skinnedEntity;
             m_weight = player.Weight;
             m_timeScale = player.m_timeScale;
             m_frameOption = player.m_frameOption;
+            m_boneLODs.Clear();
 
             m_boneCount = player.m_boneCount;
             if (m_boneInfos == null || m_boneInfos.Length < m_boneCount)
@@ -196,23 +291,55 @@ namespace Sandbox.Game.Entities
 
             Position = player.Position;
 
+
             for (int b = 0; b < m_boneCount; b++)
             {
-                if (m_boneInfos[b] == null)
-                    m_boneInfos[b] = new BoneInfo();
+                var boneInfo = m_boneInfos[b];
+                if (boneInfo == null)
+                {
+                    boneInfo = new BoneInfo();
+                    m_boneInfos[b] = boneInfo;
+                }
+
                 // Create it
-                m_boneInfos[b].ClipBone = player.m_boneInfos[b].ClipBone;
-                m_boneInfos[b].Player = this;
+                boneInfo.ClipBone = player.m_boneInfos[b].ClipBone;
+                boneInfo.Player = this;
                     
                 // Assign it to a model bone
-                m_boneInfos[b].SetModel(m_skinnedEntity);
-                m_boneInfos[b].CurrentKeyframe = player.m_boneInfos[b].CurrentKeyframe;
-                m_boneInfos[b].SetPosition(Position);
+                boneInfo.SetModel(m_skinnedEntity);
+                boneInfo.CurrentKeyframe = player.m_boneInfos[b].CurrentKeyframe;
+                boneInfo.SetPosition(Position);
+
+
+                if (player.m_boneLODs != null && boneInfo.ModelBone != null && ENABLE_ANIMATION_LODS)
+                {
+                    foreach (var boneLOD in player.m_boneLODs)
+                    {
+                        List<BoneInfo> lodBones;
+                        if (!m_boneLODs.TryGetValue(boneLOD.Key, out lodBones))
+                        {
+                            lodBones = new List<BoneInfo>();
+                            m_boneLODs.Add(boneLOD.Key, lodBones);
+                        }
+
+                        foreach (var boneName in boneLOD.Value)
+                        {
+                            if (boneName.ModelBone == null)
+                                continue;
+
+                            if (boneInfo.ModelBone.Name == boneName.ModelBone.Name)
+                            {
+                                lodBones.Add(boneInfo);
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (MyFakes.ENABLE_BONES_AND_ANIMATIONS_DEBUG)
                 {
                     int index;
-                    System.Diagnostics.Debug.Assert(m_skinnedEntity.FindBone(m_boneInfos[b].ClipBone.Name, out index) != null, "Can not find clip bone with name: " + m_boneInfos[b].ClipBone.Name + " in model: " + m_skinnedEntity.Name);
+                    System.Diagnostics.Debug.Assert(m_skinnedEntity.FindBone(boneInfo.ClipBone.Name, out index) != null, "Can not find clip bone with name: " + boneInfo.ClipBone.Name + " in model: " + m_skinnedEntity.Name);
                 }
             }
 
@@ -220,14 +347,25 @@ namespace Sandbox.Game.Entities
             m_initialized = true;
         }
 
-        public void Initialize(AnimationClip clip, MySkinnedEntity skinnedEntity, float weight, float timeScale, MyFrameOption frameOption, string[] explicitBones = null)
+        public void Initialize(MyModel animationModel, string playerName, int clipIndex, MySkinnedEntity skinnedEntity, float weight, float timeScale, MyFrameOption frameOption, string[] explicitBones = null, Dictionary<float, string[]> boneLODs = null)
         {
-            m_clip = clip;
+            if (m_hash != 0)
+            {
+                CachedAnimationPlayers.Remove(m_hash);
+                m_hash = 0;
+            }
+
+            var clip = animationModel.Animations.Clips[clipIndex];
+            Name = MyStringId.GetOrCompute(animationModel.AssetName + " : " + playerName);
+            m_duration = (float)clip.Duration;
             m_skinnedEntity = skinnedEntity;
             m_weight = weight;
             m_timeScale = timeScale;
             m_frameOption = frameOption;
-            
+            m_boneLODs.Clear();
+            var lod0 = new List<BoneInfo>();
+            m_boneLODs.Add(0, lod0);
+
             // Create the bone information classes
             var maxBoneCount = explicitBones == null ? clip.Bones.Count : explicitBones.Length;
             if (m_boneInfos == null || m_boneInfos.Length < maxBoneCount)
@@ -245,10 +383,39 @@ namespace Sandbox.Game.Entities
                     continue;
 
                 // Create it
-                m_boneInfos[neededBonesCount] = new BoneInfo(bone, this);
+                var boneInfo = new BoneInfo(bone, this);
+
+                m_boneInfos[neededBonesCount] = boneInfo;
 
                 // Assign it to a model bone
                 m_boneInfos[neededBonesCount].SetModel(skinnedEntity);
+
+                if (boneInfo.ModelBone != null)
+                {
+                    lod0.Add(boneInfo);
+
+                    if (boneLODs != null)
+                    {
+                        foreach (var boneLOD in boneLODs)
+                        {
+                            List<BoneInfo> lodBones;
+                            if (!m_boneLODs.TryGetValue(boneLOD.Key, out lodBones))
+                            {
+                                lodBones = new List<BoneInfo>();
+                                m_boneLODs.Add(boneLOD.Key, lodBones);
+                            }
+
+                            foreach (var boneName in boneLOD.Value)
+                            {
+                                if (boneInfo.ModelBone.Name == boneName)
+                                {
+                                    lodBones.Add(boneInfo);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 neededBonesCount++;
             }
@@ -263,6 +430,7 @@ namespace Sandbox.Game.Entities
         public void Done()
         {
             m_initialized = false;
+            CachedAnimationPlayers.Remove(m_hash);
         }
 
         public bool IsInitialized
@@ -324,12 +492,12 @@ namespace Sandbox.Game.Entities
             /// <summary>
             /// Current animation rotation
             /// </summary>
-            private Quaternion m_rotation;
+            public Quaternion Rotation;
 
             /// <summary>
             /// Current animation translation
             /// </summary>
-            public Vector3 m_translation;
+            public Vector3 Translation;
 
             public AnimationPlayer Player;
 
@@ -433,8 +601,8 @@ namespace Sandbox.Game.Entities
                     if (Keyframe1 == Keyframe2)
                     {
                         // Keyframes are equal
-                        m_rotation = Keyframe1.Rotation;
-                        m_translation = Keyframe1.Translation;
+                        Rotation = Keyframe1.Rotation;
+                        Translation = Keyframe1.Translation;
                     }
                     else
                     {
@@ -443,19 +611,24 @@ namespace Sandbox.Game.Entities
 
                         t = MathHelper.Clamp(t, 0, 1);
 
-                        Quaternion.Slerp(ref Keyframe1.Rotation, ref Keyframe2.Rotation, t, out m_rotation);
-                        Vector3.Lerp(ref Keyframe1.Translation, ref Keyframe2.Translation, t, out m_translation);
+                        Quaternion.Slerp(ref Keyframe1.Rotation, ref Keyframe2.Rotation, t, out Rotation);
+                        Vector3.Lerp(ref Keyframe1.Translation, ref Keyframe2.Translation, t, out Translation);
                     }
                 }
 
+                AssignToCharacterBone();
+            }
+
+            public void AssignToCharacterBone()
+            {
                 if (m_assignedBone != null)
                 {
-                    Quaternion rotation = m_rotation;
+                    Quaternion rotation = Rotation;
 
                     Quaternion additionalRotation = Player.m_skinnedEntity.GetAdditionalRotation(m_assignedBone.Name);
-                    rotation = m_rotation * additionalRotation;
+                    rotation = Rotation * additionalRotation;
 
-                    m_assignedBone.SetCompleteTransform(ref m_translation, ref rotation, Player.Weight);
+                    m_assignedBone.SetCompleteTransform(ref Translation, ref rotation, Player.Weight);
                 }
             }
 

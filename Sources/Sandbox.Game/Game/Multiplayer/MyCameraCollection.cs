@@ -90,7 +90,7 @@ namespace Sandbox.Game.Multiplayer
         {
             PlayerId pid = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
             Vector2 headAngle = new Vector2(msg.HeadX, msg.HeadY);
-            MyPlayer player = MySession.Static.Players.TryGetPlayerById(pid);
+            MyPlayer player = MySession.Static.Players.GetPlayerById(pid);
             if (player != null && player.Character != null && player.Character.EntityId == msg.EntityId)
                 MySession.Static.Cameras.AddCharacterCameraData(pid, msg.IsFirstPerson, msg.Distance, headAngle);
             else
@@ -159,7 +159,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MyPlayer client = null;
             if (MySandboxGame.IsDedicated)
-                client = MySession.Static.Players.TryGetPlayerById(pid);
+                client = MySession.Static.Players.GetPlayerById(pid);
             else
                 client = MySession.LocalHumanPlayer;
 

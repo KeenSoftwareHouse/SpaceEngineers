@@ -11,8 +11,6 @@ namespace Sandbox.Definitions
     {
         public MyDefinitionId StartingWeaponDefinitionId;
         public List<MyDefinitionId> InventoryItems;
-        public bool InventoryContentGenerated = false;
-        public MyDefinitionId InventoryContainerTypeId;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -26,11 +24,6 @@ namespace Sandbox.Definitions
             {
                 foreach (var item in ob.InventoryItems)
                     InventoryItems.Add(new MyDefinitionId(item.Type, item.Subtype));
-            }
-            InventoryContentGenerated = ob.InventoryContentGenerated;
-            if (ob.InventoryContainerTypeId.HasValue)
-            {
-                InventoryContainerTypeId = ob.InventoryContainerTypeId.Value;
             }
         }
     }

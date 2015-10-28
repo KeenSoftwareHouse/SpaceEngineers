@@ -6,7 +6,6 @@ using System.Text;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 
 namespace Sandbox.Game.Screens
 {

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
 using VRageRender;
 

@@ -38,6 +38,8 @@ namespace VRageRender
         ALPHAMASK = 2,
         TRANSPARENT = 4,
         DITHERED = 8,
+		USE_SHADOW_CASCADES = 16,
+        ALPHAMASK_ARRAY = 32,
 
         USE_SKINNING = 0x100,
         USE_VOXEL_MORPHING = 0x2000,
@@ -49,7 +51,7 @@ namespace VRageRender
         USE_MERGE_INSTANCING = 0x1000,
 
         // hacks
-        FOLIAGE = 0x10000
+        FOLIAGE = 0x10000,
     }
 
 }

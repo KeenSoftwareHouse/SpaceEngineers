@@ -90,7 +90,7 @@ namespace Sandbox.Game.Components
             {
                 var world = m_character.PositionComp.WorldMatrix;
 
-                VRageRender.MyRenderProxy.DebugDrawText3D(world.Translation + 2f * world.Up, string.Format("{0} MWh", m_character.SuitBattery.RemainingCapacity),
+                VRageRender.MyRenderProxy.DebugDrawText3D(world.Translation + 2f * world.Up, string.Format("{0} MWh", m_character.SuitBattery.ResourceSource.RemainingCapacity),
                     Color.White, 1f, true, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             }
 

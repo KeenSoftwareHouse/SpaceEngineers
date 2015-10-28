@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.EntityComponents;
+using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using VRage.Audio;
 using VRage.Library.Utils;
@@ -331,7 +333,7 @@ namespace Sandbox.Game.Gui
                 return false;
         }
 
-        private static bool IsEnergyUnderTreshold(int treshold)
+        private static bool IsEnergyUnderTreshold(float treshold)
         {
             if (MySession.Static.CreativeMode || MySession.ControlledEntity == null)
                 return false;
@@ -340,14 +342,15 @@ namespace Sandbox.Game.Gui
                 var character = MySession.LocalCharacter;
                 if (character == null) return false;
 
-                if (character.SuitBattery.PowerReceiver.CurrentInput > 0)
+                if (character.SuitBattery.ResourceSink.CurrentInput > 0)
                     return false;
-                return (character.SuitBattery.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) * 100 < treshold && !character.IsDead;
+                return (character.SuitBattery.ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId) / MyEnergyConstants.BATTERY_MAX_CAPACITY) <= treshold && !character.IsDead;
             }
             else if (MySession.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
             {
                 var grid = (MySession.ControlledEntity.Entity as MyCockpit).CubeGrid;
-                return MyHud.ShipInfo.FuelRemainingTime * 60 < treshold && grid.GridSystems.PowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.AllDisabled && grid.GridSystems.PowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.NoObjects;
+                var sourcesEnabled = grid.GridSystems.ResourceDistributor.SourcesEnabledByType(MyResourceDistributorComponent.ElectricityId);
+                return MyHud.ShipInfo.FuelRemainingTime * 60 < treshold && sourcesEnabled != MyMultipleEnabledEnum.AllDisabled && sourcesEnabled != MyMultipleEnabledEnum.NoObjects;
             }
             else
                 return false;
@@ -369,7 +372,7 @@ namespace Sandbox.Game.Gui
         {
             cue = MyGuiSounds.None;
             text = MySpaceTexts.Blank;
-            if(!IsEnergyUnderTreshold(5))
+            if(!IsEnergyUnderTreshold(MyBattery.EnergyLowThreshold))
                 return false;
             if (MySession.ControlledEntity.Entity is MyCharacter)
             {
@@ -391,11 +394,11 @@ namespace Sandbox.Game.Gui
                     cue = MyGuiSounds.HudVocShipFuelLow;
                 if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
-                    text = MySpaceTexts.NotificationSuitEnergyLowNoDamage;
+                    text = MySpaceTexts.NotificationShipEnergyLowNoDamage;
                 }
                 else
                 {
-                    text = MySpaceTexts.NotificationSuitEnergyLow;
+                    text = MySpaceTexts.NotificationShipEnergyLow;
                 }
             }
             else
@@ -407,7 +410,7 @@ namespace Sandbox.Game.Gui
         {
             cue = MyGuiSounds.None;
             text = MySpaceTexts.Blank;
-            if (!IsEnergyUnderTreshold(1))
+            if (!IsEnergyUnderTreshold(MyBattery.EnergyCriticalThreshold))
                 return false;
             if (MySession.ControlledEntity.Entity is MyCharacter || MySession.ControlledEntity == null)
             {
@@ -429,11 +432,11 @@ namespace Sandbox.Game.Gui
                     cue = MyGuiSounds.HudVocShipFuelCrit;
                 if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
-                    text = MySpaceTexts.NotificationSuitEnergyCriticalNoDamage;
+                    text = MySpaceTexts.NotificationShipEnergyCriticalNoDamage;
                 }
                 else
                 {
-                    text = MySpaceTexts.NotificationSuitEnergyCritical;
+                    text = MySpaceTexts.NotificationShipEnergyCritical;
                 }
             }
             else
@@ -445,7 +448,7 @@ namespace Sandbox.Game.Gui
         {
             cue = MyGuiSounds.None;
             text = MySpaceTexts.Blank;
-            if (!IsEnergyUnderTreshold(0))
+            if (!IsEnergyUnderTreshold(0f))
                 return false;
             if (MySession.ControlledEntity.Entity is MyCharacter)
             {

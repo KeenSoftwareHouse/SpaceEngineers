@@ -172,16 +172,17 @@ namespace Sandbox.Game.World
             }
 
             // Setup toolbar
-            if (args.Scenario.DefaultToolbar != null)
+            var defaultToolbar = args.Scenario.DefaultToolbar;
+            if (defaultToolbar != null)
             {
                 // TODO: JakubD fix this
                 MyToolbar toolbar = new MyToolbar(MyToolbarType.Character);
-                toolbar.Init(args.Scenario.DefaultToolbar, player.Character, true);
+                toolbar.Init(defaultToolbar, player.Character, true);
 
                 MySession.Static.Toolbars.RemovePlayerToolbar(player.Id);
                 MySession.Static.Toolbars.AddPlayerToolbar(player.Id, toolbar);
-                MyToolbarComponent.InitToolbar(MyToolbarType.Character, args.Scenario.DefaultToolbar);
-                MyToolbarComponent.InitCharacterToolbar(args.Scenario.DefaultToolbar);
+                MyToolbarComponent.InitToolbar(MyToolbarType.Character, defaultToolbar);
+                MyToolbarComponent.InitCharacterToolbar(defaultToolbar);
             }
         }
 
@@ -202,13 +203,16 @@ namespace Sandbox.Game.World
 
                 if (guns != null)
                 {
+                    uint itemId = 0;
                     foreach (var gun in guns)
                     {
                         var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
                         inventoryItem.Amount = 1;
                         inventoryItem.Content = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(gun.ToString());
+                        inventoryItem.ItemId = itemId++;
                         inventory.Items.Add(inventoryItem);
                     }
+                    inventory.nextItemId = itemId;
                 }
             }
         }
@@ -227,19 +231,58 @@ namespace Sandbox.Game.World
             }
         }
 
-        public static void AddAsteroidPrefab(string prefabName, Vector3 position, string name)
+
+        public static MyVoxelMap AddAsteroidPrefab(string prefabName, MatrixD worldMatrix, string name)
         {
             var fileName = GetVoxelPrefabPath(prefabName);
             var storage = LoadRandomizedVoxelMapPrefab(fileName);
-            AddVoxelMap(name, storage, position);
+            return AddVoxelMap(name, storage, worldMatrix);
         }
 
-        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, Vector3 positionMinCorner, long entityId = 0)
+        public static MyVoxelMap AddAsteroidPrefab(string prefabName, Vector3D position, string name)
+        {
+            var fileName = GetVoxelPrefabPath(prefabName);
+            var storage = LoadRandomizedVoxelMapPrefab(fileName);
+            return AddVoxelMap(name, storage, position);
+        }
+
+        public static MyVoxelMap AddAsteroidPrefabCentered(string prefabName, Vector3D position, MatrixD rotation, string name)
+        {
+            var fileName = GetVoxelPrefabPath(prefabName);
+            var storage = LoadRandomizedVoxelMapPrefab(fileName);
+            Vector3 offset = storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF;
+
+            rotation.Translation = position - offset;
+
+            return AddVoxelMap(name, storage, rotation);
+        }
+
+        public static MyVoxelMap AddAsteroidPrefabCentered(string prefabName, Vector3D position, string name)
+        {
+            var fileName = GetVoxelPrefabPath(prefabName);
+            var storage = LoadRandomizedVoxelMapPrefab(fileName);
+            Vector3 offset = storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF;
+
+            return AddVoxelMap(name, storage, position - offset);
+        }
+
+        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, Vector3D positionMinCorner, long entityId = 0)
         {
             var voxelMap = new MyVoxelMap();
             voxelMap.EntityId = entityId;
             voxelMap.Init(storageName, storage, positionMinCorner);
+            MyEntities.RaiseEntityCreated(voxelMap);
             MyEntities.Add(voxelMap);
+            return voxelMap;
+        }
+
+        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, MatrixD worldMatrix, long entityId = 0)
+        {
+            var voxelMap = new MyVoxelMap();
+            voxelMap.EntityId = entityId;
+            voxelMap.Init(storageName, storage, worldMatrix);
+            MyEntities.Add(voxelMap);
+            MyEntities.RaiseEntityCreated(voxelMap);
             return voxelMap;
         }
 
@@ -278,7 +321,7 @@ namespace Sandbox.Game.World
             AddVoxelMap(voxelFilename, storage, new Vector3(-20, -110, -60) + offset);
         }
 
-        private static MyStorageBase LoadRandomizedVoxelMapPrefab(string prefabFilePath)
+        public static MyStorageBase LoadRandomizedVoxelMapPrefab(string prefabFilePath)
         {
             var storage = MyStorageBase.LoadFromFile(prefabFilePath);
             storage.DataProvider = MyCompositeShapeProvider.CreateAsteroidShape(

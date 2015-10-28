@@ -14,5 +14,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float DropProbability;
 		[ProtoMember]
 		public float DeconstructionEfficiency = 1.0f;
+        [ProtoMember]
+        public int MaxStackAmount = 100;
     }
 }

@@ -523,7 +523,7 @@ namespace Sandbox.Game.Gui
                 maxDecimalDigits = MyInventoryConstants.GUI_DISPLAY_MAX_DECIMALS;
                 asInteger = false;
             }
-            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger);
+            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, MySpaceTexts.DialogAmount_AddAmountCaption, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger);
             dialog.OnConfirmed += onConfirmed;
             MyGuiSandbox.AddScreen(dialog);
         }
@@ -762,9 +762,10 @@ namespace Sandbox.Game.Gui
                 var thrownItem = m_selectedInventoryItem.Value;
                 Debug.Assert(m_focusedGridControl.SelectedIndex.HasValue, "Focused grid has no selected item.");
                 if (m_focusedGridControl.SelectedIndex.HasValue)
-                    m_selectedInventory.RemoveItemsAt(m_focusedGridControl.SelectedIndex.Value, thrownItem.Amount, spawn: true);
-                else
-                    m_selectedInventory.RemoveItemsOfType(thrownItem.Amount, thrownItem.Content, spawn: true);
+                {
+                    m_selectedInventory.DropItem(m_focusedGridControl.SelectedIndex.Value, thrownItem.Amount);
+                }
+             
 
                 //var forward = ownerAsEntity.WorldMatrix.Forward;
                 //var up = ownerAsEntity.WorldMatrix.Up;
@@ -863,7 +864,7 @@ namespace Sandbox.Game.Gui
                                 return;
                             inventoryItem.Amount = (MyFixedPoint)amount;
                             CorrectItemAmount(ref inventoryItem);
-                            MyInventory.Transfer(srcInventory, srcInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex, inventoryItem.Amount);
+                            MyInventory.TransferByUser(srcInventory, srcInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex, inventoryItem.Amount);
                             if (dstGrid.IsValidIndex(eventArgs.DropTo.ItemIndex))
                                 dstGrid.SelectedIndex = eventArgs.DropTo.ItemIndex;
                             else
@@ -873,7 +874,7 @@ namespace Sandbox.Game.Gui
                     }
                     else
                     {
-                        MyInventory.Transfer(srcInventory, srcInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex);
+                        MyInventory.TransferByUser(srcInventory, srcInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex);
                         if (dstGrid.IsValidIndex(eventArgs.DropTo.ItemIndex))
                             dstGrid.SelectedIndex = eventArgs.DropTo.ItemIndex;
                         else
@@ -891,13 +892,13 @@ namespace Sandbox.Game.Gui
                             return;
                         inventoryItem.Amount = (MyFixedPoint)amount;
                         CorrectItemAmount(ref inventoryItem);
-                        MyInventory.Transfer(srcInventory, dstInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex, inventoryItem.Amount);
+                        MyInventory.TransferByUser(srcInventory, dstInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex, inventoryItem.Amount);
                         RefreshSelectedInventoryItem();
                     });
                 }
                 else
                 {
-                    MyInventory.Transfer(srcInventory, dstInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex);
+                    MyInventory.TransferByUser(srcInventory, dstInventory, inventoryItem.ItemId, eventArgs.DropTo.ItemIndex);
                     RefreshSelectedInventoryItem();
                 }
             }

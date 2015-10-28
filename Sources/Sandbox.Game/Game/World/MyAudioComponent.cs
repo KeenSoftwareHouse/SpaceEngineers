@@ -80,17 +80,18 @@ namespace Sandbox.Game.World
 
         public static void PlayContactSound(long entityId, Vector3D position, MyStringHash materialA, MyStringHash materialB, float volume = 1, Func<bool> canHear = null, Func<bool> shouldPlay2D = null)
         {
-            MySoundPair cue = MyMaterialSoundsHelper.Static.GetCollisionCue(m_startCue, materialA, materialB);
-
-            if (!cue.SoundId.IsNull)
+            ProfilerShort.Begin("GetCue");
+            MySoundPair cue = MyMaterialPropertiesHelper.Static.GetCollisionCue(m_startCue, materialA, materialB);
+            if (!cue.SoundId.IsNull && MyAudio.Static.SourceIsCloseEnoughToPlaySound(position, cue.SoundId))
             {
+
                 MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
                 if (emitter == null)
                 {
                     ProfilerShort.End();
                     return;
                 }
-
+                ProfilerShort.BeginNextBlock("Emitter lambdas");
                 MyAudioComponent.ContactSoundsPool.TryAdd(entityId, 0);
                 emitter.StoppedPlaying += (e) =>
                 {
@@ -110,7 +111,7 @@ namespace Sandbox.Game.World
                     emitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add(shouldPlay2D);
                     emitter.StoppedPlaying += remove;
                 }
-
+                ProfilerShort.BeginNextBlock("PlaySound");
                 emitter.SetPosition(position);
                 emitter.PlaySound(cue, true);
 
@@ -122,6 +123,7 @@ namespace Sandbox.Game.World
                     }
                 }
             }
+            ProfilerShort.End();
         }
 
         private static MyStringId m_destructionSound = MyStringId.GetOrCompute("Destruction");

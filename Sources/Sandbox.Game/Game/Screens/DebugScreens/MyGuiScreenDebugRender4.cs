@@ -30,6 +30,8 @@ namespace Sandbox.Game.Gui
             m_currentPosition.Y += 0.01f;
             AddLabel("Image processing", Color.Yellow.ToVector4(), 1.2f);
             AddCheckBox("Enable tonemapping", () => MyPostprocessSettingsWrapper.Settings.EnableTonemapping, (bool b) => MyPostprocessSettingsWrapper.Settings.EnableTonemapping = b);
+            AddCheckBox("Enable eye adaptation", () => MyPostprocessSettingsWrapper.Settings.EnableEyeAdaptation, (bool b) => MyPostprocessSettingsWrapper.Settings.EnableEyeAdaptation = b);
+            AddSlider("Constant Luminance", 0.0001f, 0.1f, () => MyPostprocessSettingsWrapper.Settings.ConstantLuminance, (float f) => MyPostprocessSettingsWrapper.Settings.ConstantLuminance = f);
             AddSlider("Eye adaptation Tau", 0.0f, 10.0f, () => MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau, (float f) => MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = f);
             AddSlider("Exposure", -5.0f, 5.0f, () => MyPostprocessSettingsWrapper.Settings.LuminanceExposure, (float f) => MyPostprocessSettingsWrapper.Settings.LuminanceExposure = f);
             AddSlider("Contrast", -0.5f, 0.5f, () => MyPostprocessSettingsWrapper.Settings.Contrast, (float f) => MyPostprocessSettingsWrapper.Settings.Contrast = f);

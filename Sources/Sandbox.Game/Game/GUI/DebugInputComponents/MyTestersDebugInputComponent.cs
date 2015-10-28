@@ -97,7 +97,7 @@ namespace Sandbox.Game.Gui
                     amount = MyFixedPoint.Min(inventory.ComputeAmountThatFits(itemId), amount);
 
                 var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
-                inventory.AddItems(amount, builder);
+                inventory.DebugAddItems(amount, builder);
             }
 
             CloseScreen();

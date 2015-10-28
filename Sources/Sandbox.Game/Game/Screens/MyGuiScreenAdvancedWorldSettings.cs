@@ -58,7 +58,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
                              m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_stationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
-                             m_spawnWithTools,m_startInRespawnScreen,m_enableVoxelDestruction;
+                             m_spawnWithTools, m_startInRespawnScreen, m_enableVoxelDestruction, m_enableDrones;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
@@ -189,6 +189,7 @@ namespace Sandbox.Game.Gui
             var enableJetpackLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableJetpack);
             var spawnWithToolsLabel = MakeLabel(MySpaceTexts.WorldSettings_SpawnWithTools);
             var startInRespawnScreenLabel = MakeLabel(MySpaceTexts.WorldSettings_StartInRespawnScreen);
+            var enableDronesLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableDrones);
 
             var enableVoxelDestructionLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableVoxelDestruction);
 
@@ -266,6 +267,7 @@ namespace Sandbox.Game.Gui
 
             m_startInRespawnScreen = new MyGuiControlCheckbox();
             m_enableVoxelDestruction = new MyGuiControlCheckbox();
+            m_enableDrones = new MyGuiControlCheckbox();
 
             m_trashRemoval = new MyGuiControlCheckbox();
             m_respawnShipDelete = new MyGuiControlCheckbox();
@@ -412,6 +414,13 @@ namespace Sandbox.Game.Gui
             m_enableJetpack.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableJetpack));
             m_spawnWithTools.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_SpawnWithTools));
             m_startInRespawnScreen.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_StartInRespawnScreen));
+            m_enableDrones.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableDrones));
+            m_enableEncounters.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableEncounters));
+            m_enableSunRotation.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableSunRotation));
+            m_enable3rdPersonCamera.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_Enable3rdPersonCamera));
+            m_enableIngameScripts.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableIngameScripts));
+            m_clientCanSave.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ClientCanSave));
+            m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_CargoShipsEnabled));
 			
 			m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
             m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
@@ -605,6 +614,9 @@ namespace Sandbox.Game.Gui
             spawnWithToolsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableJetpack.Position.Y);
             m_spawnWithTools.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableJetpack.Position.Y);
 
+            enableDronesLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, enableVoxelDestructionLabel.Position.Y);
+            m_enableDrones.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableVoxelDestruction.Position.Y);
+
             if (MyFakes.ENABLE_CARGO_SHIPS)
             {
                 parent.Controls.Add(shipsEnabledLabel);
@@ -683,6 +695,9 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(spawnWithToolsLabel);
             parent.Controls.Add(m_spawnWithTools);
+
+            parent.Controls.Add(enableDronesLabel);
+            parent.Controls.Add(m_enableDrones);
 
           
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
@@ -957,6 +972,7 @@ namespace Sandbox.Game.Gui
             output.SpawnWithTools = m_spawnWithTools.IsChecked;
             output.StartInRespawnScreen = m_startInRespawnScreen.IsChecked;
             output.EnableVoxelDestruction = m_enableVoxelDestruction.IsChecked;
+            output.EnableDrones = m_enableDrones.IsChecked;
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
@@ -1026,11 +1042,13 @@ namespace Sandbox.Game.Gui
             m_sunRotationIntervalSlider.Enabled = m_enableSunRotation.IsChecked;
             m_sunRotationPeriodValue.Visible = m_enableSunRotation.IsChecked;
 
+            m_sunRotationIntervalSlider.Value = 0.03f;//to set value text correctly everytime
             m_sunRotationIntervalSlider.Value = MathHelper.Clamp(MathHelper.InterpLogInv((float)settings.SunRotationIntervalMinutes, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), 0, 1);
             m_maxPlayersSlider.Value = settings.MaxPlayers;
             m_maxFloatingObjectsSlider.Value = settings.MaxFloatingObjects;
 
             m_enableVoxelDestruction.IsChecked = settings.EnableVoxelDestruction;
+            m_enableDrones.IsChecked = settings.EnableDrones;
 
             CheckButton(settings.AssemblerSpeedMultiplier, m_assembler_x1, m_assembler_x3, m_assembler_x10);
             CheckButton(settings.InventorySizeMultiplier, m_inventory_x1, m_inventory_x3, m_inventory_x10);

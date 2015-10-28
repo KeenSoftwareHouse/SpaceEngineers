@@ -45,9 +45,9 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncSpaceBall()
         {
-            MySyncLayer.RegisterMessage<ChangeParamsMsg>(ChangeParamsSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ChangeRestitutionMsg>(OnChangeRestitution, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ChangeBroadcastMsg>(OnChangeBroadcast, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeParamsMsg>(ChangeParamsSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeRestitutionMsg>(OnChangeRestitution, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeBroadcastMsg>(OnChangeBroadcast, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf, MyTransportMessageEnum.Success);
         }
 
         public MySyncSpaceBall(MySpaceBall block)
@@ -62,7 +62,7 @@ namespace Sandbox.Game.Multiplayer
             msg.VirtualMass = virtualMass;
             msg.Friction = friction;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         public void SendChangeRestitutionRequest(float restitution)
@@ -71,7 +71,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.Restitution = restitution;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         public void SendChangeBroadcastRequest(bool isEnabled)
@@ -80,7 +80,7 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.BroadcastEnabled = isEnabled;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);            
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Success);            
         }
 
         static void ChangeParamsSuccess(ref ChangeParamsMsg msg, MyNetworkClient sender)
@@ -92,6 +92,10 @@ namespace Sandbox.Game.Multiplayer
             {
                 block.VirtualMass = msg.VirtualMass;
                 block.Friction = msg.Friction;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
             }
         }
 
@@ -104,6 +108,10 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.Restitution = msg.Restitution;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
             }
         }
 
@@ -116,6 +124,10 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.UpdateRadios(msg.BroadcastEnabled & block.IsWorking);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
             }
         }
     }

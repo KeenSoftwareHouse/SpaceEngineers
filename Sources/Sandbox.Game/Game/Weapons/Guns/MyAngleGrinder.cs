@@ -18,6 +18,7 @@ using VRage.Input;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Networking;
 
 #endregion
 
@@ -110,6 +111,8 @@ namespace Sandbox.Game.Weapons
 
         public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
+            MyAnalyticsHelper.ReportActivityStartIf(!m_activated, this.Owner, "Grinding", "Character", "HandTools", "AngleGrinder", false);
+
             base.Shoot(action, direction, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && IsPreheated && Sync.IsServer && m_activated)
@@ -162,7 +165,7 @@ namespace Sandbox.Game.Weapons
         private void Grind()
         {
             var block = GetTargetBlock();
-            if (block != null)
+            if (block != null && (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) || block.CubeGrid.BlocksDestructionEnabled))
             {
                 float hackMultiplier = 1.0f;
                 if (block.FatBlock != null && Owner != null && Owner.ControllerInfo.Controller != null && Owner.ControllerInfo.Controller.Player != null)
@@ -196,7 +199,15 @@ namespace Sandbox.Game.Weapons
 
             var targetDestroyable = GetTargetDestroyable();
             if (targetDestroyable != null && Sync.IsServer)
+            {
+                //HACK to not grind yourself 
+                if(targetDestroyable is MyCharacter && (targetDestroyable as MyCharacter) == Owner)
+                {
+                    return;
+                }
+
                 targetDestroyable.DoDamage(20, MyDamageType.Grind, true, attackerId: Owner != null ? Owner.EntityId : 0);
+            }
         }
 
         protected override void StartLoopSound(bool effect)

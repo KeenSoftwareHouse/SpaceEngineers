@@ -140,6 +140,8 @@ namespace Sandbox.Game.GUI.HudViewers
             m_sortedMarkers.Clear();
             foreach (var entityMarker in locationMarkers.MarkerEntities)
             {
+                if (entityMarker.Value.Entity.PositionComp == null) //to draw marker entity must have position
+                    continue;
                 m_sortedMarkers.Add(entityMarker.Value);
             }
             m_sortedMarkers.Sort(m_distanceComparer);

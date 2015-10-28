@@ -48,13 +48,6 @@ namespace Sandbox.Game.Gui
             AddSlider("Strength", 0.0f, 10f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.WindStrength));
             AddSlider("Azimuth", 0.0f, 360f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.WindAzimuth));
 
-            m_currentPosition.Y += 0.01f;
-            AddLabel("Cascade splits", Color.Yellow.ToVector4(), 1.2f);
-            AddSlider("Cascade 0 split distance", 1.0f, 1000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.CascadesSplit0));
-            AddSlider("Cascade 1 split distance", 1.0f, 1000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.CascadesSplit1));
-            AddSlider("Cascade 2 split distance", 1.0f, 1000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.CascadesSplit2));
-            AddSlider("Cascade 3 split distance", 1.0f, 1000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.CascadesSplit3));
-
             //m_currentPosition.Y += 0.01f;
             //AddLabel("Foliage lods", Color.Yellow.ToVector4(), 1.2f);
 

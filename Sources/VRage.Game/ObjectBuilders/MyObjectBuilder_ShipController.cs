@@ -18,7 +18,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ControlThrusters = true;
 
         [ProtoMember, DefaultValue(false)]
-        public bool ControlWheels = false;
+        public bool ControlWheels = true;
 
         [ProtoMember]
         public MyObjectBuilder_Toolbar Toolbar;
@@ -28,6 +28,9 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool IsMainCockpit = false;
+
+		[ProtoMember]
+		public bool HorizonIndicatorEnabled = true;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
     <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
     <Compile Include="Gui\MyLayoutVertical.cs" />

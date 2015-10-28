@@ -162,7 +162,7 @@ namespace Sandbox.Game.Entities
 
         public void UpdateHud(bool showMyself = false)
         {
-            if (MySandboxGame.IsDedicated)
+            if (MySandboxGame.IsDedicated || MyHud.MinimalHud)
                 return;
 
             Clear();
