@@ -403,5 +403,105 @@ namespace Sandbox.Game.Entities.Cube
 		{
 			get {  return IsBroadcasting(); }
 		}
+
+    /*
+    Nearby Antenna Patch
+    --------------------
+    Created by "Evrey".
+
+    Implementation of the NA-Patch here.
+    */
+    //
+    private static Dictionary<long,MyRadioAntenna> allExistingAntennas = null;
+    private static long nextAntennaId = 0;
+    //
+    //
+    private MyRadioAntenna FindAntenna(long antennaId) {
+      Debug.Assert(allExistingAntennas != null);
+      MyRadioAntenna found = null;
+      allExistingAntennas.TryGetValue(antennaId, out found);
+      return found;
+    }
+    //
+    private bool IsAntennaReachable(IMyRadioAntenna antenna) {
+      if(antenna != null && antenna.IsBroadcasting) {
+        Vector3D myPos  = this.CubeGrid.GridIntegerToWorld(this.GetPositionInGrid());
+        double   distSq = Vector3D.DistanceSquared(antenna.GetPosition(),myPos);
+        double   radSq  = this.GetRadius();
+        radSq *= radSq;
+        if(radSq >= distSq) { return true; }
+      }
+      return false;
+    }
+    //
+    private MyRadioAntenna FindAntennaInRange(long antennaId) {
+      var found = this.FindAntenna(antennaId);
+      return this.IsAntennaReachable(found) ? found : null;
+    }
+    //
+    //
+    private long antennaId = -1; // TODO impl antennaID
+    long IMyRadioAntenna.AntennaId { get { return antennaId; } }
+    //
+    //
+    float IMyRadioAntenna.DetailScanRange { get { return this.GetRadius() * 0.9f; } }
+    //
+    //
+    private bool dataTransferEnabled = false;
+    private Queue<string> dataQueue = null;
+    bool IMyRadioAntenna.DataTransferEnabled {
+      get { return dataTransferEnabled; }
+      set {
+        dataTransferEnabled = value;
+        // Create the queue on demand, as most antennas won't make use of this patch.
+        if(dataQueue == null) { dataQueue = new Queue<string>(); }
+      }
+    }
+    //
+    public bool ReceiveData(string data) {
+      if(this.dataTransferEnabled) {
+        Debug.Assert(dataQueue != null);
+        dataQueue.Enqueue(data);
+        return true;
+      }
+      return false;
+    }
+    //
+    //
+    bool IMyRadioAntenna.SendToNearbyAntenna(long antennaId, string data) {
+      var target = this.FindAntennaInRange(antennaId);
+      return target == null ? false : target.ReceiveData(data);
+    }
+    //
+    void IMyRadioAntenna.BroadcastToNearbyAntennas(string data) {
+      Debug.Assert(allExistingAntennas != null);
+      foreach(var en in allExistingAntennas) {
+        if(this.IsAntennaReachable(en.Value)) { en.Value.ReceiveData(data); }
+      }
+    }
+    //
+    string IMyRadioAntenna.GetReceivedData() {
+      if(dataQueue != null) {
+        if(dataQueue.Count != 0) { return dataQueue.Dequeue(); }
+      }
+      return null;
+    }
+    //
+    List<long> IMyRadioAntenna.FindNearbyAntennas() {
+      Debug.Assert(allExistingAntennas != null);
+      List<long> found = new List<long>();
+      foreach(var en in allExistingAntennas) {
+        if(this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
+      }
+      return found;
+    }
+    //
+    bool IMyRadioAntenna.IsNearbyAntennaInReach(long antennaId) {
+      return null != this.FindAntennaInRange(antennaId);
+    }
+    //
+    // TODO
+
+
     }
 }
