@@ -13,5 +13,8 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ShowShipName;
         [ProtoMember]
         public bool EnableBroadcasting = true;
+        /* Nearby Antenna Patch
+        */ [ProtoMember]
+        public long AntennaId = -1;
     }
 }
