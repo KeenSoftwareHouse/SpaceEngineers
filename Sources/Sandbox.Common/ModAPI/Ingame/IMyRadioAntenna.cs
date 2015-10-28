@@ -131,7 +131,8 @@ namespace Sandbox.ModAPI.Ingame
         float? GetNearbyAntennaRadius(long antennaId);
         //
         /// <summary>
-        /// Returns the name of the nearby antenna's ship.
+        /// Returns the name of the nearby antenna's ship, if showing
+        /// the ship's name is enabled on the nearby antenna.
         /// </summary>
         /// <param name="antennaId">The ID of the nearby antenna.</param>
         /// <returns><code>null</code> if the other antenna is not broadcasting or out of reach.</returns>

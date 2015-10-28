@@ -17,6 +17,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 using VRage.ModAPI;
+using Sandbox.Game.GameSystems;
 
 #endregion
 
@@ -434,9 +435,28 @@ namespace Sandbox.Game.Entities.Cube
       return false;
     }
     //
+    private bool IsAntennaResponseReachable(MyRadioAntenna antenna) {
+      if(antenna != null && antenna.IsBroadcasting()) {
+        Vector3D myPos   = this.CubeGrid.GridIntegerToWorld(this.GetPositionInGrid());
+        Vector3D pos     = antenna.CubeGrid.GridIntegerToWorld(antenna.GetPositionInGrid());
+        double   distSq  = Vector3D.DistanceSquared(pos,myPos);
+        double   myRadSq = this.GetRadius();
+        double   radSq   = antenna.GetRadius();
+        myRadSq *= myRadSq;
+        radSq   *= radSq;
+        if((myRadSq >= distSq) & (radSq >= distSq)) { return true; }
+      }
+      return false;
+    }
+    //
     private MyRadioAntenna FindAntennaInRange(long antennaId) {
       var found = this.FindAntenna(antennaId);
       return this.IsAntennaReachable(found) ? found : null;
+    }
+    //
+    private MyRadioAntenna FindAntennaInResponseRange(long antennaId) {
+      var found = this.FindAntenna(antennaId);
+      return this.IsAntennaResponseReachable(found) ? found : null;
     }
     //
     //
@@ -500,6 +520,40 @@ namespace Sandbox.Game.Entities.Cube
       return null != this.FindAntennaInRange(antennaId);
     }
     //
+    bool IMyRadioAntenna.IsNearbyAntennaInResponseReach(long antennaId) {
+      return null != this.FindAntennaInResponseRange(antennaId);
+    }
+    //
+    //
+    float? IMyRadioAntenna.GetNearbyAntennaRadius(long antennaId) {
+      var antenna = this.FindAntennaInRange(antennaId);
+      if(antenna != null) { return antenna.GetRadius(); }
+      return null;
+    }
+    //
+    string IMyRadioAntenna.GetNearbyAntennaShipName(long antennaId) {
+      var antenna = this.FindAntennaInRange(antennaId);
+      if(antenna != null && antenna.ShowShipName) {
+        return MyAntennaSystem.GetLogicalGroupRepresentative(antenna.CubeGrid).DisplayName ?? "";
+      }
+      return null;
+    }
+    //
+    Vector3D? IMyRadioAntenna.GetNearbyAntennaPosition(long antennaId) {
+      var antenna = this.FindAntennaInRange(antennaId);
+      if(antenna != null) {
+        return antenna.CubeGrid.GridIntegerToWorld(antenna.GetPositionInGrid());
+      }
+      return null;
+    }
+    //
+    long? IMyRadioAntenna.GetNearbyAntennaOwnerId(long antennaId) {
+      var antenna = this.FindAntennaInRange(antennaId);
+      if(antenna != null) {
+        return antenna.OwnerId;
+      }
+      return null;
+    }
     // TODO
 
 
