@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Sector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Position>
+    <X>0</X>
+    <Y>0</Y>
+    <Z>0</Z>
+  </Position>
+  <SectorObjects>
+    <!--<MyObjectBuilder_EntityBase xsi:type="MyObjectBuilder_FloatingObject">
+      <EntityId>-8589049666040961169</EntityId>
+      <PersistentFlags>Enabled InScene</PersistentFlags>
+      <PositionAndOrientation>
+        <Position x="-15.6369543" y="-3.542548" z="11.207077" />
+        <Forward x="-0.634830236" y="-0.161922008" z="-0.08858998" />
+        <Up x="-0.184537277" y="0.550642669" z="0.315935075" />
+      </PositionAndOrientation>
+      <Item>
+        <AmountDecimal>117</AmountDecimal>
+        <PhysicalContent xsi:type="MyObjectBuilder_Ore">
+          <SubtypeName>Uranium</SubtypeName>
+        </PhysicalContent>
+        <ItemId>0</ItemId>
+      </Item>
+    </MyObjectBuilder_EntityBase>-->
+    <!--<MyObjectBuilder_EntityBase xsi:type="MyObjectBuilder_FloatingObject">
+      <EntityId>-7859438514259142817</EntityId>
+      <PersistentFlags>Enabled InScene</PersistentFlags>
+      <PositionAndOrientation>
+        <Position x="-15.8892574" y="-3.49607277" z="10.8595314" />
+        <Forward x="-0.9718416" y="-0.00113845954" z="0.235632583" />
+        <Up x="0.0005836921" y="0.999973655" z="0.00723875174" />
+      </PositionAndOrientation>
+      <Item>
+        <AmountDecimal>97</AmountDecimal>
+        <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+          <SubtypeName>Gold</SubtypeName>
+        </PhysicalContent>
+        <ItemId>0</ItemId>
+      </Item>
+    </MyObjectBuilder_EntityBase>-->
+    <!--<MyObjectBuilder_EntityBase xsi:type="MyObjectBuilder_FloatingObject">
+      <EntityId>-8953955799972850662</EntityId>
+      <PersistentFlags>Enabled InScene</PersistentFlags>
+      <PositionAndOrientation>
+        <Position x="-15.9348679" y="-3.44823313" z="10.4922447" />
+        <Forward x="-0.7611095" y="-1.77025886E-05" z="0.6486235" />
+        <Up x="-0.6352621" y="0.201948956" z="-0.745425344" />
+      </PositionAndOrientation>
+      <Item>
+        <AmountDecimal>5</AmountDecimal>
+        <PhysicalContent xsi:type="MyObjectBuilder_Component">
+          <SubtypeName>BulletproofGlass</SubtypeName>
+        </PhysicalContent>
+        <ItemId>0</ItemId>
+      </Item>
+    </MyObjectBuilder_EntityBase>-->
+  </SectorObjects>
+</MyObjectBuilder_Sector>

@@ -1,0 +1,4403 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="INVALID" xml:space="preserve">
+    <value>INVALID TEXT WRAPPER ENUM</value>
+    <comment>DON'T TRANSLATE</comment>
+  </data>
+  <data name="Afterburner" xml:space="preserve">
+    <value>Spretta</value>
+  </data>
+  <data name="DisplayName_Block_Drill" xml:space="preserve">
+    <value>Bor</value>
+  </data>
+  <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
+    <value>Nota verkfæri / Skjóta vopni</value>
+  </data>
+  <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
+    <value>Önnur gerð</value>
+  </data>
+  <data name="ControlName_ToggleHeadlights" xml:space="preserve">
+    <value>Ljós á / af</value>
+  </data>
+  <data name="Inventory" xml:space="preserve">
+    <value>Geymslupláss</value>
+  </data>
+  <data name="RenderQuality" xml:space="preserve">
+    <value>Render quality</value>
+  </data>
+  <data name="RenderQualityExtreme" xml:space="preserve">
+    <value>Mjög há</value>
+  </data>
+  <data name="RenderQualityHigh" xml:space="preserve">
+    <value>Há</value>
+  </data>
+  <data name="RenderQualityNormal" xml:space="preserve">
+    <value>Venjulegt</value>
+  </data>
+  <data name="ControlName_RollLeft" xml:space="preserve">
+    <value>Rúlla til Vinstri</value>
+  </data>
+  <data name="ControlName_RollRight" xml:space="preserve">
+    <value>Rúlla til hægri</value>
+  </data>
+  <data name="ControlName_RotationDown" xml:space="preserve">
+    <value>Snúa niður</value>
+  </data>
+  <data name="ControlName_RotationLeft" xml:space="preserve">
+    <value>Snúa til vinstri</value>
+  </data>
+  <data name="ControlName_RotationRight" xml:space="preserve">
+    <value>Snúa til hægri</value>
+  </data>
+  <data name="ControlName_RotationUp" xml:space="preserve">
+    <value>Snúa upp</value>
+  </data>
+  <data name="ScreenOptionsButtonVideo" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="ScreenCaptionVideoOptions" xml:space="preserve">
+    <value>Myndband stillingar</value>
+  </data>
+  <data name="Chat_screen" xml:space="preserve">
+    <value>Spjall skjár</value>
+  </data>
+  <data name="ControlName_TerminalOrInventory" xml:space="preserve">
+    <value>Stjórnstöð / Geymslupláss</value>
+  </data>
+  <data name="DisplayName_Item_Welder" xml:space="preserve">
+    <value>Suðtæki</value>
+  </data>
+  <data name="AngleGrinderPrimaryAction" xml:space="preserve">
+    <value>Ýttu á {0} til að taka af skotmarkið</value>
+  </data>
+  <data name="WelderPrimaryActionBuild" xml:space="preserve">
+    <value>Ýttu á {0} til að sjóða </value>
+  </data>
+  <data name="ControlPanel" xml:space="preserve">
+    <value>Stjórnborð</value>
+  </data>
+  <data name="DisplayName_Block_Assembler" xml:space="preserve">
+    <value>Samsetjari</value>
+  </data>
+  <data name="DisplayName_Block_Refinery" xml:space="preserve">
+    <value>Grjóthreinsunarstöð</value>
+  </data>
+  <data name="ScreenTerminalError_ShipNotConnected" xml:space="preserve">
+    <value>Stjórnstöð ekki tengd við skip</value>
+  </data>
+  <data name="DisplayName_Item_AngleGrinder" xml:space="preserve">
+    <value>Kvörnari</value>
+    <comment>Angle grinder hand tool for dismounting blocks</comment>
+  </data>
+  <data name="DisplayName_Block_Antenna" xml:space="preserve">
+    <value>Loftnet</value>
+  </data>
+  <data name="DisplayName_Item_AutomaticRifle" xml:space="preserve">
+    <value>Sjálfvirkur Riffill</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Blue" xml:space="preserve">
+    <value>Blár</value>
+  </data>
+  <data name="DisplayName_Item_BulletproofGlass" xml:space="preserve">
+    <value>Skothelt Gler</value>
+  </data>
+  <data name="DisplayName_Item_CobaltIngot" xml:space="preserve">
+    <value>Kóbalt Bar</value>
+  </data>
+  <data name="DisplayName_Item_CobaltOre" xml:space="preserve">
+    <value>Kóbalt</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit1" xml:space="preserve">
+    <value>Cockpit</value>
+  </data>
+  <data name="DisplayName_Item_Computer" xml:space="preserve">
+    <value>Tölva</value>
+  </data>
+  <data name="DisplayName_Item_ConstructionComponent" xml:space="preserve">
+    <value>Framkvæmdar Íhlutur</value>
+  </data>
+  <data name="DisplayName_Item_DetectorComponents" xml:space="preserve">
+    <value>Skynjara hlutir</value>
+  </data>
+  <data name="DisplayName_Block_DiagonalWindow" xml:space="preserve">
+    <value>Ská Gluggi</value>
+  </data>
+  <data name="DisplayName_Item_Display" xml:space="preserve">
+    <value>Sýna</value>
+  </data>
+  <data name="DisplayName_Block_Door" xml:space="preserve">
+    <value>Hurð</value>
+  </data>
+  <data name="DisplayName_Block_Warhead" xml:space="preserve">
+    <value>Sprengjuoddur</value>
+  </data>
+  <data name="DisplayName_Block_ReflectorLight" xml:space="preserve">
+    <value>Ljóskastari</value>
+  </data>
+  <data name="DisplayName_Block_FullCoverWall" xml:space="preserve">
+    <value>Fullur Varnar Veggur</value>
+  </data>
+  <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
+    <value>Vélbyssa</value>
+  </data>
+  <data name="DisplayName_Block_GatlingTurret" xml:space="preserve">
+    <value>Vélbyssu Varnarturn</value>
+  </data>
+  <data name="DisplayName_Item_GoldIngot" xml:space="preserve">
+    <value>Gull </value>
+  </data>
+  <data name="DisplayName_Item_GoldOre" xml:space="preserve">
+    <value>Gull</value>
+  </data>
+  <data name="DisplayName_Item_Gravel" xml:space="preserve">
+    <value>Möl</value>
+  </data>
+  <data name="DisplayName_Block_GravityGenerator" xml:space="preserve">
+    <value>Þýngdarafls Rafall</value>
+  </data>
+  <data name="DisplayName_Item_GravityGeneratorComponents" xml:space="preserve">
+    <value>Hlutir í Þýngdarafls Rafall</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Green" xml:space="preserve">
+    <value>Grænn</value>
+  </data>
+  <data name="DisplayName_Block_Gyroscope" xml:space="preserve">
+    <value>Gyroscope</value>
+  </data>
+  <data name="DisplayName_Block_HalfCoverWall" xml:space="preserve">
+    <value>Hálf Varnar Veggur</value>
+  </data>
+  <data name="DisplayName_Item_HandDrill" xml:space="preserve">
+    <value>Hand Bor</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorBlock" xml:space="preserve">
+    <value>Sterkur Brynvarinn Kubbur</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner" xml:space="preserve">
+    <value>Sterkt Brynvarið Horn</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner" xml:space="preserve">
+    <value>Sterkt Brynvarið Öfugt Horn</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope" xml:space="preserve">
+    <value>Sterk Brynvarin Brekka</value>
+  </data>
+  <data name="DisplayName_Item_Ice" xml:space="preserve">
+    <value>Ís</value>
+  </data>
+  <data name="DisplayName_Block_InteriorLight" xml:space="preserve">
+    <value>Inniljós</value>
+  </data>
+  <data name="DisplayName_Block_InteriorPillar" xml:space="preserve">
+    <value>Innistuðull</value>
+  </data>
+  <data name="DisplayName_Item_InteriorPlate" xml:space="preserve">
+    <value>Inniplata</value>
+  </data>
+  <data name="DisplayName_Block_InteriorTurret" xml:space="preserve">
+    <value>Innivélbyssuturn</value>
+  </data>
+  <data name="DisplayName_Block_InteriorWall" xml:space="preserve">
+    <value>Inniveggur</value>
+  </data>
+  <data name="DisplayName_Item_IronIngot" xml:space="preserve">
+    <value>Járn</value>
+  </data>
+  <data name="DisplayName_Item_IronOre" xml:space="preserve">
+    <value>Járn</value>
+  </data>
+  <data name="DisplayName_Block_LandingGear" xml:space="preserve">
+    <value>Lendingarbúnaður</value>
+  </data>
+  <data name="DisplayName_Block_LargeCargoContainer" xml:space="preserve">
+    <value>Stór Gámur</value>
+  </data>
+  <data name="DisplayName_Block_LargeReactor" xml:space="preserve">
+    <value>Stór Rafall</value>
+  </data>
+  <data name="DisplayName_Item_LargeSteelTube" xml:space="preserve">
+    <value>Stórt Stál Rör</value>
+  </data>
+  <data name="DisplayName_Block_LargeThrust" xml:space="preserve">
+    <value>Stór vél</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorBlock" xml:space="preserve">
+    <value>Létt Brynvarin Kubbur</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner" xml:space="preserve">
+    <value>Létt Brynvarið Horn</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner" xml:space="preserve">
+    <value>Létt Brynvarið Öfugt Horn</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope" xml:space="preserve">
+    <value>Létt Brynvarin Brekka</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumOre" xml:space="preserve">
+    <value>Magnesíum</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumPowder" xml:space="preserve">
+    <value>Magnesíum Duft</value>
+  </data>
+  <data name="DisplayName_Item_MedicalComponents" xml:space="preserve">
+    <value>Lækningar Hlutir</value>
+  </data>
+  <data name="DisplayName_Block_MedicalRoom" xml:space="preserve">
+    <value>Læknaherbergi</value>
+  </data>
+  <data name="DisplayName_Block_MediumCargoContainer" xml:space="preserve">
+    <value>Miðlungs Gámur</value>
+  </data>
+  <data name="DisplayName_Item_MetalGrid" xml:space="preserve">
+    <value>Málm Grind</value>
+  </data>
+  <data name="DisplayName_Item_Missile200mm" xml:space="preserve">
+    <value>200mm eldflauga gámur</value>
+  </data>
+  <data name="DisplayName_Block_MissileTurret" xml:space="preserve">
+    <value>Eldflauga Skotpallur</value>
+  </data>
+  <data name="DisplayName_Item_Motor" xml:space="preserve">
+    <value>Mótor</value>
+  </data>
+  <data name="DisplayName_Item_NATO_25x184mm" xml:space="preserve">
+    <value>25x184mm NATÓ skotgámur</value>
+  </data>
+  <data name="DisplayName_Item_NATO_5p56x45mm" xml:space="preserve">
+    <value>5.56x45mm NATÓ skothylki</value>
+  </data>
+  <data name="DisplayName_Item_NickelIngot" xml:space="preserve">
+    <value>Nikkel </value>
+  </data>
+  <data name="DisplayName_Item_NickelOre" xml:space="preserve">
+    <value>Nikkel</value>
+  </data>
+  <data name="DisplayName_Block_OreDetector" xml:space="preserve">
+    <value>Málm Leitari</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumIngot" xml:space="preserve">
+    <value>Platínum</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumOre" xml:space="preserve">
+    <value>Platínum Málmur</value>
+  </data>
+  <data name="DisplayName_Item_Potassium" xml:space="preserve">
+    <value>Kalíum</value>
+  </data>
+  <data name="DisplayName_Item_RadioCommunicationComponents" xml:space="preserve">
+    <value>Útvarps-samskipta hlutir</value>
+  </data>
+  <data name="DisplayName_Block_Ramp" xml:space="preserve">
+    <value>Pallur</value>
+  </data>
+  <data name="DisplayName_Item_ReactorComponents" xml:space="preserve">
+    <value>Rafalls hlutir</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Red" xml:space="preserve">
+    <value>Rauður</value>
+  </data>
+  <data name="DisplayName_Block_RocketLauncher" xml:space="preserve">
+    <value>Eldflauga skotpallur</value>
+  </data>
+  <data name="DisplayName_Item_SiliconOre" xml:space="preserve">
+    <value>Sílikon Málmur</value>
+  </data>
+  <data name="DisplayName_Item_SiliconWafer" xml:space="preserve">
+    <value>Sílikon panna</value>
+  </data>
+  <data name="DisplayName_Item_SilverIngot" xml:space="preserve">
+    <value>Silvur </value>
+  </data>
+  <data name="DisplayName_Item_SilverOre" xml:space="preserve">
+    <value>Silvur Málmur</value>
+  </data>
+  <data name="DisplayName_Block_SmallCargoContainer" xml:space="preserve">
+    <value>Lítill Gámur</value>
+  </data>
+  <data name="DisplayName_Block_SmallReactor" xml:space="preserve">
+    <value>Lítill Rafall</value>
+  </data>
+  <data name="DisplayName_Item_SmallSteelTube" xml:space="preserve">
+    <value>Lítið Stál Rör</value>
+  </data>
+  <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
+    <value>Lítil Vél</value>
+  </data>
+  <data name="DisplayName_Block_Stairs" xml:space="preserve">
+    <value>Tröppur</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalk" xml:space="preserve">
+    <value>Stál brú/göngu brú</value>
+  </data>
+  <data name="DisplayName_Item_SteelPlate" xml:space="preserve">
+    <value>Stál Plata</value>
+  </data>
+  <data name="DisplayName_Item_StoneOre" xml:space="preserve">
+    <value>Steinn</value>
+  </data>
+  <data name="DisplayName_Item_ThrustComponents" xml:space="preserve">
+    <value>Vélar-hlutir</value>
+  </data>
+  <data name="DisplayName_Item_UraniumIngot" xml:space="preserve">
+    <value>Úraníum</value>
+  </data>
+  <data name="DisplayName_Item_UraniumOre" xml:space="preserve">
+    <value>Úraníum Málmur</value>
+  </data>
+  <data name="DisplayName_Block_VerticalWindow" xml:space="preserve">
+    <value>Lóðréttur Gluggi</value>
+  </data>
+  <data name="HelpScreen_FactionColor_White" xml:space="preserve">
+    <value>Hvítur</value>
+  </data>
+  <data name="Reactor" xml:space="preserve">
+    <value>Rafall</value>
+  </data>
+  <data name="WorldSettings_AutoHealing" xml:space="preserve">
+    <value>Sjálfvirk læknun</value>
+  </data>
+  <data name="WorldSettings_Description" xml:space="preserve">
+    <value>Lýsing</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostility" xml:space="preserve">
+    <value>Náttúru-hætta</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysm" xml:space="preserve">
+    <value>Stórhættulegt</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityNormal" xml:space="preserve">
+    <value>Venjulegt</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
+    <value>Öruggt</value>
+  </data>
+  <data name="WorldSettings_FriendlyFire" xml:space="preserve">
+    <value>Skot á vin</value>
+  </data>
+  <data name="WorldSettings_GameStyle" xml:space="preserve">
+    <value>Leiktegund</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
+    <value>Raunverulegt x10</value>
+  </data>
+  <data name="WorldSettings_Password" xml:space="preserve">
+    <value>Leyniorð</value>
+  </data>
+  <data name="WorldSettings_SoundInSpace" xml:space="preserve">
+    <value>Hljóð í geimnum</value>
+  </data>
+  <data name="WorldSettings" xml:space="preserve">
+    <value>Heimastillingar</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoHealing" xml:space="preserve">
+    <value>Sjálf-Læknun læknar leikmann á þeim tíma sem hann hefur ekki fengið skaða</value>
+  </data>
+  <data name="ToolTipWorldSettingsDifficulty" xml:space="preserve">
+    <value>Skaðinn gefinn og tekin til og frá óvinum og umhverfi. Hærri erfiðleiki þýðir að það sé meiri raunverulegri skaði.</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnvironment" xml:space="preserve">
+    <value>Tíðni og kraftur loftsteinaregns</value>
+  </data>
+  <data name="ToolTipWorldSettingsFriendlyFire" xml:space="preserve">
+    <value>Þegar hakað er við geta bandamenn skaðað hvorn annan.</value>
+  </data>
+  <data name="ToolTipWorldSettingsHardwareRequirements" xml:space="preserve">
+    <value>Vélbúnaðar kröfur skilgreina hversu rík heimurinn getur verið. Hærri gildi eru mera krefjandi á frammistöðu tölvunar (CPU og GPU) og mun auðvitað nota meira minni.</value>
+  </data>
+  <data name="ToolTipWorldSettingsHarvestingMode" xml:space="preserve">
+    <value>Skapandi: ótakmarkað efni, fljót bygging, leikmenn deyja ekki. Notaðu Skapandi þegar þú 
+vilt bara byggja hluti.
+Lifa af: raunveruleg geymslupláss, hafa fyrir að ná hlutum - grafa og ná í grjót, hreinsa það í 
+grjóthreinsara, smíða einingar í samansetjara, byggja kubba með suðtæki, taka í sundur
+með kvörnara, leikmenn geta dáið - 
+þeir lifna við í læknaherbergjum og ef engin þannig eru, í björgunarskipi sem nýr leikmaður.
+Lifa af x3: Sama og "Lifa af" bara með 3x stærra geymslupláss
+Lifa af x10 Sama og "Lifa af" bara með 10x stærra geymslupláss</value>
+  </data>
+  <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
+    <value>Sýnileiki leiks
+Sjálfspilun: Leikurinn spilar í Sjálfspilun og þarf ekki nettengingu
+Einka server: Aðrir geta ekki spilað
+Vinir: Aðeins steam vinir geta spilað
+Opinber: Allir geta spilað</value>
+  </data>
+  <data name="ToolTipWorldSettingsPVP" xml:space="preserve">
+    <value>PvE þýðir að þú getur ekki tekið skaða frá öðrum spilurum. PvP þýðir að þú getur tekið og fengið skaða frá öðrum spilurum.</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
+    <value>Það er ekkert hljóð í geimnum. Kveiktu á að líkja jarðar hljóð aðstæður (jafnvel þó það sé ekki raunhæft). Slökktu á henni fyrir raunhæfan ham þar sem þú getur heyrt aðeins hljóðin sem geimfara karakterinn þinn heyrir.</value>
+  </data>
+  <data name="WorldSettings_Scenario" xml:space="preserve">
+    <value>Atburður</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart1" xml:space="preserve">
+    <value>Létt Byrjun 1</value>
+  </data>
+  <data name="DisplayName_Scenario_Survival" xml:space="preserve">
+    <value>Einn lifandi</value>
+  </data>
+  <data name="ControlName_ReactorsOnOff" xml:space="preserve">
+    <value>Rafallar á / af</value>
+  </data>
+  <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Tómur Heimur</value>
+  </data>
+  <data name="ControlName_Jetpack" xml:space="preserve">
+    <value>Þotu pakki á / af</value>
+  </data>
+  <data name="NotEnoughMaterial" xml:space="preserve">
+    <value>Ekki nóg af efnum er til að búa til nýjan kubb. Þarf að minsta kosti eina stál plötu.</value>
+  </data>
+  <data name="Turret" xml:space="preserve">
+    <value>Virkisturn</value>
+  </data>
+  <data name="DisplayName_Block_Conveyor" xml:space="preserve">
+    <value>Færiband</value>
+  </data>
+  <data name="Terminal" xml:space="preserve">
+    <value>Stjórnstöð</value>
+  </data>
+  <data name="Quote00Author" xml:space="preserve">
+    <value>Theodore Von Karman</value>
+  </data>
+  <data name="Quote00Text" xml:space="preserve">
+    <value>Vísindamenn uppgötva heiminn sem er til staðar, Verkfræðingar skapa heiminn sem aldrei var.</value>
+  </data>
+  <data name="Quote01Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote01Text" xml:space="preserve">
+    <value>Vísindarlegar uppgötvun og þekkingu hefur aðeins náðst þar sem þeir hafa farið í leit að henni án þess að hafa hagnýtan tilgang í neinu tagi.</value>
+  </data>
+  <data name="Quote02Author" xml:space="preserve">
+    <value>Archimedes</value>
+  </data>
+  <data name="Quote02Text" xml:space="preserve">
+    <value>Gefðu mér vogarstöng og miðpunk til að setja hana á, og ég skal færa heiminn.</value>
+  </data>
+  <data name="Quote03Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote03Text" xml:space="preserve">
+    <value>Þegar frægur en aldraður vísindamaður segir að eitthvað sé mögulegt, er það nær örugglega rétt. Þegar hann segir að eitthvað sé ómögulegt, hefur hann mjög líklega rangt fyrir sér.</value>
+  </data>
+  <data name="Quote04Author" xml:space="preserve">
+    <value>Bertrand Russell</value>
+  </data>
+  <data name="Quote04Text" xml:space="preserve">
+    <value>Vísindi getur sett takmarkanir á þekkingu, en ætti ekki að setja takmörk á ýmyndunarafl.</value>
+  </data>
+  <data name="Quote05Author" xml:space="preserve">
+    <value>Indiana Jones</value>
+  </data>
+  <data name="Quote05Text" xml:space="preserve">
+    <value>Ekkert áfallar mig. Ég er vísindamaður.</value>
+  </data>
+  <data name="Quote06Author" xml:space="preserve">
+    <value>Immanuel Kant</value>
+  </data>
+  <data name="Quote06Text" xml:space="preserve">
+    <value>Vísindi er skipulögð þekking. Viska er skipulagt líf.</value>
+  </data>
+  <data name="Quote07Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote07Text" xml:space="preserve">
+    <value>Ný vísindaleg sannleikurinn er ekki sigur með því að sannfæra andstæðinga sína og láta þá sjá ljósið, heldur vegna þess að andstæðingar hans að lokum deyja, og ný kynslóð vex upp sem er kunnuglegt við það.</value>
+  </data>
+  <data name="Quote08Author" xml:space="preserve">
+    <value>Benjamin Franklin</value>
+  </data>
+  <data name="Quote08Text" xml:space="preserve">
+    <value>Fjárfesting í þekkingu greiðir mest til baka.</value>
+  </data>
+  <data name="Quote09Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote09Text" xml:space="preserve">
+    <value>Einhver sem hefur aldrei gert mistök hefur aldrei reynt neitt nýtt.</value>
+  </data>
+  <data name="Quote10Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote10Text" xml:space="preserve">
+    <value>Nátturan brytur ekki sín eigin lög</value>
+  </data>
+  <data name="Quote11Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote11Text" xml:space="preserve">
+    <value>Einfaldleiki er fullkominn tæknibúnaður.</value>
+  </data>
+  <data name="Quote12Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote12Text" xml:space="preserve">
+    <value>Þar sem er hróp, það er engin sönn þekking.</value>
+  </data>
+  <data name="Quote13Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote13Text" xml:space="preserve">
+    <value>Ég hef misboðið Guðs og mannanna vegna starfi mínu ekki ná gæði það ætti að hafa.</value>
+  </data>
+  <data name="Quote14Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote14Text" xml:space="preserve">
+    <value>Öll þekking okkar hefur uppruna sinn í skynjun okkar.</value>
+  </data>
+  <data name="Quote15Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote15Text" xml:space="preserve">
+    <value>Með því að neita vísindalegum meginreglum, einn getur haldið allar þversagnir.</value>
+  </data>
+  <data name="Quote16Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote16Text" xml:space="preserve">
+    <value>Stærðfræði er tungumál sem Guð hefur skrifað alheimin í.</value>
+  </data>
+  <data name="Quote17Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote17Text" xml:space="preserve">
+    <value>Ef ég væri aftur að fara í nám, myndi ég fylgja ráðum Plato og byrja með stærðfræði.</value>
+  </data>
+  <data name="Quote18Author" xml:space="preserve">
+    <value>Johann W. Goethe</value>
+  </data>
+  <data name="Quote18Text" xml:space="preserve">
+    <value>Við sjáum aðeins það sem við vitum.</value>
+  </data>
+  <data name="Quote19Author" xml:space="preserve">
+    <value>Niels H. D. Bohr</value>
+  </data>
+  <data name="Quote19Text" xml:space="preserve">
+    <value>Ef einhver segir að hann er að hugsa um skammtafræða vandamál án þess að fá Kjékk, sem sýnir aðeins að hann hafi ekki skilið það fyrsta um þau.</value>
+  </data>
+  <data name="Quote20Author" xml:space="preserve">
+    <value>Ancient paradox</value>
+  </data>
+  <data name="Quote20Text" xml:space="preserve">
+    <value>Aðeins eitt er víst - það er, ekkert er víst. Ef þessi staðhæfing er satt, það er einnig rangt.</value>
+  </data>
+  <data name="Quote21Author" xml:space="preserve">
+    <value>Richard Feynman</value>
+  </data>
+  <data name="Quote21Text" xml:space="preserve">
+    <value>Vísindamenn eru landkönnuðir. Heimspekingar eru ferðamenn.</value>
+  </data>
+  <data name="Quote22Author" xml:space="preserve">
+    <value>Walter Bagehot</value>
+  </data>
+  <data name="Quote22Text" xml:space="preserve">
+    <value>Mikil ánægja í lífinu er að gera það sem fólk segir að þú getur ekki gert.</value>
+  </data>
+  <data name="Quote23Author" xml:space="preserve">
+    <value>Thomas A. Edison</value>
+  </data>
+  <data name="Quote23Text" xml:space="preserve">
+    <value>Snillingur er eitt prósent innblástur og níutíu og níu prósent svita.</value>
+  </data>
+  <data name="Quote24Author" xml:space="preserve">
+    <value>Socrates</value>
+  </data>
+  <data name="Quote24Text" xml:space="preserve">
+    <value>Ég veit eitt: það að ég veit ekkert</value>
+  </data>
+  <data name="Quote25Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote25Text" xml:space="preserve">
+    <value>Allir nægilega háþróaður tækni er óaðgreinanlegur frá göldrum.</value>
+  </data>
+  <data name="Quote26Author" xml:space="preserve">
+    <value>William Gibson</value>
+  </data>
+  <data name="Quote26Text" xml:space="preserve">
+    <value>Þegar þú vilt vita hvernig hlutirnir virka raunverulega, lærðu þá þegar þeir eru að koma í sundur.</value>
+  </data>
+  <data name="Quote27Author" xml:space="preserve">
+    <value>Scott Adams</value>
+  </data>
+  <data name="Quote27Text" xml:space="preserve">
+    <value>Verkfræðingar elska að leysa vandamál. Ef það eru engin vandamál í boði, þeir eiga til að búa til sín eigin vandamálum.</value>
+  </data>
+  <data name="Quote28Author" xml:space="preserve">
+    <value>Robert A. Heinlein</value>
+  </data>
+  <data name="Quote28Text" xml:space="preserve">
+    <value>Eins mann "Galdur" er verkfræði annars manns. "Ofurnátturulegt" er null orð.</value>
+  </data>
+  <data name="Quote29Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote29Text" xml:space="preserve">
+    <value>Góður vísindamaður er manneskja með upprunalegum hugmyndum. Góður verkfræðingur er manneskja sem gerir hönnun sem vinnur með eins fáir upprunalegum hugmyndum og hægt er. Það eru engar prima Donnas í verkfræði.</value>
+  </data>
+  <data name="Quote30Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote30Text" xml:space="preserve">
+    <value>Aviation er grein verkfræði sem  fyrirgefa ekki mistök.</value>
+  </data>
+  <data name="Quote31Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote31Text" xml:space="preserve">
+    <value>Geimverkfræðingur er menntuð sérfræðingur sem notar vísindalega þekkingu, stærðfræði, eðlisfræði, stjörnufræði, knýja tækni, Efnisfræði, Burðarþolsfræði, framleiðslu og hugvitssemi til að leysa hagnýt vandamál í geimnum.</value>
+  </data>
+  <data name="Quote32Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote32Text" xml:space="preserve">
+    <value>Geimverkfræðingar hanna efni, skipulegja og kerfi á meðan þeir íhuga til takmarkana hagkvæmni, reglugerðum, öryggi, líkindi og kostnað.</value>
+  </data>
+  <data name="Quote33Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote33Text" xml:space="preserve">
+    <value>
+Geimverkfræðingar eru byggð í hagnýtum vísindum, og að starf þeirra í rannsóknum og þróun er greinilegur frá grunn rannsóknum áherslu geim vísindamanna.</value>
+  </data>
+  <data name="Quote34Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote34Text" xml:space="preserve">
+    <value>Á stríð tímum, geim verkfræði felur hersins verkfræði líka. Slík verkefni eru yfirleitt byggingar og niðurrifsstarfsemi verkefni við aðstæður bardaga.</value>
+  </data>
+  <data name="Quote35Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote35Text" xml:space="preserve">
+    <value>Geimverkfræðingar eru í mikilli eftirspurn, sérstaklega eftir Seinni Geim Keppninni árið 2029.</value>
+  </data>
+  <data name="Quote36Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote36Text" xml:space="preserve">
+    <value>Geimverkfræðingar eru stoltir fyrir getu þeirra til að fá starfið gert rétt - sama hversu stór, hversu flókið, eða hvernig fjarlægt.</value>
+  </data>
+  <data name="Quote37Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote37Text" xml:space="preserve">
+    <value>Orðið 'engineer' er tekin frá latinu rótum 'ingeniare' (''to contrive, devise'') og 'Ingenium' (''Cleverness'')</value>
+  </data>
+  <data name="Quote38Author" xml:space="preserve">
+    <value>Anonym</value>
+  </data>
+  <data name="Quote38Text" xml:space="preserve">
+    <value>Njartsýnismann er glasið hálf fullt. Til svartsýnismann er glasið hálf tóm. Til verkfræðingur er glasið tvisvar sinnum stærri en það þarf að vera.</value>
+  </data>
+  <data name="Quote39Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote39Text" xml:space="preserve">
+    <value>Vísindamenn rannsaka það sem þegar er, verkfræðingar búa það sem hefur aldrei verið.</value>
+  </data>
+  <data name="Quote40Author" xml:space="preserve">
+    <value>U.S. Army Ordnance</value>
+  </data>
+  <data name="Quote40Text" xml:space="preserve">
+    <value>Skot-ský virkar í báðar áttir.</value>
+  </data>
+  <data name="Quote41Author" xml:space="preserve">
+    <value>USAF Ammo Troop</value>
+  </data>
+  <data name="Quote41Text" xml:space="preserve">
+    <value>Ef þú sérð sprengju sérfræðing hlaupandi, eltu hann.</value>
+  </data>
+  <data name="Quote42Author" xml:space="preserve">
+    <value>Anonym</value>
+  </data>
+  <data name="Quote42Text" xml:space="preserve">
+    <value>Eina skiptið sem þú hefur of mikið eldsneyti er þegar það er kveiknað í þér.</value>
+  </data>
+  <data name="Quote43Author" xml:space="preserve">
+    <value>Anonym</value>
+  </data>
+  <data name="Quote43Text" xml:space="preserve">
+    <value>Aldrei skipta heppni fyrir hæfileika.</value>
+  </data>
+  <data name="Quote44Author" xml:space="preserve">
+    <value>Jon McBride</value>
+  </data>
+  <data name="Quote44Text" xml:space="preserve">
+    <value>A flugmaður sem ekki hafa allir óttast sennilega ekki fljúga flugvélinni sínu að hámarki.</value>
+  </data>
+  <data name="Quote45Author" xml:space="preserve">
+    <value>Alexander Calder</value>
+  </data>
+  <data name="Quote45Text" xml:space="preserve">
+    <value>Til verkfræðingur nógu gott þýðir fullkominn. Með listamann, það er ekkert sem heitir fullkomið.</value>
+  </data>
+  <data name="Quote46Author" xml:space="preserve">
+    <value>Buzz Aldrin</value>
+  </data>
+  <data name="Quote46Text" xml:space="preserve">
+    <value>Mars er þar, bíða eftir að vera náð.</value>
+  </data>
+  <data name="Quote47Author" xml:space="preserve">
+    <value>Neil Amstrong</value>
+  </data>
+  <data name="Quote47Text" xml:space="preserve">
+    <value>Þetta er eitt lítið skref fyrir mann, eitt risa stórt stökk fyrir mannkynið.</value>
+  </data>
+  <data name="Quote48Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote48Text" xml:space="preserve">
+    <value>Ég sé Jörðinna! Það er svo fallegt!</value>
+  </data>
+  <data name="Quote49Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote49Text" xml:space="preserve">
+    <value>Ég hefði getað farið fljúgandi í gegnum geiminn að eilífu.</value>
+  </data>
+  <data name="Quote50Author" xml:space="preserve">
+    <value>Micheal Collins</value>
+  </data>
+  <data name="Quote50Text" xml:space="preserve">
+    <value>Að fara stöðum og gera hluti sem hafa aldrei verið gert áður - það er það sem líf er allt um.</value>
+  </data>
+  <data name="Quote51Author" xml:space="preserve">
+    <value>Ralph W. Emerson</value>
+  </data>
+  <data name="Quote51Text" xml:space="preserve">
+    <value>Ekki fara þar sem leið geta leitt heldur farðu í staðinn þar sem það er engin leið og skildu eftir slóð</value>
+  </data>
+  <data name="Quote52Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote52Text" xml:space="preserve">
+    <value>Að vera fyrstur til að alheimsins, til að taka þátt, einn-hendur, í ótal einvígi við náttúruna - gæti einn draumur verið nokkuð meira?</value>
+  </data>
+  <data name="Quote53Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote53Text" xml:space="preserve">
+    <value>Slóð geimfara er ekki auðvelt, sigurs göngunni til Dýrð. Þú þarft að fá að vita merkingu ekki bara af gleði en einnig sorg, áður en þeim er hleypt í geimskipa skála.</value>
+  </data>
+  <data name="Quote54Author" xml:space="preserve">
+    <value>Robert H. Goddard</value>
+  </data>
+  <data name="Quote54Text" xml:space="preserve">
+    <value>Draumur gær dagsins eru vonir í dag og raunveruleika á morgun.</value>
+  </data>
+  <data name="Quote55Author" xml:space="preserve">
+    <value>Gene Kranz</value>
+  </data>
+  <data name="Quote55Text" xml:space="preserve">
+    <value>Mistök er ekki valkostur,</value>
+  </data>
+  <data name="Quote56Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote56Text" xml:space="preserve">
+    <value>Eingar tilraunir getur alltaf reynst mér rétt, einn tilraun getur reynst mér rangt.</value>
+  </data>
+  <data name="Quote57Author" xml:space="preserve">
+    <value>George B. Shaw</value>
+  </data>
+  <data name="Quote57Text" xml:space="preserve">
+    <value>Vísindi leysa ekki vandamál án þess að búa tíu fleiri.</value>
+  </data>
+  <data name="Quote58Author" xml:space="preserve">
+    <value>Fyrsta lögmál varmafræðinnar</value>
+  </data>
+  <data name="Quote58Text" xml:space="preserve">
+    <value>Lögmál varðveislu orku segir að orka getur hvorki búið né eyðilagt. Hins vegar orka getur breytt form, og orka getur rennsli frá einum stað til annars. Heildar orku einangrað kerfi er óbreytt.</value>
+  </data>
+  <data name="Quote59Author" xml:space="preserve">
+    <value>Fyrsta lögmál varmafræðinnar</value>
+  </data>
+  <data name="Quote59Text" xml:space="preserve">
+    <value>Flæði hita er mynd af orku færslu. Með öðrum orðum, getur magn af hita sem rennur úr heitu líkamanum til að kalt einn gefin upp sem magn af orku, sem fluttur er úr heitu líkamanum í kaldan líkama.</value>
+  </data>
+  <data name="Quote60Author" xml:space="preserve">
+    <value>Fyrsta lögmál Newtons</value>
+  </data>
+  <data name="Quote60Text" xml:space="preserve">
+    <value>Sérhver aðila viðvarandi í stöðu að vera í hvíld eða færa jafnt beint áfram, nema að því leyti sem það er þvingaður til að breyta stöðu sína með valdi.</value>
+  </data>
+  <data name="Quote61Author" xml:space="preserve">
+    <value>Fyrsta lögmál Newtons</value>
+  </data>
+  <data name="Quote61Text" xml:space="preserve">
+    <value>Hlut sem er í hvíld mun vera í hvíld nema ytri kraftur verkar á hann.</value>
+  </data>
+  <data name="Quote62Author" xml:space="preserve">
+    <value>Firsta Kenning Newtons</value>
+  </data>
+  <data name="Quote62Text" xml:space="preserve">
+    <value>Hlutur sem er á hreyfingu mun ekki breyta hraða hennar nema ytri kraftur verkar á hann.</value>
+  </data>
+  <data name="Quote63Author" xml:space="preserve">
+    <value>Annað lögmál Newtons</value>
+  </data>
+  <data name="Quote63Text" xml:space="preserve">
+    <value>Hröðun af líkamanum er í réttu hlutfalli, og í sömu átt og, kraftur sem verkar á líkama og í öfugu hlutfalli við massa þess.</value>
+  </data>
+  <data name="Quote64Author" xml:space="preserve">
+    <value>Þriðja lögmál Newtons</value>
+  </data>
+  <data name="Quote64Text" xml:space="preserve">
+    <value>Að sérhver aðgerð er alltaf jafn og fjær viðbrögð: eða krafta tveggja aðila á hvor öðrum eru alltaf jafnir og eru beint í gagnstæða átt</value>
+  </data>
+  <data name="Quote65Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote65Text" xml:space="preserve">
+    <value>Vísindaleg aðferð: meginreglur og málsmeðferð fyrir markvissri leit að þekkingu sem felur í sér viðurkenningu og mótun vandamál, söfnun gagna í gegnum athuganir og tilraunir, og mótun og prófun tilgátur.</value>
+  </data>
+  <data name="Quote66Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote66Text" xml:space="preserve">
+    <value>Að verða orð vísinda, verður aðferð af rannsókn að byggjast á reynslunni og mælanlegum vísbendingar og sérstökum reglulegar rakir.</value>
+  </data>
+  <data name="Quote67Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote67Text" xml:space="preserve">
+    <value>Lögum vísindum eða vísindalegum lögum eru yfirlýsingar sem lýsa, spá, og kannski útskýra hvers vegna, ýmsum fyrirbærum hegða sér eins og þeir virðast í náttúrunni.</value>
+  </data>
+  <data name="Quote68Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote68Text" xml:space="preserve">
+    <value>Vísindalegar lög eru eindregið studd af reynslunni sönnunargögn - þær eru vísindaleg þekkingar sem tilraunir hafa ítrekað staðfestar (og aldrei fölsuð).</value>
+  </data>
+  <data name="Quote69Author" xml:space="preserve">
+    <value>Newtons lögmál um alhliða Þyngdarafl</value>
+  </data>
+  <data name="Quote69Text" xml:space="preserve">
+    <value>Sérhver punktur massi í alheiminum laðar aðra hverja punkta af mössum með gildi sem er í beinu hlutfalli við vöru af massa þeirra og í öfugu hlutfalli við veldi af fjarlægð milli þeirra.</value>
+  </data>
+  <data name="HudInfoGravity" xml:space="preserve">
+    <value>Þyngdarafl:</value>
+  </data>
+  <data name="HudInfoNoGravity" xml:space="preserve">
+    <value>Ekkert þýngdarafl</value>
+  </data>
+  <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
+    <value>Gera nýjan heim með stöðluðum stillingum:
+Leikjagerð : Skapandi
+Atburður : Létt Byrjun 1
+Sjálf-vistun: Á</value>
+  </data>
+  <data name="HudInfoCrouching" xml:space="preserve">
+    <value>Beygja</value>
+  </data>
+  <data name="HudInfoFlying" xml:space="preserve">
+    <value>Fljúgandi</value>
+  </data>
+  <data name="HudInfoOff" xml:space="preserve">
+    <value>Af</value>
+  </data>
+  <data name="HudInfoOn" xml:space="preserve">
+    <value>Á</value>
+  </data>
+  <data name="HudEnergyMissingTotal" xml:space="preserve">
+    <value>SAMTALS VANTAR</value>
+  </data>
+  <data name="HudInfoNameEnergy" xml:space="preserve">
+    <value>Rafmagn:</value>
+  </data>
+  <data name="HudInfoNameFuelTime" xml:space="preserve">
+    <value>Eldsneytis tími:</value>
+  </data>
+  <data name="HudInfoNameGyroscopes" xml:space="preserve">
+    <value>Gyroscopes:</value>
+  </data>
+  <data name="HudInfoNameLights" xml:space="preserve">
+    <value>Ljós:</value>
+  </data>
+  <data name="HudInfoNameMass" xml:space="preserve">
+    <value>Massi:</value>
+  </data>
+  <data name="HudInfoNamePowerUsage" xml:space="preserve">
+    <value>Rafmagnar notkun:</value>
+  </data>
+  <data name="HudInfoNameReactors" xml:space="preserve">
+    <value>Rafallar:</value>
+  </data>
+  <data name="HudInfoNameSpeed" xml:space="preserve">
+    <value>Hraði:</value>
+  </data>
+  <data name="HudInfoNameThrusts" xml:space="preserve">
+    <value>Vélar:</value>
+  </data>
+  <data name="HudInfoNoPower" xml:space="preserve">
+    <value>Ekkert Rafmagn</value>
+  </data>
+  <data name="HudInfoNoReflectors" xml:space="preserve">
+    <value>Engin leitarljós</value>
+  </data>
+  <data name="HudInfoPilotingLargeShip" xml:space="preserve">
+    <value>Stjórnandi Stóru Skipi</value>
+  </data>
+  <data name="HudInfoPilotingSmallShip" xml:space="preserve">
+    <value>Stjórnandi Litlu Skipi</value>
+  </data>
+  <data name="HudInfoPowerOverload" xml:space="preserve">
+    <value>Ofhleðsla</value>
+  </data>
+  <data name="HudInfoReflectorsOff" xml:space="preserve">
+    <value>Leitarljós af</value>
+  </data>
+  <data name="HudInfoReflectorsOn" xml:space="preserve">
+    <value>Leitarljós á</value>
+  </data>
+  <data name="HudInfoStanding" xml:space="preserve">
+    <value>Standandi</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart2" xml:space="preserve">
+    <value>Létt byrjun 2</value>
+  </data>
+  <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
+    <value>Viltu byrja að horfa á myndbands kennslu? Mundu: þú getur alltaf komið til baka með því að ýta á 'Kennslur' í 'Hjálp' skjá (F1)</value>
+  </data>
+  <data name="ControlDescHoldToColor" xml:space="preserve">
+    <value>Halið til að lita kubb (Sköpunar ham)</value>
+  </data>
+  <data name="ControlDescLargeBrush" xml:space="preserve">
+    <value>Stór litunar bursta stærð (Sköpunar Hamur)</value>
+  </data>
+  <data name="ControlDescMediumBrush" xml:space="preserve">
+    <value>Miðlungs litunar bursta stærð (Sköpunar Hamur)</value>
+  </data>
+  <data name="ControlDescZoom" xml:space="preserve">
+    <value>Stækka í þriðju-persónu ham</value>
+  </data>
+  <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
+    <value>Nýtt Stórt Skip</value>
+  </data>
+  <data name="ScreenCubeBuilderNewSmallShip" xml:space="preserve">
+    <value>Nýtt Lítið Skip</value>
+  </data>
+  <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
+    <value>Ný Geimstöð</value>
+  </data>
+  <data name="HudEnergyGroupCharging" xml:space="preserve">
+    <value>Hleður</value>
+  </data>
+  <data name="HudEnergyGroupConveyors" xml:space="preserve">
+    <value>Færibönd</value>
+  </data>
+  <data name="HudEnergyGroupDefense" xml:space="preserve">
+    <value>Vörn</value>
+  </data>
+  <data name="HudEnergyGroupDoors" xml:space="preserve">
+    <value>Hurðir</value>
+  </data>
+  <data name="HudEnergyGroupFactory" xml:space="preserve">
+    <value>Verksmiðja</value>
+  </data>
+  <data name="HudEnergyGroupGyroscope" xml:space="preserve">
+    <value>Gyroscope</value>
+  </data>
+  <data name="HudEnergyGroupThrust" xml:space="preserve">
+    <value>Vélar</value>
+  </data>
+  <data name="HudEnergyGroupUtility" xml:space="preserve">
+    <value>Gagnsemi</value>
+  </data>
+  <data name="SteamOverlayDisabledText" xml:space="preserve">
+    <value>Vinsamlega kveiktu á Steam Overlay í Steam: farðu í Stillingar, í leikja flipanum, Virktu Steam
+Samfélag í leiknum og í leika listanum frá Steam, Space Engineers, eiginleikar, Virkja Steam
+Samfélag í leiknum</value>
+  </data>
+  <data name="MessageBoxTextRecommend" xml:space="preserve">
+    <value>Ef þér líkar við Space Engineers, þá geturu mælt með því til Steam vinina á eltingar síðuni.
+Mælingar hjálpa til að stækka samfélagið. Takk fyrir!</value>
+  </data>
+  <data name="MessageBoxCaptionRecommend" xml:space="preserve">
+    <value>Mælt með Geimverkfræðingum</value>
+  </data>
+  <data name="NotificationHintLeaveCockpit" xml:space="preserve">
+    <value>Ýttu á {0} til að yfirgefa Stjórnklefa</value>
+  </data>
+  <data name="NotificationHintOpenShipControlPanel" xml:space="preserve">
+    <value>Ýttu á {0} til að opna stjórnborð skips</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOff" xml:space="preserve">
+    <value>Ýttu á {0} til að slökkva á öllum raföllum</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOn" xml:space="preserve">
+    <value>Ýttu á {0} til að kveikja á öllum raföllum</value>
+  </data>
+  <data name="NotificationArgLargeShip" xml:space="preserve">
+    <value>Stórt Skip</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgSmallShip" xml:space="preserve">
+    <value>Lítið Skip</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgStation" xml:space="preserve">
+    <value>geimstöð</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
+    <value>{0} er ekki í boði fyrir {1}</value>
+  </data>
+  <data name="NotificationArgAngleGrinder" xml:space="preserve">
+    <value>Gráðu kvörnari</value>
+  </data>
+  <data name="NotificationArgDrill" xml:space="preserve">
+    <value>Bor</value>
+  </data>
+  <data name="NotificationArgMissile" xml:space="preserve">
+    <value>Eldflaug</value>
+  </data>
+  <data name="NotificationArgProjectile" xml:space="preserve">
+    <value>Skot</value>
+  </data>
+  <data name="NotificationArgWelder" xml:space="preserve">
+    <value>Suðtæki</value>
+  </data>
+  <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
+    <value>Ýttu á {0} eða {1} til að klifra upp og niður</value>
+  </data>
+  <data name="NotificationHintPressToGetDownFromLadder" xml:space="preserve">
+    <value>Ýttu á {0} til að fara niður af stiga</value>
+  </data>
+  <data name="NotificationHintPressToJumpOffLadder" xml:space="preserve">
+    <value>Ýttu á {0} til að hoppa af stiga</value>
+  </data>
+  <data name="NotificationJetpackOff" xml:space="preserve">
+    <value>Þotu pakki Af</value>
+  </data>
+  <data name="NotificationJetpackOffNoEnergy" xml:space="preserve">
+    <value>Þotu pakki Af (ekkert rafmagn)</value>
+  </data>
+  <data name="NotificationJetpackOn" xml:space="preserve">
+    <value>Þotu pakki Á</value>
+  </data>
+  <data name="NotificationUsingWeaponType" xml:space="preserve">
+    <value>{0} Í notkun</value>
+  </data>
+  <data name="HudInfoControllingStation" xml:space="preserve">
+    <value>Stjórna geimstöð</value>
+  </data>
+  <data name="HudInfoNameDampeners" xml:space="preserve">
+    <value>Höggdeyfar</value>
+  </data>
+  <data name="HudInfoNameLandingGear" xml:space="preserve">
+    <value>Lendingar fótur:</value>
+  </data>
+  <data name="HudInfoNameInProximity" xml:space="preserve">
+    <value>Í nágrenni</value>
+  </data>
+  <data name="HudInfoNameLocked" xml:space="preserve">
+    <value>Læst:</value>
+  </data>
+  <data name="ControlName_LandingGear" xml:space="preserve">
+    <value>Lendingarbúnaður / Litaveljari</value>
+  </data>
+  <data name="ControlName_SymmetrySwitch" xml:space="preserve">
+    <value>Speglunar takki</value>
+  </data>
+  <data name="NotificationHintPressToEnterCockpit" xml:space="preserve">
+    <value>Ýttu á {0} til að fara í Stjórnklefa</value>
+  </data>
+  <data name="NotificationHintPressToOpenControlPanel" xml:space="preserve">
+    <value>Ýttu á {0} til að opna stjórnborð {1}</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventory" xml:space="preserve">
+    <value>Ýttu á {0} til að opna geymslupláss {1}</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterAll" xml:space="preserve">
+    <value>Sýna allar gerðir geymsluplássa</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterEnergy" xml:space="preserve">
+    <value>Sía rafmagnsgeymslupláss</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterStorage" xml:space="preserve">
+    <value>Sía geymslupláss</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterSystem" xml:space="preserve">
+    <value>Sía kerfisgeymslupláss</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowCharacter" xml:space="preserve">
+    <value>Sýna geymslupláss leikmanns</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowConnected" xml:space="preserve">
+    <value>Sjá tengd geymslupláss (á skipi eða geimstöð)</value>
+  </data>
+  <data name="ScreenTerminalInventory_Mass" xml:space="preserve">
+    <value>Massi: {0} kg</value>
+  </data>
+  <data name="ScreenTerminalInventory_Volume" xml:space="preserve">
+    <value>Stærð: {0} L</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
+    <value>{0}{3}
+Massi: {1} kg
+Stærð: {2} L</value>
+  </data>
+  <data name="ControlName_InertialDampeners" xml:space="preserve">
+    <value>Jöfnunarbremsur</value>
+  </data>
+  <data name="ControlName_UseSymmetry" xml:space="preserve">
+    <value>Nota speglun</value>
+  </data>
+  <data name="DisplayName_Block_Beacon" xml:space="preserve">
+    <value>Viti</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
+    <value>Einhver tegund af grjóti</value>
+  </data>
+  <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
+    <value>Úraníum stykki</value>
+  </data>
+  <data name="DisplayName_Block_Rotor" xml:space="preserve">
+    <value>Mótor</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
+    <value>Togkraftur</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorBrakingTorque" xml:space="preserve">
+    <value>Brjóta togkr.</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTargetVelocity" xml:space="preserve">
+    <value>Hraði</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyIngot" xml:space="preserve">
+    <value>Einhver tegund af málmbita</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMaxAngle" xml:space="preserve">
+    <value>Hærri takmörk</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMinAngle" xml:space="preserve">
+    <value>Lægri takmörk</value>
+  </data>
+  <data name="IconSymbol_Ag" xml:space="preserve">
+    <value>Ag</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Au" xml:space="preserve">
+    <value>Au</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Co" xml:space="preserve">
+    <value>Co</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Fe" xml:space="preserve">
+    <value>Fe</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Gravel" xml:space="preserve">
+    <value>Möl</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Ice" xml:space="preserve">
+    <value>Ís</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_K" xml:space="preserve">
+    <value>K</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Mg" xml:space="preserve">
+    <value>Mg</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Ni" xml:space="preserve">
+    <value>Ni</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Pt" xml:space="preserve">
+    <value>Pt</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Stone" xml:space="preserve">
+    <value>Steinn</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Si" xml:space="preserve">
+    <value>Si</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_U" xml:space="preserve">
+    <value>U</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="BlockPropertiesText_MotorCurrentAngle" xml:space="preserve">
+    <value>Núverandi halli:</value>
+  </data>
+  <data name="BlockPropertyValue_MotorAngleUnlimited" xml:space="preserve">
+    <value>Ótakmarkað</value>
+  </data>
+  <data name="BlockPropertiesText_MotorLimitsDisabled" xml:space="preserve">
+    <value>Núverandi snúningur mótors er yfir takmörkum, takmörkin munu virkjast þegar mótorinn er nær.</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorBrakingTorque" xml:space="preserve">
+    <value>Braking strength of the rotor: how fast it will stop (applied when the rotor is turned off)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorLowerLimit" xml:space="preserve">
+    <value>Lægri gráðu takmörk</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorTorque" xml:space="preserve">
+    <value>Togkraftur á mótor: hversu fljótur hann mun ná hraða (þegar kveikt er á mótor)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUpperLimit" xml:space="preserve">
+    <value>Hærri gráðu takmörk</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
+    <value>Valinn hraði; mótorinn mun auka hraða þangað til völdnum hraða er náð.</value>
+  </data>
+  <data name="DisplayName_Item_Girder" xml:space="preserve">
+    <value>Járnstöng</value>
+  </data>
+  <data name="SwitchText_Open" xml:space="preserve">
+    <value>Opna</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="SwitchText_Close" xml:space="preserve">
+    <value>Loka</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="HudInfoNameHealth" xml:space="preserve">
+    <value>Líf:</value>
+  </data>
+  <data name="HudInfoFalling" xml:space="preserve">
+    <value>Detta</value>
+  </data>
+  <data name="AssemblerState_Disabled" xml:space="preserve">
+    <value>Óvirkt</value>
+  </data>
+  <data name="AssemblerState_MissingItems" xml:space="preserve">
+    <value>Vantar hluti</value>
+  </data>
+  <data name="AssemblerState_NotEnoughPower" xml:space="preserve">
+    <value>Ekki nóg rafmagn</value>
+  </data>
+  <data name="AssemblerState_NothingBeingProduced" xml:space="preserve">
+    <value>Ekkert að smíða núna</value>
+  </data>
+  <data name="HudInfoNameJetpack" xml:space="preserve">
+    <value>Þotupakki</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart3" xml:space="preserve">
+    <value>Létt Byrjun 3</value>
+  </data>
+  <data name="BlockPropertyTitle_LightColor" xml:space="preserve">
+    <value>Litur</value>
+  </data>
+  <data name="BlockPropertyDescription_LightColor" xml:space="preserve">
+    <value>Litur á ljósi</value>
+  </data>
+  <data name="BlockPropertyTitle_LightRadius" xml:space="preserve">
+    <value>Radíus</value>
+  </data>
+  <data name="BlockPropertyDescription_LightRadius" xml:space="preserve">
+    <value>Radíus sem hrífur af ljósi</value>
+  </data>
+  <data name="BlockPropertyTitle_LightFalloff" xml:space="preserve">
+    <value>Fall</value>
+  </data>
+  <data name="BlockPropertyDescription_LightFalloff" xml:space="preserve">
+    <value>Fall á ljósi (1 = línuleg, 2 = stig, ...)</value>
+  </data>
+  <data name="BlockPropertyTitle_LightIntensity" xml:space="preserve">
+    <value>Ljósstyrkur</value>
+  </data>
+  <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
+    <value>Styrkur á ljósinu</value>
+  </data>
+  <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
+    <value>Ýttu á {0} til að opna Hurð</value>
+  </data>
+  <data name="SwitchText_Off" xml:space="preserve">
+    <value>Af</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="SwitchText_On" xml:space="preserve">
+    <value>Á</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
+    <value>Afrita líma leyfir þér að gera ný skið eða geimstöð beint frá klippispjaldinu</value>
+  </data>
+  <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
+    <value>Virkja afrita/líma</value>
+  </data>
+  <data name="WorldSettings_EnableWeapons" xml:space="preserve">
+    <value>Vopn virk</value>
+  </data>
+  <data name="AssemblerState_NotWorking" xml:space="preserve">
+    <value>Samsetjari skemmdur eða ótengdur</value>
+  </data>
+  <data name="DisplayName_Block_Passage" xml:space="preserve">
+    <value>Gangur</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
+    <value>Þyngdaraflshröðun á rafallinum.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldDepth" xml:space="preserve">
+    <value>Dýpt á sviði þyngdarafls frá rafallinum.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldHeight" xml:space="preserve">
+    <value>Hæð á sviði þyngdarafls frá rafallinum.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldWidth" xml:space="preserve">
+    <value>Breidd á sviði þyngdarafls frá rafallinum.</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityAcceleration" xml:space="preserve">
+    <value>Hröðun</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldDepth" xml:space="preserve">
+    <value>Dýptarsvið</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldHeight" xml:space="preserve">
+    <value>Hæðarsvið</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldWidth" xml:space="preserve">
+    <value>Breiddarsvið</value>
+  </data>
+  <data name="NotificationHintPressToOpenTerminal" xml:space="preserve">
+    <value>Ýttu á {0} til að opna stjórnstöð</value>
+  </data>
+  <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
+    <value>Haltu inni {0} til að endurhlaða og læknast</value>
+  </data>
+  <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Þegar kveikt, geta leikmenn séð nöfn annara leikmanna yfir þeim</value>
+  </data>
+  <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Sýna nöfn spilenda</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
+    <value>Sleppa hlut</value>
+  </data>
+  <data name="NotificationSuitEnergyLow" xml:space="preserve">
+    <value>Varúð: Rafmagn á galla lágt. Lífstuðningur gæti bilað.</value>
+  </data>
+  <data name="NotificationSuitEnergyCritical" xml:space="preserve">
+    <value>Varúð: Gallarafmagn er hættulega lágt. Lífstuðningur gæti bilað.</value>
+  </data>
+  <data name="MaxFloatingObjects" xml:space="preserve">
+    <value>Mestu hlutir</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxFloatingObjects" xml:space="preserve">
+    <value>Mesta magn af litlum hlutum fljótandi í geimnum (málmur, verðmæti, íhlutir)
+Varúð - tölur hærri en 64 geta haft áhrif á leikgetu!</value>
+  </data>
+  <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
+    <value>Eldflaug 200mm</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
+    <value>NATÓ 25x184 mm</value>
+  </data>
+  <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
+    <value>Smástirni</value>
+  </data>
+  <data name="Asteroid_Amount" xml:space="preserve">
+    <value>Loftsteinamagn</value>
+  </data>
+  <data name="DisplayName_Item_Explosives" xml:space="preserve">
+    <value>Sprengiefni</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountExtreme" xml:space="preserve">
+    <value>Öfgakennt: 16 stór smástirni</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountLarge" xml:space="preserve">
+    <value>Stórt: 7 stór smástirni</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNormal" xml:space="preserve">
+    <value>Venjulegt: 4 stór smástirni</value>
+  </data>
+  <data name="ToolTipWorldSettingsAsteroidAmount" xml:space="preserve">
+    <value>Hversu mörg smástirni myndast í nýjum heim
+Venjulegt: 4 stór smástirni, 20 lítil smástirni
+Stórt: 7 stór smástirni, 35 lítil smástirni
+Öfgakennt: 16 stór smástirni, 80 lítil smástirni, aðeins 64-bit</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxPlayer" xml:space="preserve">
+    <value>Mesta magn af leikmönnum í leik</value>
+  </data>
+  <data name="ToolTipWorldSettingsWeapons" xml:space="preserve">
+    <value>Virkja/Afvirkja öll vopn og sprengiefni</value>
+  </data>
+  <data name="BlockPropertyDescription_OreDetectorRange" xml:space="preserve">
+    <value>Mesta skönnunarlengd .</value>
+  </data>
+  <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
+    <value>Fjarlægð</value>
+  </data>
+  <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
+    <value>Hlutir gerðir af samsetjara</value>
+  </data>
+  <data name="AssemblerState_InventoryFull" xml:space="preserve">
+    <value>Geymslupláss er fullt</value>
+  </data>
+  <data name="WorldSettings_InventorySize" xml:space="preserve">
+    <value>Geymslupláss</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes1" xml:space="preserve">
+    <value>Raunverulegt</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes3" xml:space="preserve">
+    <value>Raunverulegt x3</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeCreative" xml:space="preserve">
+    <value>Ótakmarkað efni, fljót bygging, engin dauði</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeSurvival" xml:space="preserve">
+    <value>Raunveruleikastjórnun á efni, raunveruleg geymslupláss, dauði og endurlífgun</value>
+  </data>
+  <data name="Description_Scenario_Asteroids" xml:space="preserve">
+    <value>Byrja í björgunarskipi með mjög takmarkað efni nálægt loftsteinasvæði</value>
+  </data>
+  <data name="Description_Scenario_EasyStart1" xml:space="preserve">
+    <value>Byrja á smástirni með einu stóru skipi og tveim litlum skipum</value>
+  </data>
+  <data name="Description_Scenario_EasyStart2" xml:space="preserve">
+    <value>Start in a green asteroid station with several large ships and small ships (this is a large scene!)</value>
+  </data>
+  <data name="Description_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Tómur heimur, engin smástirni, engin skip, tilvalið fyrir Skapandi</value>
+  </data>
+  <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
+    <value>Byrjað á yfirgefnum palli á smástirni án skipa, þú byrjar frá grunni</value>
+  </data>
+  <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Brotlent Rautt Skip</value>
+  </data>
+  <data name="Description_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Brotlent Rautt Skip</value>
+  </data>
+  <data name="HudBlockInfo_Components" xml:space="preserve">
+    <value>Hlutir</value>
+  </data>
+  <data name="HudBlockInfo_Installed_Required" xml:space="preserve">
+    <value>Komið / Vantar</value>
+  </data>
+  <data name="DisplayName_Item_Scrap" xml:space="preserve">
+    <value>Brotajárn</value>
+  </data>
+  <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
+    <value>Stórt Skip / Geimstöð</value>
+  </data>
+  <data name="HudBlockInfo_SmallShip" xml:space="preserve">
+    <value>Lítið Skip</value>
+  </data>
+  <data name="TerminalTab_Production" xml:space="preserve">
+    <value>Framleiðsla</value>
+  </data>
+  <data name="ScreenTerminalError_NoAssemblers" xml:space="preserve">
+    <value>Það eru engir samsetjarar á þessu skipi.</value>
+  </data>
+  <data name="DisplayName_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Tveir pallar</value>
+  </data>
+  <data name="Description_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Samkeppni á milli tveggja liða í netheimi</value>
+  </data>
+  <data name="Terminal_BlockIncomplete" xml:space="preserve">
+    <value> (incomplete)</value>
+  </data>
+  <data name="HudInfoInventoryVolume" xml:space="preserve">
+    <value>Volume:</value>
+  </data>
+  <data name="WorldSettings_AssemblerEfficiency" xml:space="preserve">
+    <value>Hraði samsetjara</value>
+  </data>
+  <data name="WorldSettings_Realistic" xml:space="preserve">
+    <value>Realistic</value>
+  </data>
+  <data name="WorldSettings_RefinerySpeed" xml:space="preserve">
+    <value>Hraði Grjóthreinsunarstöðvar</value>
+  </data>
+  <data name="WorldSettings_Realistic_x10" xml:space="preserve">
+    <value>x10</value>
+  </data>
+  <data name="WorldSettings_Realistic_x3" xml:space="preserve">
+    <value>x3</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x1" xml:space="preserve">
+    <value>Staðlaður hraði samsetjara</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x10" xml:space="preserve">
+    <value>Samsetjari þarf 10x minni íhluti og er 10x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x3" xml:space="preserve">
+    <value>Samsetjari þarf 3x minni íhluti og er 3x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x1" xml:space="preserve">
+    <value>Default inventory capacity</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x10" xml:space="preserve">
+    <value>Inventory capacity is 10x larger</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x3" xml:space="preserve">
+    <value>Inventory capacity is 3x larger</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x1" xml:space="preserve">
+    <value>Staðlaður hraði Grjóthreinsunarstöðvar</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x10" xml:space="preserve">
+    <value>Grjóthreinsunarstöð er 10x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x3" xml:space="preserve">
+    <value>Grjóthreinsunarstöð er 3x hraðari</value>
+  </data>
+  <data name="DisplayName_Item_SolarCell" xml:space="preserve">
+    <value>Sólarsella</value>
+  </data>
+  <data name="DisplayName_Block_SolarPanel" xml:space="preserve">
+    <value>Sólarrafhlaða</value>
+  </data>
+  <data name="ScreenTerminalProduction_Blueprints" xml:space="preserve">
+    <value>Blueprints:</value>
+  </data>
+  <data name="ScreenTerminalProduction_AssemblingButton" xml:space="preserve">
+    <value>Assembling</value>
+  </data>
+  <data name="ScreenTerminalProduction_ControlPanelButton" xml:space="preserve">
+    <value>Control panel</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassembleAllButton" xml:space="preserve">
+    <value>Disassemble all</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassemblingButton" xml:space="preserve">
+    <value>Disassembling</value>
+  </data>
+  <data name="ScreenTerminalProduction_GainedAndAvailable" xml:space="preserve">
+    <value>Gained / Available</value>
+  </data>
+  <data name="ScreenTerminalProduction_Inventory" xml:space="preserve">
+    <value>Inventory:</value>
+  </data>
+  <data name="ScreenTerminalProduction_InventoryButton" xml:space="preserve">
+    <value>Inventory</value>
+  </data>
+  <data name="ScreenTerminalProduction_ProductionQueue" xml:space="preserve">
+    <value>Production queue:</value>
+  </data>
+  <data name="ScreenTerminalProduction_RequiredAndAvailable" xml:space="preserve">
+    <value>Required / Available</value>
+  </data>
+  <data name="ScreenTerminalProduction_StoredMaterials" xml:space="preserve">
+    <value>Stored materials:</value>
+  </data>
+  <data name="ToolTipTerminalProduction_AssemblingMode" xml:space="preserve">
+    <value>Assembling mode: ingots to components</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassembleAll" xml:space="preserve">
+    <value>Disassemble all items in inventory</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassemblingMode" xml:space="preserve">
+    <value>Disassembling mode: components to ingots</value>
+  </data>
+  <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
+    <value>Kveikja eða slökkva á endurtekningu</value>
+  </data>
+  <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
+    <value>Skemmdir vegna vélarútblástri</value>
+  </data>
+  <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
+    <value>Vélarútblástur skaðar byggingar, leikmenn og litla hluti</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCargoShips" xml:space="preserve">
+    <value>Hvort að óvænt flutningaskip birtast</value>
+  </data>
+  <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
+    <value>Flutningaskip</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
+    <value>Ragnarök (óraunverulegt)</value>
+  </data>
+  <data name="FirstApril2014" xml:space="preserve">
+    <value>1. Apríl! Ekki segja neinum!</value>
+  </data>
+  <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
+    <value>Gervimassi</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
+    <value>Control Station</value>
+  </data>
+  <data name="DisplayName_Block_Collector" xml:space="preserve">
+    <value>Safnari</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit3" xml:space="preserve">
+    <value>Flight Seat</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Face" xml:space="preserve">
+    <value>Gluggi 1x1 Framan</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Flat" xml:space="preserve">
+    <value>Gluggi 1x1 Flatur</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Inv" xml:space="preserve">
+    <value>Gluggi 1x1 Öfug.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Side" xml:space="preserve">
+    <value>Gluggi 1x1 Hlið</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Slope" xml:space="preserve">
+    <value>Gluggi 1x1 Hallandi</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Face" xml:space="preserve">
+    <value>Gluggi 1x2 Framan</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Flat" xml:space="preserve">
+    <value>Gluggi 1x2 Flatur</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Inv" xml:space="preserve">
+    <value>Gluggi 1x2 Öfug.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideLeft" xml:space="preserve">
+    <value>Gluggi 1x2 Hlið</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideRight" xml:space="preserve">
+    <value>Gluggi 1x2 Hægri Hlið</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Slope" xml:space="preserve">
+    <value>Gluggi 1x2 Hallandi</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3Flat" xml:space="preserve">
+    <value>Gluggi 2x3 Flatur</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
+    <value>Gluggi 3x3 Flatur</value>
+  </data>
+  <data name="ControlDescSingleAllMode" xml:space="preserve">
+    <value>Stök / öll vopnagerð (stjórnklefa)</value>
+  </data>
+  <data name="Terminal_UseConveyorSystem" xml:space="preserve">
+    <value>Nota færibandskerfi</value>
+  </data>
+  <data name="Terminal_CollectAll" xml:space="preserve">
+    <value>Safna saman öllu</value>
+  </data>
+  <data name="Terminal_ThrowOut" xml:space="preserve">
+    <value>Henda út</value>
+  </data>
+  <data name="DisplayName_Block_Connector" xml:space="preserve">
+    <value>Tengjari</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTube" xml:space="preserve">
+    <value>Færibandstúpa</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1FlatInv" xml:space="preserve">
+    <value>Gluggi 1x1 Flatur Öfug.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2FlatInv" xml:space="preserve">
+    <value>Gluggi 1x2 Flatur Öfug.</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3FlatInv" xml:space="preserve">
+    <value>Gluggi 2x3 Flatur Öfug.</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
+    <value>Gluggi 3x3 Flatur Öfug.</value>
+  </data>
+  <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
+    <value>Press {0} to switch between single/all weapon mode.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
+    <value>Aiming radius</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
+    <value>NATÓ 5.56x45 mm</value>
+  </data>
+  <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
+    <value>Hjól 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Wheel3x3" xml:space="preserve">
+    <value>Hjól 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
+    <value>Hjól 5x5</value>
+  </data>
+  <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
+    <value>Kvörnari</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPower" xml:space="preserve">
+    <value>Gefin orka hefur á kraft stöðugleikamönduls</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPower" xml:space="preserve">
+    <value>Rafmagn</value>
+  </data>
+  <data name="DisplayName_Block_Decoy" xml:space="preserve">
+    <value>Truflun</value>
+  </data>
+  <data name="TerminalButton_GroupSave" xml:space="preserve">
+    <value>Vista</value>
+  </data>
+  <data name="BlockActionTitle_Lock" xml:space="preserve">
+    <value>Læsa</value>
+  </data>
+  <data name="BlockActionTitle_Unlock" xml:space="preserve">
+    <value>Aflæsa</value>
+  </data>
+  <data name="BlockActionTitle_Reverse" xml:space="preserve">
+    <value>Afturábak</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentInput" xml:space="preserve">
+    <value>Núverandi inngjöf</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentMass" xml:space="preserve">
+    <value>Núverandi Massi:</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentOutput" xml:space="preserve">
+    <value>Núverandi útgjöf:</value>
+  </data>
+  <data name="BlockPropertiesText_LockState" xml:space="preserve">
+    <value>Staða á lás:</value>
+  </data>
+  <data name="BlockPropertiesText_MaxOutput" xml:space="preserve">
+    <value>Mesta útgjöf</value>
+  </data>
+  <data name="BlockPropertiesText_MaxRequiredInput" xml:space="preserve">
+    <value>Mesta inngjöf sem þarf:</value>
+  </data>
+  <data name="BlockPropertiesText_RequiredInput" xml:space="preserve">
+    <value>Inngjöf sem þarf:</value>
+  </data>
+  <data name="BlockPropertiesText_Type" xml:space="preserve">
+    <value>Tegund:</value>
+  </data>
+  <data name="BlockPropertyValue_Locked" xml:space="preserve">
+    <value>Læst</value>
+  </data>
+  <data name="BlockPropertyValue_ReadyToLock" xml:space="preserve">
+    <value>Tilbúið til að læsa</value>
+  </data>
+  <data name="BlockPropertyValue_Unlocked" xml:space="preserve">
+    <value>Ólæst</value>
+  </data>
+  <data name="Quote70Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote70Text" xml:space="preserve">
+    <value>Sköpun er bara gáfan að leika sér.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurved" xml:space="preserve">
+    <value>Bogin Færibandstúpa</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetDecoys" xml:space="preserve">
+    <value>Skjóta brellur</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMeteors" xml:space="preserve">
+    <value>Skjóta loftsteina</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
+    <value>Skjóta hluti á hreyfingu</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
+    <value>Skjóta eldflaugar</value>
+  </data>
+  <data name="DisplayName_Block_ShipWelder" xml:space="preserve">
+    <value>Suðtæki</value>
+  </data>
+  <data name="NotificationEnergyCritical" xml:space="preserve">
+    <value>Rafmagnið er of lágt.</value>
+  </data>
+  <data name="NotificationEnergyLow" xml:space="preserve">
+    <value>Rafmagnið er lágt.</value>
+  </data>
+  <data name="NotificationEnergyNo" xml:space="preserve">
+    <value>Ekkert Rafmagn</value>
+  </data>
+  <data name="NotificationFuelCritical" xml:space="preserve">
+    <value>Eldsneytið er of lágt.</value>
+  </data>
+  <data name="NotificationFuelLow" xml:space="preserve">
+    <value>Eldsneytið er lágt.</value>
+  </data>
+  <data name="NotificationFuelNo" xml:space="preserve">
+    <value>Ekkert Eldsneyti</value>
+  </data>
+  <data name="NotificationMeteorInbound" xml:space="preserve">
+    <value>Loftsteinaregn.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
+    <value>Færibandstúpa</value>
+  </data>
+  <data name="DisplayName_Block_ConnectorSmall" xml:space="preserve">
+    <value>Útkastarl</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorFrame" xml:space="preserve">
+    <value>Færibandsrammi</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSmall" xml:space="preserve">
+    <value>Lítið færiband</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurvedSmall" xml:space="preserve">
+    <value>Lítil bogin túpa</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeSmall" xml:space="preserve">
+    <value>Lítil færibandstúpa</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
+    <value>Ýttu á {0} til að opna geymslupláss</value>
+  </data>
+  <data name="TerminalTab_Info" xml:space="preserve">
+    <value>Uppl.</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertButton" xml:space="preserve">
+    <value>Breyta í skip</value>
+  </data>
+  <data name="TerminalTab_Info_Conveyors" xml:space="preserve">
+    <value>Færibönd:</value>
+  </data>
+  <data name="TerminalTab_Info_Blocks" xml:space="preserve">
+    <value>Kubbar:</value>
+  </data>
+  <data name="TerminalTab_Info_GravGens" xml:space="preserve">
+    <value>Þyngdarafls framleiðandi</value>
+  </data>
+  <data name="TerminalTab_Info_Lights" xml:space="preserve">
+    <value>Ljós:</value>
+  </data>
+  <data name="TerminalTab_Info_NonArmor" xml:space="preserve">
+    <value>Ekki brynju kubbar</value>
+  </data>
+  <data name="TerminalTab_Info_Triangles" xml:space="preserve">
+    <value>Þríhyrningar:</value>
+  </data>
+  <data name="TerminalTab_Info_Reflectors" xml:space="preserve">
+    <value>Spotlights: </value>
+  </data>
+  <data name="TerminalTab_Info_Thrusters" xml:space="preserve">
+    <value>Vélar:</value>
+  </data>
+  <data name="TerminalTab_Info_VirtualMass" xml:space="preserve">
+    <value>Artificial masses: </value>
+  </data>
+  <data name="TerminalTab_Info_BlocksTooltip" xml:space="preserve">
+    <value>Heildartala yfir kubba í hnitakerfi.</value>
+  </data>
+  <data name="TerminalTab_Info_TrianglesTooltip" xml:space="preserve">
+    <value>Þríhyrningar til að teikna. Tækniuppplýsingar.
+ Hærri tölur áhrifa getu.</value>
+  </data>
+  <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
+    <value>Sameina kubb</value>
+  </data>
+  <data name="NewVersionAvailable" xml:space="preserve">
+    <value>Ný gerð af Space Engineers er tilbúin!</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
+    <value>Leyfa áhorfendur í þessum heim</value>
+  </data>
+  <data name="WorldSettings_EnableSpectator" xml:space="preserve">
+    <value>Leyfa áhorfendur</value>
+  </data>
+  <data name="PlayerCharacterColorBlack" xml:space="preserve">
+    <value>Svartur</value>
+  </data>
+  <data name="PlayerCharacterColorBlue" xml:space="preserve">
+    <value>Blár</value>
+  </data>
+  <data name="PlayerCharacterColorDefault" xml:space="preserve">
+    <value>Skuggi</value>
+  </data>
+  <data name="PlayerCharacterColorGreen" xml:space="preserve">
+    <value>Grænn</value>
+  </data>
+  <data name="PlayerCharacterColorRed" xml:space="preserve">
+    <value>Rauður</value>
+  </data>
+  <data name="PlayerCharacterColorWhite" xml:space="preserve">
+    <value>Hvítur</value>
+  </data>
+  <data name="PlayerCharacterColorYellow" xml:space="preserve">
+    <value>Gulur</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
+    <value>Stýra vélum</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlWheels" xml:space="preserve">
+    <value>Stýrihjól</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Notar hjólastjórnun</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Sýnir hvort að mótorinn er stjórnaður eins og hjól beint frá stjórnklefa.</value>
+  </data>
+  <data name="TerminalTab_Info_Rotors" xml:space="preserve">
+    <value>Mótorar</value>
+  </data>
+  <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
+    <value>Brotkraftur</value>
+  </data>
+  <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
+    <value>Sjálflæsing</value>
+  </data>
+  <data name="SpectatorControls_None_Desc" xml:space="preserve">
+    <value>Fara aftur í leikmann / stjórnklefa</value>
+  </data>
+  <data name="SpectatorControls_Free_Desc" xml:space="preserve">
+    <value>Free spectator. You can still shoot and do actions with controlled object</value>
+  </data>
+  <data name="SpectatorControls_Static_Desc" xml:space="preserve">
+    <value>Static spectator. You control character / cockpit, but camera is static</value>
+  </data>
+  <data name="WorldSettings_Advanced" xml:space="preserve">
+    <value>Flóknari</value>
+  </data>
+  <data name="TerminalTab_Factions" xml:space="preserve">
+    <value>Flokkar</value>
+  </data>
+  <data name="TerminalTab_Factions_Create" xml:space="preserve">
+    <value>Stofna</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateToolTip" xml:space="preserve">
+    <value>Stofna nýjan flokk</value>
+  </data>
+  <data name="TerminalTab_Factions_Leave" xml:space="preserve">
+    <value>Yfirgefa</value>
+  </data>
+  <data name="TerminalTab_Factions_Join" xml:space="preserve">
+    <value>Ganga í </value>
+  </data>
+  <data name="TerminalTab_Factions_JoinToolTip" xml:space="preserve">
+    <value>Senda umsóknarbeiðni til valinn flokks</value>
+  </data>
+  <data name="String1TerminalTab_Factions_LeaveToolTip" xml:space="preserve">
+    <value>Yfirgefa þennan flokk</value>
+  </data>
+  <data name="TerminalTab_Factions_Enemy" xml:space="preserve">
+    <value>Lýsa yfir stríði</value>
+  </data>
+  <data name="TerminalTab_Factions_Friend" xml:space="preserve">
+    <value>Biðja um frið</value>
+  </data>
+  <data name="TerminalTab_Factions_FriendToolTip" xml:space="preserve">
+    <value>Biðja um frið við valinn flokk</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFaction" xml:space="preserve">
+    <value>Stofna nýjan flokk</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionDescription" xml:space="preserve">
+    <value>Opinber uppl:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionName" xml:space="preserve">
+    <value>Nafn</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfo" xml:space="preserve">
+    <value>Einka uppl:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfoToolTip" xml:space="preserve">
+    <value>Sýnilegt aðeins fyrir meðlimi</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTag" xml:space="preserve">
+    <value>Merki</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
+    <value>Flokksmerki (3 stafir amk.)</value>
+  </data>
+  <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
+    <value>Sýna þyngdarmiðju</value>
+  </data>
+  <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
+    <value>Þú þarft að yfirgefa flokkin til að stofna nýjan</value>
+  </data>
+  <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
+    <value>If checked, ships that are considered to be trash will be removed to make the game run faster.
+To be considered trash, the grid has to contain just a few blocks, be in uniform linear motion, be unpowered,
+uncontrolled, without a medbay and far enough from all players so that they can barely see it.</value>
+  </data>
+  <data name="WorldSettings_LimitWorldSize" xml:space="preserve">
+    <value>Limit world size</value>
+  </data>
+  <data name="WorldSettings_RemoveTrash" xml:space="preserve">
+    <value>Trash auto-removal</value>
+  </data>
+  <data name="TerminalTab_Factions_Private" xml:space="preserve">
+    <value>Einka uppl (sýnilegt aðeins fyrir meðlimi)</value>
+  </data>
+  <data name="Terminal_BlockAccessDenied" xml:space="preserve">
+    <value> (access denied)</value>
+  </data>
+  <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
+    <value>Edit faction</value>
+  </data>
+  <data name="NotificationRespawnShipDelete" xml:space="preserve">
+    <value>Temporary ship. It will get removed after you leave the game or spawn in a new one.</value>
+  </data>
+  <data name="TooltipWorldSettingsRespawnShipDelete" xml:space="preserve">
+    <value>Deletes respawn ship when player leaves server / spawns in new ship</value>
+  </data>
+  <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
+    <value>Delete respawn ship</value>
+  </data>
+  <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
+    <value>This faction is proposing peace treaty to your faction</value>
+  </data>
+  <data name="TerminalTab_Factions_SentPeace" xml:space="preserve">
+    <value>You are proposing peace treaty to this faction</value>
+  </data>
+  <data name="BlockPropertyDescription_BreakForce" xml:space="preserve">
+    <value>Landing gear will unlock automatically when force applied to keep it attached is larger than this value</value>
+  </data>
+  <data name="WorldSettings_WarningChangingWorldSize" xml:space="preserve">
+    <value>The selected world size is more limited than the original one. Reducing world size in an existing save could delete some ships beyond the new limit. Are you sure you want to continue?</value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastRadius" xml:space="preserve">
+    <value>Útsendingar-radíus</value>
+  </data>
+  <data name="BlockPropertyTitle_BroadcastRadius" xml:space="preserve">
+    <value>Útsendingar-radíus</value>
+  </data>
+  <data name="Default_Astronaut" xml:space="preserve">
+    <value>Geimfari</value>
+    <comment>Name of the character model in select box of wardrobe</comment>
+  </data>
+  <data name="TerminalTab_Factions_CancelJoin" xml:space="preserve">
+    <value>Hætta við aðgöngu</value>
+  </data>
+  <data name="TerminalTab_Factions_CancelPeaceRequest" xml:space="preserve">
+    <value>Hætta við beiðni</value>
+  </data>
+  <data name="TerminalTab_Factions_SentJoinToolTip" xml:space="preserve">
+    <value>Þú ert að biðja um að vera meðlimur í þessum flokki</value>
+  </data>
+  <data name="BlockOwner_Me" xml:space="preserve">
+    <value>Ég</value>
+  </data>
+  <data name="BlockOwner_Nobody" xml:space="preserve">
+    <value>Enginn</value>
+  </data>
+  <data name="BlockOwner_Owner" xml:space="preserve">
+    <value>Eigandi</value>
+  </data>
+  <data name="BlockOwner_ShareAll" xml:space="preserve">
+    <value>Leyfa öllum aðgang</value>
+  </data>
+  <data name="BlockOwner_ShareFaction" xml:space="preserve">
+    <value>Leyfa flokknum mínum aðgang</value>
+  </data>
+  <data name="BlockOwner_Transfer" xml:space="preserve">
+    <value>Færa eiganda</value>
+  </data>
+  <data name="DisplayName_Block_PassengerSeat" xml:space="preserve">
+    <value>Farþegasæti</value>
+  </data>
+  <data name="Terminal_GroupTitle" xml:space="preserve">
+    <value>Kubbahópur</value>
+  </data>
+  <data name="TerminalTab_Factions_Members" xml:space="preserve">
+    <value>Meðlimir</value>
+  </data>
+  <data name="WorldSettings_ResetOwnership" xml:space="preserve">
+    <value>Endurstilla eiganda</value>
+  </data>
+  <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
+    <value>Endursetja eiganda á öllum hlutum</value>
+  </data>
+  <data name="BatteryBlock" xml:space="preserve">
+    <value>Rafhlaða</value>
+  </data>
+  <data name="DisplayName_Block_Battery" xml:space="preserve">
+    <value>Rafhlaða</value>
+  </data>
+  <data name="BlockPropertiesText_MaxStoredPower" xml:space="preserve">
+    <value>Mesta magn af Rafmagni í geymi</value>
+  </data>
+  <data name="BlockPropertiesText_StoredPower" xml:space="preserve">
+    <value>Hlaðið Rafmagn</value>
+  </data>
+  <data name="ToolTipBatteryBlock" xml:space="preserve">
+    <value>Haka við fyrir  rafmagnsgeymi, óhakað fyrir rafmagnsútstreymi</value>
+    <comment>checkbox tooltip (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockPropertyTitle_Recharge" xml:space="preserve">
+    <value>Hlaða</value>
+    <comment>Recharge checkbox in terminal (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockOwner_ShareNone" xml:space="preserve">
+    <value>Leyfa engum aðgang</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_half" xml:space="preserve">
+    <value>Minka hraða á Kvörnara um 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x1" xml:space="preserve">
+    <value>Venjulegur Kvörnhraði</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x2" xml:space="preserve">
+    <value>Kvörnhraði er 2x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x5" xml:space="preserve">
+    <value>Kvörnhraði er 5x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_half" xml:space="preserve">
+    <value>Minnka suðhraða um 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x1" xml:space="preserve">
+    <value>Venjulegur suðhraði</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x2" xml:space="preserve">
+    <value>Suðhraði er 2x hraðari</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x5" xml:space="preserve">
+    <value>Suðhraði er 5x hraðari</value>
+  </data>
+  <data name="WorldSettings_Realistic_half" xml:space="preserve">
+    <value>x0.5</value>
+  </data>
+  <data name="WorldSettings_Realistic_x2" xml:space="preserve">
+    <value>x2</value>
+  </data>
+  <data name="WorldSettings_Realistic_x5" xml:space="preserve">
+    <value>x5</value>
+  </data>
+  <data name="WorldSettings_GrinderSpeed" xml:space="preserve">
+    <value>Kvörnhraði</value>
+  </data>
+  <data name="WorldSettings_WelderSpeed" xml:space="preserve">
+    <value>Suðhraði</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundMode" xml:space="preserve">
+    <value>Skiptir á milli raunverulegs og leikjalegs hlóðs</value>
+  </data>
+  <data name="WorldSettings_ArcadeSound" xml:space="preserve">
+    <value>Leikjalegt</value>
+  </data>
+  <data name="WorldSettings_RealisticSound" xml:space="preserve">
+    <value>Raunverulegt</value>
+  </data>
+  <data name="WorldSettings_SoundMode" xml:space="preserve">
+    <value>Hljóðhamur</value>
+  </data>
+  <data name="Terminal_ShowOnHUD" xml:space="preserve">
+    <value>Sýna á skjáupplýsingum</value>
+  </data>
+  <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
+    <value>Þú þarft að hafa virkt loftnet tengt</value>
+  </data>
+  <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
+    <value>Accept peace</value>
+  </data>
+  <data name="MessageBoxCaptionRespawn" xml:space="preserve">
+    <value>Þú munt missa allan eignarrétt og byrja sem nýr leikmaður!
+Lifna við?</value>
+  </data>
+  <data name="RespawnShip" xml:space="preserve">
+    <value>Endurlífgunarskip</value>
+  </data>
+  <data name="Factions_EnemyFaction" xml:space="preserve">
+    <value>Óvina flokkur</value>
+  </data>
+  <data name="Factions_NeutralFaction" xml:space="preserve">
+    <value>Hlutlaus flokkur</value>
+  </data>
+  <data name="Factions_YourFaction" xml:space="preserve">
+    <value>Þinn flokkur</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowInteracted" xml:space="preserve">
+    <value>Sýna geymslupláss af völdnum hlut (eða líki)</value>
+  </data>
+  <data name="HideEmpty" xml:space="preserve">
+    <value>Fela tómt</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_Handbrake" xml:space="preserve">
+    <value>Handbremsa</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Damping" xml:space="preserve">
+    <value>Dempari</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Strength" xml:space="preserve">
+    <value>Styrkleiki</value>
+  </data>
+  <data name="ScreenTerminal_Infinite" xml:space="preserve">
+    <value>Óendanlegt</value>
+  </data>
+  <data name="WorldSettings_ClientCanSave" xml:space="preserve">
+    <value>Leikmenn geta vistað</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
+    <value>Ef hjólið er knúið</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Steering" xml:space="preserve">
+    <value>Stjórna stýringu á þessum dempara frá stjórnklefa</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Propulsion" xml:space="preserve">
+    <value>Knúningur</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
+    <value>Stýring</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
+    <value>Stjórnar mótstöðu hjóls með að breyta þrýstingi í dekkinu.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Friction" xml:space="preserve">
+    <value>Mótstaða</value>
+  </data>
+  <data name="DisplayName_Block_Suspension1x1" xml:space="preserve">
+    <value>Hjóldempari 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Suspension3x3" xml:space="preserve">
+    <value>Hjóldempari 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Suspension5x5" xml:space="preserve">
+    <value>Hjóldempari 5x5</value>
+  </data>
+  <data name="NotificationWheelNotPlaced" xml:space="preserve">
+    <value>Ekki var hægt að setja niður hjól</value>
+  </data>
+  <data name="Factions_YourBlock" xml:space="preserve">
+    <value>Þinn kubbur (enginn flokkur)</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Power" xml:space="preserve">
+    <value>Rafmagn fyrir knúning</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
+    <value>Rafmagn</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
+  <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
+    <value>Gluggi í miðju</value>
+  </data>
+  <data name="ControlDescBrake" xml:space="preserve">
+    <value>Bremsa</value>
+  </data>
+  <data name="ControlDescLoot" xml:space="preserve">
+    <value>Stela úr dauðu líki</value>
+  </data>
+  <data name="NotificationObstructingBlockDuringMerge" xml:space="preserve">
+    <value>Get ekki sameinað skip! Sumir kubbar blandast saman eftir sameiningu!</value>
+  </data>
+  <data name="ToolTipWorldSettingsPermanentDeath" xml:space="preserve">
+    <value>If true, player loses everything if he dies and has no available medical room.</value>
+  </data>
+  <data name="WorldSettings_PermanentDeath" xml:space="preserve">
+    <value>Endanlegur dauði</value>
+  </data>
+  <data name="DisplayName_Item_PowerCell" xml:space="preserve">
+    <value>Rafmagns-sella</value>
+  </data>
+  <data name="BlockPropertiesText_DepletedIn" xml:space="preserve">
+    <value>Verður tómt eftir:</value>
+  </data>
+  <data name="BlockPropertiesText_RechargedIn" xml:space="preserve">
+    <value>Verður hlaðið eftir:</value>
+  </data>
+  <data name="BlockPropertyButtonOff_Retract" xml:space="preserve">
+    <value>Setja inn</value>
+  </data>
+  <data name="BlockPropertyButtonOn_Expand" xml:space="preserve">
+    <value>Stækka</value>
+  </data>
+  <data name="BlockPropertyTitle_Force" xml:space="preserve">
+    <value>Kraftur</value>
+  </data>
+  <data name="BlockPropertyTitle_MaximalDistance" xml:space="preserve">
+    <value>Hámarkslengd</value>
+  </data>
+  <data name="BlockPropertyTitle_MinimalDistance" xml:space="preserve">
+    <value>Lágmarkslengd</value>
+  </data>
+  <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
+    <value>Hröðun</value>
+  </data>
+  <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
+    <value>Rafhlöður í notkun:</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAccept" xml:space="preserve">
+    <value>Samþykkja alla</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptToolTip" xml:space="preserve">
+    <value>Sjálfkrafa samþykkja flokksumsóknir</value>
+  </data>
+  <data name="BlockPropertyTitle_Semiauto" xml:space="preserve">
+    <value>Hálf-sjálfvirkt</value>
+  </data>
+  <data name="ToolTipBatteryBlock_Semiauto" xml:space="preserve">
+    <value>Mun hlaða þegar rafmagn er komið í 0, mun nota rafmagn þegar rafhlaðan er full.</value>
+  </data>
+  <data name="BlockAction_Toggle" xml:space="preserve">
+    <value>Toggle block</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequest" xml:space="preserve">
+    <value>Accept peace</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequestToolTip" xml:space="preserve">
+    <value>Automatically accept peace requests</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorRotorDisplacement" xml:space="preserve">
+    <value>Allows to move the rotor grid up or down to solve various alignment issues</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorRotorDisplacement" xml:space="preserve">
+    <value>Rotor displacement</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
+    <value>Blast door</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
+    <value>Blast door corner</value>
+  </data>
+  <data name="DisplayName_Block_ArmorSide" xml:space="preserve">
+    <value>Blast door edge</value>
+  </data>
+  <data name="BlockAction_RemoveFromToolbar" xml:space="preserve">
+    <value>[remove from toolbar]</value>
+  </data>
+  <data name="DisplayName_Block_PistonBase" xml:space="preserve">
+    <value>Piston</value>
+  </data>
+  <data name="ToolbarAction_Decrease" xml:space="preserve">
+    <value>Decrease</value>
+  </data>
+  <data name="ToolbarAction_Increase" xml:space="preserve">
+    <value>Increase</value>
+  </data>
+  <data name="ToolbarAction_Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustOverride" xml:space="preserve">
+    <value>Overriding thruster will cause activation of thruster even without cockpit</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
+    <value>Thrust override</value>
+  </data>
+  <data name="BlockAction_Switch" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="BlockAction_DoorClosed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="BlockAction_DoorOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="DisplayName_Block_PistonTop" xml:space="preserve">
+    <value>Top Piston Part</value>
+  </data>
+  <data name="DisplayName_Block_RotorPart" xml:space="preserve">
+    <value>Rotor Part</value>
+  </data>
+  <data name="DisplayName_Block_ArmorInvCorner" xml:space="preserve">
+    <value>Blast door corner inverted</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroOverride" xml:space="preserve">
+    <value>If set, the gyro does not respond to cockpit controls, but can instead be controlled manually using the terminal control sliders</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroOverride" xml:space="preserve">
+    <value>Override controls</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPitchOverride" xml:space="preserve">
+    <value>Pitch component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroRollOverride" xml:space="preserve">
+    <value>Roll component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroYawOverride" xml:space="preserve">
+    <value>Yaw component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPitchOverride" xml:space="preserve">
+    <value>Pitch override</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroRollOverride" xml:space="preserve">
+    <value>Roll override</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
+    <value>Yaw override</value>
+  </data>
+  <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
+    <value>Current position: </value>
+  </data>
+  <data name="HudEnergyGroupBatteries" xml:space="preserve">
+    <value>Batteries</value>
+  </data>
+  <data name="BlockActionTitle_SwitchLock" xml:space="preserve">
+    <value>Switch lock</value>
+  </data>
+  <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
+    <value>Show ship name</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowShipName" xml:space="preserve">
+    <value>Show ship name</value>
+  </data>
+  <data name="BroadcastStatus_Connected" xml:space="preserve">
+    <value>Remote access</value>
+  </data>
+  <data name="BroadcastStatus_OutOfBroadcastingRange" xml:space="preserve">
+    <value>Out of broadcasting range</value>
+  </data>
+  <data name="BroadcastStatus_OutOfReceivingRange" xml:space="preserve">
+    <value>Out of receiving range</value>
+  </data>
+  <data name="ScreenTerminalError_ShipHasBeenDisconnected" xml:space="preserve">
+    <value>Ship has been disconnected from terminal</value>
+  </data>
+  <data name="CustomShipName_LargeShip" xml:space="preserve">
+    <value>Large Ship</value>
+  </data>
+  <data name="CustomShipName_SmallShip" xml:space="preserve">
+    <value>Small Ship</value>
+  </data>
+  <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
+    <value>Direct access</value>
+  </data>
+  <data name="BlockOwner_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
+    <value>Press {0} to setup panel's buttons</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
+    <value>Radius of the gravity field</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="DisplayName_Block_GravityGeneratorSphere" xml:space="preserve">
+    <value>Spherical Gravity Generator</value>
+  </data>
+  <data name="BroadcastStatus_Me" xml:space="preserve">
+    <value>Me</value>
+  </data>
+  <data name="ScreenTerminal_ShipList" xml:space="preserve">
+    <value>Accessible ships</value>
+  </data>
+  <data name="CustomShipName_Platform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="HudInfoNameBroadcastRange" xml:space="preserve">
+    <value>Radio:</value>
+  </data>
+  <data name="BlockPropertyText_AnyoneCanUse" xml:space="preserve">
+    <value>Anyone Can Use</value>
+  </data>
+  <data name="BlockPropertyDescription_AnyoneCanUse" xml:space="preserve">
+    <value>If false checks whether player pressing button has access to the block.</value>
+  </data>
+  <data name="DefinitionError_BlockWithComputerNotTerminalBlock" xml:space="preserve">
+    <value>Definition for {0} contains computer, but the block's TypeId is not a terminal block. This means that the block can be owned, but the ownership cannot be changed via terminal.
+Hint: Try setting the TypeId to any block that is in the terminal - the simplest case being just TerminalBlock</value>
+  </data>
+  <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
+    <value>Button Panel</value>
+  </data>
+  <data name="SpawnInSpaceSuit" xml:space="preserve">
+    <value>Space Suit</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
+    <value>Components</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_LargeBlocks" xml:space="preserve">
+    <value>Large Blocks</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
+    <value>Small Blocks</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Verkfæri</value>
+  </data>
+  <data name="BlockActionTitle_View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="DisplayName_Block_Camera" xml:space="preserve">
+    <value>Camera</value>
+  </data>
+  <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
+    <value>Error loading original game content, cannot load file:
+{0}
+
+Original game content has been probably modified, revert any modification and try again. Best way to do it is to delete folder 'SpaceEngineers\Content\Data' and then select in Steam 'Verify local game cache'.
+
+Reinstalling the game is not enough, because Steam does not delete unknown files!</value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
+    <value>Broadcast using antennas</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
+    <value>Any item accepted by {0}</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
+    <value>Any item produced by {0}</value>
+  </data>
+  <data name="WorkshopTag_Production" xml:space="preserve">
+    <value>Production</value>
+  </data>
+  <data name="WorkshopTag_RespawnShip" xml:space="preserve">
+    <value>Respawn Ship</value>
+  </data>
+  <data name="NotificationHintPressToExitCamera" xml:space="preserve">
+    <value>Press {0} to exit camera view</value>
+  </data>
+  <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
+    <value>Arc furnace</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Caption" xml:space="preserve">
+    <value>Spawn Menu</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnAsteroid" xml:space="preserve">
+    <value>Spawn Asteroid</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMax" xml:space="preserve">
+    <value>Back extent</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMin" xml:space="preserve">
+    <value>Front extent</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMax" xml:space="preserve">
+    <value>Top extent</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMin" xml:space="preserve">
+    <value>Bottom extent</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMax" xml:space="preserve">
+    <value>Right extent</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMin" xml:space="preserve">
+    <value>Left extent</value>
+  </data>
+  <data name="DisplayName_Block_Sensor" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkInterval" xml:space="preserve">
+    <value>Blinking interval of light (in seconds)</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkLenght" xml:space="preserve">
+    <value>Length  of blinking as percentage of blink interval</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkOffset" xml:space="preserve">
+    <value>Offset of blinking as percentage of blink interval</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkInterval" xml:space="preserve">
+    <value>Blink Interval</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkLenght" xml:space="preserve">
+    <value>Blink Length</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkOffset" xml:space="preserve">
+    <value>Blink Offset</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_DetonationTime" xml:space="preserve">
+    <value>Detonation time</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StartCountdown" xml:space="preserve">
+    <value>Start countdown</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StopCountdown" xml:space="preserve">
+    <value>Stop countdown</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Safety" xml:space="preserve">
+    <value>Safety</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Detonate" xml:space="preserve">
+    <value>Detonate</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextArmed" xml:space="preserve">
+    <value>Armed</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextDisarmed" xml:space="preserve">
+    <value>Disarmed</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorToolbarOpen" xml:space="preserve">
+    <value>Opens toolbar</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorToolbarOpen" xml:space="preserve">
+    <value>Setup actions</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFloatingObjects" xml:space="preserve">
+    <value>Detect floating objects</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectLargeShips" xml:space="preserve">
+    <value>Detect large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectPlayers" xml:space="preserve">
+    <value>Detect players</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectSmallShips" xml:space="preserve">
+    <value>Detect small ships</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBack" xml:space="preserve">
+    <value>How far the sensing field extends backwards from the sensor's position</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBottom" xml:space="preserve">
+    <value>How far the sensing field extends below the sensor's position</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldFront" xml:space="preserve">
+    <value>How far the sensing field extends in front of the sensor</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldLeft" xml:space="preserve">
+    <value>How far the sensing field extends to the left from the sensor's position</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldRight" xml:space="preserve">
+    <value>How far the sensing field extends to the right from the sensor's position</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldTop" xml:space="preserve">
+    <value>How far the sensing field extends above the sensor's position</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SafetyTooltip" xml:space="preserve">
+    <value>When unchecked, the warhead can be detonated manually. This does not affect automatic detonation after the countdown.</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
+    <value>Detect stations</value>
+  </data>
+  <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
+    <value>Show gravity range</value>
+  </data>
+  <data name="TerminalTab_Info_ShowSenzorGizmo" xml:space="preserve">
+    <value>Show sensors field range</value>
+  </data>
+  <data name="ControlRemote" xml:space="preserve">
+    <value>Control</value>
+  </data>
+  <data name="DisplayName_Block_RemoteControl" xml:space="preserve">
+    <value>Remote Control</value>
+  </data>
+  <data name="DisplayName_Block_TimerBlock" xml:space="preserve">
+    <value>Timer Block</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToolbarOpen" xml:space="preserve">
+    <value>Setup actions</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerTrigger" xml:space="preserve">
+    <value>Trigger now</value>
+  </data>
+  <data name="TerminalControlPanel_TimerDelay" xml:space="preserve">
+    <value>Delay</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
+    <value>Time to trigger: </value>
+  </data>
+  <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
+    <value>Reloadable Rocket Launcher</value>
+  </data>
+  <data name="DisplayName_Category_AllBlocks" xml:space="preserve">
+    <value>All Blocks</value>
+  </data>
+  <data name="DisplayName_Category_ShipGroups" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="DisplayName_Category_ArmorBlocks" xml:space="preserve">
+    <value>Armor Blocks</value>
+  </data>
+  <data name="DisplayName_Category_CharacterAnimations" xml:space="preserve">
+    <value>Character Animations</value>
+  </data>
+  <data name="DisplayName_Category_CharacterTools" xml:space="preserve">
+    <value>Character Tools</value>
+  </data>
+  <data name="DisplayName_Category_ConveyorBlocks" xml:space="preserve">
+    <value>Conv./Cargo Blocks</value>
+  </data>
+  <data name="DisplayName_Category_ShipLights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="DisplayName_Category_ShipThrusters" xml:space="preserve">
+    <value>Carracer12</value>
+  </data>
+  <data name="DisplayName_Category_ShipWeaponsTools" xml:space="preserve">
+    <value>Carracer12</value>
+  </data>
+  <data name="DisplayName_Category_WindowBlocks" xml:space="preserve">
+    <value>Carracer12</value>
+  </data>
+  <data name="DisplayName_Category_LargeBlocks" xml:space="preserve">
+    <value>Large Blocks</value>
+  </data>
+  <data name="DisplayName_Category_SmallBlocks" xml:space="preserve">
+    <value>Small Blocks</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Assembler" xml:space="preserve">
+    <value>Respawn Ship 2</value>
+  </data>
+  <data name="DisplayName_RespawnShip_EscapePod" xml:space="preserve">
+    <value>Escape Pod</value>
+  </data>
+  <data name="DisplayName_RespawnShip_RefineryAssembler" xml:space="preserve">
+    <value>Respawn Ship 3</value>
+  </data>
+  <data name="DisplayName_RespawnShip_ShipDrill" xml:space="preserve">
+    <value>Small Drill Ship</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Yellow" xml:space="preserve">
+    <value>Respawn Ship</value>
+  </data>
+  <data name="ScreenMedicals_OwnerTimeoutColumn" xml:space="preserve">
+    <value>Owner / Timeout</value>
+  </data>
+  <data name="ScreenMedicals_RespawnWhenShipReady" xml:space="preserve">
+    <value>Will spawn in "{0}" when it is ready.</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipReady" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipNotReady" xml:space="preserve">
+    <value>Not ready</value>
+  </data>
+  <data name="TerminalTab_Info_ShowAntenaGizmo" xml:space="preserve">
+    <value>Show antenna range</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="WorldSettings_RespawnShipCooldown" xml:space="preserve">
+    <value>Respawn ship cooldown</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_Default" xml:space="preserve">
+    <value>Default cooldowns</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x01" xml:space="preserve">
+    <value>Default / 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x02" xml:space="preserve">
+    <value>Default / 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x05" xml:space="preserve">
+    <value>Default / 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x10" xml:space="preserve">
+    <value>Default x 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x100" xml:space="preserve">
+    <value>Default x 100</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x2" xml:space="preserve">
+    <value>Default x 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x20" xml:space="preserve">
+    <value>Default x 20</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x5" xml:space="preserve">
+    <value>Default x 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
+    <value>Default x 50</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
+    <value>Cooldowns disabled</value>
+  </data>
+  <data name="DisplayName_Block_FighterCockpit" xml:space="preserve">
+    <value>Fighter Cockpit</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectAsteroids" xml:space="preserve">
+    <value>Detect asteroids</value>
+  </data>
+  <data name="DisplayName_Category_Cockpit" xml:space="preserve">
+    <value>Cockpit Blocks</value>
+  </data>
+  <data name="DisplayName_Category_Power" xml:space="preserve">
+    <value>Power Blocks</value>
+  </data>
+  <data name="DisplayName_Category_Production" xml:space="preserve">
+    <value>Production Blocks</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemAmount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemType" xml:space="preserve">
+    <value>Item type</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
+    <value>Spawn Object</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
+    <value>Asteroids</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidAddRandomMaterials" xml:space="preserve">
+    <value>Add Random Materials</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidCoreMaterial" xml:space="preserve">
+    <value>Core Material</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidSurfaceMaterial" xml:space="preserve">
+    <value>Surface Material</value>
+  </data>
+  <data name="Assembler_SlaveMode" xml:space="preserve">
+    <value>Carracer12 Mode</value>
+  </data>
+  <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
+    <value>Ammo Assembler</value>
+  </data>
+  <data name="DisplayName_Block_Base_Components_Assembler" xml:space="preserve">
+    <value>Base Components Assembler</value>
+  </data>
+  <data name="DisplayName_Block_Big_Arc_Furnace" xml:space="preserve">
+    <value>Big Arc Furnace</value>
+  </data>
+  <data name="DisplayName_Block_Big_Gas_Centrifugal_Refinery" xml:space="preserve">
+    <value>Big Gas Centrifugal Refinery</value>
+  </data>
+  <data name="DisplayName_Block_Big_Precious_Furnace" xml:space="preserve">
+    <value>Big Noble Metals Furnace</value>
+  </data>
+  <data name="DisplayName_Block_Big_Solids_Refinery" xml:space="preserve">
+    <value>Big Solids Refinery</value>
+  </data>
+  <data name="DisplayName_Block_Construction_Components_Assembler" xml:space="preserve">
+    <value>Construction Components Assembler</value>
+  </data>
+  <data name="DisplayName_Block_Electronics_Assembler" xml:space="preserve">
+    <value>Electronics Assembler</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ammo" xml:space="preserve">
+    <value>Ammo</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Base_Components" xml:space="preserve">
+    <value>Base Components</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_CommonMetals" xml:space="preserve">
+    <value>Common Metals</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Construction_Components" xml:space="preserve">
+    <value>Construction Components</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Electronics" xml:space="preserve">
+    <value>Electronics</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_EnergeticIngots" xml:space="preserve">
+    <value>Energetic Ingots</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ingots" xml:space="preserve">
+    <value>Ingots</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_PreciousMetals" xml:space="preserve">
+    <value>Noble Metals</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Solids" xml:space="preserve">
+    <value>Solids</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToRemoveAsteroid" xml:space="preserve">
+    <value>Are you sure you want to delete selected asteroid? (this can not be undone!)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidGenerationCanTakeLong" xml:space="preserve">
+    <value>Generating asteroids can take a long time!</value>
+  </data>
+  <data name="Antenna_EnableBroadcast" xml:space="preserve">
+    <value>Enable broadcasting</value>
+  </data>
+  <data name="ControlName_Broadcasting" xml:space="preserve">
+    <value>Broadcasting on / off</value>
+  </data>
+  <data name="LargeMissileTurretReloadingNotification" xml:space="preserve">
+    <value>Reloading</value>
+  </data>
+  <data name="HudInfoBroadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOff" xml:space="preserve">
+    <value>Broadcasting Off</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOn" xml:space="preserve">
+    <value>Broadcasting On</value>
+  </data>
+  <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
+    <value>Can not place asteroids over ships and players</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
+    <value>Advanced Rotor</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotorPart" xml:space="preserve">
+    <value>Advanced Rotor Part</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
+    <value>Invalid amount</value>
+  </data>
+  <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
+    <value>Enable or disable cooperative mode</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PredefinedAsteroids" xml:space="preserve">
+    <value>Predefined Asteroids</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralAsteroids" xml:space="preserve">
+    <value>Procedural asteroids</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSeed" xml:space="preserve">
+    <value>Seed (different seed and radius produces different asteroid)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
+    <value>Asteroid size</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
+    <value>Select Asteroid Type</value>
+  </data>
+  <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
+    <value>Any ammo magazine accepted by {0}</value>
+  </data>
+  <data name="BlockActionTitle_Detach" xml:space="preserve">
+    <value>Detach</value>
+  </data>
+  <data name="BlockActionTitle_Attach" xml:space="preserve">
+    <value>Attach</value>
+  </data>
+  <data name="Notification_NoControl" xml:space="preserve">
+    <value>Someone else is using this ship!</value>
+  </data>
+  <data name="Notification_NoControlStation" xml:space="preserve">
+    <value>Someone else is using this station!</value>
+  </data>
+  <data name="MissileLauncherReloadingNotification" xml:space="preserve">
+    <value>Reloading</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetX" xml:space="preserve">
+    <value>Horizontal offset</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetY" xml:space="preserve">
+    <value>Vertical offset</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetZ" xml:space="preserve">
+    <value>Forward offset</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationX" xml:space="preserve">
+    <value>Pitch</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationY" xml:space="preserve">
+    <value>Yaw</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationZ" xml:space="preserve">
+    <value>Roll</value>
+  </data>
+  <data name="DisplayName_Block_Projector" xml:space="preserve">
+    <value>Projector</value>
+  </data>
+  <data name="NotificationProjectorGridSize" xml:space="preserve">
+    <value>Incorrect grid size. Blueprint size must match that of the projector.</value>
+  </data>
+  <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
+    <value>Multiple grids are not supported. Only the largest grid will be used.</value>
+  </data>
+  <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
+    <value>Show grid pivot</value>
+  </data>
+  <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
+    <value>Thumb-Up</value>
+  </data>
+  <data name="DisplayName_Animation_Victory" xml:space="preserve">
+    <value>Victory</value>
+  </data>
+  <data name="DisplayName_Block_ControlPanel" xml:space="preserve">
+    <value>Control Panel</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkCorner" xml:space="preserve">
+    <value>Steel Catwalk Corner</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkPlate" xml:space="preserve">
+    <value>Steel Catwalk Plate</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
+    <value>Steel Catwalk Two Sides</value>
+  </data>
+  <data name="KeepProjectionToggle" xml:space="preserve">
+    <value>Keep Projection</value>
+  </data>
+  <data name="KeepProjectionTooltip" xml:space="preserve">
+    <value>Keep projection after building is complete. Useful for automated building, but can degrade performance.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="RemoveProjectionButton" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="DisplayName_Block_SpaceBall" xml:space="preserve">
+    <value>Space Ball</value>
+  </data>
+  <data name="DisplayName_Category_VoxelHands" xml:space="preserve">
+    <value>Voxel Hands</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallFriction" xml:space="preserve">
+    <value>Friction</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallVirtualMass" xml:space="preserve">
+    <value>Virtual mass</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockRange" xml:space="preserve">
+    <value>Range of played sound</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockVolume" xml:space="preserve">
+    <value>Volume of played sound</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockRange" xml:space="preserve">
+    <value>Range</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="DisplayName_Block_SoundBlock" xml:space="preserve">
+    <value>Sound Block</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Box" xml:space="preserve">
+    <value>Box</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
+    <value>Sphere</value>
+  </data>
+  <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
+    <value>When set, the game area is limited to a cube with a side length set to the chosen size.
+All objects that leave the game area will be removed from the game.
+Characters leaving the game area will be killed.</value>
+  </data>
+  <data name="WorldSettings_WorldSize100Km" xml:space="preserve">
+    <value>100 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize10Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize20Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize50Km" xml:space="preserve">
+    <value>50 km</value>
+  </data>
+  <data name="WorldSettings_WorldSizeUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
+    <value>Loop time</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockPlay" xml:space="preserve">
+    <value>Play</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockSoundList" xml:space="preserve">
+    <value>Sound list</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
+    <value>Loop timer: </value>
+  </data>
+  <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
+    <value>Terrain auto level</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
+    <value>Capsule</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
+    <value>Alert 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert2" xml:space="preserve">
+    <value>Alert 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert3" xml:space="preserve">
+    <value>Alert 3</value>
+  </data>
+  <data name="SoundBlock_SoundName_EnemyDetected" xml:space="preserve">
+    <value>Enemy detected</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOff" xml:space="preserve">
+    <value>Lights off</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOn" xml:space="preserve">
+    <value>Lights on</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music1" xml:space="preserve">
+    <value>Music 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music2" xml:space="preserve">
+    <value>Music 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_ObjectiveComplete" xml:space="preserve">
+    <value>Objective complete</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode" xml:space="preserve">
+    <value>Run</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
+    <value>Ramp</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
+    <value>Infinite: High density</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralLow" xml:space="preserve">
+    <value>Infinite: Low density</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralNormal" xml:space="preserve">
+    <value>Infinite: Normal density</value>
+  </data>
+  <data name="ToolTipWorldSettingsDestructibleBlocks" xml:space="preserve">
+    <value>Enable/Disable blocks destruction</value>
+  </data>
+  <data name="WorldSettings_DestructibleBlocks" xml:space="preserve">
+    <value>Destructible blocks</value>
+  </data>
+  <data name="WorkshopTag_Exploration" xml:space="preserve">
+    <value>Exploration</value>
+  </data>
+  <data name="DisplayName_Programmable_Block" xml:space="preserve">
+    <value>Programmable block</value>
+  </data>
+  <data name="ProgrammableBlock_CodeChanged" xml:space="preserve">
+    <value>Code changed</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit" xml:space="preserve">
+    <value>Remember &amp; Exit</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_Title" xml:space="preserve">
+    <value>Code editor</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_AllreadyRunning" xml:space="preserve">
+    <value>Program is already running.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_ExceptionCaught" xml:space="preserve">
+    <value>Caught exception during execution of script:</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoAssembly" xml:space="preserve">
+    <value>Assembly not found. Please compile script.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoMain" xml:space="preserve">
+    <value>Main method not found. Please add Main method into script.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_TooComplex" xml:space="preserve">
+    <value>Script execution terminated, script is too complex. Please edit and rebuilt script.</value>
+  </data>
+  <data name="ProgrammableBlock_SaveChanges" xml:space="preserve">
+    <value>Do you want to remember changes ?</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode_Tooltip" xml:space="preserve">
+    <value>Opens code editor where you can create new scripts and upload/download them from steam workshop</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode_Tooltip" xml:space="preserve">
+    <value>Run current script and notifies about any exception during run.</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit_Tooltip" xml:space="preserve">
+    <value>Remembers code inside editor and returns to terminal panel</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
+    <value>Opens workshop where you can upload your scripts or subscribe to another author's scripts.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
+    <value>Check code</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode_Tooltip" xml:space="preserve">
+    <value>Checks code inside editor for errors</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailed" xml:space="preserve">
+    <value>Compilation failed</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorFormat" xml:space="preserve">
+    <value>Line {0} : {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorList" xml:space="preserve">
+    <value>Error list</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationOk" xml:space="preserve">
+    <value>Compilation successful.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_LineNo" xml:space="preserve">
+    <value>Line : {0} / {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode" xml:space="preserve">
+    <value>Remember code</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode_Tooltip" xml:space="preserve">
+    <value>Remember current script and leave editor window open</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonCreateFromEditor" xml:space="preserve">
+    <value>Create from editor</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRefreshScripts" xml:space="preserve">
+    <value>Refresh Scripts</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonReplaceFromEditor" xml:space="preserve">
+    <value>Replace from editor</value>
+  </data>
+  <data name="ProgrammableBlock_NewScriptName" xml:space="preserve">
+    <value>Enter new name</value>
+  </data>
+  <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
+    <value>Do you want to publish this script?</value>
+  </data>
+  <data name="ProgrammableBlock_PublishScriptPublished" xml:space="preserve">
+    <value>SCRIPT PUBLISHED</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptDialogText" xml:space="preserve">
+    <value>Are you sure to replace existing script with new one from editor ?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogText" xml:space="preserve">
+    <value>Script with the name  {0} already exists. Do you want to replace it?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogTitle" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameUsed" xml:space="preserve">
+    <value>Cannot rename script because it is used by another process.</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptNotFound" xml:space="preserve">
+    <value>Cannot find the script file</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptsScreenTitle" xml:space="preserve">
+    <value>Scripts screen</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_HelpTooltip" xml:space="preserve">
+    <value>Opens steam workshop page with description about in-game programming</value>
+  </data>
+  <data name="ProgrammableBlock_DeleteScriptDialogText" xml:space="preserve">
+    <value>Are you sure you want to delete this script ?</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NotAllowed" xml:space="preserve">
+    <value>In-game scripts are disabled for this world</value>
+  </data>
+  <data name="WorldSettings_EnableIngameScripts" xml:space="preserve">
+    <value>In-game scripts</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectEnemy" xml:space="preserve">
+    <value>Detect enemy</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFriendly" xml:space="preserve">
+    <value>Detect friendly</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectOwner" xml:space="preserve">
+    <value>Detect owner</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectNeutral" xml:space="preserve">
+    <value>Detect neutral</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
+    <value>Ownership of programmable block changed. Please recompile program.</value>
+  </data>
+  <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
+    <value>-Broadcast-</value>
+  </data>
+  <data name="TerminalTab_Chat" xml:space="preserve">
+    <value>Comms</value>
+  </data>
+  <data name="WorldSettings_ViewDistance" xml:space="preserve">
+    <value>View distance</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_10_Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_15_Km" xml:space="preserve">
+    <value>15 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_20_Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_30_Km" xml:space="preserve">
+    <value>30 km - small performance hit</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_40_Km" xml:space="preserve">
+    <value>40 km - performance hit</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_50_Km" xml:space="preserve">
+    <value>50 km - big performance hit</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_5_Km" xml:space="preserve">
+    <value>5 km - low end machines</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_7_Km" xml:space="preserve">
+    <value>7 km - performance friendly</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ToolTipWorldSettingsViewDistance" xml:space="preserve">
+    <value>Larger view distances can cause performance issues depending on how many objects are in the world.
+Large view distances are not recommended on worlds with high asteroid densities.</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallRestitution" xml:space="preserve">
+    <value>Restitution</value>
+  </data>
+  <data name="TooltipScreenMods_Category_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Character" xml:space="preserve">
+    <value>Character</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Modpack" xml:space="preserve">
+    <value>Modpack</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Production" xml:space="preserve">
+    <value>Production</value>
+  </data>
+  <data name="TooltipScreenMods_Category_RespawnShip" xml:space="preserve">
+    <value>Respawn Ship</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
+    <value>Skybox</value>
+  </data>
+  <data name="TerminalTab_GPS_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="TerminalTab_GPS_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
+    <value>Show on  HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="TerminalTab_GPS_Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="TerminalTab_GPS_Z" xml:space="preserve">
+    <value>Z</value>
+  </data>
+  <data name="TerminalTab_GPS" xml:space="preserve">
+    <value>GPS</value>
+  </data>
+  <data name="TerminalTab_GPS_Add" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="TerminalTab_GPS_CopyToClipboard" xml:space="preserve">
+    <value>Copy to clipboard</value>
+  </data>
+  <data name="TerminalTab_GPS_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard" xml:space="preserve">
+    <value>New from clipboard</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent" xml:space="preserve">
+    <value>New from current pos.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_GenerateSeed" xml:space="preserve">
+    <value>Generate seed</value>
+  </data>
+  <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
+    <value>Warning: illegal data. Modifications will not be saved.</value>
+  </data>
+  <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
+    <value>Only faction members can use faction-to-faction communications</value>
+  </data>
+  <data name="TerminalTab_Chat_Offline" xml:space="preserve">
+    <value>offline</value>
+  </data>
+  <data name="TerminalTab_Chat_Pending" xml:space="preserve">
+    <value>PENDING</value>
+  </data>
+  <data name="TerminalTab_GPS_FromChatDescPrefix" xml:space="preserve">
+    <value>By: </value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Desc" xml:space="preserve">
+    <value>New coordinates</value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Name" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard_Desc" xml:space="preserve">
+    <value>Pasted from clipboard</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Desc" xml:space="preserve">
+    <value>Current position</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
+    <value>Current</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
+    <value>Edit private text</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelTitle" xml:space="preserve">
+    <value>Private title</value>
+  </data>
+  <data name="DisplayName_Block_TextPanel" xml:space="preserve">
+    <value>Text panel</value>
+  </data>
+  <data name="NotificationHintPressToShowScreen" xml:space="preserve">
+    <value>Press {0} to show screen</value>
+  </data>
+  <data name="Terminal_Shoot" xml:space="preserve">
+    <value>Shoot</value>
+  </data>
+  <data name="Terminal_ShootOnce" xml:space="preserve">
+    <value>Shoot once</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
+    <value>Only owner</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadAll" xml:space="preserve">
+    <value>Everyone read-only</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadFaction" xml:space="preserve">
+    <value>Faction read-only</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteAll" xml:space="preserve">
+    <value>Everyone read/write</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteFaction" xml:space="preserve">
+    <value>Faction read/write</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
+    <value>Access type</value>
+  </data>
+  <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
+    <value>Generated Blocks</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromBroadcast" xml:space="preserve">
+    <value>New from broadcast</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromFactionComms" xml:space="preserve">
+    <value>New from faction comms</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromPrivateComms" xml:space="preserve">
+    <value>New from private comms</value>
+  </data>
+  <data name="ToolTipWorldSettings_ToolShake" xml:space="preserve">
+    <value>Enable shaking of ship drills and welders</value>
+  </data>
+  <data name="WorldSettings_EnableToolShake" xml:space="preserve">
+    <value>Enable tools shake</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
+    <value>Text is too long. It won't be saved.</value>
+  </data>
+  <data name="ControlName_Console" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="ControlDescCameraZoom" xml:space="preserve">
+    <value>Camera zoom</value>
+  </data>
+  <data name="EnableDamageEffects" xml:space="preserve">
+    <value>Enable damage effects</value>
+  </data>
+  <data name="ToolTipVideoOptionsEnableDamageEffects" xml:space="preserve">
+    <value>Enables/disables particle effects  for damaged blocks </value>
+  </data>
+  <data name="WorkshopTag_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorCorner" xml:space="preserve">
+    <value>Angled Heavy Armor Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorSlope" xml:space="preserve">
+    <value>Angled Heavy Armor Slope</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorCorner" xml:space="preserve">
+    <value>Rounded Heavy Armor Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorSlope" xml:space="preserve">
+    <value>Rounded Heavy Armor Slope</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorCorner" xml:space="preserve">
+    <value>Angled Armor Corner</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorSlope" xml:space="preserve">
+    <value>Angled Armor Slope</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorCorner" xml:space="preserve">
+    <value>Rounded Armor Corner</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorSlope" xml:space="preserve">
+    <value>Rounded Armor Slope</value>
+  </data>
+  <data name="ControlDescNetgraph" xml:space="preserve">
+    <value>Toggle netgraph</value>
+  </data>
+  <data name="BlockPropertyTitle_BackgroundColor" xml:space="preserve">
+    <value>Backgr.</value>
+  </data>
+  <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
+    <value>Loaded textures</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRefreshInterval" xml:space="preserve">
+    <value>Image change interval</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRemoveSelectedTextures" xml:space="preserve">
+    <value>Remove selected</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectedTextures" xml:space="preserve">
+    <value>Selected textures</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectTextures" xml:space="preserve">
+    <value>Add to selection</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenTextSize" xml:space="preserve">
+    <value>Font Size</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowTextOnScreen" xml:space="preserve">
+    <value>Show text on screen</value>
+  </data>
+  <data name="DisplayName_LCD_Panel" xml:space="preserve">
+    <value>LCD Panel</value>
+  </data>
+  <data name="DisplayName_LCD_PanelWide" xml:space="preserve">
+    <value>Wide LCD panel</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPrivate" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPublic" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
+    <value>Public title</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
+    <value>Edit public text</value>
+  </data>
+  <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
+    <value>Laser Antenna</value>
+  </data>
+  <data name="LaserAntennaModeIdle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="LaserAntennaCopyCoords" xml:space="preserve">
+    <value>Copy my coords</value>
+  </data>
+  <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
+    <value>Copy this antenna's position into clipboard</value>
+  </data>
+  <data name="LaserAntennaIdleButton" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="LaserAntennaConnectButton" xml:space="preserve">
+    <value>Connect to receiver</value>
+  </data>
+  <data name="LaserAntennaConnectGPS" xml:space="preserve">
+    <value>Connect to coords</value>
+  </data>
+  <data name="LaserAntennaSelectedCoords" xml:space="preserve">
+    <value>Selected GPS coordinates</value>
+  </data>
+  <data name="LaserAntennaPasteGPS" xml:space="preserve">
+    <value>Paste coords</value>
+  </data>
+  <data name="LaserAntennaReceiversList" xml:space="preserve">
+    <value>Known receivers</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorCorner" xml:space="preserve">
+    <value>Round Armor Corner</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorInvCorner" xml:space="preserve">
+    <value>Round Armor Inv. Corner</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
+    <value>Round Armor Slope</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
+    <value>Heavy Armor Round Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
+    <value>Heavy Armor Round Inv. Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
+    <value>Heavy Armor Round Slope</value>
+  </data>
+  <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
+    <value>Connected to </value>
+  </data>
+  <data name="LaserAntennaModeContactRec" xml:space="preserve">
+    <value>Trying to establish connection to </value>
+  </data>
+  <data name="LaserAntennaModeRotGPS" xml:space="preserve">
+    <value>Rotating towards GPS coordinates </value>
+  </data>
+  <data name="LaserAntennaModeRotRec" xml:space="preserve">
+    <value>Rotating towards </value>
+  </data>
+  <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
+    <value>Searching for a laser at GPS coordinates </value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
+    <value>Light Armor Corner 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3Smooth" xml:space="preserve">
+    <value>Light Armor Corner 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3" xml:space="preserve">
+    <value>Light Armor Inv. Corner 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3Smooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Smooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3" xml:space="preserve">
+    <value>Light Armor Slope 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
+    <value>Light Armor Slope 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Tip" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Base" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Tip" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Base" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Tip" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Base" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Smooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Tip" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Base" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Tip" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Base" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Smooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Tip" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
+    <value>These receivers are in radio range and can report their position.
+Their current state and target is in parenthesis:
+idle   laser is idling
+&gt;&gt; laser is rotating towards other receiver or GPS coordinates
+?&gt;  searching for other laser at requested GPS coordinates
+~&gt; contacting other side of link (this includes waiting for other laser
+       to turn its face to me or futile effort to contact receiver
+       which is turned off or is not there any more)
+=&gt; connection is established
+To connect to lasers not listed here you can connect to coordinates.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
+    <value>Enable idle movement</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
+    <value>Copy target coords</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
+    <value>Copy target's current or last known position into clipboard</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
+    <value>Blacklist</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
+    <value>Whitelist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
+    <value>Filter Mode</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
+    <value>Conveyor Sorter</value>
+  </data>
+  <data name="LaserAntennaOnlyPerm" xml:space="preserve">
+    <value>Only receivers set to permanent connection found</value>
+  </data>
+  <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
+    <value>Permanent connection</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
+    <value>Add new filter</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
+    <value>Active filters</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
+    <value>Blacklist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
+    <value>Whitelist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
+    <value>Small Conveyor Sorter</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
+    <value>*ammo*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
+    <value>*components*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
+    <value>*hand tools*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
+    <value>*ingots*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
+    <value>*ore*</value>
+  </data>
+  <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
+    <value>The vent will remove air from the room and store it in tanks</value>
+  </data>
+  <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
+    <value>Stockpiling tanks will not get drained by air vents</value>
+  </data>
+  <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
+    <value>Depressurize</value>
+  </data>
+  <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
+    <value>Stockpile</value>
+  </data>
+  <data name="DisplayName_Block_AirVent" xml:space="preserve">
+    <value>Air Vent</value>
+  </data>
+  <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
+    <value>Oxygen Generator</value>
+  </data>
+  <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
+    <value>Oxygen Tank</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
+    <value>Ice</value>
+  </data>
+  <data name="DisplayName_Item_Oxygen" xml:space="preserve">
+    <value>Oxygen</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
+    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
+    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+  </data>
+  <data name="World_Settings_EnableOxygen" xml:space="preserve">
+    <value>Enable oxygen</value>
+  </data>
+  <data name="Terminal_DrainAll" xml:space="preserve">
+    <value>Drain All</value>
+  </data>
+  <data name="BlockOwner_TransferTo" xml:space="preserve">
+    <value>Transfer to:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Airtight Hangar Door</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Target characters</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Target large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Target small ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Target stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Oxygen Bottle</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Refill Bottles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Create layer</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Remove layer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Auto-Refill</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Show block in terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Show hidden blocks</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygen refilled from bottles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Oxygen is critical.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Oxygen is low.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Pick planet to edit</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Erfiðleiki</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Létt</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Erfitt</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Suit energy is critically low.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Suit energy is low.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Helmet on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Cannot remove helmet on this suit.</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Update planet</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Helmet Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Helmet On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Main ship cockpit</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Main cockpit</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Available buttons</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Button name</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Enable 3rd person view</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Oxygen Output: </value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Oxygen Farm</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Random encounters</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Show distance for enemy antennas</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Show distance for friendly antennas</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Show distance for owned antennas</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Cryo Chamber</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Other side won</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Leave GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Someone Won</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Block is not powered</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Lost condition:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Win condition:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Paste GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Dampeners</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>An argument passed to your code when clicking the Run button</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Landing gear / connector</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reactors</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Thrusters</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Effectiveness Module</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Power Efficiency Module</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Productivity Module</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Open inventory</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Setup buttons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Show control panel</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+</root>

@@ -1,0 +1,4398 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="INVALID" xml:space="preserve">
+    <value>INVALID TEXT WRAPPER ENUM</value>
+    <comment>DON'T TRANSLATE</comment>
+  </data>
+  <data name="Afterburner" xml:space="preserve">
+    <value>Sprinta</value>
+  </data>
+  <data name="DisplayName_Block_Drill" xml:space="preserve">
+    <value>Burghiu</value>
+  </data>
+  <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
+    <value>Folosește instrument / Trage cu armă</value>
+  </data>
+  <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
+    <value>Modul secundar</value>
+  </data>
+  <data name="ControlName_ToggleHeadlights" xml:space="preserve">
+    <value>Lumini pornite / oprite</value>
+  </data>
+  <data name="Inventory" xml:space="preserve">
+    <value>Inventar</value>
+  </data>
+  <data name="RenderQuality" xml:space="preserve">
+    <value>Calitate randare</value>
+  </data>
+  <data name="RenderQualityExtreme" xml:space="preserve">
+    <value>Extrem</value>
+  </data>
+  <data name="RenderQualityHigh" xml:space="preserve">
+    <value>Înaltă</value>
+  </data>
+  <data name="RenderQualityNormal" xml:space="preserve">
+    <value>Medie</value>
+  </data>
+  <data name="ControlName_RollLeft" xml:space="preserve">
+    <value>Roteștete spre stânga (navă / jetpack)</value>
+  </data>
+  <data name="ControlName_RollRight" xml:space="preserve">
+    <value>Roteștete spre dreaptă (navă / jetpack)</value>
+  </data>
+  <data name="ControlName_RotationDown" xml:space="preserve">
+    <value>Rotire în jos</value>
+  </data>
+  <data name="ControlName_RotationLeft" xml:space="preserve">
+    <value>Întoarcete la stânga</value>
+  </data>
+  <data name="ControlName_RotationRight" xml:space="preserve">
+    <value>Întoarcete la dreaptă</value>
+  </data>
+  <data name="ControlName_RotationUp" xml:space="preserve">
+    <value>Rotire în sus</value>
+  </data>
+  <data name="ScreenOptionsButtonVideo" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="ScreenCaptionVideoOptions" xml:space="preserve">
+    <value>Opţiuni video</value>
+  </data>
+  <data name="Chat_screen" xml:space="preserve">
+    <value>Ecranul de chat</value>
+  </data>
+  <data name="ControlName_TerminalOrInventory" xml:space="preserve">
+    <value>Terminal / Inventar</value>
+  </data>
+  <data name="DisplayName_Item_Welder" xml:space="preserve">
+    <value>Sudor</value>
+  </data>
+  <data name="AngleGrinderPrimaryAction" xml:space="preserve">
+    <value>Apăsă {0} pentru a demonta obiectul</value>
+  </data>
+  <data name="WelderPrimaryActionBuild" xml:space="preserve">
+    <value>Apăsă {0} pentru a suda obiectul</value>
+  </data>
+  <data name="ControlPanel" xml:space="preserve">
+    <value>Panoul de Control</value>
+  </data>
+  <data name="DisplayName_Block_Assembler" xml:space="preserve">
+    <value>Montator</value>
+  </data>
+  <data name="DisplayName_Block_Refinery" xml:space="preserve">
+    <value>Rafinărie</value>
+  </data>
+  <data name="ScreenTerminalError_ShipNotConnected" xml:space="preserve">
+    <value>Terminalul nu este conectat cu o navă</value>
+  </data>
+  <data name="DisplayName_Item_AngleGrinder" xml:space="preserve">
+    <value>Polizor</value>
+    <comment>Angle grinder hand tool for dismounting blocks</comment>
+  </data>
+  <data name="DisplayName_Block_Antenna" xml:space="preserve">
+    <value>Antenă</value>
+  </data>
+  <data name="DisplayName_Item_AutomaticRifle" xml:space="preserve">
+    <value>Pușcă Automată</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Blue" xml:space="preserve">
+    <value>Albastru</value>
+  </data>
+  <data name="DisplayName_Item_BulletproofGlass" xml:space="preserve">
+    <value>Geam Antiglonț</value>
+  </data>
+  <data name="DisplayName_Item_CobaltIngot" xml:space="preserve">
+    <value>Lingou de Cobalt</value>
+  </data>
+  <data name="DisplayName_Item_CobaltOre" xml:space="preserve">
+    <value>Minereu de Cobalt</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit1" xml:space="preserve">
+    <value>Carlingă</value>
+  </data>
+  <data name="DisplayName_Item_Computer" xml:space="preserve">
+    <value>Calculator</value>
+  </data>
+  <data name="DisplayName_Item_ConstructionComponent" xml:space="preserve">
+    <value>Componentă Construcție</value>
+  </data>
+  <data name="DisplayName_Item_DetectorComponents" xml:space="preserve">
+    <value>Componente Detector</value>
+  </data>
+  <data name="DisplayName_Block_DiagonalWindow" xml:space="preserve">
+    <value>Fereastra Diagonală</value>
+  </data>
+  <data name="DisplayName_Item_Display" xml:space="preserve">
+    <value>Ecran</value>
+  </data>
+  <data name="DisplayName_Block_Door" xml:space="preserve">
+    <value>Ușă</value>
+  </data>
+  <data name="DisplayName_Block_Warhead" xml:space="preserve">
+    <value>Focos</value>
+  </data>
+  <data name="DisplayName_Block_ReflectorLight" xml:space="preserve">
+    <value>Reflector</value>
+  </data>
+  <data name="DisplayName_Block_FullCoverWall" xml:space="preserve">
+    <value>Zid de Acoperire Completă</value>
+  </data>
+  <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
+    <value>Tun Gatling</value>
+  </data>
+  <data name="DisplayName_Block_GatlingTurret" xml:space="preserve">
+    <value>Turelă Gatling</value>
+  </data>
+  <data name="DisplayName_Item_GoldIngot" xml:space="preserve">
+    <value>Lingou de Aur</value>
+  </data>
+  <data name="DisplayName_Item_GoldOre" xml:space="preserve">
+    <value>Minereu de Aur</value>
+  </data>
+  <data name="DisplayName_Item_Gravel" xml:space="preserve">
+    <value>Pietriș</value>
+  </data>
+  <data name="DisplayName_Block_GravityGenerator" xml:space="preserve">
+    <value>Generator de Gravitație</value>
+  </data>
+  <data name="DisplayName_Item_GravityGeneratorComponents" xml:space="preserve">
+    <value>Componente Generator Gravitație</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Green" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="DisplayName_Block_Gyroscope" xml:space="preserve">
+    <value>Giroscop</value>
+  </data>
+  <data name="DisplayName_Block_HalfCoverWall" xml:space="preserve">
+    <value>Zid de Acoperire la Jumatate</value>
+  </data>
+  <data name="DisplayName_Item_HandDrill" xml:space="preserve">
+    <value>Foreza</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorBlock" xml:space="preserve">
+    <value>Bloc de Armura Grea</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner" xml:space="preserve">
+    <value>Colț de Armura Grea</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner" xml:space="preserve">
+    <value>Colț Inversat de Armura Grea</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope" xml:space="preserve">
+    <value>Pantă de Armura Grea</value>
+  </data>
+  <data name="DisplayName_Item_Ice" xml:space="preserve">
+    <value>Gheață</value>
+  </data>
+  <data name="DisplayName_Block_InteriorLight" xml:space="preserve">
+    <value>Lumină Interior</value>
+  </data>
+  <data name="DisplayName_Block_InteriorPillar" xml:space="preserve">
+    <value>Pilon de Interior</value>
+  </data>
+  <data name="DisplayName_Item_InteriorPlate" xml:space="preserve">
+    <value>Placă Interior</value>
+  </data>
+  <data name="DisplayName_Block_InteriorTurret" xml:space="preserve">
+    <value>Turelă Interior</value>
+  </data>
+  <data name="DisplayName_Block_InteriorWall" xml:space="preserve">
+    <value>Perete Interior</value>
+  </data>
+  <data name="DisplayName_Item_IronIngot" xml:space="preserve">
+    <value>Lingou de Fier</value>
+  </data>
+  <data name="DisplayName_Item_IronOre" xml:space="preserve">
+    <value>Minereu de Fier</value>
+  </data>
+  <data name="DisplayName_Block_LandingGear" xml:space="preserve">
+    <value>Trenul de Aterizare</value>
+  </data>
+  <data name="DisplayName_Block_LargeCargoContainer" xml:space="preserve">
+    <value>Container Mare de Marfă</value>
+  </data>
+  <data name="DisplayName_Block_LargeReactor" xml:space="preserve">
+    <value>Reactor Mare</value>
+  </data>
+  <data name="DisplayName_Item_LargeSteelTube" xml:space="preserve">
+    <value>Tub Mare de Oțel</value>
+  </data>
+  <data name="DisplayName_Block_LargeThrust" xml:space="preserve">
+    <value>Propulsor Mare</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorBlock" xml:space="preserve">
+    <value>Bloc de Armură  Uşoară</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner" xml:space="preserve">
+    <value>Colț de Armură Uşoară</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner" xml:space="preserve">
+    <value>Colț Inversat de Armură Uşoară</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope" xml:space="preserve">
+    <value>Pantă de Armura Uşoară</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumOre" xml:space="preserve">
+    <value>Minereu de Magneziu</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumPowder" xml:space="preserve">
+    <value>Praf de Magneziu</value>
+  </data>
+  <data name="DisplayName_Item_MedicalComponents" xml:space="preserve">
+    <value>Componente Medicale</value>
+  </data>
+  <data name="DisplayName_Block_MedicalRoom" xml:space="preserve">
+    <value>Cameră Medicală</value>
+  </data>
+  <data name="DisplayName_Block_MediumCargoContainer" xml:space="preserve">
+    <value>Container Mediu de Marfă</value>
+  </data>
+  <data name="DisplayName_Item_MetalGrid" xml:space="preserve">
+    <value>Grilă de Metal</value>
+  </data>
+  <data name="DisplayName_Item_Missile200mm" xml:space="preserve">
+    <value>Container de rachete de 200mm</value>
+  </data>
+  <data name="DisplayName_Block_MissileTurret" xml:space="preserve">
+    <value>Turelă de Rachete</value>
+  </data>
+  <data name="DisplayName_Item_Motor" xml:space="preserve">
+    <value>Motor</value>
+  </data>
+  <data name="DisplayName_Item_NATO_25x184mm" xml:space="preserve">
+    <value>Container de muniții NATO de 25x184mm</value>
+  </data>
+  <data name="DisplayName_Item_NATO_5p56x45mm" xml:space="preserve">
+    <value>Încărcător 5,56x45mm NATO</value>
+  </data>
+  <data name="DisplayName_Item_NickelIngot" xml:space="preserve">
+    <value>Lingou de Nichel</value>
+  </data>
+  <data name="DisplayName_Item_NickelOre" xml:space="preserve">
+    <value>Minereu de Nichel</value>
+  </data>
+  <data name="DisplayName_Block_OreDetector" xml:space="preserve">
+    <value>Detector de Minereuri</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumIngot" xml:space="preserve">
+    <value>Lingou de Platină</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumOre" xml:space="preserve">
+    <value>Minereu de Platină</value>
+  </data>
+  <data name="DisplayName_Item_Potassium" xml:space="preserve">
+    <value>Potasiu</value>
+  </data>
+  <data name="DisplayName_Item_RadioCommunicationComponents" xml:space="preserve">
+    <value>Componente Radio-comunicații</value>
+  </data>
+  <data name="DisplayName_Block_Ramp" xml:space="preserve">
+    <value>Rampă</value>
+  </data>
+  <data name="DisplayName_Item_ReactorComponents" xml:space="preserve">
+    <value>Componente pentru Reactor</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Red" xml:space="preserve">
+    <value>Roșu</value>
+  </data>
+  <data name="DisplayName_Block_RocketLauncher" xml:space="preserve">
+    <value>Lansator de Rachete</value>
+  </data>
+  <data name="DisplayName_Item_SiliconOre" xml:space="preserve">
+    <value>Minereu de Siliciu</value>
+  </data>
+  <data name="DisplayName_Item_SiliconWafer" xml:space="preserve">
+    <value>Placheta de Siliciu</value>
+  </data>
+  <data name="DisplayName_Item_SilverIngot" xml:space="preserve">
+    <value>Lingou de Argint</value>
+  </data>
+  <data name="DisplayName_Item_SilverOre" xml:space="preserve">
+    <value>Minereu de Argint</value>
+  </data>
+  <data name="DisplayName_Block_SmallCargoContainer" xml:space="preserve">
+    <value>Container Mic de Marfă</value>
+  </data>
+  <data name="DisplayName_Block_SmallReactor" xml:space="preserve">
+    <value>Reactor Mic</value>
+  </data>
+  <data name="DisplayName_Item_SmallSteelTube" xml:space="preserve">
+    <value>Tub de Oțel Mic</value>
+  </data>
+  <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
+    <value>Propulsor Mic</value>
+  </data>
+  <data name="DisplayName_Block_Stairs" xml:space="preserve">
+    <value>Scări</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalk" xml:space="preserve">
+    <value>Pasarelă de Oțel</value>
+  </data>
+  <data name="DisplayName_Item_SteelPlate" xml:space="preserve">
+    <value>Placă de Oțel</value>
+  </data>
+  <data name="DisplayName_Item_StoneOre" xml:space="preserve">
+    <value>Piatră</value>
+  </data>
+  <data name="DisplayName_Item_ThrustComponents" xml:space="preserve">
+    <value>Componente Propulsor</value>
+  </data>
+  <data name="DisplayName_Item_UraniumIngot" xml:space="preserve">
+    <value>Lingou de Uraniu</value>
+  </data>
+  <data name="DisplayName_Item_UraniumOre" xml:space="preserve">
+    <value>Minereu de Uraniu</value>
+  </data>
+  <data name="DisplayName_Block_VerticalWindow" xml:space="preserve">
+    <value>Fereastră Verticală</value>
+  </data>
+  <data name="HelpScreen_FactionColor_White" xml:space="preserve">
+    <value>Alb</value>
+  </data>
+  <data name="Reactor" xml:space="preserve">
+    <value>Reactor</value>
+  </data>
+  <data name="WorldSettings_AutoHealing" xml:space="preserve">
+    <value>Vindecare automată</value>
+  </data>
+  <data name="WorldSettings_Description" xml:space="preserve">
+    <value>Descriere</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostility" xml:space="preserve">
+    <value>Ostilitatea mediului</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysm" xml:space="preserve">
+    <value>Cataclism</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
+    <value>În siguranţă</value>
+  </data>
+  <data name="WorldSettings_FriendlyFire" xml:space="preserve">
+    <value>Foc prietenesc</value>
+  </data>
+  <data name="WorldSettings_GameStyle" xml:space="preserve">
+    <value>Stil joc</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
+    <value>Realistic x10</value>
+  </data>
+  <data name="WorldSettings_Password" xml:space="preserve">
+    <value>Parolă</value>
+  </data>
+  <data name="WorldSettings_SoundInSpace" xml:space="preserve">
+    <value>Sunet în spațiu</value>
+  </data>
+  <data name="WorldSettings" xml:space="preserve">
+    <value>Setări Lume</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoHealing" xml:space="preserve">
+    <value>Vindecarea automată vindecă jucătorii în perioade în care nu primesc leziuni</value>
+  </data>
+  <data name="ToolTipWorldSettingsDifficulty" xml:space="preserve">
+    <value>Daunele date şi primite către şi de la inamici şi mediu. O dificultate mai mare reprezintă daunele în mod realist.</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnvironment" xml:space="preserve">
+    <value>Frecvența și intensitatea ploilor de meteori</value>
+  </data>
+  <data name="ToolTipWorldSettingsFriendlyFire" xml:space="preserve">
+    <value>Când este bifat, aliații se pot răni reciproc</value>
+  </data>
+  <data name="ToolTipWorldSettingsHardwareRequirements" xml:space="preserve">
+    <value>Cerinţele hardware înseamnă cât de amplă poate fi lumea dumneavoastră. Valori mai mari necesită o performanţă hardware mai mare (CPU şi GPU) şi în mod sigur vor necesita mai multă memorie.</value>
+  </data>
+  <data name="ToolTipWorldSettingsHarvestingMode" xml:space="preserve">
+    <value>Modul Creativ: resurse nelimitate, construire instantă, jucătorii nu mor. Folosiți modul creativ când
+vreti doar să construiți lucruri.
+Modul Supraviețuire: capacitate inventar realist, resurse limitate - trebuie să recoltați minereu,
+să-l procesați intr-o rafinărie, construiți componentele în montator, construiți blocuri folosind sudorul,
+demontați folosind polizorul, jucătorii pot muri - pot învia la cabinetul lor medical iar dacă nu există,
+atunci într-o nouă navă ca un jucător nou la marginea sectorului
+Supraviețuire 3x: la fel ca "Supraviețuire" numai că aveți de 3 ori mai mare capacitatea la inventar
+Supraviețuire 10x: la fel ca "Supraviețuire" numai că aveți de 10 ori mai mare capacitatea la inventar</value>
+  </data>
+  <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
+    <value>Vizibilitatea server-ului
+Offline: server neconectabil și nu necesită conecțiune la internet
+Private: alți jucători nu pot intra
+Friends: numai prietenii din Steam pot intra
+Public: orice jucator de pe Steam poate intra</value>
+  </data>
+  <data name="ToolTipWorldSettingsPVP" xml:space="preserve">
+    <value>JvM înseamnă că nu puteţi ataca alţi jucători. JvJ înseamnă că îi puteţi ataca şi ei la fel.</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
+    <value>Nu există sunet în spaţiu. Activaţi-l pentru a simula sunetul în condiţii de pe Pământ (chiar dacă nu este realistic). Închideţi-l pentru mod realistic unde puteţi auzi doar sunete care le poate auzi şi astronautul dumneavoastră.</value>
+  </data>
+  <data name="WorldSettings_Scenario" xml:space="preserve">
+    <value>Scenariu</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart1" xml:space="preserve">
+    <value>Start Uşor 1</value>
+  </data>
+  <data name="DisplayName_Scenario_Survival" xml:space="preserve">
+    <value>Singurul supraviețuitor</value>
+  </data>
+  <data name="ControlName_ReactorsOnOff" xml:space="preserve">
+    <value>Reactoarele pornite / inactive</value>
+  </data>
+  <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Lume Goală</value>
+  </data>
+  <data name="ControlName_Jetpack" xml:space="preserve">
+    <value>Jetpack pornit / oprit</value>
+  </data>
+  <data name="NotEnoughMaterial" xml:space="preserve">
+    <value>Nu există suficiente materiale pentru a crea un bloc nou. Este nevoie de cel puţin o placă de oţel.</value>
+  </data>
+  <data name="Turret" xml:space="preserve">
+    <value>Turelă</value>
+  </data>
+  <data name="DisplayName_Block_Conveyor" xml:space="preserve">
+    <value>Transportor</value>
+  </data>
+  <data name="Terminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="Quote00Author" xml:space="preserve">
+    <value>Theodore Von Karman</value>
+  </data>
+  <data name="Quote00Text" xml:space="preserve">
+    <value>Savanții descoperă lumea care există; Inginerii creează lumea care nu a existat niciodată.</value>
+  </data>
+  <data name="Quote01Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote01Text" xml:space="preserve">
+    <value>Descoperirea științifică și cunoștințele științifice au fost realizate doar de către cei care s-au dus în urmărirea de ele fără nici un scop practic în vedere.</value>
+  </data>
+  <data name="Quote02Author" xml:space="preserve">
+    <value>Archimede</value>
+  </data>
+  <data name="Quote02Text" xml:space="preserve">
+    <value>Dă-mi o pârghie destul de lungă și un punct de sprijin pe care să-l plasez, și voi muta pământul.</value>
+  </data>
+  <data name="Quote03Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote03Text" xml:space="preserve">
+    <value>Când un savant recunoscut spune că ceva e posibil, el are mai mult ca sigur dreptate. Când acesta spune că ceva este imposibil, este foarte probabil că acesta să se înşele amarnic.</value>
+  </data>
+  <data name="Quote04Author" xml:space="preserve">
+    <value>Bertrand Russell</value>
+  </data>
+  <data name="Quote04Text" xml:space="preserve">
+    <value>Știința poate stabili limitele cunoașterii, dar nu trebuie să stabilească limitele imaginatiei.</value>
+  </data>
+  <data name="Quote05Author" xml:space="preserve">
+    <value>Indiana Jones</value>
+  </data>
+  <data name="Quote05Text" xml:space="preserve">
+    <value>Nimic nu mă șochează. Sunt un om de știință.</value>
+  </data>
+  <data name="Quote06Author" xml:space="preserve">
+    <value>Immanuel Kant</value>
+  </data>
+  <data name="Quote06Text" xml:space="preserve">
+    <value>Știința este cunoaştere organizată. Înțelepciunea este viață organizată.</value>
+  </data>
+  <data name="Quote07Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote07Text" xml:space="preserve">
+    <value>Un adevăr ştiinţific nou nu triumfă neapărat pentru că îşi convinge oponenţii că este corect, ci, mai degrabă, pentru ca oponenţii acestui adevăr mor, iar noua generaţie se obişnuieşte cu acesta.</value>
+  </data>
+  <data name="Quote08Author" xml:space="preserve">
+    <value>Benjamin Franklin</value>
+  </data>
+  <data name="Quote08Text" xml:space="preserve">
+    <value>O investiție în cunoaștere plătește cea mai buna dobândă.</value>
+  </data>
+  <data name="Quote09Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote09Text" xml:space="preserve">
+    <value>Oricine nu a făcut niciodată o greșeală nu a încercat niciodată nimic nou.</value>
+  </data>
+  <data name="Quote10Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote10Text" xml:space="preserve">
+    <value>Natura nu îşi încalcă legile.</value>
+  </data>
+  <data name="Quote11Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote11Text" xml:space="preserve">
+    <value>Simplitatea este sofisticarea finală.</value>
+  </data>
+  <data name="Quote12Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote12Text" xml:space="preserve">
+    <value>Unde se striga, nu există cunoaștere adevărată.</value>
+  </data>
+  <data name="Quote13Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote13Text" xml:space="preserve">
+    <value>L-am jignit pe Dumnezeu și omenirea pentru că munca mea nu a ajuns la calitatea la care ar fi trebui să ajungă.</value>
+  </data>
+  <data name="Quote14Author" xml:space="preserve">
+    <value>Leonardo da Vinci</value>
+  </data>
+  <data name="Quote14Text" xml:space="preserve">
+    <value>Toate cunoștințele noastre își au originile în percepțiile noastre.</value>
+  </data>
+  <data name="Quote15Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote15Text" xml:space="preserve">
+    <value>Prin negarea principiilor științifice, se poate menține orice paradox.</value>
+  </data>
+  <data name="Quote16Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote16Text" xml:space="preserve">
+    <value>Matematica este limba în care Dumnezeu a scris universul.</value>
+  </data>
+  <data name="Quote17Author" xml:space="preserve">
+    <value>Galileo Galilei</value>
+  </data>
+  <data name="Quote17Text" xml:space="preserve">
+    <value>Dacă ar fi să-mi încep din nou studiile, aș urma sfatul lui Platon și aș începe cu matematica.</value>
+  </data>
+  <data name="Quote18Author" xml:space="preserve">
+    <value>Johann W. Goethe</value>
+  </data>
+  <data name="Quote18Text" xml:space="preserve">
+    <value>Vedem doar ceea ce știm.</value>
+  </data>
+  <data name="Quote19Author" xml:space="preserve">
+    <value>Niels H. D. Bohr</value>
+  </data>
+  <data name="Quote19Text" xml:space="preserve">
+    <value>Dacă cineva spune că poate să se gândească la probleme cuantice fără să amețească, doar arată că el nu a înțeles nimic despre ele.</value>
+  </data>
+  <data name="Quote20Author" xml:space="preserve">
+    <value>Paradox antic</value>
+  </data>
+  <data name="Quote20Text" xml:space="preserve">
+    <value>Un singur lucru este sigur - și anume, nimic nu e sigur. Dacă această afirmație este adevărată, ea este de asemenea falsă.</value>
+  </data>
+  <data name="Quote21Author" xml:space="preserve">
+    <value>Richard Feynman</value>
+  </data>
+  <data name="Quote21Text" xml:space="preserve">
+    <value>Oamenii de stiinta sunt exploratori. Filosofii sunt turiști.</value>
+  </data>
+  <data name="Quote22Author" xml:space="preserve">
+    <value>Walter Bagehot</value>
+  </data>
+  <data name="Quote22Text" xml:space="preserve">
+    <value>O mare plăcere în viață este de a face ceea ce lumea spune că nu poți să faci.</value>
+  </data>
+  <data name="Quote23Author" xml:space="preserve">
+    <value>Thomas A. Edison</value>
+  </data>
+  <data name="Quote23Text" xml:space="preserve">
+    <value>Geniul este unu la sută inspirație și nouăzeci și nouă la sută transpirație.</value>
+  </data>
+  <data name="Quote24Author" xml:space="preserve">
+    <value>Socrate</value>
+  </data>
+  <data name="Quote24Text" xml:space="preserve">
+    <value>Știu un singur lucru: ca nu stiu nimic.</value>
+  </data>
+  <data name="Quote25Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote25Text" xml:space="preserve">
+    <value>Orice tehnologie suficient de avansată este imposibil de distins de magie.</value>
+  </data>
+  <data name="Quote26Author" xml:space="preserve">
+    <value>William Gibson</value>
+  </data>
+  <data name="Quote26Text" xml:space="preserve">
+    <value>Când vrei să știi cum funcționează cu adevărat lucrurile, studiază le atunci când se desfac.</value>
+  </data>
+  <data name="Quote27Author" xml:space="preserve">
+    <value>Scott Adams</value>
+  </data>
+  <data name="Quote27Text" xml:space="preserve">
+    <value>Inginerilor le plac să rezolve probleme. Dacă nu sunt probleme la îndemână, ei vor crea propriile lor probleme.</value>
+  </data>
+  <data name="Quote28Author" xml:space="preserve">
+    <value>Robert A. Heinlein</value>
+  </data>
+  <data name="Quote28Text" xml:space="preserve">
+    <value>Ceea ce pentru un om este magie este inginerie pentru un alt om. "Supranatural" este un cuvânt nul.</value>
+  </data>
+  <data name="Quote29Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote29Text" xml:space="preserve">
+    <value>Un om de stiinta bun este o persoană cu idei originale. Un inginer bun este o persoana care face un proiect care funcționează cu câte mai puține idei originale posibil. Nu există primadone în inginerie.</value>
+  </data>
+  <data name="Quote30Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote30Text" xml:space="preserve">
+    <value>Aviația este ramura de inginerie care este cel mai puțin iertătoare la greșeli.</value>
+  </data>
+  <data name="Quote31Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote31Text" xml:space="preserve">
+    <value>Un inginer al spaţiului este un practicant profesionist care se foloseşte de cunoştinţe ştiinţifice, matematică, fizică, astronomie, tehnologia propulsiei, ştiinţa materialelor, analiza structurală, fabricare şi ingeniozitate pentru a rezolva probleme practice în spaţiu.</value>
+  </data>
+  <data name="Quote32Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote32Text" xml:space="preserve">
+    <value>Inginerii spaţiali crează materiale, structuri, şi sisteme în timp ce consideră limitaţiile impuse de practică, regulaţie, siguranţă, eticalitate şi cost.</value>
+  </data>
+  <data name="Quote33Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote33Text" xml:space="preserve">
+    <value>Inginerii spaţiali sunt bazaţi în ştiinţele aplicate, şi munca lor în cercetare şi creare este distinctă faţă de cercetarea de bază a savanţilor spaţiului.</value>
+  </data>
+  <data name="Quote34Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote34Text" xml:space="preserve">
+    <value>În timp de război, ingineria spaţială implică şi inginerie militară. Astfel de sarcini includ construirea şi demolarea în condiţii de luptă.</value>
+  </data>
+  <data name="Quote35Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote35Text" xml:space="preserve">
+    <value>Inginerii spațiali sunt într-o mare cerere, mai ales de cursa spațială a doua din 2029.</value>
+  </data>
+  <data name="Quote36Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote36Text" xml:space="preserve">
+    <value>Inginerii spațiali se mândresc de capacitatea lor de a obține o treabă bună - indiferent de cât de mare, cât de complexă, sau cât de la distanță.</value>
+  </data>
+  <data name="Quote37Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote37Text" xml:space="preserve">
+    <value>Cuvântul inginer este derivat din latinul "ingeniare" ("a născoci, elabora") şi "ingenium" ("inteligenţă").</value>
+  </data>
+  <data name="Quote38Author" xml:space="preserve">
+    <value>Anonim</value>
+  </data>
+  <data name="Quote38Text" xml:space="preserve">
+    <value>Pentru optimist, paharul este pe jumătate plin. Pentru pesimist, paharul este pe jumătate gol. Pentru inginer, paharul este de două ori mai mare decât ar trebui să fie.</value>
+  </data>
+  <data name="Quote39Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote39Text" xml:space="preserve">
+    <value>Oamenii de stiinta investighează ceea ce deja este; inginerii creează ceea ce nu a fost niciodată.</value>
+  </data>
+  <data name="Quote40Author" xml:space="preserve">
+    <value>Muniții al Armatei SUA</value>
+  </data>
+  <data name="Quote40Text" xml:space="preserve">
+    <value>Gloanțele trasor funcționează în ambele sensuri.</value>
+  </data>
+  <data name="Quote41Author" xml:space="preserve">
+    <value>Trupa de Muniții USAF</value>
+  </data>
+  <data name="Quote41Text" xml:space="preserve">
+    <value>Dacă vezi un tehnician de bombe fugind, urmează-l.</value>
+  </data>
+  <data name="Quote42Author" xml:space="preserve">
+    <value>Anonim</value>
+  </data>
+  <data name="Quote42Text" xml:space="preserve">
+    <value>Singura dată când ai prea mult combustibil este atunci când ești în flăcări.</value>
+  </data>
+  <data name="Quote43Author" xml:space="preserve">
+    <value>Anonim</value>
+  </data>
+  <data name="Quote43Text" xml:space="preserve">
+    <value>Nu schimba niciodată noroc cu îndemânare.</value>
+  </data>
+  <data name="Quote44Author" xml:space="preserve">
+    <value>Jon McBride</value>
+  </data>
+  <data name="Quote44Text" xml:space="preserve">
+    <value>Un pilot care nu are nici o teamă probabil nu zboară avionul său la maxim.</value>
+  </data>
+  <data name="Quote45Author" xml:space="preserve">
+    <value>Alexander Calder</value>
+  </data>
+  <data name="Quote45Text" xml:space="preserve">
+    <value>Pentru un inginer, suficient de bun înseamnă perfect. Pentru un artist, nu există ceva perfect.</value>
+  </data>
+  <data name="Quote46Author" xml:space="preserve">
+    <value>Buzz Aldrin</value>
+  </data>
+  <data name="Quote46Text" xml:space="preserve">
+    <value>Marte este acolo, așteptând să fie ajuns.</value>
+  </data>
+  <data name="Quote47Author" xml:space="preserve">
+    <value>Neil Armstrong</value>
+  </data>
+  <data name="Quote47Text" xml:space="preserve">
+    <value>Acesta este un pas mic pentru un om, un salt uriaș pentru omenire.</value>
+  </data>
+  <data name="Quote48Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote48Text" xml:space="preserve">
+    <value>Văd Pământul! E atât de frumos!</value>
+  </data>
+  <data name="Quote49Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote49Text" xml:space="preserve">
+    <value>Ar fi putut continuat să zbor prin spațiu pentru totdeauna.</value>
+  </data>
+  <data name="Quote50Author" xml:space="preserve">
+    <value>Michael Collins</value>
+  </data>
+  <data name="Quote50Text" xml:space="preserve">
+    <value>A merge în locuri și a face lucruri care nu s-au făcut înainte - asta e ceea ce viață este tot despre.</value>
+  </data>
+  <data name="Quote51Author" xml:space="preserve">
+    <value>Ralph W. Emerson</value>
+  </data>
+  <data name="Quote51Text" xml:space="preserve">
+    <value>Nu merge unde calea poate duce, du-te în schimb unde nu există nici o cale și lasă o urmă.</value>
+  </data>
+  <data name="Quote52Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote52Text" xml:space="preserve">
+    <value>Pentru a fi primul care intra în cosmos, de a te asuma, de unul singur, într-un duel fără precedent cu natura - ar putea cineva să viseze la mai mult?</value>
+  </data>
+  <data name="Quote53Author" xml:space="preserve">
+    <value>Yuri Gagarin</value>
+  </data>
+  <data name="Quote53Text" xml:space="preserve">
+    <value>Drumul cosmonautului nu este uşor, marş triumfător la glorie. Trebuie să cunoşti semnificaţia nu doar la fericire ci şi durere, până să ţi se da voie în cabina unui vehicul spaţial.</value>
+  </data>
+  <data name="Quote54Author" xml:space="preserve">
+    <value>Robert H. Goddard</value>
+  </data>
+  <data name="Quote54Text" xml:space="preserve">
+    <value>Visele de ieri sunt speranțele de astăzi și realitatea de mâine.</value>
+  </data>
+  <data name="Quote55Author" xml:space="preserve">
+    <value>Gene Kranz</value>
+  </data>
+  <data name="Quote55Text" xml:space="preserve">
+    <value>Eșec nu este o opțiune.</value>
+  </data>
+  <data name="Quote56Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote56Text" xml:space="preserve">
+    <value>Nici o cantitate de experimente poate dovedi vreodată că am dreptate, un singur experiment poate dovedi că am greșit.</value>
+  </data>
+  <data name="Quote57Author" xml:space="preserve">
+    <value>George B. Shaw</value>
+  </data>
+  <data name="Quote57Text" xml:space="preserve">
+    <value>Știința niciodată nu rezolvă o problemă fără să creeze zece mai mult.</value>
+  </data>
+  <data name="Quote58Author" xml:space="preserve">
+    <value>Prima lege a termodinamicii</value>
+  </data>
+  <data name="Quote58Text" xml:space="preserve">
+    <value>Legea conservării energiei spune că aceasta nu poate fi creată sau distrusă. În schimb, energia poate să-şi schimbe formă, iar energia poate să se mute dintr-un loc în altul. Totalul energiei unui sistem izolat rămâne neschimbat.</value>
+  </data>
+  <data name="Quote59Author" xml:space="preserve">
+    <value>Prima lege a termodinamicii</value>
+  </data>
+  <data name="Quote59Text" xml:space="preserve">
+    <value>Fluxul căldurii este o formă de transfer de energie. În alte cuvinte, o cantitate de căldură care vine de la un obiect mai cald la unul rece poate fi exprimat ca o cantitate de energie transferată de la obiectul cald la cel rece.</value>
+  </data>
+  <data name="Quote60Author" xml:space="preserve">
+    <value>Prima lege a lui Newton</value>
+  </data>
+  <data name="Quote60Text" xml:space="preserve">
+    <value>Fiecare corp este într-o stare de repaus sau de mişcare uniformă drept înainte, cu excepția cazului în care este obligat să se schimbe starea de forță imprimată.</value>
+  </data>
+  <data name="Quote61Author" xml:space="preserve">
+    <value>Prima lege a lui Newton</value>
+  </data>
+  <data name="Quote61Text" xml:space="preserve">
+    <value>Un obiect care este în stare de repaus va rămâne în stare de repaus până când o forță externă va acționa asupra lui.</value>
+  </data>
+  <data name="Quote62Author" xml:space="preserve">
+    <value>Prima lege a lui Newton</value>
+  </data>
+  <data name="Quote62Text" xml:space="preserve">
+    <value>Un obiect care se află în mișcare nu işi va schimba viteza cu excepția cazului în care o forță externă acționează asupra lui.</value>
+  </data>
+  <data name="Quote63Author" xml:space="preserve">
+    <value>Legea a doua a lui Newton</value>
+  </data>
+  <data name="Quote63Text" xml:space="preserve">
+    <value>O forţă acţionând asupra unui corp îi imprimă o acceleraţie direct proporţională cu forţa şi invers proporţională cu masa acestuia.</value>
+  </data>
+  <data name="Quote64Author" xml:space="preserve">
+    <value>Legea a treia a lui Newton</value>
+  </data>
+  <data name="Quote64Text" xml:space="preserve">
+    <value>Pentru fiecare acţiune există întotdeauna o reacţie egală şi opusă: sau forţele a două corpuri asupra celuilalt sunt mereu egale şi direcţionate în direcţii opuse.</value>
+  </data>
+  <data name="Quote65Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote65Text" xml:space="preserve">
+    <value>METODĂ ŞTIINŢIFICĂ: Principiile şi procedurile pentru căutarea sistematică a cunoştinţelor care au legătură cu recunoaşterea şi formularea unei probleme, colectarea datelor prin observaţie şi experiment, şi formularea şi testarea ipotezelor.</value>
+  </data>
+  <data name="Quote66Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote66Text" xml:space="preserve">
+    <value>Pentru a fi numit științific, o metodă de anchetă trebuie să se bazeze pe dovezi emperice și măsurabile, dovadă a unor principii specifice ale raționamentului.</value>
+  </data>
+  <data name="Quote67Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote67Text" xml:space="preserve">
+    <value>Legile ştiinţei sau legi ştiinţifice sunt declaraţii ce descriu, prezic şi poate explica de ce o serie de fenomene se comportă aşa cum ele se întâmplă în natură.</value>
+  </data>
+  <data name="Quote68Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote68Text" xml:space="preserve">
+    <value>Legile științifice sunt puternic susținute de dovezi empirice - acestea sunt cunoştinţe ştiinţifice care experimentele le-au verificat în mod repetat (și niciodată falsificat).</value>
+  </data>
+  <data name="Quote69Author" xml:space="preserve">
+    <value>Legea lui Newton al gravitației universale</value>
+  </data>
+  <data name="Quote69Text" xml:space="preserve">
+    <value>Fiecare punct de masă în univers atrage orice alt punct de masă, cu o forță care este direct proporțională cu produsul maselor lor și invers proporțională cu pătratul distanței dintre ele.</value>
+  </data>
+  <data name="HudInfoGravity" xml:space="preserve">
+    <value>Gravitație:</value>
+  </data>
+  <data name="HudInfoNoGravity" xml:space="preserve">
+    <value>Lipsă de gravitate</value>
+  </data>
+  <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
+    <value>Crează o lume nouă folosind setările implicite:
+Mod joc: Mod Creativ
+Scenariu: Start Ușor 1
+Salvare Automată: Activată</value>
+  </data>
+  <data name="HudInfoCrouching" xml:space="preserve">
+    <value>Ghemuit</value>
+  </data>
+  <data name="HudInfoFlying" xml:space="preserve">
+    <value>În zbor</value>
+  </data>
+  <data name="HudInfoOff" xml:space="preserve">
+    <value>Oprit</value>
+  </data>
+  <data name="HudInfoOn" xml:space="preserve">
+    <value>Pornit</value>
+  </data>
+  <data name="HudEnergyMissingTotal" xml:space="preserve">
+    <value>Total lipsă:</value>
+  </data>
+  <data name="HudInfoNameEnergy" xml:space="preserve">
+    <value>Energie:</value>
+  </data>
+  <data name="HudInfoNameFuelTime" xml:space="preserve">
+    <value>Timp combustibil:</value>
+  </data>
+  <data name="HudInfoNameGyroscopes" xml:space="preserve">
+    <value>Giroscoape:</value>
+  </data>
+  <data name="HudInfoNameLights" xml:space="preserve">
+    <value>Lumini:</value>
+  </data>
+  <data name="HudInfoNameMass" xml:space="preserve">
+    <value>Masă:</value>
+  </data>
+  <data name="HudInfoNamePowerUsage" xml:space="preserve">
+    <value>Putere Consumată:</value>
+  </data>
+  <data name="HudInfoNameReactors" xml:space="preserve">
+    <value>Reactoare:</value>
+  </data>
+  <data name="HudInfoNameSpeed" xml:space="preserve">
+    <value>Viteză</value>
+  </data>
+  <data name="HudInfoNameThrusts" xml:space="preserve">
+    <value>Propulsoare:</value>
+  </data>
+  <data name="HudInfoNoPower" xml:space="preserve">
+    <value>Fără Putere</value>
+  </data>
+  <data name="HudInfoNoReflectors" xml:space="preserve">
+    <value>Fără reflectoare</value>
+  </data>
+  <data name="HudInfoPilotingLargeShip" xml:space="preserve">
+    <value>Pilotând Navă Mare</value>
+  </data>
+  <data name="HudInfoPilotingSmallShip" xml:space="preserve">
+    <value>Pilotând navă mică</value>
+  </data>
+  <data name="HudInfoPowerOverload" xml:space="preserve">
+    <value>Supraîncărcare</value>
+  </data>
+  <data name="HudInfoReflectorsOff" xml:space="preserve">
+    <value>Reflectoare oprite</value>
+  </data>
+  <data name="HudInfoReflectorsOn" xml:space="preserve">
+    <value>Reflectoare pornite</value>
+  </data>
+  <data name="HudInfoStanding" xml:space="preserve">
+    <value>În picioare</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart2" xml:space="preserve">
+    <value>Start Uşor 2</value>
+  </data>
+  <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
+    <value>Vreţi să începeţi prin vizionarea unui ghid video? Ţineţi minte: puteţi reveni întotdeauna prin apăsarea "Ghid" în ecranul "Ajutor" (apăsaţi F1).</value>
+  </data>
+  <data name="ControlDescHoldToColor" xml:space="preserve">
+    <value>Ține apăsat pentru a colora un bloc (modul creativ)</value>
+  </data>
+  <data name="ControlDescLargeBrush" xml:space="preserve">
+    <value>Perie de culoare de mărime mare (mod creativ)</value>
+  </data>
+  <data name="ControlDescMediumBrush" xml:space="preserve">
+    <value>Perie de culoare de mărime medie (mod creativ)</value>
+  </data>
+  <data name="ControlDescZoom" xml:space="preserve">
+    <value>Zoom în modul visual persoana a treia</value>
+  </data>
+  <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
+    <value>Navă Mare Nouă</value>
+  </data>
+  <data name="ScreenCubeBuilderNewSmallShip" xml:space="preserve">
+    <value>Navă Mică Nouă</value>
+  </data>
+  <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
+    <value>Staţie Nouă</value>
+  </data>
+  <data name="HudEnergyGroupCharging" xml:space="preserve">
+    <value>Încărcare</value>
+  </data>
+  <data name="HudEnergyGroupConveyors" xml:space="preserve">
+    <value>Transportoare</value>
+  </data>
+  <data name="HudEnergyGroupDefense" xml:space="preserve">
+    <value>Apărare</value>
+  </data>
+  <data name="HudEnergyGroupDoors" xml:space="preserve">
+    <value>Uşi</value>
+  </data>
+  <data name="HudEnergyGroupFactory" xml:space="preserve">
+    <value>Fabrică</value>
+  </data>
+  <data name="HudEnergyGroupGyroscope" xml:space="preserve">
+    <value>Giroscop</value>
+  </data>
+  <data name="HudEnergyGroupThrust" xml:space="preserve">
+    <value>Propulsoare</value>
+  </data>
+  <data name="HudEnergyGroupUtility" xml:space="preserve">
+    <value>Utilităţi</value>
+  </data>
+  <data name="SteamOverlayDisabledText" xml:space="preserve">
+    <value>Vă rugăm să activați Interfața Suplimentară în programul Steam: întrați la Setări, În-Joc, bifați Activează interfața suplimentară Steam după care în Colecție, Space Engineers, Setări avansate, bifați Activează interfața suplimentară Steam.</value>
+  </data>
+  <data name="MessageBoxTextRecommend" xml:space="preserve">
+    <value>Dacă vă place Space Engineers, puteţi să-l recomandaţi prietenilor dumneavoastră pe Steam pe pagina jocului.
+Recomandările ajută la creşterea comunităţii. Vă mulţumim!</value>
+  </data>
+  <data name="MessageBoxCaptionRecommend" xml:space="preserve">
+    <value>Recomandă Space Engineers</value>
+  </data>
+  <data name="NotificationHintLeaveCockpit" xml:space="preserve">
+    <value>Apăsați {0} pentru a ieși din carlingă</value>
+  </data>
+  <data name="NotificationHintOpenShipControlPanel" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide panoul de control al navei</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOff" xml:space="preserve">
+    <value>Apăsați {0} pentru a opri toate reactoarele</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOn" xml:space="preserve">
+    <value>Apasați {0} pentru a porni toate reactoarele</value>
+  </data>
+  <data name="NotificationArgLargeShip" xml:space="preserve">
+    <value>navă mare</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgSmallShip" xml:space="preserve">
+    <value>navă mică</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgStation" xml:space="preserve">
+    <value>staţie</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
+    <value>{0} nu este pentru {1}</value>
+  </data>
+  <data name="NotificationArgAngleGrinder" xml:space="preserve">
+    <value>Polizor unghiular</value>
+  </data>
+  <data name="NotificationArgDrill" xml:space="preserve">
+    <value>Foreza</value>
+  </data>
+  <data name="NotificationArgMissile" xml:space="preserve">
+    <value>Racheta</value>
+  </data>
+  <data name="NotificationArgProjectile" xml:space="preserve">
+    <value>Proiectil</value>
+  </data>
+  <data name="NotificationArgWelder" xml:space="preserve">
+    <value>Sudor</value>
+  </data>
+  <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
+    <value>Apăsați {0} sau {1} pentru a urca și coborâ.</value>
+  </data>
+  <data name="NotificationHintPressToGetDownFromLadder" xml:space="preserve">
+    <value>Apăsați {0} pentru a te da jos de pe scară</value>
+  </data>
+  <data name="NotificationHintPressToJumpOffLadder" xml:space="preserve">
+    <value>Apăsați {0} pentru a sării de pe scară</value>
+  </data>
+  <data name="NotificationJetpackOff" xml:space="preserve">
+    <value>Jetpack Oprit</value>
+  </data>
+  <data name="NotificationJetpackOffNoEnergy" xml:space="preserve">
+    <value>Jetpack Oprit (fără energie)</value>
+  </data>
+  <data name="NotificationJetpackOn" xml:space="preserve">
+    <value>Jetpack Pornit</value>
+  </data>
+  <data name="NotificationUsingWeaponType" xml:space="preserve">
+    <value>Folosind {0}</value>
+  </data>
+  <data name="HudInfoControllingStation" xml:space="preserve">
+    <value>Controlând staţia</value>
+  </data>
+  <data name="HudInfoNameDampeners" xml:space="preserve">
+    <value>Amortizoare:</value>
+  </data>
+  <data name="HudInfoNameLandingGear" xml:space="preserve">
+    <value>Trenuri de aterizare:</value>
+  </data>
+  <data name="HudInfoNameInProximity" xml:space="preserve">
+    <value>In proximitate:</value>
+  </data>
+  <data name="HudInfoNameLocked" xml:space="preserve">
+    <value>Blocat:</value>
+  </data>
+  <data name="ControlName_LandingGear" xml:space="preserve">
+    <value>Tren aterizare / Alegele culoare</value>
+  </data>
+  <data name="ControlName_SymmetrySwitch" xml:space="preserve">
+    <value>Activare/Dezactivare simetrie</value>
+  </data>
+  <data name="NotificationHintPressToEnterCockpit" xml:space="preserve">
+    <value>Apăsați {0} pentru a intra in carlingă</value>
+  </data>
+  <data name="NotificationHintPressToOpenControlPanel" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide panoul de control la {1}</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventory" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide inventarul la {1}</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterAll" xml:space="preserve">
+    <value>Arată toate tipurile de inventar</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterEnergy" xml:space="preserve">
+    <value>Inventar energie</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterStorage" xml:space="preserve">
+    <value>Inventar stocare</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterSystem" xml:space="preserve">
+    <value>Inventar sisteme</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowCharacter" xml:space="preserve">
+    <value>Arată inventar caracter</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowConnected" xml:space="preserve">
+    <value>Arată inventarele conectate (din navă sau stație)</value>
+  </data>
+  <data name="ScreenTerminalInventory_Mass" xml:space="preserve">
+    <value>Masă: {0} kg</value>
+  </data>
+  <data name="ScreenTerminalInventory_Volume" xml:space="preserve">
+    <value>Volum: {0} L</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
+    <value>{0}{3}
+Masă: {1} kg
+Volum: {2} L</value>
+  </data>
+  <data name="ControlName_InertialDampeners" xml:space="preserve">
+    <value>Amortizoare inerţie</value>
+  </data>
+  <data name="ControlName_UseSymmetry" xml:space="preserve">
+    <value>Foloseşte simetrie</value>
+  </data>
+  <data name="DisplayName_Block_Beacon" xml:space="preserve">
+    <value>Semnal Luminos</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
+    <value>Orice tip de minereu</value>
+  </data>
+  <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
+    <value>Lingou de Uraniu</value>
+  </data>
+  <data name="DisplayName_Block_Rotor" xml:space="preserve">
+    <value>Motor</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
+    <value>Putere</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorBrakingTorque" xml:space="preserve">
+    <value>Frânare</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTargetVelocity" xml:space="preserve">
+    <value>Viteză</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyIngot" xml:space="preserve">
+    <value>Orice fel de lingou</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMaxAngle" xml:space="preserve">
+    <value>Limita superioară</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMinAngle" xml:space="preserve">
+    <value>Limita inferioară</value>
+  </data>
+  <data name="IconSymbol_Ag" xml:space="preserve">
+    <value>Ag</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Au" xml:space="preserve">
+    <value>Au</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Co" xml:space="preserve">
+    <value>Co</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Fe" xml:space="preserve">
+    <value>Fe</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Gravel" xml:space="preserve">
+    <value>Pietriș</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Ice" xml:space="preserve">
+    <value>Gheață</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_K" xml:space="preserve">
+    <value>K</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Mg" xml:space="preserve">
+    <value>Mg</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Ni" xml:space="preserve">
+    <value>Ni</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Pt" xml:space="preserve">
+    <value>Pt</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Stone" xml:space="preserve">
+    <value>Piatră</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Si" xml:space="preserve">
+    <value>Si</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_U" xml:space="preserve">
+    <value>U</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="BlockPropertiesText_MotorCurrentAngle" xml:space="preserve">
+    <value>Unghiul curent:</value>
+  </data>
+  <data name="BlockPropertyValue_MotorAngleUnlimited" xml:space="preserve">
+    <value>Nelimitat</value>
+  </data>
+  <data name="BlockPropertiesText_MotorLimitsDisabled" xml:space="preserve">
+    <value>Rotația rotorului este în afara limitelor, limitele vor fi activate când rotorul este între limite.</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorBrakingTorque" xml:space="preserve">
+    <value>Puterea de frânare a rotorului: cât de repede va opri (aplicat când rotorul este oprit)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorLowerLimit" xml:space="preserve">
+    <value>Limita unghiulară inferioară</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorTorque" xml:space="preserve">
+    <value>Puterea rotorului: cât de repede va accelera (aplicat când rotorul este pornit)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUpperLimit" xml:space="preserve">
+    <value>Limita unghiulară superioară</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
+    <value>Viteza țintă a rotorului; rotorul va accelera până când viteza țintă este atinsă.</value>
+  </data>
+  <data name="DisplayName_Item_Girder" xml:space="preserve">
+    <value>Grindă</value>
+  </data>
+  <data name="SwitchText_Open" xml:space="preserve">
+    <value>Deschide</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="SwitchText_Close" xml:space="preserve">
+    <value>Închide</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="HudInfoNameHealth" xml:space="preserve">
+    <value>Sănătate:</value>
+  </data>
+  <data name="HudInfoFalling" xml:space="preserve">
+    <value>În cădere</value>
+  </data>
+  <data name="AssemblerState_Disabled" xml:space="preserve">
+    <value>Dezactivat</value>
+  </data>
+  <data name="AssemblerState_MissingItems" xml:space="preserve">
+    <value>Ingrediente lipsă</value>
+  </data>
+  <data name="AssemblerState_NotEnoughPower" xml:space="preserve">
+    <value>Insuficientă energie</value>
+  </data>
+  <data name="AssemblerState_NothingBeingProduced" xml:space="preserve">
+    <value>Nimic nu este produs acum</value>
+  </data>
+  <data name="HudInfoNameJetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart3" xml:space="preserve">
+    <value>Start Ușor 3 (Numai 64-bit)</value>
+  </data>
+  <data name="BlockPropertyTitle_LightColor" xml:space="preserve">
+    <value>Culoare</value>
+  </data>
+  <data name="BlockPropertyDescription_LightColor" xml:space="preserve">
+    <value>Culoarea luminii</value>
+  </data>
+  <data name="BlockPropertyTitle_LightRadius" xml:space="preserve">
+    <value>Rază</value>
+  </data>
+  <data name="BlockPropertyDescription_LightRadius" xml:space="preserve">
+    <value>Raza de influență a luminii</value>
+  </data>
+  <data name="BlockPropertyTitle_LightFalloff" xml:space="preserve">
+    <value>Diminuare</value>
+  </data>
+  <data name="BlockPropertyDescription_LightFalloff" xml:space="preserve">
+    <value>Diminuare exponențială a luminii (1 = liniar, 2 = pătratică, etc)</value>
+  </data>
+  <data name="BlockPropertyTitle_LightIntensity" xml:space="preserve">
+    <value>Intensitate</value>
+  </data>
+  <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
+    <value>Intensitatea luminii</value>
+  </data>
+  <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide ușa</value>
+  </data>
+  <data name="SwitchText_Off" xml:space="preserve">
+    <value>Off</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="SwitchText_On" xml:space="preserve">
+    <value>On</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
+    <value>Copierea permite să plasați nave sau stații copiate anterior în memorie</value>
+  </data>
+  <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
+    <value>Permite copiere</value>
+  </data>
+  <data name="WorldSettings_EnableWeapons" xml:space="preserve">
+    <value>Arme activate</value>
+  </data>
+  <data name="AssemblerState_NotWorking" xml:space="preserve">
+    <value>Montator avariat sau demontat</value>
+  </data>
+  <data name="DisplayName_Block_Passage" xml:space="preserve">
+    <value>Pasaj</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
+    <value>Accelerația gravitațională a generatorului</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldDepth" xml:space="preserve">
+    <value>Adâncimea câmpului gravitațional al generatorului.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldHeight" xml:space="preserve">
+    <value>Înălțimea câmpului gravitațional al generatorului.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldWidth" xml:space="preserve">
+    <value>Lățimea câmpului gravitațional al generatorului.</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityAcceleration" xml:space="preserve">
+    <value>Accelerație</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldDepth" xml:space="preserve">
+    <value>Adâncimea câmpului</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldHeight" xml:space="preserve">
+    <value>Înălțimea câmpului</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldWidth" xml:space="preserve">
+    <value>Lățimea câmpului</value>
+  </data>
+  <data name="NotificationHintPressToOpenTerminal" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide consola</value>
+  </data>
+  <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
+    <value>Tineți {0} apăsat pentru a vă încărca și vindeca</value>
+  </data>
+  <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Când este activat, fiecare jucator poate vedea numele altor jucatori deasupra caracterelor lor</value>
+  </data>
+  <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Afișează numele jucătorilor</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
+    <value>Aruncă obiect</value>
+  </data>
+  <data name="NotificationSuitEnergyLow" xml:space="preserve">
+    <value>Atenție: Energie costum scăzută. Sistemele de susținere a vieții pot eșua.</value>
+  </data>
+  <data name="NotificationSuitEnergyCritical" xml:space="preserve">
+    <value>Atenție: Energie costum foarte mică. Eșec iminent la susținerea vieții.</value>
+  </data>
+  <data name="MaxFloatingObjects" xml:space="preserve">
+    <value>Număr maxim de obiecte</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxFloatingObjects" xml:space="preserve">
+    <value>Numărul maxim de obiecte mici plutitoare în spațiu (minereu, lingouri, componente)
+Avertisment - valori mai mari de 64 pot afecta în mod semnficativ performanța!</value>
+  </data>
+  <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
+    <value>Rachetă 200 mm</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
+    <value>NATO 25x184 mm</value>
+  </data>
+  <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
+    <value>Asteroizi</value>
+  </data>
+  <data name="Asteroid_Amount" xml:space="preserve">
+    <value>Cantitate asteroizi</value>
+  </data>
+  <data name="DisplayName_Item_Explosives" xml:space="preserve">
+    <value>Explizibil</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountExtreme" xml:space="preserve">
+    <value>Extrem: 16 asteroizi mari</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountLarge" xml:space="preserve">
+    <value>Mare: 7 asteroizi mari</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNormal" xml:space="preserve">
+    <value>Normal: 4 asteroizi mari</value>
+  </data>
+  <data name="ToolTipWorldSettingsAsteroidAmount" xml:space="preserve">
+    <value>Numărul de asteroizi într-o lume nouă
+Normal: 4 asteroizi mari, 20 asteroizi mici
+Mare: 7 asteroizi mari, 35 asteroizi mici
+Extrem: 16 ateroizi mari, 80 asteroizi mici, doar 64-bit</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxPlayer" xml:space="preserve">
+    <value>Numărul maxim de jucători</value>
+  </data>
+  <data name="ToolTipWorldSettingsWeapons" xml:space="preserve">
+    <value>Permite arme si explozibili</value>
+  </data>
+  <data name="BlockPropertyDescription_OreDetectorRange" xml:space="preserve">
+    <value>Distanța maximă de detecție.</value>
+  </data>
+  <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
+    <value>Rază</value>
+  </data>
+  <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
+    <value>Orice obiect produs de montator.</value>
+  </data>
+  <data name="AssemblerState_InventoryFull" xml:space="preserve">
+    <value>Inventar plin</value>
+  </data>
+  <data name="WorldSettings_InventorySize" xml:space="preserve">
+    <value>Mărimea inventarului</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes1" xml:space="preserve">
+    <value>Realistic</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes3" xml:space="preserve">
+    <value>Realistic x3</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeCreative" xml:space="preserve">
+    <value>Resurse nelimitate, construire instantă, immortal</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeSurvival" xml:space="preserve">
+    <value>Management realist al resurselor, capacitate realist inventar, moarte și înviere</value>
+  </data>
+  <data name="Description_Scenario_Asteroids" xml:space="preserve">
+    <value>Începeți într-o navă de salvare cu resurse foarte limitate lângă un câmp mic de asteroizi</value>
+  </data>
+  <data name="Description_Scenario_EasyStart1" xml:space="preserve">
+    <value>Începeți pe o platformă pe un asteroid cu o navă mare și două nave mici</value>
+  </data>
+  <data name="Description_Scenario_EasyStart2" xml:space="preserve">
+    <value>Începe intr-o stație verde pe un asteroid cu mai multe nave mari și nave mici (este o scenă mare!)</value>
+  </data>
+  <data name="Description_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Lume pustie, fără asteroizi, fără nave, potrivit pentru modul creativ</value>
+  </data>
+  <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
+    <value>Începeți pe o platformă pe asteroid abadonată și fără nave, trebuie să porniți de la zero.</value>
+  </data>
+  <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Navă roșie prăbușită</value>
+  </data>
+  <data name="Description_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Navă roșie prăbușită</value>
+  </data>
+  <data name="HudBlockInfo_Components" xml:space="preserve">
+    <value>Componente</value>
+  </data>
+  <data name="HudBlockInfo_Installed_Required" xml:space="preserve">
+    <value>Instalate / Necesare</value>
+  </data>
+  <data name="DisplayName_Item_Scrap" xml:space="preserve">
+    <value>Deșeuri metalice</value>
+  </data>
+  <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
+    <value>Navă mare / stație</value>
+  </data>
+  <data name="HudBlockInfo_SmallShip" xml:space="preserve">
+    <value>Navă mică</value>
+  </data>
+  <data name="TerminalTab_Production" xml:space="preserve">
+    <value>Productie</value>
+  </data>
+  <data name="ScreenTerminalError_NoAssemblers" xml:space="preserve">
+    <value>Nu sunt montatoare pe această navă.</value>
+  </data>
+  <data name="DisplayName_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Două platforme</value>
+  </data>
+  <data name="Description_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Lume pentru două echipe în mod competitiv</value>
+  </data>
+  <data name="Terminal_BlockIncomplete" xml:space="preserve">
+    <value>(incomplet)</value>
+  </data>
+  <data name="HudInfoInventoryVolume" xml:space="preserve">
+    <value>Volum:</value>
+  </data>
+  <data name="WorldSettings_AssemblerEfficiency" xml:space="preserve">
+    <value>Eficiența montator</value>
+  </data>
+  <data name="WorldSettings_Realistic" xml:space="preserve">
+    <value>Realistic</value>
+  </data>
+  <data name="WorldSettings_RefinerySpeed" xml:space="preserve">
+    <value>Viteza rafinării</value>
+  </data>
+  <data name="WorldSettings_Realistic_x10" xml:space="preserve">
+    <value>x10</value>
+  </data>
+  <data name="WorldSettings_Realistic_x3" xml:space="preserve">
+    <value>x3</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x1" xml:space="preserve">
+    <value>Viteză și eficiență implicită la montator</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x10" xml:space="preserve">
+    <value>Montatorul necesită de 10 ori mai puține materiale și este de 10 ori mai rapid</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x3" xml:space="preserve">
+    <value>Montatorul necesită de 3 ori mai puține materiale și este de 3 ori mai rapid</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x1" xml:space="preserve">
+    <value>Capacitate inventar implicită</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x10" xml:space="preserve">
+    <value>Capacitatea inventarului este de 10 ori mai mare</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x3" xml:space="preserve">
+    <value>Capacitatea inventarului este de 3 ori mai mare</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x1" xml:space="preserve">
+    <value>Viteză rafinare implicită</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x10" xml:space="preserve">
+    <value>Rafinarea este de 10 ori mai rapidă</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x3" xml:space="preserve">
+    <value>Rafinarea este de 3 ori mai rapidă</value>
+  </data>
+  <data name="DisplayName_Item_SolarCell" xml:space="preserve">
+    <value>Celulă Solară</value>
+  </data>
+  <data name="DisplayName_Block_SolarPanel" xml:space="preserve">
+    <value>Panou Solar</value>
+  </data>
+  <data name="ScreenTerminalProduction_Blueprints" xml:space="preserve">
+    <value>Planuri:</value>
+  </data>
+  <data name="ScreenTerminalProduction_AssemblingButton" xml:space="preserve">
+    <value>Montare</value>
+  </data>
+  <data name="ScreenTerminalProduction_ControlPanelButton" xml:space="preserve">
+    <value>Panou de Control</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassembleAllButton" xml:space="preserve">
+    <value>Demontează toate</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassemblingButton" xml:space="preserve">
+    <value>Demontare</value>
+  </data>
+  <data name="ScreenTerminalProduction_GainedAndAvailable" xml:space="preserve">
+    <value>Primite / Disponibile</value>
+  </data>
+  <data name="ScreenTerminalProduction_Inventory" xml:space="preserve">
+    <value>Inventar:</value>
+  </data>
+  <data name="ScreenTerminalProduction_InventoryButton" xml:space="preserve">
+    <value>Inventar</value>
+  </data>
+  <data name="ScreenTerminalProduction_ProductionQueue" xml:space="preserve">
+    <value>Coadă producție:</value>
+  </data>
+  <data name="ScreenTerminalProduction_RequiredAndAvailable" xml:space="preserve">
+    <value>Necesare / Disponibile</value>
+  </data>
+  <data name="ScreenTerminalProduction_StoredMaterials" xml:space="preserve">
+    <value>Materiale stocate:</value>
+  </data>
+  <data name="ToolTipTerminalProduction_AssemblingMode" xml:space="preserve">
+    <value>Mod montare: lingouri în componente</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassembleAll" xml:space="preserve">
+    <value>Demontează toate obiectele din inventar</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassemblingMode" xml:space="preserve">
+    <value>Mod demontare: componente în lingouri</value>
+  </data>
+  <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
+    <value>Permite modul de repetare</value>
+  </data>
+  <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
+    <value>Daune propulsor</value>
+  </data>
+  <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
+    <value>Flacăra de propulsor dăunează blocurilor, jucătorilor și obiectelor mici</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCargoShips" xml:space="preserve">
+    <value>Dacă navele de marfă aleatorii trebuie să fie activate</value>
+  </data>
+  <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
+    <value>Nave de marfă</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
+    <value>Armaghedon (nerealistic)</value>
+  </data>
+  <data name="FirstApril2014" xml:space="preserve">
+    <value>1 Aprilie! Nu spune nimănui!</value>
+  </data>
+  <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
+    <value>Masă artificială</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
+    <value>Stație de Control</value>
+  </data>
+  <data name="DisplayName_Block_Collector" xml:space="preserve">
+    <value>Colector</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit3" xml:space="preserve">
+    <value>Scaun de Zbor</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Face" xml:space="preserve">
+    <value>Geam 1x1 Față</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Flat" xml:space="preserve">
+    <value>Geam 1x1 Plat</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Inv" xml:space="preserve">
+    <value>Geam 1x1 Invers</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Side" xml:space="preserve">
+    <value>Geam 1x1 Lateral</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Slope" xml:space="preserve">
+    <value>Geam 1x1 Pantă</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Face" xml:space="preserve">
+    <value>Geam 1x2 Față</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Flat" xml:space="preserve">
+    <value>Geam 1x2 Plat</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Inv" xml:space="preserve">
+    <value>Geam 1x2 Invers</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideLeft" xml:space="preserve">
+    <value>Geam 1x2 Lateral Stânga</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideRight" xml:space="preserve">
+    <value>Geam 1x2 Lateral Dreapta</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Slope" xml:space="preserve">
+    <value>Geam 1x2 Pantă</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3Flat" xml:space="preserve">
+    <value>Geam 2x3 Plat</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
+    <value>Geam 3x3 Plat</value>
+  </data>
+  <data name="ControlDescSingleAllMode" xml:space="preserve">
+    <value>Mod armă singură / toate (carlingă)</value>
+  </data>
+  <data name="Terminal_UseConveyorSystem" xml:space="preserve">
+    <value>Folosește Sistemul Transportor</value>
+  </data>
+  <data name="Terminal_CollectAll" xml:space="preserve">
+    <value>Colectează tot</value>
+  </data>
+  <data name="Terminal_ThrowOut" xml:space="preserve">
+    <value>Aruncă afară</value>
+  </data>
+  <data name="DisplayName_Block_Connector" xml:space="preserve">
+    <value>Conector</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTube" xml:space="preserve">
+    <value>Transportor</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1FlatInv" xml:space="preserve">
+    <value>Geam 1x1 Plat Invers</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2FlatInv" xml:space="preserve">
+    <value>Geam 1x2 Plat Invers</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3FlatInv" xml:space="preserve">
+    <value>Geam 2x3 Plat Invers</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
+    <value>Geam 3x3 Plat Invers</value>
+  </data>
+  <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
+    <value>Apăsați {0} pentru a schimba mod armă singură/toate.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
+    <value>Aiming radius</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
+    <value>NATO 5.56x45 mm</value>
+  </data>
+  <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
+    <value>Roată 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Wheel3x3" xml:space="preserve">
+    <value>Roată 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
+    <value>Roată 5x5</value>
+  </data>
+  <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
+    <value>Polizor</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPower" xml:space="preserve">
+    <value>Puterea furnizată afectează forța giroscopului.</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPower" xml:space="preserve">
+    <value>Putere</value>
+  </data>
+  <data name="DisplayName_Block_Decoy" xml:space="preserve">
+    <value>Momeală</value>
+  </data>
+  <data name="TerminalButton_GroupSave" xml:space="preserve">
+    <value>Salvează</value>
+  </data>
+  <data name="BlockActionTitle_Lock" xml:space="preserve">
+    <value>Blochează</value>
+  </data>
+  <data name="BlockActionTitle_Unlock" xml:space="preserve">
+    <value>Deblochează</value>
+  </data>
+  <data name="BlockActionTitle_Reverse" xml:space="preserve">
+    <value>Invers</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentInput" xml:space="preserve">
+    <value>Curent intrare:</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentMass" xml:space="preserve">
+    <value>Masă curentă:</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentOutput" xml:space="preserve">
+    <value>Curent ieșire:</value>
+  </data>
+  <data name="BlockPropertiesText_LockState" xml:space="preserve">
+    <value>Stare blocaj:</value>
+  </data>
+  <data name="BlockPropertiesText_MaxOutput" xml:space="preserve">
+    <value>Producție maximă:</value>
+  </data>
+  <data name="BlockPropertiesText_MaxRequiredInput" xml:space="preserve">
+    <value>Curent maxim necesar:</value>
+  </data>
+  <data name="BlockPropertiesText_RequiredInput" xml:space="preserve">
+    <value>Curent necesar:</value>
+  </data>
+  <data name="BlockPropertiesText_Type" xml:space="preserve">
+    <value>Tip:</value>
+  </data>
+  <data name="BlockPropertyValue_Locked" xml:space="preserve">
+    <value>Blocat</value>
+  </data>
+  <data name="BlockPropertyValue_ReadyToLock" xml:space="preserve">
+    <value>Blocare Pregătită</value>
+  </data>
+  <data name="BlockPropertyValue_Unlocked" xml:space="preserve">
+    <value>Deblocat</value>
+  </data>
+  <data name="Quote70Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote70Text" xml:space="preserve">
+    <value>Creativitatea este inteligența distrându-se.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurved" xml:space="preserve">
+    <value>Tub Transportor Curbat</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetDecoys" xml:space="preserve">
+    <value>Țintește momeli</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMeteors" xml:space="preserve">
+    <value>Țintește meteori</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
+    <value>Țintește obiecte in mișcare</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
+    <value>Țintește rachete</value>
+  </data>
+  <data name="DisplayName_Block_ShipWelder" xml:space="preserve">
+    <value>Sudor</value>
+  </data>
+  <data name="NotificationEnergyCritical" xml:space="preserve">
+    <value>Nivel critic de energie.</value>
+  </data>
+  <data name="NotificationEnergyLow" xml:space="preserve">
+    <value>Nivel scăzut de energie.</value>
+  </data>
+  <data name="NotificationEnergyNo" xml:space="preserve">
+    <value>Fără energie</value>
+  </data>
+  <data name="NotificationFuelCritical" xml:space="preserve">
+    <value>Nivel critic de combustibil.</value>
+  </data>
+  <data name="NotificationFuelLow" xml:space="preserve">
+    <value>Nivel scăzut de combustibil.</value>
+  </data>
+  <data name="NotificationFuelNo" xml:space="preserve">
+    <value>Fără combustibil</value>
+  </data>
+  <data name="NotificationMeteorInbound" xml:space="preserve">
+    <value>Ploaie de meteoriți iminentă.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
+    <value>Tub Transportor</value>
+  </data>
+  <data name="DisplayName_Block_ConnectorSmall" xml:space="preserve">
+    <value>Ejector</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorFrame" xml:space="preserve">
+    <value>Cadru Transportor</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSmall" xml:space="preserve">
+    <value>Transportor Mic</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurvedSmall" xml:space="preserve">
+    <value>Tub Mic Curbat</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeSmall" xml:space="preserve">
+    <value>Tub Transportor Mic</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
+    <value>Apăsați {0} pentru a deschide inventarul</value>
+  </data>
+  <data name="TerminalTab_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertButton" xml:space="preserve">
+    <value>Transformă într-o navă</value>
+  </data>
+  <data name="TerminalTab_Info_Conveyors" xml:space="preserve">
+    <value>Transportoare:</value>
+  </data>
+  <data name="TerminalTab_Info_Blocks" xml:space="preserve">
+    <value>Blocuri:</value>
+  </data>
+  <data name="TerminalTab_Info_GravGens" xml:space="preserve">
+    <value>Generatoare gravitație:</value>
+  </data>
+  <data name="TerminalTab_Info_Lights" xml:space="preserve">
+    <value>Lumini:</value>
+  </data>
+  <data name="TerminalTab_Info_NonArmor" xml:space="preserve">
+    <value>Blocuri care nu sunt armură:</value>
+  </data>
+  <data name="TerminalTab_Info_Triangles" xml:space="preserve">
+    <value>Triunghiuri:</value>
+  </data>
+  <data name="TerminalTab_Info_Reflectors" xml:space="preserve">
+    <value>Reflectoare:</value>
+  </data>
+  <data name="TerminalTab_Info_Thrusters" xml:space="preserve">
+    <value>Propulsoare:</value>
+  </data>
+  <data name="TerminalTab_Info_VirtualMass" xml:space="preserve">
+    <value>Mase artificiale:</value>
+  </data>
+  <data name="TerminalTab_Info_BlocksTooltip" xml:space="preserve">
+    <value>Numărul total de blocuri în grilă.</value>
+  </data>
+  <data name="TerminalTab_Info_TrianglesTooltip" xml:space="preserve">
+    <value>Numărul de triunghiuri pentru randare. Informație tehnică.
+O cantitate mai mare afectează performanța.</value>
+  </data>
+  <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
+    <value>Bloc Îmbinare</value>
+  </data>
+  <data name="NewVersionAvailable" xml:space="preserve">
+    <value>O nouă versiune de Space Engineers este valabilă!</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
+    <value>Activare spectator în lume</value>
+  </data>
+  <data name="WorldSettings_EnableSpectator" xml:space="preserve">
+    <value>Activare spectator</value>
+  </data>
+  <data name="PlayerCharacterColorBlack" xml:space="preserve">
+    <value>Negru</value>
+  </data>
+  <data name="PlayerCharacterColorBlue" xml:space="preserve">
+    <value>Albastru</value>
+  </data>
+  <data name="PlayerCharacterColorDefault" xml:space="preserve">
+    <value>Umbră</value>
+  </data>
+  <data name="PlayerCharacterColorGreen" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="PlayerCharacterColorRed" xml:space="preserve">
+    <value>Roșu</value>
+  </data>
+  <data name="PlayerCharacterColorWhite" xml:space="preserve">
+    <value>Alb</value>
+  </data>
+  <data name="PlayerCharacterColorYellow" xml:space="preserve">
+    <value>Galben</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
+    <value>Controlează propulsoare</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlWheels" xml:space="preserve">
+    <value>Controlează roți</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Folosește comenzi de roți</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Indică dacă rotorul este controlat ca o roată direct din carlingă.</value>
+  </data>
+  <data name="TerminalTab_Info_Rotors" xml:space="preserve">
+    <value>Rotoare:</value>
+  </data>
+  <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
+    <value>Forța de rupere</value>
+  </data>
+  <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
+    <value>Autoblocare</value>
+  </data>
+  <data name="SpectatorControls_None_Desc" xml:space="preserve">
+    <value>Intră înapoi in caracterul controlat / carlinga controlată</value>
+  </data>
+  <data name="SpectatorControls_Free_Desc" xml:space="preserve">
+    <value>Spectator liber. Puteți să trageți și alte acțiuni cu obiectul controlat</value>
+  </data>
+  <data name="SpectatorControls_Static_Desc" xml:space="preserve">
+    <value>Spectator static. Controlați caracterul / carlinga, dar camera este fixă</value>
+  </data>
+  <data name="WorldSettings_Advanced" xml:space="preserve">
+    <value>Avansat</value>
+  </data>
+  <data name="TerminalTab_Factions" xml:space="preserve">
+    <value>Facțiuni</value>
+  </data>
+  <data name="TerminalTab_Factions_Create" xml:space="preserve">
+    <value>Creare</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateToolTip" xml:space="preserve">
+    <value>Crează o nouă facțiune</value>
+  </data>
+  <data name="TerminalTab_Factions_Leave" xml:space="preserve">
+    <value>Părăsire</value>
+  </data>
+  <data name="TerminalTab_Factions_Join" xml:space="preserve">
+    <value>Alăturare</value>
+  </data>
+  <data name="TerminalTab_Factions_JoinToolTip" xml:space="preserve">
+    <value>Trimite o cerere de alăturare la facțiunea selectată</value>
+  </data>
+  <data name="String1TerminalTab_Factions_LeaveToolTip" xml:space="preserve">
+    <value>Părăsirea facțiunii selectate</value>
+  </data>
+  <data name="TerminalTab_Factions_Enemy" xml:space="preserve">
+    <value>Declară război</value>
+  </data>
+  <data name="TerminalTab_Factions_Friend" xml:space="preserve">
+    <value>Propune pace</value>
+  </data>
+  <data name="TerminalTab_Factions_FriendToolTip" xml:space="preserve">
+    <value>Propune tratat de pace la facțiunea selectată</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFaction" xml:space="preserve">
+    <value>Crează o nouă facțiune</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionDescription" xml:space="preserve">
+    <value>Info publice:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionName" xml:space="preserve">
+    <value>Nume</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfo" xml:space="preserve">
+    <value>Info privat:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfoToolTip" xml:space="preserve">
+    <value>Vizibil numai la membrii</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTag" xml:space="preserve">
+    <value>Marcaj</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
+    <value>Marcajul facțiunii (3 litere trebuie inserate)</value>
+  </data>
+  <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
+    <value>Arată centrul de masă</value>
+  </data>
+  <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
+    <value>Trebuie să părăsiți facțiunea curentă înainte de a crea una nouă</value>
+  </data>
+  <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
+    <value>Dacă este bifată, navele care sunt considerate a fi gunoi vor fi eliminate pentru a face jocul să ruleze mai bine.
+Pentru a fi considerat gunoi, un obiect trebuie să conțină doar câteva blocuri, să fie în mișcare liniară uniformă, să fie
+nealimentat, necontrolat, fără un Cabinet Medical și destul de departe de toți jucătorii astfel încât obiectul sa fie abia vizibil.</value>
+  </data>
+  <data name="WorldSettings_LimitWorldSize" xml:space="preserve">
+    <value>Limită mărime lume</value>
+  </data>
+  <data name="WorldSettings_RemoveTrash" xml:space="preserve">
+    <value>Ștergere automată de gunoaie</value>
+  </data>
+  <data name="TerminalTab_Factions_Private" xml:space="preserve">
+    <value>Info privat (vizibil numai la membrii):</value>
+  </data>
+  <data name="Terminal_BlockAccessDenied" xml:space="preserve">
+    <value>(acces refuzat)</value>
+  </data>
+  <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
+    <value>Editare facțiune</value>
+  </data>
+  <data name="NotificationRespawnShipDelete" xml:space="preserve">
+    <value>Navă temporară. Va fi ștearsă când iesiți din joc sau inviați în una nouă.</value>
+  </data>
+  <data name="TooltipWorldSettingsRespawnShipDelete" xml:space="preserve">
+    <value>Șterge nava de salvare când jucatorul iese / învie intr-o navă nouă</value>
+  </data>
+  <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
+    <value>Șterge nave salvare</value>
+  </data>
+  <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
+    <value>Această facțiune propune un tratat de pace cu facțiunea dvs.</value>
+  </data>
+  <data name="TerminalTab_Factions_SentPeace" xml:space="preserve">
+    <value>Dvs. propuneți un tratat de pace cu această facțiune</value>
+  </data>
+  <data name="BlockPropertyDescription_BreakForce" xml:space="preserve">
+    <value>Trenul de aterizare se va debloca automat când forța aplicată este mai mare decât această valoare</value>
+  </data>
+  <data name="WorldSettings_WarningChangingWorldSize" xml:space="preserve">
+    <value>Setarea aleasă este mai limitată decât cea anterioară. Reducerea mărimii lumii într-o salvare existentă poate șterge unele nave dincolo de limită. Sunteți sigur că doriți să continuați?</value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastRadius" xml:space="preserve">
+    <value>Raza difuzării</value>
+  </data>
+  <data name="BlockPropertyTitle_BroadcastRadius" xml:space="preserve">
+    <value>Raza difuzării</value>
+  </data>
+  <data name="Default_Astronaut" xml:space="preserve">
+    <value>Astronaut</value>
+    <comment>Name of the character model in select box of wardrobe</comment>
+  </data>
+  <data name="TerminalTab_Factions_CancelJoin" xml:space="preserve">
+    <value>Anulează alăturarea</value>
+  </data>
+  <data name="TerminalTab_Factions_CancelPeaceRequest" xml:space="preserve">
+    <value>Anulează cererea</value>
+  </data>
+  <data name="TerminalTab_Factions_SentJoinToolTip" xml:space="preserve">
+    <value>Aplicați pentru a deveni membru în această facțiune.</value>
+  </data>
+  <data name="BlockOwner_Me" xml:space="preserve">
+    <value>Eu</value>
+  </data>
+  <data name="BlockOwner_Nobody" xml:space="preserve">
+    <value>Nimeni</value>
+  </data>
+  <data name="BlockOwner_Owner" xml:space="preserve">
+    <value>Proprietar</value>
+  </data>
+  <data name="BlockOwner_ShareAll" xml:space="preserve">
+    <value>Împarte cu toți</value>
+  </data>
+  <data name="BlockOwner_ShareFaction" xml:space="preserve">
+    <value>Împarte cu facțiune</value>
+  </data>
+  <data name="BlockOwner_Transfer" xml:space="preserve">
+    <value>Transferă proprietate</value>
+  </data>
+  <data name="DisplayName_Block_PassengerSeat" xml:space="preserve">
+    <value>Scaun Pasager</value>
+  </data>
+  <data name="Terminal_GroupTitle" xml:space="preserve">
+    <value>Grup Bloc</value>
+  </data>
+  <data name="TerminalTab_Factions_Members" xml:space="preserve">
+    <value>Membrii</value>
+  </data>
+  <data name="WorldSettings_ResetOwnership" xml:space="preserve">
+    <value>Resetă proprietăti</value>
+  </data>
+  <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
+    <value>Șterge proprietarii la toate blocurile</value>
+  </data>
+  <data name="BatteryBlock" xml:space="preserve">
+    <value>Baterie</value>
+  </data>
+  <data name="DisplayName_Block_Battery" xml:space="preserve">
+    <value>Baterie</value>
+  </data>
+  <data name="BlockPropertiesText_MaxStoredPower" xml:space="preserve">
+    <value>Curent Maxim Stocat:</value>
+  </data>
+  <data name="BlockPropertiesText_StoredPower" xml:space="preserve">
+    <value>Curent Stocat:</value>
+  </data>
+  <data name="ToolTipBatteryBlock" xml:space="preserve">
+    <value>Bifați pentru stocarea curentului, debifați pentru folosirea curentului</value>
+    <comment>checkbox tooltip (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockPropertyTitle_Recharge" xml:space="preserve">
+    <value>Reîncărcare</value>
+    <comment>Recharge checkbox in terminal (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockOwner_ShareNone" xml:space="preserve">
+    <value>Nu împărții</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_half" xml:space="preserve">
+    <value>Reduce viteza de polizare cu 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x1" xml:space="preserve">
+    <value>Viteza implicită de polizare</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x2" xml:space="preserve">
+    <value>Viteza de polizare este 2x mai rapidă</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x5" xml:space="preserve">
+    <value>Viteza de polizare este 5x mai rapidă</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_half" xml:space="preserve">
+    <value>Reduce viteza de sudare cu 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x1" xml:space="preserve">
+    <value>Viteza implicită de sudare</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x2" xml:space="preserve">
+    <value>Viteza de sudare este 2x mai rapidă</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x5" xml:space="preserve">
+    <value>Viteza de sudare este 5x mai rapidă</value>
+  </data>
+  <data name="WorldSettings_Realistic_half" xml:space="preserve">
+    <value>x0.5</value>
+  </data>
+  <data name="WorldSettings_Realistic_x2" xml:space="preserve">
+    <value>x2</value>
+  </data>
+  <data name="WorldSettings_Realistic_x5" xml:space="preserve">
+    <value>x5</value>
+  </data>
+  <data name="WorldSettings_GrinderSpeed" xml:space="preserve">
+    <value>Viteza de polizare</value>
+  </data>
+  <data name="WorldSettings_WelderSpeed" xml:space="preserve">
+    <value>Viteza de sudare</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundMode" xml:space="preserve">
+    <value>Schimbă între sunete realiste și arcade.</value>
+  </data>
+  <data name="WorldSettings_ArcadeSound" xml:space="preserve">
+    <value>Arcade</value>
+  </data>
+  <data name="WorldSettings_RealisticSound" xml:space="preserve">
+    <value>Realistic</value>
+  </data>
+  <data name="WorldSettings_SoundMode" xml:space="preserve">
+    <value>Mod sunet</value>
+  </data>
+  <data name="Terminal_ShowOnHUD" xml:space="preserve">
+    <value>Arată pe ecran</value>
+  </data>
+  <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
+    <value>Trebuie să aveți o antenă conectată.</value>
+  </data>
+  <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
+    <value>Acceptă pace</value>
+  </data>
+  <data name="MessageBoxCaptionRespawn" xml:space="preserve">
+    <value>Veți pierde toate proprietățile și o sa fiți un jucător nou!
+Înviere ?</value>
+  </data>
+  <data name="RespawnShip" xml:space="preserve">
+    <value>Navă Salvare</value>
+  </data>
+  <data name="Factions_EnemyFaction" xml:space="preserve">
+    <value>Facțiune inamică</value>
+  </data>
+  <data name="Factions_NeutralFaction" xml:space="preserve">
+    <value>Facțiune neutră</value>
+  </data>
+  <data name="Factions_YourFaction" xml:space="preserve">
+    <value>Facțiunea dvs.</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowInteracted" xml:space="preserve">
+    <value>Arată inventarul obiectului interacționat (sau cadavru)</value>
+  </data>
+  <data name="HideEmpty" xml:space="preserve">
+    <value>Ascunde goale</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_Handbrake" xml:space="preserve">
+    <value>Frâna de mână</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Damping" xml:space="preserve">
+    <value>Amortizare</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Strength" xml:space="preserve">
+    <value>Putere</value>
+  </data>
+  <data name="ScreenTerminal_Infinite" xml:space="preserve">
+    <value>Infinit</value>
+  </data>
+  <data name="WorldSettings_ClientCanSave" xml:space="preserve">
+    <value>Clienții pot salva</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
+    <value>Dacă roată este motorizată.</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Steering" xml:space="preserve">
+    <value>Control direcție la această suspensie din carlingă.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Propulsion" xml:space="preserve">
+    <value>Motorizare</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
+    <value>Control direcție</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
+    <value>Reglează tracțiunea roții prin ajustarea presiunii în anvelopă.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Friction" xml:space="preserve">
+    <value>Tracțiune</value>
+  </data>
+  <data name="DisplayName_Block_Suspension1x1" xml:space="preserve">
+    <value>Roată cu Suspensie 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Suspension3x3" xml:space="preserve">
+    <value>Roată cu Suspensie 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Suspension5x5" xml:space="preserve">
+    <value>Roată cu Suspensie 5x5</value>
+  </data>
+  <data name="NotificationWheelNotPlaced" xml:space="preserve">
+    <value>Roata nu a putut fi plasată.</value>
+  </data>
+  <data name="Factions_YourBlock" xml:space="preserve">
+    <value>Blocul dvs. (fără facțiune)</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Power" xml:space="preserve">
+    <value>Puterea oferită motorizării</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
+    <value>Putere</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
+  <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
+    <value>Fereastră Centrată</value>
+  </data>
+  <data name="ControlDescBrake" xml:space="preserve">
+    <value>Frână</value>
+  </data>
+  <data name="ControlDescLoot" xml:space="preserve">
+    <value>Jefuiește cadavru</value>
+  </data>
+  <data name="NotificationObstructingBlockDuringMerge" xml:space="preserve">
+    <value>Nu pot îmbina nave! Unele blocuri ar ocupa același spațiu după îmbinare!</value>
+  </data>
+  <data name="ToolTipWorldSettingsPermanentDeath" xml:space="preserve">
+    <value>Dacă este bifat, jucătorii pierd tot dacă mor și nu au un cabinet medical disponibil.</value>
+  </data>
+  <data name="WorldSettings_PermanentDeath" xml:space="preserve">
+    <value>Moarte permanentă</value>
+  </data>
+  <data name="DisplayName_Item_PowerCell" xml:space="preserve">
+    <value>Celulă Curent</value>
+  </data>
+  <data name="BlockPropertiesText_DepletedIn" xml:space="preserve">
+    <value>Complet epuizată în:</value>
+  </data>
+  <data name="BlockPropertiesText_RechargedIn" xml:space="preserve">
+    <value>Complet încărcată în:</value>
+  </data>
+  <data name="BlockPropertyButtonOff_Retract" xml:space="preserve">
+    <value>Retractă</value>
+  </data>
+  <data name="BlockPropertyButtonOn_Expand" xml:space="preserve">
+    <value>Extinde</value>
+  </data>
+  <data name="BlockPropertyTitle_Force" xml:space="preserve">
+    <value>Forță</value>
+  </data>
+  <data name="BlockPropertyTitle_MaximalDistance" xml:space="preserve">
+    <value>Distanța maximă</value>
+  </data>
+  <data name="BlockPropertyTitle_MinimalDistance" xml:space="preserve">
+    <value>Distanța minimă</value>
+  </data>
+  <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
+    <value>Viteză</value>
+  </data>
+  <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
+    <value>Numărul de baterii în uz:</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAccept" xml:space="preserve">
+    <value>Acceptă pe toți</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptToolTip" xml:space="preserve">
+    <value>Acceptă automat cererile de alăturare</value>
+  </data>
+  <data name="BlockPropertyTitle_Semiauto" xml:space="preserve">
+    <value>Semi-auto</value>
+  </data>
+  <data name="ToolTipBatteryBlock_Semiauto" xml:space="preserve">
+    <value>Activează reîncărcarea când curentul stocat este 0, activează descărcarea când curentul stocat este la maxim.</value>
+  </data>
+  <data name="BlockAction_Toggle" xml:space="preserve">
+    <value>Comutare bloc</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequest" xml:space="preserve">
+    <value>Acceptă pace</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequestToolTip" xml:space="preserve">
+    <value>Acceptă cererile de pace automat</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorRotorDisplacement" xml:space="preserve">
+    <value>Permite mutarea grila rotorului în sus sau jos pentru a rezolva diverse probleme de aliniere</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorRotorDisplacement" xml:space="preserve">
+    <value>Deplasare rotor</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
+    <value>Ușă blindată</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
+    <value>Colț ușă blindată</value>
+  </data>
+  <data name="DisplayName_Block_ArmorSide" xml:space="preserve">
+    <value>Margine ușă blindată</value>
+  </data>
+  <data name="BlockAction_RemoveFromToolbar" xml:space="preserve">
+    <value>[elimină din bara de unelte]</value>
+  </data>
+  <data name="DisplayName_Block_PistonBase" xml:space="preserve">
+    <value>Piston</value>
+  </data>
+  <data name="ToolbarAction_Decrease" xml:space="preserve">
+    <value>Scădere</value>
+  </data>
+  <data name="ToolbarAction_Increase" xml:space="preserve">
+    <value>Creștere</value>
+  </data>
+  <data name="ToolbarAction_Reset" xml:space="preserve">
+    <value>Resetare</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustOverride" xml:space="preserve">
+    <value>Suprascrierea propulsorului va cauza activarea propulsorului și fără carlingă</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
+    <value>Suprascrie propulsie</value>
+  </data>
+  <data name="BlockAction_Switch" xml:space="preserve">
+    <value>Comută</value>
+  </data>
+  <data name="BlockAction_DoorClosed" xml:space="preserve">
+    <value>Inchisă</value>
+  </data>
+  <data name="BlockAction_DoorOpen" xml:space="preserve">
+    <value>Deschisă</value>
+  </data>
+  <data name="DisplayName_Block_PistonTop" xml:space="preserve">
+    <value>Cap Piston</value>
+  </data>
+  <data name="DisplayName_Block_RotorPart" xml:space="preserve">
+    <value>Cap Rotor</value>
+  </data>
+  <data name="DisplayName_Block_ArmorInvCorner" xml:space="preserve">
+    <value>Colț invers ușă blindată</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroOverride" xml:space="preserve">
+    <value>Dacă este bifat, giroscopul nu mai raspunde la controlul din carlingă, dar in schimb poate fi contolrat manual folosind sliderele din terminal</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroOverride" xml:space="preserve">
+    <value>Suprascrie controale</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPitchOverride" xml:space="preserve">
+    <value>Componenta de înclinare a forței rotative constante aplicate de către acest giroscop dacă controalele sunt suprascrise</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroRollOverride" xml:space="preserve">
+    <value>Componenta de rostogolire a forței rotative constante aplicate de către acest giroscop dacă controalele sunt suprascrise</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroYawOverride" xml:space="preserve">
+    <value>Componenta de pivotare a forței rotative constante aplicate de către acest giroscop dacă controalele sunt suprascrise</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPitchOverride" xml:space="preserve">
+    <value>Suprascrie înclinare</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroRollOverride" xml:space="preserve">
+    <value>Suprascrie rostogolire</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
+    <value>Suprascrie pivot</value>
+  </data>
+  <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
+    <value>Poziția curentă</value>
+  </data>
+  <data name="HudEnergyGroupBatteries" xml:space="preserve">
+    <value>Baterii</value>
+  </data>
+  <data name="BlockActionTitle_SwitchLock" xml:space="preserve">
+    <value>Comută încuietoare</value>
+  </data>
+  <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
+    <value>Afișează numele navei</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowShipName" xml:space="preserve">
+    <value>Afișează numele navei</value>
+  </data>
+  <data name="BroadcastStatus_Connected" xml:space="preserve">
+    <value>Acces la distanță</value>
+  </data>
+  <data name="BroadcastStatus_OutOfBroadcastingRange" xml:space="preserve">
+    <value>În afara razei de difuzare</value>
+  </data>
+  <data name="BroadcastStatus_OutOfReceivingRange" xml:space="preserve">
+    <value>În afara razei de recepție</value>
+  </data>
+  <data name="ScreenTerminalError_ShipHasBeenDisconnected" xml:space="preserve">
+    <value>Nava a fost deconectată de la terminal</value>
+  </data>
+  <data name="CustomShipName_LargeShip" xml:space="preserve">
+    <value>Nava Mare</value>
+  </data>
+  <data name="CustomShipName_SmallShip" xml:space="preserve">
+    <value>Nava Mică</value>
+  </data>
+  <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
+    <value>Acces direct</value>
+  </data>
+  <data name="BlockOwner_Unknown" xml:space="preserve">
+    <value>Necunoscut</value>
+  </data>
+  <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
+    <value>Apăsați {0} pentru a configura butoanele panoului</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
+    <value>Raza câmpului gravitațional</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldRadius" xml:space="preserve">
+    <value>Raza</value>
+  </data>
+  <data name="DisplayName_Block_GravityGeneratorSphere" xml:space="preserve">
+    <value>Generator Gravitație Sferic</value>
+  </data>
+  <data name="BroadcastStatus_Me" xml:space="preserve">
+    <value>Eu</value>
+  </data>
+  <data name="ScreenTerminal_ShipList" xml:space="preserve">
+    <value>Nave accesibile</value>
+  </data>
+  <data name="CustomShipName_Platform" xml:space="preserve">
+    <value>Platformă</value>
+  </data>
+  <data name="HudInfoNameBroadcastRange" xml:space="preserve">
+    <value>Radio:</value>
+  </data>
+  <data name="BlockPropertyText_AnyoneCanUse" xml:space="preserve">
+    <value>Oricine poate folosi</value>
+  </data>
+  <data name="BlockPropertyDescription_AnyoneCanUse" xml:space="preserve">
+    <value>Dacă este debifat va verifica dacă jucătorul care apasă butonul are acces la bloc.</value>
+  </data>
+  <data name="DefinitionError_BlockWithComputerNotTerminalBlock" xml:space="preserve">
+    <value>Definiția pentru {0} conține computer, dar TypeId-ul blocului nu este bloc terminal. Asta înseamnă că blocul poate fi deținut, dar proprietarul nu poate fi modificat prin panoul de control.
+Pont: Încercați să setați TypeId la orice bloc care are terminal - cel mai simplu caz fiind TerminalBlock</value>
+  </data>
+  <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
+    <value>Panou Butoane</value>
+  </data>
+  <data name="SpawnInSpaceSuit" xml:space="preserve">
+    <value>Costum Spațial</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
+    <value>Componente</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_LargeBlocks" xml:space="preserve">
+    <value>Blocuri Mari</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
+    <value>Blocuri Mici</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Unelte</value>
+  </data>
+  <data name="BlockActionTitle_View" xml:space="preserve">
+    <value>Vezi</value>
+  </data>
+  <data name="DisplayName_Block_Camera" xml:space="preserve">
+    <value>Cameră</value>
+  </data>
+  <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
+    <value>A apărut o eroare încărcând continutul original, nu s-a putut încărcă fișierul:
+{0}
+Conținutul original al jocului a fost probabil modificat, inversați orice modificare și încercați din nou. Cea mai bună metodă este să ștergeți dosarul 'SpaceEngineers\Content\Data' după care selectați în Steam 'Verifică integritatea fișierelor locale'.
+Reinstalarea jocului nu este de ajuns, deoarece Steam nu șterge fișierele necunoscute!</value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
+    <value>Difusează folosind antene</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
+    <value>Orice obiect acceptat de {0}</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
+    <value>Orice obiect produs de {0}</value>
+  </data>
+  <data name="WorkshopTag_Production" xml:space="preserve">
+    <value>Producție</value>
+  </data>
+  <data name="WorkshopTag_RespawnShip" xml:space="preserve">
+    <value>Navă Salvare</value>
+  </data>
+  <data name="NotificationHintPressToExitCamera" xml:space="preserve">
+    <value>Apăsați {0} pentru a opri vizionarea camerei</value>
+  </data>
+  <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
+    <value>Cuptor cu arc electric</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Caption" xml:space="preserve">
+    <value>Locuri de Înviere</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnAsteroid" xml:space="preserve">
+    <value>Crează Asteroid</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMax" xml:space="preserve">
+    <value>Extindere spate</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMin" xml:space="preserve">
+    <value>Extindere față</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMax" xml:space="preserve">
+    <value>Extindere în sus</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMin" xml:space="preserve">
+    <value>Extindere în jos</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMax" xml:space="preserve">
+    <value>Extindere dreapta</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMin" xml:space="preserve">
+    <value>Extindere stânga</value>
+  </data>
+  <data name="DisplayName_Block_Sensor" xml:space="preserve">
+    <value>Senzor</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkInterval" xml:space="preserve">
+    <value>Lumina intermitentă (în secunde)</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkLenght" xml:space="preserve">
+    <value>Durata aprinderii luminii ca procent din interval</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkOffset" xml:space="preserve">
+    <value>Distanțarea aprinderii luminii ca procent din interval</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkInterval" xml:space="preserve">
+    <value>Interval Intermitent</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkLenght" xml:space="preserve">
+    <value>Durată Aprindere</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkOffset" xml:space="preserve">
+    <value>Distanțiere</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_DetonationTime" xml:space="preserve">
+    <value>Timp detonare</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StartCountdown" xml:space="preserve">
+    <value>Pornește numărătoarea</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StopCountdown" xml:space="preserve">
+    <value>Oprește numărătoarea</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Safety" xml:space="preserve">
+    <value>Siguranță</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Detonate" xml:space="preserve">
+    <value>Detonează</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextArmed" xml:space="preserve">
+    <value>Armat</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextDisarmed" xml:space="preserve">
+    <value>Dezamorsat</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorToolbarOpen" xml:space="preserve">
+    <value>Deschide bara de unelte</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorToolbarOpen" xml:space="preserve">
+    <value>Configurare acțiuni</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFloatingObjects" xml:space="preserve">
+    <value>Detectează obiecte plutitoare</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectLargeShips" xml:space="preserve">
+    <value>Detectează nave mari</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectPlayers" xml:space="preserve">
+    <value>Detectează jucători</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectSmallShips" xml:space="preserve">
+    <value>Detectează nave mici</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBack" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție din spatele senzorului</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBottom" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție din de sub senzor</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldFront" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție din fața senzorului</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldLeft" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție din stânga senzorului</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldRight" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție din dreapta senzorului</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldTop" xml:space="preserve">
+    <value>Cât de departe se extinde câmpul de detecție deasupra senzorului</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SafetyTooltip" xml:space="preserve">
+    <value>Când este debifat, focosul poate fi detonat manual. Aceasta nu afectează detonarea automată după numărătoare.</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
+    <value>Detectează platforme</value>
+  </data>
+  <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
+    <value>Arată raza gravitațională</value>
+  </data>
+  <data name="TerminalTab_Info_ShowSenzorGizmo" xml:space="preserve">
+    <value>Arată raza senzorului</value>
+  </data>
+  <data name="ControlRemote" xml:space="preserve">
+    <value>Controlează</value>
+  </data>
+  <data name="DisplayName_Block_RemoteControl" xml:space="preserve">
+    <value>Control la distanță</value>
+  </data>
+  <data name="DisplayName_Block_TimerBlock" xml:space="preserve">
+    <value>Bloc Cronometru</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToolbarOpen" xml:space="preserve">
+    <value>Configurare acțiuni</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerTrigger" xml:space="preserve">
+    <value>Declanșează acum</value>
+  </data>
+  <data name="TerminalControlPanel_TimerDelay" xml:space="preserve">
+    <value>Timp</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStart" xml:space="preserve">
+    <value>Pornește</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStop" xml:space="preserve">
+    <value>Oprește</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
+    <value>Timp până la declanșare:</value>
+  </data>
+  <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
+    <value>Lansator de Rachete Reîncărcabil</value>
+  </data>
+  <data name="DisplayName_Category_AllBlocks" xml:space="preserve">
+    <value>Toate Blocurile</value>
+  </data>
+  <data name="DisplayName_Category_ShipGroups" xml:space="preserve">
+    <value>Grupuri</value>
+  </data>
+  <data name="DisplayName_Category_ArmorBlocks" xml:space="preserve">
+    <value>Blocuri Armură</value>
+  </data>
+  <data name="DisplayName_Category_CharacterAnimations" xml:space="preserve">
+    <value>Animatii Personaj</value>
+  </data>
+  <data name="DisplayName_Category_CharacterTools" xml:space="preserve">
+    <value>Unelte Personaj</value>
+  </data>
+  <data name="DisplayName_Category_ConveyorBlocks" xml:space="preserve">
+    <value>Blocuri Transport/Marfă</value>
+  </data>
+  <data name="DisplayName_Category_ShipLights" xml:space="preserve">
+    <value>Lumini</value>
+  </data>
+  <data name="DisplayName_Category_ShipThrusters" xml:space="preserve">
+    <value>Propulsoare</value>
+  </data>
+  <data name="DisplayName_Category_ShipWeaponsTools" xml:space="preserve">
+    <value>Arme și Unelte</value>
+  </data>
+  <data name="DisplayName_Category_WindowBlocks" xml:space="preserve">
+    <value>Blocuri Ferestre</value>
+  </data>
+  <data name="DisplayName_Category_LargeBlocks" xml:space="preserve">
+    <value>Blocuri Mari</value>
+  </data>
+  <data name="DisplayName_Category_SmallBlocks" xml:space="preserve">
+    <value>Blocuri Mici</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Assembler" xml:space="preserve">
+    <value>Navă Salvare 2</value>
+  </data>
+  <data name="DisplayName_RespawnShip_EscapePod" xml:space="preserve">
+    <value>Capsulă Salvare</value>
+  </data>
+  <data name="DisplayName_RespawnShip_RefineryAssembler" xml:space="preserve">
+    <value>Navă Salvare 3</value>
+  </data>
+  <data name="DisplayName_RespawnShip_ShipDrill" xml:space="preserve">
+    <value>Navă Burghiu Mică</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Yellow" xml:space="preserve">
+    <value>Navă Salvare</value>
+  </data>
+  <data name="ScreenMedicals_OwnerTimeoutColumn" xml:space="preserve">
+    <value>Deținător / Întârziere</value>
+  </data>
+  <data name="ScreenMedicals_RespawnWhenShipReady" xml:space="preserve">
+    <value>Will spawn in "{0}" when it is ready.</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipReady" xml:space="preserve">
+    <value>Pregătită</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipNotReady" xml:space="preserve">
+    <value>Nepregătită</value>
+  </data>
+  <data name="TerminalTab_Info_ShowAntenaGizmo" xml:space="preserve">
+    <value>Arată raza antenelor</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNone" xml:space="preserve">
+    <value>Nul</value>
+  </data>
+  <data name="WorldSettings_RespawnShipCooldown" xml:space="preserve">
+    <value>Întârziere navă salvare</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_Default" xml:space="preserve">
+    <value>Întârzieri implicite</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x01" xml:space="preserve">
+    <value>Implicit / 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x02" xml:space="preserve">
+    <value>Implicit / 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x05" xml:space="preserve">
+    <value>Implicit / 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x10" xml:space="preserve">
+    <value>Implicit x 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x100" xml:space="preserve">
+    <value>Implicit x 100</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x2" xml:space="preserve">
+    <value>Implicit x 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x20" xml:space="preserve">
+    <value>Implicit x 20</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x5" xml:space="preserve">
+    <value>Implicit x 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
+    <value>Implicit x 50</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
+    <value>Întârzieri dezactivate</value>
+  </data>
+  <data name="DisplayName_Block_FighterCockpit" xml:space="preserve">
+    <value>Carlingă de Luptă</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectAsteroids" xml:space="preserve">
+    <value>Detectează Asteroizi</value>
+  </data>
+  <data name="DisplayName_Category_Cockpit" xml:space="preserve">
+    <value>Blocuri Carlingă</value>
+  </data>
+  <data name="DisplayName_Category_Power" xml:space="preserve">
+    <value>Blocuri Energie</value>
+  </data>
+  <data name="DisplayName_Category_Production" xml:space="preserve">
+    <value>Blocuri Producție</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemAmount" xml:space="preserve">
+    <value>Cantitate</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemType" xml:space="preserve">
+    <value>Tip obiect</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
+    <value>Crează Obiect</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
+    <value>Asteroizi</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
+    <value>Obiecte</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidAddRandomMaterials" xml:space="preserve">
+    <value>Adaugă Materiale Aleatorii</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidCoreMaterial" xml:space="preserve">
+    <value>Material Miez</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidSurfaceMaterial" xml:space="preserve">
+    <value>Material Suprafață</value>
+  </data>
+  <data name="Assembler_SlaveMode" xml:space="preserve">
+    <value>Mod Cooperare</value>
+  </data>
+  <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
+    <value>Montator Muniție</value>
+  </data>
+  <data name="DisplayName_Block_Base_Components_Assembler" xml:space="preserve">
+    <value>Montator Componente de Bază</value>
+  </data>
+  <data name="DisplayName_Block_Big_Arc_Furnace" xml:space="preserve">
+    <value>Cuptor Mare cu Arc Electric</value>
+  </data>
+  <data name="DisplayName_Block_Big_Gas_Centrifugal_Refinery" xml:space="preserve">
+    <value>Rafinărie Mare de Gaz cu Centrifugă</value>
+  </data>
+  <data name="DisplayName_Block_Big_Precious_Furnace" xml:space="preserve">
+    <value>Cuptor Mare pentru Metale Nobile</value>
+  </data>
+  <data name="DisplayName_Block_Big_Solids_Refinery" xml:space="preserve">
+    <value>Rafinărie Mare pentru Solide</value>
+  </data>
+  <data name="DisplayName_Block_Construction_Components_Assembler" xml:space="preserve">
+    <value>Montator Componente de Construcție</value>
+  </data>
+  <data name="DisplayName_Block_Electronics_Assembler" xml:space="preserve">
+    <value>Montator Electronice</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ammo" xml:space="preserve">
+    <value>Muniție</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Base_Components" xml:space="preserve">
+    <value>Componente de Bază</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_CommonMetals" xml:space="preserve">
+    <value>Metale Comune</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Construction_Components" xml:space="preserve">
+    <value>Componente Construcție</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Electronics" xml:space="preserve">
+    <value>Electronice</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_EnergeticIngots" xml:space="preserve">
+    <value>Lingouri Energetice</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ingots" xml:space="preserve">
+    <value>Lingouri</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_PreciousMetals" xml:space="preserve">
+    <value>Metale Nobile</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Solids" xml:space="preserve">
+    <value>Solide</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToRemoveAsteroid" xml:space="preserve">
+    <value>Sunteți sigur că doriți să ștergeți asteroidul selectat? (acțiunea nu poate fi inversată!)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidGenerationCanTakeLong" xml:space="preserve">
+    <value>Generarea asteroizilor poate dura mult timp!</value>
+  </data>
+  <data name="Antenna_EnableBroadcast" xml:space="preserve">
+    <value>Activează Difuzare</value>
+  </data>
+  <data name="ControlName_Broadcasting" xml:space="preserve">
+    <value>Difuzare pornit / oprit</value>
+  </data>
+  <data name="LargeMissileTurretReloadingNotification" xml:space="preserve">
+    <value>Reîncărcare</value>
+  </data>
+  <data name="HudInfoBroadcasting" xml:space="preserve">
+    <value>Difuzare</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOff" xml:space="preserve">
+    <value>Difuzare Oprită</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOn" xml:space="preserve">
+    <value>Difuzare Pornită</value>
+  </data>
+  <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
+    <value>Nu se poate pune asteroidul peste nave și jucători</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
+    <value>Rotor Avansat</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotorPart" xml:space="preserve">
+    <value>Cap Rotor Avansat</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
+    <value>Suma nu este validă</value>
+  </data>
+  <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
+    <value>Activează sau dezactivează modul de cooperare</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PredefinedAsteroids" xml:space="preserve">
+    <value>Asteroizi predefiniți</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralAsteroids" xml:space="preserve">
+    <value>Asteroizi procedurali</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSeed" xml:space="preserve">
+    <value>Sămânță (diferite semințe si raze produc asteroizi diferiți)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
+    <value>Asteroid size</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
+    <value>Alegeți tipul de asteroid</value>
+  </data>
+  <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
+    <value>Orice încărcător de muniție acceptat de {0}</value>
+  </data>
+  <data name="BlockActionTitle_Detach" xml:space="preserve">
+    <value>Desprinde</value>
+  </data>
+  <data name="BlockActionTitle_Attach" xml:space="preserve">
+    <value>Atașează</value>
+  </data>
+  <data name="Notification_NoControl" xml:space="preserve">
+    <value>Altcineva foloseste această navă!</value>
+  </data>
+  <data name="Notification_NoControlStation" xml:space="preserve">
+    <value>Altcineva foloseste această stație!</value>
+  </data>
+  <data name="MissileLauncherReloadingNotification" xml:space="preserve">
+    <value>Reîncărcare</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetX" xml:space="preserve">
+    <value>Ajustare orizontală</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetY" xml:space="preserve">
+    <value>Ajustare verticală</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetZ" xml:space="preserve">
+    <value>Ajustare înainte</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationX" xml:space="preserve">
+    <value>Înclinare</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationY" xml:space="preserve">
+    <value>Girație</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationZ" xml:space="preserve">
+    <value>Rolă</value>
+  </data>
+  <data name="DisplayName_Block_Projector" xml:space="preserve">
+    <value>Proiector</value>
+  </data>
+  <data name="NotificationProjectorGridSize" xml:space="preserve">
+    <value>Tipul de grilă nu este corect. Marimea schiței trebuie să fie de același tip ca proiectorul.</value>
+  </data>
+  <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
+    <value>Nu se pot afișa mai multe grile. Doar cea mai mare grilă va fi folosită.</value>
+  </data>
+  <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
+    <value>Arată pivotul grilei</value>
+  </data>
+  <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
+    <value>Bravo</value>
+  </data>
+  <data name="DisplayName_Animation_Victory" xml:space="preserve">
+    <value>Victorie</value>
+  </data>
+  <data name="DisplayName_Block_ControlPanel" xml:space="preserve">
+    <value>Panou Control</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkCorner" xml:space="preserve">
+    <value>Colț Pasarelă de Oțel</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkPlate" xml:space="preserve">
+    <value>Placă Pasarelă de Oțel</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
+    <value>Pasarelă de Oțel cu Două Margini</value>
+  </data>
+  <data name="KeepProjectionToggle" xml:space="preserve">
+    <value>Menține Proiecția</value>
+  </data>
+  <data name="KeepProjectionTooltip" xml:space="preserve">
+    <value>Menține proiecția după ce construcția a fost completată. Util pentru construire automată, dar poate degrada performanța.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="RemoveProjectionButton" xml:space="preserve">
+    <value>Elimină</value>
+  </data>
+  <data name="DisplayName_Block_SpaceBall" xml:space="preserve">
+    <value>Minge Spațială</value>
+  </data>
+  <data name="DisplayName_Category_VoxelHands" xml:space="preserve">
+    <value>Mâini Voxel</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallFriction" xml:space="preserve">
+    <value>Fricțiune</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallVirtualMass" xml:space="preserve">
+    <value>Masă virtuală</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockRange" xml:space="preserve">
+    <value>Raza sunetului</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockVolume" xml:space="preserve">
+    <value>Volumul sunetului</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockRange" xml:space="preserve">
+    <value>Raza</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockVolume" xml:space="preserve">
+    <value>Volum</value>
+  </data>
+  <data name="DisplayName_Block_SoundBlock" xml:space="preserve">
+    <value>Bloc Sunet</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Box" xml:space="preserve">
+    <value>Cutie</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
+    <value>Sferă</value>
+  </data>
+  <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
+    <value>Când este setată, zona de joc este limitată la un cub cu o lungime laterală la dimensiunea aleasă.
+Toate obiectele care părăsesc zona de joc vor fi șterse din joc.
+Caracterele care părăsesc zona de joc vor fi ucise.</value>
+  </data>
+  <data name="WorldSettings_WorldSize100Km" xml:space="preserve">
+    <value>100 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize10Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize20Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize50Km" xml:space="preserve">
+    <value>50 km</value>
+  </data>
+  <data name="WorldSettings_WorldSizeUnlimited" xml:space="preserve">
+    <value>Nelimitat</value>
+  </data>
+  <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
+    <value>Personalizat</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
+    <value>Timp repetare</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockPlay" xml:space="preserve">
+    <value>Redă</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockSoundList" xml:space="preserve">
+    <value>Listă sunete</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockStop" xml:space="preserve">
+    <value>Oprește</value>
+  </data>
+  <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
+    <value>Timpul de repetare:</value>
+  </data>
+  <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
+    <value>Nivelare automată sol</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
+    <value>Capsulă</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
+    <value>Alertă 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert2" xml:space="preserve">
+    <value>Alertă 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert3" xml:space="preserve">
+    <value>Alertă 3</value>
+  </data>
+  <data name="SoundBlock_SoundName_EnemyDetected" xml:space="preserve">
+    <value>Inamic Detectat</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOff" xml:space="preserve">
+    <value>Lumini oprite</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOn" xml:space="preserve">
+    <value>Lumini pornite</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music1" xml:space="preserve">
+    <value>Muzică 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music2" xml:space="preserve">
+    <value>Muzică 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_ObjectiveComplete" xml:space="preserve">
+    <value>Obiectiv finalizat</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode" xml:space="preserve">
+    <value>Editare</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode" xml:space="preserve">
+    <value>Rulează</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
+    <value>Rampă</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
+    <value>Infinit: Denstitate mare</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralLow" xml:space="preserve">
+    <value>Infinit: Denstitate mică</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralNormal" xml:space="preserve">
+    <value>Infinit: Denstitate normală</value>
+  </data>
+  <data name="ToolTipWorldSettingsDestructibleBlocks" xml:space="preserve">
+    <value>Activează/Dezactivează distrugerea blocurilor</value>
+  </data>
+  <data name="WorldSettings_DestructibleBlocks" xml:space="preserve">
+    <value>Blocuri distructibile</value>
+  </data>
+  <data name="WorkshopTag_Exploration" xml:space="preserve">
+    <value>Explorare</value>
+  </data>
+  <data name="DisplayName_Programmable_Block" xml:space="preserve">
+    <value>Bloc programabil</value>
+  </data>
+  <data name="ProgrammableBlock_CodeChanged" xml:space="preserve">
+    <value>Codul este schimbat</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit" xml:space="preserve">
+    <value>Memorare și ieșire</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_Title" xml:space="preserve">
+    <value>Editor cod</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_AllreadyRunning" xml:space="preserve">
+    <value>Programul rulează deja.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_ExceptionCaught" xml:space="preserve">
+    <value>Excepție prinsă în timpul execuției:</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoAssembly" xml:space="preserve">
+    <value>Asamblarea nu a fost găsită. Vă rugăm să compilați scriptul.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoMain" xml:space="preserve">
+    <value>Metoda Main nu a fost găsită. Vă rugăm să adăugați metoda Main în script.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_TooComplex" xml:space="preserve">
+    <value>Execuția scriptului a fost oprită, scriptul este prea complex. Vă rugăm să editați și recompilați scriptul.</value>
+  </data>
+  <data name="ProgrammableBlock_SaveChanges" xml:space="preserve">
+    <value>Vreți să memorez modificările?</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode_Tooltip" xml:space="preserve">
+    <value>Deschide editorul de cod unde puteți crea scripturi noi și trimite/descărca de pe Atelierul Steam</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode_Tooltip" xml:space="preserve">
+    <value>Rulează scriptul curent si anunță orice excepție în timpul execuției.</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit_Tooltip" xml:space="preserve">
+    <value>Memorează codul în editor și se întoarce la panoul de control</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
+    <value>Deschide atelierul unde puteți trimite scripturile sau subscrie la scripturile altor utilizatori.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
+    <value>Verifică cod</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode_Tooltip" xml:space="preserve">
+    <value>Verifică codul din editor dacă are erori</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailed" xml:space="preserve">
+    <value>Compilarea a eșuat</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorFormat" xml:space="preserve">
+    <value>Linia {0} : {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorList" xml:space="preserve">
+    <value>Listă erori</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationOk" xml:space="preserve">
+    <value>Compilare cu succes.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_LineNo" xml:space="preserve">
+    <value>Linia : {0} / {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode" xml:space="preserve">
+    <value>Memorează codul</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode_Tooltip" xml:space="preserve">
+    <value>Memorează scriptul curent și lasă fereastra editorului deschisă</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonCreateFromEditor" xml:space="preserve">
+    <value>Crează din editor</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonDetails" xml:space="preserve">
+    <value>Detalii</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRefreshScripts" xml:space="preserve">
+    <value>Reîmprospătează Scripturi</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRename" xml:space="preserve">
+    <value>Redenumire</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonReplaceFromEditor" xml:space="preserve">
+    <value>Înlocuiește din editor</value>
+  </data>
+  <data name="ProgrammableBlock_NewScriptName" xml:space="preserve">
+    <value>Introduceți un nume nou</value>
+  </data>
+  <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
+    <value>Vreți să publicați acest script?</value>
+  </data>
+  <data name="ProgrammableBlock_PublishScriptPublished" xml:space="preserve">
+    <value>SCRIPT PUBLICAT</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptDialogText" xml:space="preserve">
+    <value>Sunteți sigur că doriți să înlocuiți scriptul existent cu cel din editor?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogText" xml:space="preserve">
+    <value>Scriptul cu numele {0} deja există. Vreți să-l înlocuiți?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogTitle" xml:space="preserve">
+    <value>Înlocuiește</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameUsed" xml:space="preserve">
+    <value>Nu pot redenumi scriptul deoarece este folosit de alt proces.</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptNotFound" xml:space="preserve">
+    <value>Nu se poate găsi fișierul scriptului</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptsScreenTitle" xml:space="preserve">
+    <value>Ecranul scripturilor</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_Help" xml:space="preserve">
+    <value>Ajutor</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_HelpTooltip" xml:space="preserve">
+    <value>Deschide o pagină din atelierul Steam cu detalii despre programarea în joc</value>
+  </data>
+  <data name="ProgrammableBlock_DeleteScriptDialogText" xml:space="preserve">
+    <value>Sunteți sigur că doriți să ștergeți acest script?</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NotAllowed" xml:space="preserve">
+    <value>Scripturile în joc sunt dezactivate în această lume</value>
+  </data>
+  <data name="WorldSettings_EnableIngameScripts" xml:space="preserve">
+    <value>Scripturi în joc</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectEnemy" xml:space="preserve">
+    <value>Detectează Inamici</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFriendly" xml:space="preserve">
+    <value>Detectează Amicii</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectOwner" xml:space="preserve">
+    <value>Detectează proprietarul</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectNeutral" xml:space="preserve">
+    <value>Detecteaza neutrii</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
+    <value>Dreptul de proprietate al blocului programabil a fost schimbat. Va rugăm să recompilați programul.</value>
+  </data>
+  <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
+    <value>-Transmitere-</value>
+  </data>
+  <data name="TerminalTab_Chat" xml:space="preserve">
+    <value>Comunicații</value>
+  </data>
+  <data name="WorldSettings_ViewDistance" xml:space="preserve">
+    <value>Distanță vedere</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_10_Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_15_Km" xml:space="preserve">
+    <value>15 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_20_Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_30_Km" xml:space="preserve">
+    <value>30 km - impact mic asupra performanței</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_40_Km" xml:space="preserve">
+    <value>40 km - impact asupra performanței</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_50_Km" xml:space="preserve">
+    <value>50 km - impact mare asupra performanței</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_5_Km" xml:space="preserve">
+    <value>5 km - computere slabe</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_7_Km" xml:space="preserve">
+    <value>7 km - bun la performanță</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_Custom" xml:space="preserve">
+    <value>Personalizat</value>
+  </data>
+  <data name="ToolTipWorldSettingsViewDistance" xml:space="preserve">
+    <value>Distanțe de vedere mai mari pot cauza probleme de performanță depinzand de cate obiecte sunt in lume.
+Distanțele mari de vedere nu sunt recomandate in lumi cu desitate mare de asteroizi.</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallRestitution" xml:space="preserve">
+    <value>Restituire</value>
+  </data>
+  <data name="TooltipScreenMods_Category_All" xml:space="preserve">
+    <value>Toate</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Animation" xml:space="preserve">
+    <value>Animații</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Block" xml:space="preserve">
+    <value>Bloc</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Character" xml:space="preserve">
+    <value>Personaj</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Modpack" xml:space="preserve">
+    <value>Pachet moduri</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Other" xml:space="preserve">
+    <value>Altele</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Production" xml:space="preserve">
+    <value>Producție</value>
+  </data>
+  <data name="TooltipScreenMods_Category_RespawnShip" xml:space="preserve">
+    <value>Navă Salvare</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
+    <value>Fundal cer</value>
+  </data>
+  <data name="TerminalTab_GPS_Description" xml:space="preserve">
+    <value>Descriere</value>
+  </data>
+  <data name="TerminalTab_GPS_Name" xml:space="preserve">
+    <value>Nume</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
+    <value>Arată pe ecran</value>
+  </data>
+  <data name="TerminalTab_GPS_X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="TerminalTab_GPS_Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="TerminalTab_GPS_Z" xml:space="preserve">
+    <value>Z</value>
+  </data>
+  <data name="TerminalTab_GPS" xml:space="preserve">
+    <value>GPS</value>
+  </data>
+  <data name="TerminalTab_GPS_Add" xml:space="preserve">
+    <value>Nou</value>
+  </data>
+  <data name="TerminalTab_GPS_CopyToClipboard" xml:space="preserve">
+    <value>Copiază în memorie</value>
+  </data>
+  <data name="TerminalTab_GPS_Delete" xml:space="preserve">
+    <value>Șterge</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard" xml:space="preserve">
+    <value>Crează din memorie</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent" xml:space="preserve">
+    <value>Crează la poziția curentă</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_GenerateSeed" xml:space="preserve">
+    <value>Generează sâmânță</value>
+  </data>
+  <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
+    <value>Atenție: date incorecte. Modificările nu vor fi salvate.</value>
+  </data>
+  <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
+    <value>Numai membrii unei facțiuni pot folosi comunicații facțiune către facțiune.</value>
+  </data>
+  <data name="TerminalTab_Chat_Offline" xml:space="preserve">
+    <value>deconectat</value>
+  </data>
+  <data name="TerminalTab_Chat_Pending" xml:space="preserve">
+    <value>SE TRIMITE</value>
+  </data>
+  <data name="TerminalTab_GPS_FromChatDescPrefix" xml:space="preserve">
+    <value>De:</value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Desc" xml:space="preserve">
+    <value>Coordonate noi</value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Name" xml:space="preserve">
+    <value>Nou</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard_Desc" xml:space="preserve">
+    <value>Copiat din memorie</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Desc" xml:space="preserve">
+    <value>Poziția curentă</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
+    <value>Curent</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
+    <value>Modifică text privat</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelTitle" xml:space="preserve">
+    <value>Titlu privat</value>
+  </data>
+  <data name="DisplayName_Block_TextPanel" xml:space="preserve">
+    <value>Panou text</value>
+  </data>
+  <data name="NotificationHintPressToShowScreen" xml:space="preserve">
+    <value>Apăsați {0} pentru a afișa ecranul</value>
+  </data>
+  <data name="Terminal_Shoot" xml:space="preserve">
+    <value>Trage</value>
+  </data>
+  <data name="Terminal_ShootOnce" xml:space="preserve">
+    <value>Trage o dată</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
+    <value>Numai deținător</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadAll" xml:space="preserve">
+    <value>Toți pot citi</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadFaction" xml:space="preserve">
+    <value>Facțiunea poate citi</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteAll" xml:space="preserve">
+    <value>Toți pot citi/scrie</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteFaction" xml:space="preserve">
+    <value>Facțiunea poate citi/scrie</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
+    <value>Tip acces</value>
+  </data>
+  <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
+    <value>Blocuri generate</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromBroadcast" xml:space="preserve">
+    <value>Nou din transmitere</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromFactionComms" xml:space="preserve">
+    <value>Nou din comunicații facțiune</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromPrivateComms" xml:space="preserve">
+    <value>Nou din comunicații private</value>
+  </data>
+  <data name="ToolTipWorldSettings_ToolShake" xml:space="preserve">
+    <value>Activarea zguduirii navelor cu burghiu sau sudor</value>
+  </data>
+  <data name="WorldSettings_EnableToolShake" xml:space="preserve">
+    <value>Activare zguduirea uneltelor</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
+    <value>Textul este prea lung. Nu va fi memorat.</value>
+  </data>
+  <data name="ControlName_Console" xml:space="preserve">
+    <value>Consolă</value>
+  </data>
+  <data name="ControlDescCameraZoom" xml:space="preserve">
+    <value>Amplificare cameră</value>
+  </data>
+  <data name="EnableDamageEffects" xml:space="preserve">
+    <value>Activează efecte de avarii</value>
+  </data>
+  <data name="ToolTipVideoOptionsEnableDamageEffects" xml:space="preserve">
+    <value>Activează/dezactivează efectele cu particule pentru blocuri avariate</value>
+  </data>
+  <data name="WorkshopTag_Asteroid" xml:space="preserve">
+    <value>Asteroid</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorCorner" xml:space="preserve">
+    <value>Colț Armură Grea Unghiulară</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorSlope" xml:space="preserve">
+    <value>Pantă Armură Grea Unghiulară</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorCorner" xml:space="preserve">
+    <value>Colț Armură Grea Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorSlope" xml:space="preserve">
+    <value>Pantă Armură Grea Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorCorner" xml:space="preserve">
+    <value>Colț Armură Unghiulară</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorSlope" xml:space="preserve">
+    <value>Pantă Armură Unghiulară</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorCorner" xml:space="preserve">
+    <value>Colț Armură Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorSlope" xml:space="preserve">
+    <value>Pantă Armură Rotundă</value>
+  </data>
+  <data name="ControlDescNetgraph" xml:space="preserve">
+    <value>Comutare grafic net</value>
+  </data>
+  <data name="BlockPropertyTitle_BackgroundColor" xml:space="preserve">
+    <value>Fundal</value>
+  </data>
+  <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
+    <value>Scris</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
+    <value>Texturi încărcate</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRefreshInterval" xml:space="preserve">
+    <value>Intervalul schimbării imaginii</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRemoveSelectedTextures" xml:space="preserve">
+    <value>Șterge selectate</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectedTextures" xml:space="preserve">
+    <value>Texturi selectate</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectTextures" xml:space="preserve">
+    <value>Adaugă la selecție</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenTextSize" xml:space="preserve">
+    <value>Mărime Scris</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowTextOnScreen" xml:space="preserve">
+    <value>Arată text pe ecran</value>
+  </data>
+  <data name="DisplayName_LCD_Panel" xml:space="preserve">
+    <value>Panou LCD</value>
+  </data>
+  <data name="DisplayName_LCD_PanelWide" xml:space="preserve">
+    <value>Panou LCD Lat</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextNone" xml:space="preserve">
+    <value>Nul</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPrivate" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPublic" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
+    <value>Titlu Public</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
+    <value>Editare text public</value>
+  </data>
+  <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
+    <value>Laser Antenna</value>
+  </data>
+  <data name="LaserAntennaModeIdle" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="LaserAntennaCopyCoords" xml:space="preserve">
+    <value>Copy my coords</value>
+  </data>
+  <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
+    <value>Copy this antenna's position into clipboard</value>
+  </data>
+  <data name="LaserAntennaIdleButton" xml:space="preserve">
+    <value>Idle</value>
+  </data>
+  <data name="LaserAntennaConnectButton" xml:space="preserve">
+    <value>Connect to receiver</value>
+  </data>
+  <data name="LaserAntennaConnectGPS" xml:space="preserve">
+    <value>Connect to coords</value>
+  </data>
+  <data name="LaserAntennaSelectedCoords" xml:space="preserve">
+    <value>Selected GPS coordinates</value>
+  </data>
+  <data name="LaserAntennaPasteGPS" xml:space="preserve">
+    <value>Paste coords</value>
+  </data>
+  <data name="LaserAntennaReceiversList" xml:space="preserve">
+    <value>Known receivers</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorCorner" xml:space="preserve">
+    <value>Colț Armură Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorInvCorner" xml:space="preserve">
+    <value>Colț Invers Armură Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
+    <value>Pantă Armură Rotundă</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
+    <value>Heavy Armor Round Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
+    <value>Heavy Armor Round Inv. Corner</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
+    <value>Heavy Armor Round Slope</value>
+  </data>
+  <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
+    <value>Connected to </value>
+  </data>
+  <data name="LaserAntennaModeContactRec" xml:space="preserve">
+    <value>Trying to establish connection to </value>
+  </data>
+  <data name="LaserAntennaModeRotGPS" xml:space="preserve">
+    <value>Rotating towards GPS coordinates </value>
+  </data>
+  <data name="LaserAntennaModeRotRec" xml:space="preserve">
+    <value>Rotating towards </value>
+  </data>
+  <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
+    <value>Searching for a laser at GPS coordinates </value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
+    <value>Light Armor Corner 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3Smooth" xml:space="preserve">
+    <value>Light Armor Corner 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3" xml:space="preserve">
+    <value>Light Armor Inv. Corner 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3Smooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Smooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3" xml:space="preserve">
+    <value>Light Armor Slope 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
+    <value>Light Armor Slope 3x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Tip" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Light Armor Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Base" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Tip" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Light Armor Inv. Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Base" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Tip" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Light Armor Slope 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Base" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Smooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Tip" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Base" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Tip" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Inv. Corner 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Base" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Base Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Smooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Smooth</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Tip" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Tip</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
+  </data>
+  <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
+    <value>These receivers are in radio range and can report their position.
+Their current state and target is in parenthesis:
+idle   laser is idling
+&gt;&gt; laser is rotating towards other receiver or GPS coordinates
+?&gt;  searching for other laser at requested GPS coordinates
+~&gt; contacting other side of link (this includes waiting for other laser
+       to turn its face to me or futile effort to contact receiver
+       which is turned off or is not there any more)
+=&gt; connection is established
+To connect to lasers not listed here you can connect to coordinates.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
+    <value>Enable idle movement</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
+    <value>Copy target coords</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
+    <value>Copy target's current or last known position into clipboard</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
+    <value>Blacklist</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
+    <value>Whitelist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
+    <value>Filter Mode</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
+    <value>Conveyor Sorter</value>
+  </data>
+  <data name="LaserAntennaOnlyPerm" xml:space="preserve">
+    <value>Only receivers set to permanent connection found</value>
+  </data>
+  <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
+    <value>Permanent connection</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
+    <value>Add new filter</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
+    <value>Active filters</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
+    <value>Blacklist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
+    <value>Whitelist</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
+    <value>Small Conveyor Sorter</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
+    <value>*ammo*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
+    <value>*components*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
+    <value>*hand tools*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
+    <value>*ingots*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
+    <value>*ore*</value>
+  </data>
+  <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
+    <value>The vent will remove air from the room and store it in tanks</value>
+  </data>
+  <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
+    <value>Stockpiling tanks will not get drained by air vents</value>
+  </data>
+  <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
+    <value>Depressurize</value>
+  </data>
+  <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
+    <value>Stockpile</value>
+  </data>
+  <data name="DisplayName_Block_AirVent" xml:space="preserve">
+    <value>Air Vent</value>
+  </data>
+  <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
+    <value>Oxygen Generator</value>
+  </data>
+  <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
+    <value>Oxygen Tank</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
+    <value>Ice</value>
+  </data>
+  <data name="DisplayName_Item_Oxygen" xml:space="preserve">
+    <value>Oxygen</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
+    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
+    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+  </data>
+  <data name="World_Settings_EnableOxygen" xml:space="preserve">
+    <value>Enable oxygen</value>
+  </data>
+  <data name="Terminal_DrainAll" xml:space="preserve">
+    <value>Drain All</value>
+  </data>
+  <data name="BlockOwner_TransferTo" xml:space="preserve">
+    <value>Transfer to:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Airtight Hangar Door</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Target characters</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Target large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Target small ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Target stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Oxygen Bottle</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Refill Bottles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Create layer</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Remove layer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Auto-Refill</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Show block in terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Show hidden blocks</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygen refilled from bottles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Oxygen is critical.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Oxygen is low.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Pick planet to edit</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Dificultate</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Uşor</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Dificil</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Suit energy is critically low.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Suit energy is low.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Helmet on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Cannot remove helmet on this suit.</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Update planet</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Helmet Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Helmet On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Main ship cockpit</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Main cockpit</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Available buttons</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Button name</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Enable 3rd person view</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Oxygen Output: </value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Oxygen Farm</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Random encounters</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Show distance for enemy antennas</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Show distance for friendly antennas</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Show distance for owned antennas</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Cryo Chamber</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Other side won</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Leave GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Someone Won</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Block is not powered</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Lost condition:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Win condition:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Paste GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Dampeners</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>An argument passed to your code when clicking the Run button</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Landing gear / connector</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reactors</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Thrusters</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Effectiveness Module</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Power Efficiency Module</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Productivity Module</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Open inventory</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Setup buttons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Show control panel</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+</root>

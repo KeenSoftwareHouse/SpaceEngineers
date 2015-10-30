@@ -1,0 +1,4396 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="INVALID" xml:space="preserve">
+    <value>INVALID TEXT WRAPPER ENUM</value>
+    <comment>DON'T TRANSLATE</comment>
+  </data>
+  <data name="Afterburner" xml:space="preserve">
+    <value>Courir</value>
+  </data>
+  <data name="DisplayName_Block_Drill" xml:space="preserve">
+    <value>Foreuse</value>
+  </data>
+  <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
+    <value>Utiliser outil / Tirer avec arme</value>
+  </data>
+  <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
+    <value>Mode secondaire</value>
+  </data>
+  <data name="ControlName_ToggleHeadlights" xml:space="preserve">
+    <value>Allumer / éteindre les lumières</value>
+  </data>
+  <data name="Inventory" xml:space="preserve">
+    <value>Inventaire</value>
+  </data>
+  <data name="RenderQuality" xml:space="preserve">
+    <value>Qualité du rendu</value>
+  </data>
+  <data name="RenderQualityExtreme" xml:space="preserve">
+    <value>Extrême</value>
+  </data>
+  <data name="RenderQualityHigh" xml:space="preserve">
+    <value>Élevé</value>
+  </data>
+  <data name="RenderQualityNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ControlName_RollLeft" xml:space="preserve">
+    <value>Roulis à gauche  (vaisseau / réacteur dorsal)</value>
+  </data>
+  <data name="ControlName_RollRight" xml:space="preserve">
+    <value>Roulis à droite (vaisseau /  réacteur dorsal)</value>
+  </data>
+  <data name="ControlName_RotationDown" xml:space="preserve">
+    <value>Pivoter vers le bas</value>
+  </data>
+  <data name="ControlName_RotationLeft" xml:space="preserve">
+    <value>Tourner à gauche</value>
+  </data>
+  <data name="ControlName_RotationRight" xml:space="preserve">
+    <value>Tourner à droite</value>
+  </data>
+  <data name="ControlName_RotationUp" xml:space="preserve">
+    <value>Pivoter vers le haut</value>
+  </data>
+  <data name="ScreenOptionsButtonVideo" xml:space="preserve">
+    <value>Vidéo</value>
+  </data>
+  <data name="ScreenCaptionVideoOptions" xml:space="preserve">
+    <value>Options vidéo</value>
+  </data>
+  <data name="Chat_screen" xml:space="preserve">
+    <value>Fenêtre de discussion</value>
+  </data>
+  <data name="ControlName_TerminalOrInventory" xml:space="preserve">
+    <value>Terminal / Inventaire</value>
+  </data>
+  <data name="DisplayName_Item_Welder" xml:space="preserve">
+    <value>Chalumeau</value>
+  </data>
+  <data name="AngleGrinderPrimaryAction" xml:space="preserve">
+    <value>Appuyez sur {0} pour démonter la cible</value>
+  </data>
+  <data name="WelderPrimaryActionBuild" xml:space="preserve">
+    <value>Appuyez sur {0} pour souder la cible</value>
+  </data>
+  <data name="ControlPanel" xml:space="preserve">
+    <value>Panneau de contrôle</value>
+  </data>
+  <data name="DisplayName_Block_Assembler" xml:space="preserve">
+    <value>Assembleur </value>
+  </data>
+  <data name="DisplayName_Block_Refinery" xml:space="preserve">
+    <value>Raffinerie</value>
+  </data>
+  <data name="ScreenTerminalError_ShipNotConnected" xml:space="preserve">
+    <value>Le terminal n'est connecté à aucun vaisseau</value>
+  </data>
+  <data name="DisplayName_Item_AngleGrinder" xml:space="preserve">
+    <value>Meuleuse</value>
+    <comment>Angle grinder hand tool for dismounting blocks</comment>
+  </data>
+  <data name="DisplayName_Block_Antenna" xml:space="preserve">
+    <value>Antenne</value>
+  </data>
+  <data name="DisplayName_Item_AutomaticRifle" xml:space="preserve">
+    <value>Fusil automatique</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Blue" xml:space="preserve">
+    <value>Bleu</value>
+  </data>
+  <data name="DisplayName_Item_BulletproofGlass" xml:space="preserve">
+    <value>Vitre pare-balles</value>
+  </data>
+  <data name="DisplayName_Item_CobaltIngot" xml:space="preserve">
+    <value>Lingot de Cobalt</value>
+  </data>
+  <data name="DisplayName_Item_CobaltOre" xml:space="preserve">
+    <value>Minerai de Cobalt</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit1" xml:space="preserve">
+    <value>Cockpit</value>
+  </data>
+  <data name="DisplayName_Item_Computer" xml:space="preserve">
+    <value>Ordinateur</value>
+  </data>
+  <data name="DisplayName_Item_ConstructionComponent" xml:space="preserve">
+    <value>Composant de construction</value>
+  </data>
+  <data name="DisplayName_Item_DetectorComponents" xml:space="preserve">
+    <value>Composants de détection</value>
+  </data>
+  <data name="DisplayName_Block_DiagonalWindow" xml:space="preserve">
+    <value>Fenêtre diagonale</value>
+  </data>
+  <data name="DisplayName_Item_Display" xml:space="preserve">
+    <value>Affichage</value>
+  </data>
+  <data name="DisplayName_Block_Door" xml:space="preserve">
+    <value>Porte</value>
+  </data>
+  <data name="DisplayName_Block_Warhead" xml:space="preserve">
+    <value>Ogive</value>
+  </data>
+  <data name="DisplayName_Block_ReflectorLight" xml:space="preserve">
+    <value>Projecteur</value>
+  </data>
+  <data name="DisplayName_Block_FullCoverWall" xml:space="preserve">
+    <value>Mur Complet</value>
+  </data>
+  <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
+    <value>Mitrailleuse Gatling</value>
+  </data>
+  <data name="DisplayName_Block_GatlingTurret" xml:space="preserve">
+    <value>Tourelle mitrailleuse</value>
+  </data>
+  <data name="DisplayName_Item_GoldIngot" xml:space="preserve">
+    <value>Lingot d'or</value>
+  </data>
+  <data name="DisplayName_Item_GoldOre" xml:space="preserve">
+    <value>Minerai d'or</value>
+  </data>
+  <data name="DisplayName_Item_Gravel" xml:space="preserve">
+    <value>Gravier</value>
+  </data>
+  <data name="DisplayName_Block_GravityGenerator" xml:space="preserve">
+    <value>Générateur de gravité</value>
+  </data>
+  <data name="DisplayName_Item_GravityGeneratorComponents" xml:space="preserve">
+    <value>Composants de générateur de gravité</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Green" xml:space="preserve">
+    <value>Vert</value>
+  </data>
+  <data name="DisplayName_Block_Gyroscope" xml:space="preserve">
+    <value>Gyroscope</value>
+  </data>
+  <data name="DisplayName_Block_HalfCoverWall" xml:space="preserve">
+    <value>Demi Mur</value>
+  </data>
+  <data name="DisplayName_Item_HandDrill" xml:space="preserve">
+    <value>Foreuse Portative</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorBlock" xml:space="preserve">
+    <value>Bloc de Blindage Lourd</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner" xml:space="preserve">
+    <value>Angle de Blindage Lourd</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner" xml:space="preserve">
+    <value>Angle Inversé de Blindage Lourd</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope" xml:space="preserve">
+    <value>Pente de Blindage Lourd</value>
+  </data>
+  <data name="DisplayName_Item_Ice" xml:space="preserve">
+    <value>Glace</value>
+  </data>
+  <data name="DisplayName_Block_InteriorLight" xml:space="preserve">
+    <value>Lumière d’intérieur </value>
+  </data>
+  <data name="DisplayName_Block_InteriorPillar" xml:space="preserve">
+    <value>Pilier d'intérieur</value>
+  </data>
+  <data name="DisplayName_Item_InteriorPlate" xml:space="preserve">
+    <value>Plaquage intérieur</value>
+  </data>
+  <data name="DisplayName_Block_InteriorTurret" xml:space="preserve">
+    <value>Tourelle d'intérieur</value>
+  </data>
+  <data name="DisplayName_Block_InteriorWall" xml:space="preserve">
+    <value>Mur d'intérieur</value>
+  </data>
+  <data name="DisplayName_Item_IronIngot" xml:space="preserve">
+    <value>Lingot de fer</value>
+  </data>
+  <data name="DisplayName_Item_IronOre" xml:space="preserve">
+    <value>Minerai de fer</value>
+  </data>
+  <data name="DisplayName_Block_LandingGear" xml:space="preserve">
+    <value>Train d'atterrissage</value>
+  </data>
+  <data name="DisplayName_Block_LargeCargoContainer" xml:space="preserve">
+    <value>Grand Conteneur</value>
+  </data>
+  <data name="DisplayName_Block_LargeReactor" xml:space="preserve">
+    <value>Grand Réacteur</value>
+  </data>
+  <data name="DisplayName_Item_LargeSteelTube" xml:space="preserve">
+    <value>Grand tube d'acier</value>
+  </data>
+  <data name="DisplayName_Block_LargeThrust" xml:space="preserve">
+    <value>Gros Propulseur</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorBlock" xml:space="preserve">
+    <value>Bloc de Blindage Léger</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner" xml:space="preserve">
+    <value>Angle à Blindage Léger</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner" xml:space="preserve">
+    <value>Angle inversé de blindage léger</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope" xml:space="preserve">
+    <value>Pente de Blindage Léger</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumOre" xml:space="preserve">
+    <value>Minerai de Magnésium</value>
+  </data>
+  <data name="DisplayName_Item_MagnesiumPowder" xml:space="preserve">
+    <value>Poudre de Magnésium</value>
+  </data>
+  <data name="DisplayName_Item_MedicalComponents" xml:space="preserve">
+    <value>Composants Médicaux</value>
+  </data>
+  <data name="DisplayName_Block_MedicalRoom" xml:space="preserve">
+    <value>Salle Médicale</value>
+  </data>
+  <data name="DisplayName_Block_MediumCargoContainer" xml:space="preserve">
+    <value>Conteneur de Marchandises Moyen</value>
+  </data>
+  <data name="DisplayName_Item_MetalGrid" xml:space="preserve">
+    <value>Grille Métallique</value>
+  </data>
+  <data name="DisplayName_Item_Missile200mm" xml:space="preserve">
+    <value>Conteneur de missile 200mm</value>
+  </data>
+  <data name="DisplayName_Block_MissileTurret" xml:space="preserve">
+    <value>Tourelle à Missiles</value>
+  </data>
+  <data name="DisplayName_Item_Motor" xml:space="preserve">
+    <value>Moteur</value>
+  </data>
+  <data name="DisplayName_Item_NATO_25x184mm" xml:space="preserve">
+    <value>Conteneur de munitions OTAN 25x184mm</value>
+  </data>
+  <data name="DisplayName_Item_NATO_5p56x45mm" xml:space="preserve">
+    <value>Chargeur OTAN 5.56x45mm</value>
+  </data>
+  <data name="DisplayName_Item_NickelIngot" xml:space="preserve">
+    <value>Lingot de Nickel</value>
+  </data>
+  <data name="DisplayName_Item_NickelOre" xml:space="preserve">
+    <value>Minerai de Nickel</value>
+  </data>
+  <data name="DisplayName_Block_OreDetector" xml:space="preserve">
+    <value>Détecteur de Minerais</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumIngot" xml:space="preserve">
+    <value>Lingot de Platine</value>
+  </data>
+  <data name="DisplayName_Item_PlatinumOre" xml:space="preserve">
+    <value>Minerai de Platine</value>
+  </data>
+  <data name="DisplayName_Item_Potassium" xml:space="preserve">
+    <value>Potassium</value>
+  </data>
+  <data name="DisplayName_Item_RadioCommunicationComponents" xml:space="preserve">
+    <value>Composants Radio</value>
+  </data>
+  <data name="DisplayName_Block_Ramp" xml:space="preserve">
+    <value>Rampe</value>
+  </data>
+  <data name="DisplayName_Item_ReactorComponents" xml:space="preserve">
+    <value>Composants de Réacteur</value>
+  </data>
+  <data name="HelpScreen_FactionColor_Red" xml:space="preserve">
+    <value>Rouge</value>
+  </data>
+  <data name="DisplayName_Block_RocketLauncher" xml:space="preserve">
+    <value>Lance missile</value>
+  </data>
+  <data name="DisplayName_Item_SiliconOre" xml:space="preserve">
+    <value>Minerai de Silicium</value>
+  </data>
+  <data name="DisplayName_Item_SiliconWafer" xml:space="preserve">
+    <value>Plaquette de Silicium</value>
+  </data>
+  <data name="DisplayName_Item_SilverIngot" xml:space="preserve">
+    <value>Lingot d'Argent</value>
+  </data>
+  <data name="DisplayName_Item_SilverOre" xml:space="preserve">
+    <value>Minerai d'argent</value>
+  </data>
+  <data name="DisplayName_Block_SmallCargoContainer" xml:space="preserve">
+    <value>Petit Conteneur</value>
+  </data>
+  <data name="DisplayName_Block_SmallReactor" xml:space="preserve">
+    <value>Petit Réacteur</value>
+  </data>
+  <data name="DisplayName_Item_SmallSteelTube" xml:space="preserve">
+    <value>Petit Tube d'Acier</value>
+  </data>
+  <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
+    <value>Petit Propulseur</value>
+  </data>
+  <data name="DisplayName_Block_Stairs" xml:space="preserve">
+    <value>Escaliers</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalk" xml:space="preserve">
+    <value>Passerelle en acier</value>
+  </data>
+  <data name="DisplayName_Item_SteelPlate" xml:space="preserve">
+    <value>Plaque d'Acier</value>
+  </data>
+  <data name="DisplayName_Item_StoneOre" xml:space="preserve">
+    <value>Pierre</value>
+  </data>
+  <data name="DisplayName_Item_ThrustComponents" xml:space="preserve">
+    <value>Composants de Propulseur</value>
+  </data>
+  <data name="DisplayName_Item_UraniumIngot" xml:space="preserve">
+    <value>Lingot d'Uranium</value>
+  </data>
+  <data name="DisplayName_Item_UraniumOre" xml:space="preserve">
+    <value>Minerai d'Uranium</value>
+  </data>
+  <data name="DisplayName_Block_VerticalWindow" xml:space="preserve">
+    <value>Fenêtre Verticale</value>
+  </data>
+  <data name="HelpScreen_FactionColor_White" xml:space="preserve">
+    <value>Blanc</value>
+  </data>
+  <data name="Reactor" xml:space="preserve">
+    <value>Réacteur</value>
+  </data>
+  <data name="WorldSettings_AutoHealing" xml:space="preserve">
+    <value>Soin auto</value>
+  </data>
+  <data name="WorldSettings_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostility" xml:space="preserve">
+    <value>Environnement</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysm" xml:space="preserve">
+    <value>Cataclysme</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
+    <value>Sûr</value>
+  </data>
+  <data name="WorldSettings_FriendlyFire" xml:space="preserve">
+    <value>Tir ami</value>
+  </data>
+  <data name="WorldSettings_GameStyle" xml:space="preserve">
+    <value>Style de jeu</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
+    <value>Réaliste x10</value>
+  </data>
+  <data name="WorldSettings_Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="WorldSettings_SoundInSpace" xml:space="preserve">
+    <value>Son dans l'espace</value>
+  </data>
+  <data name="WorldSettings" xml:space="preserve">
+    <value>Paramètres du Monde</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoHealing" xml:space="preserve">
+    <value>Le soin automatique soigne le joueur pendant les périodes où il ne subit pas de dégats</value>
+  </data>
+  <data name="ToolTipWorldSettingsDifficulty" xml:space="preserve">
+    <value>Les dégâts infligés et reçus de la part des ennemis ainsi que de l'environnement. Une difficulté supérieure augmente le réalisme des dégâts.</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnvironment" xml:space="preserve">
+    <value>La fréquence et l'intensité des pluies de météores</value>
+  </data>
+  <data name="ToolTipWorldSettingsFriendlyFire" xml:space="preserve">
+    <value>Quand activé, les alliés peuvent se blesser entre eux</value>
+  </data>
+  <data name="ToolTipWorldSettingsHardwareRequirements" xml:space="preserve">
+    <value>La configuration matérielle requise définit la richesse de votre univers. Des valeurs plus élevées nécessitent plus de performances (CPU et GPU) et davantage de mémoire.</value>
+  </data>
+  <data name="ToolTipWorldSettingsHarvestingMode" xml:space="preserve">
+    <value>Mode Créatif : ressources illimitées, construction instantanée, les joueurs ne meurent pas. Utilisez 
+le mode créatif si vous voulez juste construire des choses.
+Mode Survie : capacité d'inventaire réaliste, ressources limitées - vous devez forer et récolter du minerai, le traiter 
+dans une raffinerie, construire des composants dans l'assembleur, construire des blocs en utilisant la soudeuse, désassembler des blocs en utilisant la disqueuse, les joueurs peuvent mourir - ils réapparaissent dans leur infirmerie la plus proche, et s'il n'y en a pas, dans un nouveau vaisseau comme nouveau joueur à la bordure du secteur
+Survie x3 : comme le mode "Survie", mais avec un inventaire 3x plus grand
+Survie x10 : comme le mode "Survie", mais avec un inventaire 10x plus grand</value>
+  </data>
+  <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
+    <value>Visibilité de votre partie
+Hors-ligne : La partie tourne en mode hors-ligne et ne nécessite pas de connexion internet
+Privée : Les autres joueurs ne peuvent pas rejoindre la partie
+Amis : Seuls vos amis Steam peuvent rejoindre la partie
+Publique : N'importe quel joueur Steam peut rejoindre la partie</value>
+  </data>
+  <data name="ToolTipWorldSettingsPVP" xml:space="preserve">
+    <value>PvE signifie que vous ne pouvez pas endommager les autres joueurs. PvP signifie que vous pouvez les endommager et qu'ils peuvent vous endommager.</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
+    <value>Il n'y a aucun son dans l'espace. Activez l'option pour simuler des conditions sonores terrestres (même si ce n'est pas réaliste). Désactivez l'option pour un mode réaliste où vous ne pourrez entendre que ce que votre astronaute peut entendre.</value>
+  </data>
+  <data name="WorldSettings_Scenario" xml:space="preserve">
+    <value>Scénario</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart1" xml:space="preserve">
+    <value>Départ Facile 1</value>
+  </data>
+  <data name="DisplayName_Scenario_Survival" xml:space="preserve">
+    <value>Survivant solitaire</value>
+  </data>
+  <data name="ControlName_ReactorsOnOff" xml:space="preserve">
+    <value>Allumer / Éteindre les Réacteurs</value>
+  </data>
+  <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Monde Vide</value>
+  </data>
+  <data name="ControlName_Jetpack" xml:space="preserve">
+    <value>Jetpack activé / désactivé</value>
+  </data>
+  <data name="NotEnoughMaterial" xml:space="preserve">
+    <value>Matériaux insuffisants pour créer un nouveau bloc. Au moins une plaque d'acier est requise.</value>
+  </data>
+  <data name="Turret" xml:space="preserve">
+    <value>Tourelle</value>
+  </data>
+  <data name="DisplayName_Block_Conveyor" xml:space="preserve">
+    <value>Convoyeur</value>
+  </data>
+  <data name="Terminal" xml:space="preserve">
+    <value>Terminal</value>
+  </data>
+  <data name="Quote00Author" xml:space="preserve">
+    <value>Theodore Von Karman</value>
+  </data>
+  <data name="Quote00Text" xml:space="preserve">
+    <value>Les scientifiques découvrent le monde existant. Les ingénieurs créent un monde qui n'a jamais existé.</value>
+  </data>
+  <data name="Quote01Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote01Text" xml:space="preserve">
+    <value>Les découvertes scientifiques et les connaissances scientifiques ont été réalisés seulement par ceux qui sont allés à la poursuite de celles-ci sans aucun but pratique en vue.</value>
+  </data>
+  <data name="Quote02Author" xml:space="preserve">
+    <value>Archimède</value>
+  </data>
+  <data name="Quote02Text" xml:space="preserve">
+    <value>Donnez-moi un levier assez long et un point d'appui sur lequel le placer, et je soulèverai le monde.</value>
+  </data>
+  <data name="Quote03Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote03Text" xml:space="preserve">
+    <value>Quand un scientifique éminent mais vieux énonce que quelque chose est possible, il a presque toujours raison. Quand il énonce que quelques chose est impossible, il a presque toujours tort.</value>
+  </data>
+  <data name="Quote04Author" xml:space="preserve">
+    <value>Bertrand Russell</value>
+  </data>
+  <data name="Quote04Text" xml:space="preserve">
+    <value>La science peut poser des limites au savoir, mais elle ne devrait jamais poser de limite à l'imagination.</value>
+  </data>
+  <data name="Quote05Author" xml:space="preserve">
+    <value>Indiana Jones</value>
+  </data>
+  <data name="Quote05Text" xml:space="preserve">
+    <value>Rien ne me choque. Je suis un scientifique.</value>
+  </data>
+  <data name="Quote06Author" xml:space="preserve">
+    <value>Emmanuel Kant</value>
+  </data>
+  <data name="Quote06Text" xml:space="preserve">
+    <value>La science, c'est l'organisation du savoir. La sagesse, c'est l'organisation de la vie.</value>
+  </data>
+  <data name="Quote07Author" xml:space="preserve">
+    <value>Max Planck</value>
+  </data>
+  <data name="Quote07Text" xml:space="preserve">
+    <value>Une théorie nouvelle ne triomphe jamais. Ce sont ses adversaires qui finissent par mourir.</value>
+  </data>
+  <data name="Quote08Author" xml:space="preserve">
+    <value>Benjamin Franklin</value>
+  </data>
+  <data name="Quote08Text" xml:space="preserve">
+    <value>L'investissement dans la connaissance est celui qui rapporte le plus d'intérêts.</value>
+  </data>
+  <data name="Quote09Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote09Text" xml:space="preserve">
+    <value>Une personne qui n’a jamais commis d’erreurs n’a jamais tenté d’innover.</value>
+  </data>
+  <data name="Quote10Author" xml:space="preserve">
+    <value>Leonard de Vinci</value>
+  </data>
+  <data name="Quote10Text" xml:space="preserve">
+    <value>La nature ne rompt jamais ses propres lois.</value>
+  </data>
+  <data name="Quote11Author" xml:space="preserve">
+    <value>Leonard de Vinci</value>
+  </data>
+  <data name="Quote11Text" xml:space="preserve">
+    <value>La simplicité est la sophistication ultime.</value>
+  </data>
+  <data name="Quote12Author" xml:space="preserve">
+    <value>Leonard de Vinci</value>
+  </data>
+  <data name="Quote12Text" xml:space="preserve">
+    <value>Là où il y a des cris, il n'y a pas de vrai savoir.</value>
+  </data>
+  <data name="Quote13Author" xml:space="preserve">
+    <value>Leonard de Vinci</value>
+  </data>
+  <data name="Quote13Text" xml:space="preserve">
+    <value>J'ai offensé Dieu et l'espèce humaine parce que mon travail n'a pas atteint la qualité qu'il aurait du avoir.</value>
+  </data>
+  <data name="Quote14Author" xml:space="preserve">
+    <value>Leonard de Vinci</value>
+  </data>
+  <data name="Quote14Text" xml:space="preserve">
+    <value>Tout notre savoir trouve son origine dans notre perception.</value>
+  </data>
+  <data name="Quote15Author" xml:space="preserve">
+    <value>Galilée</value>
+  </data>
+  <data name="Quote15Text" xml:space="preserve">
+    <value>En niant des principes scientifiques, on peut maintenir n'importe quel paradoxe.</value>
+  </data>
+  <data name="Quote16Author" xml:space="preserve">
+    <value>Galilée</value>
+  </data>
+  <data name="Quote16Text" xml:space="preserve">
+    <value>Les mathématiques sont la langue dans laquelle Dieu a écrit l'univers.</value>
+  </data>
+  <data name="Quote17Author" xml:space="preserve">
+    <value>Galilée</value>
+  </data>
+  <data name="Quote17Text" xml:space="preserve">
+    <value>Si j'avais à reprendre mes études, je suivrais le conseil de Platon et commencerais par les mathématiques.</value>
+  </data>
+  <data name="Quote18Author" xml:space="preserve">
+    <value>Johann W. Goethe</value>
+  </data>
+  <data name="Quote18Text" xml:space="preserve">
+    <value>Nous ne voyons que ce que nous connaissons.</value>
+  </data>
+  <data name="Quote19Author" xml:space="preserve">
+    <value>Niels H. D. Bohr</value>
+  </data>
+  <data name="Quote19Text" xml:space="preserve">
+    <value>Quiconque n'est pas choqué par la théorie quantique ne la comprend pas.</value>
+  </data>
+  <data name="Quote20Author" xml:space="preserve">
+    <value>Paradoxe antique</value>
+  </data>
+  <data name="Quote20Text" xml:space="preserve">
+    <value>Une seule chose est certaine - rien n'est certain. Si cette affirmation est vraie, elle est également fausse.</value>
+  </data>
+  <data name="Quote21Author" xml:space="preserve">
+    <value>Richard Feynman</value>
+  </data>
+  <data name="Quote21Text" xml:space="preserve">
+    <value>Les scientifiques sont des explorateurs. Les philosophes sont des touristes.</value>
+  </data>
+  <data name="Quote22Author" xml:space="preserve">
+    <value>Walter Bagehot</value>
+  </data>
+  <data name="Quote22Text" xml:space="preserve">
+    <value>Le plus grand plaisir dans la vie est de réaliser ce que les autres vous pensent incapables de réaliser.</value>
+  </data>
+  <data name="Quote23Author" xml:space="preserve">
+    <value>Thomas A. Edison</value>
+  </data>
+  <data name="Quote23Text" xml:space="preserve">
+    <value>Le génie est fait d'un pour cent d'inspiration et de quatre-vingt-dix-neuf pour cent de transpiration.</value>
+  </data>
+  <data name="Quote24Author" xml:space="preserve">
+    <value>Socrates</value>
+  </data>
+  <data name="Quote24Text" xml:space="preserve">
+    <value>Je sais une chose: c'est que je ne sais rien.</value>
+  </data>
+  <data name="Quote25Author" xml:space="preserve">
+    <value>Arthur C. Clarke</value>
+  </data>
+  <data name="Quote25Text" xml:space="preserve">
+    <value>Toute technologie suffisamment avancée est indiscernable de la magie.</value>
+  </data>
+  <data name="Quote26Author" xml:space="preserve">
+    <value>William Gibson</value>
+  </data>
+  <data name="Quote26Text" xml:space="preserve">
+    <value>Si vous voulez savoir comment les choses fonctionnent vraiment, étudiez les quand elles se détruisent.</value>
+  </data>
+  <data name="Quote27Author" xml:space="preserve">
+    <value>Scott Adams</value>
+  </data>
+  <data name="Quote27Text" xml:space="preserve">
+    <value>Les ingénieurs aiment résoudre des problèmes. S'il n'y a pas de problème à portée de la main, ils se créeront leurs propres problèmes.</value>
+  </data>
+  <data name="Quote28Author" xml:space="preserve">
+    <value>Robert A. Heinlein</value>
+  </data>
+  <data name="Quote28Text" xml:space="preserve">
+    <value>"La magie" d'un homme est l'ingénierie d'un autre homme. "Surnaturel" est un mot vide de sens.</value>
+  </data>
+  <data name="Quote29Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote29Text" xml:space="preserve">
+    <value>Un bon scientifique est une personne avec des idées originales. Un bon ingénieur est une personne qui conçoit un produit avec aussi peu d'idées originales que possible. Il n'y a pas de prima donna dans l'ingénierie.</value>
+  </data>
+  <data name="Quote30Author" xml:space="preserve">
+    <value>Freeman Dyson</value>
+  </data>
+  <data name="Quote30Text" xml:space="preserve">
+    <value>L'aviation est la branche de l'ingénierie qui est la moins indulgente vis-à-vis des erreurs.</value>
+  </data>
+  <data name="Quote31Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote31Text" xml:space="preserve">
+    <value>Un ingénieur de l'espace est un praticien professionnel qui use de connaissances scientifiques incluant mathématiques, physique, astronomie, technologies de propulsion, science des matériaux, analyse de structures, fabrication et ingéniosité dans l'intérêt de résoudre des problèmes pratiques dans l'espace.</value>
+  </data>
+  <data name="Quote32Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote32Text" xml:space="preserve">
+    <value>Les ingénieurs de l'espace conçoivent les matériaux, les structures, et les systèmes en tenant compte des limitations imposées par la praticité, la réglementation, la sécurité, l'éthique et le coût.</value>
+  </data>
+  <data name="Quote33Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote33Text" xml:space="preserve">
+    <value>Les connaisances des ingénieurs spatiaux sont fondées sur les sciences appliquées, et leur travail en recherche et developpement est bien distinct de l'axe de recherche de base des scientifiques spatiaux.</value>
+  </data>
+  <data name="Quote34Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote34Text" xml:space="preserve">
+    <value>En temps de guerre, l'ingénierie spatiale implique aussi de l'ingénierie militaire. Celle-ci inclus typiquement des travaux de construction et de demolition en conditions de bataille.</value>
+  </data>
+  <data name="Quote35Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote35Text" xml:space="preserve">
+    <value>Les ingénieurs de l'espace sont très recherchés , spécialement depuis la Deuxième Course à l'Espace de 2029</value>
+  </data>
+  <data name="Quote36Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote36Text" xml:space="preserve">
+    <value>Les ingénieurs spatiaux sont fiers de leur capacité à faire leur travail correctement - peu importe la taille, la complexité, ou l’éloignement.</value>
+  </data>
+  <data name="Quote37Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote37Text" xml:space="preserve">
+    <value>Le mot ingénieur est dérivé de la racine latine «ingeniare» («à s'ingénier, concevoir») et «Ingenium» («intelligence»).</value>
+  </data>
+  <data name="Quote38Author" xml:space="preserve">
+    <value>Anonyme</value>
+  </data>
+  <data name="Quote38Text" xml:space="preserve">
+    <value>Pour l'optimiste, le verre est à moitié plein. Pour le pessimiste, le verre est à moitié vide. Pour l'ingénieur, le verre est deux fois plus grand qu'il devrait être ...</value>
+  </data>
+  <data name="Quote39Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote39Text" xml:space="preserve">
+    <value>Les scientifiques étudient ce qui existe déjà ; les ingénieurs créent ce qui n'a jamais existé.</value>
+  </data>
+  <data name="Quote40Author" xml:space="preserve">
+    <value>U.S. Army Ordnance</value>
+  </data>
+  <data name="Quote40Text" xml:space="preserve">
+    <value>Les balles traçantes fonctionnent dans les deux sens.</value>
+  </data>
+  <data name="Quote41Author" xml:space="preserve">
+    <value>USAF Ammo Troop</value>
+  </data>
+  <data name="Quote41Text" xml:space="preserve">
+    <value>Si vous voyez un expert en explosif courir, suivez-le.</value>
+  </data>
+  <data name="Quote42Author" xml:space="preserve">
+    <value>Anonyme</value>
+  </data>
+  <data name="Quote42Text" xml:space="preserve">
+    <value>Le seul moment où vous avez trop de carburant est quand vous êtes en feu ...</value>
+  </data>
+  <data name="Quote43Author" xml:space="preserve">
+    <value>Anonyme</value>
+  </data>
+  <data name="Quote43Text" xml:space="preserve">
+    <value>N'échangez jamais votre chance pour des compétences.</value>
+  </data>
+  <data name="Quote44Author" xml:space="preserve">
+    <value>Jon McBride</value>
+  </data>
+  <data name="Quote44Text" xml:space="preserve">
+    <value>Un pilote sans craintes, n'exploite probablement pas son avion à son maximum.</value>
+  </data>
+  <data name="Quote45Author" xml:space="preserve">
+    <value>Alexander Calder</value>
+  </data>
+  <data name="Quote45Text" xml:space="preserve">
+    <value>Pour un ingénieur, suffisant veut dire parfait. Avec un artiste, il n'y a rien de parfait.</value>
+  </data>
+  <data name="Quote46Author" xml:space="preserve">
+    <value>Buzz Aldrin</value>
+  </data>
+  <data name="Quote46Text" xml:space="preserve">
+    <value>Mars est ici, attendant d'être atteinte.</value>
+  </data>
+  <data name="Quote47Author" xml:space="preserve">
+    <value>Neil Armstrong</value>
+  </data>
+  <data name="Quote47Text" xml:space="preserve">
+    <value>C'est un petit pas pour l'homme, mais un bond de géant pour l'humanité.</value>
+  </data>
+  <data name="Quote48Author" xml:space="preserve">
+    <value>Youri Gagarin</value>
+  </data>
+  <data name="Quote48Text" xml:space="preserve">
+    <value>Je vois la Terre! C'est magnifique!</value>
+  </data>
+  <data name="Quote49Author" xml:space="preserve">
+    <value>Youri Gagarin</value>
+  </data>
+  <data name="Quote49Text" xml:space="preserve">
+    <value>J'aurais pu voler à travers l'espace pour toujours.</value>
+  </data>
+  <data name="Quote50Author" xml:space="preserve">
+    <value>Michael Collins</value>
+  </data>
+  <data name="Quote50Text" xml:space="preserve">
+    <value>Voyager et faire des choses qui n'ont jamais été faites auparavant - voilà le sens de la vie.</value>
+  </data>
+  <data name="Quote51Author" xml:space="preserve">
+    <value>Ralph W. Emerson</value>
+  </data>
+  <data name="Quote51Text" xml:space="preserve">
+    <value>N'allez pas là où le chemin peut mener. Allez là où il n'y a pas de chemin et laissez une trace.</value>
+  </data>
+  <data name="Quote52Author" xml:space="preserve">
+    <value>Youri Gagarin</value>
+  </data>
+  <data name="Quote52Text" xml:space="preserve">
+    <value>Être le premier à entrer dans le cosmos, s'engager, en solitaire, dans un duel sans précédent avec la nature - que peut-on rêver de plus?</value>
+  </data>
+  <data name="Quote53Author" xml:space="preserve">
+    <value>Youri Gagarin</value>
+  </data>
+  <data name="Quote53Text" xml:space="preserve">
+    <value>La voie du cosmonaute n'est pas une marche facile et triomphante vers la gloire. Vous devez apprendre à connaître la joie mais aussi la douleur avant d'être admis à entrer dans la cabine d'un engin spatial.</value>
+  </data>
+  <data name="Quote54Author" xml:space="preserve">
+    <value>Robert H. Goddard</value>
+  </data>
+  <data name="Quote54Text" xml:space="preserve">
+    <value>Les rêves d'hier sont les espoirs d'aujourd'hui et la réalité de demain.</value>
+  </data>
+  <data name="Quote55Author" xml:space="preserve">
+    <value>Gene Kranz</value>
+  </data>
+  <data name="Quote55Text" xml:space="preserve">
+    <value>L'échec n'est pas une option.</value>
+  </data>
+  <data name="Quote56Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote56Text" xml:space="preserve">
+    <value>Aucune quantité d'expérimentations ne peu confirmer que je suis correct, mais une seule expérience peut me prouver le contraire.</value>
+  </data>
+  <data name="Quote57Author" xml:space="preserve">
+    <value>George B. Shaw</value>
+  </data>
+  <data name="Quote57Text" xml:space="preserve">
+    <value>La science ne résout jamais un problème sans en créer dix de plus.</value>
+  </data>
+  <data name="Quote58Author" xml:space="preserve">
+    <value>Premier principe de la thermodynamique</value>
+  </data>
+  <data name="Quote58Text" xml:space="preserve">
+    <value>La loi de conservation de l'énergie spécifie que l'énergie ne peut être ni créée ni détruite. Cependant, l'énergie peut changer de forme et peut s'écouler d'un endroit à un autre. L'énergie totale d'un système isolé reste la même.</value>
+  </data>
+  <data name="Quote59Author" xml:space="preserve">
+    <value>Premier principe de la thermodynamique</value>
+  </data>
+  <data name="Quote59Text" xml:space="preserve">
+    <value>Le flux de chaleur est une forme de transfert d'énergie. En d'autre termes, une quantité de chaleur qui s'écoule d'un corps chaud à un corps froid peut être exprimé comme une quantité d'énergie transférée du corps chaud à celui qui est froid.</value>
+  </data>
+  <data name="Quote60Author" xml:space="preserve">
+    <value>Première loi de Newton</value>
+  </data>
+  <data name="Quote60Text" xml:space="preserve">
+    <value>Tout corps persiste dans son état de repos ou de mouvement linéaire uniforme, sauf s'il est contraint par une force de changer son état.</value>
+  </data>
+  <data name="Quote61Author" xml:space="preserve">
+    <value>Première loi de Newton</value>
+  </data>
+  <data name="Quote61Text" xml:space="preserve">
+    <value>Un objet immobile va le rester, jusqu'à temps qu'une force externe intervienne.</value>
+  </data>
+  <data name="Quote62Author" xml:space="preserve">
+    <value>Première loi de Newton</value>
+  </data>
+  <data name="Quote62Text" xml:space="preserve">
+    <value>Un objet en mouvement ne changera pas de vélocité à moins qu'une force externe intervienne.</value>
+  </data>
+  <data name="Quote63Author" xml:space="preserve">
+    <value>Deuxième loi de Newton</value>
+  </data>
+  <data name="Quote63Text" xml:space="preserve">
+    <value>L'accélération d'un corps est directement proportionnelle et dans la même direction que la force nette agissant sur celui-ci, et inversement proportionnelle à sa masse.</value>
+  </data>
+  <data name="Quote64Author" xml:space="preserve">
+    <value>Troisième loi de Newton</value>
+  </data>
+  <data name="Quote64Text" xml:space="preserve">
+    <value>Pour chaque action, il existe une réaction égale et opposée : l’action est toujours égale à la réaction ; c'est-à-dire que les actions de deux corps l’un sur l’autre sont toujours égales, et dans des directions contraires.</value>
+  </data>
+  <data name="Quote65Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote65Text" xml:space="preserve">
+    <value>MÉTHODE SCIENTIFIQUE : principes et procédures pour la recherche systématique du savoir impliquant la reconnaissance et la formulation d'un problème, la collecte de données issues de l'observation et de l'expérimentation, et la formulation et l'évaluation d'hypothèses.</value>
+  </data>
+  <data name="Quote66Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote66Text" xml:space="preserve">
+    <value>Pour être qualifié scientifique, une méthode de recherche doit être fondée sur des études empiriques et des preuves mesurables soumises à des principes spécifiques de raisonnement.</value>
+  </data>
+  <data name="Quote67Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote67Text" xml:space="preserve">
+    <value>Les lois de la science ou lois scientifiques sont des assertions qui décrivent, prédisent et peut-être expliquent pourquoi un éventail de phénomènes se comportent tels qu'ils apparaissent dans la nature.</value>
+  </data>
+  <data name="Quote68Author" xml:space="preserve">
+    <value>Wikipedia, 2077</value>
+  </data>
+  <data name="Quote68Text" xml:space="preserve">
+    <value>Les lois scientifiques sont fortement soutenues par des preuves empiriques - elles sont les connaissances scientifiques que des expériences ont maintes fois vérifiées ( et jamais contredites) .</value>
+  </data>
+  <data name="Quote69Author" xml:space="preserve">
+    <value>Loi universelle de la gravitation</value>
+  </data>
+  <data name="Quote69Text" xml:space="preserve">
+    <value>Chaque masse ponctuelle de l'univers attire tout autre masse ponctuelle avec une force qui est directement proportionnelle au produit de leurs masses et inversement proportionnelle au carré de la distance entre eux.</value>
+  </data>
+  <data name="HudInfoGravity" xml:space="preserve">
+    <value>Gravité :</value>
+  </data>
+  <data name="HudInfoNoGravity" xml:space="preserve">
+    <value>Pas de gravité</value>
+  </data>
+  <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
+    <value>Créer un nouveau monde avec les paramètres par défaut :
+Type de Jeu : Mode Créatif
+Scénario : Démarrage Rapide 1
+Sauvegarde auto : Activée</value>
+  </data>
+  <data name="HudInfoCrouching" xml:space="preserve">
+    <value>Accroupi</value>
+  </data>
+  <data name="HudInfoFlying" xml:space="preserve">
+    <value>En vol</value>
+  </data>
+  <data name="HudInfoOff" xml:space="preserve">
+    <value>Eteint</value>
+  </data>
+  <data name="HudInfoOn" xml:space="preserve">
+    <value>Allumé</value>
+  </data>
+  <data name="HudEnergyMissingTotal" xml:space="preserve">
+    <value>TOTAL MANQUANT</value>
+  </data>
+  <data name="HudInfoNameEnergy" xml:space="preserve">
+    <value>Energie:</value>
+  </data>
+  <data name="HudInfoNameFuelTime" xml:space="preserve">
+    <value>Temps de carburant:</value>
+  </data>
+  <data name="HudInfoNameGyroscopes" xml:space="preserve">
+    <value>Gyroscopes :</value>
+  </data>
+  <data name="HudInfoNameLights" xml:space="preserve">
+    <value>Lumières:</value>
+  </data>
+  <data name="HudInfoNameMass" xml:space="preserve">
+    <value>Masse:</value>
+  </data>
+  <data name="HudInfoNamePowerUsage" xml:space="preserve">
+    <value>Consommation d’énergie: </value>
+  </data>
+  <data name="HudInfoNameReactors" xml:space="preserve">
+    <value>Réacteurs :</value>
+  </data>
+  <data name="HudInfoNameSpeed" xml:space="preserve">
+    <value>Vitesse:</value>
+  </data>
+  <data name="HudInfoNameThrusts" xml:space="preserve">
+    <value>Propulseurs :</value>
+  </data>
+  <data name="HudInfoNoPower" xml:space="preserve">
+    <value>Pas d'énergie</value>
+  </data>
+  <data name="HudInfoNoReflectors" xml:space="preserve">
+    <value>Aucun Projecteur</value>
+  </data>
+  <data name="HudInfoPilotingLargeShip" xml:space="preserve">
+    <value>Piloter un grand vaisseau</value>
+  </data>
+  <data name="HudInfoPilotingSmallShip" xml:space="preserve">
+    <value>Piloter un petit vaisseau</value>
+  </data>
+  <data name="HudInfoPowerOverload" xml:space="preserve">
+    <value>Surcharge</value>
+  </data>
+  <data name="HudInfoReflectorsOff" xml:space="preserve">
+    <value>Projecteurs Off</value>
+  </data>
+  <data name="HudInfoReflectorsOn" xml:space="preserve">
+    <value>Projecteurs On</value>
+  </data>
+  <data name="HudInfoStanding" xml:space="preserve">
+    <value>Debout</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart2" xml:space="preserve">
+    <value>Démarrage Facile 2</value>
+  </data>
+  <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
+    <value>Voulez-vous commencer par regarder le tutoriel vidéo? N'oubliez pas que vous pouvez toujours revenir en cliquant sur "Tutoriels" dans l'écran "Aide" (appuyez sur F1).</value>
+  </data>
+  <data name="ControlDescHoldToColor" xml:space="preserve">
+    <value>Maintenir pour colorer un bloc (mode créatif)</value>
+  </data>
+  <data name="ControlDescLargeBrush" xml:space="preserve">
+    <value>Pinceau de couleur épais (mode créatif)</value>
+  </data>
+  <data name="ControlDescMediumBrush" xml:space="preserve">
+    <value>Pinceau de couleur moyen (mode créatif)</value>
+  </data>
+  <data name="ControlDescZoom" xml:space="preserve">
+    <value>Zoom en vue à la troisième personne</value>
+  </data>
+  <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
+    <value>Nouveau grand vaisseau</value>
+  </data>
+  <data name="ScreenCubeBuilderNewSmallShip" xml:space="preserve">
+    <value>Nouveau petit vaisseau</value>
+  </data>
+  <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
+    <value>Nouvelle Station</value>
+  </data>
+  <data name="HudEnergyGroupCharging" xml:space="preserve">
+    <value>Chargement en cours</value>
+  </data>
+  <data name="HudEnergyGroupConveyors" xml:space="preserve">
+    <value>Convoyeurs</value>
+  </data>
+  <data name="HudEnergyGroupDefense" xml:space="preserve">
+    <value>Défense</value>
+  </data>
+  <data name="HudEnergyGroupDoors" xml:space="preserve">
+    <value>Portes</value>
+  </data>
+  <data name="HudEnergyGroupFactory" xml:space="preserve">
+    <value>Usine</value>
+  </data>
+  <data name="HudEnergyGroupGyroscope" xml:space="preserve">
+    <value>Gyroscope</value>
+  </data>
+  <data name="HudEnergyGroupThrust" xml:space="preserve">
+    <value>Propulseurs</value>
+  </data>
+  <data name="HudEnergyGroupUtility" xml:space="preserve">
+    <value>Utilitaires</value>
+  </data>
+  <data name="SteamOverlayDisabledText" xml:space="preserve">
+    <value>Pour activer l'Overlay de Steam, allez dans "Paramètres",  onglet "Dans un jeu", puis cochez "Activer la Communauté Steam intégrée au jeu". 
+Ensuite, dans la bibliothèque de Steam, sélectionnez Space Engineers, "Propriétés",  cochez "Activer la Communauté Steam intégrée au jeu".</value>
+  </data>
+  <data name="MessageBoxTextRecommend" xml:space="preserve">
+    <value>Si vous aimez Space Engineers, vous pouvez le recommander à vos amis sur Steam par la page suivante. Les recommandations aident la communauté à grandir. Merci!
+</value>
+  </data>
+  <data name="MessageBoxCaptionRecommend" xml:space="preserve">
+    <value>Recommander Space Engineers</value>
+  </data>
+  <data name="NotificationHintLeaveCockpit" xml:space="preserve">
+    <value>Appuyez sur {0} pour quitter le cockpit</value>
+  </data>
+  <data name="NotificationHintOpenShipControlPanel" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir le panneau de contrôle du vaisseau</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOff" xml:space="preserve">
+    <value>Appuyez sur {0} pour éteindre tous les générateurs</value>
+  </data>
+  <data name="NotificationHintTurnAllReactorsOn" xml:space="preserve">
+    <value>Appuyez sur {0} pour allumer tous les générateurs</value>
+  </data>
+  <data name="NotificationArgLargeShip" xml:space="preserve">
+    <value>Grand Vaisseau</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgSmallShip" xml:space="preserve">
+    <value>Petit Vaisseau</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationArgStation" xml:space="preserve">
+    <value>Station</value>
+    <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
+  </data>
+  <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
+    <value>{0} n'est pas disponible pour {1}</value>
+  </data>
+  <data name="NotificationArgAngleGrinder" xml:space="preserve">
+    <value>Meuleuse d'angle</value>
+  </data>
+  <data name="NotificationArgDrill" xml:space="preserve">
+    <value>Foreuse</value>
+  </data>
+  <data name="NotificationArgMissile" xml:space="preserve">
+    <value>Missile</value>
+  </data>
+  <data name="NotificationArgProjectile" xml:space="preserve">
+    <value>Projectile</value>
+  </data>
+  <data name="NotificationArgWelder" xml:space="preserve">
+    <value>Chalumeau</value>
+  </data>
+  <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
+    <value>Appuyez sur {0} ou {1} pour monter ou descendre</value>
+  </data>
+  <data name="NotificationHintPressToGetDownFromLadder" xml:space="preserve">
+    <value>Appuyez sur {0} pour descendre de l'échelle</value>
+  </data>
+  <data name="NotificationHintPressToJumpOffLadder" xml:space="preserve">
+    <value>Appuyez sur {0} pour sauter de l'échelle</value>
+  </data>
+  <data name="NotificationJetpackOff" xml:space="preserve">
+    <value>Jetpack éteint</value>
+  </data>
+  <data name="NotificationJetpackOffNoEnergy" xml:space="preserve">
+    <value>Jetpack éteint (énergie insuffisante)</value>
+  </data>
+  <data name="NotificationJetpackOn" xml:space="preserve">
+    <value>Jetpack allumé</value>
+  </data>
+  <data name="NotificationUsingWeaponType" xml:space="preserve">
+    <value>Utiliser {0}</value>
+  </data>
+  <data name="HudInfoControllingStation" xml:space="preserve">
+    <value>Station de contrôle</value>
+  </data>
+  <data name="HudInfoNameDampeners" xml:space="preserve">
+    <value>Amortisseurs</value>
+  </data>
+  <data name="HudInfoNameLandingGear" xml:space="preserve">
+    <value>Trains d'atterrissage</value>
+  </data>
+  <data name="HudInfoNameInProximity" xml:space="preserve">
+    <value>À proximité :</value>
+  </data>
+  <data name="HudInfoNameLocked" xml:space="preserve">
+    <value>Verrouillé :</value>
+  </data>
+  <data name="ControlName_LandingGear" xml:space="preserve">
+    <value>Train d’atterrissage / Palette</value>
+  </data>
+  <data name="ControlName_SymmetrySwitch" xml:space="preserve">
+    <value>Changement de symétrie</value>
+  </data>
+  <data name="NotificationHintPressToEnterCockpit" xml:space="preserve">
+    <value>Appuyez sur {0} pour entrer dans le Cockpit</value>
+  </data>
+  <data name="NotificationHintPressToOpenControlPanel" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir le panneau de contrôle de {1}</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventory" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir l'inventaire de {1}</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterAll" xml:space="preserve">
+    <value>Afficher tout les types d'objets</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterEnergy" xml:space="preserve">
+    <value>Filtrer les objets d'énergie</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterStorage" xml:space="preserve">
+    <value>Filtrer les objets de stockage</value>
+  </data>
+  <data name="ToolTipTerminalInventory_FilterSystem" xml:space="preserve">
+    <value>Filtrer les objets systèmes</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowCharacter" xml:space="preserve">
+    <value>Afficher l'inventaire du personnage</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowConnected" xml:space="preserve">
+    <value>Afficher les inventaires connectés (au vaisseau ou à la station)</value>
+  </data>
+  <data name="ScreenTerminalInventory_Mass" xml:space="preserve">
+    <value>Masse : {0} kg</value>
+  </data>
+  <data name="ScreenTerminalInventory_Volume" xml:space="preserve">
+    <value>Volume : {0} L</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
+    <value>{0}{3}
+Masse : {1} kg
+Volume : {2} L</value>
+  </data>
+  <data name="ControlName_InertialDampeners" xml:space="preserve">
+    <value>Amortisseurs inertiels</value>
+  </data>
+  <data name="ControlName_UseSymmetry" xml:space="preserve">
+    <value>Utiliser la symétrie</value>
+  </data>
+  <data name="DisplayName_Block_Beacon" xml:space="preserve">
+    <value>Balise</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
+    <value>Tout type de minerai</value>
+  </data>
+  <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
+    <value>Lingot d'uranium</value>
+  </data>
+  <data name="DisplayName_Block_Rotor" xml:space="preserve">
+    <value>Moteur</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
+    <value>Couple</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorBrakingTorque" xml:space="preserve">
+    <value>Couple de freinage</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorTargetVelocity" xml:space="preserve">
+    <value>Vitesse</value>
+  </data>
+  <data name="ToolTipItemFilter_AnyIngot" xml:space="preserve">
+    <value>Tout type de lingot</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMaxAngle" xml:space="preserve">
+    <value>Limite maximale</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorMinAngle" xml:space="preserve">
+    <value>Limite minimale</value>
+  </data>
+  <data name="IconSymbol_Ag" xml:space="preserve">
+    <value>Ag</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Au" xml:space="preserve">
+    <value>Au</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Co" xml:space="preserve">
+    <value>Co</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Fe" xml:space="preserve">
+    <value>Fe</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Gravel" xml:space="preserve">
+    <value>Gravier</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Ice" xml:space="preserve">
+    <value>Glace</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_K" xml:space="preserve">
+    <value>K</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Mg" xml:space="preserve">
+    <value>Mg</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Ni" xml:space="preserve">
+    <value>Ni</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Pt" xml:space="preserve">
+    <value>Pt</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_Stone" xml:space="preserve">
+    <value>Pierre</value>
+    <comment>Text written on icon in inventory. Keep it short!</comment>
+  </data>
+  <data name="IconSymbol_Si" xml:space="preserve">
+    <value>Si</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="IconSymbol_U" xml:space="preserve">
+    <value>U</value>
+    <comment>Chemical symbol. Do not translate!</comment>
+  </data>
+  <data name="BlockPropertiesText_MotorCurrentAngle" xml:space="preserve">
+    <value>Angle actuel :</value>
+  </data>
+  <data name="BlockPropertyValue_MotorAngleUnlimited" xml:space="preserve">
+    <value>Illimité</value>
+  </data>
+  <data name="BlockPropertiesText_MotorLimitsDisabled" xml:space="preserve">
+    <value>La rotation du rotor actuel est hors des limites, les limites seront activés lorsque le rotor sera à portée.</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorBrakingTorque" xml:space="preserve">
+    <value>Force de freinage du moteur: vitesse à laquelle il s'arrêtera (appliqué quand le moteur est éteint)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorLowerLimit" xml:space="preserve">
+    <value>Limite angulaire minimale</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorTorque" xml:space="preserve">
+    <value>Couple du rotor : rapidité d'accélération (appliqué lorsque le rotor est actif)</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUpperLimit" xml:space="preserve">
+    <value>Limite angulaire maximale</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
+    <value>Vitesse cible du rotor; le rotor accélère jusqu'à ce que la vitesse cible soit atteinte.</value>
+  </data>
+  <data name="DisplayName_Item_Girder" xml:space="preserve">
+    <value>Echafaudage</value>
+  </data>
+  <data name="SwitchText_Open" xml:space="preserve">
+    <value>Ouvrir</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="SwitchText_Close" xml:space="preserve">
+    <value>Fermer</value>
+    <comment>Open/Close buttons in terminal (eg. on Door). Keep it short!!!</comment>
+  </data>
+  <data name="HudInfoNameHealth" xml:space="preserve">
+    <value>Santé :</value>
+  </data>
+  <data name="HudInfoFalling" xml:space="preserve">
+    <value>En chute</value>
+  </data>
+  <data name="AssemblerState_Disabled" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="AssemblerState_MissingItems" xml:space="preserve">
+    <value>Objets manquants</value>
+  </data>
+  <data name="AssemblerState_NotEnoughPower" xml:space="preserve">
+    <value>Énergie insuffisante</value>
+  </data>
+  <data name="AssemblerState_NothingBeingProduced" xml:space="preserve">
+    <value>Rien n'est produit actuellement</value>
+  </data>
+  <data name="HudInfoNameJetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="DisplayName_Scenario_EasyStart3" xml:space="preserve">
+    <value>Démarrage Facile 3 (64-bits uniquement)</value>
+  </data>
+  <data name="BlockPropertyTitle_LightColor" xml:space="preserve">
+    <value>Couleur</value>
+  </data>
+  <data name="BlockPropertyDescription_LightColor" xml:space="preserve">
+    <value>Couleur de la lumière</value>
+  </data>
+  <data name="BlockPropertyTitle_LightRadius" xml:space="preserve">
+    <value>Rayon</value>
+  </data>
+  <data name="BlockPropertyDescription_LightRadius" xml:space="preserve">
+    <value>Rayon d'effet de la lumière</value>
+  </data>
+  <data name="BlockPropertyTitle_LightFalloff" xml:space="preserve">
+    <value>Atténuation</value>
+  </data>
+  <data name="BlockPropertyDescription_LightFalloff" xml:space="preserve">
+    <value>Facteur d'atténuation de la lumière (1 = linéaire, 2 = quadratique, etc.)</value>
+  </data>
+  <data name="BlockPropertyTitle_LightIntensity" xml:space="preserve">
+    <value>Intensité</value>
+  </data>
+  <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
+    <value>Intensité de la lumière</value>
+  </data>
+  <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir la Porte</value>
+  </data>
+  <data name="SwitchText_Off" xml:space="preserve">
+    <value>Off</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="SwitchText_On" xml:space="preserve">
+    <value>On</value>
+    <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
+    <value>Le copier/coller vous permet de créer un nouveau vaisseau ou station directement à partir du presse-papiers</value>
+  </data>
+  <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
+    <value>Activer copier/coller</value>
+  </data>
+  <data name="WorldSettings_EnableWeapons" xml:space="preserve">
+    <value>Armes activées</value>
+  </data>
+  <data name="AssemblerState_NotWorking" xml:space="preserve">
+    <value>Assembleur endommagé ou démonté</value>
+  </data>
+  <data name="DisplayName_Block_Passage" xml:space="preserve">
+    <value>Couloir</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
+    <value>Accélération gravitationnelle du générateur</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldDepth" xml:space="preserve">
+    <value>Profondeur du champ de gravité du générateur.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldHeight" xml:space="preserve">
+    <value>Hauteur du champ de gravité du générateur.</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldWidth" xml:space="preserve">
+    <value>Largeur du champ de gravité du générateur.</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityAcceleration" xml:space="preserve">
+    <value>Accélération</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldDepth" xml:space="preserve">
+    <value>Profondeur du champ</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldHeight" xml:space="preserve">
+    <value>Hauteur du champ</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldWidth" xml:space="preserve">
+    <value>Largeur du champ</value>
+  </data>
+  <data name="NotificationHintPressToOpenTerminal" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir le terminal</value>
+  </data>
+  <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
+    <value>Maintenez {0} pour vous recharger et vous soigner</value>
+  </data>
+  <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Si activé, les joueurs peuvent voir le nom des autres joueurs au-dessus de leur personnage</value>
+  </data>
+  <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
+    <value>Montrer les noms des joueurs</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
+    <value>Jeter un objet</value>
+  </data>
+  <data name="NotificationSuitEnergyLow" xml:space="preserve">
+    <value>Attention: Combinaison à court d'énergie. Le fonctionnement des systèmes de survie n'est plus assuré.</value>
+  </data>
+  <data name="NotificationSuitEnergyCritical" xml:space="preserve">
+    <value>Attention : énergie de la combinaison à un niveau critique. Panne imminente de l'assistance vitale.</value>
+  </data>
+  <data name="MaxFloatingObjects" xml:space="preserve">
+    <value>Objets max</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxFloatingObjects" xml:space="preserve">
+    <value>Nombre maximal de petits objets flottant dans l'espace (minerais, lingots, composants)
+Attention - une valeur supérieure à 64 peut significativement affecter les performances !</value>
+  </data>
+  <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
+    <value>Missile 200 mm</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
+    <value>OTAN 25x184mm</value>
+  </data>
+  <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
+    <value>Astéroïdes</value>
+  </data>
+  <data name="Asteroid_Amount" xml:space="preserve">
+    <value>Nombre d'astéroïdes</value>
+  </data>
+  <data name="DisplayName_Item_Explosives" xml:space="preserve">
+    <value>Explosifs</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountExtreme" xml:space="preserve">
+    <value>Extrême : 16 grands astéroïdes</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountLarge" xml:space="preserve">
+    <value>Grand : 7 grands astéroïdes</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNormal" xml:space="preserve">
+    <value>Normal : 4 grands astéroïdes</value>
+  </data>
+  <data name="ToolTipWorldSettingsAsteroidAmount" xml:space="preserve">
+    <value>Nombre d'astéroïdes dans une nouvelle génération de monde
+Normal : 4 grands astéroïdes, 20 petits astéroïdes
+Grand : 7 grands astéroïdes, 35 petits astéroïdes
+Extrême : 16 grands astéroïdes, 80 petits astéroïdes, 64-bit seulement</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxPlayer" xml:space="preserve">
+    <value>Nombre maximal de joueurs en jeu</value>
+  </data>
+  <data name="ToolTipWorldSettingsWeapons" xml:space="preserve">
+    <value>Activer/désactiver toutes les armes et les explosifs</value>
+  </data>
+  <data name="BlockPropertyDescription_OreDetectorRange" xml:space="preserve">
+    <value>Portée maximale de détection.</value>
+  </data>
+  <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
+    <value>Portée</value>
+  </data>
+  <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
+    <value>Objets produits par l'assembleur. </value>
+  </data>
+  <data name="AssemblerState_InventoryFull" xml:space="preserve">
+    <value>L'inventaire est plein</value>
+  </data>
+  <data name="WorldSettings_InventorySize" xml:space="preserve">
+    <value>Taille de l'inventaire</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes1" xml:space="preserve">
+    <value>Réaliste</value>
+  </data>
+  <data name="WorldSettings_GameSurvivalTimes3" xml:space="preserve">
+    <value>Réaliste x3</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeCreative" xml:space="preserve">
+    <value>Ressources illimités, construction instantanée, pas de mort</value>
+  </data>
+  <data name="ToolTipWorldSettingsModeSurvival" xml:space="preserve">
+    <value>Gestion réaliste des ressources, capacité réaliste de l'inventaire, mort et réapparition</value>
+  </data>
+  <data name="Description_Scenario_Asteroids" xml:space="preserve">
+    <value>Démarrez dans un vaisseau de sauvetage avec des ressources très limitées près d'un petit champ d'astéroïdes</value>
+  </data>
+  <data name="Description_Scenario_EasyStart1" xml:space="preserve">
+    <value>Démarrez sur une plateforme d'astéroïde avec un grand vaisseau et deux petits vaisseaux</value>
+  </data>
+  <data name="Description_Scenario_EasyStart2" xml:space="preserve">
+    <value>Démarrez dans une station d'astéroïde verte avec plusieurs grands vaisseaux et petits vaisseaux (c'est une grande scène !)</value>
+  </data>
+  <data name="Description_Scenario_EmptyWorld" xml:space="preserve">
+    <value>Monde vide, pas d'astéroïdes, pas de vaisseaux, convient au mode créatif</value>
+  </data>
+  <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
+    <value>Démarrez sur une plateforme d'astéroïde abandonnée sans vaisseaux ; vous devrez démarrer à partir de rien</value>
+  </data>
+  <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Vaisseau Rouge Écrasé</value>
+  </data>
+  <data name="Description_Scenario_CrashedRedShip" xml:space="preserve">
+    <value>Vaisseau Rouge Écrasé</value>
+  </data>
+  <data name="HudBlockInfo_Components" xml:space="preserve">
+    <value>Composants</value>
+  </data>
+  <data name="HudBlockInfo_Installed_Required" xml:space="preserve">
+    <value>Installé / Requis</value>
+  </data>
+  <data name="DisplayName_Item_Scrap" xml:space="preserve">
+    <value>Ferraille</value>
+  </data>
+  <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
+    <value>Grand Vaisseau / Station</value>
+  </data>
+  <data name="HudBlockInfo_SmallShip" xml:space="preserve">
+    <value>Petit Vaisseau</value>
+  </data>
+  <data name="TerminalTab_Production" xml:space="preserve">
+    <value>Production</value>
+  </data>
+  <data name="ScreenTerminalError_NoAssemblers" xml:space="preserve">
+    <value>Il n'y a pas d'assembleur sur ce vaisseau.</value>
+  </data>
+  <data name="DisplayName_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Deux plateformes</value>
+  </data>
+  <data name="Description_Scenario_TwoPlatforms" xml:space="preserve">
+    <value>Monde multijoueurs compétitif à deux équipes</value>
+  </data>
+  <data name="Terminal_BlockIncomplete" xml:space="preserve">
+    <value>(incomplet)</value>
+  </data>
+  <data name="HudInfoInventoryVolume" xml:space="preserve">
+    <value>Volume : </value>
+  </data>
+  <data name="WorldSettings_AssemblerEfficiency" xml:space="preserve">
+    <value>Efficacité de l'assembleur</value>
+  </data>
+  <data name="WorldSettings_Realistic" xml:space="preserve">
+    <value>Réaliste</value>
+  </data>
+  <data name="WorldSettings_RefinerySpeed" xml:space="preserve">
+    <value>Vitesse de raffinage</value>
+  </data>
+  <data name="WorldSettings_Realistic_x10" xml:space="preserve">
+    <value>x10</value>
+  </data>
+  <data name="WorldSettings_Realistic_x3" xml:space="preserve">
+    <value>x3</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x1" xml:space="preserve">
+    <value>Vitesse et efficacité par défaut de l'assembleur</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x10" xml:space="preserve">
+    <value>L'assembleur nécessite 10x moins de matériaux et est 10x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Assembler_x3" xml:space="preserve">
+    <value>L'assembleur nécessite 3x moins de matériaux et est 3x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x1" xml:space="preserve">
+    <value>Capacité de l'inventaire par défaut</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x10" xml:space="preserve">
+    <value>La capacité de l'inventaire est 10x plus grande</value>
+  </data>
+  <data name="ToolTipWorldSettings_Inventory_x3" xml:space="preserve">
+    <value>La capacité de l'inventaire est 3x plus grande</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x1" xml:space="preserve">
+    <value>Vitesse de raffinage par défaut</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x10" xml:space="preserve">
+    <value>Le raffinage est 10x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Refinery_x3" xml:space="preserve">
+    <value>Le raffinage est 3x plus rapide</value>
+  </data>
+  <data name="DisplayName_Item_SolarCell" xml:space="preserve">
+    <value>Cellule Solaire</value>
+  </data>
+  <data name="DisplayName_Block_SolarPanel" xml:space="preserve">
+    <value>Panneau Solaire</value>
+  </data>
+  <data name="ScreenTerminalProduction_Blueprints" xml:space="preserve">
+    <value>Plans:</value>
+  </data>
+  <data name="ScreenTerminalProduction_AssemblingButton" xml:space="preserve">
+    <value>Assemblage</value>
+  </data>
+  <data name="ScreenTerminalProduction_ControlPanelButton" xml:space="preserve">
+    <value>Panneau de contrôle</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassembleAllButton" xml:space="preserve">
+    <value>Tout désassembler</value>
+  </data>
+  <data name="ScreenTerminalProduction_DisassemblingButton" xml:space="preserve">
+    <value>Désassemblage</value>
+  </data>
+  <data name="ScreenTerminalProduction_GainedAndAvailable" xml:space="preserve">
+    <value>Acquis / Disponible</value>
+  </data>
+  <data name="ScreenTerminalProduction_Inventory" xml:space="preserve">
+    <value>Inventaire:</value>
+  </data>
+  <data name="ScreenTerminalProduction_InventoryButton" xml:space="preserve">
+    <value>Inventaire</value>
+  </data>
+  <data name="ScreenTerminalProduction_ProductionQueue" xml:space="preserve">
+    <value>Liste de production:</value>
+  </data>
+  <data name="ScreenTerminalProduction_RequiredAndAvailable" xml:space="preserve">
+    <value>Requis / Disponible</value>
+  </data>
+  <data name="ScreenTerminalProduction_StoredMaterials" xml:space="preserve">
+    <value>Matériaux stockés : </value>
+  </data>
+  <data name="ToolTipTerminalProduction_AssemblingMode" xml:space="preserve">
+    <value>Mode assemblage : lingots en composants</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassembleAll" xml:space="preserve">
+    <value>Désassembler tous les objets de l'inventaire</value>
+  </data>
+  <data name="ToolTipTerminalProduction_DisassemblingMode" xml:space="preserve">
+    <value>Mode désassemblage : composants en lingots</value>
+  </data>
+  <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
+    <value>Activer ou désactiver le mode répétition</value>
+  </data>
+  <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
+    <value>Dégâts des propulseurs</value>
+  </data>
+  <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
+    <value>Les flammes des propulseurs infligent des dommages aux blocs, joueurs et petits objets</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableCargoShips" xml:space="preserve">
+    <value>Active/désactive les vaisseaux cargo aléatoires</value>
+  </data>
+  <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
+    <value>Vaisseaux cargo</value>
+  </data>
+  <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
+    <value>Armageddon (irréaliste)</value>
+  </data>
+  <data name="FirstApril2014" xml:space="preserve">
+    <value>Poisson d'avril! Ne le dites à personne!</value>
+  </data>
+  <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
+    <value>Masse artificielle</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
+    <value>Station de contrôle</value>
+  </data>
+  <data name="DisplayName_Block_Collector" xml:space="preserve">
+    <value>Collecteur</value>
+  </data>
+  <data name="DisplayName_Block_Cockpit3" xml:space="preserve">
+    <value>Siège de vol</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Face" xml:space="preserve">
+    <value>Fenêtre 1x1 Face</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Flat" xml:space="preserve">
+    <value>Fenêtre 1x1 Plate</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Inv" xml:space="preserve">
+    <value>Fenêtre 1x1 Inv.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Side" xml:space="preserve">
+    <value>Fenêtre 1x1 Côté</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1Slope" xml:space="preserve">
+    <value>Fenetre 1x1 Inclinée</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Face" xml:space="preserve">
+    <value>Fenêtre 1x1 Face</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Flat" xml:space="preserve">
+    <value>Fenêtre 1x2 Plate</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Inv" xml:space="preserve">
+    <value>Fenêtre 1x2 Inv.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideLeft" xml:space="preserve">
+    <value>Fenêtre 1x2 Côté Gauche</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2SideRight" xml:space="preserve">
+    <value>Fenêtre 1x2 Côté Droit</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2Slope" xml:space="preserve">
+    <value>Fenêtre 1x2 Inclinée</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3Flat" xml:space="preserve">
+    <value>Fenêtre 2x3 Plate</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
+    <value>Fenêtre 3x3 Plate</value>
+  </data>
+  <data name="ControlDescSingleAllMode" xml:space="preserve">
+    <value>Mode une seule / toutes les armes (cockpit)</value>
+  </data>
+  <data name="Terminal_UseConveyorSystem" xml:space="preserve">
+    <value>Utilisation du système de convoyeur</value>
+  </data>
+  <data name="Terminal_CollectAll" xml:space="preserve">
+    <value>Tous collecter</value>
+  </data>
+  <data name="Terminal_ThrowOut" xml:space="preserve">
+    <value>Jeter</value>
+  </data>
+  <data name="DisplayName_Block_Connector" xml:space="preserve">
+    <value>Connecteur</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTube" xml:space="preserve">
+    <value>Tube de convoyeur</value>
+  </data>
+  <data name="DisplayName_Block_Window1x1FlatInv" xml:space="preserve">
+    <value>Fenêtre 1x1 Plate Inv.</value>
+  </data>
+  <data name="DisplayName_Block_Window1x2FlatInv" xml:space="preserve">
+    <value>Fenêtre 1x2 Plate Inv.</value>
+  </data>
+  <data name="DisplayName_Block_Window2x3FlatInv" xml:space="preserve">
+    <value>Fenêtre 2x3 Plate Inv.</value>
+  </data>
+  <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
+    <value>Fenêtre 3x3 Plate Inv.</value>
+  </data>
+  <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
+    <value>Appuyez sur {0} pour changer entre les modes une seule arme / toutes les armes.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
+    <value>Rayon de visée</value>
+  </data>
+  <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
+    <value>OTAN 5.56x45 mm</value>
+  </data>
+  <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
+    <value>Roue 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Wheel3x3" xml:space="preserve">
+    <value>Roue 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
+    <value>Roue 5x5</value>
+  </data>
+  <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
+    <value>Meuleuse</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPower" xml:space="preserve">
+    <value>L'énergie apportée influe sur la force des gyroscopes.</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPower" xml:space="preserve">
+    <value>Énergie</value>
+  </data>
+  <data name="DisplayName_Block_Decoy" xml:space="preserve">
+    <value>Leurre</value>
+  </data>
+  <data name="TerminalButton_GroupSave" xml:space="preserve">
+    <value>Sauv.</value>
+  </data>
+  <data name="BlockActionTitle_Lock" xml:space="preserve">
+    <value>Verr.</value>
+  </data>
+  <data name="BlockActionTitle_Unlock" xml:space="preserve">
+    <value>Déverr.</value>
+  </data>
+  <data name="BlockActionTitle_Reverse" xml:space="preserve">
+    <value>Inverser</value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentInput" xml:space="preserve">
+    <value>Flux d'entrée : </value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentMass" xml:space="preserve">
+    <value>Masse actuelle : </value>
+  </data>
+  <data name="BlockPropertyProperties_CurrentOutput" xml:space="preserve">
+    <value>Courant de sortie:</value>
+  </data>
+  <data name="BlockPropertiesText_LockState" xml:space="preserve">
+    <value>Verrouillage : </value>
+  </data>
+  <data name="BlockPropertiesText_MaxOutput" xml:space="preserve">
+    <value>Sortie max : </value>
+  </data>
+  <data name="BlockPropertiesText_MaxRequiredInput" xml:space="preserve">
+    <value>Entrée max requise : </value>
+  </data>
+  <data name="BlockPropertiesText_RequiredInput" xml:space="preserve">
+    <value>Énergie requise :</value>
+  </data>
+  <data name="BlockPropertiesText_Type" xml:space="preserve">
+    <value>Type : </value>
+  </data>
+  <data name="BlockPropertyValue_Locked" xml:space="preserve">
+    <value>Verrouillé</value>
+  </data>
+  <data name="BlockPropertyValue_ReadyToLock" xml:space="preserve">
+    <value>Prêt au verrouillage</value>
+  </data>
+  <data name="BlockPropertyValue_Unlocked" xml:space="preserve">
+    <value>Déverrouillé</value>
+  </data>
+  <data name="Quote70Author" xml:space="preserve">
+    <value>Albert Einstein</value>
+  </data>
+  <data name="Quote70Text" xml:space="preserve">
+    <value>La créativité, c'est l'intelligence qui s'amuse.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurved" xml:space="preserve">
+    <value>Tube de convoyeur courbé</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetDecoys" xml:space="preserve">
+    <value>Viser les leurres</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMeteors" xml:space="preserve">
+    <value>Viser les météores</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
+    <value>Viser les objets en mouvement</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
+    <value>Viser les missiles</value>
+  </data>
+  <data name="DisplayName_Block_ShipWelder" xml:space="preserve">
+    <value>Soudeuse</value>
+  </data>
+  <data name="NotificationEnergyCritical" xml:space="preserve">
+    <value>Niveau d'énergie critique.</value>
+  </data>
+  <data name="NotificationEnergyLow" xml:space="preserve">
+    <value>Niveau d'énergie bas.</value>
+  </data>
+  <data name="NotificationEnergyNo" xml:space="preserve">
+    <value>Pas d'énergie</value>
+  </data>
+  <data name="NotificationFuelCritical" xml:space="preserve">
+    <value>Niveau de carburant critique.</value>
+  </data>
+  <data name="NotificationFuelLow" xml:space="preserve">
+    <value>Niveau de carburant bas.</value>
+  </data>
+  <data name="NotificationFuelNo" xml:space="preserve">
+    <value>Pas de carburant</value>
+  </data>
+  <data name="NotificationMeteorInbound" xml:space="preserve">
+    <value>Pluie de météores en approche.</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
+    <value>Tube de Convoyeur</value>
+  </data>
+  <data name="DisplayName_Block_ConnectorSmall" xml:space="preserve">
+    <value>Ejecteur</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorFrame" xml:space="preserve">
+    <value>Châssis de convoyeur</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSmall" xml:space="preserve">
+    <value>Petit convoyeur</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeCurvedSmall" xml:space="preserve">
+    <value>Petit tube de convoyeur courbé</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorTubeSmall" xml:space="preserve">
+    <value>Petit tube de convoyeur</value>
+  </data>
+  <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
+    <value>Appuyez sur {0} pour ouvrir l'inventaire</value>
+  </data>
+  <data name="TerminalTab_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertButton" xml:space="preserve">
+    <value>Convertir en vaisseau</value>
+  </data>
+  <data name="TerminalTab_Info_Conveyors" xml:space="preserve">
+    <value>Convoyeurs :</value>
+  </data>
+  <data name="TerminalTab_Info_Blocks" xml:space="preserve">
+    <value>Blocs :</value>
+  </data>
+  <data name="TerminalTab_Info_GravGens" xml:space="preserve">
+    <value>Générateurs de gravité :</value>
+  </data>
+  <data name="TerminalTab_Info_Lights" xml:space="preserve">
+    <value>Lumières :</value>
+  </data>
+  <data name="TerminalTab_Info_NonArmor" xml:space="preserve">
+    <value>Blocs non blindés :</value>
+  </data>
+  <data name="TerminalTab_Info_Triangles" xml:space="preserve">
+    <value>Polygones :</value>
+  </data>
+  <data name="TerminalTab_Info_Reflectors" xml:space="preserve">
+    <value>Projecteurs :</value>
+  </data>
+  <data name="TerminalTab_Info_Thrusters" xml:space="preserve">
+    <value>Propulseurs : </value>
+  </data>
+  <data name="TerminalTab_Info_VirtualMass" xml:space="preserve">
+    <value>Masses artificielles :</value>
+  </data>
+  <data name="TerminalTab_Info_BlocksTooltip" xml:space="preserve">
+    <value>Nombre total de blocs de la structure.</value>
+  </data>
+  <data name="TerminalTab_Info_TrianglesTooltip" xml:space="preserve">
+    <value>Nombre de polygones. Informations techniques.
+Un nombre élevé affecte les performances.</value>
+  </data>
+  <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
+    <value>Bloc de liaison</value>
+  </data>
+  <data name="NewVersionAvailable" xml:space="preserve">
+    <value>Une nouvelle version de Space Engineers est disponible !</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
+    <value>Activer le mode spectateur dans le monde</value>
+  </data>
+  <data name="WorldSettings_EnableSpectator" xml:space="preserve">
+    <value>Activer le mode spectateur</value>
+  </data>
+  <data name="PlayerCharacterColorBlack" xml:space="preserve">
+    <value>Noir</value>
+  </data>
+  <data name="PlayerCharacterColorBlue" xml:space="preserve">
+    <value>Bleu</value>
+  </data>
+  <data name="PlayerCharacterColorDefault" xml:space="preserve">
+    <value>Gris</value>
+  </data>
+  <data name="PlayerCharacterColorGreen" xml:space="preserve">
+    <value>Vert</value>
+  </data>
+  <data name="PlayerCharacterColorRed" xml:space="preserve">
+    <value>Rouge</value>
+  </data>
+  <data name="PlayerCharacterColorWhite" xml:space="preserve">
+    <value>Blanc</value>
+  </data>
+  <data name="PlayerCharacterColorYellow" xml:space="preserve">
+    <value>Jaune</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
+    <value>Commandes des propulseurs</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_ControlWheels" xml:space="preserve">
+    <value>Commandes des roues</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Utilise les commandes des roues</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorUsesWheelCommands" xml:space="preserve">
+    <value>Indique si le moteur est commandé comme une roue directement depuis le cockpit.</value>
+  </data>
+  <data name="TerminalTab_Info_Rotors" xml:space="preserve">
+    <value>Rotors: </value>
+  </data>
+  <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
+    <value>Force de freinage</value>
+  </data>
+  <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
+    <value>Verrouillage automatique</value>
+  </data>
+  <data name="SpectatorControls_None_Desc" xml:space="preserve">
+    <value>Revenir au contrôle de l'ingénieur / cockpit </value>
+  </data>
+  <data name="SpectatorControls_Free_Desc" xml:space="preserve">
+    <value>Mode spectateur libre. Vous pouvez toujours tirer et faire des actions avec l'objet contrôlé</value>
+  </data>
+  <data name="SpectatorControls_Static_Desc" xml:space="preserve">
+    <value>Spectateur statique. Vous contrôlez le personnage / le cockpit, mais la caméra est statique</value>
+  </data>
+  <data name="WorldSettings_Advanced" xml:space="preserve">
+    <value>Avancé</value>
+  </data>
+  <data name="TerminalTab_Factions" xml:space="preserve">
+    <value>Factions</value>
+  </data>
+  <data name="TerminalTab_Factions_Create" xml:space="preserve">
+    <value>Créer</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateToolTip" xml:space="preserve">
+    <value>Créer une nouvelle faction</value>
+  </data>
+  <data name="TerminalTab_Factions_Leave" xml:space="preserve">
+    <value>Quitter</value>
+  </data>
+  <data name="TerminalTab_Factions_Join" xml:space="preserve">
+    <value>Rejoindre</value>
+  </data>
+  <data name="TerminalTab_Factions_JoinToolTip" xml:space="preserve">
+    <value>Envoyer une demande d'invitation à la faction sélectionnée</value>
+  </data>
+  <data name="String1TerminalTab_Factions_LeaveToolTip" xml:space="preserve">
+    <value>Quitter la faction sélectionnée</value>
+  </data>
+  <data name="TerminalTab_Factions_Enemy" xml:space="preserve">
+    <value>Déclarer la guerre</value>
+  </data>
+  <data name="TerminalTab_Factions_Friend" xml:space="preserve">
+    <value>Proposer la paix</value>
+  </data>
+  <data name="TerminalTab_Factions_FriendToolTip" xml:space="preserve">
+    <value>Proposer un traité de paix à la faction sélectionnée</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFaction" xml:space="preserve">
+    <value>Créer une nouvelle faction</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionDescription" xml:space="preserve">
+    <value>Infos publiques:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfo" xml:space="preserve">
+    <value>Infos privées:</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionPrivateInfoToolTip" xml:space="preserve">
+    <value>Visible par les membres uniquement</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
+    <value>Identifiant de la faction (3 lettres peuvent être insérées)</value>
+  </data>
+  <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
+    <value>Afficher les centres de gravité</value>
+  </data>
+  <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
+    <value>Vous devez quitter votre faction avant d'en créer une nouvelle</value>
+  </data>
+  <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
+    <value>Si coché, les vaisseaux considérés comme des déchets seront supprimés pour faire tourner le jeu plus rapidement. 
+Pour être considéré comme déchets, la grille doit contenir quelques blocs, être en mouvement linéaire uniforme, être hors tension, 
+incontrôlée, sans salle médicale et assez loin de tous les acteurs de sorte qu'ils ne puissent à le peine voir.</value>
+  </data>
+  <data name="WorldSettings_LimitWorldSize" xml:space="preserve">
+    <value>Limiter la taille du monde</value>
+  </data>
+  <data name="WorldSettings_RemoveTrash" xml:space="preserve">
+    <value>Déchets supprimés automatiquement</value>
+  </data>
+  <data name="TerminalTab_Factions_Private" xml:space="preserve">
+    <value>Informations privées (visibles par les membres uniquement):</value>
+  </data>
+  <data name="Terminal_BlockAccessDenied" xml:space="preserve">
+    <value>(accès refusé)</value>
+  </data>
+  <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
+    <value>Éditer la faction</value>
+  </data>
+  <data name="NotificationRespawnShipDelete" xml:space="preserve">
+    <value>Vaisseau temporaire. Il sera être supprimé après avoir quittez le jeu ou réapparaissez dans un nouveau.</value>
+  </data>
+  <data name="TooltipWorldSettingsRespawnShipDelete" xml:space="preserve">
+    <value>Supprimer le vaisseau de réapparition lorsque le joueur quitte le serveur / réapparait dans un nouveau vaisseau</value>
+  </data>
+  <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
+    <value>Suppression des vaisseaux de réapparition</value>
+  </data>
+  <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
+    <value>Cette faction vous propose un traité de paix</value>
+  </data>
+  <data name="TerminalTab_Factions_SentPeace" xml:space="preserve">
+    <value>Vous  proposez un traité de paix à cette faction</value>
+  </data>
+  <data name="BlockPropertyDescription_BreakForce" xml:space="preserve">
+    <value>Le train d'atterrissage se déverrouillera automatiquement lorsque la force appliquée pour le maintenir attaché est supérieure à cette valeur</value>
+  </data>
+  <data name="WorldSettings_WarningChangingWorldSize" xml:space="preserve">
+    <value>La taille du monde sélectionné est plus limitée qu'à l'origine. Réduire la taille d'un monde dans une sauvegarde existante peut supprimer les vaisseaux situés au-delà des nouvelles limites. Êtes vous sûr de vouloir continuer ? </value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastRadius" xml:space="preserve">
+    <value>Rayon de transmission</value>
+  </data>
+  <data name="BlockPropertyTitle_BroadcastRadius" xml:space="preserve">
+    <value>Rayon de diffusion</value>
+  </data>
+  <data name="Default_Astronaut" xml:space="preserve">
+    <value>Astronaute</value>
+    <comment>Name of the character model in select box of wardrobe</comment>
+  </data>
+  <data name="TerminalTab_Factions_CancelJoin" xml:space="preserve">
+    <value>Annuler rejoindre</value>
+  </data>
+  <data name="TerminalTab_Factions_CancelPeaceRequest" xml:space="preserve">
+    <value>Annuler la requête</value>
+  </data>
+  <data name="TerminalTab_Factions_SentJoinToolTip" xml:space="preserve">
+    <value>Vous postulez pour devenir membre de cette faction.</value>
+  </data>
+  <data name="BlockOwner_Me" xml:space="preserve">
+    <value>Moi</value>
+  </data>
+  <data name="BlockOwner_Nobody" xml:space="preserve">
+    <value>Personne</value>
+  </data>
+  <data name="BlockOwner_Owner" xml:space="preserve">
+    <value>Propriétaire</value>
+  </data>
+  <data name="BlockOwner_ShareAll" xml:space="preserve">
+    <value>Partager à tout le monde</value>
+  </data>
+  <data name="BlockOwner_ShareFaction" xml:space="preserve">
+    <value>Partager avec ma faction</value>
+  </data>
+  <data name="BlockOwner_Transfer" xml:space="preserve">
+    <value>Transférer la propriété</value>
+  </data>
+  <data name="DisplayName_Block_PassengerSeat" xml:space="preserve">
+    <value>Siège passager</value>
+  </data>
+  <data name="Terminal_GroupTitle" xml:space="preserve">
+    <value>Groupe de blocs</value>
+  </data>
+  <data name="TerminalTab_Factions_Members" xml:space="preserve">
+    <value>Membres</value>
+  </data>
+  <data name="WorldSettings_ResetOwnership" xml:space="preserve">
+    <value>Réinitialiser les propriétés</value>
+  </data>
+  <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
+    <value>Réinitialiser les droits de propriété des blocs</value>
+  </data>
+  <data name="BatteryBlock" xml:space="preserve">
+    <value>Batterie</value>
+  </data>
+  <data name="DisplayName_Block_Battery" xml:space="preserve">
+    <value>Batterie</value>
+  </data>
+  <data name="BlockPropertiesText_MaxStoredPower" xml:space="preserve">
+    <value>Énergie maximale stockée :</value>
+  </data>
+  <data name="BlockPropertiesText_StoredPower" xml:space="preserve">
+    <value>Énergie stockée :</value>
+  </data>
+  <data name="ToolTipBatteryBlock" xml:space="preserve">
+    <value>Cocher pour stocker l'énergie, décocher pour libérer l'énergie</value>
+    <comment>checkbox tooltip (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockPropertyTitle_Recharge" xml:space="preserve">
+    <value>Recharger</value>
+    <comment>Recharge checkbox in terminal (eg. on BatteryBlock).</comment>
+  </data>
+  <data name="BlockOwner_ShareNone" xml:space="preserve">
+    <value>Aucun partage</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_half" xml:space="preserve">
+    <value>Diminuer la vitesse de meulage de 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x1" xml:space="preserve">
+    <value>Vitesse de meulage par défaut</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x2" xml:space="preserve">
+    <value>Vitesse de meulage 2x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Grinder_x5" xml:space="preserve">
+    <value>Vitesse de meulage 5x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_half" xml:space="preserve">
+    <value>Diminuer la vitesse de soudage de 50%</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x1" xml:space="preserve">
+    <value>Vitesse de soudage par défaut</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x2" xml:space="preserve">
+    <value>Vitesse de soudage 2x plus rapide</value>
+  </data>
+  <data name="ToolTipWorldSettings_Welder_x5" xml:space="preserve">
+    <value>Vitesse de soudage 5x plus rapide</value>
+  </data>
+  <data name="WorldSettings_Realistic_half" xml:space="preserve">
+    <value>x0,5</value>
+  </data>
+  <data name="WorldSettings_Realistic_x2" xml:space="preserve">
+    <value>x2</value>
+  </data>
+  <data name="WorldSettings_Realistic_x5" xml:space="preserve">
+    <value>x5</value>
+  </data>
+  <data name="WorldSettings_GrinderSpeed" xml:space="preserve">
+    <value>Vitesse de meulage</value>
+  </data>
+  <data name="WorldSettings_WelderSpeed" xml:space="preserve">
+    <value>Vitesse de soudage</value>
+  </data>
+  <data name="ToolTipWorldSettingsSoundMode" xml:space="preserve">
+    <value>Choisir entre les sons réalistes ou les sons arcades</value>
+  </data>
+  <data name="WorldSettings_ArcadeSound" xml:space="preserve">
+    <value>Arcade</value>
+  </data>
+  <data name="WorldSettings_RealisticSound" xml:space="preserve">
+    <value>Réaliste</value>
+  </data>
+  <data name="WorldSettings_SoundMode" xml:space="preserve">
+    <value>Mode Audio</value>
+  </data>
+  <data name="Terminal_ShowOnHUD" xml:space="preserve">
+    <value>Afficher sur l'ATH</value>
+  </data>
+  <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
+    <value>Vous devez avoir une antenne active de connectée.</value>
+  </data>
+  <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
+    <value>Accepter la paix</value>
+  </data>
+  <data name="MessageBoxCaptionRespawn" xml:space="preserve">
+    <value>Vous allez perdre toute propriété et réapparaître en tant que nouveau joueur! 
+Réapparaître ?</value>
+  </data>
+  <data name="RespawnShip" xml:space="preserve">
+    <value>Vaisseau de réapparition</value>
+  </data>
+  <data name="Factions_EnemyFaction" xml:space="preserve">
+    <value>Faction ennemie</value>
+  </data>
+  <data name="Factions_NeutralFaction" xml:space="preserve">
+    <value>Faction neutre</value>
+  </data>
+  <data name="Factions_YourFaction" xml:space="preserve">
+    <value>Votre faction</value>
+  </data>
+  <data name="ToolTipTerminalInventory_ShowInteracted" xml:space="preserve">
+    <value>Voir l'inventaire de l'élément en interaction (ou cadavre)</value>
+  </data>
+  <data name="HideEmpty" xml:space="preserve">
+    <value>Masquer inventaires vides</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_Handbrake" xml:space="preserve">
+    <value>Frein à main</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Damping" xml:space="preserve">
+    <value>Amortissement</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Strength" xml:space="preserve">
+    <value>Force</value>
+  </data>
+  <data name="ScreenTerminal_Infinite" xml:space="preserve">
+    <value>Infini</value>
+  </data>
+  <data name="WorldSettings_ClientCanSave" xml:space="preserve">
+    <value>Les joueurs peuvent sauvegarder</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
+    <value>Si la roue est propulsée.</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Steering" xml:space="preserve">
+    <value>Commande de direction de cette suspension depuis le cockpit.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Propulsion" xml:space="preserve">
+    <value>Propulsion</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
+    <value>Direction</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
+    <value>Régule le frottement des roues en changeant la pression dans le pneu.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Friction" xml:space="preserve">
+    <value>Frottement</value>
+  </data>
+  <data name="DisplayName_Block_Suspension1x1" xml:space="preserve">
+    <value>Suspension de roue 1x1</value>
+  </data>
+  <data name="DisplayName_Block_Suspension3x3" xml:space="preserve">
+    <value>Suspension de roue 3x3</value>
+  </data>
+  <data name="DisplayName_Block_Suspension5x5" xml:space="preserve">
+    <value>Suspension de roue 5x5</value>
+  </data>
+  <data name="NotificationWheelNotPlaced" xml:space="preserve">
+    <value>La roue n'a pas pu être placée.</value>
+  </data>
+  <data name="Factions_YourBlock" xml:space="preserve">
+    <value>Votre bloc (aucune faction)</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Power" xml:space="preserve">
+    <value>Puissance fournie à la propulsion</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
+    <value>Puissance</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
+  <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
+    <value>Fenêtre centrée</value>
+  </data>
+  <data name="ControlDescBrake" xml:space="preserve">
+    <value>Frein</value>
+  </data>
+  <data name="ControlDescLoot" xml:space="preserve">
+    <value>Piller le cadavre</value>
+  </data>
+  <data name="NotificationObstructingBlockDuringMerge" xml:space="preserve">
+    <value>Vous ne pouvez pas fusionner ces vaisseaux ! Certains blocs occuperont le même espace après la fusion !</value>
+  </data>
+  <data name="ToolTipWorldSettingsPermanentDeath" xml:space="preserve">
+    <value>Si activé, le joueur perdra tout s'il meure et n'a pas de salle médicale disponible.</value>
+  </data>
+  <data name="WorldSettings_PermanentDeath" xml:space="preserve">
+    <value>Mort permanente</value>
+  </data>
+  <data name="DisplayName_Item_PowerCell" xml:space="preserve">
+    <value>Cellule d'Énergie</value>
+  </data>
+  <data name="BlockPropertiesText_DepletedIn" xml:space="preserve">
+    <value>Entièrement déchargée dans :</value>
+  </data>
+  <data name="BlockPropertiesText_RechargedIn" xml:space="preserve">
+    <value>Entièrement rechargé dans:</value>
+  </data>
+  <data name="BlockPropertyButtonOff_Retract" xml:space="preserve">
+    <value>Réduire</value>
+  </data>
+  <data name="BlockPropertyButtonOn_Expand" xml:space="preserve">
+    <value>Agrandir</value>
+  </data>
+  <data name="BlockPropertyTitle_Force" xml:space="preserve">
+    <value>Force</value>
+  </data>
+  <data name="BlockPropertyTitle_MaximalDistance" xml:space="preserve">
+    <value>Distance maximale</value>
+  </data>
+  <data name="BlockPropertyTitle_MinimalDistance" xml:space="preserve">
+    <value>Distance minimale</value>
+  </data>
+  <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
+    <value>Vitesse</value>
+  </data>
+  <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
+    <value>Nombre de batteries utilisée :</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAccept" xml:space="preserve">
+    <value>Accepter tout le monde</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptToolTip" xml:space="preserve">
+    <value>Accepter automatiquement les demandes pour devenir membre</value>
+  </data>
+  <data name="BlockPropertyTitle_Semiauto" xml:space="preserve">
+    <value>Semi-automatique</value>
+  </data>
+  <data name="ToolTipBatteryBlock_Semiauto" xml:space="preserve">
+    <value>Enclenche la recharge lorsque la puissance stockée est à 0, enclenche la décharge lorsque la puissance stockée maximale est atteinte.</value>
+  </data>
+  <data name="BlockAction_Toggle" xml:space="preserve">
+    <value>(dés)activer le bloc</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequest" xml:space="preserve">
+    <value>Accepter la paix</value>
+  </data>
+  <data name="TerminalTab_Factions_AutoAcceptRequestToolTip" xml:space="preserve">
+    <value>Accepter automatiquement les demandes de paix</value>
+  </data>
+  <data name="BlockPropertyDescription_MotorRotorDisplacement" xml:space="preserve">
+    <value>Permet de déplacer le rotor du moteur vers le haut ou le bas pour résoudre les problèmes d'alignement</value>
+  </data>
+  <data name="BlockPropertyTitle_MotorRotorDisplacement" xml:space="preserve">
+    <value>Déplacement du rotor</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
+    <value>Porte blindée</value>
+  </data>
+  <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
+    <value>Coin de porte blindée</value>
+  </data>
+  <data name="DisplayName_Block_ArmorSide" xml:space="preserve">
+    <value>Bord de porte blindée</value>
+  </data>
+  <data name="BlockAction_RemoveFromToolbar" xml:space="preserve">
+    <value>[retirer de la barre d'outil]</value>
+  </data>
+  <data name="DisplayName_Block_PistonBase" xml:space="preserve">
+    <value>Piston</value>
+  </data>
+  <data name="ToolbarAction_Decrease" xml:space="preserve">
+    <value>Diminuer</value>
+  </data>
+  <data name="ToolbarAction_Increase" xml:space="preserve">
+    <value>Augmenter</value>
+  </data>
+  <data name="ToolbarAction_Reset" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustOverride" xml:space="preserve">
+    <value>La propulsion continue du propulseur causera son activation sans cockpit</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
+    <value>Propulsion continue</value>
+  </data>
+  <data name="BlockAction_Switch" xml:space="preserve">
+    <value>Commutateur</value>
+  </data>
+  <data name="BlockAction_DoorClosed" xml:space="preserve">
+    <value>Fermé</value>
+  </data>
+  <data name="BlockAction_DoorOpen" xml:space="preserve">
+    <value>Ouvert</value>
+  </data>
+  <data name="DisplayName_Block_PistonTop" xml:space="preserve">
+    <value>Tête de piston</value>
+  </data>
+  <data name="DisplayName_Block_RotorPart" xml:space="preserve">
+    <value>Rotor</value>
+  </data>
+  <data name="DisplayName_Block_ArmorInvCorner" xml:space="preserve">
+    <value>Coin inversé de porte blindée</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroOverride" xml:space="preserve">
+    <value>Si activé, le gyroscope de répondra pas au contrôle du cockpit, mais pourra être contrôlé manuellement par le curseur du terminal de contrôle</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroOverride" xml:space="preserve">
+    <value>Prise de contrôle directe</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroPitchOverride" xml:space="preserve">
+    <value>Couple de tangage constamment appliqué au gyroscope si les contrôles du cockpit sont désactivés</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroRollOverride" xml:space="preserve">
+    <value>Couple de roulis constamment appliqué au gyroscope si les contrôles du cockpit sont désactivés</value>
+  </data>
+  <data name="BlockPropertyDescription_GyroYawOverride" xml:space="preserve">
+    <value>Couple de lacet constamment appliqué au gyroscope si les contrôles du cockpit sont désactivés</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroPitchOverride" xml:space="preserve">
+    <value>Tangage constant</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroRollOverride" xml:space="preserve">
+    <value>Roulis constant</value>
+  </data>
+  <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
+    <value>Lacet constant</value>
+  </data>
+  <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
+    <value>Position actuelle:</value>
+  </data>
+  <data name="HudEnergyGroupBatteries" xml:space="preserve">
+    <value>Batteries</value>
+  </data>
+  <data name="BlockActionTitle_SwitchLock" xml:space="preserve">
+    <value>Verrouillé</value>
+  </data>
+  <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
+    <value>Afficher les noms des vaisseaux</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowShipName" xml:space="preserve">
+    <value>Afficher le nom des vaisseaux</value>
+  </data>
+  <data name="BroadcastStatus_Connected" xml:space="preserve">
+    <value>Accès à distance</value>
+  </data>
+  <data name="BroadcastStatus_OutOfBroadcastingRange" xml:space="preserve">
+    <value>Hors de portée d'émission</value>
+  </data>
+  <data name="BroadcastStatus_OutOfReceivingRange" xml:space="preserve">
+    <value>Hors de portée de réception</value>
+  </data>
+  <data name="ScreenTerminalError_ShipHasBeenDisconnected" xml:space="preserve">
+    <value>Le vaisseau a été déconnecté du terminal</value>
+  </data>
+  <data name="CustomShipName_LargeShip" xml:space="preserve">
+    <value>Grand Vaisseau</value>
+  </data>
+  <data name="CustomShipName_SmallShip" xml:space="preserve">
+    <value>Petit vaisseau</value>
+  </data>
+  <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
+    <value>Accès direct</value>
+  </data>
+  <data name="BlockOwner_Unknown" xml:space="preserve">
+    <value>Inconnu</value>
+  </data>
+  <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
+    <value>Appuyer sur {0} pour configurer le tableau de commandes</value>
+  </data>
+  <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
+    <value>Rayon du champ de gravité</value>
+  </data>
+  <data name="BlockPropertyTitle_GravityFieldRadius" xml:space="preserve">
+    <value>Rayon</value>
+  </data>
+  <data name="DisplayName_Block_GravityGeneratorSphere" xml:space="preserve">
+    <value>Générateur de Gravité Sphérique</value>
+  </data>
+  <data name="BroadcastStatus_Me" xml:space="preserve">
+    <value>Moi</value>
+  </data>
+  <data name="ScreenTerminal_ShipList" xml:space="preserve">
+    <value>Vaisseaux accessibles</value>
+  </data>
+  <data name="CustomShipName_Platform" xml:space="preserve">
+    <value>Plateforme</value>
+  </data>
+  <data name="HudInfoNameBroadcastRange" xml:space="preserve">
+    <value>Radio :</value>
+  </data>
+  <data name="BlockPropertyText_AnyoneCanUse" xml:space="preserve">
+    <value>Tout le monde peut l'utiliser</value>
+  </data>
+  <data name="BlockPropertyDescription_AnyoneCanUse" xml:space="preserve">
+    <value>Si désactivé, vérifie si le joueur qui appuie sur le bouton a accès au bloc.</value>
+  </data>
+  <data name="DefinitionError_BlockWithComputerNotTerminalBlock" xml:space="preserve">
+    <value>La définition de {0} contient un ordinateur, mais le TypeId du bloc n'est pas celui d'un terminal. Cela signifie que ce bloc peut être possédé, mais que le propriétaire ne peut pas être changé via le terminal.
+Astuce : Essayez de régler le TypeId sur n'importe quel bloc qui est dans le terminal - l'exemple le plus simple est celui de TerminalBlock</value>
+  </data>
+  <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
+    <value>Tableau de commandes</value>
+  </data>
+  <data name="SpawnInSpaceSuit" xml:space="preserve">
+    <value>Combinaison spatiale</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
+    <value>Composants</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_LargeBlocks" xml:space="preserve">
+    <value>Grands Blocs</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
+    <value>Petits Blocs</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Outils</value>
+  </data>
+  <data name="BlockActionTitle_View" xml:space="preserve">
+    <value>Voir</value>
+  </data>
+  <data name="DisplayName_Block_Camera" xml:space="preserve">
+    <value>Caméra</value>
+  </data>
+  <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
+    <value>Erreur lors du chargement du contenu original du jeu, impossible de charger le fichier : {0}.
+Le contenu original a probablement subi des modifications, annulez-les puis réessayez ; le meilleur moyen est de supprimer les données du dossier d'installation 'SpaceEngineers\Content\Data' puis de sélectionner 'Vérifier le contenu local du jeu' via l'interface Steam.
+Réinstaller le jeu ne suffit pas, car Steam ne peut supprimer les fichiers qui lui sont inconnus.</value>
+  </data>
+  <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
+    <value>Transmission via les antennes</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
+    <value>N'importe quel objet accepté par {0}</value>
+  </data>
+  <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
+    <value>N'importe quel objet produit par {0}</value>
+  </data>
+  <data name="WorkshopTag_Production" xml:space="preserve">
+    <value>Production</value>
+  </data>
+  <data name="WorkshopTag_RespawnShip" xml:space="preserve">
+    <value>Vaisseau de Réapparition</value>
+  </data>
+  <data name="NotificationHintPressToExitCamera" xml:space="preserve">
+    <value>Appuyer sur {0} pour sortir de la vue caméra</value>
+  </data>
+  <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
+    <value>Four à arc</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Caption" xml:space="preserve">
+    <value>Menu de Réapparition</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnAsteroid" xml:space="preserve">
+    <value>Générer Astéroïde</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMax" xml:space="preserve">
+    <value>Étendue arrière</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldDepthMin" xml:space="preserve">
+    <value>Étendue avant</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMax" xml:space="preserve">
+    <value>Étendue supérieure</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldHeightMin" xml:space="preserve">
+    <value>Étendue inférieure</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMax" xml:space="preserve">
+    <value>Étendue droite</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorFieldWidthMin" xml:space="preserve">
+    <value>Étendue gauche</value>
+  </data>
+  <data name="DisplayName_Block_Sensor" xml:space="preserve">
+    <value>Capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkInterval" xml:space="preserve">
+    <value>Intervalle de clignotement de la lumière (en secondes)</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkLenght" xml:space="preserve">
+    <value>Longueur du clignotement en pourcentage de l'intervalle de clignotement</value>
+  </data>
+  <data name="BlockPropertyDescription_LightBlinkOffset" xml:space="preserve">
+    <value>Écart entre les clignotements en pourcentage de l'intervalle de clignotement</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkInterval" xml:space="preserve">
+    <value>Intervalle de clignotement</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkLenght" xml:space="preserve">
+    <value>Longueur du clignotement</value>
+  </data>
+  <data name="BlockPropertyTitle_LightBlinkOffset" xml:space="preserve">
+    <value>Écart entre deux clignotements</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_DetonationTime" xml:space="preserve">
+    <value>Temps avant détonation</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StartCountdown" xml:space="preserve">
+    <value>Démarrer le compte à rebours</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_StopCountdown" xml:space="preserve">
+    <value>Arrêter le compte à rebours</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Safety" xml:space="preserve">
+    <value>Sécurité</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_Detonate" xml:space="preserve">
+    <value>Faire détoner</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextArmed" xml:space="preserve">
+    <value>Armée</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SwitchTextDisarmed" xml:space="preserve">
+    <value>Désarmée</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorToolbarOpen" xml:space="preserve">
+    <value>Ouvrir la barre d'outil</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorToolbarOpen" xml:space="preserve">
+    <value>Gérer les actions</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFloatingObjects" xml:space="preserve">
+    <value>Détecter les objets flottants</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectLargeShips" xml:space="preserve">
+    <value>Détecte grands vaisseaux</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectPlayers" xml:space="preserve">
+    <value>Détecte joueurs</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectSmallShips" xml:space="preserve">
+    <value>Détecte petits vaisseaux</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBack" xml:space="preserve">
+    <value>Jusqu'où le champ de détection s'étend à l'arrière de la position du capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldBottom" xml:space="preserve">
+    <value>Taille du champ de detection sous le capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldFront" xml:space="preserve">
+    <value>Jusqu'où le champ de détection s'étend devant le capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldLeft" xml:space="preserve">
+    <value>Taille du champ de détection a la gauche du capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldRight" xml:space="preserve">
+    <value>Taille du champ de détection à la droite du capteur</value>
+  </data>
+  <data name="BlockPropertyDescription_SensorFieldTop" xml:space="preserve">
+    <value>Taille du champ de détection au dessus du capteur</value>
+  </data>
+  <data name="TerminalControlPanel_Warhead_SafetyTooltip" xml:space="preserve">
+    <value>Si désactivé, l'ogive peut être détonnée manuellement. Cela n'affecte pas la détonation automatique à la fin du compte à rebours.</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
+    <value>Détecter les stations</value>
+  </data>
+  <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
+    <value>Afficher le champ de gravité</value>
+  </data>
+  <data name="TerminalTab_Info_ShowSenzorGizmo" xml:space="preserve">
+    <value>Montrer le champ de détection des capteurs</value>
+  </data>
+  <data name="ControlRemote" xml:space="preserve">
+    <value>Contrôle</value>
+  </data>
+  <data name="DisplayName_Block_RemoteControl" xml:space="preserve">
+    <value>Contrôle à Distance</value>
+  </data>
+  <data name="DisplayName_Block_TimerBlock" xml:space="preserve">
+    <value>Bloc Minuteur</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToolbarOpen" xml:space="preserve">
+    <value>Paramétrer les actions</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerTrigger" xml:space="preserve">
+    <value>Déclencher maintenant</value>
+  </data>
+  <data name="TerminalControlPanel_TimerDelay" xml:space="preserve">
+    <value>Délai</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStart" xml:space="preserve">
+    <value>Démarrer</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerStop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
+    <value>Temps avant déclenchement :</value>
+  </data>
+  <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
+    <value>Lance-roquettes Rechargeable</value>
+  </data>
+  <data name="DisplayName_Category_AllBlocks" xml:space="preserve">
+    <value>Tous les blocs</value>
+  </data>
+  <data name="DisplayName_Category_ShipGroups" xml:space="preserve">
+    <value>Groupes</value>
+  </data>
+  <data name="DisplayName_Category_ArmorBlocks" xml:space="preserve">
+    <value>Blocs de blindage</value>
+  </data>
+  <data name="DisplayName_Category_CharacterAnimations" xml:space="preserve">
+    <value>Animations de personnage</value>
+  </data>
+  <data name="DisplayName_Category_CharacterTools" xml:space="preserve">
+    <value>Outils de personnage</value>
+  </data>
+  <data name="DisplayName_Category_ConveyorBlocks" xml:space="preserve">
+    <value>Blocs de Transport</value>
+  </data>
+  <data name="DisplayName_Category_ShipLights" xml:space="preserve">
+    <value>Lumières</value>
+  </data>
+  <data name="DisplayName_Category_ShipThrusters" xml:space="preserve">
+    <value>Propulseurs</value>
+  </data>
+  <data name="DisplayName_Category_ShipWeaponsTools" xml:space="preserve">
+    <value>Armes et Outils</value>
+  </data>
+  <data name="DisplayName_Category_WindowBlocks" xml:space="preserve">
+    <value>Blocs Fenêtres</value>
+  </data>
+  <data name="DisplayName_Category_LargeBlocks" xml:space="preserve">
+    <value>Grands Blocs</value>
+  </data>
+  <data name="DisplayName_Category_SmallBlocks" xml:space="preserve">
+    <value>Petits Blocs</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Assembler" xml:space="preserve">
+    <value>Vaisseau de réapparition 2</value>
+  </data>
+  <data name="DisplayName_RespawnShip_EscapePod" xml:space="preserve">
+    <value>Nacelle de Secours</value>
+  </data>
+  <data name="DisplayName_RespawnShip_RefineryAssembler" xml:space="preserve">
+    <value>Vaisseau de réapparition 3</value>
+  </data>
+  <data name="DisplayName_RespawnShip_ShipDrill" xml:space="preserve">
+    <value>Petit vaisseau de forage</value>
+  </data>
+  <data name="DisplayName_RespawnShip_Yellow" xml:space="preserve">
+    <value>Vaisseau de réapparition</value>
+  </data>
+  <data name="ScreenMedicals_OwnerTimeoutColumn" xml:space="preserve">
+    <value>Propriétaire / Pause</value>
+  </data>
+  <data name="ScreenMedicals_RespawnWhenShipReady" xml:space="preserve">
+    <value>Réapparition dans "{0}" quand il sera prêt.</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipReady" xml:space="preserve">
+    <value>Prêt</value>
+  </data>
+  <data name="ScreenMedicals_RespawnShipNotReady" xml:space="preserve">
+    <value>Pas prêt</value>
+  </data>
+  <data name="TerminalTab_Info_ShowAntenaGizmo" xml:space="preserve">
+    <value>Afficher la portée d'antenne</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountNone" xml:space="preserve">
+    <value>Aucun</value>
+  </data>
+  <data name="WorldSettings_RespawnShipCooldown" xml:space="preserve">
+    <value>Délai de réapparition</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_Default" xml:space="preserve">
+    <value>Délais par défaut</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x01" xml:space="preserve">
+    <value>Défaut / 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x02" xml:space="preserve">
+    <value>Défaut / 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x05" xml:space="preserve">
+    <value>Défaut / 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x10" xml:space="preserve">
+    <value>Défaut x 10</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x100" xml:space="preserve">
+    <value>Défaut x 100</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x2" xml:space="preserve">
+    <value>Défaut x 2</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x20" xml:space="preserve">
+    <value>Défaut x 20</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x5" xml:space="preserve">
+    <value>Défaut x 5</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
+    <value>Défaut x 50</value>
+  </data>
+  <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
+    <value>Délais désactivés</value>
+  </data>
+  <data name="DisplayName_Block_FighterCockpit" xml:space="preserve">
+    <value>Cockpit de chasseur</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectAsteroids" xml:space="preserve">
+    <value>Détection d'astéroïde</value>
+  </data>
+  <data name="DisplayName_Category_Cockpit" xml:space="preserve">
+    <value>Blocs Cockpit</value>
+  </data>
+  <data name="DisplayName_Category_Power" xml:space="preserve">
+    <value>Bloc d'énergie</value>
+  </data>
+  <data name="DisplayName_Category_Production" xml:space="preserve">
+    <value>Bloc de production</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemAmount" xml:space="preserve">
+    <value>Quantité</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ItemType" xml:space="preserve">
+    <value>Type d'objet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
+    <value>Générer Objet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
+    <value>Astéroïde</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
+    <value>Objets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
+    <value>Astéroïde</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidAddRandomMaterials" xml:space="preserve">
+    <value>Ajouter Matériaux Aléatoires</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidCoreMaterial" xml:space="preserve">
+    <value>Matériau du Noyau</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidSurfaceMaterial" xml:space="preserve">
+    <value>Matériau de Surface</value>
+  </data>
+  <data name="Assembler_SlaveMode" xml:space="preserve">
+    <value>Mode coopérative</value>
+  </data>
+  <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
+    <value>Assembleur de munitions</value>
+  </data>
+  <data name="DisplayName_Block_Base_Components_Assembler" xml:space="preserve">
+    <value>Assembleur de composants de base</value>
+  </data>
+  <data name="DisplayName_Block_Big_Arc_Furnace" xml:space="preserve">
+    <value>Grand fourneau à arc</value>
+  </data>
+  <data name="DisplayName_Block_Big_Gas_Centrifugal_Refinery" xml:space="preserve">
+    <value>Grande raffinerie centrifuge de gaz</value>
+  </data>
+  <data name="DisplayName_Block_Big_Precious_Furnace" xml:space="preserve">
+    <value>Grand fourneau de métaux nobles</value>
+  </data>
+  <data name="DisplayName_Block_Big_Solids_Refinery" xml:space="preserve">
+    <value>Grande raffinerie de solides</value>
+  </data>
+  <data name="DisplayName_Block_Construction_Components_Assembler" xml:space="preserve">
+    <value>Assembleur de Composants de Construction</value>
+  </data>
+  <data name="DisplayName_Block_Electronics_Assembler" xml:space="preserve">
+    <value>Assembleur électronique</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ammo" xml:space="preserve">
+    <value>Munition</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Base_Components" xml:space="preserve">
+    <value>Composants de base</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_CommonMetals" xml:space="preserve">
+    <value>Métaux communs</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Construction_Components" xml:space="preserve">
+    <value>Composants de construction</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Electronics" xml:space="preserve">
+    <value>Électronique</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_EnergeticIngots" xml:space="preserve">
+    <value>Lingots énergiques</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ingots" xml:space="preserve">
+    <value>Lingots</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_PreciousMetals" xml:space="preserve">
+    <value>Métal noble</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Solids" xml:space="preserve">
+    <value>Solides</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToRemoveAsteroid" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cet astéroïde ? (ne peut pas être annulé)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_AsteroidGenerationCanTakeLong" xml:space="preserve">
+    <value>Générer des astéroïdes peu prendre du temps !</value>
+  </data>
+  <data name="Antenna_EnableBroadcast" xml:space="preserve">
+    <value>Activer la diffusion radio</value>
+  </data>
+  <data name="ControlName_Broadcasting" xml:space="preserve">
+    <value>Diffusion radio on / off</value>
+  </data>
+  <data name="LargeMissileTurretReloadingNotification" xml:space="preserve">
+    <value>Recharger</value>
+  </data>
+  <data name="HudInfoBroadcasting" xml:space="preserve">
+    <value>Diffusion radio</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOff" xml:space="preserve">
+    <value>Diffusion radio Off</value>
+  </data>
+  <data name="NotificationCharacterBroadcastingOn" xml:space="preserve">
+    <value>Diffusion radio On</value>
+  </data>
+  <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
+    <value>Impossible de placer des astéroïdes par-dessus des vaisseaux ou des joueurs</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
+    <value>Rotor avancé</value>
+  </data>
+  <data name="DisplayName_Block_AdvancedRotorPart" xml:space="preserve">
+    <value>Morceau de rotor avancé</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
+    <value>Montant invalide</value>
+  </data>
+  <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
+    <value>Activer ou désactiver le mode coopératif</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PredefinedAsteroids" xml:space="preserve">
+    <value>Astéroïdes prédéfinis</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralAsteroids" xml:space="preserve">
+    <value>Astéroïdes procéduraux</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSeed" xml:space="preserve">
+    <value>Graine (différentes graines et rayons produisent différents astéroïdes)</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
+    <value>Taille des astéroïdes</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
+    <value>Sélectionnez un type d'astéroïde</value>
+  </data>
+  <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
+    <value>N'importe quel chargeur de munition accepté par {0}</value>
+  </data>
+  <data name="BlockActionTitle_Detach" xml:space="preserve">
+    <value>Détacher</value>
+  </data>
+  <data name="BlockActionTitle_Attach" xml:space="preserve">
+    <value>Attacher</value>
+  </data>
+  <data name="Notification_NoControl" xml:space="preserve">
+    <value>Quelqu'un d'autre utilise ce vaisseau !</value>
+  </data>
+  <data name="Notification_NoControlStation" xml:space="preserve">
+    <value>Quelqu'un d'autre utilise cette station !</value>
+  </data>
+  <data name="MissileLauncherReloadingNotification" xml:space="preserve">
+    <value>Rechargement</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetX" xml:space="preserve">
+    <value>Compensation horizontale</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetY" xml:space="preserve">
+    <value>Compensation verticale</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionOffsetZ" xml:space="preserve">
+    <value>Compensation avant</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationX" xml:space="preserve">
+    <value>Tangage</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationY" xml:space="preserve">
+    <value>Rotation sur Y</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionRotationZ" xml:space="preserve">
+    <value>Rotation sur Z</value>
+  </data>
+  <data name="DisplayName_Block_Projector" xml:space="preserve">
+    <value>Projecteur</value>
+  </data>
+  <data name="NotificationProjectorGridSize" xml:space="preserve">
+    <value>Taille de la grille incorrecte. La taille du plan doit correspondre à celle du projecteur.</value>
+  </data>
+  <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
+    <value>Les grilles multiples ne sont pas supportés. Seule la grille la plus large sera utilisé.</value>
+  </data>
+  <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
+    <value>Afficher la rotation de la grille</value>
+  </data>
+  <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
+    <value>Bien</value>
+  </data>
+  <data name="DisplayName_Animation_Victory" xml:space="preserve">
+    <value>Voictoire</value>
+  </data>
+  <data name="DisplayName_Block_ControlPanel" xml:space="preserve">
+    <value>Panneau de contrôle</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkCorner" xml:space="preserve">
+    <value>Coin de passerelle en acier</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkPlate" xml:space="preserve">
+    <value>Plaque de passerelle en acier</value>
+  </data>
+  <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
+    <value>Passerelle en acier à double voie</value>
+  </data>
+  <data name="KeepProjectionToggle" xml:space="preserve">
+    <value>Conserver la Projection</value>
+  </data>
+  <data name="KeepProjectionTooltip" xml:space="preserve">
+    <value>Conserver la projection quand la construction est terminée. Pratique pour une construction automatisé, mais peut réduire les performances.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="RemoveProjectionButton" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DisplayName_Block_SpaceBall" xml:space="preserve">
+    <value>Balle spatiale</value>
+  </data>
+  <data name="DisplayName_Category_VoxelHands" xml:space="preserve">
+    <value>Curseur Voxel</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallFriction" xml:space="preserve">
+    <value>Friction</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallVirtualMass" xml:space="preserve">
+    <value>Masse virtuelle</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockRange" xml:space="preserve">
+    <value>Portée des sons joués</value>
+  </data>
+  <data name="BlockPropertyDescription_SoundBlockVolume" xml:space="preserve">
+    <value>Volume des sons joués</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockRange" xml:space="preserve">
+    <value>Portée</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="DisplayName_Block_SoundBlock" xml:space="preserve">
+    <value>Bloc Sonore</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Box" xml:space="preserve">
+    <value>Boîte</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
+    <value>Sphère</value>
+  </data>
+  <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
+    <value>Quand définie, la zone de jeu est limitée à un cube avec une longueur de côté de la taille choisie. 
+Tous les objets qui quittent la zone de jeu seront retirés de la partie.
+Les joueurs quittant la zone de jeu seront tués.</value>
+  </data>
+  <data name="WorldSettings_WorldSize100Km" xml:space="preserve">
+    <value>100 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize10Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize20Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_WorldSize50Km" xml:space="preserve">
+    <value>50 km</value>
+  </data>
+  <data name="WorldSettings_WorldSizeUnlimited" xml:space="preserve">
+    <value>Illimité</value>
+  </data>
+  <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
+    <value>Temps de répétition</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockPlay" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockSoundList" xml:space="preserve">
+    <value>Liste des sons</value>
+  </data>
+  <data name="BlockPropertyTitle_SoundBlockStop" xml:space="preserve">
+    <value>Arrêter</value>
+  </data>
+  <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
+    <value>Chrono de la répétition : </value>
+  </data>
+  <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
+    <value>Niveau de terrain auto</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
+    <value>Capsule</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
+    <value>Alerte 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert2" xml:space="preserve">
+    <value>Alerte 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_Alert3" xml:space="preserve">
+    <value>Alerte 3</value>
+  </data>
+  <data name="SoundBlock_SoundName_EnemyDetected" xml:space="preserve">
+    <value>Ennemi détecté</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOff" xml:space="preserve">
+    <value>Lumières éteintes</value>
+  </data>
+  <data name="SoundBlock_SoundName_LightsOn" xml:space="preserve">
+    <value>Lumières allumées</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music1" xml:space="preserve">
+    <value>Musique 1</value>
+  </data>
+  <data name="SoundBlock_SoundName_Music2" xml:space="preserve">
+    <value>Musique 2</value>
+  </data>
+  <data name="SoundBlock_SoundName_ObjectiveComplete" xml:space="preserve">
+    <value>Objectif accompli</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode" xml:space="preserve">
+    <value>Exécuter</value>
+  </data>
+  <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
+    <value>Rampe</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
+    <value>Infini : haute densité</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralLow" xml:space="preserve">
+    <value>Infini : basse densité</value>
+  </data>
+  <data name="WorldSettings_AsteroidAmountProceduralNormal" xml:space="preserve">
+    <value>Infini : densité normale</value>
+  </data>
+  <data name="ToolTipWorldSettingsDestructibleBlocks" xml:space="preserve">
+    <value>Activer / Désactiver la destruction des blocs</value>
+  </data>
+  <data name="WorldSettings_DestructibleBlocks" xml:space="preserve">
+    <value>Blocs destructibles</value>
+  </data>
+  <data name="WorkshopTag_Exploration" xml:space="preserve">
+    <value>Exploration</value>
+  </data>
+  <data name="DisplayName_Programmable_Block" xml:space="preserve">
+    <value>Bloc programmable</value>
+  </data>
+  <data name="ProgrammableBlock_CodeChanged" xml:space="preserve">
+    <value>Code modifié</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit" xml:space="preserve">
+    <value>Enregistrer &amp; Quitter</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_Title" xml:space="preserve">
+    <value>Éditeur de code</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_AllreadyRunning" xml:space="preserve">
+    <value>Programme déjà en cours d'exécution.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_ExceptionCaught" xml:space="preserve">
+    <value>Exception levée pendant l’exécution du script :</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoAssembly" xml:space="preserve">
+    <value>Assemblage introuvable. Veuillez compiler le script.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoMain" xml:space="preserve">
+    <value>Méthode Main() introuvable. Veuillez ajouter la méthode au script.</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_TooComplex" xml:space="preserve">
+    <value>Script arrêté car trop complexe. Veuillez le modifier et recompiler.</value>
+  </data>
+  <data name="ProgrammableBlock_SaveChanges" xml:space="preserve">
+    <value>Voulez-vous enregistrer les changements ?</value>
+  </data>
+  <data name="TerminalControlPanel_EditCode_Tooltip" xml:space="preserve">
+    <value>Ouvre l'éditeur de code où vous pouvez créer de nouveaux scripts et les télécharger depuis ou vers le "Steam Workshop"</value>
+  </data>
+  <data name="TerminalControlPanel_RunCode_Tooltip" xml:space="preserve">
+    <value>Exécute le script actuel et signale toute exception pendant l’exécution.</value>
+  </data>
+  <data name="ProgrammableBlock_CodeEditor_SaveExit_Tooltip" xml:space="preserve">
+    <value>Enregistre le code dans l'éditeur et retourne au terminal.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
+    <value>Ouvre le workshop pour soumettre vos scripts ou vous abonner aux scripts d'autres auteurs.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
+    <value>Vérifier le code</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CheckCode_Tooltip" xml:space="preserve">
+    <value>Cherche les erreurs de code dans l'éditeur.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailed" xml:space="preserve">
+    <value>Échec de la compilation.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorFormat" xml:space="preserve">
+    <value>Ligne {0} : {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationFailedErrorList" xml:space="preserve">
+    <value>Liste des erreurs</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationOk" xml:space="preserve">
+    <value>Compilation réussie.</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_LineNo" xml:space="preserve">
+    <value>Ligne : {0} / {1}</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode" xml:space="preserve">
+    <value>Enregistrer code</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_RememberCode_Tooltip" xml:space="preserve">
+    <value>Enregistre le script actuel et laisse la fenêtre de l'éditeur ouverte.</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonCreateFromEditor" xml:space="preserve">
+    <value>Créer depuis l'éditeur</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonDetails" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRefreshScripts" xml:space="preserve">
+    <value>Actualiser les scrips</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonRename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="ProgrammableBlock_ButtonReplaceFromEditor" xml:space="preserve">
+    <value>Remplacer depuis l'éditeur</value>
+  </data>
+  <data name="ProgrammableBlock_NewScriptName" xml:space="preserve">
+    <value>Nouveau nom</value>
+  </data>
+  <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
+    <value>Voulez-vous publier ce script ?</value>
+  </data>
+  <data name="ProgrammableBlock_PublishScriptPublished" xml:space="preserve">
+    <value>Script publié.</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptDialogText" xml:space="preserve">
+    <value>Voulez-vous vraiment remplacer le script existant par celui de l'éditeur ?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogText" xml:space="preserve">
+    <value>Il existe déjà un script nommé {0}. Voulez-vous le remplacer ?</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameDialogTitle" xml:space="preserve">
+    <value>Remplacer</value>
+  </data>
+  <data name="ProgrammableBlock_ReplaceScriptNameUsed" xml:space="preserve">
+    <value>Impossible de renommer le script car il est utilisé par un autre processus.</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptNotFound" xml:space="preserve">
+    <value>Impossible de trouver le fichier du script.</value>
+  </data>
+  <data name="ProgrammableBlock_ScriptsScreenTitle" xml:space="preserve">
+    <value>Écran des scripts</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_Help" xml:space="preserve">
+    <value>Aide</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_HelpTooltip" xml:space="preserve">
+    <value>Ouvre la page du workshop qui concerne la programmation en jeu.</value>
+  </data>
+  <data name="ProgrammableBlock_DeleteScriptDialogText" xml:space="preserve">
+    <value>Voulez-vous vraiment supprimer ce script ?</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NotAllowed" xml:space="preserve">
+    <value>Les scripts in-game sont désactivés pour ce monde.</value>
+  </data>
+  <data name="WorldSettings_EnableIngameScripts" xml:space="preserve">
+    <value>Scripts in-game</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectEnemy" xml:space="preserve">
+    <value>Détection d'ennemis</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectFriendly" xml:space="preserve">
+    <value>Détecter alliés</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectOwner" xml:space="preserve">
+    <value>Détecter propriétaire</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorDetectNeutral" xml:space="preserve">
+    <value>Détecter neutres</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
+    <value>La propriété du bloc de programmation a changé. Veuillez recompiler le programme.</value>
+  </data>
+  <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
+    <value>-Transmission-</value>
+  </data>
+  <data name="TerminalTab_Chat" xml:space="preserve">
+    <value>Communications</value>
+  </data>
+  <data name="WorldSettings_ViewDistance" xml:space="preserve">
+    <value>Distance d'affichage</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_10_Km" xml:space="preserve">
+    <value>10 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_15_Km" xml:space="preserve">
+    <value>15 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_20_Km" xml:space="preserve">
+    <value>20 km</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_30_Km" xml:space="preserve">
+    <value>30 km - légère baisse de perf.</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_40_Km" xml:space="preserve">
+    <value>40 km - baisse de performances</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_50_Km" xml:space="preserve">
+    <value>50 km - grande baisse de perf.</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_5_Km" xml:space="preserve">
+    <value>5 km - machines bas de gamme</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_7_Km" xml:space="preserve">
+    <value>7 km - meilleures performances</value>
+  </data>
+  <data name="WorldSettings_ViewDistance_Custom" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="ToolTipWorldSettingsViewDistance" xml:space="preserve">
+    <value>Une plus grande distance d'affichage peut entrainer des problèmes de performance selon le nombre d'objets présents dans le monde.
+Une plus grande distance d'affichage n'est pas recommandée pour les mondes à forte densité d'astéroïdes.</value>
+  </data>
+  <data name="BlockPropertyDescription_SpaceBallRestitution" xml:space="preserve">
+    <value>Restitution</value>
+  </data>
+  <data name="TooltipScreenMods_Category_All" xml:space="preserve">
+    <value>Tout</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Block" xml:space="preserve">
+    <value>Bloc</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Character" xml:space="preserve">
+    <value>Personnage</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Modpack" xml:space="preserve">
+    <value>Pack de mods</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Other" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Production" xml:space="preserve">
+    <value>Production</value>
+  </data>
+  <data name="TooltipScreenMods_Category_RespawnShip" xml:space="preserve">
+    <value>Vaisseau de réapparition</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
+    <value>Ciel artificiel</value>
+  </data>
+  <data name="TerminalTab_GPS_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="TerminalTab_GPS_Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
+    <value>Afficher sur l'ATH</value>
+  </data>
+  <data name="TerminalTab_GPS_X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="TerminalTab_GPS_Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="TerminalTab_GPS_Z" xml:space="preserve">
+    <value>Z</value>
+  </data>
+  <data name="TerminalTab_GPS" xml:space="preserve">
+    <value>GPS</value>
+  </data>
+  <data name="TerminalTab_GPS_Add" xml:space="preserve">
+    <value>Nouv.</value>
+  </data>
+  <data name="TerminalTab_GPS_CopyToClipboard" xml:space="preserve">
+    <value>Copier sur le presse-papier</value>
+  </data>
+  <data name="TerminalTab_GPS_Delete" xml:space="preserve">
+    <value>Suppr.</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard" xml:space="preserve">
+    <value>Nouv. depuis le presse-papier</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent" xml:space="preserve">
+    <value>Nouv. depuis la pos. actuelle</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_GenerateSeed" xml:space="preserve">
+    <value>Générer la seed</value>
+  </data>
+  <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
+    <value>Attention : données illégales. Les modifications ne seront pas sauvegardées.</value>
+  </data>
+  <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
+    <value>Seuls les membres d'une faction peuvent utiliser les communications de faction à faction.</value>
+  </data>
+  <data name="TerminalTab_Chat_Offline" xml:space="preserve">
+    <value>Hors ligne</value>
+  </data>
+  <data name="TerminalTab_Chat_Pending" xml:space="preserve">
+    <value>EN COURS</value>
+  </data>
+  <data name="TerminalTab_GPS_FromChatDescPrefix" xml:space="preserve">
+    <value>Par : </value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Desc" xml:space="preserve">
+    <value>Nouvelles coordonnées</value>
+  </data>
+  <data name="TerminalTab_GPS_NewCoord_Name" xml:space="preserve">
+    <value>Nouv.</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromClipboard_Desc" xml:space="preserve">
+    <value>Collé depuis le presse-papier</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Desc" xml:space="preserve">
+    <value>Position actuelle</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
+    <value>Actuel</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
+    <value>Éditer texte privé</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelTitle" xml:space="preserve">
+    <value>Titre privé</value>
+  </data>
+  <data name="DisplayName_Block_TextPanel" xml:space="preserve">
+    <value>Panneau de texte</value>
+  </data>
+  <data name="NotificationHintPressToShowScreen" xml:space="preserve">
+    <value>Appuyez sur {0} pour afficher l'écran</value>
+  </data>
+  <data name="Terminal_Shoot" xml:space="preserve">
+    <value>Tirer</value>
+  </data>
+  <data name="Terminal_ShootOnce" xml:space="preserve">
+    <value>Tirer une fois</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
+    <value>Propriétaire seulement</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadAll" xml:space="preserve">
+    <value>Tout le monde en lecture seule</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadFaction" xml:space="preserve">
+    <value>Faction en lecture seule</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteAll" xml:space="preserve">
+    <value>Tout le monde en lecture/écriture</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelAccessReadWriteFaction" xml:space="preserve">
+    <value>Faction en lecture/écriture</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
+    <value>Type d'accès</value>
+  </data>
+  <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
+    <value>Blocs Générés</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromBroadcast" xml:space="preserve">
+    <value>Nouveau message transmis</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromFactionComms" xml:space="preserve">
+    <value>Nouveau message de faction</value>
+  </data>
+  <data name="TerminalTab_GPS_NewFromPrivateComms" xml:space="preserve">
+    <value>Nouveau message privé</value>
+  </data>
+  <data name="ToolTipWorldSettings_ToolShake" xml:space="preserve">
+    <value>Activer les vibrations des foreuses et des meuleuses</value>
+  </data>
+  <data name="WorldSettings_EnableToolShake" xml:space="preserve">
+    <value>Activer les vibrations des outils</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
+    <value>Le texte est trop long. Il ne sera pas sauvegardé.</value>
+  </data>
+  <data name="ControlName_Console" xml:space="preserve">
+    <value>Console</value>
+  </data>
+  <data name="ControlDescCameraZoom" xml:space="preserve">
+    <value>Zoom caméra</value>
+  </data>
+  <data name="EnableDamageEffects" xml:space="preserve">
+    <value>Activer les effets de dégats</value>
+  </data>
+  <data name="ToolTipVideoOptionsEnableDamageEffects" xml:space="preserve">
+    <value>Active ou désactive les effets de particules sur les blocs endommagés</value>
+  </data>
+  <data name="WorkshopTag_Asteroid" xml:space="preserve">
+    <value>Astéroïde</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorCorner" xml:space="preserve">
+    <value>Angle de blindage lourd biseauté</value>
+  </data>
+  <data name="DisplayName_Block_HeavyAngledArmorSlope" xml:space="preserve">
+    <value>Pente de blindage lourd biseauté</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorCorner" xml:space="preserve">
+    <value>Angle de blindage lourd arrondi</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundedArmorSlope" xml:space="preserve">
+    <value>Pente de blindage lourd arrondi</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorCorner" xml:space="preserve">
+    <value>Angle de blindage biseauté</value>
+  </data>
+  <data name="DisplayName_Block_LightAngledArmorSlope" xml:space="preserve">
+    <value>Pente de blindage biseauté</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorCorner" xml:space="preserve">
+    <value>Angle de blindage arrondi</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundedArmorSlope" xml:space="preserve">
+    <value>Pente de blindage arrondi</value>
+  </data>
+  <data name="ControlDescNetgraph" xml:space="preserve">
+    <value>Allumer ou éteindre le netgraph</value>
+  </data>
+  <data name="BlockPropertyTitle_BackgroundColor" xml:space="preserve">
+    <value>Arrière-plan</value>
+  </data>
+  <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
+    <value>Police</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
+    <value>Textures chargées</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRefreshInterval" xml:space="preserve">
+    <value>Temps de rafraîchissement</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenRemoveSelectedTextures" xml:space="preserve">
+    <value>Effacer la sélection</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectedTextures" xml:space="preserve">
+    <value>Textures sélectionnées</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenSelectTextures" xml:space="preserve">
+    <value>Ajouter à la sélection</value>
+  </data>
+  <data name="BlockPropertyTitle_LCDScreenTextSize" xml:space="preserve">
+    <value>Taille de police</value>
+  </data>
+  <data name="BlockPropertyTitle_ShowTextOnScreen" xml:space="preserve">
+    <value>Afficher texte à l'écran</value>
+  </data>
+  <data name="DisplayName_LCD_Panel" xml:space="preserve">
+    <value>Écran LCD</value>
+  </data>
+  <data name="DisplayName_LCD_PanelWide" xml:space="preserve">
+    <value>Grand écran LCD</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextNone" xml:space="preserve">
+    <value>Aucun</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPrivate" xml:space="preserve">
+    <value>Privé</value>
+  </data>
+  <data name="BlockComboBoxValue_TextPanelShowTextPublic" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
+    <value>Titre public</value>
+  </data>
+  <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
+    <value>Éditer texte public</value>
+  </data>
+  <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
+    <value>Antenne Laser</value>
+  </data>
+  <data name="LaserAntennaModeIdle" xml:space="preserve">
+    <value>Inactif</value>
+  </data>
+  <data name="LaserAntennaCopyCoords" xml:space="preserve">
+    <value>Copier mes coord.</value>
+  </data>
+  <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
+    <value>Copier la position de cette antenne dans le presse-papier</value>
+  </data>
+  <data name="LaserAntennaIdleButton" xml:space="preserve">
+    <value>Inactif</value>
+  </data>
+  <data name="LaserAntennaConnectButton" xml:space="preserve">
+    <value>Se connecter au récepteur</value>
+  </data>
+  <data name="LaserAntennaConnectGPS" xml:space="preserve">
+    <value>Se connecter aux coord.</value>
+  </data>
+  <data name="LaserAntennaSelectedCoords" xml:space="preserve">
+    <value>Coordonnées GPS sélectionnées</value>
+  </data>
+  <data name="LaserAntennaPasteGPS" xml:space="preserve">
+    <value>Coller les coord.</value>
+  </data>
+  <data name="LaserAntennaReceiversList" xml:space="preserve">
+    <value>Récepteurs connus</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorCorner" xml:space="preserve">
+    <value>Angle de Blindage arrondi</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorInvCorner" xml:space="preserve">
+    <value>Angle inv. de blindage arrondi</value>
+  </data>
+  <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
+    <value>Pente de blindage arrondi</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
+    <value>Coin arrondi de blindage lourd</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
+    <value>Coin inversé arrondi de blindage lourd</value>
+  </data>
+  <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
+    <value>Plan arrondi incliné de blindage lourd</value>
+  </data>
+  <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
+    <value>Connecté à</value>
+  </data>
+  <data name="LaserAntennaModeContactRec" xml:space="preserve">
+    <value>Tente de se connecter à</value>
+  </data>
+  <data name="LaserAntennaModeRotGPS" xml:space="preserve">
+    <value>Rotation en direction des coordonnées GPS</value>
+  </data>
+  <data name="LaserAntennaModeRotRec" xml:space="preserve">
+    <value>Rotation en direction de</value>
+  </data>
+  <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
+    <value>Recherche un laser aux coordonnées GPS</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
+    <value>Coin de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
+    <value>Coin lisse de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
+    <value>Coin de blindage léger 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner3Smooth" xml:space="preserve">
+    <value>Coin lisse de blindage léger 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2" xml:space="preserve">
+    <value>Coin de blindage léger inversé 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Coin lisse de blindage léger inversé 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3" xml:space="preserve">
+    <value>Coin de blindage léger inversé 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner3Smooth" xml:space="preserve">
+    <value>Coin lisse de blindage léger inversé 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2" xml:space="preserve">
+    <value>Plan incliné de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Smooth" xml:space="preserve">
+    <value>Plan lisse incliné de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3" xml:space="preserve">
+    <value>Plan incliné de blindage léger 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
+    <value>Plan lisse incliné de blindage léger 3x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
+    <value>Coin d'embase de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Coin d'embase lisse de blindage léger 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2Tip" xml:space="preserve">
+    <value>Coin de blindage léger 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Coin de blindage léger 2x1x1 extrémité lissé</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Base" xml:space="preserve">
+    <value>Coin de blindage léger inv. 2x1x1 base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Coin de blindage léger inv. 2x1x1 base lissé</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2Tip" xml:space="preserve">
+    <value>Coin de blindage léger inv. 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Coin de blindage léger inv. 2x1x1 extrémité lissé</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Base" xml:space="preserve">
+    <value>Pente de blindage léger 2x1x1 base</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Pente de blindage léger 2x1x1 base lissée</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2Tip" xml:space="preserve">
+    <value>Pente de blindage léger 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_LightArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Pente de blindage léger 2x1x1 extrémité lissée</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Base" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1 base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2BaseSmooth" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1 base lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Smooth" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1 lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2Tip" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorCorner2TipSmooth" xml:space="preserve">
+    <value>Coin de blindage lourd 2x1x1 extrémité lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Base" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1 base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2BaseSmooth" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1 base lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Smooth" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1 lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2Tip" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorInvCorner2TipSmooth" xml:space="preserve">
+    <value>Coin de blindage lourd inv. 2x1x1 extrémité lissé</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Base" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1 base</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2BaseSmooth" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1 base lissée</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Smooth" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1 lissée</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2Tip" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1 extrémité</value>
+  </data>
+  <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
+    <value>Pente de blindage lourd 2x1x1 extrémité lissée</value>
+  </data>
+  <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
+    <value>Ces récepteurs sont à portée radio et peuvent donner leur position.
+Leur état actuel et leur cible est entre parenthèses :
+Inactif le laser est inactif
+&gt;&gt; le laser se tourne vers un autre récepteur ou des coordonnées GPS
+?&gt; recherche d'un autre laser aux coordonnées GPS
+~&gt; prise de contact avec l'autre côté du lien (cela inclus le fait d'attendre
+que l'autre laser se tourne vers lui ou un effort futile de contacter un récepteur
+éteint ou qui n'est plus présent)
+=&gt; connexion établie
+Pour se connecter à un laser qui n'est pas listé ici, vous pouvez vous connecter à des coordonnées.</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
+    <value>Activer les mouvements de balayage</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
+    <value>Copier les coord. de la cible</value>
+  </data>
+  <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
+    <value>Copier la position actuelle de la cible ou la dernière connue dans le presse-papier</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
+    <value>Liste noire</value>
+  </data>
+  <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
+    <value>Liste blanche</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
+    <value>Mode Filtre</value>
+  </data>
+  <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
+    <value>Convoyeur d'extraction</value>
+  </data>
+  <data name="LaserAntennaOnlyPerm" xml:space="preserve">
+    <value>Seuls les récepteurs en connexion permanente sont trouvés</value>
+  </data>
+  <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
+    <value>Connexion permanente</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
+    <value>Ajouter un nouveau filtre</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
+    <value>Activer les filtres</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
+    <value>Liste noire</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
+    <value>Liste blanche</value>
+  </data>
+  <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
+    <value>Petit convoyeur d'extraction</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
+    <value>*munitions*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
+    <value>*composants*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
+    <value>*outils*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
+    <value>*lingots*</value>
+  </data>
+  <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
+    <value>*minerais*</value>
+  </data>
+  <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
+    <value>L'aération enlève l'air d'une salle et le stocke dans des réservoirs</value>
+  </data>
+  <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
+    <value>Les réservoirs stockés ne sont pas drainés par l'aération</value>
+  </data>
+  <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
+    <value>Dépressuriser</value>
+  </data>
+  <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
+    <value>Stockage</value>
+  </data>
+  <data name="DisplayName_Block_AirVent" xml:space="preserve">
+    <value>Aération</value>
+  </data>
+  <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
+    <value>Générateur d'oxygène</value>
+  </data>
+  <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
+    <value>Réservoir à oxygène</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
+    <value>Glace</value>
+  </data>
+  <data name="DisplayName_Item_Oxygen" xml:space="preserve">
+    <value>Oxygène</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir activer l'oxygène ? Faire ceci modifiera les matériaux des astéroïdes intacts. Ceci est irréversible.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
+    <value>Active la glace, la détection de pression et la génération d'oxygène et sa circulation</value>
+  </data>
+  <data name="World_Settings_EnableOxygen" xml:space="preserve">
+    <value>Activer l'oxygène</value>
+  </data>
+  <data name="Terminal_DrainAll" xml:space="preserve">
+    <value>Drainer tout</value>
+  </data>
+  <data name="BlockOwner_TransferTo" xml:space="preserve">
+    <value>Transférer à : </value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Porte de hangar hermétique</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Viser les personnages</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Cibler les grands vaisseaux</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Cibler les petits vaisseaux</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Cibler les stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Bouteille d'oxygène</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Bouteilles d'oxygène</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Bouteilles d'oxygène</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Remplir les bouteilles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planètes</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Créer une couche</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Supprimer une couche</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Remplissage automatique</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Afficher le bloc dans le terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Afficher les blocs cachés</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygène rempli par bouteilles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Le niveau d'oxygène est critique.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Le niveau d'oxygène est faible.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Choisissez une planète à modifier</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Parcourir le Workshop</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Ouvrir dans le Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publier</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Rafraîchir</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Difficulté</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Facile</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Difficile</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scénario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Attention : L'énergie est à un niveau critique.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Niveau d'énergie bas.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Casque on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Impossible de retirer le casque avec cette combinaison.</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Casque</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Mettre à jour la planète</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Afficher/cacher le bloc dans le terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Casque Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Casque On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Cockpit principal du vaisseau</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Cockpit principal</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Vide</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Bouton</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Boutons disponibles</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Nom du bouton</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Activer la vue 3e personne</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Sortie d'oxygène :</value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Ferme d'oxygène</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Rencontres aléatoires</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Afficher la distance des antennes ennemies </value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Afficher la distance des antennes amies</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Afficher la distance des antennes personnelles</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Bataille</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Chambre cryogénique</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lumières</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Afficher le terminal</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Paramètres du scénario</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Paramètres du scénario</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Le camp adverse a gagné</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Rejoindre la position GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Quitter la position GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Rejoindre la position GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Quelqu'un a gagné</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Le bloc n'est pas alimenté</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Condition de défaite:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Condition de victoire:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Coller GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Rayon</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Amortisseurs</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>Un argument passé à votre code en cliquant sur le bouton Exécuter</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Casque</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Train d’atterrissage / connecteur</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Réacteurs</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Propulseurs</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Diffusion radio</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Afficher le terminal</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Module d'efficacité</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Module d'efficacité énergétique</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Module de productivité</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Bataille</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Etendre</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Rétracter</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Accédez au menu de contrôle pour ouvrir le panneau de contrôle de {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Accédez au menu de contrôle pour ouvrir le panneau de contrôle</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Ouvrir l'inventaire</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Régler les boutons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Afficher le panneau de contrôle</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Accédez au menu de contrôle pour modifier le panel de boutons</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Rejoindre le sallon de bataille</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Échec de l'accès au salon de bataille, raison : {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Appuyez sur {0} pour entrer dans la chambre cryogénique</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Appuyez sur {0} pour quitter la chambre cryogénique</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Vielle ferraille</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Descendre</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Monter</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Pilotage automatique</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Mode vol</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Cercle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>Sens unique</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrouille</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>Emplacements GPS</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Points de cheminement</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Pilotage automatique activé</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Rendu</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Résolution de la carte d'ombre</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changer le moteur de rendu nécessite un redémarrage du jeu.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+</root>
