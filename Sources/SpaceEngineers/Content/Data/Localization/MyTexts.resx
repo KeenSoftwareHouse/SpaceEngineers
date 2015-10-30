@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -124,8 +124,66 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Sprint</value>
   </data>
+  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
+    <value>Are you sure you want to exit?</value>
+  </data>
+  <data name="AssignControlKeyboard" xml:space="preserve">
+    <value>Please press a key</value>
+  </data>
+  <data name="AssignControlMouse" xml:space="preserve">
+    <value>Please click a mouse button</value>
+  </data>
+  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
+    <value>Audio options</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CanNotAssignControl" xml:space="preserve">
+    <value>CANNOT ASSIGN CONTROL</value>
+  </data>
+  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
+    <value>Continue last</value>
+  </data>
+  <data name="ControlAlreadyAssigned" xml:space="preserve">
+    <value>{0} is already assigned to {1}.
+Remove the original control?</value>
+  </data>
+  <data name="ControlIsNotValid" xml:space="preserve">
+    <value>The pressed key may not be assigned to controls.</value>
+  </data>
+  <data name="ScreenCaptionControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="ScreenMenuButtonCredits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+  <data name="KeysDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="KeysDown" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
+    <value>Do you want to keep these settings? {0} seconds remaining.</value>
+  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Drill</value>
+  </data>
+  <data name="KeysEnd" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
+    <value>Exit to main menu</value>
+  </data>
+  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
+    <value>Exit to Windows</value>
+  </data>
+  <data name="FieldOfView" xml:space="preserve">
+    <value>Field of view</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Use tool / Fire weapon</value>
@@ -133,11 +191,176 @@
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>Secondary mode</value>
   </data>
+  <data name="ScreenOptionsButtonGame" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="ScreenCaptionGameOptions" xml:space="preserve">
+    <value>Game options</value>
+  </data>
+  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
+    <value>Gamepad</value>
+  </data>
+  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
+    <value>Analog</value>
+  </data>
+  <data name="GameVolume" xml:space="preserve">
+    <value>Sound volume</value>
+  </data>
+  <data name="ControlTypeGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="HardwareCursor" xml:space="preserve">
+    <value>Hardware cursor</value>
+  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Lights on / off</value>
   </data>
+  <data name="ControlName_Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="KeysHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="KeysInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Inventory</value>
+  </data>
+  <data name="InvertMouseX" xml:space="preserve">
+    <value>Invert mouse X axis</value>
+  </data>
+  <data name="InvertMouseY" xml:space="preserve">
+    <value>Invert mouse Y axis</value>
+  </data>
+  <data name="Joystick" xml:space="preserve">
+    <value>Joystick or gamepad</value>
+  </data>
+  <data name="JoystickButtonLeft" xml:space="preserve">
+    <value>JDLeft</value>
+  </data>
+  <data name="JoystickButtonRight" xml:space="preserve">
+    <value>JDRight</value>
+  </data>
+  <data name="JoystickButtonUp" xml:space="preserve">
+    <value>JDUp</value>
+  </data>
+  <data name="JoystickButtonDown" xml:space="preserve">
+    <value>JDDown</value>
+  </data>
+  <data name="JoystickDeadzone" xml:space="preserve">
+    <value>Joystick deadzone width</value>
+  </data>
+  <data name="JoystickExponent" xml:space="preserve">
+    <value>Joystick gradual precision</value>
+  </data>
+  <data name="JoystickSensitivity" xml:space="preserve">
+    <value>Joystick sensitivity</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
+    <value>Keyboard</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="KeysLeft" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="KeysLeftAlt" xml:space="preserve">
+    <value>LAlt</value>
+  </data>
+  <data name="KeysLeftControl" xml:space="preserve">
+    <value>LCtrl</value>
+  </data>
+  <data name="LeftMouseButton" xml:space="preserve">
+    <value>LMB</value>
+  </data>
+  <data name="KeysLeftShift" xml:space="preserve">
+    <value>LShift</value>
+  </data>
+  <data name="LoadScreenButtonLoad" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
+    <value>LOADING … PLEASE WAIT</value>
+  </data>
+  <data name="MessageBoxCaptionError" xml:space="preserve">
+    <value>ERROR</value>
+  </data>
+  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
+    <value>PLEASE CONFIRM</value>
+  </data>
+  <data name="MessageBoxCaptionExit" xml:space="preserve">
+    <value>EXIT</value>
+  </data>
+  <data name="MiddleMouseButton" xml:space="preserve">
+    <value>MMB</value>
+  </data>
+  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
+    <value>Mouse</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Mouse sensitivity</value>
+  </data>
+  <data name="MouseXButton1" xml:space="preserve">
+    <value>MXB1</value>
+  </data>
+  <data name="MouseXButton2" xml:space="preserve">
+    <value>MXB2</value>
+  </data>
+  <data name="ControlTypeNavigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ScreenCaptionNewWorld" xml:space="preserve">
+    <value>New World</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="KeysNumPad0" xml:space="preserve">
+    <value>Num 0</value>
+  </data>
+  <data name="KeysNumPad1" xml:space="preserve">
+    <value>Num 1</value>
+  </data>
+  <data name="KeysNumPad2" xml:space="preserve">
+    <value>Num 2</value>
+  </data>
+  <data name="KeysNumPad3" xml:space="preserve">
+    <value>Num 3</value>
+  </data>
+  <data name="KeysNumPad4" xml:space="preserve">
+    <value>Num 4</value>
+  </data>
+  <data name="KeysNumPad5" xml:space="preserve">
+    <value>Num 5</value>
+  </data>
+  <data name="KeysNumPad6" xml:space="preserve">
+    <value>Num 6</value>
+  </data>
+  <data name="KeysNumPad7" xml:space="preserve">
+    <value>Num 7</value>
+  </data>
+  <data name="KeysNumPad8" xml:space="preserve">
+    <value>Num 8</value>
+  </data>
+  <data name="KeysNumPad9" xml:space="preserve">
+    <value>Num 9</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ScreenCaptionOptions" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="KeysPageDown" xml:space="preserve">
+    <value>PgDown</value>
+  </data>
+  <data name="KeysPageUp" xml:space="preserve">
+    <value>PgUp</value>
+  </data>
+  <data name="RecommendedAspectRatio" xml:space="preserve">
+    <value>Recommended aspect ratio: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Render quality</value>
@@ -150,6 +373,24 @@
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normal</value>
+  </data>
+  <data name="Revert" xml:space="preserve">
+    <value>Defaults</value>
+  </data>
+  <data name="KeysRight" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="KeysRightAlt" xml:space="preserve">
+    <value>RAlt</value>
+  </data>
+  <data name="KeysRightControl" xml:space="preserve">
+    <value>RCtrl</value>
+  </data>
+  <data name="RightMouseButton" xml:space="preserve">
+    <value>RMB</value>
+  </data>
+  <data name="KeysRightShift" xml:space="preserve">
+    <value>RShift</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Roll left (ship / jetpack)</value>
@@ -169,14 +410,188 @@
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Rotate up</value>
   </data>
+  <data name="SelectControl" xml:space="preserve">
+    <value>SELECT CONTROL</value>
+  </data>
+  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
+    <value>SCHEDULED SERVER SHUTDOWN</value>
+  </data>
+  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
+    <value>Sorry, but the settings you have chosen are not supported by your hardware.</value>
+  </data>
+  <data name="KeysSpace" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
+    <value>Starting game … please wait.</value>
+  </data>
+  <data name="ControlName_StrafeLeft" xml:space="preserve">
+    <value>Strafe left</value>
+  </data>
+  <data name="ControlName_StrafeRight" xml:space="preserve">
+    <value>Strafe right</value>
+  </data>
+  <data name="ControlTypeSystems1" xml:space="preserve">
+    <value>Systems 1</value>
+  </data>
+  <data name="ControlTypeSystems2" xml:space="preserve">
+    <value>Systems 2</value>
+  </data>
+  <data name="KeysTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
+    <value>Failed to start the browser.</value>
+  </data>
+  <data name="UnknownControl_None" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="KeysUp" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="ControlName_UseOrInteract" xml:space="preserve">
+    <value>Use / Interact</value>
+  </data>
+  <data name="VerticalSync" xml:space="preserve">
+    <value>Vertical sync</value>
+  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Video</value>
+  </data>
+  <data name="VideoMode" xml:space="preserve">
+    <value>Video mode</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Video options</value>
   </data>
+  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
+    <value>Tools / Weapons</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="JoystickRotationXpos" xml:space="preserve">
+    <value>JRX+</value>
+  </data>
+  <data name="JoystickRotationYpos" xml:space="preserve">
+    <value>JRY+</value>
+  </data>
+  <data name="JoystickRotationZpos" xml:space="preserve">
+    <value>JRZ+</value>
+  </data>
+  <data name="JoystickSlider1pos" xml:space="preserve">
+    <value>JS1+</value>
+  </data>
+  <data name="JoystickSlider2pos" xml:space="preserve">
+    <value>JS2+</value>
+  </data>
+  <data name="JoystickRotationXneg" xml:space="preserve">
+    <value>JRX-</value>
+  </data>
+  <data name="JoystickRotationYneg" xml:space="preserve">
+    <value>JRY-</value>
+  </data>
+  <data name="JoystickRotationZneg" xml:space="preserve">
+    <value>JRZ-</value>
+  </data>
+  <data name="JoystickSlider1neg" xml:space="preserve">
+    <value>JS1-</value>
+  </data>
+  <data name="JoystickSlider2neg" xml:space="preserve">
+    <value>JS2-</value>
+  </data>
+  <data name="KeysDecimal" xml:space="preserve">
+    <value>Num .</value>
+  </data>
+  <data name="KeysBackslash" xml:space="preserve">
+    <value>Bkslash</value>
+  </data>
+  <data name="KeysComma" xml:space="preserve">
+    <value>Comma</value>
+  </data>
+  <data name="KeysMinus" xml:space="preserve">
+    <value>Minus</value>
+  </data>
+  <data name="KeysOpenBracket" xml:space="preserve">
+    <value>[</value>
+  </data>
+  <data name="KeysCloseBracket" xml:space="preserve">
+    <value>]</value>
+  </data>
+  <data name="KeysPeriod" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="KeysPipe" xml:space="preserve">
+    <value>Pipe</value>
+  </data>
+  <data name="KeysPlus" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="KeysQuestion" xml:space="preserve">
+    <value>Slash</value>
+  </data>
+  <data name="KeysQuotes" xml:space="preserve">
+    <value>Quote</value>
+  </data>
+  <data name="KeysSemicolon" xml:space="preserve">
+    <value>Colon</value>
+  </data>
+  <data name="KeysTilde" xml:space="preserve">
+    <value>~</value>
+  </data>
+  <data name="KeysMultiply" xml:space="preserve">
+    <value>Num *</value>
+  </data>
+  <data name="KeysDivide" xml:space="preserve">
+    <value>Num /</value>
+  </data>
+  <data name="KeysAdd" xml:space="preserve">
+    <value>Num +</value>
+  </data>
+  <data name="KeysSubtract" xml:space="preserve">
+    <value>Num −</value>
+  </data>
+  <data name="KeysCapsLock" xml:space="preserve">
+    <value>Caps Lock</value>
+  </data>
+  <data name="KeysEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="KeysBackspace" xml:space="preserve">
+    <value>Backsp.</value>
+  </data>
+  <data name="ApplyingPleaseWait" xml:space="preserve">
+    <value>Applying changes … please wait</value>
+  </data>
+  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
+    <value>You have been killed</value>
+  </data>
+  <data name="MusicVolume" xml:space="preserve">
+    <value>Music volume</value>
+  </data>
+  <data name="VideoAdapter" xml:space="preserve">
+    <value>Video adapter</value>
+  </data>
+  <data name="DefaultFOV" xml:space="preserve">
+    <value>Default: {0:F1}</value>
+  </data>
+  <data name="WorldLoaded" xml:space="preserve">
+    <value>World {0} loaded</value>
+  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Chat screen</value>
+  </data>
+  <data name="ControlName_Screenshot" xml:space="preserve">
+    <value>Screenshot</value>
+  </data>
+  <data name="ControlName_PreviousColor" xml:space="preserve">
+    <value>Prev. Color or Camera</value>
+  </data>
+  <data name="ControlName_NextColor" xml:space="preserve">
+    <value>Next Color or Camera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminal / Inventory</value>
@@ -184,14 +599,23 @@
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Welder</value>
   </data>
+  <data name="WorldSaved" xml:space="preserve">
+    <value>World '{0}' saved</value>
+  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>Press {0} to dismount target</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>Press {0} to weld target</value>
   </data>
+  <data name="Blueprints" xml:space="preserve">
+    <value>Blueprints</value>
+  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Control Panel</value>
+  </data>
+  <data name="Factions" xml:space="preserve">
+    <value>Factions</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Assembler</value>
@@ -467,11 +891,23 @@
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>White</value>
   </data>
+  <data name="BlueprintMaterials" xml:space="preserve">
+    <value>Blueprint Materials</value>
+  </data>
+  <data name="ProductionQueue" xml:space="preserve">
+    <value>Production Queue</value>
+  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reactor</value>
   </data>
+  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
+    <value>Edit Settings</value>
+  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Auto-healing</value>
+  </data>
+  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
+    <value>Custom World</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Description</value>
@@ -488,17 +924,50 @@
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Safe</value>
   </data>
+  <data name="ErrorNameTooLong" xml:space="preserve">
+    <value>Name is too long (max 128 characters allowed)</value>
+  </data>
+  <data name="ErrorNameTooShort" xml:space="preserve">
+    <value>Name is too short (min 5 characters required)</value>
+  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Friendly fire</value>
   </data>
   <data name="WorldSettings_GameStyle" xml:space="preserve">
     <value>Game style</value>
   </data>
+  <data name="WorldSettings_GameMode" xml:space="preserve">
+    <value>Game mode</value>
+  </data>
+  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
+    <value>Survival</value>
+  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Realistic x10</value>
   </data>
+  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
+    <value>Join World</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="WorldSettings_OnlineMode" xml:space="preserve">
+    <value>Online mode</value>
+  </data>
+  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
+    <value>Public</value>
+  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Password</value>
+  </data>
+  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
+    <value>Quickstart</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Sound in space</value>
@@ -534,6 +1003,9 @@ Survival x3: same as "Survival", but 3x larger inventory capacity
 
 Survival x10: same as "Survival", but 10x larger inventory capacity</value>
   </data>
+  <data name="ToolTipWorldSettingsName" xml:space="preserve">
+    <value>Name must be {0} to {1} alpha-numeric characters</value>
+  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>Visibility of your game
 
@@ -548,6 +1020,18 @@ Public: Any Steam player can join</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>There's no sound in space. Turn it on to simulate Earth-like sound conditions (even though it's not realistic). Turn it off for a realistic mode where you can hear only sounds that your astronaut character can hear.</value>
   </data>
+  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
+    <value>Are you sure you want to delete '{0}'?</value>
+  </data>
+  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
+    <value>Load World</value>
+  </data>
+  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
+    <value>Save As</value>
+  </data>
+  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
+    <value>Creative</value>
+  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
@@ -557,14 +1041,146 @@ Public: Any Steam player can join</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Lone Survivor</value>
   </data>
+  <data name="PlayerCharacter" xml:space="preserve">
+    <value>Player Character</value>
+  </data>
+  <data name="WorldSettings_AutoSave" xml:space="preserve">
+    <value>Auto-save</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
+    <value>Auto-save saves the state of your world every {0} minutes or when exiting the game</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
+    <value>Do you want to save your progress?</value>
+  </data>
+  <data name="SaveWorld" xml:space="preserve">
+    <value>Save World</value>
+  </data>
+  <data name="ScreenMenuButtonSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SavingPleaseWait" xml:space="preserve">
+    <value>Saving ... please wait</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="AdvancedControls" xml:space="preserve">
+    <value>Advanced Controls</value>
+  </data>
+  <data name="ControlName_Backward" xml:space="preserve">
+    <value>Backward</value>
+  </data>
+  <data name="BasicControls" xml:space="preserve">
+    <value>Basic Controls</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ControlName_DownOrCrouch" xml:space="preserve">
+    <value>Down or Crouch</value>
+  </data>
+  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
+    <value>First-person / Third-person</value>
+  </data>
+  <data name="ControlName_Forward" xml:space="preserve">
+    <value>Forward</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>NextPage</value>
+  </data>
+  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
+    <value>Press {0} for help and tutorials</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Previous Page</value>
+  </data>
+  <data name="ShowControlsHints" xml:space="preserve">
+    <value>Show controls hints</value>
+  </data>
+  <data name="SteamGuide" xml:space="preserve">
+    <value>Tutorials</value>
+  </data>
+  <data name="ControlName_UpOrJump" xml:space="preserve">
+    <value>Up or Jump</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
+    <value>Rotate block vertical -</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
+    <value>Rotate block vertical +</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
+    <value>Rotate block horizontal -</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
+    <value>Rotate block horizontal +</value>
+  </data>
+  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
+    <value>Rotate block roll -</value>
+  </data>
+  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
+    <value>Rotate block roll +</value>
+  </data>
+  <data name="ControlName_Slot0" xml:space="preserve">
+    <value>Unequip</value>
+  </data>
+  <data name="ControlName_Slot1" xml:space="preserve">
+    <value>Equip item from slot 1</value>
+  </data>
+  <data name="ControlName_Slot2" xml:space="preserve">
+    <value>Equip item from slot 2</value>
+  </data>
+  <data name="ControlName_Slot3" xml:space="preserve">
+    <value>Equip item from slot 3</value>
+  </data>
+  <data name="ControlName_Slot4" xml:space="preserve">
+    <value>Equip item from slot 4</value>
+  </data>
+  <data name="ControlName_Slot5" xml:space="preserve">
+    <value>Equip item from slot 5</value>
+  </data>
+  <data name="ControlName_Slot6" xml:space="preserve">
+    <value>Equip item from slot 6</value>
+  </data>
+  <data name="ControlName_Slot7" xml:space="preserve">
+    <value>Equip item from slot 7</value>
+  </data>
+  <data name="ControlName_Slot8" xml:space="preserve">
+    <value>Equip item from slot 8</value>
+  </data>
+  <data name="ControlName_Slot9" xml:space="preserve">
+    <value>Equip item from slot 9</value>
+  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reactors on / off</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Empty World</value>
   </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
+    <value>Are you sure you want to quick-load?</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
+    <value>Are you sure you want to quick-save?</value>
+  </data>
+  <data name="ControlName_ToolbarConfig" xml:space="preserve">
+    <value>Toolbar config</value>
+  </data>
+  <data name="ControlName_HoldToLookAround" xml:space="preserve">
+    <value>Hold to look around</value>
+  </data>
+  <data name="ControlName_HoldToSprint" xml:space="preserve">
+    <value>Hold to sprint</value>
+  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Jetpack on / off</value>
+  </data>
+  <data name="LoadingPleaseWait" xml:space="preserve">
+    <value>Loading ... please wait</value>
+  </data>
+  <data name="NoPlaceToCreateGrid" xml:space="preserve">
+    <value>There's no place to create a new block. Point your view to an empty space.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Not enough materials to create a new block. At least one steel plate is required.</value>
@@ -574,6 +1190,28 @@ Public: Any Steam player can join</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Conveyor</value>
+  </data>
+  <data name="ControlName_HudOnOff" xml:space="preserve">
+    <value>HUD on / off</value>
+  </data>
+  <data name="ScreenCubeBuilderHint" xml:space="preserve">
+    <value>Hint: Drag an icon to a toolbar slot and activate by a numeric key</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="HideWeapon" xml:space="preserve">
+    <value>Hide weapon</value>
+  </data>
+  <data name="Thrust" xml:space="preserve">
+    <value>Thrust</value>
+  </data>
+  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
+    <value>One of the world/save files is corrupted and can't be loaded.
+See log for details.</value>
+  </data>
+  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
+    <value>World file is corrupted and could not be loaded.</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1004,11 +1642,53 @@ Public: Any Steam player can join</value>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>No gravity</value>
   </data>
+  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
+    <value>Create a new world with custom settings</value>
+  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Create a new world using the default settings:
 Game Type: Creative Mode
 Scenario: Easy Start 1
 Auto-Save: ON</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
+    <value>Higher rendering quality means better visuals, larger view distance and more
+special effects - however, it is more demanding on your computer's performance (CPU and GPU). 
+If the game doesn't run smoothly, decrease it.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
+    <value>Select a graphic adapter and/or a monitor</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
+    <value>Select a screen resolution. We recommend using an aspect ratio compatible with your monitor.
+If the game doesn't run smoothly, decrease your screen resolution.</value>
+  </data>
+  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
+    <value>HW mouse cursor is independent of game framerate. We recommend to turn it on.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
+    <value>The game will synchronize with the refresh rate of the monitor. We recommend to turn it off.</value>
+  </data>
+  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
+    <value>Horizontal field of view angle</value>
+  </data>
+  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
+    <value>Show on-screen control hints during gameplay</value>
+  </data>
+  <data name="WorldNotSaved" xml:space="preserve">
+    <value>World '{0}' failed to save. This can be caused by running out of memory or problems when writing files. Working on this world any longer may result in loss of progress. You can check log file to find out more about what caused this error.</value>
+  </data>
+  <data name="NotificationMemoryOverload" xml:space="preserve">
+    <value>Not enough memory to add new objects</value>
+  </data>
+  <data name="BetterGCIsAvailable" xml:space="preserve">
+    <value>We have detected a better graphics card in your computer than the one the game currently runs on. Please check your NVIDIA/AMD Control Panel settings.</value>
+  </data>
+  <data name="MessageBoxCaptionWarning" xml:space="preserve">
+    <value>WARNING</value>
+  </data>
+  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
+    <value>This will open {0} in your internet browser. The game will keep running. Do you want to continue?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Crouching</value>
@@ -1082,6 +1762,48 @@ Auto-Save: ON</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Do you want to start by playing tutorial maps?</value>
   </data>
+  <data name="Loaded" xml:space="preserve">
+    <value>Loaded</value>
+  </data>
+  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
+    <value>There are no saved worlds yet. Please start by creating a new world.</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
+    <value>Video Tutorial</value>
+  </data>
+  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
+    <value>Save changes before quitting?</value>
+  </data>
+  <data name="ErrorNameAlreadyExists" xml:space="preserve">
+    <value>Name is already used. Please choose a different name.</value>
+  </data>
+  <data name="NotificationBuildingFormat" xml:space="preserve">
+    <value>Press {0} to place cube</value>
+  </data>
+  <data name="NotificationColorFormat" xml:space="preserve">
+    <value>Press {0} or {1} to change color. Hold {2} to apply color. Hold {3} or {4} to increase brush size.</value>
+  </data>
+  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
+    <value>You can hide these hints in Game Options</value>
+  </data>
+  <data name="NotificationHudHideFormat" xml:space="preserve">
+    <value>Press {0} to hide/unhide the HUD</value>
+  </data>
+  <data name="NotificationRotationFormat" xml:space="preserve">
+    <value>Press {0}, {1}, {2}, {3}, {4}, {5} to rotate</value>
+  </data>
+  <data name="NotificationScreenFormat" xml:space="preserve">
+    <value>Press {0} to configure toolbar or create new objects</value>
+  </data>
+  <data name="NotificationSlotEquipFormat" xml:space="preserve">
+    <value>Press {0}, {1}, {2}, ... to equip from slot</value>
+  </data>
+  <data name="NotificationToolDisabled" xml:space="preserve">
+    <value>This tool/weapon is disabled</value>
+  </data>
+  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block. Hold {2} to build fast</value>
+  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Hold to color a block (creative mode)</value>
   </data>
@@ -1091,8 +1813,23 @@ Auto-Save: ON</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Medium color brush size (creative mode)</value>
   </data>
+  <data name="ControlDescQuickLoad" xml:space="preserve">
+    <value>Quick Load</value>
+  </data>
+  <data name="ControlDescQuickSave" xml:space="preserve">
+    <value>Quick Save</value>
+  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Zoom in third-person mode</value>
+  </data>
+  <data name="MouseWheel" xml:space="preserve">
+    <value>Mouse wheel</value>
+  </data>
+  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
+    <value>Tab content:</value>
+  </data>
+  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
+    <value>Creative mode</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>New Large Ship</value>
@@ -1102,6 +1839,15 @@ Auto-Save: ON</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>New Station</value>
+  </data>
+  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
+    <value>Configure your toolbar (assign building blocks, tools and weapons)</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
+    <value>Toolbar</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
+    <value>Toolbar Config</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Charging</value>
@@ -1127,8 +1873,44 @@ Auto-Save: ON</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Utility</value>
   </data>
+  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
+    <value>Steam Overlay is disabled</value>
+  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Please enable Steam Overlay in Steam client: go to Settings, In-game tab, Enable Steam Community In-Game and in Steam Library, Space Engineers, Properties, Enable Steam Community In-Game</value>
+  </data>
+  <data name="LoadScreenButtonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
+    <value>Failed to publish on Steam Workshop</value>
+  </data>
+  <data name="MessageBoxTextModPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
+    <value>Failed to publish on Steam Workshop</value>
+  </data>
+  <data name="ProgressTextPublishingWorld" xml:space="preserve">
+    <value>Publishing ... please wait.</value>
+  </data>
+  <data name="ProgressTextUploadingWorld" xml:space="preserve">
+    <value>Uploading ... please wait.</value>
+  </data>
+  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ProgressTextCreatingWorld" xml:space="preserve">
+    <value>Creating world ... please wait.</value>
+  </data>
+  <data name="ScreenCaptionWorkshop" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
+    <value>Recommend</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>If you like Space Engineers, you can recommend it to your Steam friends on the following page.
@@ -1136,6 +1918,53 @@ Recommendations help to grow the community. Thank you!</value>
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Recommend Space Engineers</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
+    <value>WORLD PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
+    <value>WORLD PUBLISH FAILED</value>
+  </data>
+  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
+    <value>MOD PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
+    <value>MOD PUBLISH FAILED</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
+    <value>Copy &amp; Load</value>
+  </data>
+  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
+    <value>Publish selected world on Steam Workshop</value>
+  </data>
+  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
+    <value>View a list of worlds subscribed on Steam Workshop</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
+    <value>PUBLISH WORLD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>UPDATE WORLD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected world on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>Are you sure you want to upload and overwrite selected world on Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
+    <value>PUBLISH MOD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
+    <value>UPDATE MOD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected mod on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
+    <value>Are you sure you want to upload and overwrite selected mod on Steam Workshop?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Press {0} to leave cockpit</value>
@@ -1164,6 +1993,12 @@ Recommendations help to grow the community. Thank you!</value>
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0} is not available for {1}</value>
   </data>
+  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Angle grinder</value>
   </data>
@@ -1178,6 +2013,12 @@ Recommendations help to grow the community. Thank you!</value>
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Welder</value>
+  </data>
+  <data name="NotificationNoWeaponSelected" xml:space="preserve">
+    <value>No weapon selected</value>
+  </data>
+  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
+    <value>Switched to weapon type '{0}'</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Press {0} or {1} to climb up and down</value>
@@ -1206,6 +2047,39 @@ Recommendations help to grow the community. Thank you!</value>
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Dampeners:</value>
   </data>
+  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
+    <value>Inertia dampeners Off</value>
+  </data>
+  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
+    <value>Inertia dampeners On</value>
+  </data>
+  <data name="LoadScreenButtonDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ScreenCaptionEditSettings" xml:space="preserve">
+    <value>Edit Settings</value>
+  </data>
+  <data name="ScreenCaptionSaveAs" xml:space="preserve">
+    <value>Save As</value>
+  </data>
+  <data name="ScreenMenuButtonHelp" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
+    <value>Load World</value>
+  </data>
+  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
+    <value>New World</value>
+  </data>
+  <data name="ScreenMenuButtonOptions" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
+    <value>Custom World</value>
+  </data>
+  <data name="ScreenOptionsButtonControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>Landing gears:</value>
   </data>
@@ -1214,6 +2088,39 @@ Recommendations help to grow the community. Thank you!</value>
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Locked:</value>
+  </data>
+  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
+    <value>RESET CONTROLS</value>
+  </data>
+  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
+    <value>Are you sure you want to reset control bindings to default?</value>
+  </data>
+  <data name="ScreenshotFailed" xml:space="preserve">
+    <value>Screenshot failed</value>
+  </data>
+  <data name="ScreenshotSaved" xml:space="preserve">
+    <value>Screenshot {0} saved</value>
+  </data>
+  <data name="ExportToObjComplete" xml:space="preserve">
+    <value>Exported to: {0}</value>
+  </data>
+  <data name="ExportToObjFailed" xml:space="preserve">
+    <value>Export to obj file failed</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
+    <value>Open Steam Overlay with Workshop screen</value>
+  </data>
+  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
+    <value>Download selected world to your computer and load</value>
+  </data>
+  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
+    <value>Open selected world in Workshop Steam Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
+    <value>Refresh the list of subscribed worlds</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>Landing gear / Color picker</value>
@@ -1259,8 +2166,29 @@ Recommendations help to grow the community. Thank you!</value>
 Mass: {1} kg
 Volume: {2} L</value>
   </data>
+  <data name="SettingSymmetryX" xml:space="preserve">
+    <value>Symmetry X plane: {0} to set, {1} to reset</value>
+  </data>
+  <data name="SettingSymmetryXOffset" xml:space="preserve">
+    <value>Symmetry X plane (offset): {0} to set, {1} to reset</value>
+  </data>
+  <data name="SettingSymmetryY" xml:space="preserve">
+    <value>Symmetry Y plane: {0} to set, {1} to reset</value>
+  </data>
+  <data name="SettingSymmetryYOffset" xml:space="preserve">
+    <value>Symmetry Y plane (offset): {0} to set, {1} to reset</value>
+  </data>
+  <data name="SettingSymmetryZ" xml:space="preserve">
+    <value>Symmetry Z plane: {0} to set, {1} to reset</value>
+  </data>
+  <data name="SettingSymmetryZOffset" xml:space="preserve">
+    <value>Symmetry Z plane (offset): {0} to set, {1} to reset</value>
+  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Inertia dampeners</value>
+  </data>
+  <data name="NotificationPickupObject" xml:space="preserve">
+    <value>Press {0} to pick up {1}</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Use symmetry</value>
@@ -1268,14 +2196,66 @@ Volume: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>Beacon</value>
   </data>
+  <data name="CubeBuilderPasteNotification" xml:space="preserve">
+    <value>Press LMB or Ctrl+V to paste object</value>
+  </data>
+  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
+    <value>An error occurred while adding one or more objects. See log file for more details.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
+    <value>Are you sure you want to delete selected object? (copy will be stored in clipboard)</value>
+  </data>
+  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
+    <value>Memory limit has been reached while loading the world and some objects were not added. If you were using Large World fix and the game was recently updated, it may have been disabled.</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
+    <value>Keyboard 2</value>
+  </data>
+  <data name="DialogTextDownloadingWorld" xml:space="preserve">
+    <value>Downloading world: {0}%
+World size: {1}</value>
+  </data>
+  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
+    <value>Downloading the world has failed!</value>
+  </data>
+  <data name="DialogTextJoiningWorld" xml:space="preserve">
+    <value>Joining world</value>
+  </data>
+  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
+    <value>Joining world failed, reason: {0}</value>
+  </data>
+  <data name="GpuUnderMinimumNotification" xml:space="preserve">
+    <value>We have detected that your graphics card is under the minimum requirements and this can cause performance issues or crashes. Thank you for your understanding.</value>
+  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Any kind of ore</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Uranium ingot</value>
   </data>
+  <data name="ShowRotationHints" xml:space="preserve">
+    <value>Show rotation hints</value>
+  </data>
+  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
+    <value>Show HUD rotation hints during building</value>
+  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Rotor</value>
+  </data>
+  <data name="UnknownControl_Unassigned" xml:space="preserve">
+    <value>[unassigned]</value>
+  </data>
+  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
+    <value>Building mode</value>
+  </data>
+  <data name="ScreenOptionsGame_Line" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
+    <value>Plane</value>
+  </data>
+  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
+    <value>Single block</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Torque</value>
@@ -1371,6 +2351,9 @@ Volume: {2} L</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Target velocity of the rotor; the rotor will accelerate until the target velocity is reached.</value>
   </data>
+  <data name="ControlName_Suicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Girder</value>
   </data>
@@ -1430,8 +2413,14 @@ Volume: {2} L</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Intensity of the light</value>
   </data>
+  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
+    <value>Multiplayer server cannot be started, error: {0}</value>
+  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>Press {0} to open Door</value>
+  </data>
+  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
+    <value>Object is being used by somebody else</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Off</value>
@@ -1441,20 +2430,113 @@ Volume: {2} L</value>
     <value>On</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
+  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
+    <value>Friend games</value>
+  </data>
+  <data name="ScreenCaptionPlayers" xml:space="preserve">
+    <value>Players</value>
+  </data>
+  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
+    <value>Friends</value>
+  </data>
+  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
+    <value>Private</value>
+  </data>
+  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
+    <value>Game owner</value>
+  </data>
+  <data name="ScreenPlayers_Invite" xml:space="preserve">
+    <value>Invite</value>
+  </data>
+  <data name="ScreenPlayers_Kick" xml:space="preserve">
+    <value>Kick</value>
+  </data>
+  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
+    <value>Game does not exist anymore.</value>
+  </data>
+  <data name="MessageBoxCaptionKicked" xml:space="preserve">
+    <value>KICKED</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
+    <value>You have been kicked from the game by its owner.</value>
+  </data>
+  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
+    <value>Friends</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
+    <value>Are you sure you want to reconnect to the current multiplayer game?</value>
+  </data>
+  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
+    <value>You are in offline mode and multiplayer is disabled. You have to change the settings from the main menu.</value>
+  </data>
+  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
+    <value>Steam is offline. Please run Steam in normal mode or restart Steam if the problem persists</value>
+  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>Copy paste allows you to create new ship or station directly from clipboard</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Enable copy/paste</value>
   </data>
+  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
+    <value>Compatible versions</value>
+  </data>
+  <data name="MaxPlayers" xml:space="preserve">
+    <value>Max players</value>
+  </data>
+  <data name="DialogWaitingForWorldData" xml:space="preserve">
+    <value>Waiting for world data</value>
+  </data>
+  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
+    <value>Connection to server failed: {0}</value>
+  </data>
+  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
+    <value>Connecting to server</value>
+  </data>
+  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
+    <value>Waiting for server to respond</value>
+  </data>
+  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
+    <value>The selected game type is more limited than the original one. This means that your inventory might be truncated and you might lose some items! Are you sure you want to change the game type?</value>
+  </data>
+  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
+    <value>Friend worlds</value>
+  </data>
+  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
+    <value>Public worlds</value>
+  </data>
+  <data name="ControlName_CubeColorChange" xml:space="preserve">
+    <value>Change color / weapon mode</value>
+  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Weapons enabled</value>
+  </data>
+  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
+    <value>This weapon is disabled in world settings</value>
+  </data>
+  <data name="ControlDescPlayersList" xml:space="preserve">
+    <value>Show players (multiplayer only)</value>
+  </data>
+  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
+    <value>Players</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>Assembler damaged or dismounted</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Passage</value>
+  </data>
+  <data name="ItemDamagedDescription" xml:space="preserve">
+    <value> (Damaged)</value>
+  </data>
+  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
+    <value>Server is not responding</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>Gravitational acceleration of the generator.</value>
@@ -1486,17 +2568,56 @@ Volume: {2} L</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Hold {0} to recharge and heal</value>
   </data>
+  <data name="UnsupportedAspectRatio" xml:space="preserve">
+    <value>Unsupported aspect ratio</value>
+  </data>
+  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
+    <value>Only friends can join this game</value>
+  </data>
+  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
+    <value>A description of the world</value>
+  </data>
+  <data name="CompressSaveGames" xml:space="preserve">
+    <value>Compress saved games</value>
+  </data>
+  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
+    <value>Whether the saved games should be compressed on the disk to save space</value>
+  </data>
+  <data name="Headbob" xml:space="preserve">
+    <value>Disable headbob</value>
+  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>When enabled, each player can see name of other players above their characters</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Show player names</value>
   </data>
+  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
+    <value>Show player names</value>
+  </data>
+  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
+    <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIOpacity" xml:space="preserve">
+    <value>UI opacity</value>
+  </data>
+  <data name="ToolTipGameOptionsUIOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIBkOpacity" xml:space="preserve">
+    <value>UI background opacity</value>
+  </data>
+  <data name="ToolTipGameOptionsUIBkOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs background.</value>
+  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Warning: Suit energy is low. Life support systems may fail.</value>
+  </data>
+  <data name="NotificationInventoryFull" xml:space="preserve">
+    <value>Inventory is full</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Warning: Suit energy is critically low. Life support failure imminent.</value>
@@ -1508,11 +2629,17 @@ Volume: {2} L</value>
     <value>Maximum number of small objects floating in space (ore, ingots, components)
 Warning - values higher than 64 can significantly affect performance!</value>
   </data>
+  <data name="OutOfAmmo" xml:space="preserve">
+    <value>{0} is out of ammunition</value>
+  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>Missile 200 mm</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm</value>
+  </data>
+  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
+    <value>You need {0} to build {1}</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Asteroids</value>
@@ -1551,6 +2678,21 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Range</value>
   </data>
+  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
+    <value>Game mode</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
+    <value>Players</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
+    <value>World</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
+    <value>World size</value>
+  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Any item produced by assembler.</value>
   </data>
@@ -1587,6 +2729,9 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Start on an abandoned asteroid platform with no ships, you have to start from scratch</value>
   </data>
+  <data name="MessageBoxTextSuicide" xml:space="preserve">
+    <value>Are you sure you want to commit suicide?</value>
+  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Crashed Red Ship</value>
   </data>
@@ -1601,6 +2746,15 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Scrap Metal</value>
+  </data>
+  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
+    <value>The server host has left the game</value>
+  </data>
+  <data name="NotificationRespawn" xml:space="preserve">
+    <value>You died. Respawn in {0} seconds</value>
+  </data>
+  <data name="HudBlockInfo_Required" xml:space="preserve">
+    <value>Required</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Large Ship / Station</value>
@@ -1719,6 +2873,17 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Enable or disable repeat mode</value>
   </data>
+  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
+    <value>Inventory size {0}x
+Assembler efficiency {1}x
+Refinery speed {2}x</value>
+  </data>
+  <data name="NotificationClientConnected" xml:space="preserve">
+    <value>Player connected: {0}</value>
+  </data>
+  <data name="NotificationClientDisconnected" xml:space="preserve">
+    <value>Player disconnected: {0}</value>
+  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>Thruster damage</value>
   </data>
@@ -1731,17 +2896,29 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Cargo ships</value>
   </data>
+  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
+    <value>Server has different version of the game. Your version: {0}; Server version: {1}</value>
+  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Armageddon (unrealistic)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>1st April! Don't tell anyone!</value>
   </data>
+  <data name="ShowCrosshair" xml:space="preserve">
+    <value>Show crosshair</value>
+  </data>
+  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
+    <value>Whether the weapon crosshair should be visible</value>
+  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Artificial Mass</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Control Station</value>
+  </data>
+  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
+    <value>Game is already saving.</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Collector</value>
@@ -1788,6 +2965,12 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>Window 3x3 Flat</value>
   </data>
+  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
+    <value>* Localized by the community.</value>
+  </data>
+  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
+    <value>Click for more info</value>
+  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Single / All weapon mode (cockpit)</value>
   </data>
@@ -1818,6 +3001,15 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>Window 3x3 Flat Inv.</value>
   </data>
+  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
+    <value>No direct connection available.</value>
+  </data>
+  <data name="Multiplayer_LastMsg" xml:space="preserve">
+    <value>No message received from server for {0} seconds.</value>
+  </data>
+  <data name="Multiplayer_NoConnection" xml:space="preserve">
+    <value>No connection with server.</value>
+  </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Press {0} to switch between single/all weapon mode.</value>
   </data>
@@ -1827,6 +3019,9 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
+  <data name="GamePaused" xml:space="preserve">
+    <value>Game paused</value>
+  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>Wheel 1x1</value>
   </data>
@@ -1835,6 +3030,9 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Wheel 5x5</value>
+  </data>
+  <data name="ControlDescPauseGame" xml:space="preserve">
+    <value>Pause the game (offline only)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Grinder</value>
@@ -1848,8 +3046,18 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Decoy</value>
   </data>
+  <data name="ControlName_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="KeysPause" xml:space="preserve">
+    <value>Pause</value>
+    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
+  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Save</value>
+  </data>
+  <data name="NotificationWeaponNotWorking" xml:space="preserve">
+    <value>{0} is not working</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Lock</value>
@@ -1911,6 +3119,12 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Target moving objects</value>
   </data>
+  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
+    <value>Amount to add</value>
+  </data>
+  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
+    <value>Value to set</value>
+  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argument</value>
   </data>
@@ -1938,6 +3152,12 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>No Fuel</value>
   </data>
+  <data name="NotificationHealthCritical" xml:space="preserve">
+    <value>Health is critical. Seek medical attention immediately.</value>
+  </data>
+  <data name="NotificationHealthLow" xml:space="preserve">
+    <value>Health is low.</value>
+  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Meteor storm inbound.</value>
   </data>
@@ -1961,6 +3181,12 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Press {0} to open inventory</value>
+  </data>
+  <data name="MultiplayerError_DifferentData" xml:space="preserve">
+    <value>This server has different game data than your client</value>
+  </data>
+  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
+    <value>Games marked with * have incompatible game data</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>Info</value>
@@ -2002,17 +3228,108 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Number of triangles for drawing. Technical information.
 Higher numbers affect performance.</value>
   </data>
+  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
+    <value>Game admin</value>
+  </data>
+  <data name="MultiplayerJoinServers" xml:space="preserve">
+    <value>Dedicated only</value>
+  </data>
+  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
+    <value>User is already joined</value>
+  </data>
+  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
+    <value>You are not in group {0}. Do you want to visit group web page?</value>
+  </data>
+  <data name="MultiplayerErrorServerFull" xml:space="preserve">
+    <value>Server is full</value>
+  </data>
+  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
+    <value>Steam servers offline or server group does not exist</value>
+  </data>
+  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
+    <value>Ticket invalid</value>
+  </data>
+  <data name="MultiplayerJoinLANServers" xml:space="preserve">
+    <value>LAN only</value>
+  </data>
+  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
+    <value>Friends</value>
+  </data>
+  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
+    <value>LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
+    <value>Servers</value>
+  </data>
+  <data name="JoinGame_Title" xml:space="preserve">
+    <value>Join world</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
+    <value>Logged in elsewhere</value>
+  </data>
+  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
+    <value>No license or license expired</value>
+  </data>
+  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
+    <value>Ticket already used</value>
+  </data>
+  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
+    <value>Ticket cancelled</value>
+  </data>
+  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
+    <value>User not connected</value>
+  </data>
+  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
+    <value>VAC banned</value>
+  </data>
+  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
+    <value>VAC check timed out</value>
+  </data>
+  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
+    <value>Allowed groups</value>
+  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Merge Block</value>
   </data>
+  <data name="NewsDownloadingFailed" xml:space="preserve">
+    <value>News downloading failed</value>
+  </data>
+  <data name="MessageBoxCaptionInfo" xml:space="preserve">
+    <value>INFO</value>
+  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>New version of Space Engineers is available!</value>
+  </data>
+  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
+    <value>Server Group ID is invalid, server administrator should set proper group ID in server config
+(or zero to disable group checking)</value>
+  </data>
+  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
+    <value>The list of local dedicated servers</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
+    <value>The list of player created games</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
+    <value>The list of internet dedicated servers</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>Enable spectator in the world</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>Enable spectator</value>
+  </data>
+  <data name="PlayerCharacterColor" xml:space="preserve">
+    <value>Player color</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Black</value>
@@ -2035,6 +3352,9 @@ Higher numbers affect performance.</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Yellow</value>
   </data>
+  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
+    <value>Press {0} to change your appearance</value>
+  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>Control thrusters</value>
   </data>
@@ -2050,20 +3370,60 @@ Higher numbers affect performance.</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Rotors: </value>
   </data>
+  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
+    <value>Window mode</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
+    <value>Fullscreen window</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Break Force</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Autolock</value>
   </data>
+  <data name="SpectatorControls" xml:space="preserve">
+    <value>Spectator Controls</value>
+  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Get back into controlled character / cockpit</value>
+  </data>
+  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
+    <value>Spectator with fixed view vector to controlled object</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Free spectator. You can still shoot and do actions with controlled object</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Static spectator. You control character / cockpit, but camera is static</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
+    <value>You are banned on this server</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
+    <value>You are banned on this server.
+Open admin profile?</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
+    <value>You have been banned on this server by its admin.</value>
+  </data>
+  <data name="ScreenPlayers_Ban" xml:space="preserve">
+    <value>Ban</value>
+  </data>
+  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
+    <value>Return to the game area!</value>
+  </data>
+  <data name="NotificationLeavingWorld" xml:space="preserve">
+    <value>Warning: You will die in {0:F1} meters!</value>
+  </data>
+  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
+    <value>Advanced world settings</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Advanced</value>
@@ -2119,11 +3479,59 @@ Higher numbers affect performance.</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Faction tag (3 letters must be inserted)</value>
   </data>
+  <data name="Spectator" xml:space="preserve">
+    <value>Spectator</value>
+  </data>
+  <data name="SpectatorControls_Delta" xml:space="preserve">
+    <value>Delta spectator</value>
+  </data>
+  <data name="SpectatorControls_Free" xml:space="preserve">
+    <value>Free spectator</value>
+  </data>
+  <data name="SpectatorControls_None" xml:space="preserve">
+    <value>Player control</value>
+  </data>
+  <data name="SpectatorControls_Static" xml:space="preserve">
+    <value>Static spectator</value>
+  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Show center of mass</value>
   </data>
+  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
+    <value>Given faction name already exists</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
+    <value>Faction tag must be exactly 3 characters long</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
+    <value>Given faction tag already exists</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
+    <value>Faction name must be at least 4 characters long</value>
+  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>You must leave your faction before creating new one</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Kick" xml:space="preserve">
+    <value>Kick</value>
+  </data>
+  <data name="Leader" xml:space="preserve">
+    <value>Leader</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
+    <value>Are you sure that you want to kick player '{0}' from your faction?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
+    <value>Are you sure that you want to leave faction '{0}'?</value>
+  </data>
+  <data name="Promote" xml:space="preserve">
+    <value>Promote</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>If checked, ships that are considered to be trash will be removed to make the game run faster.
@@ -2136,14 +3544,41 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Trash auto-removal</value>
   </data>
+  <data name="Demote" xml:space="preserve">
+    <value>Demote</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Founder" xml:space="preserve">
+    <value>Founder</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Private info (visible to members only):</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accept</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value> (access denied)</value>
   </data>
+  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
+    <value>Are you sure that you want to accept player '{0}' to your faction?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
+    <value>Are you sure that you want demote '{0}' to member?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
+    <value>Are you sure that you want promote '{0}' to leader?</value>
+  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Edit faction</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Applicant</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Temporary ship. It will get removed after you leave the game or spawn in a new one.</value>
@@ -2153,6 +3588,9 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Delete respawn ship</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Tag</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>This faction is proposing peace treaty to your faction</value>
@@ -2217,6 +3655,18 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Reset owners of all blocks to nobody</value>
+  </data>
+  <data name="SessionDeleteFailed" xml:space="preserve">
+    <value>Session delete failed</value>
+  </data>
+  <data name="Medicals_Title" xml:space="preserve">
+    <value>Medical Rooms</value>
+  </data>
+  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
+    <value>Are you sure you want to change owner to {0}?</value>
+  </data>
+  <data name="Respawn" xml:space="preserve">
+    <value>Respawn</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Battery</value>
@@ -2298,6 +3748,9 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>You must have active antenna connected.</value>
   </data>
+  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
+    <value>Same game data</value>
+  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Accept peace</value>
   </data>
@@ -2307,6 +3760,39 @@ Respawn?</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Respawn Ship</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="PlayerInfo_Dead" xml:space="preserve">
+    <value>dead</value>
+  </data>
+  <data name="ScreenMods_ActiveMods" xml:space="preserve">
+    <value>Active mods</value>
+  </data>
+  <data name="ScreenMods_AvailableMods" xml:space="preserve">
+    <value>Available mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
+    <value>Deactivate mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
+    <value>Deactivate all mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
+    <value>Activate mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
+    <value>Activate all mods</value>
+  </data>
+  <data name="WorldSettings_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
+    <value>Open selected mod in Workshop Steam Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
+    <value>Refresh the list of subscribed mods</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Enemy faction</value>
@@ -2335,8 +3821,17 @@ Respawn?</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Infinite</value>
   </data>
+  <data name="JoinGame_SearchLabel" xml:space="preserve">
+    <value>Search game</value>
+  </data>
+  <data name="JoinGame_SearchTooltip" xml:space="preserve">
+    <value>At least 3 characters must be inserted to start searching</value>
+  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>Clients can save</value>
+  </data>
+  <data name="ProgressTextDownloadingMods" xml:space="preserve">
+    <value>Downloading mods ... please wait.</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>If the wheel is propelled.</value>
@@ -2349,6 +3844,9 @@ Respawn?</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Steering</value>
+  </data>
+  <data name="NotificationClientCannotSave" xml:space="preserve">
+    <value>Client saving is disabled on this server</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>Regulates wheel friction by changing pressure in the tire.</value>
@@ -2367,6 +3865,18 @@ Respawn?</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Wheel could not be placed.</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
+    <value>Move mod down</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
+    <value>Move mod up</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
+    <value>Move mod to bottom</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
+    <value>Move mod to top</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Your block (no faction)</value>
@@ -2459,6 +3969,12 @@ Setting to 0% will effectively lock the suspension.</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Velocity</value>
   </data>
+  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
+    <value>You cannot create group with blocks you don't have access rights to.</value>
+  </data>
+  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
+    <value>You cannot delete group with blocks you don't have access rights to.</value>
+  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Number of batteries in use:</value>
   </data>
@@ -2519,6 +4035,12 @@ Setting to 0% will effectively lock the suspension.</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Thrust override</value>
   </data>
+  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
+    <value>You have been kicked from the faction.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
+    <value>You have been accepted to faction.</value>
+  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Switch</value>
   </data>
@@ -2561,6 +4083,12 @@ Setting to 0% will effectively lock the suspension.</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Yaw override</value>
   </data>
+  <data name="ControlName_ToolbarDown" xml:space="preserve">
+    <value>Previous toolbar</value>
+  </data>
+  <data name="ControlName_ToolbarUp" xml:space="preserve">
+    <value>Next toolbar</value>
+  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Current position: </value>
   </data>
@@ -2569,6 +4097,39 @@ Setting to 0% will effectively lock the suspension.</value>
   </data>
   <data name="BlockActionTitle_SwitchLock" xml:space="preserve">
     <value>Switch lock</value>
+  </data>
+  <data name="Description_Animation_Wave" xml:space="preserve">
+    <value>Wave to friends (or enemies!)</value>
+  </data>
+  <data name="DisplayName_Animation_Wave" xml:space="preserve">
+    <value>Wave animation</value>
+  </data>
+  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
+    <value>Downloading mods has failed! Please check mods in world settings.</value>
+  </data>
+  <data name="ProgressTextCheckingMods" xml:space="preserve">
+    <value>Checking for mod updates ... please wait.</value>
+  </data>
+  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
+    <value>Debug draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
+    <value>Enable debug draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
+    <value>Loading error log:</value>
+  </data>
+  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
+    <value>Model dummies</value>
+  </data>
+  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
+    <value>Mount points</value>
+  </data>
+  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
+    <value>There were no loading errors</value>
+  </data>
+  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
+    <value>Physics primitives</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Show ship name</value>
@@ -2594,14 +4155,53 @@ Setting to 0% will effectively lock the suspension.</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Small Ship</value>
   </data>
+  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
+    <value>Open in new window</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
+    <value>Reload textures</value>
+  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Direct access</value>
+  </data>
+  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
+    <value>Local mods are not allowed in multiplayer. Use workshop mods instead.</value>
+  </data>
+  <data name="ScreenMods_LocalMod" xml:space="preserve">
+    <value>Local mod</value>
+  </data>
+  <data name="ScreenMods_MissingDetails" xml:space="preserve">
+    <value>Could not retrieve mod details from Steam</value>
+  </data>
+  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
+    <value>Missing local mod</value>
+  </data>
+  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
+    <value>Workshop mod</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
+    <value>Reload models</value>
+  </data>
+  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
+    <value>Copy log to system clipboard</value>
+  </data>
+  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
+    <value>Warning: All ships will be removed in {0:F1} meters!</value>
+  </data>
+  <data name="PlayerCharacterModel" xml:space="preserve">
+    <value>Player model</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Press {0} to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintPressToUse" xml:space="preserve">
+    <value>Press {0} to use {1}</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Radius of the gravity field</value>
@@ -2634,11 +4234,41 @@ Setting to 0% will effectively lock the suspension.</value>
     <value>Definition for {0} contains computer, but the block's TypeId is not a terminal block. This means that the block can be owned, but the ownership cannot be changed via terminal.
 Hint: Try setting the TypeId to any block that is in the terminal - the simplest case being just TerminalBlock</value>
   </data>
+  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
+    <value>Select server to show mod list</value>
+  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Button Panel</value>
   </data>
+  <data name="ScreenMods_SearchLabel" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
+    <value>Could not get mod list from the server</value>
+  </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Space Suit</value>
+  </data>
+  <data name="HudWarnings" xml:space="preserve">
+    <value>Hud Warnings</value>
+  </data>
+  <data name="NPCIdentityAdded" xml:space="preserve">
+    <value>Identity {0} was added</value>
+  </data>
+  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
+    <value>This world can not be loaded. It has been created in newer version of the game.</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
+    <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
+  </data>
+  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
+    <value>Export clipboard to file</value>
+  </data>
+  <data name="ToolTipSaveShip" xml:space="preserve">
+    <value>Save ships from clipboard to file</value>
+  </data>
+  <data name="AddNewNPC" xml:space="preserve">
+    <value>Add New Enemy Identity</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Components</value>
@@ -2652,11 +4282,32 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
   <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
     <value>Tools</value>
   </data>
+  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
+    <value>Select tags</value>
+  </data>
+  <data name="WorkshopTag_Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="WorkshopTag_Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="WorkshopTag_Character" xml:space="preserve">
+    <value>Character</value>
+  </data>
+  <data name="WorkshopTag_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="WorkshopTag_Skybox" xml:space="preserve">
+    <value>Skybox</value>
+  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>View</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Camera</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
+    <value>Could not update because you are not the owner of this mod.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Error loading original game content, cannot load file:
@@ -2669,11 +4320,20 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Broadcast using antennas</value>
   </data>
+  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
+    <value>Some mods were not loaded because of errors. See log file for details or run the game in single player to access the mod debug screen.</value>
+  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>Any item accepted by {0}</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>Any item produced by {0}</value>
+  </data>
+  <data name="RenderIterpolation" xml:space="preserve">
+    <value>Render interpolation</value>
+  </data>
+  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
+    <value>Reduces stuttering and makes game smoother.</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Production</value>
@@ -2683,6 +4343,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Press {0} to exit camera view</value>
+  </data>
+  <data name="WorkshopTag_ModPack" xml:space="preserve">
+    <value>Modpack</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Arc furnace</value>
@@ -2795,6 +4458,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>Detect stations</value>
   </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Show gravity range</value>
   </data>
@@ -2827,6 +4493,12 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Time to trigger: </value>
+  </data>
+  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
+    <value>Tabs of tools and objects:</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
+    <value>Search:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Reloadable Rocket Launcher</value>
@@ -2933,6 +4605,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Default x 50</value>
   </data>
+  <data name="ControlDescCopyPasteMove" xml:space="preserve">
+    <value>Move pasted object</value>
+  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Cooldowns disabled</value>
   </data>
@@ -2944,6 +4619,21 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Cockpit Blocks</value>
+  </data>
+  <data name="WorkshopTag_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
+    <value>Some blocks in the pasted grid are not available in this world</value>
+  </data>
+  <data name="ConvertingObjs" xml:space="preserve">
+    <value>Converting models. Please wait.</value>
+  </data>
+  <data name="ConvertToObjDone" xml:space="preserve">
+    <value>All models converted.</value>
+  </data>
+  <data name="ExportingToObj" xml:space="preserve">
+    <value>Exporting model. Please wait.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Power Blocks</value>
@@ -2960,11 +4650,17 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>Spawn Object</value>
   </data>
+  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
+    <value>Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?</value>
+  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Asteroids</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Items</value>
+  </data>
+  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
+    <value>Item is not available in this world</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Asteroid</value>
@@ -2980,6 +4676,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Cooperative Mode</value>
+  </data>
+  <data name="ShipWelder_HelpOthers" xml:space="preserve">
+    <value>Help Others</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Ammo Assembler</value>
@@ -3068,6 +4767,12 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Invalid amount</value>
   </data>
+  <data name="PlacingObjectsToScene" xml:space="preserve">
+    <value>Placing objects to world. Please wait.</value>
+  </data>
+  <data name="ControlTypeSystems3" xml:space="preserve">
+    <value>Systems 3</value>
+  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Enable or disable cooperative mode</value>
   </data>
@@ -3086,6 +4791,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Select Asteroid Type</value>
   </data>
+  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
+    <value>Switched to weapon: {0}</value>
+  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>Any ammo magazine accepted by {0}</value>
   </data>
@@ -3094,6 +4802,24 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Attach</value>
+  </data>
+  <data name="Thrust_Back" xml:space="preserve">
+    <value>Backward</value>
+  </data>
+  <data name="Thrust_Down" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="Thrust_Forward" xml:space="preserve">
+    <value>Forward</value>
+  </data>
+  <data name="Thrust_Left" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Thrust_Right" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Thrust_Up" xml:space="preserve">
+    <value>Up</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Someone else is using this ship!</value>
@@ -3131,8 +4857,14 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Multiple grids are not supported. Only the largest grid will be used.</value>
   </data>
+  <data name="SelectBlueprint" xml:space="preserve">
+    <value>Select</value>
+  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Show grid pivot</value>
+  </data>
+  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
+    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Thumb-Up</value>
@@ -3151,6 +4883,9 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Steel Catwalk Two Sides</value>
+  </data>
+  <data name="AvailableBlueprints" xml:space="preserve">
+    <value>Available Blueprints</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Keep Projection</value>
@@ -3200,6 +4935,18 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Sphere</value>
   </data>
+  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
+    <value>Depth</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>When set, the game area is limited to a cube with a side length set to the chosen size.
 All objects that leave the game area will be removed from the game.
@@ -3223,6 +4970,9 @@ Characters leaving the game area will be killed.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Custom</value>
   </data>
+  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Loop time</value>
   </data>
@@ -3238,11 +4988,26 @@ Characters leaving the game area will be killed.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Loop timer: </value>
   </data>
+  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
+    <value>Brush Settings</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
+    <value>Transparency</value>
+  </data>
+  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
+    <value>Shape Settings</value>
+  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Terrain auto level</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Capsule</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
+    <value>Radius</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Alert 1</value>
@@ -3277,8 +5042,32 @@ Characters leaving the game area will be killed.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Run</value>
   </data>
+  <data name="ExportToObjModded" xml:space="preserve">
+    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
+  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Ramp</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
+    <value>Snap to voxel grid</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
+    <value>Area</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
+    <value>Choose axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
+    <value>X axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
+    <value>Y axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
+    <value>Z axis</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
+    <value>Material</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Infinite: High density</value>
@@ -3442,11 +5231,26 @@ Characters leaving the game area will be killed.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>Ownership of programmable block changed. Please recompile program.</value>
   </data>
+  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
+    <value>New message in {0} faction chat</value>
+  </data>
+  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
+    <value>New global chat message</value>
+  </data>
+  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
+    <value>New message from {0}</value>
+  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Broadcast-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Comms</value>
+  </data>
+  <data name="ErrorDescriptionTooLong" xml:space="preserve">
+    <value>Description is too long (max 8000 characters allowed)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>View distance</value>
@@ -3515,6 +5319,9 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
+  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
+    <value>Select categories</value>
+  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Description</value>
   </data>
@@ -3557,6 +5364,9 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Warning: illegal data. Modifications will not be saved.</value>
   </data>
+  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
+    <value>View distance: {0}m</value>
+  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Only faction members can use faction-to-faction communications</value>
   </data>
@@ -3584,6 +5394,9 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Current</value>
   </data>
+  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
+    <value>Project to voxel</value>
+  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Edit private text</value>
   </data>
@@ -3601,6 +5414,15 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Shoot once</value>
+  </data>
+  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
+    <value>Next voxel material</value>
+  </data>
+  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
+    <value>Open voxel hand settings</value>
+  </data>
+  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
+    <value>Previous voxel material</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Only owner</value>
@@ -3620,6 +5442,15 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Access type</value>
   </data>
+  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
+    <value>Are you sure you want to replace this blueprint with clipboard?</value>
+  </data>
+  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
+    <value>Text panel is read-only</value>
+  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Generated Blocks</value>
   </data>
@@ -3638,8 +5469,17 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Enable tools shake</value>
   </data>
+  <data name="MessageBoxTextTooLongText" xml:space="preserve">
+    <value>Text is too long. Do you want to truncate it?</value>
+  </data>
+  <data name="ControlDescExportModel" xml:space="preserve">
+    <value>Export model</value>
+  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>Text is too long. It won't be saved.</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
+    <value>Show bounding box</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Console</value>
@@ -3770,6 +5610,19 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Round Armor Slope</value>
   </data>
+  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
+    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
+Do you want to continue?</value>
+  </data>
+  <data name="NotificationRotationFormatCombined" xml:space="preserve">
+    <value>Press {0} to rotate the block</value>
+  </data>
+  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} or {1} to toggle compound building</value>
+  </data>
+  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
+    <value>Press {0} to toggle dynamic building</value>
+  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Heavy Armor Round Corner</value>
   </data>
@@ -3778,6 +5631,9 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Heavy Armor Round Slope</value>
+  </data>
+  <data name="ControlName_SwitchWalk" xml:space="preserve">
+    <value>Switch walk</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Connected to </value>
@@ -3793,6 +5649,21 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>Searching for a laser at GPS coordinates </value>
+  </data>
+  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
+    <value>The list of favorite servers</value>
+  </data>
+  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="JoinGame_TabTitle_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
+    <value>The list of friends servers</value>
+  </data>
+  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
+    <value>The list of previously visited servers</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Light Armor Corner 2x1x1</value>
@@ -3829,6 +5700,12 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Light Armor Slope 3x1x1 Smooth</value>
+  </data>
+  <data name="JoinGame_Favorites_Add" xml:space="preserve">
+    <value>Add server to favorites</value>
+  </data>
+  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
+    <value>Remove server from favorites</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Light Armor Corner 2x1x1 Base</value>
@@ -3920,6 +5797,15 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
   </data>
+  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
+    <value>Open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
+    <value>Press {0} to open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} or {1} to change voxel material</value>
+  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>These receivers are in radio range and can report their position.
 Their current state and target is in parenthesis:
@@ -3940,6 +5826,18 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Copy target's current or last known position into clipboard</value>
+  </data>
+  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
+    <value>Enable bots debugging</value>
+  </data>
+  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
+    <value>Next bot</value>
+  </data>
+  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
+    <value>Previous bot</value>
+  </data>
+  <data name="BotSettingsScreen_Title" xml:space="preserve">
+    <value>Bots settings</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Blacklist</value>
@@ -3976,6 +5874,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Remove</value>
+  </data>
+  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
+    <value>Bots settings</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Small Conveyor Sorter</value>
@@ -4142,6 +6043,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Cannot remove helmet on this suit.</value>
   </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Helmet</value>
   </data>
@@ -4181,6 +6085,15 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Oxygen Output: </value>
   </data>
@@ -4189,6 +6102,12 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Random encounters</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Show distance for enemy antennas</value>
@@ -4202,6 +6121,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Battle</value>
   </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Cryo Chamber</value>
   </data>
@@ -4210,6 +6132,21 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Scenario Settings</value>
@@ -4277,8 +6214,32 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Effectiveness Module</value>
@@ -4292,11 +6253,38 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Battle</value>
   </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Extend</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Retract</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Access control menu to open control panel of {0}</value>
@@ -4316,11 +6304,17 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
   </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
   </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="DialogTextJoiningBattle" xml:space="preserve">
+    <value>Joining battle</value>
+  </data>
+  <data name="DialogTextJoinBattleFailed" xml:space="preserve">
+    <value>Joining battle failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -4376,11 +6370,92 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
   </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Shadow quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
@@ -4393,6 +6468,12 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>
@@ -4484,6 +6565,9 @@ Enables flora for planets</value>
   </data>
   <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
     <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
+    <value>Tonemapping</value>
   </data>
   <data name="WorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Disable respawn ships</value>
@@ -4914,6 +6998,9 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
   <data name="TerminalTab_Info_GridMass" xml:space="preserve">
     <value>Grid mass:</value>
   </data>
+  <data name="WorldSettings_GrassDensity" xml:space="preserve">
+    <value>Grass density</value>
+  </data>
   <data name="Description_Scenario_TestStarSystem" xml:space="preserve">
     <value>Testing Star System to show Planet generation possibilities - all available planets and moons</value>
   </data>
@@ -4928,6 +7015,9 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
   </data>
   <data name="Notification_NoControlNotMain" xml:space="preserve">
     <value>This is not main cockpit!</value>
+  </data>
+  <data name="MessageBoxTextGuideQuestion" xml:space="preserve">
+    <value>Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).</value>
   </data>
   <data name="DisplayName_Block_HydrogenTank" xml:space="preserve">
     <value>Hydrogen Tank</value>
@@ -4979,6 +7069,9 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="TerminalControlPanel_RunCodeDefault" xml:space="preserve">
     <value>Run with default argument</value>
   </data>
+  <data name="NotificationIncompleteGrid" xml:space="preserve">
+    <value>You can place only completely constructed and undamaged blocks in the inventory</value>
+  </data>
   <data name="DisplayName_Block_LargeAtmoThrust" xml:space="preserve">
     <value>Large Atmospheric Thruster</value>
   </data>
@@ -5028,7 +7121,7 @@ and can also be used by some mods to create advanced logic and effects.</value>
     <value>Detached</value>
   </data>
   <data name="DisplayName_Item_Superconductor" xml:space="preserve">
-    <value>Superconductor Conducts</value>
+    <value>Superconductor Conduits</value>
   </data>
   <data name="BlockPropertyDescription_Connector_Strength" xml:space="preserve">
     <value>Connector strength when aligning ship (yellow color), smaller strength of two connectors is used</value>
@@ -5042,16 +7135,52 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="ToolTipBatteryBlock_Discharge" xml:space="preserve">
     <value>Discharge the battery</value>
   </data>
+  <data name="ScreenPlayers_Muted" xml:space="preserve">
+    <value>Muted</value>
+  </data>
   <data name="NotificationGasBottleRefill" xml:space="preserve">
     <value>Gas refilled from bottles.</value>
   </data>
   <data name="DisplayName_Block_AirtightSlideDoor" xml:space="preserve">
     <value>Sliding Door</value>
   </data>
+  <data name="VoiceChatVolume" xml:space="preserve">
+    <value>Voice chat volume</value>
+  </data>
+  <data name="DisplayName_Faction_SpaceSpiders" xml:space="preserve">
+    <value>Space spiders</value>
+  </data>
   <data name="ScreenGraphicsOptions_VoxelQuality" xml:space="preserve">
     <value>Voxel quality</value>
   </data>
   <data name="DisplayName_AstronautBackpack" xml:space="preserve">
     <value>Backpack</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_RemainingTime" xml:space="preserve">
+    <value>Time remaining</value>
+  </data>
+  <data name="JoinGame_Lobby" xml:space="preserve">
+    <value>Lobby</value>
+  </data>
+  <data name="JoinGame_Waiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="MultiplayerErrorSessionEnded" xml:space="preserve">
+    <value>The game session has ended. Feel free to join another one.</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackBite" xml:space="preserve">
+    <value>Bite attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackLegs" xml:space="preserve">
+    <value>Leg attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackStinger" xml:space="preserve">
+    <value>Stinger attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderBurrow" xml:space="preserve">
+    <value>Burrow</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderDeburrow" xml:space="preserve">
+    <value>Deburrow</value>
   </data>
 </root>
