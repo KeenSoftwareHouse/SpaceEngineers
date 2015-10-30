@@ -9610,6 +9610,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Refill = MyStringId.GetOrCompute("BlockPropertyTitle_Refill");
 
         ///<summary>
+        ///Planets
+        ///</summary>
+        public static readonly MyStringId ScreenDebugSpawnMenu_Planets = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_Planets");
+
+        ///<summary>
         ///Create layer
         ///</summary>
         public static readonly MyStringId ScreenDebugSpawnMenu_CreateLayer = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_CreateLayer");
@@ -9653,6 +9658,11 @@ namespace Sandbox.Game.Localization
         ///Oxygen is low.
         ///</summary>
         public static readonly MyStringId NotificationOxygenLow = MyStringId.GetOrCompute("NotificationOxygenLow");
+
+        ///<summary>
+        ///Pick planet to edit
+        ///</summary>
+        public static readonly MyStringId ScreenDebugSpawnMenu_PickPlanet = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_PickPlanet");
 
         ///<summary>
         ///Browse Workshop
@@ -9738,6 +9748,11 @@ namespace Sandbox.Game.Localization
         ///Helmet
         ///</summary>
         public static readonly MyStringId HudInfoHelmet = MyStringId.GetOrCompute("HudInfoHelmet");
+
+        ///<summary>
+        ///Update planet
+        ///</summary>
+        public static readonly MyStringId ScreenDebugSpawnMenu_UpdatePlanet = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_UpdatePlanet");
 
         ///<summary>
         ///Show/hide current block in terminal
@@ -10170,14 +10185,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintPressToOpenBuildMode = MyStringId.GetOrCompute("NotificationHintPressToOpenBuildMode");
 
         ///<summary>
-        ///Joining battle lobby
+        ///Joining battle
         ///</summary>
-        public static readonly MyStringId DialogTextJoiningBattleLobby = MyStringId.GetOrCompute("DialogTextJoiningBattleLobby");
+        public static readonly MyStringId DialogTextJoiningBattle = MyStringId.GetOrCompute("DialogTextJoiningBattle");
 
         ///<summary>
-        ///Joining battle lobby failed, reason: {0}
+        ///Joining battle failed, reason: {0}
         ///</summary>
-        public static readonly MyStringId DialogTextJoinBattleLobbyFailed = MyStringId.GetOrCompute("DialogTextJoinBattleLobbyFailed");
+        public static readonly MyStringId DialogTextJoinBattleFailed = MyStringId.GetOrCompute("DialogTextJoinBattleFailed");
 
         ///<summary>
         ///Press {0} to enter cryo chamber
@@ -10550,9 +10565,19 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
 
         ///<summary>
+        /// Enables flora for planets
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableFlora = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableFlora");
+
+        ///<summary>
         ///Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableStationVoxel");
+
+        ///<summary>
+        ///Density of flora elements on planets
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_FloraDensity = MyStringId.GetOrCompute("ToolTipWorldSettings_FloraDensity");
 
         ///<summary>
         ///Enable Flora
@@ -10658,6 +10683,16 @@ namespace Sandbox.Game.Localization
         ///No respawn point is available!  Try the refresh button for any available Medical rooms. If there is no chance of accessing a medical room, the game is over and you can leave the game.
         ///</summary>
         public static readonly MyStringId ScreenMedicals_NoRespawnPossible = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPossible");
+
+        ///<summary>
+        ///Enable/disable spawning of planets in world
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnablePlanets = MyStringId.GetOrCompute("ToolTipWorldSettings_EnablePlanets");
+
+        ///<summary>
+        ///Enable planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnablePlanets = MyStringId.GetOrCompute("WorldSettings_EnablePlanets");
 
         ///<summary>
         ///Download failed, please try again later.
@@ -10895,6 +10930,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MyGuiScreenTriggerNoSpawn = MyStringId.GetOrCompute("MyGuiScreenTriggerNoSpawn");
 
         ///<summary>
+        ///2 habitable planets near each other
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_2Planets = MyStringId.GetOrCompute("Description_Scenario_2Planets");
+
+        ///<summary>
+        ///World with one habitable planet 
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_Planet = MyStringId.GetOrCompute("Description_Scenario_Planet");
+
+        ///<summary>
+        ///2 planets
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_2Planets = MyStringId.GetOrCompute("DisplayName_Scenario_2Planets");
+
+        ///<summary>
+        ///Habitable planet
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_Planet = MyStringId.GetOrCompute("DisplayName_Scenario_Planet");
+
+        ///<summary>
         ///No respawn point is available!  Try the refresh button for any available Medical rooms. If there is no chance of accessing a medical room, the game will be over in {0:00}:{1:00}.
         ///</summary>
         public static readonly MyStringId ScreenMedicals_NoRespawnPlace = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPlace");
@@ -10913,6 +10968,16 @@ namespace Sandbox.Game.Localization
         ///Minimum size of moons
         ///</summary>
         public static readonly MyStringId WorldSettings_MoonSizeMin = MyStringId.GetOrCompute("WorldSettings_MoonSizeMin");
+
+        ///<summary>
+        ///Maximum size of planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PlanetSizeMax = MyStringId.GetOrCompute("WorldSettings_PlanetSizeMax");
+
+        ///<summary>
+        ///Minimum size of planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PlanetSizeMin = MyStringId.GetOrCompute("WorldSettings_PlanetSizeMin");
 
         ///<summary>
         ///World generator
@@ -11170,9 +11235,24 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId HudInfoGravityArtificial = MyStringId.GetOrCompute("HudInfoGravityArtificial");
 
         ///<summary>
+        ///Planet Gravity:
+        ///</summary>
+        public static readonly MyStringId HudInfoGravityNatural = MyStringId.GetOrCompute("HudInfoGravityNatural");
+
+        ///<summary>
         ///Oxygen: 
         ///</summary>
         public static readonly MyStringId HudInfoOxygen = MyStringId.GetOrCompute("HudInfoOxygen");
+
+        ///<summary>
+        ///One 120 km planet and one 50 km planet
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_BigSmall = MyStringId.GetOrCompute("Description_Scenario_BigSmall");
+
+        ///<summary>
+        ///Big and small planet
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_BigSmall = MyStringId.GetOrCompute("DisplayName_Scenario_BigSmall");
 
         ///<summary>
         ///Jump drives cannot be used in natural gravity.
@@ -11198,6 +11278,11 @@ namespace Sandbox.Game.Localization
         ///Jump drives cannot be used to jump into natural gravity field.
         ///</summary>
         public static readonly MyStringId NotificationCannotJumpIntoGravity = MyStringId.GetOrCompute("NotificationCannotJumpIntoGravity");
+
+        ///<summary>
+        ///Small star system with 3 planets and 3 moons.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_StarSystem = MyStringId.GetOrCompute("Description_Scenario_StarSystem");
 
         ///<summary>
         ///StarSystem
@@ -11230,9 +11315,19 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_GrassDensity = MyStringId.GetOrCompute("WorldSettings_GrassDensity");
 
         ///<summary>
+        ///Testing Star System to show Planet generation possibilities - all available planets and moons
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_TestStarSystem = MyStringId.GetOrCompute("Description_Scenario_TestStarSystem");
+
+        ///<summary>
         ///Test Star System
         ///</summary>
         public static readonly MyStringId DisplayName_Scenario_TestStarSystem = MyStringId.GetOrCompute("DisplayName_Scenario_TestStarSystem");
+
+        ///<summary>
+        ///Planets and their moons aligned next to each other.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_StarSystemAligned = MyStringId.GetOrCompute("Description_Scenario_StarSystemAligned");
 
         ///<summary>
         ///Star System Aligned
@@ -11253,6 +11348,11 @@ namespace Sandbox.Game.Localization
         ///Hydrogen Tank
         ///</summary>
         public static readonly MyStringId DisplayName_Block_HydrogenTank = MyStringId.GetOrCompute("DisplayName_Block_HydrogenTank");
+
+        ///<summary>
+        ///Hydrogen Tank Small
+        ///</summary>
+        public static readonly MyStringId DisplayName_Block_HydrogenTankSmall = MyStringId.GetOrCompute("DisplayName_Block_HydrogenTankSmall");
 
         ///<summary>
         ///Hydrogen Bottles
@@ -11368,5 +11468,150 @@ namespace Sandbox.Game.Localization
         ///Small Hydrogen Thruster
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SmallHydrogenThrust = MyStringId.GetOrCompute("DisplayName_Block_SmallHydrogenThrust");
+
+        ///<summary>
+        ///Wheels will not be propeled over this speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SuspensionSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SuspensionSpeed");
+
+        ///<summary>
+        ///Speed limit
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SuspensionSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SuspensionSpeed");
+
+        ///<summary>
+        ///Invert Propulsion
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_InvertPropulsion = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_InvertPropulsion");
+
+        ///<summary>
+        ///Invert the propulsion direction.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_InvertPropulsion = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_InvertPropulsion");
+
+        ///<summary>
+        ///Attached
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorAttached = MyStringId.GetOrCompute("BlockPropertiesText_MotorAttached");
+
+        ///<summary>
+        ///Looking for any rotor to attach
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorAttachingAny = MyStringId.GetOrCompute("BlockPropertiesText_MotorAttachingAny");
+
+        ///<summary>
+        ///Looking for specific rotor to attach
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorAttachingSpecific = MyStringId.GetOrCompute("BlockPropertiesText_MotorAttachingSpecific");
+
+        ///<summary>
+        ///Detached
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorDetached = MyStringId.GetOrCompute("BlockPropertiesText_MotorDetached");
+
+        ///<summary>
+        ///Superconductor Conduits
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_Superconductor = MyStringId.GetOrCompute("DisplayName_Item_Superconductor");
+
+        ///<summary>
+        ///Connector strength when aligning ship (yellow color), smaller strength of two connectors is used
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Connector_Strength = MyStringId.GetOrCompute("BlockPropertyDescription_Connector_Strength");
+
+        ///<summary>
+        ///Strength
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Connector_Strength = MyStringId.GetOrCompute("BlockPropertyTitle_Connector_Strength");
+
+        ///<summary>
+        ///Discharge
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Discharge = MyStringId.GetOrCompute("BlockPropertyTitle_Discharge");
+
+        ///<summary>
+        ///Discharge the battery
+        ///</summary>
+        public static readonly MyStringId ToolTipBatteryBlock_Discharge = MyStringId.GetOrCompute("ToolTipBatteryBlock_Discharge");
+
+        ///<summary>
+        ///Muted
+        ///</summary>
+        public static readonly MyStringId ScreenPlayers_Muted = MyStringId.GetOrCompute("ScreenPlayers_Muted");
+
+        ///<summary>
+        ///Gas refilled from bottles.
+        ///</summary>
+        public static readonly MyStringId NotificationGasBottleRefill = MyStringId.GetOrCompute("NotificationGasBottleRefill");
+
+        ///<summary>
+        ///Sliding Door
+        ///</summary>
+        public static readonly MyStringId DisplayName_Block_AirtightSlideDoor = MyStringId.GetOrCompute("DisplayName_Block_AirtightSlideDoor");
+
+        ///<summary>
+        ///Voice chat volume
+        ///</summary>
+        public static readonly MyStringId VoiceChatVolume = MyStringId.GetOrCompute("VoiceChatVolume");
+
+        ///<summary>
+        ///Space spiders
+        ///</summary>
+        public static readonly MyStringId DisplayName_Faction_SpaceSpiders = MyStringId.GetOrCompute("DisplayName_Faction_SpaceSpiders");
+
+        ///<summary>
+        ///Voxel quality
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_VoxelQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_VoxelQuality");
+
+        ///<summary>
+        ///Backpack
+        ///</summary>
+        public static readonly MyStringId DisplayName_AstronautBackpack = MyStringId.GetOrCompute("DisplayName_AstronautBackpack");
+
+        ///<summary>
+        ///Time remaining
+        ///</summary>
+        public static readonly MyStringId JoinGame_ColumnTitle_RemainingTime = MyStringId.GetOrCompute("JoinGame_ColumnTitle_RemainingTime");
+
+        ///<summary>
+        ///Lobby
+        ///</summary>
+        public static readonly MyStringId JoinGame_Lobby = MyStringId.GetOrCompute("JoinGame_Lobby");
+
+        ///<summary>
+        ///Waiting
+        ///</summary>
+        public static readonly MyStringId JoinGame_Waiting = MyStringId.GetOrCompute("JoinGame_Waiting");
+
+        ///<summary>
+        ///The game session has ended. Feel free to join another one.
+        ///</summary>
+        public static readonly MyStringId MultiplayerErrorSessionEnded = MyStringId.GetOrCompute("MultiplayerErrorSessionEnded");
+
+        ///<summary>
+        ///Bite attack
+        ///</summary>
+        public static readonly MyStringId DisplayName_Animation_SpiderAttackBite = MyStringId.GetOrCompute("DisplayName_Animation_SpiderAttackBite");
+
+        ///<summary>
+        ///Leg attack
+        ///</summary>
+        public static readonly MyStringId DisplayName_Animation_SpiderAttackLegs = MyStringId.GetOrCompute("DisplayName_Animation_SpiderAttackLegs");
+
+        ///<summary>
+        ///Stinger attack
+        ///</summary>
+        public static readonly MyStringId DisplayName_Animation_SpiderAttackStinger = MyStringId.GetOrCompute("DisplayName_Animation_SpiderAttackStinger");
+
+        ///<summary>
+        ///Burrow
+        ///</summary>
+        public static readonly MyStringId DisplayName_Animation_SpiderBurrow = MyStringId.GetOrCompute("DisplayName_Animation_SpiderBurrow");
+
+        ///<summary>
+        ///Deburrow
+        ///</summary>
+        public static readonly MyStringId DisplayName_Animation_SpiderDeburrow = MyStringId.GetOrCompute("DisplayName_Animation_SpiderDeburrow");
     }
 }
