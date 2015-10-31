@@ -1,0 +1,2739 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Prefabs>
+    <Prefab>
+      <Id>
+        <TypeId>PrefabDefinition</TypeId>
+        <SubtypeId>Base1</SubtypeId>
+      </Id>
+      <RespawnShip>false</RespawnShip>
+      <CubeGrid>
+        <EntityId>1</EntityId>
+        <PersistentFlags>CastShadows InScene</PersistentFlags>
+        <PositionAndOrientation>
+          <Position x="10" y="-10" z="0" />
+          <Forward x="0" y="0" z="-1" />
+          <Up x="0" y="1" z="0" />
+        </PositionAndOrientation>
+        <GridSizeEnum>Large</GridSizeEnum>
+        <CubeBlocks>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5135442243659409927</EntityId>
+            <Min x="-3" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3152744038451635988</EntityId>
+            <Min x="-4" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8092130459096119698</EntityId>
+            <Min x="-3" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2294816683994269507</EntityId>
+            <Min x="-4" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5349187718502608272</EntityId>
+            <Min x="-5" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-701017265895616950</EntityId>
+            <Min x="-3" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6415485987168398282</EntityId>
+            <Min x="-5" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7823670803772833844</EntityId>
+            <Min x="-3" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1778370167378847171</EntityId>
+            <Min x="-4" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7068872075737233738</EntityId>
+            <Min x="-4" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4927332273846103920</EntityId>
+            <Min x="-3" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1631509666264470547</EntityId>
+            <Min x="-4" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7366753482591988217</EntityId>
+            <Min x="-4" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3088729858431474892</EntityId>
+            <Min x="-3" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7573181123980829874</EntityId>
+            <Min x="-4" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7042351081055400965</EntityId>
+            <Min x="-3" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8932533038808108641</EntityId>
+            <Min x="-3" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8224369059485300232</EntityId>
+            <Min x="-4" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3526305940747795028</EntityId>
+            <Min x="-6" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8659000562746297838</EntityId>
+            <Min x="-7" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1499767979269266033</EntityId>
+            <Min x="-8" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8272073699769196412</EntityId>
+            <Min x="-6" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3724838457576851234</EntityId>
+            <Min x="-8" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2330795892530420362</EntityId>
+            <Min x="-8" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7802011540411639454</EntityId>
+            <Min x="-6" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4468397266055744500</EntityId>
+            <Min x="-7" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3141176589358455818</EntityId>
+            <Min x="-6" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>100614062345455416</EntityId>
+            <Min x="-7" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8765971968832227371</EntityId>
+            <Min x="-8" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4752745475998076919</EntityId>
+            <Min x="-7" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1852917417239025229</EntityId>
+            <Min x="-8" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3221607723084806087</EntityId>
+            <Min x="-5" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7223259345555058839</EntityId>
+            <Min x="-4" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6667159027680130848</EntityId>
+            <Min x="-2" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6532158411688812821</EntityId>
+            <Min x="-4" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>966170038758540545</EntityId>
+            <Min x="-3" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6496481147472887420</EntityId>
+            <Min x="-6" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7274266164243699117</EntityId>
+            <Min x="-3" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6690617055521538371</EntityId>
+            <Min x="-7" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>254162932082115021</EntityId>
+            <Min x="-9" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1730261088744497741</EntityId>
+            <Min x="-9" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7920119520592607202</EntityId>
+            <Min x="-5" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5952554957681221716</EntityId>
+            <Min x="-6" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3728352319579447179</EntityId>
+            <Min x="-6" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8283882458406195526</EntityId>
+            <Min x="-6" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3743771357465681946</EntityId>
+            <Min x="-2" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-1288627871183008215</EntityId>
+            <Min x="0" y="2" z="8" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-6682290232853309671</EntityId>
+            <Min x="-7" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Left" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Assembler">
+            <SubtypeName>LargeAssembler</SubtypeName>
+            <EntityId>8211444231945663185</EntityId>
+            <Min x="-12" y="3" z="-5" />
+            <BlockOrientation Forward="Backward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+            <CurrentBlueprint xsi:nil="true" />
+            <CurrentProgress>0</CurrentProgress>
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6394937436107817229</EntityId>
+            <Min x="1" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8664445836798776988</EntityId>
+            <Min x="2" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3206138381660664971</EntityId>
+            <Min x="3" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4121491910677522880</EntityId>
+            <Min x="1" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4566667804208466546</EntityId>
+            <Min x="2" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3369486577972636566</EntityId>
+            <Min x="1" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8170730270345832805</EntityId>
+            <Min x="2" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2421211508175151037</EntityId>
+            <Min x="3" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2665021886135547996</EntityId>
+            <Min x="4" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7853367334985453702</EntityId>
+            <Min x="1" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7830287521413348821</EntityId>
+            <Min x="2" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8491973902735498422</EntityId>
+            <Min x="3" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8438435002355571963</EntityId>
+            <Min x="4" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-9192733347749780826</EntityId>
+            <Min x="5" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7576239727698987803</EntityId>
+            <Min x="1" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>513882458490121329</EntityId>
+            <Min x="2" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3195871710304731384</EntityId>
+            <Min x="3" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8204047510147073447</EntityId>
+            <Min x="4" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4132651069761515594</EntityId>
+            <Min x="5" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-570399435673684424</EntityId>
+            <Min x="6" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3482468376610152539</EntityId>
+            <Min x="1" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2974823762225736146</EntityId>
+            <Min x="2" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2240089350831327833</EntityId>
+            <Min x="3" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-997511075306289808</EntityId>
+            <Min x="4" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7948650211290192426</EntityId>
+            <Min x="5" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3565508759483660661</EntityId>
+            <Min x="6" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5631361077428256823</EntityId>
+            <Min x="1" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1362735713688611072</EntityId>
+            <Min x="2" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6092662250628644485</EntityId>
+            <Min x="3" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6080797653281797312</EntityId>
+            <Min x="4" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2990000211420940383</EntityId>
+            <Min x="5" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4331007501465895699</EntityId>
+            <Min x="1" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4992833538081639831</EntityId>
+            <Min x="2" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6264897712780493324</EntityId>
+            <Min x="3" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2469898586356614580</EntityId>
+            <Min x="4" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1516780625106940034</EntityId>
+            <Min x="5" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8030344961473264843</EntityId>
+            <Min x="-5" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6652960601126544788</EntityId>
+            <Min x="-4" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>337627615055403573</EntityId>
+            <Min x="-3" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1752004208269085323</EntityId>
+            <Min x="-2" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6781322378863630387</EntityId>
+            <Min x="-1" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3375745297838599911</EntityId>
+            <Min x="0" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5549549494630176636</EntityId>
+            <Min x="1" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-866116767742725492</EntityId>
+            <Min x="2" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5558461884365597046</EntityId>
+            <Min x="3" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7389613828700773495</EntityId>
+            <Min x="4" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-631235978716504285</EntityId>
+            <Min x="-6" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6822369520709768244</EntityId>
+            <Min x="-4" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7407331867895969564</EntityId>
+            <Min x="-3" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1230709167021379806</EntityId>
+            <Min x="-2" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4935945344969281246</EntityId>
+            <Min x="-1" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4028833260307425383</EntityId>
+            <Min x="0" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7705995666662438542</EntityId>
+            <Min x="1" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2781807889421012809</EntityId>
+            <Min x="2" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2072791311108126081</EntityId>
+            <Min x="3" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7775456000273195832</EntityId>
+            <Min x="4" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6831656425190395136</EntityId>
+            <Min x="-6" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8858027860282773186</EntityId>
+            <Min x="-5" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5791826189347192946</EntityId>
+            <Min x="-4" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6512408438837746263</EntityId>
+            <Min x="-3" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2553108905431412227</EntityId>
+            <Min x="-2" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6713990033159662222</EntityId>
+            <Min x="-1" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5526790869675436550</EntityId>
+            <Min x="0" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>749358664658865518</EntityId>
+            <Min x="1" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>468572456248430766</EntityId>
+            <Min x="2" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8454303571101961069</EntityId>
+            <Min x="3" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1827870565945561581</EntityId>
+            <Min x="4" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>1857555504420052735</EntityId>
+            <Min x="-6" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Left" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5375835558695462635</EntityId>
+            <Min x="-5" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4075472142281808390</EntityId>
+            <Min x="-4" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1574241063119364082</EntityId>
+            <Min x="-3" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6398567782897060907</EntityId>
+            <Min x="-2" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5912853415222660510</EntityId>
+            <Min x="-1" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4656497771383166661</EntityId>
+            <Min x="0" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4709977429645029506</EntityId>
+            <Min x="1" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5533222600290404800</EntityId>
+            <Min x="2" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5111008012937327128</EntityId>
+            <Min x="3" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-718448240135455216</EntityId>
+            <Min x="4" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7697568953691313645</EntityId>
+            <Min x="5" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4974630245966607121</EntityId>
+            <Min x="3" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8031536723635732768</EntityId>
+            <Min x="4" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>2562893334536790864</EntityId>
+            <Min x="5" y="2" z="13" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>9160332305023164959</EntityId>
+            <Min x="5" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1301023100598215552</EntityId>
+            <Min x="6" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3088636941171243254</EntityId>
+            <Min x="6" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1096640743614115989</EntityId>
+            <Min x="5" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5772379369906696509</EntityId>
+            <Min x="6" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8436167149495871354</EntityId>
+            <Min x="5" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>9152510159791034629</EntityId>
+            <Min x="6" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5619054753473669091</EntityId>
+            <Min x="5" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-820390234535197783</EntityId>
+            <Min x="6" y="2" z="22" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1692026036500929805</EntityId>
+            <Min x="-6" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-692601924080940553</EntityId>
+            <Min x="6" y="2" z="23" />
+            <BlockOrientation Forward="Forward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>8486948831872800968</EntityId>
+            <Min x="4" y="2" z="12" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-5336160796779574349</EntityId>
+            <Min x="6" y="2" z="15" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7259301180529530425</EntityId>
+            <Min x="-6" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Refinery">
+            <SubtypeName>LargeRefinery</SubtypeName>
+            <EntityId>2051155153702897953</EntityId>
+            <Min x="-12" y="3" z="4" />
+            <BlockOrientation Forward="Right" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8353615126330638395</EntityId>
+            <Min x="-6" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2619163046859785947</EntityId>
+            <Min x="-6" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_MedicalRoom">
+            <SubtypeName>LargeMedicalRoom</SubtypeName>
+            <EntityId>-2885847269058311011</EntityId>
+            <Min x="-12" y="3" z="-1" />
+            <BlockOrientation Forward="Right" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5479070985744034051</EntityId>
+            <Min x="-1" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8732583849107566144</EntityId>
+            <Min x="-5" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6771298493495186307</EntityId>
+            <Min x="-6" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4642395926421867934</EntityId>
+            <Min x="-6" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1352049336598987803</EntityId>
+            <Min x="-5" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-9190900839577519655</EntityId>
+            <Min x="-6" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4457070326238795189</EntityId>
+            <Min x="-6" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8738222317373535262</EntityId>
+            <Min x="-4" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1798568326325699492</EntityId>
+            <Min x="-5" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8323241031434560426</EntityId>
+            <Min x="-3" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2988126188666854843</EntityId>
+            <Min x="-3" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-389383358375288618</EntityId>
+            <Min x="-4" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5251278217021933984</EntityId>
+            <Min x="-4" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4294830584115799312</EntityId>
+            <Min x="-4" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6267210375068203382</EntityId>
+            <Min x="-2" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6241716189593760785</EntityId>
+            <Min x="-3" y="2" z="8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>565506283130625517</EntityId>
+            <Min x="-2" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5786904395263277101</EntityId>
+            <Min x="-2" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1900068125869426837</EntityId>
+            <Min x="-2" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7907451210996810787</EntityId>
+            <Min x="-3" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7571942356303912599</EntityId>
+            <Min x="-2" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1526440933975267384</EntityId>
+            <Min x="-3" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8799971384081090178</EntityId>
+            <Min x="-3" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2429472926003362412</EntityId>
+            <Min x="-3" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>240084527022160322</EntityId>
+            <Min x="-3" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4840842167103581639</EntityId>
+            <Min x="-4" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7976294938128714545</EntityId>
+            <Min x="-5" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7776253519692222222</EntityId>
+            <Min x="-5" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2655963054879709317</EntityId>
+            <Min x="-5" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8315282752506973293</EntityId>
+            <Min x="-1" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3191078100998724163</EntityId>
+            <Min x="-1" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8607225312210792535</EntityId>
+            <Min x="-3" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2011661033508442916</EntityId>
+            <Min x="-1" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2284311326517429006</EntityId>
+            <Min x="-1" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1903952508052390297</EntityId>
+            <Min x="0" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3032353016301786895</EntityId>
+            <Min x="-3" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8929680472362835954</EntityId>
+            <Min x="-1" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7066462742910035683</EntityId>
+            <Min x="-1" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>488567795533748938</EntityId>
+            <Min x="-1" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8411852113738556493</EntityId>
+            <Min x="-1" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8125250791707996641</EntityId>
+            <Min x="-2" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4807337380118226584</EntityId>
+            <Min x="-5" y="2" z="21" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6568367848000577791</EntityId>
+            <Min x="-6" y="2" z="20" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>924054458755347675</EntityId>
+            <Min x="0" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7767565565556875682</EntityId>
+            <Min x="0" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3607723408694433624</EntityId>
+            <Min x="0" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2769829888607079292</EntityId>
+            <Min x="-2" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1190553039712659614</EntityId>
+            <Min x="-2" y="2" z="16" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1502499217629204057</EntityId>
+            <Min x="-2" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3313368389145154227</EntityId>
+            <Min x="-5" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2871422555306168511</EntityId>
+            <Min x="-1" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1412346328930330234</EntityId>
+            <Min x="0" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3074522829653268430</EntityId>
+            <Min x="0" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4877986894242461233</EntityId>
+            <Min x="-3" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2103985753435160652</EntityId>
+            <Min x="-1" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3058712954582295410</EntityId>
+            <Min x="-4" y="2" z="19" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1347677560586431540</EntityId>
+            <Min x="0" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8344036716334299263</EntityId>
+            <Min x="0" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2842771582284434468</EntityId>
+            <Min x="-3" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5836113679456267350</EntityId>
+            <Min x="-5" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-434329345557317225</EntityId>
+            <Min x="-5" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7417903784998854502</EntityId>
+            <Min x="-5" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3270716540760373870</EntityId>
+            <Min x="-4" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1104239742591448731</EntityId>
+            <Min x="-1" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2277066734313161482</EntityId>
+            <Min x="-4" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3887754219837448564</EntityId>
+            <Min x="-2" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8233205415550323203</EntityId>
+            <Min x="-5" y="2" z="18" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5110325106526333235</EntityId>
+            <Min x="-5" y="2" z="17" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5732087821650086471</EntityId>
+            <Min x="-4" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2342096520440134193</EntityId>
+            <Min x="-4" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6136120738567165711</EntityId>
+            <Min x="-4" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6239678319931792064</EntityId>
+            <Min x="-6" y="2" z="15" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3797740014918339461</EntityId>
+            <Min x="-6" y="2" z="14" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8457507177174348469</EntityId>
+            <Min x="-6" y="2" z="13" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8694741421383358520</EntityId>
+            <Min x="-6" y="2" z="12" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_GravityGenerator">
+            <SubtypeName />
+            <EntityId>-8825400779743360822</EntityId>
+            <Min x="-10" y="3" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+            <FieldSize x="150" y="150" z="150" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>6151376034584342942</EntityId>
+            <Min x="-3" y="2" z="-11" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2537832043019546833</EntityId>
+            <Min x="-4" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6677015975808546861</EntityId>
+            <Min x="-5" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2849301169670694821</EntityId>
+            <Min x="-6" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3530756102830005814</EntityId>
+            <Min x="-7" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2641883303565017980</EntityId>
+            <Min x="-8" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-388449021551502583</EntityId>
+            <Min x="-9" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7966892061027020010</EntityId>
+            <Min x="-10" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1093027220082454586</EntityId>
+            <Min x="-11" y="2" z="-11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>593624400004540148</EntityId>
+            <Min x="-12" y="2" z="-11" />
+            <BlockOrientation Forward="Backward" Up="Left" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-764353209540775475</EntityId>
+            <Min x="-3" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7872892697223296649</EntityId>
+            <Min x="-4" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4883558152746858881</EntityId>
+            <Min x="-5" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6411500047010462654</EntityId>
+            <Min x="0" y="2" z="9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>185311903550959024</EntityId>
+            <Min x="-7" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4630631956625981674</EntityId>
+            <Min x="-8" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5818865241481196541</EntityId>
+            <Min x="-9" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8870278045801142218</EntityId>
+            <Min x="-10" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2477530712106025048</EntityId>
+            <Min x="-11" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2629751600409834253</EntityId>
+            <Min x="-12" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8393922361333544963</EntityId>
+            <Min x="-3" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7353965667248313957</EntityId>
+            <Min x="-4" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>5848566533889352007</EntityId>
+            <Min x="1" y="2" z="9" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5938650940026398748</EntityId>
+            <Min x="-6" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3428459934369354025</EntityId>
+            <Min x="-7" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>494799439099349846</EntityId>
+            <Min x="-8" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1509335222349321036</EntityId>
+            <Min x="-9" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5186938939704359040</EntityId>
+            <Min x="-10" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5227641530673468545</EntityId>
+            <Min x="-11" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>234210657656298607</EntityId>
+            <Min x="-12" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3318935530449541616</EntityId>
+            <Min x="-3" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1731733967484194194</EntityId>
+            <Min x="-4" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-602777102376605591</EntityId>
+            <Min x="-5" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7996372818706028483</EntityId>
+            <Min x="-6" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5801271457361543157</EntityId>
+            <Min x="-7" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6980527144226122023</EntityId>
+            <Min x="-8" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8105166393398096469</EntityId>
+            <Min x="-9" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4676239209895351996</EntityId>
+            <Min x="-10" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2914280536573997205</EntityId>
+            <Min x="-11" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7751914238357157403</EntityId>
+            <Min x="-12" y="2" z="-8" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1444671961845453808</EntityId>
+            <Min x="-3" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4182711036318350586</EntityId>
+            <Min x="-4" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8857432753386841608</EntityId>
+            <Min x="-5" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8777691150193398407</EntityId>
+            <Min x="-6" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6612652012523092050</EntityId>
+            <Min x="-7" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5539728237768469245</EntityId>
+            <Min x="-8" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>279951148930326074</EntityId>
+            <Min x="-9" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6520017239120693736</EntityId>
+            <Min x="-10" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3261086906950771372</EntityId>
+            <Min x="-11" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8574474944159231137</EntityId>
+            <Min x="-12" y="2" z="-7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-119091513133699349</EntityId>
+            <Min x="-3" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3589683633613637909</EntityId>
+            <Min x="-4" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8413549628901139229</EntityId>
+            <Min x="-5" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2290328803403435972</EntityId>
+            <Min x="-6" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8428769393964326217</EntityId>
+            <Min x="-7" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2042281259054178037</EntityId>
+            <Min x="-8" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2747590703784556323</EntityId>
+            <Min x="-9" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-655043273708315984</EntityId>
+            <Min x="-10" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2227421228708875567</EntityId>
+            <Min x="-11" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7453689699915741854</EntityId>
+            <Min x="-12" y="2" z="-6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4225860365471009983</EntityId>
+            <Min x="-3" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2437297242080291801</EntityId>
+            <Min x="-4" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8383673307326206013</EntityId>
+            <Min x="-5" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3455937746096647259</EntityId>
+            <Min x="-6" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3017639517844013671</EntityId>
+            <Min x="-7" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1378841472203925149</EntityId>
+            <Min x="-8" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8538181233977641745</EntityId>
+            <Min x="-9" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2111202212552950436</EntityId>
+            <Min x="-10" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-813204623594490935</EntityId>
+            <Min x="-11" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5156094358340484303</EntityId>
+            <Min x="-12" y="2" z="-5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2591249146007552280</EntityId>
+            <Min x="-3" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3900757138748765026</EntityId>
+            <Min x="-4" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4878400658890622813</EntityId>
+            <Min x="0" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>690147934965293862</EntityId>
+            <Min x="-6" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-423105425662076935</EntityId>
+            <Min x="-7" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4957555210195814381</EntityId>
+            <Min x="-8" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8903495861168009662</EntityId>
+            <Min x="-9" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5045966773630794842</EntityId>
+            <Min x="-10" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7859214716446652680</EntityId>
+            <Min x="-11" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6951673572027479305</EntityId>
+            <Min x="-12" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3216346052853334960</EntityId>
+            <Min x="-3" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7906099853854432696</EntityId>
+            <Min x="-4" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-572674960043974264</EntityId>
+            <Min x="-6" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1610131644535236186</EntityId>
+            <Min x="-7" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8335377953417079098</EntityId>
+            <Min x="-8" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4972872217947498585</EntityId>
+            <Min x="-10" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4091082692221089329</EntityId>
+            <Min x="-11" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5876682897322372989</EntityId>
+            <Min x="-12" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-97346166060965122</EntityId>
+            <Min x="-6" y="2" z="-10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1391555919735874004</EntityId>
+            <Min x="-10" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8166336727984708767</EntityId>
+            <Min x="-12" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1513615580044246600</EntityId>
+            <Min x="1" y="2" z="10" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-869996818809774400</EntityId>
+            <Min x="-9" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>9107699616443667607</EntityId>
+            <Min x="-8" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1766202016427548422</EntityId>
+            <Min x="2" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>1121251097727405601</EntityId>
+            <Min x="3" y="2" z="11" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4812418439878863865</EntityId>
+            <Min x="-5" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7154604772165899564</EntityId>
+            <Min x="-9" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5337587000333229358</EntityId>
+            <Min x="-11" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6073514512194081217</EntityId>
+            <Min x="-8" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5973139745906671552</EntityId>
+            <Min x="-9" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4563714868953521280</EntityId>
+            <Min x="-7" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7445151125028351676</EntityId>
+            <Min x="-5" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6811330514449055556</EntityId>
+            <Min x="0" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2084132484618492184</EntityId>
+            <Min x="1" y="2" z="11" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4402079673445452226</EntityId>
+            <Min x="-5" y="2" z="-3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2676332416338411414</EntityId>
+            <Min x="-12" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3477111936625386088</EntityId>
+            <Min x="-10" y="2" z="-1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4828313021299533695</EntityId>
+            <Min x="-10" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3499073005708437134</EntityId>
+            <Min x="-10" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>431106847128874166</EntityId>
+            <Min x="-7" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5018208415748487441</EntityId>
+            <Min x="-10" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1683142232872044942</EntityId>
+            <Min x="-12" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>3492700974747048757</EntityId>
+            <Min x="-6" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-1343473708356755342</EntityId>
+            <Min x="2" y="2" z="10" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2056336376410018844</EntityId>
+            <Min x="-5" y="2" z="-4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5120454409411134461</EntityId>
+            <Min x="-11" y="2" z="-2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8800825317112370037</EntityId>
+            <Min x="-9" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7846013907822871931</EntityId>
+            <Min x="-12" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4875451418651635570</EntityId>
+            <Min x="-11" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7246195656780623429</EntityId>
+            <Min x="-12" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7022766297068904916</EntityId>
+            <Min x="-11" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>559930340181740109</EntityId>
+            <Min x="-11" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4299185988963159743</EntityId>
+            <Min x="-7" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6105574113537723395</EntityId>
+            <Min x="-9" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>5555231726645713854</EntityId>
+            <Min x="-2" y="2" z="6" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5924893226704333293</EntityId>
+            <Min x="-4" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4682467293648282678</EntityId>
+            <Min x="-10" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5919100175972136245</EntityId>
+            <Min x="-9" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-6694481754975210963</EntityId>
+            <Min x="-11" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1375750538469968281</EntityId>
+            <Min x="-12" y="2" z="3" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7463419535054396794</EntityId>
+            <Min x="-11" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3343599734277279143</EntityId>
+            <Min x="-12" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>365532680084451651</EntityId>
+            <Min x="-10" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>1007118342296421814</EntityId>
+            <Min x="-6" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5182555412308895742</EntityId>
+            <Min x="-8" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2317759968501217352</EntityId>
+            <Min x="-2" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>6181543001235347136</EntityId>
+            <Min x="-5" y="2" z="1" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>168932111904371575</EntityId>
+            <Min x="-5" y="2" z="5" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-3638917773910473028</EntityId>
+            <Min x="-10" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-8436427461098928918</EntityId>
+            <Min x="-12" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1457486543547818768</EntityId>
+            <Min x="-9" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>288921336914945123</EntityId>
+            <Min x="-10" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-7537866052077807197</EntityId>
+            <Min x="-8" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5852920175192698348</EntityId>
+            <Min x="-9" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-1426190450009563945</EntityId>
+            <Min x="-5" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>859618514810252109</EntityId>
+            <Min x="-11" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-2949194885312270346</EntityId>
+            <Min x="-12" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Left" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>8642832254581743227</EntityId>
+            <Min x="-5" y="2" z="-9" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4110606233631996946</EntityId>
+            <Min x="-5" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-5714744204947623587</EntityId>
+            <Min x="-11" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>7544992637843715911</EntityId>
+            <Min x="-12" y="2" z="0" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-4633645443568382383</EntityId>
+            <Min x="-11" y="2" z="2" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2795851199908592687</EntityId>
+            <Min x="-9" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>5919281226185185374</EntityId>
+            <Min x="-7" y="2" z="4" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>-2324796007280985877</EntityId>
+            <Min x="-8" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>4310476510979620537</EntityId>
+            <Min x="-7" y="2" z="6" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+            <EntityId>2730354218007824239</EntityId>
+            <Min x="-10" y="2" z="7" />
+            <BlockOrientation Forward="Forward" Up="Up" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock>
+            <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+            <EntityId>-8011788133925191618</EntityId>
+            <Min x="-1" y="2" z="7" />
+            <BlockOrientation Forward="Backward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+          </MyObjectBuilder_CubeBlock>
+          <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
+            <SubtypeName>LargeBlockSmallGenerator</SubtypeName>
+            <EntityId>-5762846080431834395</EntityId>
+            <Min x="-12" y="3" z="2" />
+            <BlockOrientation Forward="Forward" Up="Right" />
+            <ColorMaskHSV x="0" y="-1" z="0" />
+            <Inventory>
+              <Items>
+                <MyObjectBuilder_InventoryItem>
+                  <AmountDecimal>0.4</AmountDecimal>
+                  <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                    <SubtypeName>Uranium</SubtypeName>
+                  </PhysicalContent>
+                </MyObjectBuilder_InventoryItem>
+              </Items>
+            </Inventory>
+          </MyObjectBuilder_CubeBlock>
+        </CubeBlocks>
+        <IsStatic>true</IsStatic>
+        <Skeleton />
+        <LinearVelocity x="0" y="0" z="0" />
+        <AngularVelocity x="0" y="0" z="0" />
+        <XMirroxPlane xsi:nil="true" />
+        <YMirroxPlane xsi:nil="true" />
+        <ZMirroxPlane xsi:nil="true" />
+      </CubeGrid>
+    </Prefab>
+  </Prefabs>
+</Definitions>
