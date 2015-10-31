@@ -310,7 +310,7 @@ namespace Sandbox.Game.Gui
                 Controls.Add(m_environment);
             }
 
-            if (m_isNewGame && MyFakes.ENABLE_PLANETS == false)
+            if (m_isNewGame)
             {
                 Controls.Add(m_asteroidAmountLabel);
                 Controls.Add(m_asteroidAmountCombo);
@@ -333,11 +333,6 @@ namespace Sandbox.Game.Gui
                 Controls.Add(mods);
 
             Controls.Add(advanced);
-
-            if (m_isNewGame && MyFakes.ENABLE_PLANETS == true)
-            {
-                Controls.Add(m_worldGeneratorButton);
-            }
 
             float labelSize = 0.20f;
 
@@ -414,28 +409,7 @@ namespace Sandbox.Game.Gui
         private void scenario_SelectedChanged(MyGuiControlRadioButtonGroup group)
         {
             SetDefaultName();
-            if (MyFakes.ENABLE_PLANETS)
-            {
-                m_worldGeneratorButton.Enabled = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled;
-                if (m_worldGeneratorButton.Enabled)
-                {
-                    if (WorldGenerator != null)
-                    {
-                        WorldGenerator.GetSettings(m_settings);
-                        AsteroidAmount = WorldGenerator.AsteroidAmount;
-                    }
-                }
-                else if (m_settings != null)
-                {
-                    AsteroidAmount = 0;
-                    m_settings.EnableFlora = false;
-                    m_settings.EnablePlanets = false;
-                }
-            }
-            else
-            {
-                UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
-            }
+            UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
         }
 
         private MyGuiControlLabel MakeLabel(MyStringId textEnum)
@@ -468,13 +442,9 @@ namespace Sandbox.Game.Gui
             m_settings = GetDefaultSettings();
             m_settings.EnableToolShake = true;
 
-            m_settings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
-            m_settings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
-            m_settings.EnableStationVoxelSupport = MyPerGameSettings.Game == GameEnum.SE_GAME;
             m_settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
-            m_settings.CargoShipsEnabled = !m_settings.EnablePlanets;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
             SetSettingsToControls();
             SetDefaultName();
@@ -761,6 +731,8 @@ namespace Sandbox.Game.Gui
                         MyWorldGenerator.SetProceduralSettings(AsteroidAmount, m_settings);
                         m_asteroidAmount = 0;
                     }
+
+                    MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
 
                     MyGuiScreenGamePlay.StartLoading(delegate
                     {

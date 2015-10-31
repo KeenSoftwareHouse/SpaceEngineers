@@ -46,7 +46,7 @@ namespace VRageRender
         {
             if(MyRender11.MultisamplingEnabled)
             {
-                RC.SetDS(MyDepthStencilState.TestAAEdge, 0);
+                RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
             }
             RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, RTs);
             DrawFullscreenQuad();
@@ -59,7 +59,7 @@ namespace VRageRender
         internal static void RunFullscreenSampleFreq(params MyBindableResource[] RTs)
         {
             Debug.Assert(MyRender11.MultisamplingEnabled);
-            RC.SetDS(MyDepthStencilState.TestAAEdge, 0x80);
+            RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
             RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, RTs);
             DrawFullscreenQuad();
             RC.SetDS(MyDepthStencilState.DefaultDepthState);

@@ -51,17 +51,13 @@ namespace Sandbox.Game.Gui
             AddCheckBox("Enable asteroid shadows", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.EnableAsteroidShadows));
             AddCheckBox("Enable ambient map", () => MyRenderProxy.Settings.EnableEnvironmentMapAmbient, (x) => MyRenderProxy.Settings.EnableEnvironmentMapAmbient = x);
             AddCheckBox("Enable reflection map", () => MyRenderProxy.Settings.EnableEnvironmentMapReflection, (x) => MyRenderProxy.Settings.EnableEnvironmentMapReflection = x);
-            AddCheckBox("Enable voxel ambient", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.EnablePerVertexVoxelAmbient));
-            AddSlider("Intensity", 0, 10.0f, MySector.SunProperties, MemberHelper.GetMember(() => MySector.SunProperties.SunIntensity));
-            AddCheckBox("Show cascade splits", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShowCascadeSplits));
-            //nefunguje po obfuskaci
-            // AddSlider(new StringBuilder("ShadowBias"), 0, 0.01f, shadowMapEffect, MemberHelper.GetMember(() => shadowMapEffect.ShadowBias));
+            AddCheckBox("Enable voxel ambient", null, MemberHelper.GetMember(() => MyRenderSettings.EnableVoxelAo));
+            AddSlider("Voxel AO min", 0f, 1f, null, MemberHelper.GetMember(() => MyRenderSettings.VoxelAoMin));
+            AddSlider("Voxel AO max", 0f, 1f, null, MemberHelper.GetMember(() => MyRenderSettings.VoxelAoMax));
+            AddSlider("Voxel AO offset", -2f, 2f, null, MemberHelper.GetMember(() => MyRenderSettings.VoxelAoOffset));
+            m_currentPosition.Y += 0.01f;
 
-            AddCheckBox("Enable shadow interleaving", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShadowInterleaving));
-            AddCheckBox("Freeze cascade 0", () => MyRenderProxy.Settings.FreezeCascade0, (x) => MyRenderProxy.Settings.FreezeCascade0 = x);
-            AddCheckBox("Freeze cascade 1", () => MyRenderProxy.Settings.FreezeCascade1, (x) => MyRenderProxy.Settings.FreezeCascade1 = x);
-            AddCheckBox("Freeze cascade 2", () => MyRenderProxy.Settings.FreezeCascade2, (x) => MyRenderProxy.Settings.FreezeCascade2 = x);
-            AddCheckBox("Freeze cascade 3", () => MyRenderProxy.Settings.FreezeCascade3, (x) => MyRenderProxy.Settings.FreezeCascade3 = x);
+            AddSlider("Sun Intensity", 0, 10.0f, MySector.SunProperties, MemberHelper.GetMember(() => MySector.SunProperties.SunIntensity));
         }
 
         public override string GetFriendlyName()

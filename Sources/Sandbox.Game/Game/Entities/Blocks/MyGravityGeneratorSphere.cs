@@ -1,30 +1,17 @@
 ﻿#region Using
 
-using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using Havok;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Multiplayer;
-
-using VRage.Trace;
 using VRageMath;
-using Sandbox.Game.World;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
-using System.Diagnostics;
 using System;
-using VRageRender;
-using Sandbox.Game.Screens.Terminal.Controls;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
@@ -36,7 +23,7 @@ using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_GravityGeneratorSphere))]
-    class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGeneratorSphere
+    class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyGravityGeneratorSphere
     {
         private new MyGravityGeneratorSphereDefinition BlockDefinition
         {
@@ -130,23 +117,30 @@ namespace Sandbox.Game.Entities
             SyncObject = new MySyncGravityGeneratorSphere(this);
 
             m_defaultVolume = (float)(Math.Pow(DEFAULT_RADIUS, BlockDefinition.ConsumptionPower) * Math.PI * 0.75);
-            
-                PowerReceiver = new MyPowerReceiver(
-                    MyConsumerGroupEnum.Utility,
-                    false,
-                    CalculateRequiredPowerInputForRadius(BlockDefinition.MaxRadius),
-                    this.CalculateRequiredPowerInput);
-                if (CubeGrid.CreatePhysics)
-                {
-                    PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-                    PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
-                    PowerReceiver.Update();
-                    AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
-                    AddDebugRenderComponent(new Components.MyDebugRenderComponentGravityGeneratorSphere(this));
-                }
+	        
+			if (CubeGrid.CreatePhysics)
+				AddDebugRenderComponent(new Components.MyDebugRenderComponentGravityGeneratorSphere(this));
         }
 
-        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+	    protected override void InitializeSinkComponent()
+	    {
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+					BlockDefinition.ResourceSinkGroup,
+					CalculateRequiredPowerInputForRadius(BlockDefinition.MaxRadius),
+					CalculateRequiredPowerInput);
+		    ResourceSink = sinkComp;
+
+		    if (CubeGrid.CreatePhysics)
+		    {
+			    ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			    ResourceSink.RequiredInputChanged += Receiver_RequiredInputChanged;
+			    ResourceSink.Update();
+				AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
+		    }
+	    }
+
+	    public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_GravityGeneratorSphere)base.GetObjectBuilderCubeBlock(copy);
 
@@ -191,10 +185,10 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
 

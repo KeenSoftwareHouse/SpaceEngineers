@@ -15,7 +15,7 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyGridNavigationMesh : MyNavigationMesh
     {
-        private struct EdgeIndex
+        private struct EdgeIndex: IEquatable<EdgeIndex>
         {
             public Vector3I A;
             public Vector3I B;
@@ -39,14 +39,19 @@ namespace Sandbox.Game.AI.Pathfinding
 
             public override bool Equals(object obj)
             {
+                Debug.Assert(false, "Equals on struct does allocation!");
                 if (!(obj is EdgeIndex)) return false;
-                var other = (EdgeIndex)obj;
-                return other.A == A && other.B == B;
+                return this.Equals((EdgeIndex)obj);
             }
 
             public override string ToString()
             {
                 return "(" + A.ToString() + ", " + B.ToString() + ")";
+            }
+
+            public bool Equals(EdgeIndex other)
+            {
+                return A == other.A && B == other.B;
             }
         }
 
@@ -489,7 +494,7 @@ namespace Sandbox.Game.AI.Pathfinding
             Vector3 newA, newB, newC;
             otherTri.GetTransformed(ref transform, out newA, out newB, out newC);
 
-            if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+            if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
             {
                 Vector3 n = Vector3.Cross(newC - newA, newB - newA);
                 n.Normalize();

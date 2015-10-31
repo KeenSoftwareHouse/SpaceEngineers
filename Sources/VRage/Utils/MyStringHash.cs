@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Serialization;
 
 namespace VRage.Utils
 {
@@ -28,12 +29,20 @@ namespace VRage.Utils
             m_hash = hash;
         }
 
+        public string String
+        {
+            get
+            {
+                using (m_lock.AcquireSharedUsing())
+                {
+                    return m_hashToString[this];
+                }
+            }
+        }
+
         public override string ToString()
         {
-            using (m_lock.AcquireSharedUsing())
-            {
-                return m_hashToString[this];
-            }
+            return String;
         }
 
         public override int GetHashCode()
@@ -51,8 +60,8 @@ namespace VRage.Utils
             return m_hash == id.m_hash;
         }
 
-        public static bool operator == (MyStringHash lhs, MyStringHash rhs) { return lhs.m_hash == rhs.m_hash; }
-        public static bool operator != (MyStringHash lhs, MyStringHash rhs) { return lhs.m_hash != rhs.m_hash; }
+        public static bool operator ==(MyStringHash lhs, MyStringHash rhs) { return lhs.m_hash == rhs.m_hash; }
+        public static bool operator !=(MyStringHash lhs, MyStringHash rhs) { return lhs.m_hash != rhs.m_hash; }
 
         public static explicit operator int(MyStringHash id) { return id.m_hash; }
 

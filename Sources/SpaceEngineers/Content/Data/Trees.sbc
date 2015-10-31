@@ -3,148 +3,249 @@
   <EnvironmentItems>
 
     <!--Version 01-->
-
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree02</SubtypeId>
+        <SubtypeId>LeafTree</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>9.495</Height>
-      <Diameter>0.247</Diameter>
+      <Model>Models\Environment\Trees\LeafTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <StumpEndHeight>0.262</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree03</SubtypeId>
+        <SubtypeId>LeafTreeMedium</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>14.242</Height>
-      <Diameter>0.371</Diameter>
-      <BranchesStartHeight>5.302</BranchesStartHeight>
-      <StumpEndHeight>0.358</StumpEndHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
-    </EnvironmentItem>
-
-    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
-      <Id>
-        <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree04</SubtypeId>
-      </Id>
-      <Model>Models\Environment\Trees\PineTree175m.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>17.422</Height>
-      <Diameter>0.453</Diameter>
-      <BranchesStartHeight>10.689</BranchesStartHeight>
-      <StumpEndHeight>0.242</StumpEndHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
-    </EnvironmentItem>
-
-    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
-      <Id>
-        <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree05</SubtypeId>
-      </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>21.952</Height>
-      <Diameter>0.571</Diameter>
-      <BranchesStartHeight>5.351</BranchesStartHeight>
-      <StumpEndHeight>0.605</StumpEndHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
-    </EnvironmentItem>
-
-    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
-      <Id>
-        <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree06</SubtypeId>
-      </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>23.736</Height>
-      <Diameter>0.618</Diameter>
-      <BranchesStartHeight>7.588</BranchesStartHeight>
-      <StumpEndHeight>0.976</StumpEndHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
-    </EnvironmentItem>
-
-    <!--Version 02-->
-
-    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
-      <Id>
-        <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree02_v2</SubtypeId>
-      </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>9.495</Height>
-      <Diameter>0.247</Diameter>
+      <Model>Models\Environment\Trees\LeafTreeMedium.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <StumpEndHeight>0.262</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree03_v2</SubtypeId>
+        <SubtypeId>PineTree</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>14.242</Height>
-      <Diameter>0.371</Diameter>
+      <Model>Models\Environment\Trees\PineTree.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>PineTreeMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTreeMedium.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>DesertTree</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\DesertTree.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>DesertTreeMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\DesertTreeMedium.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+    
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>DesertTreeDead</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\DesertTreeDead.mwm</Model>
       <BranchesStartHeight>5.302</BranchesStartHeight>
-      <StumpEndHeight>0.358</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>70</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree04_v2</SubtypeId>
+        <SubtypeId>DesertTreeDeadMedium</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>17.422</Height>
-      <Diameter>0.453</Diameter>
+      <Model>Models\Environment\Trees\DesertTreeDeadMedium.mwm</Model>
+      <BranchesStartHeight>5.302</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>70</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>PineTreeSnow</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTreeSnow.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <StumpEndHeight>0.242</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree05_v2</SubtypeId>
+        <SubtypeId>PineTreeSnowMedium</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>21.952</Height>
-      <Diameter>0.571</Diameter>
-      <BranchesStartHeight>5.351</BranchesStartHeight>
-      <StumpEndHeight>0.605</StumpEndHeight>
+      <Model>Models\Environment\Trees\PineTreeSnowMedium.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <!--Alien Trees-->
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienLeafTreeMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienLeafTreeMedium.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
-        <SubtypeId>Tree06_v2</SubtypeId>
+        <SubtypeId>AlienLeafTree</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>23.736</Height>
-      <Diameter>0.618</Diameter>
-      <BranchesStartHeight>7.588</BranchesStartHeight>
-      <StumpEndHeight>0.976</StumpEndHeight>
+      <Model>Models\Environment\Trees\AlienLeafTree.mwm</Model>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>50</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienPineTree</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienPineTree.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienPineTreeMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienPineTreeMedium.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienPineTreeSnow</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienPineTreeSnow.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienPineTreeSnowMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienPineTreeSnowMedium.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienDesertTree</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienDesertTree.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienDesertTreeMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienDesertTreeMedium.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienDesertTreeDead</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienDesertTreeDead.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>AlienDesertTreeDeadMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\AlienDesertTreeDeadMedium.mwm</Model>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+    </EnvironmentItem>
+    
+    <!--Alien Trees End-->
+   
   </EnvironmentItems>
 </Definitions>

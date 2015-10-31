@@ -8,13 +8,20 @@
       </Id>
       <CubeGrids>
         <CubeGrid>
-          <EntityId>174894497433861245</EntityId>
+          <EntityId>92583053440549270</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
           <PositionAndOrientation>
-            <Position x="2800.0870240731383" y="-244.25009578907157" z="541.33524384164775" />
-            <Forward x="0.9791857" y="-0.07628835" z="0.188083515" />
-            <Up x="0.07999859" y="-0.7065936" z="-0.703083038" />
+            <Position x="-31.843837818010797" y="16.427285493023987" z="-55.670223963533545" />
+            <Forward x="0.9684372" y="0.131400213" z="-0.211809888" />
+            <Up x="-0.120079771" y="-0.498708427" z="-0.8584118" />
+            <Orientation>
+              <X>-0.5168345</X>
+              <Y>-0.3563385</Y>
+              <Z>0.6944324</Z>
+              <W>0.351665527</W>
+            </Orientation>
           </PositionAndOrientation>
+          <EntityDefinitionId xsi:nil="true" />
           <GridSizeEnum>Large</GridSizeEnum>
           <CubeBlocks>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -22,18 +29,16 @@
               <Min x="0" y="1" z="3" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>197949788649413468</EntityId>
+              <EntityId>130821534364818664</EntityId>
               <Min x="-1" y="2" z="1" />
               <BlockOrientation Forward="Left" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -41,97 +46,26 @@
               <Min x="2" y="2" z="3" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Cockpit">
               <SubtypeName>LargeBlockCockpitSeat</SubtypeName>
-              <EntityId>177851405253769312</EntityId>
+              <EntityId>143356869011546392</EntityId>
               <Min x="1" y="3" z="3" />
               <BlockOrientation Forward="Backward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <UseSingleWeaponMode>false</UseSingleWeaponMode>
               <Toolbar>
                 <ToolbarType>Character</ToolbarType>
                 <SelectedSlot xsi:nil="true" />
                 <Slots />
-                <ColorMaskHSVList>
-                  <Vector3>
-                    <X>0.122222222</X>
-                    <Y>0.87</Y>
-                    <Z>0.29</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>0</Y>
-                    <Z>0.05</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.333333343</X>
-                    <Y>-0.48</Y>
-                    <Z>-0.25</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0</Y>
-                    <Z>0</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.127777785</X>
-                    <Y>-0.16</Y>
-                    <Z>0.44</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.95</Y>
-                    <Z>0.4</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.96</Y>
-                    <Z>-0.5</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.85</Y>
-                    <Z>0.2</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>0.15</Y>
-                    <Z>0.25</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.333333343</X>
-                    <Y>-0.329999983</Y>
-                    <Z>-0.049999997</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0.15</Y>
-                    <Z>0.2</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.122222222</X>
-                    <Y>0.87</Y>
-                    <Z>0.29</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.8</Y>
-                    <Z>0.6</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.809999943</Y>
-                    <Z>-0.3</Z>
-                  </Vector3>
-                </ColorMaskHSVList>
               </Toolbar>
               <SelectedGunId xsi:nil="true" />
+              <IsMainCockpit>false</IsMainCockpit>
+              <HorizonIndicatorEnabled>true</HorizonIndicatorEnabled>
               <PilotRelativeWorld xsi:nil="true" />
               <PilotGunDefinition xsi:nil="true" />
               <IsInFirstPersonView>true</IsInFirstPersonView>
@@ -142,56 +76,48 @@
               <Min x="2" y="3" z="3" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="1" y="2" z="-6" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>199727388448228912</EntityId>
+              <EntityId>100285520698788861</EntityId>
               <Min x="1" y="1" z="2" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 2</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeCurved</SubtypeName>
-              <EntityId>146488642962524100</EntityId>
+              <EntityId>130731865546180800</EntityId>
               <Min x="1" y="2" z="3" />
               <BlockOrientation Forward="Left" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="3" z="1" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>193136167953550478</EntityId>
+              <EntityId>92634156754032203</EntityId>
               <Min x="2" y="2" z="1" />
               <BlockOrientation Forward="Right" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 3</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -199,103 +125,82 @@
               <Min x="2" y="1" z="3" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="3" y="3" z="2" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="0" y="1" z="2" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="0" y="1" z="1" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="0" y="1" z="0" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="1" z="2" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="1" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="1" z="0" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="3" y="2" z="0" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="1" z="-5" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>188963634019315466</EntityId>
+              <EntityId>121080214197422446</EntityId>
               <Min x="0" y="2" z="-6" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 4</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>176771757568990304</EntityId>
+              <EntityId>89776829525551748</EntityId>
               <Min x="1" y="1" z="1" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 5</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -303,82 +208,75 @@
               <Min x="3" y="1" z="0" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="1" z="0" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
-              <EntityId>146132836487623824</EntityId>
+              <EntityId>132972806853677815</EntityId>
               <Min x="0" y="2" z="0" />
               <IntegrityPercent>0.375</IntegrityPercent>
               <BuildPercent>0.375</BuildPercent>
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="2" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="1" z="-4" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="2" z="-6" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>189559225488548886</EntityId>
+              <EntityId>133884137802703313</EntityId>
               <Min x="0" y="1" z="-6" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 6</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Assembler">
               <SubtypeName>LargeAssembler</SubtypeName>
-              <EntityId>202364188530216188</EntityId>
+              <EntityId>83088686520365441</EntityId>
               <Min x="0" y="1" z="-4" />
               <BlockOrientation Forward="Forward" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <Owner>144115188075855881</Owner>
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <InputInventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanReceive</InventoryFlags>
               </InputInventory>
               <OutputInventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanSend</InventoryFlags>
               </OutputInventory>
               <CurrentProgress>0</CurrentProgress>
               <DisassembleEnabled>false</DisassembleEnabled>
@@ -389,60 +287,48 @@
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="1" y="1" z="-5" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="2" z="-2" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="2" z="-3" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="1" z="-3" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="1" y="1" z="-6" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="1" z="-4" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
               <SubtypeName>LargeBlockSmallGenerator</SubtypeName>
-              <EntityId>157693731399428849</EntityId>
+              <EntityId>134211356531518362</EntityId>
               <Min x="0" y="2" z="2" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items>
@@ -456,17 +342,22 @@
                   </MyObjectBuilder_InventoryItem>
                 </Items>
                 <nextItemId>1</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanReceive</InventoryFlags>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_OxygenGenerator">
               <SubtypeName />
-              <EntityId>208518874662115725</EntityId>
+              <EntityId>133723490869036567</EntityId>
               <Min x="1" y="2" z="2" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items>
@@ -482,6 +373,7 @@
                     <Amount>1</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
                       <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
                       <OxygenLevel>1</OxygenLevel>
                     </PhysicalContent>
                     <ItemId>1</ItemId>
@@ -491,6 +383,7 @@
                     <Amount>1</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
                       <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
                       <OxygenLevel>1</OxygenLevel>
                     </PhysicalContent>
                     <ItemId>2</ItemId>
@@ -500,6 +393,7 @@
                     <Amount>1</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
                       <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
                       <OxygenLevel>1</OxygenLevel>
                     </PhysicalContent>
                     <ItemId>3</ItemId>
@@ -507,6 +401,10 @@
                   </MyObjectBuilder_InventoryItem>
                 </Items>
                 <nextItemId>4</nextItemId>
+                <Volume>4</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2" y="2" z="2" />
+                <InventoryFlags>CanReceive</InventoryFlags>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -514,27 +412,23 @@
               <Min x="-1" y="1" z="2" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="3" y="1" z="2" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>197660733551319088</EntityId>
+              <EntityId>98996039866117105</EntityId>
               <Min x="2" y="2" z="-6" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 7</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -542,81 +436,75 @@
               <Min x="3" y="2" z="-5" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="2" y="2" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="2" z="-4" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="2" z="-3" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="3" y="1" z="1" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="1" z="1" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>145125569316194861</EntityId>
+              <EntityId>136763905333398414</EntityId>
               <Min x="1" y="1" z="0" />
               <IntegrityPercent>0.9</IntegrityPercent>
               <BuildPercent>0.9</BuildPercent>
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 8</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Refinery">
               <SubtypeName>LargeRefinery</SubtypeName>
-              <EntityId>192204543857225663</EntityId>
+              <EntityId>81155535845176746</EntityId>
               <Min x="1" y="1" z="-4" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <Owner>144115188075855881</Owner>
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <InputInventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>7.5</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanReceive</InventoryFlags>
               </InputInventory>
               <OutputInventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>7.5</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanSend</InventoryFlags>
               </OutputInventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -624,34 +512,67 @@
               <Min x="-1" y="1" z="-5" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Gyro">
               <SubtypeName>LargeBlockGyro</SubtypeName>
-              <EntityId>212614469900830862</EntityId>
+              <EntityId>78082119496266309</EntityId>
               <Min x="0" y="2" z="-1" />
               <BlockOrientation Forward="Right" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <Owner>144115188075855881</Owner>
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CargoContainer">
               <SubtypeName>LargeBlockSmallContainer</SubtypeName>
-              <EntityId>172724095742849486</EntityId>
+              <EntityId>87671538755297942</EntityId>
               <Min x="0" y="1" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <Owner>144115188075855881</Owner>
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Inventory>
-                <Items />
-                <nextItemId>0</nextItemId>
+                <Items>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>40</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_AmmoMagazine">
+                      <SubtypeName>NATO_5p56x45mm</SubtypeName>
+                      <ProjectilesCount>0</ProjectilesCount>
+                    </PhysicalContent>
+                    <ItemId>0</ItemId>
+                    <AmountDecimal>40</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>WelderItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>1</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>HandDrillItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>2</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>AngleGrinderItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>3</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                </Items>
+                <nextItemId>4</nextItemId>
+                <Volume>15.625</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanReceive CanSend</InventoryFlags>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -659,139 +580,105 @@
               <Min x="0" y="2" z="-4" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="1" z="-1" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="2" z="-1" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="2" z="-5" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="2" z="-2" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="1" z="-6" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="2" z="-1" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockInteriorWall</SubtypeName>
               <Min x="0" y="2" z="-3" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="1" z="-1" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="0" y="1" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="1" z="-2" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="1" z="-3" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="2" z="-4" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="3" y="1" z="-2" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockInteriorWall</SubtypeName>
               <Min x="0" y="2" z="-2" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="1" y="2" z="-5" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>LargeBlockSmallThrust</SubtypeName>
-              <EntityId>159854181938555878</EntityId>
+              <EntityId>93379673462407948</EntityId>
               <Min x="2" y="1" z="-6" />
               <BlockOrientation Forward="Forward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 9</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -799,154 +686,113 @@
               <Min x="2" y="3" z="2" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="3" y="3" z="0" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="2" y="3" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="3" z="0" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="0" y="3" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="0" y="2" z="3" />
               <BlockOrientation Forward="Forward" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="0" y="3" z="3" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="0" y="3" z="2" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorBlock</SubtypeName>
               <Min x="1" y="3" z="2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorSlope</SubtypeName>
               <Min x="-1" y="3" z="1" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="3" z="2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="2" y="3" z="-1" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
               <Min x="0" y="3" z="0" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="0" y="3" z="-1" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeBlockArmorCorner</SubtypeName>
               <Min x="-1" y="3" z="0" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
           </CubeBlocks>
-          <IsStatic>false</IsStatic>
           <Skeleton>
             <BoneInfo>
               <BonePosition x="4" y="3" z="3" />
-              <BoneOffset x="133" y="127" z="127" />
+              <BoneOffset x="134" y="127" z="127" />
             </BoneInfo>
             <BoneInfo>
               <BonePosition x="4" y="4" z="3" />
-              <BoneOffset x="135" y="127" z="127" />
+              <BoneOffset x="136" y="127" z="127" />
             </BoneInfo>
             <BoneInfo>
               <BonePosition x="4" y="5" z="3" />
-              <BoneOffset x="133" y="127" z="127" />
+              <BoneOffset x="134" y="127" z="127" />
             </BoneInfo>
             <BoneInfo>
               <BonePosition x="2" y="3" z="3" />
-              <BoneOffset x="126" y="127" z="133" />
+              <BoneOffset x="126" y="127" z="134" />
             </BoneInfo>
             <BoneInfo>
               <BonePosition x="2" y="4" z="3" />
-              <BoneOffset x="123" y="127" z="133" />
+              <BoneOffset x="123" y="127" z="134" />
             </BoneInfo>
             <BoneInfo>
               <BonePosition x="2" y="5" z="3" />
-              <BoneOffset x="126" y="127" z="133" />
+              <BoneOffset x="126" y="127" z="134" />
             </BoneInfo>
           </Skeleton>
-          <LinearVelocity x="0" y="0" z="0" />
-          <AngularVelocity x="0" y="0" z="0" />
-          <XMirroxPlane xsi:nil="true" />
-          <YMirroxPlane xsi:nil="true" />
-          <ZMirroxPlane xsi:nil="true" />
           <DampenersEnabled>false</DampenersEnabled>
           <ConveyorLines>
             <MyObjectBuilder_ConveyorLine>
@@ -975,15 +821,12 @@
               <ConveyorLineType>LARGE_LINE</ConveyorLineType>
             </MyObjectBuilder_ConveyorLine>
           </ConveyorLines>
-          <BlockGroups />
-          <Handbrake>false</Handbrake>
           <DisplayName>Large Ship 6694</DisplayName>
           <OxygenAmount>
             <float>0</float>
             <float>0</float>
           </OxygenAmount>
-          <CreatePhysics>true</CreatePhysics>
-          <EnableSmallToLargeConnections>true</EnableSmallToLargeConnections>
+          <DestructibleBlocks>true</DestructibleBlocks>
         </CubeGrid>
       </CubeGrids>
     </Prefab>

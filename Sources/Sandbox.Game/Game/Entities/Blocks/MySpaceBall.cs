@@ -251,7 +251,8 @@ namespace Sandbox.Game.Entities
 
         private void UpdatePhysics()
         {
-            Physics.Enabled = IsWorking && CubeGrid.Physics != null && CubeGrid.Physics.Enabled;
+            if(Physics != null)
+                Physics.Enabled = IsWorking && CubeGrid.Physics != null && CubeGrid.Physics.Enabled;
         }
 
         private void UpdateEmissivity()

@@ -41,6 +41,7 @@ namespace VRageRender
             MySpritesRenderer.Init();
             MyPrimitivesRenderer.Init();
             MyFoliageRenderer.Init();
+            MyOutline.Init();
 
             MyComponents.Init();
 
@@ -51,7 +52,6 @@ namespace VRageRender
             MyScreenDecals.Init();
             MyEnvProbeProcessing.Init();
             MyShadowsResolve.Init();
-            MyAtmosphereRenderer.Init();
             MyAAEdgeMarking.Init(); 
             MyScreenPass.Init();
             MyCopyToRT.Init();
@@ -204,6 +204,7 @@ namespace VRageRender
         internal static MyUnorderedAccessTexture m_reduce0;
         internal static MyUnorderedAccessTexture m_reduce1;
         internal static MyUnorderedAccessTexture m_uav3;
+		internal static MyUnorderedAccessTexture m_cloudLayerFogTargetUAV;
         internal static MyUnorderedAccessTexture m_prevLum;
         internal static MyUnorderedAccessTexture m_localLum;
 
@@ -215,6 +216,8 @@ namespace VRageRender
         internal static MyUnorderedAccessTexture m_rgba8_linear;
         internal static MyCustomTexture m_rgba8_0;
         internal static MyRenderTarget m_rgba8_1;
+        internal static MyRenderTarget m_rgba8_2;
+        internal static MyRenderTarget m_rgba8_ms;
 
         internal static RwTexId m_shadowsHelper = RwTexId.NULL;
         internal static RwTexId m_shadowsHelper1 = RwTexId.NULL;
@@ -228,6 +231,7 @@ namespace VRageRender
                 m_reduce0.Release();
                 m_reduce1.Release();
                 m_uav3.Release();
+				m_cloudLayerFogTargetUAV.Release();
                 m_localLum.Release();
                 m_div2.Release();
                 m_div4.Release();
@@ -236,6 +240,12 @@ namespace VRageRender
                 m_rgba8_linear.Release();
                 m_rgba8_0.Release();
                 m_rgba8_1.Release();
+                m_rgba8_2.Release();
+                if (m_rgba8_ms != null)
+                {
+                    m_rgba8_ms.Release();
+                    m_rgba8_ms = null;
+                }
                 m_prevLum.Release();
 
                 MyRwTextures.Destroy(ref m_shadowsHelper);
@@ -267,6 +277,9 @@ namespace VRageRender
             m_reduce1.SetDebugName("reduce1");
             m_uav3 = new MyUnorderedAccessTexture(width, height, Format.R11G11B10_Float);
 
+			m_cloudLayerFogTargetUAV = new MyUnorderedAccessTexture(width, height, Format.R11G11B10_Float);
+			m_cloudLayerFogTargetUAV.SetDebugName("Cloud layer fog target");
+
             m_localLum = new MyUnorderedAccessTexture(
                 (width + MyLuminanceAverage.NumThreads - 1) / MyLuminanceAverage.NumThreads,
                 (height + MyLuminanceAverage.NumThreads - 1) / MyLuminanceAverage.NumThreads,
@@ -281,9 +294,15 @@ namespace VRageRender
 
             m_rgba8_0 = new MyCustomTexture(width, height, BindFlags.RenderTarget | BindFlags.ShaderResource, Format.R8G8B8A8_Typeless);
             m_rgba8_0.AddView(new MyViewKey { Fmt = Format.R8G8B8A8_UNorm, View = MyViewEnum.RtvView });
+            m_rgba8_0.AddView(new MyViewKey { Fmt = Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.RtvView });
             m_rgba8_0.AddView(new MyViewKey { Fmt = Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.SrvView });
 
             m_rgba8_1 = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm_SRgb, 1, 0);
+            m_rgba8_2 = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm_SRgb, 1, 0);
+            if (samples > 1)
+            {
+                m_rgba8_ms = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm_SRgb, samples, 0);
+            }
             m_prevLum = new MyUnorderedAccessTexture(1, 1, Format.R32G32_Float);
 
             Debug.Assert(m_shadowsHelper == RwTexId.NULL);

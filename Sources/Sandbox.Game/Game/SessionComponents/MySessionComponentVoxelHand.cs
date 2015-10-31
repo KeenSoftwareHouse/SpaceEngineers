@@ -332,7 +332,7 @@ namespace Sandbox.Game.SessionComponents
                 bool found = false;
                 foreach (var hit in hitList)
                 {
-                    var entity = hit.HkHitInfo.Body.GetEntity();
+                    var entity = hit.HkHitInfo.GetHitEntity();
                     if (entity == this.m_currentVoxelMap)
                     {
                         Vector3D pos = hit.Position;
@@ -387,7 +387,7 @@ namespace Sandbox.Game.SessionComponents
 
                     foreach (var entity in m_foundElements)
                     {
-                        if (MySyncVoxel.IsForbiddenEntity(entity))
+                        if (MyVoxelBase.IsForbiddenEntity(entity))
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;

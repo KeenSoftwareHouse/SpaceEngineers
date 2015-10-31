@@ -1,15 +1,14 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using VRage;
 using VRage.ModAPI;
 using VRageMath;
@@ -118,12 +117,15 @@ namespace Sandbox.Game.World
 
             Character = character;
 
-            character.OnClosing += character_OnClosing;
-            character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
+            if (character != null)
+            {
+                character.OnClosing += character_OnClosing;
+                character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
 
-            SaveModelAndColorFromCharacter();
+                SaveModelAndColorFromCharacter();
 
-            IsDead = character.IsDead;
+                IsDead = character.IsDead;
+            }
 
             if (CharacterChanged != null)
                 CharacterChanged(oldCharacter, Character);

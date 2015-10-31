@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox.Definitions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using VRage.Voxels;
@@ -31,14 +32,9 @@ namespace Sandbox.Engine.Voxels
 
         void ReindexMaterials(Dictionary<byte, byte> oldToNewIndexMap);
 
-        float GetDistanceToPoint(ref Vector3D localPos);
+        //float GetDistanceToPoint(ref Vector3D localPos);
 
-        bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPos);
+        //MyVoxelMaterialDefinition GetMaterialAtPosition(ref Vector3D worldPosition);
 
-        bool HasMaterialSpawningFlora();
-
-        void GenerateNoiseHelpTexture(int storageSize);
-
-        void ReleaseNoiseHelpTexture();
     }
 }

@@ -62,6 +62,8 @@ namespace Sandbox.Game.Entities
 
         public int NumberOfFramesInsideVoxel = 0;
         public const int NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE = 5;
+        
+        public long SyncWaitCounter; // counting how many times this object was skipped on sync;
 
         public MyFloatingObject()
         {
@@ -93,8 +95,6 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-            // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
-            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
         }
 
         public override void OnAddedToScene(object source)
@@ -117,6 +117,8 @@ namespace Sandbox.Game.Entities
             // https://app.asana.com/0/6594565324126/10473934569658
 
             var physicalItem = MyDefinitionManager.Static.GetPhysicalItemDefinition(Item.Content);
+
+            m_health = physicalItem.Health;
 
             string model = physicalItem.Model;
 
@@ -152,7 +154,9 @@ namespace Sandbox.Game.Entities
 
 
             var massProperties = new HkMassProperties();
-            HkShape shape = GetPhysicsShape(physicalItem.Mass * (float)Item.Amount, scale, out massProperties);
+            var mass = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(physicalItem.Mass) : physicalItem.Mass;
+
+            HkShape shape = GetPhysicsShape(mass * (float)Item.Amount, scale, out massProperties);
             var scaleMatrix = Matrix.CreateScale(scale);
 
             if (Physics != null)
@@ -233,7 +237,7 @@ namespace Sandbox.Game.Entities
 
         MatrixD IMyUseObject.ActivationMatrix
         {
-            get { return Matrix.CreateScale(this.PositionComp.LocalAABB.Size) * WorldMatrix; }
+            get { return PositionComp != null ? Matrix.CreateScale(this.PositionComp.LocalAABB.Size) * WorldMatrix : MatrixD.Zero; }
         }
 
         MatrixD IMyUseObject.WorldMatrix
@@ -266,38 +270,41 @@ namespace Sandbox.Game.Entities
             var user = entity as MyCharacter;
             if (!MarkedForClose)
             {
-                if (!MySession.Static.CreativeMode)
+                MyFixedPoint amount = MyFixedPoint.Min(Item.Amount, user.GetInventory().ComputeAmountThatFits(Item.Content.GetId()));
+                if (amount == 0)
                 {
-                    var amount = Item.Amount;
-                    amount = MyFixedPoint.Min(amount, user.GetInventory().ComputeAmountThatFits(Item.Content.GetId()));
-                    if (amount == 0)
+                    if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimePlayedSound > 2500)
                     {
-                        if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimePlayedSound > 2500)
-                        {
-                            MyGuiAudio.PlaySound(MyGuiSounds.HudVocInventoryFull);
-                            m_lastTimePlayedSound = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                        }
-
-                        MyHud.Notifications.Add(MyNotificationSingletons.InventoryFull);
-                        return;
+                        MyGuiAudio.PlaySound(MyGuiSounds.HudVocInventoryFull);
+                        m_lastTimePlayedSound = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                     }
-                }
-                if (MySession.ControlledEntity == user)
-                    MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
-                //user.StartSecondarySound(TAKE_ITEM_SOUND);
 
-                user.GetInventory().TakeFloatingObject(this);
+                    MyHud.Notifications.Add(MyNotificationSingletons.InventoryFull);
+                    return;
+                }
+              
+                if (amount > 0)
+                {
+                    if (MySession.ControlledEntity == user)
+                        MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
+                    user.GetInventory().PickupItem(this, amount);
+                }
+
                 MyHud.Notifications.ReloadTexts();
             }
         }
 
-        public void UpdateDisplay()
+        public void UpdateInternalState()
         {
             if (Item.Amount <= 0)
                 Close();
             else
             {
+                Render.UpdateRenderObject(false);
                 InitInternal();
+                Physics.Activate();
+                InScene = true;
+                Render.UpdateRenderObject(true);
                 MyHud.Notifications.ReloadTexts();
             }
         }
@@ -329,7 +336,7 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
                 return;
@@ -361,8 +368,8 @@ namespace Sandbox.Game.Entities
                     {
                         effect.WorldMatrix = WorldMatrix;
                         effect.UserScale = 0.4f;
-                        MyFloatingObjects.RemoveFloatingObject(this);
                     }
+                    MyFloatingObjects.RemoveFloatingObject(this);
                 }
                 else
                 {
@@ -470,7 +477,7 @@ namespace Sandbox.Game.Entities
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             DoDamage(damage, damageType, sync, attackerId);
         }
@@ -488,5 +495,6 @@ namespace Sandbox.Game.Entities
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+        
     }
 }

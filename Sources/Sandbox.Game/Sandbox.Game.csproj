@@ -87,8 +87,18 @@
       <HintPath Condition="exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath)</HintPath>
       <HintPath Condition="!exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath2)</HintPath>
     </Reference>
+    <Reference Include="InfinarioSDK">
+      <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\SharpDX\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Graphics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Toolkit.Graphics.dll</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
@@ -100,6 +110,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\3rd\SQLite\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Management" />
@@ -122,12 +135,23 @@
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
     <Compile Include="Definitions\MyAnimalBotDefinition.cs" />
     <Compile Include="Definitions\MyAreaMarkerDefinition.cs" />
+    <Compile Include="Definitions\MyBarbarianWaveEventDefinition.cs" />
     <Compile Include="Definitions\MyBattleDefinition.cs" />
+    <Compile Include="Definitions\MyBeaconDefinition.cs" />
+    <Compile Include="Definitions\MyComponentSubstitutionDefinition.cs" />
+    <Compile Include="Definitions\MyDestructionDefinition.cs" />
+    <Compile Include="Definitions\MyGasProperties.cs" />
+    <Compile Include="Definitions\MyOxygenTankDefinition.cs" />
+    <Compile Include="Definitions\MyPirateAntennaDefinition.cs" />
+    <Compile Include="Definitions\MyPoweredCargoContainerDefinition.cs" />
     <Compile Include="Definitions\MyComponentGroupDefinition.cs" />
     <Compile Include="Definitions\MyConsumableItemDefinition.cs" />
     <Compile Include="Definitions\MyControllerSchemaDefinition.cs" />
     <Compile Include="Definitions\MyConveyorSorterDefinition.cs" />
     <Compile Include="Definitions\MyCryoChamberDefinition.cs" />
+    <Compile Include="Definitions\MyDebugSphere3Definition.cs" />
+    <Compile Include="Definitions\MyDebugSphere2Definition.cs" />
+    <Compile Include="Definitions\MyDebugSphere1Definition.cs" />
     <Compile Include="Definitions\MyDx11VoxelMaterialDefinition.cs" />
     <Compile Include="Definitions\MyEffectDefinition.cs" />
     <Compile Include="Definitions\MyEntityStatDefinition.cs" />
@@ -139,12 +163,16 @@
     <Compile Include="Definitions\MyOxygenFarmDefinition.cs" />
     <Compile Include="Definitions\MyOxygenGeneratorDefinition.cs" />
     <Compile Include="Definitions\MyAirVentDefinition.cs" />
-    <Compile Include="Definitions\MyOxygenTankDefinition.cs" />
+    <Compile Include="Definitions\MyGasTankDefinition.cs" />
     <Compile Include="Definitions\MyPhysicalMaterialDefinition.cs" />
     <Compile Include="Definitions\MyAgentDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandDefinition.cs" />
     <Compile Include="Definitions\MyBotDefinition.cs" />
-    <Compile Include="Definitions\MyPlanetPrefabDefinition.cs" />
+    <Compile Include="Definitions\MyProgrammableBlockDefinition.cs" />
+    <Compile Include="Definitions\MyRadioAntennaDefinition.cs" />
+    <Compile Include="Definitions\MyResourceDistributionGroupDefinition.cs" />
+    <Compile Include="Definitions\MyScriptedGroupDefinition.cs" />
+    <Compile Include="Definitions\MySoundBlockDefinition.cs" />
     <Compile Include="Definitions\MyStatsDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />
@@ -181,6 +209,7 @@
     <Compile Include="Definitions\MyRespawnShipDefinition.cs" />
     <Compile Include="Definitions\MyShipControllerDefinition.cs" />
     <Compile Include="Definitions\MySensorBlockDefinition.cs" />
+    <Compile Include="Definitions\MyTimerBlockDefinition.cs" />
     <Compile Include="Definitions\MyTransparentMaterialDefinition.cs" />
     <Compile Include="Definitions\MyAnimationDefinition.cs" />
     <Compile Include="Definitions\MyDefinitionManager-DefinitionSet.cs" />
@@ -225,12 +254,19 @@
     <Compile Include="Definitions\MyWeaponBlockDefinition.cs" />
     <Compile Include="Definitions\MyWeaponDefinition.cs" />
     <Compile Include="Definitions\MyWeaponItemDefinition.cs" />
-    <Compile Include="Definitions\MyPlanetGeneratorDefinition.cs" />
     <Compile Include="Definitions\VoxelHand\MyVoxelHandDefinition.cs" />
+    <Compile Include="Engine\AI\MyAIActionsParser.cs" />
     <Compile Include="Engine\GUI\FunctionalBlocks\MyGuiControlGenericFunctionalBlock.cs" />
+    <Compile Include="Engine\Multiplayer\MyClientState.cs" />
+    <Compile Include="Engine\Multiplayer\MyClientStateExtensions.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServerBase.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServerBattle.cs" />
+    <Compile Include="Engine\Multiplayer\MyMessageId.cs" />
     <Compile Include="Engine\Multiplayer\MyMultiplayerBattleData.cs" />
+    <Compile Include="Engine\Multiplayer\MyMultiplayerLobbyClient.cs" />
+    <Compile Include="Engine\Multiplayer\MyMultiplayerServerBase.cs" />
+    <Compile Include="Engine\Multiplayer\MyReplicationLayerExtensions.cs" />
+    <Compile Include="Engine\Multiplayer\MyServerDebugCommands.cs" />
     <Compile Include="Engine\MyInputExtensions.cs" />
     <Compile Include="Engine\Models\MyModelOctree.cs" />
     <Compile Include="Engine\Models\MyModelOctreeNode.cs" />
@@ -239,21 +275,24 @@
     <Compile Include="Engine\Multiplayer\MyMultiplayerLobby.cs" />
     <Compile Include="Engine\Multiplayer\MyMultiplayerBase.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServer.cs" />
+    <Compile Include="Engine\Networking\IMyAnalytics.cs" />
+    <Compile Include="Engine\Networking\MyAnalyticsHelper.cs" />
     <Compile Include="Engine\Networking\MyMultipartSender.cs" />
     <Compile Include="Engine\Networking\MyNetworkStats.cs" />
     <Compile Include="Engine\Networking\MySteamUGC.cs" />
     <Compile Include="Engine\Networking\MySteamWebAPI.cs" />
     <Compile Include="Engine\Physics\MyBreakableShapeCloneJob.cs" />
+    <Compile Include="Engine\Physics\MyPhysicsDebugDraw.cs" />
     <Compile Include="Engine\Physics\MyBreakableShapeManager.cs" />
-    <Compile Include="Engine\Physics\MyControlledPhysicsBody.cs" />
     <Compile Include="Engine\Physics\MyDestructionConstants.cs" />
     <Compile Include="Engine\Physics\MyDestructionHelper.cs" />
     <Compile Include="Engine\Physics\MyCharacterProxy.cs" />
     <Compile Include="Engine\Physics\MyDestructionData.cs" />
+    <Compile Include="Engine\Physics\MyPhysicsExtensions.Constraints.cs" />
     <Compile Include="Engine\Physics\MyPhysicsHelper.cs" />
+    <Compile Include="Engine\Physics\MyPhysicsUtils.cs" />
     <Compile Include="Engine\Physics\MyRagdollMapper.cs" />
-    <Compile Include="Engine\Platform\FixedRenderLoop.cs" />
-    <Compile Include="Engine\Platform\GenericRenderLoop.cs" />
+    <Compile Include="Engine\Physics\MyWeldingGroups.cs" />
     <Compile Include="Engine\Utils\MyDebugDrawSettings.cs" />
     <Compile Include="Engine\Utils\MyConfigBase.cs" />
     <Compile Include="Engine\Utils\MyConfigDedicated.cs" />
@@ -262,8 +301,10 @@
     <Compile Include="Engine\Utils\MyUtils.cs" />
     <Compile Include="Engine\Utils\MyTextureAtlasUtils.cs" />
     <Compile Include="Engine\Voxels\IMyVoxelDrawable.cs" />
-    <Compile Include="Engine\Voxels\MyCsgShapePlanet.cs" />
+    <Compile Include="Engine\Voxels\MyCsgBox.cs" />
     <Compile Include="Engine\Voxels\MyCsgSimpleSphere.cs" />
+    <Compile Include="Engine\Voxels\MyMarchingCubesConstants.cs" />
+    <Compile Include="Engine\Voxels\MyMarchingCubesMesher.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJobPhysicsBatch.cs" />
     <Compile Include="Engine\Voxels\IMyOctreeLeafNode.cs" />
     <Compile Include="Engine\Voxels\IMyStorageDataProvider.cs" />
@@ -276,15 +317,19 @@
     <Compile Include="Engine\Voxels\MyOctreeNode.cs" />
     <Compile Include="Engine\Voxels\MyOctreeStorage.cs" />
     <Compile Include="Engine\Voxels\MyOctreeStorage.Serialization.cs" />
+    <Compile Include="Engine\Voxels\MyRenderCellBuilder.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJobRender.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJob.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJobPhysicsPrefetch.cs" />
     <Compile Include="Engine\Voxels\MyProviderLeaf.cs" />
     <Compile Include="Engine\Voxels\MySparseOctree.cs" />
     <Compile Include="Engine\Voxels\MyStorageBase.Compatibility.cs" />
+    <Compile Include="Engine\Voxels\MyVoxelMaterialRequestHelper.cs" />
     <Compile Include="Game\AI\ActionCollection.cs" />
-    <Compile Include="Game\AI\Actions\MyAgentCommonActions.cs" />
-    <Compile Include="Game\AI\Actions\MyHumanoidBotCommonActions.cs" />
+    <Compile Include="Game\AI\Actions\MyAgentActions.cs" />
+    <Compile Include="Game\AI\Actions\MyAnimalBotActions.cs" />
+    <Compile Include="Game\AI\Actions\MyBotActionsBase.cs" />
+    <Compile Include="Game\AI\Actions\MyHumanoidBotActions.cs" />
     <Compile Include="Game\AI\BehaviorTree\DecoratorLogic\IMyDecoratorLogic.cs" />
     <Compile Include="Game\AI\BehaviorTree\DecoratorLogic\MyBehaviorTreeDecoratorCounterLogic.cs" />
     <Compile Include="Game\AI\BehaviorTree\DecoratorLogic\MyBehaviorTreeDecoratorTimerLogic.cs" />
@@ -304,33 +349,39 @@
     <Compile Include="Game\AI\BehaviorTree\MyBehaviorTreeSelectorNode.cs" />
     <Compile Include="Game\AI\BehaviorTree\MyBehaviorTreeSequenceNode.cs" />
     <Compile Include="Game\AI\BehaviorTree\MyBehaviorTreeNodeMemory.cs" />
+    <Compile Include="Game\AI\BrainSimulatorIntegration\MyBrainSimulatorSessionComponent.cs" />
     <Compile Include="Game\AI\Commands\IMyAiCommand.cs" />
     <Compile Include="Game\AI\Commands\MyAiCommandBehavior.cs" />
     <Compile Include="Game\AI\IMyEntityBot.cs" />
     <Compile Include="Game\AI\Logic\MyAgentLogic.cs" />
+    <Compile Include="Game\AI\Logic\MyAnimalBotLogic.cs" />
     <Compile Include="Game\AI\Logic\MyHumanoidBotLogic.cs" />
     <Compile Include="Game\AI\MyAgentBot.cs" />
     <Compile Include="Game\AI\MyAiTargetBase.cs" />
+    <Compile Include="Game\AI\MyAiTargetAnimal.cs" />
     <Compile Include="Game\AI\MyAiTargetManager.cs" />
+    <Compile Include="Game\AI\MyAnimalBot.cs" />
     <Compile Include="Game\AI\MyBehaviorAttributes.cs" />
     <Compile Include="Game\AI\Logic\MyBotLogic.cs" />
     <Compile Include="Game\AI\MyBotMemory.cs" />
     <Compile Include="Game\AI\IMyBot.cs" />
-    <Compile Include="Game\AI\IMyBotFactory.cs" />
+    <Compile Include="Game\AI\MyBotFactoryBase.cs" />
     <Compile Include="Game\AI\MyAIComponent.cs" />
     <Compile Include="Game\AI\MyAIPlugin.cs" />
     <Compile Include="Game\AI\MyBotAiming.cs" />
     <Compile Include="Game\AI\MyBotCollection.cs" />
-    <Compile Include="Game\AI\MyBotNavigation.cs" />
-    <Compile Include="Game\AI\MyCollisionDetectionSteering.cs" />
+    <Compile Include="Game\AI\MyRandomLocationSphere.cs" />
+    <Compile Include="Game\AI\Navigation\MyBotNavigation.cs" />
+    <Compile Include="Game\AI\Navigation\MyCharacterAvoidance.cs" />
+    <Compile Include="Game\AI\Navigation\MyCollisionDetectionSteering.cs" />
+    <Compile Include="Game\AI\Navigation\MyPathSteering.cs" />
+    <Compile Include="Game\AI\Navigation\MySteeringBase.cs" />
+    <Compile Include="Game\AI\Navigation\MyStuckDetection.cs" />
+    <Compile Include="Game\AI\Navigation\MyTargetSteering.cs" />
+    <Compile Include="Game\AI\Navigation\MyTreeAvoidance.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyDestinationShape.cs" />
     <Compile Include="Game\AI\MyHumanoidBot.cs" />
-    <Compile Include="Game\AI\MyPathSteering.cs" />
     <Compile Include="Game\AI\MySandboxBot.cs" />
-    <Compile Include="Game\AI\MySandboxBotFactory.cs" />
-    <Compile Include="Game\AI\MySteeringBase.cs" />
-    <Compile Include="Game\AI\MyStuckDetection.cs" />
-    <Compile Include="Game\AI\MyTargetSteering.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyHighLevelComponent.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyHighLevelPrimitiveObserver.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyNavigationGroup.cs" />
@@ -357,6 +408,42 @@
     <Compile Include="Game\AI\Pathfinding\MyVoxelPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavmeshComponents.cs" />
     <Compile Include="Game\Audio\MyAudioExtensions.cs" />
+    <Compile Include="Game\Entities\Blocks\MyDebugSphere3.cs" />
+    <Compile Include="Game\Entities\Blocks\MyDebugSphere2.cs" />
+    <Compile Include="Game\Entities\Blocks\MyDebugSphere1.cs" />
+    <Compile Include="Game\Entities\Blocks\ToolbarItemCache.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterComponentTypes.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterFeetIKComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterInventorySpawnComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterJetpackComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterOxygenComponent.cs" />
+    <Compile Include="Game\Entities\MyCharacterPhysicsStateGroup.cs" />
+    <Compile Include="Game\Entities\MyGridPhysicsStateGroup.cs" />
+    <Compile Include="Game\Entities\MyMeteorReplicable.cs" />
+    <Compile Include="Game\Multiplayer\MySyncLayerBridge.cs" />
+    <Compile Include="Game\Replicables\MyCharacterReplicable.cs" />
+    <Compile Include="Game\Replicables\MyCubeGridReplicable.cs" />
+    <Compile Include="Game\Entities\MyEntityCreationThread.cs" />
+    <Compile Include="Game\Entities\MyEntityInventoryStateGroup.cs" />
+    <Compile Include="Game\Entities\MyInventoryReplicable.cs" />
+    <Compile Include="Game\Entities\MyTerminalReplicable.cs" />
+    <Compile Include="Game\Entities\MyEntityPhysicsStateGroup.cs" />
+    <Compile Include="Game\Entities\MyVoxelReplicable.cs" />
+    <Compile Include="Game\EntityComponents\MyCharacterSoundComponent.cs" />
+    <Compile Include="Game\Entities\EnvironmentItems\MyEnvironmentItemsCoordinator.cs" />
+    <Compile Include="Game\EntityComponents\MyJetpackThrustComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyFractureComponentBase.cs" />
+    <Compile Include="Game\EntityComponents\MyFractureComponentCubeBlock.cs" />
+    <Compile Include="Game\EntityComponents\MyNullPosition.cs" />
+    <Compile Include="Game\EntityComponents\MyNullRenderComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyResourceDistributorComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyResourceSinkComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyResourceSourceComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyThrusterBlockThrustComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyTimerComponent.cs" />
+    <Compile Include="Game\Entities\Character\MyCharacter.MoveToComponents.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterRagdollComponent.cs" />
+    <Compile Include="Engine\Physics\MyWeldGroupData.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderCompomentDrawDrillBase.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentCharacter.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentCubeGrid.cs" />
@@ -366,7 +453,6 @@
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentMotorBase.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentMotorStator.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentMotorSuspension.cs" />
-    <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentPlanet.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentShipMergeBlock.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentLandingGear.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponent.cs" />
@@ -379,15 +465,30 @@
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderComponentVoxelMap.cs" />
     <Compile Include="Game\EntityComponents\DebugRenders\MyDebugRenderCompoonentShipConnector.cs" />
     <Compile Include="Game\EntityComponents\MyCharacterStatComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityComponentsDebugDraw.cs" />
     <Compile Include="Game\EntityComponents\MyEntityGameLogic.cs" />
     <Compile Include="Game\EntityComponents\MyEntityStatComponent.cs" />
     <Compile Include="Game\EntityComponents\MyFracturePiecePositionComponent.cs" />
-    <Compile Include="Game\EntityComponents\MyModel.cs" />
-    <Compile Include="Game\EntityComponents\MyModelObj .cs" />
+    <Compile Include="Game\Extensions\VoxelBaseExtensions.cs" />
+    <Compile Include="Game\GameSystems\MyCubeBlockDecayScript.cs" />
+    <Compile Include="Game\Multiplayer\MySyncAirtightDoorGeneric.cs" />
+    <Compile Include="Game\Multiplayer\MySyncDoor.cs" />
+    <Compile Include="Game\Multiplayer\MySyncGravityGenerator.cs" />
+    <Compile Include="Game\Multiplayer\MySyncGravityGeneratorSphere.cs" />
+    <Compile Include="Game\Multiplayer\MySyncGyro.cs" />
+    <Compile Include="Game\Multiplayer\MySyncLightingBlock.cs" />
+    <Compile Include="Game\Multiplayer\MySyncOreDetector.cs" />
+    <Compile Include="Game\Multiplayer\MySyncRadioBroadcaster.cs" />
+    <Compile Include="Game\Multiplayer\MySyncThruster.cs" />
+    <Compile Include="Game\Multiplayer\MySyncUserControllableGun.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\MyDanielDebugInputComponent.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\MyRenderDebugInputComponent.cs" />
+    <Compile Include="Game\MyModel.cs" />
+    <Compile Include="Game\MyModelObj .cs" />
     <Compile Include="Game\EntityComponents\MyPositionComponent.cs" />
     <Compile Include="Game\EntityComponents\MyQuantizedBvhResult.cs" />
     <Compile Include="Game\EntityComponents\MyRespawnComponent.cs" />
-    <Compile Include="Game\EntityComponents\Renders\MyRenderComponentPlanet.cs" />
+    <Compile Include="Game\EntityComponents\Renders\MyRenderComponentSkinnedEntity.cs" />
     <Compile Include="Game\EntityComponents\MyStatLogic.cs" />
     <Compile Include="Game\EntityComponents\MyUseObjectsComponent.cs" />
     <Compile Include="Game\EntityComponents\Renders\MyRenderComponentTextPanel.cs" />
@@ -426,9 +527,9 @@
     <Compile Include="Game\Entities\Blocks\MyLaserBroadcaster.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserReceiver.cs" />
     <Compile Include="Game\Entities\Blocks\MyOxygenFarm.cs" />
-    <Compile Include="Game\Entities\Blocks\MyOxygenGenerator.cs" />
+    <Compile Include="Game\Entities\Blocks\MyGasGenerator.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirVent.cs" />
-    <Compile Include="Game\Entities\Blocks\MyOxygenTank.cs" />
+    <Compile Include="Game\Entities\Blocks\MyGasTank.cs" />
     <Compile Include="Game\Entities\Blocks\MyProgrammableBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyCryoChamber.cs" />
     <Compile Include="Game\Entities\Blocks\MySoundBlock.cs" />
@@ -466,7 +567,8 @@
     <Compile Include="Game\Entities\Cube\MyComponentList.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectAdvancedDoorTerminal.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyInventoryItemAdapter.cs" />
-    <Compile Include="Game\Entities\Inventory\MyCuttingSolver.cs" />
+    <Compile Include="Game\Entities\Inventory\MyComponentChange.cs" />
+    <Compile Include="Game\Entities\Inventory\MyComponentCombiner.cs" />
     <Compile Include="Game\Entities\Inventory\MyInventoryAggregate.cs" />
     <Compile Include="Game\Entities\Inventory\MyInventoryBase.cs" />
     <Compile Include="Game\Entities\Inventory\MyInventoryItemAdapter.cs" />
@@ -485,7 +587,7 @@
     <Compile Include="Game\Entities\Cube\MyCubeGridOwnershipManager.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeGridSmallToLargeConnection.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeGridSystems.cs" />
-    <Compile Include="Game\Entities\Cube\MyGridClipboard2.cs" />
+    <Compile Include="Game\Entities\Cube\MyGridClipboardAdvanced.cs" />
     <Compile Include="Game\Entities\Cube\MyGridNoDamageGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPartsRenderData.cs" />
     <Compile Include="Game\Entities\Cube\MyIDModule.cs" />
@@ -504,6 +606,7 @@
     <Compile Include="Game\Entities\IMyGravityProvider.cs" />
     <Compile Include="Game\Entities\IMyOxygenProvider.cs" />
     <Compile Include="Game\Entities\MyAreaMarker.cs" />
+    <Compile Include="Game\EntityComponents\Renders\MyRenderComponentWheel.cs" />
     <Compile Include="Game\GameSystems\MyDamageSystem.cs" />
     <Compile Include="Game\Entities\MyDataBroadcaster.cs" />
     <Compile Include="Game\Entities\IMyGizmoDrawableObject.cs" />
@@ -530,8 +633,6 @@
     <Compile Include="Engine\Voxels\MyVoxelVertex.cs" />
     <Compile Include="Game\Entities\MyPlaceAreas.cs" />
     <Compile Include="Game\Entities\MyPlaceArea.cs" />
-    <Compile Include="Game\Entities\MyPlanet.cs" />
-    <Compile Include="Game\Entities\MyPlanetEnvironmentSector.cs" />
     <Compile Include="Game\Entities\MySolarGameLogicComponent.cs" />
     <Compile Include="Game\Entities\MySpherePlaceArea.cs" />
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
@@ -541,16 +642,16 @@
     <Compile Include="Game\Entities\UseObject\IMyUsableEntity.cs" />
     <Compile Include="Game\GameSystems\Conveyors\MyAttachableConveyorEndpoint.cs" />
     <Compile Include="Game\Audio\MyGuiAudio.cs" />
-    <Compile Include="Game\GameSystems\IMyOxygenBlock.cs" />
-    <Compile Include="Game\GameSystems\IMyOxygenConsumer.cs" />
-    <Compile Include="Game\GameSystems\IMyOxygenProducer.cs" />
+    <Compile Include="Game\GameSystems\IMyGasBlock.cs" />
+    <Compile Include="Game\GameSystems\IMyGasConsumer.cs" />
+    <Compile Include="Game\GameSystems\IMyGasProducer.cs" />
     <Compile Include="Game\GameSystems\MyAntennaSystem.cs" />
     <Compile Include="Engine\Utils\MyBattleHelper.cs" />
     <Compile Include="Game\GameSystems\MyChatSystem.cs" />
     <Compile Include="Game\GameSystems\MyFracturedPiecesManager.cs" />
     <Compile Include="Game\GameSystems\MyGravityProviderSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridCameraSystem.cs" />
-    <Compile Include="Game\GameSystems\MyGridOxygenSystem.cs" />
+    <Compile Include="Game\GameSystems\MyGridGasSystem.cs" />
     <Compile Include="Game\GameSystems\MyOxygenProviderSystem.cs" />
     <Compile Include="Game\GameSystems\MyScenarioSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridJumpDriveSystem.cs" />
@@ -578,10 +679,20 @@
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
     <Compile Include="Game\Multiplayer\MySyncAdvancedDoor.cs" />
     <Compile Include="Game\Multiplayer\MySyncEnvironmentItems.cs" />
+    <Compile Include="Game\Multiplayer\MySyncGunBase.cs" />
+    <Compile Include="Game\Replicables\MyEntityReplicableBase.cs" />
+    <Compile Include="Game\Replicables\MyEntityReplicableBaseEvent.cs" />
+    <Compile Include="Game\Replicables\MyExternalReplicable.cs" />
+    <Compile Include="Game\Replicables\MyReplicableFactory.cs" />
+    <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugPhysics.cs" />
+    <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugRenderShadows.cs" />
+    <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugVoxelsMaterials.cs" />
     <Compile Include="Game\Screens\Helpers\MyBattleLoadListResult.cs" />
     <Compile Include="Game\Screens\Helpers\MyGuiControlStats.cs" />
+    <Compile Include="Game\Screens\Helpers\MyToolbarItemConsumable.cs" />
     <Compile Include="Game\Screens\MyGuiScreenAdvancedScenarioSettings.cs" />
     <Compile Include="Game\Screens\MyGuiScreenBriefing.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioBase.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioMpClient.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />
     <Compile Include="Game\GUI\MyHudCameraInfo.cs" />
@@ -599,7 +710,7 @@
     <Compile Include="Game\GUI\MyHudOreMarkers.cs" />
     <Compile Include="Game\GUI\MyHudLocationMarkers.cs" />
     <Compile Include="Game\GUI\MyHudEntityParams.cs" />
-    <Compile Include="Game\GUI\MyHudConsumerGroupInfo.cs" />
+    <Compile Include="Game\GUI\MyHudSinkGroupInfo.cs" />
     <Compile Include="Game\GUI\MyHudGravityIndicator.cs" />
     <Compile Include="Game\GUI\MyHudCharacterInfo.cs" />
     <Compile Include="Game\GUI\MyHudShipInfo.cs" />
@@ -618,7 +729,6 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Game\Multiplayer\MyGpsCollection.cs" />
-    <Compile Include="Game\Multiplayer\MySyncAirtightDoorGeneric.cs" />
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
@@ -631,19 +741,15 @@
     <Compile Include="Game\Multiplayer\MyClientCollection.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridListSerializer.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridSplitsSerializer.cs" />
-    <Compile Include="Game\Multiplayer\MySyncOreDetector.cs" />
-    <Compile Include="Game\Multiplayer\MySyncGravityGeneratorSphere.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridThrustState.cs" />
     <Compile Include="Game\Multiplayer\MySyncHelper.cs" />
     <Compile Include="Game\Multiplayer\MySyncShipController.cs" />
     <Compile Include="Game\Multiplayer\MySyncSensorBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncTextPanel.cs" />
-    <Compile Include="Game\Multiplayer\MySyncThruster.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridSerializers.cs" />
     <Compile Include="Game\Multiplayer\MySyncMotorBase.cs" />
     <Compile Include="Game\Multiplayer\MySyncMotorSuspension.cs" />
     <Compile Include="Game\Multiplayer\MySyncPistonBase.cs" />
-    <Compile Include="Game\Multiplayer\MySyncRadioBroadcaster.cs" />
     <Compile Include="Game\Entities\Blocks\MyRadioReceiver.cs" />
     <Compile Include="Game\Entities\Blocks\MyRealWheel.cs" />
     <Compile Include="Game\Entities\MyRadioBroadcasters.cs" />
@@ -657,7 +763,6 @@
     <Compile Include="Game\GameSystems\MyGridWheelSystem.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyHonzaInputComponent.cs" />
     <Compile Include="Game\Multiplayer\MyFactionCollection.cs" />
-    <Compile Include="Game\Multiplayer\MySyncUserControllableGun.cs" />
     <Compile Include="Game\Multiplayer\MySyncThrower.cs" />
     <Compile Include="Game\Multiplayer\MyToolbarCollection.cs" />
     <Compile Include="Game\MyCredits.cs" />
@@ -723,6 +828,7 @@
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.LAN.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.Servers.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.Lobbies.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenTutorial.cs" />
     <Compile Include="Game\Screens\MyGuiScreenVoxelHandSetting.cs" />
     <Compile Include="Game\Screens\MyGuiScreenWardrobe.cs" />
     <Compile Include="Game\Screens\MyGuiScreenWorkshopTags.cs" />
@@ -730,6 +836,7 @@
     <Compile Include="Game\Screens\MyJoinGameHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenCreateOrEditFaction.cs" />
     <Compile Include="Game\Screens\MyLoadingException.cs" />
+    <Compile Include="Game\Screens\Terminal\Controls\ITerminalControlSync.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\ITerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlCombobox.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlLabel.cs" />
@@ -746,6 +853,10 @@
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerSomeoneWon.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerTime.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerTimeLimit.cs" />
+    <Compile Include="Game\SessionComponents\MyScriptedGroupsSystem.cs" />
+    <Compile Include="Game\SessionComponents\MyEnvironmentalParticles.cs" />
+    <Compile Include="Game\SessionComponents\MyFloraAreas.cs" />
+    <Compile Include="Game\SessionComponents\MyRespawnComponentBase.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentArmorHand.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalGpsController.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentMissionTriggers.cs" />
@@ -754,19 +865,21 @@
     <Compile Include="Game\VoiceChat\IMyVoiceChatLogic.cs" />
     <Compile Include="Game\VoiceChat\MyVoiceChatSessionComponent.cs" />
     <Compile Include="Game\Weapons\Guns\MyUserControllableGun.cs" />
-    <Compile Include="Game\World\Generator\MyCompositeOrePlanetDeposit.cs" />
+    <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicFactory.cs" />
+    <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicGrassland.cs" />
+    <Compile Include="Game\World\Generator\MyBoxShapeOreDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapeOreDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapes.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentVoxelHand.cs" />
     <Compile Include="Game\World\Generator\MyEncounterGenerator.cs" />
     <Compile Include="Game\World\Generator\MyProceduralAsteroidCellGenerator.cs" />
-    <Compile Include="Game\World\Generator\MyProceduralPlanetCellGenerator.cs" />
     <Compile Include="Game\World\Generator\MyProceduralWorldGenerator.cs" />
     <Compile Include="Game\World\Generator\MyProceduralWorldModule.cs" />
     <Compile Include="Game\Entities\Cube\MyBuildComponentBase.cs" />
     <Compile Include="Game\World\Generator\MySphereDensityFunction.cs" />
-    <Compile Include="Game\World\IMyRespawnComponent.cs" />
-    <Compile Include="Game\World\MyWorldGenerator.Planet.cs" />
+    <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogic.cs" />
+    <Compile Include="Game\World\MyPirateAntennas.cs" />
+    <Compile Include="Game\World\MySessionCompatHelper.cs" />
     <Compile Include="Game\World\Triggers\MyMissionTriggers.cs" />
     <Compile Include="Game\World\Triggers\MyTrigger.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerAllOthersLost.cs" />
@@ -845,11 +958,9 @@
     <Compile Include="Game\GameSystems\Conveyors\MyConveyorLine.cs" />
     <Compile Include="Game\GameSystems\Conveyors\MyMultilineConveyorEndpoint.cs" />
     <Compile Include="Game\GUI\MyHudWarning.cs" />
-    <Compile Include="Game\Multiplayer\MySyncGyro.cs" />
     <Compile Include="Game\Multiplayer\MySyncLargeTurret.cs" />
     <Compile Include="Game\Multiplayer\MySyncConveyors.cs" />
     <Compile Include="Game\Multiplayer\MySyncMeteorShower.cs" />
-    <Compile Include="Game\Multiplayer\MySyncVoxel.cs" />
     <Compile Include="Game\Screens\Helpers\MyLoadListResult.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalInfoController.cs" />
     <Compile Include="Game\Weapons\Guns\Barrels\MyLargeInteriorBarrel.cs" />
@@ -859,7 +970,6 @@
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
     <Compile Include="Game\Entities\MyMeteor.cs" />
     <Compile Include="Game\Entities\MyMeteorShower.cs" />
-    <Compile Include="Game\GameSystems\Electricity\MyPowerReceiver.cs" />
     <Compile Include="Game\GameSystems\MyGroupControlSystem.cs" />
     <Compile Include="Game\GUI\GuiSandbox\MyGuiSandbox.cs" />
     <Compile Include="Definitions\MySpawnGroupDefinition.cs" />
@@ -884,11 +994,8 @@
     <Compile Include="Game\Multiplayer\MySyncCockpit.cs" />
     <Compile Include="Game\Multiplayer\MySyncFloatingObjects.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridStockpileSerializer.cs" />
-    <Compile Include="Game\Multiplayer\MySyncLightingBlock.cs" />
     <Compile Include="Game\Multiplayer\MyNetworkTimer.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyTomasDebugInputComponent.cs" />
-    <Compile Include="Game\Multiplayer\MySyncDoor.cs" />
-    <Compile Include="Game\Multiplayer\MySyncGravityGenerator.cs" />
     <Compile Include="Game\Multiplayer\MySyncInventory.cs" />
     <Compile Include="Game\Multiplayer\MySyncBlockHelpers.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugHandItemShoot.cs" />
@@ -969,8 +1076,6 @@
     <Compile Include="Game\Entities\MyEntitySubpart.cs" />
     <Compile Include="Game\Entities\MyFloatingObject.cs" />
     <Compile Include="Game\GameSystems\MyGridSelectionSystem.cs" />
-    <Compile Include="Game\GameSystems\Electricity\IMyPowerConsumer.cs" />
-    <Compile Include="Game\GameSystems\Electricity\IMyPowerProducer.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyInventoryOwner.cs" />
     <Compile Include="Game\Entities\Inventory\MyPhysicalInventoryItem.cs" />
     <Compile Include="Game\Entities\Inventory\MyInventory.cs" />
@@ -985,14 +1090,13 @@
     <Compile Include="Game\Entities\MyEntityFactory.cs" />
     <Compile Include="Game\Entities\MySensor.cs" />
     <Compile Include="Game\GameSystems\Electricity\MyBattery.cs" />
-    <Compile Include="Game\GameSystems\Electricity\MyPowerDistributor.cs" />
     <Compile Include="Game\GameSystems\Electricity\MyRechargeSocket.cs" />
     <Compile Include="Game\GameSystems\MyGridConveyorSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridGyroSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridLandingSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridReflectorLightSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridTerminalSystem.cs" />
-    <Compile Include="Game\GameSystems\MyGridThrustSystem.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityThrustComponent.cs" />
     <Compile Include="Game\GameSystems\MyGridWeaponSystem.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyMartinDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyPetaDebugInputComponent.cs" />
@@ -1009,7 +1113,6 @@
     <Compile Include="Game\Multiplayer\MySyncControllableEntity.cs" />
     <Compile Include="Game\Multiplayer\MySyncCharacter.cs" />
     <Compile Include="Game\Multiplayer\MySyncGrid.cs" />
-    <Compile Include="Game\Multiplayer\MySyncMotorStator.cs" />
     <Compile Include="Game\Screens\Helpers\MyGuiControlToolbar.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbar.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarComponent.cs" />
@@ -1048,7 +1151,6 @@
     <Compile Include="Game\Screens\MyGuiScreenLoadSubscribedWorld.cs" />
     <Compile Include="Game\Screens\MyGuiScreenProgress.cs" />
     <Compile Include="Game\Screens\MyGuiScreenCubeBuilder.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenDialogAmount.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugDeveloper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenGamePlay.cs" />
     <Compile Include="Game\Screens\MyGuiScreenLoadSandbox.cs" />
@@ -1207,7 +1309,7 @@
     <Compile Include="Engine\Utils\MyGridIntersection.cs" />
     <Compile Include="Engine\Utils\MyIntersectionResultLineBoundingSphere.cs" />
     <Compile Include="Engine\Utils\MyLoadingPerformance.cs" />
-    <Compile Include="Engine\Utils\MyMaterialSoundsHelper.cs" />
+    <Compile Include="Engine\Utils\MyMaterialPropertiesHelper.cs" />
     <Compile Include="Engine\Utils\MyMemoryProfiler.cs" />
     <Compile Include="Engine\Utils\MyQuantizedBvhAdapter.cs" />
     <Compile Include="Engine\Utils\MySpectatorCameraController.cs" />
@@ -1249,6 +1351,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HavokWrapper\HavokWrapper.vcxproj">
+      <Project>{0cdd89c9-9f60-41f3-a0ee-884c1379083e}</Project>
+      <Name>HavokWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
       <Name>Sandbox.Common</Name>

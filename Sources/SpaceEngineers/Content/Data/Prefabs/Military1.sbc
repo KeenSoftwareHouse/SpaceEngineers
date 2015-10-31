@@ -1040,10 +1040,11 @@
               <Min x="-15" y="2" z="-1" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0" y="-0.96" z="-0.5" />
+	      <CustomName>Hostiles detected - Requesting Backup</CustomName>
               <ShareMode>All</ShareMode>
               <ShowOnHUD>false</ShowOnHUD>
               <Enabled>true</Enabled>
-              <BroadcastRadius>10000</BroadcastRadius>
+              <BroadcastRadius>2000</BroadcastRadius>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTube</SubtypeName>

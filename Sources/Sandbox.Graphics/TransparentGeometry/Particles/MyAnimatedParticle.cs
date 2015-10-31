@@ -59,6 +59,14 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public float Thickness;
         public ParticleFlags Flags;
 
+        public MyAnimatedPropertyFloat PivotDistance = null;
+        public MyAnimatedPropertyVector3 PivotRotation = null;
+        private Vector3 m_actualPivot = Vector3.Zero;
+
+        public MyAnimatedPropertyVector3 Acceleration = null;
+        private Vector3 m_actualAcceleration = Vector3.Zero;
+
+
         //Per life values
         public MyAnimatedPropertyFloat Radius = new MyAnimatedPropertyFloat();
         public MyAnimatedPropertyVector4 Color = new MyAnimatedPropertyVector4();
@@ -93,6 +101,16 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
             m_actualPosition = StartPosition;
             m_actualAngle = Angle;
+
+            if (PivotRotation != null && PivotDistance != null)
+            {
+                Vector3 rotation;
+                float distance;
+                PivotRotation.GetInterpolatedValue<Vector3>(0, out rotation);
+                PivotDistance.GetInterpolatedValue<float>(0, out distance);
+                Quaternion rotationQ = Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(rotation.Y), MathHelper.ToRadians(rotation.X), MathHelper.ToRadians(rotation.Z));
+                m_actualPivot = Vector3.Transform(Vector3.Forward, rotationQ) * distance;
+            }            
         }
 
         public bool Update()
@@ -110,6 +128,30 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             m_actualPosition.Y += Velocity.Y * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_actualPosition.Z += Velocity.Z * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
+            if (PivotRotation != null && PivotDistance != null)
+            {
+                MyTransparentGeometry.StartParticleProfilingBlock("Pivot calculation");
+                
+                Vector3 rotation;
+                float distance;
+                PivotRotation.GetInterpolatedValue<Vector3>(m_normalizedTime, out rotation);
+                PivotDistance.GetInterpolatedValue<float>(m_normalizedTime, out distance);
+                Quaternion rotationQ = Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(rotation.Y), MathHelper.ToRadians(rotation.X), MathHelper.ToRadians(rotation.Z));
+                m_actualPivot = Vector3.Transform(Vector3.Forward, rotationQ) * distance;
+
+                MyTransparentGeometry.EndParticleProfilingBlock();
+            }
+
+            if (Acceleration != null)
+            {
+                MyTransparentGeometry.StartParticleProfilingBlock("Acceleration calculation");
+
+                Acceleration.GetInterpolatedValue<Vector3>(m_normalizedTime, out m_actualAcceleration);
+                Velocity += m_actualAcceleration * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+                MyTransparentGeometry.EndParticleProfilingBlock();
+            }
+
             m_actualAngle += RotationSpeed * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             MyUtils.AssertIsValid(m_actualPosition);
@@ -124,12 +166,14 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         //  Return false if particle dies/timeouts in this tick.
         public bool Draw(VRageRender.MyBillboard billboard)
         {
+
+            var actualPosition = m_actualPosition + m_actualPivot;
             
             MyTransparentGeometry.StartParticleProfilingBlock("Distance calculation");
             //  This time is scaled according to planned lifespan of the particle
 
             // Distance for sorting
-            billboard.DistanceSquared = (float)Vector3D.DistanceSquared(MyTransparentGeometry.Camera.Translation, m_actualPosition);
+            billboard.DistanceSquared = (float)Vector3D.DistanceSquared(MyTransparentGeometry.Camera.Translation, actualPosition);
 
             MyTransparentGeometry.EndParticleProfilingBlock();
 
@@ -158,7 +202,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             if (Type == MyParticleTypeEnum.Point)
             {
                 MyTransparentGeometry.StartParticleProfilingBlock("GetBillboardQuadRotated");
-                GetBillboardQuadRotated(billboard, ref m_actualPosition, actualRadius, m_actualAngle);
+                GetBillboardQuadRotated(billboard, ref actualPosition, actualRadius, m_actualAngle);
                 MyTransparentGeometry.EndParticleProfilingBlock();
             }
             else if (Type == MyParticleTypeEnum.Line)
@@ -176,10 +220,10 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
                     polyLine.LineDirectionNormalized = Vector3.TransformNormal(polyLine.LineDirectionNormalized, Matrix.CreateRotationY(MathHelper.ToRadians(m_actualAngle)));
                 }
 
-                polyLine.Point0 = m_actualPosition;
-                polyLine.Point1.X = m_actualPosition.X + polyLine.LineDirectionNormalized.X * actualRadius;
-                polyLine.Point1.Y = m_actualPosition.Y + polyLine.LineDirectionNormalized.Y * actualRadius;
-                polyLine.Point1.Z = m_actualPosition.Z + polyLine.LineDirectionNormalized.Z * actualRadius;
+                polyLine.Point0 = actualPosition;
+                polyLine.Point1.X = actualPosition.X + polyLine.LineDirectionNormalized.X * actualRadius;
+                polyLine.Point1.Y = actualPosition.Y + polyLine.LineDirectionNormalized.Y * actualRadius;
+                polyLine.Point1.Z = actualPosition.Z + polyLine.LineDirectionNormalized.Z * actualRadius;
 
                 if (m_actualAngle > 0)
                 { //centerize
@@ -329,5 +373,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             billboard.Position3.Z = position.Z + billboardAxisX.Z - billboardAxisY.Z;
         }
 
+
+        public bool IsValid()
+        {
+            if (Life <= 0)
+            {
+                return false;
+            }
+            return MyUtils.IsValid(StartPosition) &&
+            MyUtils.IsValid(Angle) &&
+            MyUtils.IsValid(Velocity) &&
+            MyUtils.IsValid(RotationSpeed) &&
+            MyUtils.IsValid(m_actualPosition) &&
+            MyUtils.IsValid(m_actualAngle);
+        }
     }
 }

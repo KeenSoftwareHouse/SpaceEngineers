@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders.ComponentSystem
 {
@@ -18,10 +19,11 @@ namespace Sandbox.Common.ObjectBuilders.ComponentSystem
             public string TypeId;
 
             [ProtoMember]
+            [DynamicObjectBuilder]
             public MyObjectBuilder_ComponentBase Component;
         }
 
         [ProtoMember]
-        public ComponentData[] Components;
+        public List<ComponentData> Components = new List<ComponentData>();
     }
 }

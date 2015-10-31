@@ -23,7 +23,7 @@ namespace VRageRender
     {
         RwTexId m_texture = RwTexId.NULL;
 
-        const SharpDX.DXGI.Format VideoFormat = SharpDX.DXGI.Format.B8G8R8A8_UNorm;
+        const SharpDX.DXGI.Format VideoFormat = SharpDX.DXGI.Format.B8G8R8A8_UNorm_SRgb;
 
         public MyVideoPlayer(string filename)
             : base(filename)
@@ -114,7 +114,7 @@ namespace VRageRender
             VRageMath.Rectangle? source = src;
             Vector2 origin = new Vector2(src.Width / 2 * 0, src.Height);
             
-            MySpritesRenderer.AddSingleSprite(m_texture.ShaderView, videoSize, Color.White, origin, Vector2.UnitX, source, destination);
+            MySpritesRenderer.AddSingleSprite(m_texture.ShaderView, videoSize, color, origin, Vector2.UnitX, source, destination);
         }
     }
 

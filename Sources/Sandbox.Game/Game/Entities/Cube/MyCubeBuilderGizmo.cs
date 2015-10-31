@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities.Cube
     #region Enums
 
     [Flags]
-    internal enum MySymmetrySettingModeEnum
+    public enum MySymmetrySettingModeEnum
     {
         Disabled = 0,
         NoPlane = 1,
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Entities.Cube
         ZPlaneOdd = 64
     }
 
-    internal enum MyGizmoSpaceEnum
+    public enum MyGizmoSpaceEnum
     {
         Default = 0,
         SymmetryX = 1,
@@ -63,9 +63,9 @@ namespace Sandbox.Game.Entities.Cube
 
     #endregion
 
-    class MyCubeBuilderGizmo
+    public class MyCubeBuilderGizmo
     {
-        internal class MyGizmoSpaceProperties
+        public class MyGizmoSpaceProperties
         {
             public bool Enabled = false;
 
@@ -110,6 +110,8 @@ namespace Sandbox.Game.Entities.Cube
 
             public bool m_dynamicBuildAllowed;
 
+            public HashSet<Tuple<MySlimBlock, ushort?>> m_removeBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
+
             public Quaternion LocalOrientation
             {
                 get { return Quaternion.CreateFromRotationMatrix(m_localMatrixAdd); }
@@ -132,6 +134,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_addPosSmallOnLarge = null;
                 m_positionsSmallOnLarge.Clear();
                 m_dynamicBuildAllowed = false;
+                m_removeBlocksInMultiBlock.Clear();
             }
         }
 
@@ -274,7 +277,7 @@ namespace Sandbox.Game.Entities.Cube
                         for (int skeletonIndex = 0; skeletonIndex < definition.Skeleton.Count; skeletonIndex++)
                         {
                             BoneInfo skeletonBone = definition.Skeleton[skeletonIndex];
-                            if (skeletonBone.BonePosition == transformedOffset)
+                            if (skeletonBone.BonePosition == (SerializableVector3I)transformedOffset)
                             {
                                 Vector3 bone = Vector3UByte.Denormalize(skeletonBone.BoneOffset, gridSize);
                                 Vector3 transformedBone = Vector3.Transform(bone, boneMatrix);
@@ -380,12 +383,17 @@ namespace Sandbox.Game.Entities.Cube
             return false;
         }
 
-        private void GetGizmoPointTestVariables(ref MatrixD invGridWorldMatrix, float gridSize, out BoundingBoxD bb, out MatrixD m, MyGizmoSpaceEnum gizmo, float inflate = 0.0f, bool onVoxel = false)
+        private void GetGizmoPointTestVariables(ref MatrixD invGridWorldMatrix, float gridSize, out BoundingBoxD bb, out MatrixD m, MyGizmoSpaceEnum gizmo, float inflate = 0.0f, bool onVoxel = false, bool dynamicMode = false)
         {
             m = invGridWorldMatrix * MatrixD.CreateScale(1.0f / gridSize);
             var gizmoSpace = m_spaces[(int)gizmo];
 
-            if (onVoxel)
+            if (dynamicMode)
+            {
+                m = invGridWorldMatrix;
+                bb = new BoundingBoxD(-gizmoSpace.m_blockDefinition.Size * gridSize * 0.5f, gizmoSpace.m_blockDefinition.Size * gridSize * 0.5f);
+            }
+            else if (onVoxel)
             {
                 m = invGridWorldMatrix;
                 Vector3D worldMin = MyCubeGrid.StaticGlobalGrid_UGToWorld(gizmoSpace.m_min, gridSize, MyPerGameSettings.BuildingSettings.StaticGridAlignToCenter) - Vector3D.Half * gridSize;
@@ -408,27 +416,31 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool PointsInsideGizmo(List<Vector3> points, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false)
+        public bool PointsAABBIntersectsGizmo(List<Vector3> points, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false, bool dynamicMode = false)
         {
             MatrixD m = new MatrixD();
             BoundingBoxD gizmoBox = new BoundingBoxD();
-            GetGizmoPointTestVariables(ref invGridWorldMatrix, gridSize, out gizmoBox, out m, gizmo, inflate: inflate, onVoxel: onVoxel);
+            GetGizmoPointTestVariables(ref invGridWorldMatrix, gridSize, out gizmoBox, out m, gizmo, inflate: inflate, onVoxel: onVoxel, dynamicMode: dynamicMode);
 
+            BoundingBoxD pointsBox = BoundingBoxD.CreateInvalid();
             foreach (var point in points)
             {
-                Vector3 localPoint = Vector3.Transform(point, m);
+                Vector3D localPoint = Vector3D.Transform(point, m);
 
                 if (gizmoBox.Contains(localPoint) == ContainmentType.Contains)
                     return true;
+
+                pointsBox.Include(localPoint);
             }
-            return false;
+
+            return pointsBox.Intersects(ref gizmoBox);
         }
 
-        public bool PointInsideGizmo(Vector3D point, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false)
+        public bool PointInsideGizmo(Vector3D point, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false, bool dynamicMode = false)
         {
             MatrixD m = new MatrixD();
             BoundingBoxD gizmoBox = new BoundingBoxD();
-            GetGizmoPointTestVariables(ref invGridWorldMatrix, gridSize, out gizmoBox, out m, gizmo, inflate: inflate, onVoxel: onVoxel);
+            GetGizmoPointTestVariables(ref invGridWorldMatrix, gridSize, out gizmoBox, out m, gizmo, inflate: inflate, onVoxel: onVoxel, dynamicMode: dynamicMode);
 
             Vector3D localPoint = Vector3D.Transform(point, m);
 

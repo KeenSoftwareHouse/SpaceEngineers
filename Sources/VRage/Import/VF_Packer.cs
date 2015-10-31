@@ -11,10 +11,9 @@ namespace VRage.Import
         public static short PackAmbientAndAlpha(float ambient, byte alpha)
         {
             Debug.Assert(alpha <= 2, "Alpha can be 0, 1 or 2");
-            Debug.Assert(ambient >= -1 && ambient <= 1);
-            short packed = (short)(ambient * 8191); // ambient in <-8191,8191>
-            int sign = packed < 0 ? -1 : 1;
-            packed += (short)(sign * (alpha * 8192));
+            Debug.Assert(0f <= ambient && ambient <= 1f);
+            short packed = (short)(ambient * 8191f); // ambient in <0,8191>; 8191 = (1<<13) - 1;
+            packed += (short)(alpha << 13);
             return packed;
         }
 

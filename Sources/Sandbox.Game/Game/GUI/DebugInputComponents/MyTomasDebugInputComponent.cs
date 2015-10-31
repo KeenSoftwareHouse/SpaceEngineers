@@ -68,15 +68,17 @@ namespace Sandbox.Game.Gui
                });
 
             AddShortcut(MyKeys.NumPad4, true, false, false, false,
-               () => "Spawn cargo ship",
+               () => "Spawn cargo ship or barbarians",
                delegate
                {
-                   var cargoEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "SpawnCargoShip"));
-                   if (cargoEvent != null)
+                   var theEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "SpawnCargoShip"));
+                   if (theEvent == null)
+                       theEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "SpawnBarbarians"));
+                   if (theEvent != null)
                    {
-                       MyGlobalEvents.RemoveGlobalEvent(cargoEvent);
-                       cargoEvent.SetActivationTime(TimeSpan.FromSeconds(1));
-                       MyGlobalEvents.AddGlobalEvent(cargoEvent);
+                       MyGlobalEvents.RemoveGlobalEvent(theEvent);
+                       theEvent.SetActivationTime(TimeSpan.FromSeconds(1));
+                       MyGlobalEvents.AddGlobalEvent(theEvent);
                    }
                    return true;
                });

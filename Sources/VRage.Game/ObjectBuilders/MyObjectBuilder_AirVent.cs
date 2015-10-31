@@ -1,5 +1,7 @@
 ﻿using ProtoBuf;
+using System.ComponentModel;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -9,5 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     {
         [ProtoMember]
         public bool IsDepressurizing;
+
+        [ProtoMember, DefaultValue(null)]
+        [Nullable, DynamicObjectBuilder]
+        public MyObjectBuilder_ToolbarItem OnEmptyAction = null;
+
+        [ProtoMember, DefaultValue(null)]
+        [Nullable, DynamicObjectBuilder]
+        public MyObjectBuilder_ToolbarItem OnFullAction = null;
     }
 }

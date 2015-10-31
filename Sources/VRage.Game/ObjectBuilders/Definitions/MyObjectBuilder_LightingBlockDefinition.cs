@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ProtoBuf;
+﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 using VRage;
 
@@ -20,6 +16,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public SerializableBounds LightIntensity = new SerializableBounds(0.5f, 5, 2);
+
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
 
         [ProtoMember]
         public float RequiredPowerInput = 0.001f;

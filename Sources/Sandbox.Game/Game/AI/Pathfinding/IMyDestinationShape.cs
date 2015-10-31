@@ -44,7 +44,7 @@ namespace Sandbox.Game.AI.Pathfinding
         /// <summary>
         /// Returns center of the shape for pathfinding heuristics
         /// </summary>
-        Vector3D GetCenter();
+        Vector3D GetDestination();
 
         void DebugDraw();
     }

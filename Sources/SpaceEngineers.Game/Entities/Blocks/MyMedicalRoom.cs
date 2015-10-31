@@ -1,48 +1,37 @@
-﻿using System.Text;
-using Havok;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Physics;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 
 using VRageMath;
-using System.Diagnostics;
 using System;
 using Sandbox.Game.World;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Screens;
-using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
-using System.Reflection;
 using Sandbox.Common;
 using Sandbox.Game.Components;
 using Sandbox.Definitions;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.Entities.Blocks;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.ModAPI;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities;
-using Sandbox.Game;
-using Sandbox;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Terminal.Controls;
 using System.Collections.Generic;
 using System.Linq;
+using Sandbox.Game.EntityComponents;
 using VRage.Components;
+using Sandbox.ModAPI;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MedicalRoom))]
-    public class MyMedicalRoom : MyFunctionalBlock, IMyRechargeSocketOwner, IMyPowerConsumer, IMyMedicalRoom, IMyOxygenConsumer
+    public class MyMedicalRoom : MyFunctionalBlock, IMyRechargeSocketOwner, IMyMedicalRoom, IMyGasBlock
     {
         #region Sync class
         [PreloadRequired]
@@ -121,12 +110,20 @@ namespace Sandbox.Game.Entities.Cube
         private MyCharacter m_user;
         private int m_lastTimeUsed;
 
-        private MyEntity3DSoundEmitter m_idleSoundEmitter;
-        private MyEntity3DSoundEmitter m_progressSoundEmitter;
-        private float m_requiredPowerInput;
+        private readonly MyEntity3DSoundEmitter m_idleSoundEmitter;
+        private readonly MyEntity3DSoundEmitter m_progressSoundEmitter;
         private new SyncClass SyncObject;
 
         protected bool m_takeSpawneeOwnership = false;
+        protected bool m_setFactionToSpawnee = false;
+        public bool SetFactionToSpawnee { get { return m_setFactionToSpawnee; } }
+
+	    private MyResourceSinkComponent m_sinkComponent;
+	    public MyResourceSinkComponent SinkComp
+	    {
+			get { return m_sinkComponent; }
+			set { if(Components.Contains(typeof(MyResourceSinkComponent))) Components.Remove<MyResourceSinkComponent>(); Components.Add<MyResourceSinkComponent>(value); m_sinkComponent = value; }
+	    }
 
         //obsolete, use IDModule
         private ulong SteamUserId { get; set; }
@@ -146,13 +143,13 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return SinkComp.IsPowered && base.CheckIsWorking();
         }
 
         static MyMedicalRoom()
         {
             //terminal:
-            var label = new MyTerminalControlLabel<MyMedicalRoom>("ScenarioControls", MySpaceTexts.TerminalScenarioSettingsLabel);
+            var label = new MyTerminalControlLabel<MyMedicalRoom>(MySpaceTexts.TerminalScenarioSettingsLabel);
             var ownershipCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("TakeOwnership", MySpaceTexts.MedicalRoom_ownershipAssignmentLabel, MySpaceTexts.MedicalRoom_ownershipAssignmentTooltip);
             ownershipCheckbox.Getter = (x) => x.m_takeSpawneeOwnership;
             ownershipCheckbox.Setter = (x, val) =>
@@ -163,6 +160,14 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(label);
             MyTerminalControlFactory.AddControl(ownershipCheckbox);
 
+            var factionCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("SetFaction", MySpaceTexts.MedicalRoom_factionAssignmentLabel, MySpaceTexts.MedicalRoom_factionAssignmentTooltip);
+            factionCheckbox.Getter = (x) => x.m_setFactionToSpawnee;
+            factionCheckbox.Setter = (x, val) =>
+            {
+                x.m_setFactionToSpawnee = val;
+            };
+            factionCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
+            MyTerminalControlFactory.AddControl(factionCheckbox);
         }
 
         public MyMedicalRoom()
@@ -175,24 +180,26 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add((Func<bool>) (() => MySession.ControlledEntity != null && m_user == MySession.ControlledEntity.Entity));
             }
-
-            m_requiredPowerInput = MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM/10f;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
 
-            if (BlockDefinition is MyMedicalRoomDefinition)
+	        var medicalRoomDefinition = BlockDefinition as MyMedicalRoomDefinition;
+
+	        MyStringHash resourceSinkGroup;
+            if (medicalRoomDefinition != null)
             {
-                var def = (MyMedicalRoomDefinition)BlockDefinition;
-                m_idleSound = new MySoundPair(def.IdleSound);
-                m_progressSound = new MySoundPair(def.ProgressSound);
+                m_idleSound = new MySoundPair(medicalRoomDefinition.IdleSound);
+                m_progressSound = new MySoundPair(medicalRoomDefinition.ProgressSound);
+				resourceSinkGroup = MyStringHash.GetOrCompute(medicalRoomDefinition.ResourceSinkGroup);
             }
             else
             {
                 m_idleSound = new MySoundPair("BlockMedical");
                 m_progressSound = new MySoundPair("BlockMedicalProgress");
+				resourceSinkGroup = MyStringHash.GetOrCompute("Utility");
             }
 
             m_rechargeSocket = new MyRechargeSocket();
@@ -203,7 +210,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (SteamUserId != 0) //backward compatibility
             {
-                MyPlayer controller = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(SteamUserId));
+                MyPlayer controller = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(SteamUserId));
                 if (controller != null)
                 {
                     IDModule.Owner = controller.Identity.IdentityId;
@@ -213,21 +220,22 @@ namespace Sandbox.Game.Entities.Cube
             SteamUserId = 0;
 
             m_takeSpawneeOwnership = (objectBuilder as MyObjectBuilder_MedicalRoom).TakeOwnership;
+            m_setFactionToSpawnee = (objectBuilder as MyObjectBuilder_MedicalRoom).SetFaction;
 
             SyncObject = new SyncClass(this);
-
+            
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             InitializeConveyorEndpoint();
 
-            PowerReceiver = new MyPowerReceiver(
-                group: MyConsumerGroupEnum.Utility,
-                isAdaptible: false,
-                maxRequiredInput: MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM,
-                requiredInputFunc: () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
-            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+			SinkComp = new MyResourceSinkComponent();
+			SinkComp.Init(
+                resourceSinkGroup,
+                MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM,
+                () => (Enabled && IsFunctional) ? SinkComp.MaxRequiredInput : 0f);
+            SinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+            SinkComp.Update();
+            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(SinkComp, this));
 
             if (this.CubeGrid.CreatePhysics)
                 Components.Add<MyRespawnComponent>(new MyRespawnComponent());
@@ -250,7 +258,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			SinkComp.Update();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -260,6 +268,8 @@ namespace Sandbox.Game.Entities.Cube
             builder.IdleSound = m_idleSound.ToString();
             builder.ProgressSound = m_progressSound.ToString();
             builder.TakeOwnership = m_takeSpawneeOwnership;
+            builder.SetFaction = m_setFactionToSpawnee;
+
             return builder;
         }
 
@@ -283,29 +293,8 @@ namespace Sandbox.Game.Entities.Cube
             StopProgressLoopSound();
 
             m_rechargeSocket.Unplug();
-            m_requiredPowerInput = MyEnergyConstants.MAX_REQUIRED_POWER_MEDICAL_ROOM / 10f;
+            m_user.SuitBattery.ResourceSink.TemporaryConnectedEntity = null;
             m_user = null;
-        }
-
-
-        public override void OnRegisteredToGridSystems()
-        {
-            base.OnRegisteredToGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.RegisterOxygenBlock(this);
-            }
-        }
-
-        public override void OnUnregisteredFromGridSystems()
-        {
-            base.OnUnregisteredFromGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
-            }
         }
 
         public void Use(UseActionEnum actionEnum, MyCharacter user)
@@ -342,7 +331,10 @@ namespace Sandbox.Game.Entities.Cube
             StopIdleSound();
             StopProgressLoopSound();
             if (m_user != null)
+            {
                 m_rechargeSocket.Unplug();
+                m_user.SuitBattery.ResourceSink.TemporaryConnectedEntity = null;
+            }
             m_user = null;
             base.Closing();
         }
@@ -374,7 +366,8 @@ namespace Sandbox.Game.Entities.Cube
             if (m_user == null)
             {
                 m_user = user;
-                m_rechargeSocket.PlugIn(m_user.SuitBattery);
+                m_user.SuitBattery.ResourceSink.TemporaryConnectedEntity = this;
+                m_rechargeSocket.PlugIn(m_user.SuitBattery.ResourceSink);
                 StartProgressLoopSound();
             }
             m_lastTimeUsed = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -386,16 +379,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override void OnEnabledChanged()
         {
             base.OnEnabledChanged();
-            PowerReceiver.Update();
+			SinkComp.Update();
         }
 
         public static Matrix GetSafePlaceRelative()
@@ -431,7 +418,7 @@ namespace Sandbox.Game.Entities.Cube
                 return 0f;
             }
 
-            var oxygenBlock = CubeGrid.GridSystems.OxygenSystem.GetOxygenBlock(WorldMatrix.Translation);
+            var oxygenBlock = CubeGrid.GridSystems.GasSystem.GetOxygenBlock(WorldMatrix.Translation);
 
             if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
             {
@@ -441,34 +428,24 @@ namespace Sandbox.Game.Entities.Cube
             return oxygenBlock.OxygenLevel(CubeGrid.GridSize);
         }
 
-        bool IMyOxygenBlock.IsWorking()
+        bool IMyGasBlock.IsWorking()
         {
             return IsWorking && m_user != null;
         }
 
-        int IMyOxygenConsumer.GetPriority()
+        public void TrySetFaction(MyPlayer player)
         {
-            return 0;
-        }
-
-        float IMyOxygenConsumer.ConsumptionNeed(float deltaTime)
-        {
-            if (m_user == null)
+            if (MySession.Static.IsScenario && m_setFactionToSpawnee && Sync.IsServer && OwnerId != 0)
             {
-                return 0f;
+                //if (null != MySession.Static.Factions.TryGetPlayerFaction(player.Identity.IdentityId))
+                //    return;
+                IMyFaction faction = MySession.Static.Factions.TryGetPlayerFaction(this.OwnerId);
+                if (faction == null)
+                    return;
+                MyFactionCollection.SendJoinRequest(faction.FactionId, player.Identity.IdentityId);
+                if (!faction.AutoAcceptMember)
+                    MyFactionCollection.AcceptJoin(faction.FactionId, player.Identity.IdentityId);
             }
-
-            return Math.Min(MyOxygenConstants.OXYGEN_REGEN_PER_SECOND, m_user.SuitOxygenAmountMissing) * deltaTime;
-        }
-
-        void IMyOxygenConsumer.Consume(float amount)
-        {
-            if (amount <= 0f || m_user == null)
-            {
-                return;
-            }
-
-            m_user.SuitOxygenAmount += amount;
         }
 
         public void TryTakeSpawneeOwnership(MyPlayer player)

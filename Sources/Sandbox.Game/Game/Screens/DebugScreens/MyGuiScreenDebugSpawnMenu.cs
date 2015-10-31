@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-
+using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
@@ -85,14 +85,12 @@ namespace Sandbox.Game.Gui
         private static SpawnAsteroidMsg m_lastAsteroidMsg;
 
         private static bool m_asteroid_showPredefinedOrProcedural = true;
-        private static bool m_asteroid_showPlanet = false;
         private static float m_procAsteroidSizeValue = 64.0f;
 
         private static String m_procAsteroidSeedValue = "12345";
         private MyGuiControlSlider m_procAsteroidSize;
         private MyGuiControlTextbox m_procAsteroidSeed;
 
-    
         private MyVoxelBase m_currentVoxel = null;
 
         public override string GetFriendlyName()
@@ -165,12 +163,6 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
-            if (m_asteroid_showPlanet)
-            {
-                CreatePlanetMenu();
-                return;
-            }
-
             Vector2 cbOffset = new Vector2(-0.05f, 0.0f);
             Vector2 controlPadding = new Vector2(0.02f, 0.02f); // X: Left & Right, Y: Bottom & Top
 
@@ -198,11 +190,9 @@ namespace Sandbox.Game.Gui
                 var combo = AddCombo();
                 combo.AddItem(1, MySpaceTexts.ScreenDebugSpawnMenu_PredefinedAsteroids);
                 combo.AddItem(2, MySpaceTexts.ScreenDebugSpawnMenu_ProceduralAsteroids);
-                // DA: Remove from MySpaceTexts and just hardcode until release. Leave a todo so you don't forget about it before release of planets.
-                combo.AddItem(3, MySpaceTexts.ScreenDebugSpawnMenu_Planets);
 
-                combo.SelectItemByKey(m_asteroid_showPlanet ? 3 : m_asteroid_showPredefinedOrProcedural ? 1 : 2);
-                combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; m_asteroid_showPlanet = combo.GetSelectedKey() == 3; RecreateControls(false); };
+                combo.SelectItemByKey( m_asteroid_showPredefinedOrProcedural ? 1 : 2);
+                combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; RecreateControls(false); };
             }
 
             if (MyFakes.ENABLE_SPAWN_MENU_ASTEROIDS && m_asteroid_showPredefinedOrProcedural)
@@ -375,7 +365,7 @@ namespace Sandbox.Game.Gui
 
             var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
 
-            if (builder is MyObjectBuilder_PhysicalGunObject || builder is Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_OxygenContainerObject)
+            if (builder is MyObjectBuilder_PhysicalGunObject || builder is MyObjectBuilder_OxygenContainerObject || builder is MyObjectBuilder_GasContainerObject)
                 amount = 1;
 
             var obj = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
@@ -446,11 +436,6 @@ namespace Sandbox.Game.Gui
         private void OnSpawnProceduralAsteroid(MyGuiControlButton obj)
         {
             int seed = GetProceduralAsteroidSeed(m_procAsteroidSeed);
-            if (m_asteroid_showPlanet)
-            {
-                SpawnPlanet(seed, m_procAsteroidSize.Value);
-            }
-            else
             {
                 SpawnProceduralAsteroid(seed, m_procAsteroidSize.Value);
             }
@@ -504,12 +489,12 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius, float deviationScale)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         public static MyObjectBuilder_VoxelMap CreateAsteroidObjectBuilder(string storageName)
         {
-            var builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Planet>();
+            var builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_VoxelMap>();
             builder.StorageName = storageName;
             builder.PersistentFlags = MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
             builder.PositionAndOrientation = MyPositionAndOrientation.Default;
@@ -544,7 +529,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)
@@ -565,20 +550,6 @@ namespace Sandbox.Game.Gui
             };
 
             MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
-        }
-
-        private void SpawnPlanet(int seed,float size,Vector3D? pos = null)
-        {
-            var storageNameBase = "Planet" + "-" + seed + "d" + size;
-
-            var storageName = MakeStorageName(storageNameBase);
-
-            if (pos.HasValue == false)
-            {
-                pos = MySession.LocalHumanPlayer.GetPosition();
-            }
-
-            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong(),false);
         }
 
         private static String MakeStorageName(String storageNameBase)
@@ -608,65 +579,6 @@ namespace Sandbox.Game.Gui
             while (collision);
 
             return storageName;
-        }
-
-        private static Vector3I FindBestOctreeSize(float radius)
-        {
-            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-            while (nodeRadius < radius)
-                nodeRadius *= 2;
-            //nodeRadius *= 2;
-            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
-        }
-
-        private void CreatePlanetMenu()
-        {
-            m_currentVoxel = null;
-            MyGuiControlList list = new MyGuiControlList(size: new Vector2(SCREEN_SIZE.X,1.0f));
-
-            Vector2 controlPadding = new Vector2(0.02f, 0.02f); // X: Left & Right, Y: Bottom & Top
-
-            float textScale = 0.8f;
-            float usableWidth = SCREEN_SIZE.X - HIDDEN_PART_RIGHT - controlPadding.X * 2;
-
-            m_currentPosition = Vector2.Zero;/* -m_size.Value / 2.0f;
-            m_currentPosition += controlPadding;*/
-            m_scale = textScale;
-
-            var label = AddLabel(MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_SelectAsteroidType), Vector4.One, m_scale);
-            Controls.Remove(label);
-            list.Controls.Add(label);
-
-            var combo = AddCombo();
-            combo.AddItem(1, MySpaceTexts.ScreenDebugSpawnMenu_PredefinedAsteroids);
-            combo.AddItem(2, MySpaceTexts.ScreenDebugSpawnMenu_ProceduralAsteroids);
-            combo.AddItem(3, MySpaceTexts.ScreenDebugSpawnMenu_Planets);
-
-            combo.SelectItemByKey(m_asteroid_showPlanet ? 3 : m_asteroid_showPredefinedOrProcedural ? 1 : 2);
-            combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; m_asteroid_showPlanet = combo.GetSelectedKey() == 3; RecreateControls(false); };
-
-            Controls.Remove(combo);
-            list.Controls.Add(combo);
-
-            CreatePlanetControls(list, usableWidth);
-
-            AddSeparator(list);
-  
-            var button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnAsteroid, OnSpawnProceduralAsteroid); 
-            Controls.Remove(button);
-            list.Controls.Add(button);
-
-            Controls.Add(list);
-        }
-
-        private void CreatePlanetControls(MyGuiControlList list, float usableWidth)
-        {   
-            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 120000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
-
-            m_procAsteroidSize.ValueChanged += (MyGuiControlSlider s) => { asteroidSizeLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m"; m_procAsteroidSizeValue = s.Value; };
-            m_procAsteroidSize.Value = 8000.1f;
-
-            m_procAsteroidSeed = CreateSeedButton(list, m_procAsteroidSeedValue, usableWidth);  
         }
 
         private MyGuiControlTextbox CreateSeedButton(MyGuiControlList list, string seedValue, float usableWidth)

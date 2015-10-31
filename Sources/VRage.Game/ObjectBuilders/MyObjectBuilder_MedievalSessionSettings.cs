@@ -17,7 +17,7 @@ namespace Medieval.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Enable barbarians")]
         [GameRelationAttribute(Game.MedievalEngineers)]
-        public bool EnableBarbarians = false;
+        public bool EnableBarbarians = true;
 
         [ProtoMember]
         [Display(Name = "Max active fracture pieces")]
@@ -29,7 +29,7 @@ namespace Medieval.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Game day in real minutes")]
         [GameRelationAttribute(Game.MedievalEngineers)]
-        [Range(1, int.MaxValue)]
+        [Range(20, int.MaxValue)]
         public float GameDayInRealMinutes = 20;
 
         [ProtoMember]
@@ -41,7 +41,7 @@ namespace Medieval.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Enable animals")]
         [GameRelationAttribute(Game.MedievalEngineers)]
-        public bool EnableAnimals = false;
+        public bool EnableAnimals = true;
 
         [ProtoMember]
         [Display(Name = "Max uncontrolled bots")]
@@ -49,7 +49,7 @@ namespace Medieval.ObjectBuilders
         [Range(0, 20)]
         public short MaximumBots = 10;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         [Display(Name = "Servants per player")]
         [GameRelation(Game.MedievalEngineers)]
         [Range(0, 5)]

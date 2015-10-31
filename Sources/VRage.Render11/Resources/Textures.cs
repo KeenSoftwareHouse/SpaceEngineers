@@ -16,7 +16,6 @@ using Vector2 = VRageMath.Vector2;
 using Resource = SharpDX.Direct3D11.Resource;
 using SharpDX.DXGI;
 using SharpDX.Direct3D;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRageMath;
@@ -65,6 +64,7 @@ namespace VRageRender.Resources
         internal string ContentPath;
         internal MyTextureEnum Type;
         internal bool OwnsData;
+        internal bool SkipQualityReduction;
 
         // data status
         internal bool FileExists;
@@ -142,8 +142,48 @@ namespace VRageRender.Resources
                     return Format.B8G8R8A8_UNorm_SRgb;
                 case Format.B8G8R8X8_UNorm:
                     return Format.B8G8R8X8_UNorm_SRgb;
+                case Format.BC3_UNorm:
+                    return Format.BC3_UNorm_SRgb;
+                case Format.BC7_UNorm:
+                    return Format.BC7_UNorm_SRgb;
             }
             return fmt;
+        }
+
+        static Format MakeLinear(Format fmt)
+        {
+            switch (fmt)
+            {
+                case Format.R8G8B8A8_UNorm_SRgb:
+                    return Format.R8G8B8A8_UNorm;
+                case Format.B8G8R8A8_UNorm_SRgb:
+                    return Format.B8G8R8A8_UNorm;
+                case Format.B8G8R8X8_UNorm_SRgb:
+                    return Format.B8G8R8X8_UNorm;
+                case Format.BC3_UNorm_SRgb:
+                    return Format.BC3_UNorm;
+                case Format.BC7_UNorm_SRgb:
+                    return Format.BC7_UNorm;
+            }
+            return fmt;
+        }
+
+        static bool IsSrgb(Format fmt)
+        {
+            switch (fmt)
+            {
+                case Format.R8G8B8A8_UNorm_SRgb:
+                    return true;
+                case Format.B8G8R8A8_UNorm_SRgb:
+                    return true;
+                case Format.B8G8R8X8_UNorm_SRgb:
+                    return true;
+                case Format.BC7_UNorm_SRgb:
+                    return true;
+                case Format.BC3_UNorm_SRgb:
+                    return true;
+            }
+            return false;
         }
 
         static void LoadTexture(TexId texId)
@@ -182,8 +222,11 @@ namespace VRageRender.Resources
 
             bool loaded = false;
             if (img != null)
-            {         
+            {
                 int skipMipmaps = (Textures.Data[texId.Index].Type != MyTextureEnum.GUI && img.Description.MipLevels > 1) ? MyRender11.RenderSettings.TextureQuality.MipmapsToSkip(img.Description.Width, img.Description.Height) : 0;
+
+                if (Textures.Data[texId.Index].SkipQualityReduction)
+                    skipMipmaps = 0;
 
                 int targetMipmaps = img.Description.MipLevels - skipMipmaps;
                 var mipmapsData = new DataBox[(img.Description.MipLevels - skipMipmaps) * img.Description.ArraySize];
@@ -200,9 +243,7 @@ namespace VRageRender.Resources
                 var targetWidth = img.Description.Width >> skipMipmaps;
                 var targetHeight = img.Description.Height >> skipMipmaps;
 
-                bool overwriteFormatToSrgb = Textures.Data[texId.Index].Type == MyTextureEnum.COLOR_METAL &&
-                    !SharpDX.DXGI.FormatHelper.IsCompressed(img.Description.Format) &&
-                    !SharpDX.DXGI.FormatHelper.IsSRgb(img.Description.Format);
+                bool overwriteFormatToSrgb = (Textures.Data[texId.Index].Type != MyTextureEnum.NORMALMAP_GLOSS) && !SharpDX.DXGI.FormatHelper.IsSRgb(img.Description.Format);
 
                 var desc = new Texture2DDescription
                 {
@@ -226,6 +267,7 @@ namespace VRageRender.Resources
                     Textures.Data[texId.Index].Size = new Vector2(targetWidth, targetHeight);
                     Textures.Data[texId.Index].SkippedMipmaps = skipMipmaps;
                     Textures.Data[texId.Index].FileExists = true;
+
                     Views[texId.Index] = new ShaderResourceView(MyRender11.Device, resource);
                     resource.DebugName = path;
                     Views[texId.Index].DebugName = path;
@@ -286,7 +328,7 @@ namespace VRageRender.Resources
             return GetTexture(nameKey, null, type, waitTillLoaded);
         }
 
-        internal static TexId GetTexture(MyStringId nameId, string contentPath, MyTextureEnum type, bool waitTillLoaded = false)
+        internal static TexId GetTexture(MyStringId nameId, string contentPath, MyTextureEnum type, bool waitTillLoaded = false, bool skipQualityReduction = false)
         {
             if(nameId == MyStringId.NullOrEmpty)
             {
@@ -333,7 +375,8 @@ namespace VRageRender.Resources
                     Name = nameId.ToString(),
                     ContentPath = contentPath,
                     Type = type,
-                    OwnsData = true
+                    OwnsData = true,
+                    SkipQualityReduction = skipQualityReduction,
                 };
                 MyArrayHelpers.Reserve(ref Views, texId.Index + 1);
                 Views[texId.Index] = null;
@@ -839,7 +882,7 @@ namespace VRageRender.Resources
                 MipLevels = 1,
                 OptionFlags = ResourceOptionFlags.None,
                 SampleDescription = new SampleDescription(1, 0),
-                Usage = ResourceUsage.Dynamic
+                Usage = ResourceUsage.Dynamic,
             };
 
             var handle = new RwTexId { Index = Textures.Allocate() };

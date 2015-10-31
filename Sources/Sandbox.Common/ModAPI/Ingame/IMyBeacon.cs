@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyBeacon:IMyFunctionalBlock
+    public interface IMyBeacon : IMyFunctionalBlock
     {
-        float Radius { get;}
+        float Radius { get; }
     }
 }

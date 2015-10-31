@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyReactor : IMyFunctionalBlock, IMyPowerProducer
+    public interface IMyReactor : IMyFunctionalBlock
     {
         bool UseConveyorSystem { get; }
     }

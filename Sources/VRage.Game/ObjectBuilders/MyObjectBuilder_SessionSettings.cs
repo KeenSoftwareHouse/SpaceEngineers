@@ -25,25 +25,25 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Inventory size multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float InventorySizeMultiplier = 1;
+        public float InventorySizeMultiplier = 3;
 
         [ProtoMember]
         [Display(Name = "Assembler speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float AssemblerSpeedMultiplier = 1;
+        public float AssemblerSpeedMultiplier = 3;
 
         [ProtoMember]
         [Display(Name = "Assembler efficiency multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float AssemblerEfficiencyMultiplier = 1;
+        public float AssemblerEfficiencyMultiplier = 3;
 
         [ProtoMember]
         [Display(Name = "Refinery speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float RefinerySpeedMultiplier = 1;
+        public float RefinerySpeedMultiplier = 3;
 
         [ProtoMember]
-        public MyOnlineModeEnum OnlineMode = MyOnlineModeEnum.OFFLINE;
+        public MyOnlineModeEnum OnlineMode = MyOnlineModeEnum.PRIVATE;
 
         [ProtoMember]
         [Display(Name = "Max players")]
@@ -108,7 +108,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Remove trash")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool RemoveTrash = false;
+        public bool RemoveTrash = true;
 
         /// <summary>
         /// Size of the edge of the world area cube.
@@ -133,12 +133,12 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Welder speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float WelderSpeedMultiplier = 1;
+        public float WelderSpeedMultiplier = 2;
 
         [ProtoMember]
         [Display(Name = "Grinder speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float GrinderSpeedMultiplier = 1;
+        public float GrinderSpeedMultiplier = 2;
 
         [ProtoMember]
         [Display(Name = "Realistic sound")]
@@ -158,7 +158,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Permanent death")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool? PermanentDeath = true;
+        public bool? PermanentDeath = false;
 
         [ProtoMember]
         [Display(Name = "AutoSave in minutes")]
@@ -169,7 +169,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Spawnship time multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float SpawnShipTimeMultiplier = 1.0f;
+        public float SpawnShipTimeMultiplier = 0.5f;
 
         [ProtoMember]
         [Display(Name = "Procedural density")]
@@ -196,12 +196,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "View distance")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public int ViewDistance = 20000;
-
-        [ProtoMember]
-        [Display(Name = "Flora density")]
-        [GameRelationAttribute(Game.SpaceEngineers)]
-        public int FloraDensity = 20;
+        public int ViewDistance = 15000;
 
         [ProtoMember]
         [DefaultValue(false)]// must leave default value here because it fails to deserialize world if it finds old save where this was nullable (bleh)
@@ -231,19 +226,9 @@ namespace Sandbox.Common.ObjectBuilders
         public bool EnableEncounters = true;
 
         [ProtoMember]
-        [Display(Name = "Enable flora")]
-        [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool EnableFlora = false;
-
-        [ProtoMember]
         [Display(Name = "Enable Station Voxel Support")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool EnableStationVoxelSupport = false;
-
-        [ProtoMember]
-        [Display(Name = "Enable Planets")]
-        [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool EnablePlanets = false;
+        public bool EnableStationVoxelSupport = true;
 
         [ProtoMember]
         [Display(Name = "Enable Sun Rotation")]
@@ -253,8 +238,8 @@ namespace Sandbox.Common.ObjectBuilders
         // Should have been named "EnableRespawnShips" to avoid a negative
         // but it's alread public now
         [ProtoMember]
-        [Display(Name = "Disable respawn ships")]
-        [GameRelationAttribute(Game.SpaceEngineers)]
+        [Display(Name = "Disable respawn ships / carts")]
+        [GameRelationAttribute(Game.Shared)]
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
@@ -283,7 +268,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Sun rotation interval")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public double SunRotationIntervalMinutes = 4 * 60; // 4 hours
+        public float SunRotationIntervalMinutes = 2 * 60; // 2 hours
 
         [ProtoMember]
         [Display(Name = "Enable jetpack")]
@@ -296,24 +281,24 @@ namespace Sandbox.Common.ObjectBuilders
         public bool SpawnWithTools = true;
 
         [ProtoMember]
-        [Display(Name = "Planet min size")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float PlanetMinSize = 30 * 1000;
+        public bool StartInRespawnScreen = false;
 
         [ProtoMember]
-        [Display(Name = "Planet max size")]
+        [Display(Name = "Enable voxel destruction")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float PlanetMaxSize = 50 * 1000;
+        public bool EnableVoxelDestruction = true;
 
         [ProtoMember]
-        [Display(Name = "Moon min size")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float MoonMinSize = 8 * 1000;
+        public int MaxDrones = 5;
 
         [ProtoMember]
-        [Display(Name = "Moon max size")]
+        [Display(Name = "Enable drones")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public float MoonMaxSize = 10 * 1000;
+        public bool EnableDrones = true;
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {
@@ -351,6 +336,7 @@ namespace Sandbox.Common.ObjectBuilders
                 log.WriteLine("EnableIngameScripts = " + EnableIngameScripts);
                 log.WriteLine("ViewDistance = " + ViewDistance);
                 log.WriteLine("Battle = " + Battle);
+                log.WriteLine("Voxel destruction = " + EnableVoxelDestruction);
             }
         }
     }

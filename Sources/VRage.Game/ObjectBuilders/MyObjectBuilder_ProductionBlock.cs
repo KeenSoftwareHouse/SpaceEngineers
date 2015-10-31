@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
 using VRage;
 using System.Xml.Serialization;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -42,6 +43,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         [XmlArrayItem("Item")]
+        [Serialize(MyObjectFlags.Nullable)]
         public QueueItem[] Queue;
 
         [ProtoMember, DefaultValue(true)]

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -14,21 +13,16 @@ using Sandbox.Game.Gui;
 using System.Collections.Generic;
 using Havok;
 using Sandbox.Graphics.TransparentGeometry;
-using VRageRender;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
-
-using Sandbox.Graphics.GUI;
-using System.Diagnostics;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
-using System.Reflection;
 using Sandbox.Common;
-using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using VRage;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Components;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
@@ -37,7 +31,7 @@ using VRage.Components;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallGatlingGun))]
-    class MySmallGatlingGun : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallGatlingGun
+    class MySmallGatlingGun : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallGatlingGun
     {
         float m_rotationAngle;                          //  Actual rotation angle (not rotation speed) around Z axis
         int m_lastTimeShoot;                            //  When was this gun last time shooting
@@ -69,15 +63,9 @@ namespace Sandbox.Game.Weapons
 
         private MyInventory m_ammoInventory;
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
@@ -153,10 +141,16 @@ namespace Sandbox.Game.Weapons
             //    m_ammoPerShotConsumption = (MyFixedPoint)((45.0f / (1000.0f / MyGatlingConstants.SHOT_INTERVAL_IN_MILISECONDS)) / m_gunBase.WeaponProperties.AmmoMagazineDefinition.Capacity);
 
             m_useConveyorSystem = ob.UseConveyorSystem;
-            PowerReceiver = new MyPowerReceiver(MyConsumerGroupEnum.Defense, false, MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_GUN, () => PowerReceiver.MaxRequiredInput);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
-            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+				weaponBlockDefinition.ResourceSinkGroup,
+				MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_GUN,
+				() => ResourceSink.MaxRequiredInput);
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
+			AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
         }
 
         private void Receiver_IsPoweredChanged()
@@ -363,7 +357,7 @@ namespace Sandbox.Game.Weapons
                 return false;
             }
 
-            if (!PowerReceiver.IsPowered)
+            if (!ResourceSink.IsPowered)
             {
                 status = MyGunStatusEnum.OutOfPower;
                 return false;
@@ -389,7 +383,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {            
             //  Angle of muzzle flash particle
             m_muzzleFlashLength = MyUtils.GetRandomFloat(3, 4);// *m_barrel.GetMuzzleSize();
@@ -499,8 +493,8 @@ namespace Sandbox.Game.Weapons
 
         private void UpdatePower()
         {
-            PowerReceiver.Update();
-            if (!PowerReceiver.IsPowered)
+			ResourceSink.Update();
+			if (!ResourceSink.IsPowered)
                 StopLoopSound();
         }
 
@@ -539,6 +533,21 @@ namespace Sandbox.Game.Weapons
         public MyInventory GetInventory(int id)
         {
             return m_ammoInventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if (m_ammoInventory != null)
+            {
+                m_ammoInventory.ContentsChanged -= AmmoInventory_ContentsChanged;
+            }
+
+            m_ammoInventory = inventory;
+
+            if (m_ammoInventory != null)
+            {
+                m_ammoInventory.ContentsChanged += AmmoInventory_ContentsChanged;
+            }
         }
 
         bool IMyInventoryOwner.UseConveyorSystem
@@ -661,7 +670,7 @@ namespace Sandbox.Game.Weapons
 
         public override void ShootFromTerminal(Vector3 direction)
         {
-            Shoot(MyShootActionEnum.PrimaryAction, direction);
+            Shoot(MyShootActionEnum.PrimaryAction, direction, null);
         }
     }
 }

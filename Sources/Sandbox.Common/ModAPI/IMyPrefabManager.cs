@@ -9,7 +9,8 @@ namespace Sandbox.ModAPI
     [Flags]
     public enum SpawningOptions
     {
-        None = 1 << 0,
+        None = 0,
+
         RotateFirstCockpitTowardsDirection = 1 << 1,
         SpawnRandomCargo = 1 << 2,
         DisableDampeners = 1 << 3,
@@ -21,6 +22,17 @@ namespace Sandbox.ModAPI
     
     public interface IMyPrefabManager
     {
+        void SpawnPrefab(
+           List<IMyCubeGrid> resultList,
+           String prefabName,
+           Vector3D position,
+           Vector3 forward,
+           Vector3 up,
+           Vector3 initialLinearVelocity = default(Vector3),
+           Vector3 initialAngularVelocity = default(Vector3),
+           String beaconName = null,
+           SpawningOptions spawningOptions = SpawningOptions.None,
+           bool updateSync = false);
 
         void SpawnPrefab(
            List<IMyCubeGrid> resultList,
@@ -32,6 +44,7 @@ namespace Sandbox.ModAPI
            Vector3 initialAngularVelocity = default(Vector3),
            String beaconName = null,
            SpawningOptions spawningOptions = SpawningOptions.None,
+           long ownerId = 0,
            bool updateSync = false);
 
         bool IsPathClear(Vector3D from, Vector3D to);

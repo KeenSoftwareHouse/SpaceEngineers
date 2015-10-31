@@ -1,6 +1,7 @@
 struct VertexStageOutput
 {
     float3 position : POSITION;
+    float3 position_world : POSITION1;
     float3 normal 	: NORMAL;
     float3 weights  : TEXCOORD0;
 };
@@ -60,7 +61,7 @@ SO_Vertex spawn_point(VertexStageOutput V[3], inout uint seed)
 
 float triangle_area(float3 v0, float3 v1, float3 v2)
 {
-    return length(cross(v0, v1) + cross(v1, v2) + cross(v2, v0)) * 0.5;
+	return length(cross(v1 - v0, v2 - v0)) * 0.5f;
 }
 
 #define MAX_ELEMENTS_NUM 24
@@ -76,41 +77,40 @@ uint position_seed(float3 position) {
 }
 
 [maxvertexcount(MAX_ELEMENTS_NUM)]
-void gs( triangle VertexStageOutput input[3], uint primitiveID : SV_PrimitiveID, 
-    inout PointStream<SO_Vertex> point_stream)
+void gs(triangle VertexStageOutput input[3], uint primitiveID : SV_PrimitiveID,
+	inout PointStream<SO_Vertex> point_stream)
 {
-    SO_Vertex output;
+	SO_Vertex output;
 
-    float3 normal = normalize(input[0].normal + input[1].normal + input[2].normal);
-    uint2 packed_n = pack_normal(normal);
+	float3 normal = normalize(input[0].normal + input[1].normal + input[2].normal);
 
-    //uint seed = primitiveID;
-    //float3 min_position = min(input[0].position, min(input[1].position, input[2].position));
-    uint seed = position_seed(input[0].position + input[1].position * 7 + input[2].position * 53);
+		//uint seed = primitiveID;
+		//float3 min_position = min(input[0].position, min(input[1].position, input[2].position));
+		uint seed = position_seed(input[0].position_world + input[1].position_world * 7 + input[2].position_world * 53);
 
-    float area = triangle_area(input[0].position, input[1].position, input[2].position);
+	float area = triangle_area(input[0].position, input[1].position, input[2].position);
 
-    float w0 = input[0].weights[foliage_.weight_index];
-    float w1 = input[1].weights[foliage_.weight_index];
-    float w2 = input[2].weights[foliage_.weight_index];
+	float weight0 = input[0].weights[foliage_.weight_index];
+	float weight1 = input[1].weights[foliage_.weight_index];
+	float weight2 = input[2].weights[foliage_.weight_index];
 
-    float w = (w0 + w1 + w2) / 3;
+	float weight = (weight0 + weight1 + weight2) / 3.0f;
 
-    float g = area * foliage_.density * w;
-    float P = frac(g);
+	float spawnNum = area * foliage_.density * weight;
+	float spawnFraction = frac(spawnNum);
 
-    int num = g;
-    num = min(num, MAX_ELEMENTS_NUM);
-    for(int i=0; i< num; i++)
-    {
-        point_stream.Append(spawn_point(input, seed));
-    }
-    if(random(seed) < P)
-    {
-        point_stream.Append(spawn_point(input, seed));
-    }
+	int spawnCount = spawnNum;
+	spawnCount = min(spawnCount, MAX_ELEMENTS_NUM);
+	for ( int i = 0; i < spawnCount; i++ )
+	{
+		point_stream.Append(spawn_point(input, seed));
+	}
+	if ( random(seed) < spawnFraction )
+	{
+		point_stream.Append(spawn_point(input, seed));
+	}
 
-    // needed?
-    point_stream.RestartStrip();
+	// needed?
+	point_stream.RestartStrip();
 }
 

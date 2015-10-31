@@ -1,5 +1,6 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -11,12 +12,17 @@ namespace Sandbox.Common.ObjectBuilders
         public ulong SteamUserId;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string IdleSound;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string ProgressSound;
 
         [ProtoMember]
         public bool TakeOwnership;
+
+        [ProtoMember]
+        public bool SetFaction;
     }
 }

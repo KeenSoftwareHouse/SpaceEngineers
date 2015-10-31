@@ -15,8 +15,6 @@ using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 
 namespace SpaceEngineers.Game.Gui
 {
-    // mk:TODO Remove once switching between Dx9 and Dx11 has been released.
-    [Obsolete("Can be removed once switching between Dx9 and Dx11 has been released.")]
     class MyGuiScreenOptionsVideoSpace : MyGuiScreenBase
     {
         private MyGuiControlCombobox m_videoAdapterCombobox;

@@ -17,19 +17,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.FileSystem;
 using VRage.Utils;
-using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.ModAPI;
-using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Projector))]
-    public class MyProjector : MyFunctionalBlock, IMyPowerConsumer, ModAPI.Ingame.IMyProjector
+    public class MyProjector : MyFunctionalBlock, ModAPI.Ingame.IMyProjector
     {
         public enum BuildCheckResult
         {
@@ -76,12 +75,6 @@ namespace Sandbox.Game.Entities.Blocks
         private int m_frameCount = 0;
         private bool m_removeRequested = false;
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
-        }
-        
         public MyProjector()
             : base()
         {
@@ -238,7 +231,7 @@ namespace Sandbox.Game.Entities.Blocks
             scenarioSettingsSeparator.Visible = (p) => p.ScenarioSettingsEnabled();
             MyTerminalControlFactory.AddControl(scenarioSettingsSeparator);
 
-            var scenarioSettingsLabel = new MyTerminalControlLabel<MyProjector>("ScenarioLabel", MySpaceTexts.TerminalScenarioSettingsLabel);
+            var scenarioSettingsLabel = new MyTerminalControlLabel<MyProjector>(MySpaceTexts.TerminalScenarioSettingsLabel);
             scenarioSettingsLabel.Visible = (p) => p.ScenarioSettingsEnabled();
             MyTerminalControlFactory.AddControl(scenarioSettingsLabel);
 
@@ -390,7 +383,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void blueprintScreen_Closed(MyGuiScreenBase source)
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             UpdateIsWorking();
             if (m_clipboard.CopiedGrids.Count == 0 || !IsWorking)
             {
@@ -647,16 +640,16 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_projectionsRemaining = MathHelper.Clamp(projectorBuilder.ProjectionsRemaining, 0, m_maxNumberOfProjections);
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup,
                 BlockDefinition.RequiredPowerInput,
-                this.CalculateRequiredPowerInput);
-
-            PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+                CalculateRequiredPowerInput);
+            sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
             IsWorkingChanged += MyProjector_IsWorkingChanged;
 
-            PowerReceiver.Update();
+			ResourceSink.Update();
             m_statsDirty = true;
             UpdateText();
             
@@ -808,7 +801,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.UpdateAfterSimulation();
 
-            PowerReceiver.Update();
+			ResourceSink.Update();
             if (m_removeRequested)
             {
                 m_frameCount++;
@@ -1076,7 +1069,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void PowerReceiver_IsPoweredChanged()
         {
-            if (!PowerReceiver.IsPowered && IsProjecting())
+			if (!ResourceSink.IsPowered && IsProjecting())
             {
                 RequestRemoveProjection();
             }
@@ -1091,7 +1084,7 @@ namespace Sandbox.Game.Entities.Blocks
         
         protected override bool CheckIsWorking()
         {
-            if (PowerReceiver != null && !PowerReceiver.IsPowered)
+			if (ResourceSink != null && !ResourceSink.IsPowered)
             {
                 return false;
             }
@@ -1120,7 +1113,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -1421,7 +1414,7 @@ namespace Sandbox.Game.Entities.Blocks
             //Find original grid builder
             foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
             {
-                if (blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
                 {
                     objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
                     objectBuilder.SetupForProjector();
@@ -1608,12 +1601,12 @@ namespace Sandbox.Game.Entities.Blocks
                 MySyncLayer.RegisterMessage<RemapRequestMsg>(OnRemapRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<RemapSeedMsg>(OnRemapSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-                MySyncLayer.RegisterMessage<SetInstantBuildingMsg>(OnSetInstantBuilding, MyMessagePermissions.Any);
-                MySyncLayer.RegisterMessage<SetMaxNumberOfProjectionsMsg>(OnSetMaxNumberOfProjections, MyMessagePermissions.Any);
-                MySyncLayer.RegisterMessage<SetMaxNumberOfBlocksMsg>(OnSetMaxNumberOfBlocks, MyMessagePermissions.Any);
+                MySyncLayer.RegisterMessage<SetInstantBuildingMsg>(OnSetInstantBuilding, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+                MySyncLayer.RegisterMessage<SetMaxNumberOfProjectionsMsg>(OnSetMaxNumberOfProjections, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+                MySyncLayer.RegisterMessage<SetMaxNumberOfBlocksMsg>(OnSetMaxNumberOfBlocks, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterMessage<SpawnProjectionMsg>(OnSpawnProjection, MyMessagePermissions.ToServer);
                 MySyncLayer.RegisterMessage<ConfirmSpawnProjectionMsg>(OnConfirmSpawnProjection, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<SetGetOwnershipMsg>(OnSetGetOwnership, MyMessagePermissions.Any);
+                MySyncLayer.RegisterMessage<SetGetOwnershipMsg>(OnSetGetOwnership, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
             }
 
             public MySyncProjector(MyProjector projector)
@@ -1813,7 +1806,7 @@ namespace Sandbox.Game.Entities.Blocks
                 var msg = new SetInstantBuildingMsg();
                 msg.EntityId = m_projector.EntityId;
                 msg.Enabled = instantBuilding;
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg,MyTransportMessageEnum.Request);
             }
 
             private static void OnSetInstantBuilding(ref SetInstantBuildingMsg msg, MyNetworkClient sender)
@@ -1824,17 +1817,23 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnSetInstantBuilding(msg.Enabled);
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                    }
                 }
             }
+
+           
 
             public void SendNewMaxNumberOfProjections(int maxNumber)
             {
                 var msg = new SetMaxNumberOfProjectionsMsg();
                 msg.MaxNumber = maxNumber;
                 msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Request);
             }
-            
+
             private static void OnSetMaxNumberOfProjections(ref SetMaxNumberOfProjectionsMsg msg, MyNetworkClient sender)
             {
                 MyEntity projectorEntity;
@@ -1843,17 +1842,22 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnSetMaxNumberOfProjections(msg.MaxNumber);
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                    }
                 }
             }
 
+           
             public void SendNewMaxNumberOfBlocks(int maxNumber)
             {
                 var msg = new SetMaxNumberOfBlocksMsg();
                 msg.MaxNumber = maxNumber;
                 msg.EntityId = m_projector.EntityId;
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
-            
+
             private static void OnSetMaxNumberOfBlocks(ref SetMaxNumberOfBlocksMsg msg, MyNetworkClient sender)
             {
                 MyEntity projectorEntity;
@@ -1862,8 +1866,14 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnSetMaxNumberOfBlocks(msg.MaxNumber);
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                    }
                 }
             }
+
+           
 
             public void SendSpawnProjection()
             {
@@ -1906,7 +1916,7 @@ namespace Sandbox.Game.Entities.Blocks
                 var msg = new SetGetOwnershipMsg();
                 msg.EntityId = m_projector.EntityId;
                 msg.GetOwnership = getOwnership;
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
             }
 
             private static void OnSetGetOwnership(ref SetGetOwnershipMsg msg, MyNetworkClient sender)
@@ -1917,8 +1927,12 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnSetGetOwnership(msg.GetOwnership);
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                    }
                 }
-            }
+            }          
         }
         #endregion
 

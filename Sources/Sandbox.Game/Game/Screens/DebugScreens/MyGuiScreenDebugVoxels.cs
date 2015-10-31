@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
@@ -77,8 +78,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddButton(new StringBuilder("Generate physics"), onClick: GeneratePhysics);
             AddButton(new StringBuilder("Voxelize all"), onClick: ForceVoxelizeAllVoxelMaps);
             AddButton(new StringBuilder("Resave prefabs"), onClick: ResavePrefabs);
-            AddButton(new StringBuilder("Reset all"), onClick: ResetAll);
-            AddButton(new StringBuilder("Reset part"), onClick: ResetPart);
             m_currentPosition.Y += 0.01f;
 
             AddCheckBox("Geometry cell debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOXEL_GEOMETRY_CELL));
@@ -87,11 +86,10 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Debug clipmap lod colors", () => MyRenderSettings.DebugClipmapLodColor, (value) => MyRenderSettings.DebugClipmapLodColor = value);
             AddCheckBox("Enable physics shape discard", null, MemberHelper.GetMember(() => MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING));
             AddCheckBox("Wireframe", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Wireframe));
-            AddCheckBox("Green background", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShowGreenBackground));
+            //AddCheckBox("Green background", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShowGreenBackground));
+            AddCheckBox("Use triangle cache", null, MemberHelper.GetMember(() => MyClipmap.UseCache));
             m_currentPosition.Y += 0.01f;
-
-            AddSlider("Clipmap highest lod", MyClipmap.DebugClipmapMostDetailedLod, 0f, 15.9f, (slider) => MyClipmap.DebugClipmapMostDetailedLod = slider.Value);
-            m_currentPosition.Y += 0.01f;
+            
         }
 
         private MyGuiControlCombobox MakeComboFromFiles(string path, string filter = "*", SearchOption search = SearchOption.AllDirectories)
@@ -128,7 +126,11 @@ namespace Sandbox.Game.Screens.DebugScreens
         {
             foreach (var voxelMap in MySession.Static.VoxelMaps.Instances)
             {
-                voxelMap.Render.InvalidateRenderObjects();
+                var clipmapComponent = voxelMap.Render as MyRenderComponentVoxelMap;
+                if (clipmapComponent != null)
+                {
+                    clipmapComponent.InvalidateAll();
+                }
             }
         }
 
@@ -180,39 +182,5 @@ namespace Sandbox.Game.Screens.DebugScreens
             }
         }
 
-        private void ResetAll(MyGuiControlBase sender)
-        {
-            var instances = MySession.Static.VoxelMaps.Instances;
-            int i = 0;
-            foreach (var voxelMap in instances)
-            {
-                i++;
-                Debug.WriteLine("Voxel map {0}/{1}", i, instances.Count);
-                if (!(voxelMap is MyVoxelPhysics))
-                {
-                    var octree = voxelMap.Storage as MyOctreeStorage;
-                    if (octree != null)
-                        octree.Reset(MyStorageDataTypeFlags.All);
-                }
-            }
-        }
-
-        private void ResetPart(MyGuiControlBase sender)
-        {
-            var instances = MySession.Static.VoxelMaps.Instances;
-            foreach (var voxelMap in instances)
-            {
-                if (!(voxelMap is MyVoxelPhysics))
-                {
-                    var octree = voxelMap.Storage as MyOctreeStorage;
-                    var worldAabb = voxelMap.PositionComp.WorldAABB;
-                    BoundingBoxD resetAabb;
-                    resetAabb.Min = worldAabb.Min + worldAabb.Size * 0.25f;
-                    resetAabb.Max = worldAabb.Max - worldAabb.Size * 0.25f;
-                    if (octree != null)
-                        octree.ResetOutsideBorders(voxelMap, resetAabb);
-                }
-            }
-        }
     }
 }

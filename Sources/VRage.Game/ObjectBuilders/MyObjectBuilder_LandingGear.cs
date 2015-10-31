@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -21,12 +22,15 @@ namespace Sandbox.Common.ObjectBuilders
         public bool AutoLock;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string LockSound;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string UnlockSound;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string FailedAttachSound;
     }
 }

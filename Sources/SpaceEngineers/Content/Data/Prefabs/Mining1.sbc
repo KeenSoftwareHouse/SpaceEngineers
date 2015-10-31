@@ -1712,9 +1712,10 @@
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0" y="-1" z="0" />
               <ShareMode>All</ShareMode>
-              <ShowOnHUD>false</ShowOnHUD>
+	      <CustomName>EMERGENCY - REQUESTING ASSISTANCE</CustomName>
+              <ShowOnHUD>true</ShowOnHUD>
               <Enabled>true</Enabled>
-              <BroadcastRadius>10000</BroadcastRadius>
+              <BroadcastRadius>200</BroadcastRadius>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>LargeSteelCatwalkPlate</SubtypeName>

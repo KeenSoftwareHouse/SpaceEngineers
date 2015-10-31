@@ -29,11 +29,12 @@ using VRageRender;
 using VRage.Components;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_Meteor))]
-    class MyMeteor : MyEntity, IMyDestroyableObject, IMyMeteor
+    class MyMeteor : MyEntity, IMyDestroyableObject, IMyMeteor,IMyEventProxy
     {
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int MIN_SPEED = 100;
@@ -97,7 +98,6 @@ namespace Sandbox.Game.Entities
             meteorEntity.Physics.RigidBody.MaxLinearVelocity = 500;
             meteorEntity.Physics.LinearVelocity = speed;
             meteorEntity.Physics.AngularVelocity = MyUtils.GetRandomVector3Normalized() * MyUtils.GetRandomFloat(1.5f, 3);
-            MySyncCreate.SendEntityCreated(meteorEntity.GetObjectBuilder());
             return meteorEntity;
         }
 
@@ -121,7 +121,7 @@ namespace Sandbox.Game.Entities
             
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             GameLogic.DoDamage(damage, damageType, sync, hitInfo, attackerId);
         }
@@ -177,7 +177,7 @@ namespace Sandbox.Game.Entities
             {
                 Entity.SyncFlag = true;
                 base.Init(objectBuilder);
-                Entity.SyncObject.UpdatePosition();
+                Entity.SyncObject.MarkPhysicsDirty();
 
                 var builder = (MyObjectBuilder_Meteor)objectBuilder;
                 Item = new MyPhysicalInventoryItem(builder.Item);
@@ -369,7 +369,8 @@ namespace Sandbox.Game.Entities
             {
                 if (this.MarkedForClose || !Entity.Physics.Enabled || m_closeAfterSimulation)
                     return;
-                IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
+                ProfilerShort.Begin("MyMeteor.CPCallback");
+                var other = value.ContactPointEvent.GetOtherEntity(Entity);
                 if (Sync.IsServer)
                 {
                     if (other is MyCubeGrid)
@@ -399,7 +400,7 @@ namespace Sandbox.Game.Entities
                 {
                     CreateCrater(value, other as MyVoxelBase);
                 }
-
+                ProfilerShort.End();
             }
 
             private void DestroyMeteor()
@@ -460,7 +461,7 @@ namespace Sandbox.Game.Entities
                         }
                         material = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().ElementAt(MyUtils.GetRandomInt(MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() - 1));
                     }
-                    voxel.GetSyncObject.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
+                    voxel.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
                     MyVoxelGenerator.MakeCrater(voxel, sphere, -direction, material);
                 }
                 m_closeAfterSimulation = true;
@@ -477,7 +478,7 @@ namespace Sandbox.Game.Entities
                     ContactPosition = info.ContactPosition,
                     ContactPointProperties = value.ContactPointEvent.ContactProperties,
                     IsContact = true,
-                    BreakingImpulse = MyGridShape.BreakImpulse,
+                    BreakingImpulse = grid.Physics.Shape.BreakImpulse,
                     CollidingBody = value.ContactPointEvent.Base.BodyA == grid.Physics.RigidBody ? value.ContactPointEvent.Base.BodyB : value.ContactPointEvent.Base.BodyA,
                     ContactPointDirection = value.ContactPointEvent.Base.BodyB == grid.Physics.RigidBody ? -1 : 1,
                 };
@@ -502,7 +503,7 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+            public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
             {
                 if (sync)
                 {
@@ -541,14 +542,6 @@ namespace Sandbox.Game.Entities
             public float Integrity
             {
                 get { return m_integrity; }
-            }
-
-            protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-            {
-                if (value.Base.BodyA.GetEntity() == Entity)
-                    return value.Base.BodyB.GetEntity();
-                else
-                    return value.Base.BodyA.GetEntity();
             }
 
             // Don't call remove reference on this, this shape is pooled

@@ -1,8 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
-using VRageMath;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -10,6 +6,7 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_AdvancedDoorDefinition))]
     public class MyAdvancedDoorDefinition : MyCubeBlockDefinition
     {
+	    public MyStringHash ResourceSinkGroup;
         public float PowerConsumptionIdle;
         public float PowerConsumptionMoving;
 
@@ -23,6 +20,7 @@ namespace Sandbox.Definitions
             var advancedDoorBuilder = builder as MyObjectBuilder_AdvancedDoorDefinition;
             MyDebug.AssertDebug(advancedDoorBuilder != null);
 
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(advancedDoorBuilder.ResourceSinkGroup);
             PowerConsumptionIdle = advancedDoorBuilder.PowerConsumptionIdle;
             PowerConsumptionMoving = advancedDoorBuilder.PowerConsumptionMoving;
 

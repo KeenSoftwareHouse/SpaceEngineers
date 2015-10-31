@@ -20,8 +20,6 @@ namespace Sandbox.Game.World.Generator
         EncounterAlone,
         EncounterSingle,
         EncounterMulti,
-        Planet,
-        Moon,
     }
 
     public class MyObjectSeed
@@ -234,17 +232,6 @@ namespace Sandbox.Game.World.Generator
             }
         }
 
-        public void OverlapAllPlanetSeedsInSphere(BoundingSphereD area, List<MyObjectSeed> list)
-        {
-            if (m_planetsModule == null)
-            {
-                return;
-            }
-
-            m_planetsModule.GetObjectSeeds(area, list, false);
-            m_planetsModule.MarkCellsDirty(area, null, false);
-        }
-
         public void OverlapAllAsteroidSeedsInSphere(BoundingSphereD area, List<MyObjectSeed> list)
         {
             if (m_asteroidsModule == null)
@@ -257,7 +244,6 @@ namespace Sandbox.Game.World.Generator
         }
 
         private List<MyObjectSeed> m_tempObjectSeedList = new List<MyObjectSeed>();
-        private MyProceduralPlanetCellGenerator m_planetsModule;
         private MyProceduralAsteroidCellGenerator m_asteroidsModule;
 
         public override void LoadData()
@@ -279,26 +265,13 @@ namespace Sandbox.Game.World.Generator
             m_seed = settings.ProceduralSeed;
             m_objectDensity = MathHelper.Clamp(settings.ProceduralDensity * 2 - 1, -1, 1); // must be -1..1
 
-            var planetSizeMax = settings.PlanetMaxSize;
-            var planetSizeMin = settings.PlanetMinSize;
-            var moonSizeMax = settings.MoonMaxSize;
-            var moonSizeMin = settings.MoonMinSize;
 
             MySandboxGame.Log.WriteLine(string.Format("Loading Procedural World Generator: Seed = '{0}' = {1}, Density = {2}", settings.ProceduralSeed, m_seed, settings.ProceduralDensity));
 
             using (MyRandom.Instance.PushSeed(m_seed))
             {
-                if (MySession.Static.Settings.EnablePlanets)
-                {
-                    m_planetsModule = new MyProceduralPlanetCellGenerator(m_seed, m_objectDensity, planetSizeMax, planetSizeMin, moonSizeMax, moonSizeMin);
-                    m_modules.Add(m_planetsModule);
-                    m_asteroidsModule = new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity, m_planetsModule);
-                    m_modules.Add(m_asteroidsModule);
-                }
-                else
-                {
-                    m_modules.Add(new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity));
-                }
+                m_asteroidsModule = new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity);
+                m_modules.Add(m_asteroidsModule);
             }
 
             Enabled = true;
@@ -430,15 +403,6 @@ namespace Sandbox.Game.World.Generator
             double root = Math.Sqrt(1.0 - z * z);
 
             return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
-        }
-
-        public void MarkEmptyArea(Vector3D pos)
-        {
-            MySphereDensityFunction func = new MySphereDensityFunction(pos, m_planetsModule.PLANET_SIZE_MAX / 2.0 * MyProceduralPlanetCellGenerator.GRAVITY_SIZE_MULTIPLIER + MyProceduralPlanetCellGenerator.FALLOFF, MyProceduralPlanetCellGenerator.FALLOFF);
-            foreach (var module in m_modules)
-            {
-                module.AddDensityFunctionRemoved(func);
-            }
         }
 
     }

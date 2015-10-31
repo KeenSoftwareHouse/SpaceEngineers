@@ -18,7 +18,10 @@ namespace Sandbox.Definitions
             public String SubtypeId;
             public String BeaconText;
             public float Speed;
+            public bool ResetOwnership;
+            public bool PlaceToGridOrigin;
         }
+
         public struct SpawnGroupVoxel
         {
             public Vector3 Offset;
@@ -26,8 +29,30 @@ namespace Sandbox.Definitions
         }
 
         public float Frequency;
-        public float SpawnRadius; // Size of the sphere that should be empty for this spawn group to spawn
+
+        private float m_spawnRadius;
+        public float SpawnRadius
+        {
+            get 
+            {
+                if(m_initialized == false)
+                {
+                    ReloadPrefabs();
+                }
+
+                return m_spawnRadius;
+            }
+            private set
+            {
+                m_spawnRadius = value;
+            }
+        }
+
+        bool m_initialized = false;
+
         public bool IsEncounter;
+        public bool IsPirate;
+        public bool ReactorsOn;
         public List<SpawnGroupPrefab> Prefabs = new List<SpawnGroupPrefab>();
         public List<SpawnGroupVoxel> Voxels = new List<SpawnGroupVoxel>();
 
@@ -35,7 +60,7 @@ namespace Sandbox.Definitions
         {
             get
             {
-                return Frequency != 0.0f && SpawnRadius != 0.0f && Prefabs.Count() != 0;
+                return Frequency != 0.0f && m_spawnRadius != 0.0f && Prefabs.Count() != 0;
             }
         }
 
@@ -66,6 +91,8 @@ namespace Sandbox.Definitions
                 spawnPrefab.SubtypeId = prefab.SubtypeId;
                 spawnPrefab.BeaconText = prefab.BeaconText;
                 spawnPrefab.Speed = prefab.Speed;
+                spawnPrefab.ResetOwnership = prefab.ResetOwnership;
+                spawnPrefab.PlaceToGridOrigin = prefab.PlaceToGridOrigin;
 
                 var prefabDef = MyDefinitionManager.Static.GetPrefabDefinition(spawnPrefab.SubtypeId);
                 if (prefabDef == null)
@@ -74,12 +101,6 @@ namespace Sandbox.Definitions
                     MySandboxGame.Log.WriteLine("Spawn group initialization: Could not get prefab " + spawnPrefab.SubtypeId);
                     return;
                 }
-
-                BoundingSphere prefabSphere = prefabDef.BoundingSphere;
-                prefabSphere.Center += spawnPrefab.Position;
-
-                sphere.Include(prefabSphere);
-
                 Prefabs.Add(spawnPrefab);
             }
 
@@ -95,8 +116,11 @@ namespace Sandbox.Definitions
                     Voxels.Add(spawnPrefab);
                 }
             }
+
             SpawnRadius = sphere.Radius + 5.0f; // Add 5m just to be sure
             IsEncounter = builder.IsEncounter;
+            IsPirate = builder.IsPirate;
+            ReactorsOn = builder.ReactorsOn;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -113,6 +137,8 @@ namespace Sandbox.Definitions
                 spawnGroupBuilder.Prefabs[i].SubtypeId = prefab.SubtypeId;
                 spawnGroupBuilder.Prefabs[i].Position = prefab.Position;
                 spawnGroupBuilder.Prefabs[i].Speed = prefab.Speed;
+                spawnGroupBuilder.Prefabs[i].ResetOwnership = prefab.ResetOwnership;
+                spawnGroupBuilder.Prefabs[i].PlaceToGridOrigin = prefab.PlaceToGridOrigin;
 
                 i++;
             }
@@ -127,6 +153,8 @@ namespace Sandbox.Definitions
                 i++;
             }
             spawnGroupBuilder.IsEncounter = IsEncounter;
+            spawnGroupBuilder.IsPirate = IsPirate;
+            spawnGroupBuilder.ReactorsOn = ReactorsOn;
             return spawnGroupBuilder;
         }
 
@@ -143,18 +171,13 @@ namespace Sandbox.Definitions
                     return;
                 }
 
-                if (prefabDef.CubeGrids == null)
-                {
-                    MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDef.PrefabPath);
-                    prefabDef = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
-                }
-
                 BoundingSphere prefabSphere = prefabDef.BoundingSphere;
                 prefabSphere.Center += prefab.Position;
 
                 sphere.Include(prefabSphere);
             }
             SpawnRadius = sphere.Radius + 5.0f; // Add 5m just to be sure
+            m_initialized = true;
         }
     }
 }

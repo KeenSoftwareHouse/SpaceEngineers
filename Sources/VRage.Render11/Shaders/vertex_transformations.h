@@ -14,21 +14,38 @@ float4 unpack_voxel_position(float4 packed)
 float voxel_morphing(float3 position_a, float2 bounds, float3 local_viewer)
 {
 	float3 diff = abs(position_a - local_viewer);
-    float dist = max(diff.x, max(diff.y, diff.z));
-    return saturate(((dist - bounds.x) / (bounds.y - bounds.x) - 0.4f) / 0.3f);
+	float dist = max(diff.x, max(diff.y, diff.z));
+	return saturate(((dist - bounds.x) / (bounds.y - bounds.x) - 0.35f)*10.0f);
 }
 
 float3 unpack_voxel_weights(float weights)
 {
+#if 1
+/*
+	Top bit unused, then 2 bits specifying material index.
+	0 00 => 0 => 0 => (1,0,0)
+	0 01 => 1 => 1 => (0,1,0)
+	0 10 => 2 => 2 => (0,0,1)
+	(i <= 0, |i-1| <= 0, 2 <= i)
+*/
+	float index = floor(weights * 8.0f);
+	return float3(step(index, 0), step(abs(index - 1), 0), step(2, index));
+#else
 	uint bits = weights * 65535;
 	return float3( bits >> 10, (bits >> 5) & 0x1F, bits & 0x1F) / float3(63, 31, 31);
+#endif
+}
+
+float unpack_voxel_ao(float ambient_occlusion)
+{
+	return frac(ambient_occlusion * 8.0f);
 }
 
 float3 unpack_normal(float4 p)
 {
 	float zsign = p.y > 0.5f ? 1 : -1;
 	if(zsign > 0) p.y -= 0.5f;
-	float2 xy = 256 * (p.xz + 256 * p.yw);		
+	float2 xy = 256 * (p.xz + 256 * p.yw);
 	xy /= 32767;
 	xy = 2 * xy - 1;
 	return float3(xy.xy, zsign * sqrt(saturate(1-dot(xy, xy))));
@@ -41,16 +58,16 @@ float4 unpack_tangent_sign(float4 p)
 	float zsign = p.y > 0.5f ? 1 : -1;
 	if(zsign > 0) p.y -= 0.5f;
 	if(sign > 0) p.w -= 0.5f;
-	float2 xy = 256 * (p.xz + 256 * p.yw);		
-	xy /= 32767; 
+	float2 xy = 256 * (p.xz + 256 * p.yw);
+	xy /= 32767;
 	xy = 2 * xy - 1;
 	return float4(xy.xy, zsign * sqrt(saturate(1-dot(xy, xy))), sign);
 }
 
 matrix translation_rotation_matrix(float3 translation, float3 forward, float3 up)
 {
-    float3 right = cross(up, -forward);
-    
+	float3 right = cross(up, -forward);
+
 	matrix M = { float4(right, 0), float4(up, 0), float4(-forward, 0), float4(translation, 1) };
 	return M;
 }
@@ -83,20 +100,20 @@ matrix construct_deformed_cube_instance_matrix(
 	float4 packed4, float4 packed5, float4 packed6, float4 packed7,
 	float4 cube_transformation,
 	uint4 blend_indices, float4 blend_weights
-	)  
+	)
 {
 	matrix M = translation_rotation_matrix(cube_transformation);
 
 	[branch]
 	if(packed3.w)
 	{
-		float4 bones[9] = { 
-			packed0, packed1, packed2, 
-			packed3, packed4, packed5, 
-			packed6, packed7, float4(packed0.w, packed1.w, packed2.w, 0) 
+		float4 bones[9] = {
+			packed0, packed1, packed2,
+			packed3, packed4, packed5,
+			packed6, packed7, float4(packed0.w, packed1.w, packed2.w, 0)
 		};
 
-		matrix B = { bones[blend_indices[0]], bones[blend_indices[1]], bones[blend_indices[2]], bones[blend_indices[3]] }; 
+		matrix B = { bones[blend_indices[0]], bones[blend_indices[1]], bones[blend_indices[2]], bones[blend_indices[3]] };
 		float4 translation = mul(blend_weights, B);
 		M._41_42_43 += unpack_bone(translation, packed4.w / 10.f * 255.f);
 	}

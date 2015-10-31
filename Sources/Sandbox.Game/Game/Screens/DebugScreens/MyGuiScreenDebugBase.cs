@@ -1,6 +1,7 @@
 ﻿#region Using
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Gui;
+using Sandbox.Game.Localization;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
@@ -9,9 +10,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 #endregion
@@ -386,7 +385,8 @@ namespace Sandbox.Game.Gui
                 position: m_currentPosition,
                 color: Color.White,
                 defaultColor: Color.White,
-                font: MyFontEnum.Debug);
+                font: MyFontEnum.Debug,
+                dialogAmountCaption: MySpaceTexts.DialogAmount_AddAmountCaption);
             colorControl.ColorMask = Color.Yellow.ToVector4();
             colorControl.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             Controls.Add(colorControl);

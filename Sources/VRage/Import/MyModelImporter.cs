@@ -108,6 +108,7 @@ namespace VRage.Import
         private Dictionary<string, object> m_retTagData = new Dictionary<string, object>();
 
         int m_version = 0;
+        static string m_debugAssetName;
 
         #endregion
 
@@ -553,6 +554,20 @@ namespace VRage.Import
             return hash;
         }
 
+        public static bool USE_LINEAR_KEYFRAME_REDUCTION = true;
+        public static bool LINEAR_KEYFRAME_REDUCTION_STATS = false;
+        public struct ReductionInfo
+        {
+            public string BoneName;
+            public int OriginalKeys;
+            public int OptimizedKeys;
+        }
+        public static Dictionary<string, List<ReductionInfo>> ReductionStats = new Dictionary<string, List<ReductionInfo>>();
+
+        private const float TinyLength = 1e-8f;
+        private const float TinyCosAngle = 0.9999999f;
+
+
         static AnimationClip ReadClip(BinaryReader reader)
         {
             AnimationClip clip = new AnimationClip();
@@ -577,11 +592,140 @@ namespace VRage.Import
                 }
 
                 clip.Bones.Add(bone);
+
+                int originalCount = bone.Keyframes.Count;
+                int newCount = 0;
+                if (originalCount > 3)
+                {
+                    if (USE_LINEAR_KEYFRAME_REDUCTION)
+                    {
+                        LinkedList<AnimationClip.Keyframe> linkedList = new LinkedList<AnimationClip.Keyframe>();
+                        foreach (var kf in bone.Keyframes)
+                        {
+                            linkedList.AddLast(kf);
+                        }
+                        //LinearKeyframeReduction(linkedList, 0.000001f, 0.985f);
+                        //PercentageKeyframeReduction(linkedList, 0.9f);
+                        LinearKeyframeReduction(linkedList, TinyLength, TinyCosAngle);
+                        bone.Keyframes.Clear();
+                        bone.Keyframes.AddArray(linkedList.ToArray());
+                        newCount = bone.Keyframes.Count;
+                    }
+                    if (LINEAR_KEYFRAME_REDUCTION_STATS)
+                    {
+                        ReductionInfo ri = new ReductionInfo()
+                        {
+                            BoneName = bone.Name,
+                            OriginalKeys = originalCount,
+                            OptimizedKeys = newCount
+                        };
+
+                        List<ReductionInfo> riList;
+                        if (!ReductionStats.TryGetValue(m_debugAssetName, out riList))
+                        {
+                            riList = new List<ReductionInfo>();
+                            ReductionStats.Add(m_debugAssetName, riList);
+                        }
+
+                        riList.Add(ri);
+                    }
+                }
+
+                CalculateKeyframeDeltas(bone.Keyframes);
+
             }
 
             return clip;
         }
-        
+
+
+        static void PercentageKeyframeReduction(LinkedList<AnimationClip.Keyframe> keyframes, float ratio)
+        {
+            if (keyframes.Count < 3)
+                return;
+
+            float i = 0;
+            int toRemove = (int)(keyframes.Count * ratio);
+
+            if (toRemove == 0)
+                return;
+
+            float d = (float)toRemove / keyframes.Count;
+
+            for (LinkedListNode<AnimationClip.Keyframe> node = keyframes.First.Next; ; )
+            {
+                LinkedListNode<AnimationClip.Keyframe> next = node.Next;
+                if (next == null)
+                    break;
+
+                if (i >= 1)
+                {
+                    while (i >= 1)
+                    {
+                        keyframes.Remove(node);
+                        node = next;
+                        next = node.Next;
+                        i--;
+                    }
+                }
+                else
+                    node = next;
+
+                i += d;
+            }
+        }
+
+
+        /// <summary>
+        /// This function filters out keyframes that can be approximated well with 
+        /// linear interpolation.
+        /// </summary>
+        /// <param name="keyframes"></param>
+        static void LinearKeyframeReduction(LinkedList<AnimationClip.Keyframe> keyframes, float translationThreshold, float rotationThreshold)
+        {
+            if (keyframes.Count < 3)
+                return;
+
+            for (LinkedListNode<AnimationClip.Keyframe> node = keyframes.First.Next; ; )
+            {
+                LinkedListNode<AnimationClip.Keyframe> next = node.Next;
+                if (next == null)
+                    break;
+
+                // Determine nodes before and after the current node.
+                AnimationClip.Keyframe a = node.Previous.Value;
+                AnimationClip.Keyframe b = node.Value;
+                AnimationClip.Keyframe c = next.Value;
+
+                float t = (float)((node.Value.Time - node.Previous.Value.Time) /
+                                   (next.Value.Time - node.Previous.Value.Time));
+
+                Vector3 translation = Vector3.Lerp(a.Translation, c.Translation, t);
+                var rotation = VRageMath.Quaternion.Slerp(a.Rotation, c.Rotation, t);
+
+                if ((translation - b.Translation).LengthSquared() < translationThreshold &&
+                   VRageMath.Quaternion.Dot(rotation, b.Rotation) > rotationThreshold)
+                {
+                    keyframes.Remove(node);
+                }
+
+                node = next;
+            }
+        }
+
+        static void CalculateKeyframeDeltas(List<AnimationClip.Keyframe> keyframes)
+        {
+            for (int i = 1; i < keyframes.Count; i++)
+            {
+                var previousKey = keyframes[i - 1];
+                var currentKey = keyframes[i];
+
+                System.Diagnostics.Debug.Assert(previousKey.Time < currentKey.Time, "Incorrect keyframes timing!");
+
+                currentKey.TimeDiff = 1.0f / (currentKey.Time - previousKey.Time);
+            }
+        }
+
 
         static ModelAnimations ReadAnimations(BinaryReader reader)
         {
@@ -627,7 +771,7 @@ namespace VRage.Import
             return bones;
         }
 
-        static MyLODDescriptor[] ReadLODs(BinaryReader reader)
+        static MyLODDescriptor[] ReadLODs(BinaryReader reader, int version)
         {
             int lodCount = reader.ReadInt32();
             var lods = new MyLODDescriptor[lodCount];
@@ -637,8 +781,7 @@ namespace VRage.Import
             {
                 var lod = new MyLODDescriptor();
                 lods[i++] = lod;
-
-                lod.Read(reader);
+                lod.Read(reader); 
             }
 
             return lods;
@@ -721,6 +864,7 @@ namespace VRage.Import
         public void ImportData(string assetFileName, string[] tags = null)
         {
             Clear();
+            m_debugAssetName = assetFileName;
             var path = Path.IsPathRooted(assetFileName) ? assetFileName : Path.Combine(MyFileSystem.ContentPath, assetFileName);
 
             using (var fs = MyFileSystem.OpenRead(path))
@@ -729,6 +873,7 @@ namespace VRage.Import
                 {
                     LoadTagData(reader, tags);
                 }
+                fs.Close(); // OM: Although this shouldn't be needed, we experience problems with opening files with autorefresh, is this isn't called explicitely..
             }
         }
 
@@ -958,7 +1103,7 @@ namespace VRage.Import
             {
                 //TAG_LODS
                 tagName = reader.ReadString();
-                m_retTagData.Add(tagName, ReadLODs(reader));
+                m_retTagData.Add(tagName, ReadLODs(reader, 01066002));
             }
 
             if (reader.BaseStream.Position < reader.BaseStream.Length)

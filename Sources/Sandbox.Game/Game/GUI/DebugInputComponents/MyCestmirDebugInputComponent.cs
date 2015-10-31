@@ -22,6 +22,7 @@ using Sandbox.ModAPI;
 using VRage.Library.Utils;
 using System.Linq;
 using VRage.ModAPI;
+using System.Diagnostics;
 
 namespace Sandbox.Game.Gui
 {
@@ -92,6 +93,7 @@ namespace Sandbox.Game.Gui
                 Vector3.Zero,
                 prefabDefinition.Id.SubtypeName,
                 Sandbox.ModAPI.SpawningOptions.None,
+                0,
                 true);
 
             CloseScreen();
@@ -233,6 +235,21 @@ namespace Sandbox.Game.Gui
         }
         private static List<DebugDrawPoint> DebugDrawPoints = new List<DebugDrawPoint>();
 
+        private struct DebugDrawSphere
+        {
+            public Vector3D Position;
+            public float Radius;
+            public Color Color;
+        }
+        private static List<DebugDrawSphere> DebugDrawSpheres = new List<DebugDrawSphere>();
+
+        private struct DebugDrawBox
+        {
+            public BoundingBoxD Box;
+            public Color Color;
+        }
+        private static List<DebugDrawBox> DebugDrawBoxes = new List<DebugDrawBox>();
+
         private static MyWingedEdgeMesh DebugDrawMesh = null;
         private static List<MyPolygon> DebugDrawPolys = new List<MyPolygon>();
 
@@ -295,6 +312,17 @@ namespace Sandbox.Game.Gui
                     }
                 );
             }
+            else
+            {
+                AddShortcut(MyKeys.I, true, true, false, false, () => "Place an environment item in front of the player", AddEnvironmentItem);
+            }
+        }
+
+        private bool AddEnvironmentItem()
+        {
+            // TODO: implement this.
+            //Debug.Print("Add environmnet item");
+            return true;
         }
 
         private bool AddPrefab()
@@ -316,7 +344,7 @@ namespace Sandbox.Game.Gui
 
             for (int i = 0; i < hitList.Count; ++i)
             {
-                var hitGrid = hitList[i].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                var hitGrid = hitList[i].HkHitInfo.GetHitEntity() as MyCubeGrid;
                 if (hitGrid != null)
                 {
                     var builder = hitGrid.GetObjectBuilder() as MyObjectBuilder_CubeGrid;
@@ -1061,7 +1089,7 @@ namespace Sandbox.Game.Gui
 
         private bool AddBot()
         {
-            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "NormalBarbarian")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "SpaceSpider")) as MyAgentDefinition;
             MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
 
             return true;
@@ -1081,7 +1109,7 @@ namespace Sandbox.Game.Gui
 
             if (highestExistingPlayer > 0)
             {
-                var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(Sync.MyId, highestExistingPlayer));
+                var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(Sync.MyId, highestExistingPlayer));
                 Sync.Players.RemovePlayer(player);
             }
 
@@ -1123,8 +1151,7 @@ namespace Sandbox.Game.Gui
             {
                 MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
                 if (bot != null)
-                    bot.Navigation.ResetAiming(true);
-                else break;
+                    bot.Navigation.AimWithMovement();
             }
             return true;
         }
@@ -1133,10 +1160,9 @@ namespace Sandbox.Game.Gui
         {
             for (int j = 1; j < 100; ++j)
             {
-                MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
+                MyAgentBot bot = MyAIComponent.Static.Bots.TryGetBot<MyAgentBot>(j);
                 if (bot != null)
                     bot.Navigation.AimAt(MySession.LocalCharacter);
-                else break;
             }
             return true;
         }
@@ -1202,7 +1228,7 @@ namespace Sandbox.Game.Gui
             if (hitList.Count > 0)
             {
                 firstHit = hitList[0].Position;
-                entity = hitList[0].HkHitInfo.Body.GetEntity();
+                entity = hitList[0].HkHitInfo.GetHitEntity();
             }
             else
             {
@@ -1221,11 +1247,33 @@ namespace Sandbox.Game.Gui
             DebugDrawPoints.Clear();
         }
 
+        public static void AddDebugSphere(Vector3D position, float radius, Color color)
+        {
+            DebugDrawSpheres.Add(new DebugDrawSphere() { Position = position, Radius = radius, Color = color });
+        }
+
+        public static void ClearDebugSpheres()
+        {
+            DebugDrawSpheres.Clear();
+        }
+
+        public static void AddDebugBox(BoundingBoxD box, Color color)
+        {
+            DebugDrawBoxes.Add(new DebugDrawBox() { Box = box, Color = color });
+        }
+
+        public static void ClearDebugBoxes()
+        {
+            DebugDrawBoxes.Clear();
+        }
+
         public override void Draw()
         {
             base.Draw();
 
             if (!MyDebugDrawSettings.ENABLE_DEBUG_DRAW) return;
+
+            if (MyCubeBuilder.Static == null) return;
 
             var bb = MyCubeBuilder.Static.GetBuildBoundingBox();
             VRageRender.MyRenderProxy.DebugDrawOBB(bb, Color.Red, 0.25f, false, false);
@@ -1277,6 +1325,16 @@ namespace Sandbox.Game.Gui
             {
                 //VRageRender.MyRenderProxy.DebugDrawSphere(point.Position, 0.05f, point.Color.ToVector3(), 1.0f, false);
                 VRageRender.MyRenderProxy.DebugDrawSphere(point.Position, 0.03f, point.Color, 1.0f, false);
+            }
+
+            foreach (var sphere in DebugDrawSpheres)
+            {
+                VRageRender.MyRenderProxy.DebugDrawSphere(sphere.Position, sphere.Radius, sphere.Color, 1.0f, false);
+            }
+
+            foreach (var box in DebugDrawBoxes)
+            {
+                VRageRender.MyRenderProxy.DebugDrawAABB(box.Box, box.Color, 1.0f, 1.0f, false);
             }
 
             VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300.0f, 0.0f), "Test index: " + m_prevTestIndex.ToString() + "/" + (m_testList == null ? "-" : m_testList.Count.ToString()) + ", Test operation: " + m_prevTestOperation.ToString(), Color.Red, 1.0f);

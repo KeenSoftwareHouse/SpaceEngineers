@@ -1529,6 +1529,7 @@ namespace Sandbox.Engine.Networking
         /// </summary>
         public static bool TryCreateWorldInstanceBlocking(SubscribedItem world, MyWorkshopPathInfo pathInfo, out string sessionPath, bool overwrite)
         {
+            m_stop = false;
             if (!Directory.Exists(pathInfo.Path))
                 Directory.CreateDirectory(pathInfo.Path);
 

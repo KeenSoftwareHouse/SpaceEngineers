@@ -154,7 +154,8 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyMichalDebugInputComponent());
             UserDebugInputComponents.Add(new MyAsteroidsDebugInputComponent());
             UserDebugInputComponents.Add(new MyRendererStatsComponent());
-
+            UserDebugInputComponents.Add(new MyDanielDebugInputComponent());
+            UserDebugInputComponents.Add(new MyRenderDebugInputComponent());
             LoadDebugInputsFromConfig();
         }
 
@@ -163,15 +164,22 @@ namespace Sandbox.Graphics.GUI
         /// </summary>
         public void LoadData()
         {
+            ProfilerShort.Begin("MyScreenManager.LoadData");
             MyScreenManager.LoadData();
+            ProfilerShort.BeginNextBlock("MyGuiManager.LoadData");
             MyGuiManager.LoadData();
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("MyLanguage.CurrentLanguage set");
             MyLanguage.CurrentLanguage = MySandboxGame.Config.Language;
+            ProfilerShort.End();
 
             if (MyFakes.SHOW_AUDIO_DEV_SCREEN)
             {
+                ProfilerShort.Begin("MyGuiScreenDebugAudio");
                 MyGuiScreenDebugAudio audioDebug = new MyGuiScreenDebugAudio();
                 AddScreen(audioDebug);
+                ProfilerShort.End();
             }
         }
 
@@ -270,7 +278,7 @@ namespace Sandbox.Graphics.GUI
                     {
                         if (newPressf12)
                         {
-                            MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES = !MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES;
+                            MyDebugDrawSettings.DEBUG_DRAW_PHYSICS = !MyDebugDrawSettings.DEBUG_DRAW_PHYSICS;
                             if (!m_shapeRenderingMessageBoxShown)
                             {
                                 m_shapeRenderingMessageBoxShown = true;
@@ -499,6 +507,7 @@ namespace Sandbox.Graphics.GUI
                                               MySession.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorDelta ||
                                               MySession.GetCameraControllerEnum() == MyCameraControllerEnum.SpectatorFixed;
                 bool rotationAllowedInPause = movementAllowedInPause || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator;
+				bool devScreenFlag = MyScreenManager.GetScreenWithFocus() is MyGuiScreenDebugBase && !MyInput.Static.IsAnyAltKeyPressed();
                 MyCameraControllerEnum cce = MySession.GetCameraControllerEnum();
 
                 float rollIndicator = MyInput.Static.GetRoll();
@@ -512,7 +521,7 @@ namespace Sandbox.Graphics.GUI
 
                     if (!movementAllowedInPause)
                         moveIndicator = VRageMath.Vector3.Zero;
-                    if (!rotationAllowedInPause)
+                    if (!rotationAllowedInPause || devScreenFlag)
                     {
                         rollIndicator = 0.0f;
                         rotationIndicator = Vector2.Zero;
@@ -605,9 +614,10 @@ namespace Sandbox.Graphics.GUI
         //  Update all screens
         public void Update(int totalTimeInMS)
         {
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGuiSandbox::Update");
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGuiSandbox::Update1");
 
             HandleRenderProfilerInput();
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("MyGuiSandbox::Update2");
 
             TotalGamePlayTimeInMilliseconds = totalTimeInMS;
 
@@ -622,9 +632,11 @@ namespace Sandbox.Graphics.GUI
                 (Sandbox.AppCode.MyExternalAppBase.Static != null && !Sandbox.AppCode.MyExternalAppBase.IsEditorActive))
                 );
 
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("MyGuiSandbox::Update3");
             //We have to know current focus screen because of centerize mouse
             MyInput.Static.Update(gameFocused);
 
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("MyGuiSandbox::Update4");
             MyGuiManager.Update(totalTimeInMS);
             MyGuiManager.MouseCursorPosition = MouseCursorPosition;
 

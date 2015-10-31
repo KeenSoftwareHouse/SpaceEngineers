@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Audio;
 using VRage.Input;
 using VRage.Utils;

@@ -11,5 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.ComponentSystem
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AreaInventoryAggregate : MyObjectBuilder_InventoryAggregate
     {
+        [ProtoMember]
+        public float Radius;
     }
 }

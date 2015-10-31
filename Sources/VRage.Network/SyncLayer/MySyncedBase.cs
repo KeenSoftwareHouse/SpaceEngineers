@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 
 namespace VRage.Network
 {
@@ -12,10 +13,10 @@ namespace VRage.Network
     public abstract class MySyncedBase<T> : IMySyncedValue, IEquatable<T>
     {
         public abstract void Write(ref T value, BitStream s);
-        public abstract bool Read(out T value, BitStream s);
+        public abstract void Read(out T value, BitStream s);
 
-        protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
-        public bool IsDirty(int clientIndex)
+        protected MySyncedDataStateEnum[] m_dirty = new MySyncedDataStateEnum[64]; // TODO:SK eek
+        public MySyncedDataStateEnum GetDataState(int clientIndex)
         {
             Debug.Assert(clientIndex < m_dirty.Length);
             return m_dirty[clientIndex];
@@ -23,7 +24,7 @@ namespace VRage.Network
 
         public bool IsDefault()
         {
-            return m_value.Equals(default(T));
+            return Equals(default(T));
         }
 
         protected T m_value;
@@ -36,9 +37,21 @@ namespace VRage.Network
             m_parent = parent;
         }
 
+        public void ResetPending(int clientIndex)
+        {
+            Debug.Assert(clientIndex < m_dirty.Length);
+            if (m_dirty[clientIndex] == MySyncedDataStateEnum.Pending)
+            {
+                m_dirty[clientIndex] = MySyncedDataStateEnum.UpToDate;
+            }
+        }
+
         public void Invalidate()
         {
-            m_dirty.SetAll(true);
+            for (int i = 0; i < m_dirty.Length; i++)
+            {
+                m_dirty[i] = MySyncedDataStateEnum.Outdated;
+            }
             if (m_parent != null)
             {
                 m_parent.Invalidate();
@@ -66,7 +79,7 @@ namespace VRage.Network
             Debug.Assert(value != null);
             lock (this)
             {
-                if (!value.Equals(m_value))
+                if (!Equals(value))
                 {
                     m_value = value;
                     Invalidate();
@@ -89,30 +102,26 @@ namespace VRage.Network
             Debug.Assert(m_value != null);
             lock (this)
             {
-                var dirty = m_dirty[clientIndex];
-                bs.Write(dirty);
+                var dirty = m_dirty[clientIndex] != MySyncedDataStateEnum.UpToDate;
+                bs.WriteBool(dirty);
                 if (dirty)
                 {
                     Write(ref m_value, bs);
-                    m_dirty[clientIndex] = false;
+                    m_dirty[clientIndex] = MySyncedDataStateEnum.Pending;
                 }
             }
         }
 
         public virtual void Deserialize(BitStream bs)
         {
-            bool success;
-
             bool fieldExists;
-            success = bs.Read(out fieldExists);
-            Debug.Assert(success, "Failed to read synced value existance");
+            fieldExists = bs.ReadBool();
 
             if (fieldExists)
             {
                 lock (this)
                 {
-                    success = Read(out m_value, bs);
-                    Debug.Assert(success, "Failed to read synced value");
+                    Read(out m_value, bs);
                 }
             }
         }
@@ -123,7 +132,7 @@ namespace VRage.Network
             lock (this)
             {
                 bool isDefault = IsDefault();
-                bs.Write(!isDefault);
+                bs.WriteBool(!isDefault);
                 if (!isDefault)
                 {
                     Write(ref m_value, bs);
@@ -131,37 +140,35 @@ namespace VRage.Network
 
                 if (clientIndex == -1)
                 {
-                    m_dirty.SetAll(false);
+                    for (int i = 0; i < m_dirty.Length; i++)
+                    {
+                        m_dirty[i] = MySyncedDataStateEnum.Pending;
+                    }
                 }
                 else
                 {
                     Debug.Assert(clientIndex < m_dirty.Length);
-                    m_dirty[clientIndex] = false;
+                    m_dirty[clientIndex] = MySyncedDataStateEnum.Pending;
                 }
             }
         }
 
         public virtual void DeserializeDefault(BitStream bs)
         {
-            bool success;
-
-            bool isDefault;
-            success = bs.Read(out isDefault);
-            Debug.Assert(success, "Failed to read synced value defaultness");
+            bool isDefault = bs.ReadBool();
 
             if (!isDefault)
             {
                 lock (this)
                 {
-                    success = Read(out m_value, bs);
-                    Debug.Assert(success, "Failed to read synced value");
+                    Read(out m_value, bs);
                 }
             }
         }
 
-        public bool Equals(T other)
+        public virtual bool Equals(T other)
         {
-            return Equals(other);
+            return EqualityComparer<T>.Default.Equals(this.m_value, other);
         }
     }
 }

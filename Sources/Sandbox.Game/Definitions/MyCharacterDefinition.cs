@@ -45,6 +45,7 @@ namespace Sandbox.Definitions
         public string HelmetVariation;
         public string DeathSoundName;
         public bool VisibleOnHud;
+        public bool UsableByPlayer;
 
         // Bones for foot placement IK
         public bool FeetIKEnabled = false;
@@ -63,18 +64,18 @@ namespace Sandbox.Definitions
         
         public string RagdollRootBody;
 
-        public Dictionary<MyCharacterMovementEnum, MyFeetIKSettings> FeetIKSettings;        
+        public Dictionary<MyCharacterMovementEnum, MyFeetIKSettings> FeetIKSettings;
 
-        public bool JetpackAvailable;
-        public float JetpackSlowdown;
-        public MyJetpackThrustDefinition[] Thrusts = new MyJetpackThrustDefinition[0];
+	    public List<SuitResourceDefinition> SuitResourceStorage = null;
+        public MyObjectBuilder_JetpackDefinition Jetpack = null;
         public Dictionary<string, string[]> BoneSets = new Dictionary<string, string[]>();
+        public Dictionary<float, string[]> BoneLODs = new Dictionary<float, string[]>();
         public Dictionary<string, string> AnimationNameToSubtypeName = new Dictionary<string, string>();
         public string[] MaterialsDisabledIn1st;
 		public string Stats;
 
         public float Mass;
-        public float MaxHealth;
+        public float ImpulseLimit;
         public string RighHandItemBone;
 
         //Character control
@@ -99,19 +100,28 @@ namespace Sandbox.Definitions
         public float CharacterHeadSize;
         public float CharacterHeadHeight;
         public float CharacterCollisionScale;
+        public float CharacterCollisionHeight;
+        public float CharacterCollisionWidth;
+        public float CharacterCollisionCrouchHeight;
 
         public float CharacterWidth;
         public float CharacterHeight;
         public float CharacterLength;
 
-        public float InventoryVolume;
-        public float InventoryMass;
-        public float InventorySizeX;
-        public float InventorySizeY;
-        public float InventorySizeZ;
+        public MyObjectBuilder_InventoryDefinition InventoryDefinition;        
+        public bool EnableSpawnInventoryAsContainer = false;
+        public MyDefinitionId? InventorySpawnContainerId;
+
+        public List<String> EnabledComponents = new List<String>();
+
+        public float LootingTime;
+
+        public string InitialAnimation;
 
         protected override void Init(MyObjectBuilder_DefinitionBase objectBuilder)
         {
+            base.Init(objectBuilder);
+
             var builder = (MyObjectBuilder_CharacterDefinition)objectBuilder;
             Name = builder.Name;
             Model = builder.Model;
@@ -156,8 +166,9 @@ namespace Sandbox.Definitions
             HelmetVariation = builder.HelmetVariation;
             DeathSoundName = builder.DeathSoundName;
             VisibleOnHud = builder.VisibleOnHud;
+            UsableByPlayer = builder.UsableByPlayer;
             RagdollRootBody = builder.RagdollRootBody;
-
+            InitialAnimation = builder.InitialAnimation;
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -190,13 +201,17 @@ namespace Sandbox.Definitions
                 }
             }
 
-            JetpackAvailable = builder.JetpackAvailable;
-            JetpackSlowdown = builder.JetpackSlowdown;
-            if (builder.Thrusts != null)
-                Thrusts = builder.Thrusts;
+	        SuitResourceStorage = builder.SuitResourceStorage;
+            Jetpack = builder.Jetpack;
+
             if (builder.BoneSets != null)
             {
                 BoneSets = builder.BoneSets.ToDictionary(x => x.Name, x => x.Bones.Split(' '));
+            }
+
+            if (builder.BoneLODs != null)
+            {
+                BoneLODs = builder.BoneLODs.ToDictionary(x => Convert.ToSingle(x.Name), x => x.Bones.Split(' '));
             }
 
             if (builder.AnimationMappings != null)
@@ -215,7 +230,7 @@ namespace Sandbox.Definitions
             }
 
             Mass = builder.Mass;
-            MaxHealth = builder.MaxHealth;
+            ImpulseLimit = builder.ImpulseLimit;
             OxygenCapacity = builder.OxygenCapacity;
 
             VerticalPositionFlyingOnly = builder.VerticalPositionFlyingOnly;
@@ -239,17 +254,33 @@ namespace Sandbox.Definitions
             CharacterHeadSize = builder.CharacterHeadSize;
             CharacterHeadHeight = builder.CharacterHeadHeight;
             CharacterCollisionScale = builder.CharacterCollisionScale;
+            CharacterCollisionWidth = builder.CharacterCollisionWidth;
+            CharacterCollisionHeight = builder.CharacterCollisionHeight;
+            CharacterCollisionCrouchHeight = builder.CharacterCollisionCrouchHeight;
 
-            CharacterWidth = builder.CharacterWidth;
-            CharacterHeight = builder.CharacterHeight;
-            CharacterLength = builder.CharacterLength;
+            if (builder.Inventory == null)
+            {
+                InventoryDefinition = new MyObjectBuilder_InventoryDefinition();
+            }           
+            else
+            {
+                InventoryDefinition = builder.Inventory;
+            }
 
-            if (builder.Inventory == null) builder.Inventory = new MyObjectBuilder_InventoryDefinition();
-            InventoryVolume = builder.Inventory.InventoryVolume;
-            InventoryMass = builder.Inventory.InventoryMass;
-            InventorySizeX = builder.Inventory.InventorySizeX;
-            InventorySizeY = builder.Inventory.InventorySizeY;
-            InventorySizeZ = builder.Inventory.InventorySizeZ;
+            if (builder.EnabledComponents != null)
+                EnabledComponents = builder.EnabledComponents.Split(' ').ToList();
+
+            EnableSpawnInventoryAsContainer = builder.EnableSpawnInventoryAsContainer;        
+            if (EnableSpawnInventoryAsContainer)
+            {
+                Debug.Assert(builder.InventorySpawnContainerId.HasValue, "Enabled spawning inventory as container, but type id is null");
+                if (builder.InventorySpawnContainerId.HasValue)
+                {
+                    InventorySpawnContainerId = builder.InventorySpawnContainerId.Value;
+                }
+            }
+
+            LootingTime = builder.LootingTime;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -276,12 +307,13 @@ namespace Sandbox.Definitions
             ob.HelmetVariation = HelmetVariation;
             ob.DeathSoundName = DeathSoundName;
             ob.VisibleOnHud = VisibleOnHud;
+            ob.UsableByPlayer = UsableByPlayer;
 
 			ob.Stats = Stats;
 
-            ob.JetpackAvailable = JetpackAvailable;
-            ob.JetpackSlowdown = JetpackSlowdown;
-            ob.Thrusts = Thrusts;
+            ob.SuitResourceStorage = SuitResourceStorage;
+			ob.Jetpack = Jetpack;
+
             //TODO BoneSets serialization
 
             ob.VerticalPositionFlyingOnly = VerticalPositionFlyingOnly;
@@ -305,16 +337,25 @@ namespace Sandbox.Definitions
             ob.CharacterHeadSize = CharacterHeadSize;
             ob.CharacterHeadHeight = CharacterHeadHeight;
             ob.CharacterCollisionScale = CharacterCollisionScale;
+            ob.CharacterCollisionWidth = CharacterCollisionWidth;
+            ob.CharacterCollisionHeight = CharacterCollisionHeight;
+            ob.CharacterCollisionCrouchHeight = CharacterCollisionCrouchHeight;
 
-            ob.CharacterHeight = CharacterHeight;
-            ob.CharacterLength = CharacterLength;
-            ob.CharacterWidth = CharacterWidth;
-            
-            ob.Inventory = new MyObjectBuilder_InventoryDefinition();
-            ob.Inventory.InventoryVolume = InventoryVolume;
-            ob.Inventory.InventorySizeX = InventorySizeX;
-            ob.Inventory.InventorySizeY = InventorySizeY;
-            ob.Inventory.InventorySizeZ = InventorySizeZ;
+            ob.Inventory = InventoryDefinition;
+
+            ob.EnabledComponents = String.Join(" ",EnabledComponents);
+
+            ob.EnableSpawnInventoryAsContainer = EnableSpawnInventoryAsContainer;
+            if (EnableSpawnInventoryAsContainer)
+            {
+                Debug.Assert(InventorySpawnContainerId.HasValue, "Enabled spawning inventory as container, but type id is null");
+                if (InventorySpawnContainerId.HasValue)
+                {
+                    ob.InventorySpawnContainerId = InventorySpawnContainerId.Value;
+                }
+            }
+
+            ob.LootingTime = LootingTime;
 
             return ob;
         }

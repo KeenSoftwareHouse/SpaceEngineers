@@ -1,6 +1,4 @@
-﻿using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
@@ -10,36 +8,31 @@ using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Windows.Forms.VisualStyles;
-using Sandbox.Engine.Physics;
-using VRage.Utils;
+using Sandbox.Definitions;
 using VRage.Compiler;
 using VRageMath;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.World;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
-using Sandbox.Game.Screens.Helpers;
 using VRage;
 using VRage.Collections;
-using VRage.Library.Utils;
 using VRage.ModAPI;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
-    class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
+    class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
+		private const int MAX_NUM_METHOD_CALLS = 10000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
         private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
         private IMyGridProgram m_instance = null;
@@ -68,11 +61,7 @@ namespace Sandbox.Game.Entities.Blocks
             get { return this.m_terminalRunArgument; }
             set { this.m_terminalRunArgument = value ?? string.Empty; }
         }
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
-        }
+
         public ulong UserId
         {
             get { return m_userId; }
@@ -100,6 +89,10 @@ namespace Sandbox.Game.Entities.Blocks
             runAction.DoUserParameterRequest = RequestRunArgument;
             runAction.ParameterDefinitions.Add(TerminalActionParameter.Get(string.Empty));
             MyTerminalControlFactory.AddAction(runAction);
+
+            var runwithDefault = new MyTerminalAction<MyProgrammableBlock>("RunWithDefaultArgument", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCodeDefault), OnRunDefaultApplied, MyTerminalActionIcons.START);
+            runwithDefault.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
+            MyTerminalControlFactory.AddAction(runwithDefault);
         }
 
         private static void OnRunApplied(MyProgrammableBlock programmableBlock, ListReader<TerminalActionParameter> parameters)
@@ -109,6 +102,11 @@ namespace Sandbox.Game.Entities.Blocks
             if (!firstParameter.IsEmpty && firstParameter.TypeCode == TypeCode.String)
                 argument = firstParameter.Value as string;
             programmableBlock.Run(argument);
+        }
+
+        private static void OnRunDefaultApplied(MyProgrammableBlock programmableBlock)
+        {
+            programmableBlock.Run();
         }
 
         /// <summary>
@@ -161,6 +159,20 @@ namespace Sandbox.Game.Entities.Blocks
             m_editorData = m_programData = m_editorScreen.Description.Text.ToString();
             m_compilerErrors.Clear();
             SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
+        }
+
+        public void SendRecompile()
+        {
+            SyncObject.SendProgramRecompile();
+        }
+
+        public void Recompile()
+        {
+            m_compilerErrors.Clear();
+            if (Sync.IsServer)
+            {
+                CompileAndCreateInstance(m_programData, m_storageData);
+            }
         }
 
         private void SaveCode(ResultEnum result)
@@ -252,6 +264,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_isRunning = true;
             string retVal = "";
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
             try
             {
                 m_instance.Main(argument);
@@ -325,14 +338,18 @@ namespace Sandbox.Game.Entities.Blocks
             this.SyncObject = new MySyncProgrammableBlock(this);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-              MyConsumerGroupEnum.Utility,
-              false,
-              0.0005f,
-              () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
+	        var blockDefinition = BlockDefinition as MyProgrammableBlockDefinition;
 
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+              blockDefinition.ResourceSinkGroup,
+              0.0005f,
+              () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+			sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
+
+
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             IsWorkingChanged += MyProgrammableBlock_IsWorkingChanged;
 
@@ -390,12 +407,13 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 try
                 {
-                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static));
+					m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
 
                     var type = m_assembly.GetType("Program");
                     if (type != null)
                     {
                         IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+						IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
                         try
                         {
                             m_instance = Activator.CreateInstance(type) as IMyGridProgram;
@@ -493,12 +511,15 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnOwnershipChanged();
 
-            //new owner needs to recompile script to be able to run it
-            OnProgramTermination();
-            SyncObject.SendProgramResponseMessage(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
-            if (Sync.IsServer)
+            //In survival mode, the new owner needs to recompile the script to be able to run it
+            if (MySession.Static.SurvivalMode)
             {
-                WriteProgramResponse(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
+                OnProgramTermination();
+                SyncObject.SendProgramResponseMessage(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
+                if (Sync.IsServer)
+                {
+                    WriteProgramResponse(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
+                }
             }
         }
 
@@ -515,18 +536,18 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -565,7 +586,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
         }

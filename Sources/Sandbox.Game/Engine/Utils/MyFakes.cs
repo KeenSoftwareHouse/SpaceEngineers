@@ -42,7 +42,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_BATTERY_SELF_RECHARGE = false; // When enabled, battery is able to recharge itself even if not plugged in.
 
         // To make player experience better, slowdown will be faster than acceleration by this ratio
-        public static float SLOWDOWN_FACTOR_THRUST_MULTIPLIER = 10.0f;
         public static float SLOWDOWN_FACTOR_TORQUE_MULTIPLIER = 5.0f;
         public static float SLOWDOWN_FACTOR_TORQUE_MULTIPLIER_LARGE_SHIP = 2.0f;
 
@@ -130,12 +129,8 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_DX11_RENDERER = true;
 
-        public static bool APRIL2014_ENABLED = false;
         public static bool SHOW_INVENTORY_ITEM_IDS = false;
-
-        // Reduces CPU usage by using timer and wait instead of spin
-        public static bool ENABLE_UPDATE_WAIT = true;
-
+        
         public static bool SIMULATE_QUICK_TRIGGER = false;
 
         public static bool REPORT_INVALID_ROTORS = false;
@@ -195,6 +190,9 @@ namespace Sandbox.Engine.Utils
 
         public static bool SKIP_VOXELS_DURING_LOAD = false;
 
+        // When enabled replication distance is 100m and sleep time 30 seconds.
+        public static bool MULTIPLAYER_REPLICATION_TEST = false;
+
         public static bool ENABLE_PISTON = true;
 
         public static int QUANTIZER_VALUE = 8;
@@ -245,7 +243,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_TURRET_CONTROL = true;
 
         public static bool ENABLE_SPAWN_MENU_ASTEROIDS = true;
-        public static bool ENABLE_SPAWN_MENU_PROCEDURAL_ASTEROIDS = false;
+        public static bool ENABLE_SPAWN_MENU_PROCEDURAL_ASTEROIDS = true;
 
         public static bool ENABLE_VOLUMETRIC_EXPLOSION = true;
 
@@ -300,9 +298,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_ENVIRONMENT_ITEMS = true;
 
         // Artificial Inteligence
-        public static bool NAVMESH_PRESUMES_DOWNWARD_GRAVITY = false;
         public static bool ENABLE_BARBARIANS = true;
-        public static bool ENABLE_PATHFINDING = false;
         public static bool BARBARIANS_SPAWN_NEAR_PLAYER = false;
         public static bool DEBUG_DRAW_NAVMESH_PROCESSED_VOXEL_CELLS = false;
         public static bool REMOVE_VOXEL_NAVMESH_CELLS = true;
@@ -316,10 +312,10 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_NAVMESH_FRINGE_HL_CELLS = false;
         public static bool DEBUG_DRAW_NAVMESH_LINKS = false;
         public static bool SHOW_PATH_EXPANSION_ASSERTS = false;
+        public static bool BARBARIANS_SPAWN_AT_DAY = false;
+        public static int BARBARIAN_STARTING_DAY = 1;
 
         public static bool ENABLE_AFTER_REPLACE_BODY = true;
-
-        public static float CHARACTER_FACE_FORWARD = 0.0f;
 
         public static bool ENABLE_BLOCK_PLACING_ON_INTERSECTED_POSITION = false;
 
@@ -412,7 +408,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NOTIFICATION_BLOCK_NOT_AVAILABLE = true;
 
-        public static bool ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC = false;//needed for planets to set to true
+        public static bool ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC = false;
 
         public static bool ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION = true;
 
@@ -423,7 +419,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS = false;
 
-        public static bool ENABLE_ALTERNATIVE_CLIPBOARD = false;
+        public static bool ENABLE_ADVANCED_CLIPBOARD = false;
 
         public static bool ENABLE_LARGE_STATIC_GROUP_COPY_FIRST = false;
         
@@ -443,10 +439,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_JETPACK_IN_SURVIVAL = true;
         
-        public static bool CHARACTER_TOOLS = true;
-
-        public static bool ENABLE_CHARACTER_VIRTUAL_PHYSICS = false;
-
         public static bool ENABLE_RAKNET = false;
 
         public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
@@ -487,7 +479,7 @@ namespace Sandbox.Engine.Utils
         // Ragdoll
         public static bool ENABLE_RAGDOLL_ANIMATION = false;
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
-        public static bool ENABLE_RAGDOLL_BONES_TRANSLATION = true;
+        public static bool ENABLE_RAGDOLL_BONES_TRANSLATION = false;
         public static bool ENABLE_COLLISONS_ON_RAGDOLL = true;
         public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
         public static bool ENABLE_RAGDOLL_CLIENT_SYNC = false;
@@ -530,16 +522,63 @@ namespace Sandbox.Engine.Utils
         
         public static bool ENABLE_MEDIEVAL_INVENTORY = false;
 
-        public static bool ENABLE_PLANETS = false;
-
         public static bool ENABLE_NEW_TRIGGERS = true;
 
         public static bool ENABLE_USE_OBJECT_CORNERS = true;
         
-        public static bool ENABLE_PLANETS_JETPACK_LIMIT = false;
-        
         public static bool ENABLE_WEAPON_USE = false;
 
         public static bool ENABLE_STATS_GUI = true;
+
+        public static bool NEW_POS_UPDATE_TIMING = false;
+
+        public static bool ENABLE_CUBE_BUILDER_MULTIBLOCK = false;
+
+        public static bool ENABLE_BRAIN_SIMULATOR = false;
+
+        public static bool ENABLE_DOUBLED_KINEMATIC = true;
+
+        public static bool WELD_LANDING_GEARS = true;
+
+        public static bool ENFORCE_CONTROLLER = false;
+
+        public static bool ENABLE_ALL_IN_SURVIVAL = false;
+
+        public static bool ENABLE_SURVIVAL_SWITCHING = false;
+
+		public static bool ENABLE_ATMOSPHERIC_ENTRYEFFECT = false;
+		public static bool ENABLE_DRIVING_PARTICLES = false;
+
+        public static bool ENABLE_BLOCKS_IN_VOXELS_TEST = false;
+
+        public static bool ENABLE_TURRET_LASERS = false;
+
+        public static bool SKIP_BIOME_MAP = false;
+        public static bool SKIP_ENVIRONMENT_ITEM_RULES = false;
+        public static bool ENABLE_DEFINITION_ENVIRONMENTS = true;
+        public static bool ENABLE_USE_VOXEL_MATERIAL_NORMALS = true;
+        public static bool ENABLE_VOXEL_ENVIRONEMNT_ITEMS = false;
+
+        public static bool PRIORITIZE_PRECALC_JOBS = true;
+        public static bool DISABLE_COMPOSITE_MATERIAL = false;
+        public static bool ENABLE_ENLARGING_EVENTS = false;
+        public static bool ENVIRONMENT_ITEMS_ONE_INSTANCEBUFFER = false;
+        public static bool CLIENTS_SIMULATE_SINGLE_WORLD = false;
+
+        public static bool DISABLE_SPECTATOR_IN_SURVIVAL = false;
+
+        public static bool ENABLE_FRACTURE_COMPONENT = false;
+        public static bool TESTING_VEHICLES = false;
+	    public static bool ENABLE_WALKING_PARTICLES = true;
+        public const bool UNRELIABLE_POSITION_SYNC = false;
+        public static bool USE_LOD1_VOXEL_PHYSICS = false;
+
+        public static bool ENABLE_HYDROGEN_FUEL = false;
+        public static bool WELD_PISTONS = false;
+        public static bool WELD_ROTORS = false;
+        public static bool ENABLE_INFINARIO = false;
+        public static bool SUSPENSION_POWER_RATIO = false;
+        public static bool WHEEL_SOFTNESS = false;
+        public static bool ENABLE_SPECTATOR_ROLL_MOVEMENT = true;
     }
 }

@@ -1917,6 +1917,11 @@ namespace VRageMath
             return CreateWorld(position, (Vector3D)forward, (Vector3D)up);
         }
 
+        public static MatrixD CreateWorld(Vector3D position)
+        {
+            return CreateWorld(position, Vector3D.Forward, Vector3D.Up);
+        }
+
         /// <summary>
         /// Creates a world matrix with the specified parameters.
         /// </summary>

@@ -26,6 +26,8 @@ namespace Sandbox.Common.ObjectBuilders
         //[ProtoMember]
         // Obsolete!
         private SerializableDictionary<string, int> m_remainingAmmos;
+
+        [NoSerialize]
         public SerializableDictionary<string, int> RemainingAmmos
         {
             get { Debug.Fail("Obsolete!"); return m_remainingAmmos; }
@@ -53,5 +55,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public List<RemainingAmmoIns> RemainingAmmosList = new List<RemainingAmmoIns>();
+
+        [ProtoMember]
+        public long LastShootTime;
     }
 }

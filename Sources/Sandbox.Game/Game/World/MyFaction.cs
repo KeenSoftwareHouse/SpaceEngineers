@@ -28,6 +28,7 @@ namespace Sandbox.Game.World
 
         public bool AutoAcceptMember;
         public bool AutoAcceptPeace;
+        public bool EnableFriendlyFire = true;
 
         public DictionaryReader<long, MyFactionMember> Members      { get { return new DictionaryReader<long, MyFactionMember>(m_members); } }
         public DictionaryReader<long, MyFactionMember> JoinRequests { get { return new DictionaryReader<long, MyFactionMember>(m_joinRequests); } }
@@ -60,6 +61,7 @@ namespace Sandbox.Game.World
 
             AutoAcceptMember = obj.AutoAcceptMember;
             AutoAcceptPeace  = obj.AutoAcceptPeace;
+            EnableFriendlyFire = obj.EnableFriendlyFire;
 
             m_members = new Dictionary<long, MyFactionMember>(obj.Members.Count);
 
@@ -189,6 +191,7 @@ namespace Sandbox.Game.World
 
             builder.AutoAcceptMember = AutoAcceptMember;
             builder.AutoAcceptPeace  = AutoAcceptPeace;
+            builder.EnableFriendlyFire = EnableFriendlyFire;
 
             builder.Members = new List<MyObjectBuilder_FactionMember>(Members.Count());
             foreach (var member in Members)

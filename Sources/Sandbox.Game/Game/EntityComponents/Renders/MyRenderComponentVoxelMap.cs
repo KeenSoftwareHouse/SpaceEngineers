@@ -35,29 +35,29 @@ namespace Sandbox.Game.Components
             var minCorner = (Vector3D)(Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner;
             m_renderObjectIDs = new uint[] { MyRenderProxy.RENDER_ID_UNASSIGNED };
 
-            Debug.Assert((m_voxelMap.Size % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == Vector3I.Zero);
-            var clipmapSizeLod0 = m_voxelMap.Size / MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
+            Debug.Assert((m_voxelMap.Size % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == Vector3I.Zero);
+            var clipmapSizeLod0 = m_voxelMap.Size / MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0);
 
             SetRenderObjectID(0,
                 MyRenderProxy.CreateClipmap(
                     MatrixD.CreateTranslation(minCorner),
                     clipmapSizeLod0,
                     m_voxelMap.ScaleGroup,
-                    Vector3D.Zero));
+                    Vector3D.Zero, additionalFlags: RenderFlags.CastShadows));
         }
 
         public override void InvalidateRenderObjects(bool sortIntoCulling = false)
         {
             if (Visible)
             {
-                var worldMatrix = MatrixD.CreateTranslation(m_voxelMap.PositionLeftBottomCorner);
+                var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
                 MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling);
             }
         }
 
         public void UpdateCells()
         {
-            var worldMatrix = MatrixD.CreateTranslation((Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner);
+            var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
             MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling: false);
         }
 
@@ -72,13 +72,13 @@ namespace Sandbox.Game.Components
             minVoxelChanged -= m_voxelMap.StorageMin;
             maxVoxelChanged -= m_voxelMap.StorageMin;
 
-            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(ref minVoxelChanged, out minCellLod0);
-            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(ref maxVoxelChanged, out maxCellLod0);
+            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(0, ref minVoxelChanged, out minCellLod0);
+            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(0, ref maxVoxelChanged, out maxCellLod0);
 
             MyRenderProxy.InvalidateClipmapRange(m_renderObjectIDs[0], minCellLod0, maxCellLod0);
 
             if (minCellLod0 == Vector3I.Zero &&
-                maxCellLod0 == ((m_voxelMap.Storage.Geometry.CellsCount - 1) >> MyVoxelConstants.RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS))
+                maxCellLod0 == ((m_voxelMap.Storage.Size - 1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0)))
             {
                 m_renderWorkTracker.InvalidateAll();
             }
@@ -98,7 +98,15 @@ namespace Sandbox.Game.Components
             }
         }
 
-        internal void OnCellRequest(MyCellCoord cell, bool highPriority)
+        internal void InvalidateAll()
+        {
+            MyRenderProxy.InvalidateClipmapRange(m_renderObjectIDs[0],
+                Vector3I.Zero,
+                (m_voxelMap.Storage.Size -1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0));
+            m_renderWorkTracker.InvalidateAll();
+        }
+
+        internal void OnCellRequest(MyCellCoord cell, bool highPriority, Func<int> priorityFunction, Action<Color> debugDraw)
         {
             ProfilerShort.Begin("OnCellRequest");
 
@@ -131,6 +139,8 @@ namespace Sandbox.Game.Components
                     WorkId = workId,
                     RenderWorkTracker = m_renderWorkTracker,
                     IsHighPriority = highPriority,
+                    Priority = priorityFunction,
+                    DebugDraw = debugDraw,
                 });
             }
             finally

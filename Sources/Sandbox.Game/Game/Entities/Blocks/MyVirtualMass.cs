@@ -1,20 +1,13 @@
 ﻿using Havok;
-using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI.Ingame;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Components;
 using VRage.ModAPI;
@@ -24,7 +17,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_VirtualMass))]
-    class MyVirtualMass : MyFunctionalBlock, IMyPowerConsumer, IMyVirtualMass
+    class MyVirtualMass : MyFunctionalBlock, IMyVirtualMass
     {
         #region Properties
 
@@ -33,15 +26,9 @@ namespace Sandbox.Game.Entities
             get { return (MyVirtualMassDefinition)base.BlockDefinition; }
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         #endregion
@@ -56,13 +43,13 @@ namespace Sandbox.Game.Entities
         {
             base.Init(objectBuilder, cubeGrid);
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			ResourceSink = new MyResourceSinkComponent();
+			ResourceSink.Init(
+                BlockDefinition.ResourceSinkGroup,
                 BlockDefinition.RequiredPowerInput,
                 this.CalculateRequiredPowerInput);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.Update();
 
             if (Physics != null)
             {
@@ -88,19 +75,19 @@ namespace Sandbox.Game.Entities
 
         public override void OnBuildSuccess(long builtBy)
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnBuildSuccess(builtBy);
         }
 
         public override void UpdateBeforeSimulation()
         {
             base.UpdateBeforeSimulation();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
@@ -116,7 +103,7 @@ namespace Sandbox.Game.Entities
         {
             base.OnAddedToScene(source);
             UpdateEmissivity();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void UpdateText()
@@ -129,10 +116,10 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(IsWorking ? BlockDefinition.VirtualMass.ToString() : "0");
             DetailedInfo.Append(" kg\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.RequiredInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.CurrentInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
             RaisePropertiesChanged();
         }
 
@@ -168,7 +155,7 @@ namespace Sandbox.Game.Entities
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         float IMyVirtualMass.VirtualMass

@@ -30,72 +30,30 @@ namespace VRageRender.Profiler
     /// </remarks>
     public abstract class MyRenderProfiler
     {
-        public const string Symbol = VRage.MyCompilationSymbols.RenderProfiling ? "WINDOWS" : "__RANDOM_UNDEFINED_PROFILING_SYMBOL__";
+        public const string PerformanceProfilingSymbol = VRage.MyCompilationSymbols.PerformanceProfiling ? "WINDOWS" : "__RANDOM_UNDEFINED_PROFILING_SYMBOL__";
 
-        protected class DrawArea
+        private static bool m_profilerProcessingEnabled = VRage.MyCompilationSymbols.PerformanceProfiling;
+
+        public static bool ProfilerProcessingEnabled
         {
-            public float x_start { get; private set; }
-            public float y_start { get; private set; }
-            public float x_scale { get; private set; }
-            public float y_scale { get; private set; }
-            public float y_inv_range { get; private set; }
-            public float y_range { get { return 1.0f / y_inv_range; } }
-            public float y_legend_increment { get { return y_scale / y_range * m_legendMsIncrement; } }
-            public float y_legend_ms_increment { get { return m_legendMsIncrement; } }
-            public int y_legend_ms_count { get { return m_legendMsCount; } }
-
-            private int m_legendMsCount;
-            private float m_legendMsIncrement;
-
-            private static readonly float[] m_increments = { 0.1f, 0.2f, 0.25f, 0.5f, 1, 2, 2.5f, 5, 10, 20, 25, 50, 100, 200, 250 };
-
-            public DrawArea(float xStart, float yStart, float xScale, float yScale, float yRange)
-            {
-                x_start = xStart;
-                y_start = yStart;
-                x_scale = xScale;
-                y_scale = yScale;
-                y_inv_range = 1.0f / yRange;
-                UpdateIncrements();
-            }
-
-            public void IncreaseYRange()
-            {
-                y_inv_range *= 0.75f;
-                UpdateIncrements();
-            }
-
-            public void DecreaseYRange()
-            {
-                y_inv_range *= 1.333333f;
-                UpdateIncrements();
-            }
-
-            private void UpdateIncrements()
-            {
-                m_legendMsCount = 15;
-
-                m_legendMsIncrement = 5;
-                for (int i = 0; i < m_increments.Length; ++i)
-                {
-                    float count = y_range / m_increments[i];
-                    if (count >= 5.0f && count < 12.0f)
-                    {
-                        m_legendMsIncrement = m_increments[i];
-                        m_legendMsCount = (int)Math.Floor(count);
-                        break;
-                    }
-                }
-            }
+            get { return m_profilerProcessingEnabled; }
         }
 
-        protected static DrawArea m_milisecondsGraphScale = new DrawArea(0.5f, 0, (2 - 0.51f) / 2, 0.9f, 25);
-        protected static DrawArea m_memoryGraphScale = new DrawArea(0.5f, -0.7f, (2 - 0.51f) / 2, 0.6f, 0.001f);
+        /// <summary>
+        /// Returns true when profiler is visible.
+        /// </summary>
+        public static bool ProfilerVisible
+        {
+            get { return m_enabled; }
+        }
 
-        protected static Color[] m_colors = { Color.Aqua, Color.Orange, Color.BlueViolet * 1.5f, Color.BurlyWood, Color.Chartreuse,
+        protected static MyDrawArea m_milisecondsGraphScale = new MyDrawArea(0.49f, 0, (2 - 0.51f) / 2, 0.9f, 25);
+        protected static MyDrawArea m_memoryGraphScale = new MyDrawArea(0.49f, -0.7f, (2 - 0.51f) / 2, 0.6f, 0.001f);
+
+        protected static Color[] m_colors = { new Color(0,192,192), Color.Orange, Color.BlueViolet * 1.5f, Color.BurlyWood, Color.Chartreuse,
                                   Color.CornflowerBlue, Color.Cyan, Color.ForestGreen, Color.Fuchsia,
                                   Color.Gold, Color.GreenYellow, Color.LightBlue, Color.LightGreen, Color.LimeGreen,
-                                  Color.Magenta, Color.Navy, Color.Orchid, Color.PeachPuff, Color.Purple };
+                                  Color.Magenta, Color.MintCream, Color.Orchid, Color.PeachPuff, Color.Purple };
 
         protected static Color IndexToColor(int index)
         {
@@ -109,7 +67,7 @@ namespace VRageRender.Profiler
 
         protected static MyProfiler.MyProfilerBlock m_fpsBlock;
         protected static float m_fpsPctg;
-        
+
         //{Color.Cyan, Color.Orange, new Color(208, 86, 255), Color.BurlyWood, Color.LightGray,
         //                          Color.CornflowerBlue,Color.LawnGreen,  Color.Fuchsia,
         //                          Color.Gold, Color.OrangeRed,Color.YellowGreen, Color.LightBlue, Color.LightCoral, Color.LimeGreen,
@@ -126,14 +84,8 @@ namespace VRageRender.Profiler
             get
             {
                 if (m_gpuProfiler == null)
-                { 
-                    lock (m_threadProfilers)
-                    {
-                        m_gpuProfiler = new MyProfiler(m_threadProfilers.Count, MemoryProfiling);
-                        m_gpuProfiler.m_customName = "GPU";
-                        //m_gpuProfiler.AutoCommit = false;
-                        m_threadProfilers.Add(m_gpuProfiler);
-                    }
+                {
+                    m_gpuProfiler = CreateProfiler("GPU", null, MemoryProfiling);
                 }
                 return m_gpuProfiler;
             }
@@ -145,11 +97,7 @@ namespace VRageRender.Profiler
             {
                 if (m_threadProfiler == null)
                 {
-                    lock (m_threadProfilers)
-                    {
-                        m_threadProfiler = new MyProfiler(m_threadProfilers.Count, MemoryProfiling);
-                        m_threadProfilers.Add(m_threadProfiler);
-                    }
+                    m_threadProfiler = CreateProfiler(null, null, MemoryProfiling);
                 }
                 return m_threadProfiler;
             }
@@ -169,6 +117,22 @@ namespace VRageRender.Profiler
         {
             // Create block, some unique id
             m_fpsBlock = MyProfiler.CreateExternalBlock("FPS", -2);
+        }
+
+        /// <summary>
+        /// Creates new profiler which can be used to profile anything (e.g. network stats).
+        /// </summary>
+        public static MyProfiler CreateProfiler(string name, string axisName = null, bool memoryProfiling = false)
+        {
+            lock (m_threadProfilers)
+            {
+                var profiler = new MyProfiler(m_threadProfilers.Count, memoryProfiling, name, axisName ?? "[ms]");
+                m_threadProfilers.Add(profiler);
+                profiler.SetNewLevelLimit(m_profilerProcessingEnabled ? m_levelLimit : 0);
+                if (m_selectedProfiler == null)
+                    m_selectedProfiler = profiler;
+                return profiler;
+            }
         }
 
         public static MyProfiler.MyProfilerBlock FindBlockByIndex(int index)
@@ -222,6 +186,8 @@ namespace VRageRender.Profiler
                         else if (!m_enabled)
                         {
                             m_enabled = true;
+                            m_profilerProcessingEnabled = true; // Enable when disabled and keep enabled
+                            SetLevel();
                         }
                         else
                         {
@@ -283,6 +249,18 @@ namespace VRageRender.Profiler
                         break;
                     }
 
+                case RenderProfilerCommand.Reset:
+                    {
+                        lock (m_threadProfilers)
+                        {
+                            foreach (var profiler in m_threadProfilers)
+                            {
+                                profiler.Reset();
+                            }
+                        }
+                        break;
+                    }
+
                 case RenderProfilerCommand.NextFrame:
                     {
                         MyRenderProfiler.NextFrame();
@@ -340,7 +318,7 @@ namespace VRageRender.Profiler
             {
                 foreach (var p in m_threadProfilers)
                 {
-                    p.SetNewLevelLimit(m_levelLimit);
+                    p.SetNewLevelLimit(m_profilerProcessingEnabled ? m_levelLimit : 0);
                 }
             }
         }
@@ -412,19 +390,16 @@ namespace VRageRender.Profiler
             return max;
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
         public void GetAutocommit(ref bool val)
         {
             val = ThreadProfiler.AutoCommit;
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
         public void SetAutocommit(bool val)
         {
             ThreadProfiler.AutoCommit = val;
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
         public void Commit([CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             var profiler = ThreadProfiler;
@@ -440,7 +415,6 @@ namespace VRageRender.Profiler
             profiler.ProfileCustomValue("Profiler.Commit", member, line, file, 0, MyTimeSpan.FromMiliseconds(profiler.Stopwatch.ElapsedMilliseconds), null, null);
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
         public void Draw([CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             if (!m_enabled)
@@ -450,62 +424,59 @@ namespace VRageRender.Profiler
             profiler.Stopwatch.Restart();
 
             var drawProfiler = m_selectedProfiler;
-            int lastFrameIndex;
-            using (drawProfiler.LockHistory(out lastFrameIndex))
+            if (drawProfiler != null)
             {
-                int frameToDraw = m_useCustomFrame ? m_selectedFrame : lastFrameIndex;
-                Draw(drawProfiler, lastFrameIndex, frameToDraw);
-            }
+                int lastFrameIndex;
+                using (drawProfiler.LockHistory(out lastFrameIndex))
+                {
+                    int frameToDraw = m_useCustomFrame ? m_selectedFrame : lastFrameIndex;
+                    Draw(drawProfiler, lastFrameIndex, frameToDraw);
+                }
 
-            profiler.ProfileCustomValue("Profiler.Draw", member, line, file, 0, MyTimeSpan.FromMiliseconds(profiler.Stopwatch.ElapsedMilliseconds), null, null);
+                profiler.ProfileCustomValue("Profiler.Draw", member, line, file, 0, MyTimeSpan.FromMiliseconds(profiler.Stopwatch.Elapsed.TotalMilliseconds), null, null);
+            }
         }
 
         protected abstract void Draw(MyProfiler drawProfiler, int lastFrameIndex, int frameToDraw);
 
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void StartProfilingBlock(string blockName = null, float customValue = 0, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             ThreadProfiler.StartBlock(blockName, member, line, file);
-
-            if (m_selectedProfiler == null)
-            {
-                m_selectedProfiler = ThreadProfiler;
-            }
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void EndProfilingBlock(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             ThreadProfiler.EndBlock(member, line, file, customTime, customValue, timeFormat, valueFormat);
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void GPU_StartProfilingBlock(string blockName = null, float customValue = 0, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             GpuProfiler.StartBlock(blockName, member, line, file);
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void GPU_EndProfilingBlock(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             GpuProfiler.EndBlock(member, line, file, customTime, customValue, timeFormat, valueFormat);
         }
 
         // same as EndProfilingBlock(); StartProfilingBlock(string name);
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void StartNextBlock(string name, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             EndProfilingBlock(0, null, null, null, member, line, file);
             StartProfilingBlock(name, 0, member, line, file);
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
         public void InitMemoryHack(string name)
         {
             ThreadProfiler.InitMemoryHack(name);
         }
 
-        [Conditional(MyRenderProfiler.Symbol)]
+        [Conditional(PerformanceProfilingSymbol)]
         public void ProfileCustomValue(string name, float value, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
         {
             if (m_levelLimit != -1)

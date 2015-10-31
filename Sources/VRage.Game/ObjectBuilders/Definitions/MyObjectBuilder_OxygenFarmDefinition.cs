@@ -8,6 +8,21 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OxygenFarmDefinition : MyObjectBuilder_CubeBlockDefinition
     {
+        [ProtoContract]
+        public struct MyProducedGasInfo
+        {
+            [ProtoMember]
+            public SerializableDefinitionId Id;
+
+            [ProtoMember]
+            public float MaxOutputPerSecond;
+        }
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
+
+        [ProtoMember]
+        public string ResourceSourceGroup;
+
         [ProtoMember]
         public Vector3 PanelOrientation = new Vector3(0, 0, 0);
 
@@ -18,7 +33,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float PanelOffset = 1;
 
         [ProtoMember]
-        public float MaxOxygenOutput = 0f;
+        public MyProducedGasInfo ProducedGas;
 
         [ProtoMember]
         public float OperationalPowerConsumption = 0.001f;

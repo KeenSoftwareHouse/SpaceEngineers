@@ -25,6 +25,9 @@ namespace Sandbox.Definitions
 
         public MyMultiBlockPartDefinition[] BlockDefinitions;
 
+        public Vector3I MinPosition;
+        public Vector3I MaxPosition;
+
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -35,6 +38,9 @@ namespace Sandbox.Definitions
 
             if (ob.BlockDefinitions != null && ob.BlockDefinitions.Length > 0)
             {
+                MinPosition = Vector3I.MaxValue;
+                MaxPosition = Vector3I.MinValue;
+
                 BlockDefinitions = new MyMultiBlockPartDefinition[ob.BlockDefinitions.Length];
                 for (int i = 0; i < ob.BlockDefinitions.Length; ++i)
                 {
@@ -45,22 +51,17 @@ namespace Sandbox.Definitions
                     BlockDefinitions[i].Position = obBlockDef.Position;
                     BlockDefinitions[i].Forward = obBlockDef.Orientation.Forward;
                     BlockDefinitions[i].Up = obBlockDef.Orientation.Up;
+
+                    MinPosition = Vector3I.Min(MinPosition, obBlockDef.Position);
+                    MaxPosition = Vector3I.Max(MaxPosition, obBlockDef.Position);
                 }
             }
         }
 
-        /// <summary>
-        /// Returns main block definition. Main block is block within multiblock which is used for positioning of whole multiblock (grid).
-        /// </summary>
-        public MyMultiBlockPartDefinition GetMainBlockDefinition()
+        public int GetMaxSize()
         {
-            foreach (var definition in BlockDefinitions)
-            {
-                if (definition.Position == Vector3I.Zero)
-                    return definition;
-            }
-
-            return null;
+            Vector3I size = MaxPosition - MinPosition + Vector3I.One;
+            return Math.Max(Math.Max(size.X, size.Y), size.Z);
         }
 
     }

@@ -1,5 +1,5 @@
 #define INVERT_NM_Y
-#define ENABLE_L3
+#define DEBUG_TEX_COORDS 0
 
 float4 sample_color_triplanar_grad(Texture2DArray<float4> texture_array, float3 texcoords, float3 weights, float3 N,
 	float2 texcoords_ddx[3], float2 texcoords_ddy[3], float f)
@@ -8,10 +8,35 @@ float4 sample_color_triplanar_grad(Texture2DArray<float4> texture_array, float3 
 	float2 texcoords_y = texcoords.xz * f;
 	float2 texcoords_z = texcoords.xy * f;
 
-	return
-		texture_array.SampleGrad(TextureSampler, float3(texcoords_x, 0), texcoords_ddx[0] * f, texcoords_ddy[0] * f) * weights.x + 
+	float4 result =
+		texture_array.SampleGrad(TextureSampler, float3(texcoords_x, 0), texcoords_ddx[0] * f, texcoords_ddy[0] * f) * weights.x +
 		texture_array.SampleGrad(TextureSampler, float3(texcoords_y, (N.y > 0)), texcoords_ddx[1] * f, texcoords_ddy[1] * f) * weights.y +
-		texture_array.SampleGrad(TextureSampler, float3(texcoords_z, 0), texcoords_ddx[2] * f, texcoords_ddy[2] * f) * weights.z;	
+		texture_array.SampleGrad(TextureSampler, float3(texcoords_z, 0), texcoords_ddx[2] * f, texcoords_ddy[2] * f) * weights.z;
+
+	//float4 result =
+	//	texture_array.Sample(TextureSampler, float3(texcoords_x, 0)) * weights.x +
+	//	texture_array.Sample(TextureSampler, float3(texcoords_y, (N.y > 0))) * weights.y +
+	//	texture_array.Sample(TextureSampler, float3(texcoords_z, 0)) * weights.z;
+
+	//float4 result =
+	//	texture_array.Sample(TextureSampler, float3(texcoords_x, 0)) +
+	//	texture_array.Sample(TextureSampler, float3(texcoords_y, (N.y > 0))) +
+	//	texture_array.Sample(TextureSampler, float3(texcoords_z, 0));
+
+#ifdef DEBUG
+//	if (frame_.debug_voxel_lod == 1.0f)
+//	{
+//		float3 debugColor = DEBUG_COLORS[object_.voxelLodSize];
+//		result.rgb = float3(1,0,0);
+//	}
+//	
+#if DEBUG_TEX_COORDS
+	result.rgb = texcoords;
+#endif
+//
+#endif
+
+	return result;
 }
 
 float4 sample_normal_gloss_triplanar_grad(Texture2DArray<float4> texture_array, float3 texcoords, float3 weights, float3 N,

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace VRage.Game.ObjectBuilders
 {
@@ -19,6 +20,7 @@ namespace VRage.Game.ObjectBuilders
 		public float MaxValue = 1.0f;
 
 		[ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
 		public MyObjectBuilder_EntityStatRegenEffect[] Effects = null;
 	}
 }

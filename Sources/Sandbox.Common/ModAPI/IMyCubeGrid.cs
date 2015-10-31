@@ -146,13 +146,6 @@ namespace Sandbox.ModAPI
         /// <returns></returns>
         VRageMath.MatrixI CalculateMergeTransform(IMyCubeGrid gridToMerge, VRageMath.Vector3I gridOffset);
 
-        /// <summary>
-        /// Merge used when pasting grid into existing one
-        /// </summary>
-        /// <param name="gridToMerge"></param>
-        /// <param name="mergeTransform"></param>
-        /// <returns></returns>
-        IMyCubeGrid MergeGrid_CopyPaste(IMyCubeGrid gridToMerge, VRageMath.MatrixI mergeTransform);
 
         /// <summary>
         /// Merge used by merge blocks

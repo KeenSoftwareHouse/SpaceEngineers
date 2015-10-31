@@ -6,7 +6,7 @@ namespace VRageRender.Effects
     using VRage;
     using Matrix = VRageMath.Matrix;
 
-    abstract class MyEffectVoxelsBase : MyEffectAtmosphereBase
+    abstract class MyEffectVoxelsBase : MyEffectBase
     {
         readonly EffectHandle m_projectionMatrix;
 
@@ -57,6 +57,9 @@ namespace VRageRender.Effects
         readonly EffectHandle m_highInstancedTechnique;
         readonly EffectHandle m_extremeInstancedTechnique;
 
+        readonly EffectHandle m_textureDistances;
+        readonly EffectHandle m_textureScales;
+
         /// <summary>
         /// Set to true when multiple materials has been set
         /// </summary>
@@ -93,6 +96,9 @@ namespace VRageRender.Effects
 
             m_specularIntensity3 = m_D3DEffect.GetParameter(null, "SpecularIntensity3");
             m_specularPower3 = m_D3DEffect.GetParameter(null, "SpecularPower3");
+
+            m_textureDistances = m_D3DEffect.GetParameter(null, "TEXTURE_DISTANCE");
+            m_textureScales = m_D3DEffect.GetParameter(null, "TEXTURE_SCALE");
 
             m_lowTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityLow");
             m_normalTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityNormal");
@@ -149,7 +155,11 @@ namespace VRageRender.Effects
 
 
             m_D3DEffect.SetValue(m_specularIntensity, voxelMaterial.SpecularIntensity);
-            m_D3DEffect.SetValue(m_specularPower, voxelMaterial.SpecularPower); 
+            m_D3DEffect.SetValue(m_specularPower, voxelMaterial.SpecularPower);
+
+            //TODO
+            //m_D3DEffect.SetValue(m_textureDistances, voxelMaterial.TextureDistances);
+            //m_D3DEffect.SetValue(m_textureScales, voxelMaterial.TextureScales);
         }
 
         public void UpdateVoxelMultiTextures(byte mat0, byte? mat1, byte? mat2)

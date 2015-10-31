@@ -10,6 +10,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
+using Sandbox.Game.Entities;
 
 namespace Sandbox.Game.Gui
 {
@@ -98,16 +99,17 @@ namespace Sandbox.Game.Gui
 
             m_currentPosition.Y += 0.02f;
 
-            foreach (var val in System.Enum.GetValues(typeof(MyBonesArea)))
+            foreach (var name in playerCharacter.Definition.BoneSets.Keys)
             {
-                string name = System.Enum.GetName(typeof(MyBonesArea), val);
                 var checkBox = AddCheckBox(name, false, null);
-                checkBox.UserData = val;
+                checkBox.UserData = name;
                 if (name == "Body")
                     checkBox.IsChecked = true;
             }
 
             AddButton(new StringBuilder("Play animation"), OnPlayButtonClick);
+
+            AddCheckBox("Draw damage and hit hapsules", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE));
 
             m_currentPosition.Y += 0.01f;
         }
@@ -118,20 +120,20 @@ namespace Sandbox.Game.Gui
 
             playerCharacter.PlayCharacterAnimation(
                 m_animationComboA.GetSelectedKey().ToString(),
-                false,
-                MyPlayAnimationMode.Immediate,
+                MyBlendOption.Immediate,
+                MyFrameOption.PlayOnce,                
                 m_blendSlider.Value);
 
             playerCharacter.PlayCharacterAnimation(
-                m_animationComboB.GetSelectedKey().ToString(), 
-                true,
-                MyPlayAnimationMode.WaitForPreviousEnd,
+                m_animationComboB.GetSelectedKey().ToString(),
+                MyBlendOption.WaitForPreviousEnd,
+                MyFrameOption.Loop,                
                 m_blendSlider.Value);
         }
 
         void OnPlayButtonClick(MyGuiControlButton sender)
         {
-            MyBonesArea bonesArea = 0;
+            string bonesArea = "";
             foreach (var control in Controls)
             {
                 if (control is MyGuiControlCheckbox)
@@ -139,15 +141,15 @@ namespace Sandbox.Game.Gui
                     MyGuiControlCheckbox chb = control as MyGuiControlCheckbox;
                     if (chb.IsChecked && chb.UserData != null)
                     {
-                        bonesArea |= (MyBonesArea)chb.UserData;
+                        bonesArea += " " + chb.UserData;
                     }
                 }
             }
 
             MySession.LocalCharacter.PlayCharacterAnimation(
                 m_animationCombo.GetSelectedValue().ToString(),
-                m_loopCheckbox.IsChecked,
-                MyPlayAnimationMode.Play,
+                MyBlendOption.Immediate,
+                m_loopCheckbox.IsChecked ? MyFrameOption.Loop : MyFrameOption.PlayOnce,                
                 m_blendSlider.Value
             );
         }

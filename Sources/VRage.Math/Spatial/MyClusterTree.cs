@@ -296,16 +296,38 @@ namespace VRageMath.Spatial
                 m_objectsData[id].AABB = aabb;
 
                 BoundingBoxD originalAABB = aabb;
-                Vector3 velocityDir = Vector3.Normalize(velocity);
-
+                Vector3 velocityDir = velocity;
+               
+                if(velocity.LengthSquared() > 0.001f)
+                {
+                   velocityDir = Vector3.Normalize(velocity);
+                }
+                
                 BoundingBoxD extendedAABB = aabb.Include(aabb.Center + velocityDir * 2000);
                 //                BoundingBoxD newClusterAABB = aabb.Include(aabb.Center + velocityDir * IdealClusterSize / 2);
 
                 System.Diagnostics.Debug.Assert(m_clusters.Contains(objectData.Cluster));
 
-                if (objectData.Cluster.AABB.Contains(extendedAABB) != ContainmentType.Contains && !SingleCluster.HasValue)
+                var newContainmentType = objectData.Cluster.AABB.Contains(extendedAABB);
+                if (newContainmentType != ContainmentType.Contains && !SingleCluster.HasValue)
                 {
-                    ReorderClusters(originalAABB.Include(oldAABB), id);
+                    if (newContainmentType == ContainmentType.Disjoint)
+                    { //Probably caused by teleport 
+                        m_clusterTree.OverlapAllBoundingBox(ref extendedAABB, m_returnedClusters);
+                        if ((m_returnedClusters.Count == 1) && (m_returnedClusters[0].AABB.Contains(extendedAABB) == ContainmentType.Contains))
+                        { //Just move object from one cluster to another
+                            var oldCluster = objectData.Cluster;
+                            RemoveObjectFromCluster(objectData, false);
+                            if (oldCluster.Objects.Count == 0)
+                                RemoveCluster(oldCluster);
+
+                            AddObjectToCluster(m_returnedClusters[0], objectData.Id, false);
+                        }
+                        else
+                            ReorderClusters(originalAABB.Include(oldAABB), id);
+                    }
+                    else
+                        ReorderClusters(originalAABB.Include(oldAABB), id);
                 }
 
                 System.Diagnostics.Debug.Assert(m_objectsData[id].Cluster.AABB.Contains(objectData.AABB) == ContainmentType.Contains || SingleCluster.HasValue, "Inconsistency in clusters");
@@ -319,6 +341,41 @@ namespace VRageMath.Spatial
             //      if (!ob.Value.ActivationHandler.IsStatic)
             //        System.Diagnostics.Debug.Assert(ob.Value.Cluster.AABB.Contains(ob.Value.AABB) == ContainmentType.Contains, "Inconsistency in clusters");
             //}
+        }
+
+        public void EnsureClusterSpace(BoundingBoxD aabb)
+        {
+            aabb.Inflate(3000);
+            m_clusterTree.OverlapAllBoundingBox(ref aabb, m_returnedClusters);
+
+            bool needReorder = true;
+
+            if (m_returnedClusters.Count == 1)
+            {
+                if (m_returnedClusters[0].AABB.Contains(aabb) == ContainmentType.Contains)
+                    needReorder = false;
+            }
+
+            if (needReorder)
+            {
+                ulong objectId = m_clusterObjectCounter++;
+                int staticObjectId = MyDynamicAABBTreeD.NullNode;
+
+                m_objectsData[objectId] = new MyObjectData()
+                {
+                    Id = objectId,
+                    Cluster = null,
+                    ActivationHandler = null,
+                    AABB = aabb,
+                    StaticId = staticObjectId
+                };
+
+                ReorderClusters(aabb, objectId);
+
+                RemoveObjectFromCluster(m_objectsData[objectId], false);
+
+                m_objectsData.Remove(objectId);
+            }
         }
 
         public void RemoveObject(ulong id)
@@ -397,6 +454,13 @@ namespace VRageMath.Spatial
             }
 
             return Vector3D.Zero;
+        }
+
+        public object GetClusterForPosition(Vector3D pos)
+        {
+            var bs = new BoundingSphereD(pos, 1);
+            m_clusterTree.OverlapAllBoundingSphere(ref bs, m_returnedClusters);
+            return m_returnedClusters.Count > 0 ? m_returnedClusters.Single().UserData : null;
         }
 
         public void Dispose()
@@ -590,8 +654,8 @@ namespace VRageMath.Spatial
             var unionClusterDesc = new MyClusterDescription()
             {
                 AABB = unionCluster,
-                DynamicObjects = objectsInUnion.Where(x => !x.ActivationHandler.IsStaticForCluster).ToList(),
-                StaticObjects = objectsInUnion.Where(x => x.ActivationHandler.IsStaticForCluster).ToList(),
+                DynamicObjects = objectsInUnion.Where(x => x.ActivationHandler == null || !x.ActivationHandler.IsStaticForCluster).ToList(),
+                StaticObjects = objectsInUnion.Where(x => (x.ActivationHandler != null) && x.ActivationHandler.IsStaticForCluster).ToList(),
             };
             clustersToDivide.Push(unionClusterDesc);
 
@@ -912,7 +976,8 @@ namespace VRageMath.Spatial
 
                 foreach (var ob in newCluster.Objects)
                 {
-                    m_objectsData[ob].ActivationHandler.FinishAddBatch();
+                    if (m_objectsData[ob].ActivationHandler != null)
+                        m_objectsData[ob].ActivationHandler.FinishAddBatch();
                 }
             }
         }

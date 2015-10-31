@@ -1,16 +1,14 @@
 ﻿using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -112,6 +110,8 @@ namespace Sandbox.Game.Gui
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.THRUSTS));
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.BROADCASTING));
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.HELMET));
+			if (MySession.Static != null && (MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode))
+				basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.MISSION_SETTINGS));
 
             basicPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.PRIMARY_TOOL_ACTION));
             basicPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SLOT1));
@@ -278,7 +278,7 @@ namespace Sandbox.Game.Gui
             RecreateControls(true);
         }
 
-        [Conditional(ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         private static void AddProfilerControls(HelpPage developerPage)
         {
             developerPage.RightColumn.Add(new ControlWithDescription("Alt + Num0", "Enable/Disable render profiler or leave current child node."));

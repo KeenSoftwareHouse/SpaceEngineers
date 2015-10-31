@@ -25,7 +25,7 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncCryoChamber()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncCryoChamber, ControlPilotMsg>(OnControlPilotMsg, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncCryoChamber, ControlPilotMsg>(OnControlPilotMsg, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
         }
 
         public MySyncCryoChamber(MyCryoChamber chamber):
@@ -43,13 +43,13 @@ namespace Sandbox.Game.Multiplayer
             msg.SteamId = player.Id.SteamId;
             msg.SerialId = player.Id.SerialId;
 
-            MySession.Static.SyncLayer.SendMessageToAllAndSelf(ref msg);
+            MySession.Static.SyncLayer.SendMessageToServerAndSelf(ref msg);
         }
 
         private static void OnControlPilotMsg(MySyncCryoChamber syncObject, ref ControlPilotMsg msg, World.MyNetworkClient sender)
         {
             var playerId = new MyPlayer.PlayerId(msg.SteamId, msg.SerialId);
-            var player = Sync.Players.TryGetPlayerById(playerId);
+            var player = Sync.Players.GetPlayerById(playerId);
 
             var cryoChamber = syncObject.Entity as MyCryoChamber;
 
@@ -69,6 +69,10 @@ namespace Sandbox.Game.Multiplayer
                  
                     player.Controller.TakeControl(cryoChamber);
                     player.Identity.ChangeCharacter(cryoChamber.Pilot);
+                    if (Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                    }
                 }
                 else
                 {

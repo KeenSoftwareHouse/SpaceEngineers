@@ -201,15 +201,43 @@
     <Blueprint>
       <Id>
         <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>HydrogenBottlesRefill</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_HydrogenBottles</DisplayName>
+      <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
+      <Prerequisites>
+        <Item Amount="1" TypeId="GasContainerObject" SubtypeId="HydrogenBottle" />
+      </Prerequisites>
+      <Result Amount="0.9" TypeId="Ingot" SubtypeId="Stone" />
+      <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>
+    </Blueprint>
+    <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>HydrogenBottle</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_HydrogenBottle</DisplayName>
+      <Icon>Textures\GUI\Icons\component\HydrogenBottle_Component.dds</Icon>
+      <Prerequisites>
+        <Item Amount="80" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Silver" />
+        <Item Amount="30" TypeId="Ingot" SubtypeId="Nickel" />
+      </Prerequisites>
+      <Result Amount="1" TypeId="GasContainerObject" SubtypeId="HydrogenBottle" />
+      <BaseProductionTimeInSeconds>10</BaseProductionTimeInSeconds>
+    </Blueprint>
+    <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
         <SubtypeId>ConstructionComponent</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_ConstructionComponent</DisplayName>
       <Icon>Textures\GUI\Icons\component\construction_components_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="9" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Iron" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Construction" />
-      <BaseProductionTimeInSeconds>10</BaseProductionTimeInSeconds>
+      <BaseProductionTimeInSeconds>4</BaseProductionTimeInSeconds>
     </Blueprint>
     <Blueprint>
       <Id>
@@ -232,10 +260,12 @@
       <DisplayName>DisplayName_Item_MetalGrid</DisplayName>
       <Icon>Textures\GUI\Icons\component\metal_grid_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="7" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="12" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="5" TypeId="Ingot" SubtypeId="Nickel" />
+        <Item Amount="3" TypeId="Ingot" SubtypeId="Cobalt" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="MetalGrid" />
-      <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
+      <BaseProductionTimeInSeconds>2</BaseProductionTimeInSeconds>
     </Blueprint>
     <Blueprint>
       <Id>
@@ -258,7 +288,7 @@
       <DisplayName>DisplayName_Item_SteelPlate</DisplayName>
       <Icon>Textures\GUI\Icons\component\steel_plate_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="22" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="21" TypeId="Ingot" SubtypeId="Iron" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="SteelPlate" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -297,9 +327,8 @@
       <DisplayName>DisplayName_Item_Motor</DisplayName>
       <Icon>Textures\GUI\Icons\component\motor_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="17" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="20" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="5" TypeId="Ingot" SubtypeId="Nickel" />
-        <Item Amount="5" TypeId="Ingot" SubtypeId="Cobalt" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Motor" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -312,9 +341,8 @@
       <DisplayName>DisplayName_Item_Display</DisplayName>
       <Icon>Textures\GUI\Icons\component\display_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="3" TypeId="Ingot" SubtypeId="Iron" />
-        <Item Amount="3" TypeId="Ingot" SubtypeId="Silicon" />
-        <Item Amount="0.2" TypeId="Ingot" SubtypeId="Gold" />
+        <Item Amount="1" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="5" TypeId="Ingot" SubtypeId="Silicon" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Display" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -340,8 +368,8 @@
       <DisplayName>DisplayName_Item_Computer</DisplayName>
       <Icon>Textures\GUI\Icons\component\computer_component.dds</Icon>
       <Prerequisites>
+        <Item Amount="0.5" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="0.2" TypeId="Ingot" SubtypeId="Silicon" />
-        <Item Amount="0.1" TypeId="Ingot" SubtypeId="Gold" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Computer" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -355,7 +383,7 @@
       <Icon>Textures\GUI\Icons\component\reactor_components_component.dds</Icon>
       <Prerequisites>
         <Item Amount="15" TypeId="Ingot" SubtypeId="Iron" />
-        <Item Amount="10" TypeId="Ingot" SubtypeId="Stone" />
+        <Item Amount="20" TypeId="Ingot" SubtypeId="Stone" />
         <Item Amount="5" TypeId="Ingot" SubtypeId="Silver" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Reactor" />
@@ -387,8 +415,9 @@
       <Prerequisites>
         <Item Amount="600" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="220" TypeId="Ingot" SubtypeId="Cobalt" />
-        <Item Amount="5" TypeId="Ingot" SubtypeId="Gold" />
-      </Prerequisites>
+        <Item Amount="5" TypeId="Ingot" SubtypeId="Silver" />
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Gold" />
+       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="GravityGenerator" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
     </Blueprint>
@@ -400,9 +429,9 @@
       <DisplayName>DisplayName_Item_MedicalComponents</DisplayName>
       <Icon>Textures\GUI\Icons\component\medical_components_component.dds</Icon>
       <Prerequisites>
-        <Item Amount="80" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="60" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="70" TypeId="Ingot" SubtypeId="Nickel" />
-        <Item Amount="10" TypeId="Ingot" SubtypeId="Silver" />
+        <Item Amount="20" TypeId="Ingot" SubtypeId="Silver" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Medical" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -416,7 +445,7 @@
       <Icon>Textures\GUI\Icons\component\radio_communication_components_component.dds</Icon>
       <Prerequisites>
         <Item Amount="8" TypeId="Ingot" SubtypeId="Iron" />
-        <Item Amount="0.5" TypeId="Ingot" SubtypeId="Silicon" />
+        <Item Amount="1" TypeId="Ingot" SubtypeId="Silicon" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="RadioCommunication" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -430,7 +459,7 @@
       <Icon>Textures\GUI\Icons\component\detector_components_component.dds</Icon>
       <Prerequisites>
         <Item Amount="5" TypeId="Ingot" SubtypeId="Iron" />
-        <Item Amount="0.2" TypeId="Ingot" SubtypeId="Platinum" />
+        <Item Amount="15" TypeId="Ingot" SubtypeId="Nickel" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="Detector" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -457,9 +486,8 @@
       <DisplayName>DisplayName_Item_SolarCell</DisplayName>
       <Icon>Textures\GUI\Icons\component\SolarCellComponent.dds</Icon>
       <Prerequisites>
-        <Item Amount="0.3" TypeId="Ingot" SubtypeId="Gold" />
-        <Item Amount="12" TypeId="Ingot" SubtypeId="Silicon" />
-        <Item Amount="0.05" TypeId="Ingot" SubtypeId="Platinum" />
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Nickel" />
+        <Item Amount="8" TypeId="Ingot" SubtypeId="Silicon" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="SolarCell" />
       <BaseProductionTimeInSeconds>10</BaseProductionTimeInSeconds>
@@ -472,10 +500,9 @@
       <DisplayName>DisplayName_Item_PowerCell</DisplayName>
       <Icon>Textures\GUI\Icons\component\BatteryComponent.dds</Icon>
       <Prerequisites>
-        <Item Amount="12.0" TypeId="Ingot" SubtypeId="Iron" />
-        <Item Amount="3.0" TypeId="Ingot" SubtypeId="Nickel" />
-        <Item Amount="11.0" TypeId="Ingot" SubtypeId="Cobalt" />
-        <Item Amount="0.5" TypeId="Ingot" SubtypeId="Silicon" />
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="1" TypeId="Ingot" SubtypeId="Silicon" />
+        <Item Amount="2" TypeId="Ingot" SubtypeId="Nickel" />
       </Prerequisites>
       <Result Amount="1" TypeId="Component" SubtypeId="PowerCell" />
       <BaseProductionTimeInSeconds>4</BaseProductionTimeInSeconds>
@@ -504,7 +531,7 @@
       <Prerequisites>
         <Item Amount="5" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="1" TypeId="Ingot" SubtypeId="Nickel" />
-        <Item Amount="0.2" TypeId="Ingot" SubtypeId="Gold" />
+        <Item Amount="0.2" TypeId="Ingot" SubtypeId="Cobalt" />
       </Prerequisites>
       <Result Amount="1" TypeId="PhysicalGunObject" SubtypeId="WelderItem" />
       <BaseProductionTimeInSeconds>1</BaseProductionTimeInSeconds>
@@ -535,7 +562,7 @@
       <Prerequisites>
         <Item Amount="20" TypeId="Ingot" SubtypeId="Iron" />
         <Item Amount="3" TypeId="Ingot" SubtypeId="Nickel" />
-        <Item Amount="3" TypeId="Ingot" SubtypeId="Cobalt" />
+        <Item Amount="3" TypeId="Ingot" SubtypeId="Silicon" />
       </Prerequisites>
       <Result Amount="1" TypeId="PhysicalGunObject" SubtypeId="HandDrillItem" />
       <BaseProductionTimeInSeconds>10</BaseProductionTimeInSeconds>
@@ -588,5 +615,19 @@
       <Result Amount="1" TypeId="AmmoMagazine" SubtypeId="Missile200mm" />
       <BaseProductionTimeInSeconds>10</BaseProductionTimeInSeconds>
     </Blueprint>
+    <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>Superconductor</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Superconductor</DisplayName>
+      <Icon>Textures\GUI\Icons\component\superconductor_conducts_component.dds</Icon>
+      <Prerequisites>
+        <Item Amount="10" TypeId="Ingot" SubtypeId="Iron" />
+        <Item Amount="2" TypeId="Ingot" SubtypeId="Gold" />
+      </Prerequisites>
+      <Result Amount="1" TypeId="Component" SubtypeId="Superconductor" />
+      <BaseProductionTimeInSeconds>8</BaseProductionTimeInSeconds>
+    </Blueprint>    
   </Blueprints>
 </Definitions>

@@ -19,7 +19,6 @@ using BoundingFrustum = VRageMath.BoundingFrustum;
 using VRage;
 using VRage.Utils;
 using VRage.Stats;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Voxels;
 
@@ -57,7 +56,7 @@ namespace VRageRender
         {
             get
             {
-                return Math.Max(NEAR_PLANE_DISTANCE, FAR_PLANE_DISTANCE - 9.0f*(FAR_PLANE_DISTANCE / FAR_OBJECTS_RATIO) * MyVoxelConstants.RENDER_CELL_SIZE_IN_METRES);
+                return Math.Max(NEAR_PLANE_DISTANCE, FAR_PLANE_DISTANCE - 9.0f*(FAR_PLANE_DISTANCE / FAR_OBJECTS_RATIO) * MyVoxelCoordSystems.RenderCellSizeInMeters(0));
             }
         }
 

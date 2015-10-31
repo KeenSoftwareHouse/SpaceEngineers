@@ -36,6 +36,21 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Creates an instance of BoundingBox from BoundingBoxD (helper for transformed BBs)
+        /// </summary>
+        /// <param name="bbd"></param>
+        public BoundingBox(BoundingBoxD bbd)
+        {
+            this.Min = bbd.Min;
+            this.Max = bbd.Max;
+        }
+
+        public BoxCornerEnumerator Corners
+        {
+            get { return new BoxCornerEnumerator(Min, Max); }
+        }
+
+        /// <summary>
         /// Determines whether two instances of BoundingBox are equal.
         /// </summary>
         /// <param name="a">BoundingBox to compare.</param><param name="b">BoundingBox to compare.</param>
@@ -62,16 +77,16 @@ namespace VRageMath
         public Vector3[] GetCorners()
         {
             return new Vector3[8]
-      {
-        new Vector3(this.Min.X, this.Max.Y, this.Max.Z),
-        new Vector3(this.Max.X, this.Max.Y, this.Max.Z),
-        new Vector3(this.Max.X, this.Min.Y, this.Max.Z),
-        new Vector3(this.Min.X, this.Min.Y, this.Max.Z),
-        new Vector3(this.Min.X, this.Max.Y, this.Min.Z),
-        new Vector3(this.Max.X, this.Max.Y, this.Min.Z),
-        new Vector3(this.Max.X, this.Min.Y, this.Min.Z),
-        new Vector3(this.Min.X, this.Min.Y, this.Min.Z)
-      };
+            {
+                new Vector3(this.Min.X, this.Max.Y, this.Max.Z),
+                new Vector3(this.Max.X, this.Max.Y, this.Max.Z),
+                new Vector3(this.Max.X, this.Min.Y, this.Max.Z),
+                new Vector3(this.Min.X, this.Min.Y, this.Max.Z),
+                new Vector3(this.Min.X, this.Max.Y, this.Min.Z),
+                new Vector3(this.Max.X, this.Max.Y, this.Min.Z),
+                new Vector3(this.Max.X, this.Min.Y, this.Min.Z),
+                new Vector3(this.Min.X, this.Min.Y, this.Min.Z)
+            };
         }
 
         /// <summary>
@@ -137,6 +152,7 @@ namespace VRageMath
             corners[7].Y = this.Min.Y;
             corners[7].Z = this.Min.Z;
         }
+
         /// <summary>
         /// Determines whether two instances of BoundingBox are equal.
         /// </summary>
@@ -259,6 +275,16 @@ namespace VRageMath
                 throw new ArgumentException();
             else
                 return new BoundingBox(result1, result2);
+        }
+
+        public static BoundingBox CreateFromHalfExtent(Vector3 center, float halfExtent)
+        {
+            return CreateFromHalfExtent(center, new Vector3(halfExtent));
+        }
+
+        public static BoundingBox CreateFromHalfExtent(Vector3 center, Vector3 halfExtent)
+        {
+            return new BoundingBox(center - halfExtent, center + halfExtent);
         }
 
         /// <summary>
@@ -825,7 +851,7 @@ namespace VRageMath
         /// <returns></returns>
         public Vector3 Size
         {
-            get 
+            get
             {
                 return Max - Min;
             }

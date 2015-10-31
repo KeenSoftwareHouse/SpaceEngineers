@@ -4,6 +4,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -23,10 +24,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -35,8 +36,18 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
+    [StaticEventOwner]
     public class MyGuiScreenMedicals : MyGuiScreenBase
     {
+        class MyMedicalRoomInfo
+        {
+            public long MedicalRoomId;
+            public string MedicalRoomName;
+            public float OxygenLevel;
+            public long OwnerId;
+            public Vector3D PrefferedCameraPosition;
+            public Vector3D MedicalRoomPos;
+        }
 
         #region Fields
 
@@ -212,27 +223,7 @@ namespace Sandbox.Game.Gui
 
         private void RefreshMedicalRooms()
         {
-            List<MyMedicalRoom> medicalRooms;
-            GetAvailableMedicalRooms(MySession.LocalPlayerId, out medicalRooms);
-
-            foreach (var medRoom in medicalRooms)
-            {
-                var row = new MyGuiControlTable.Row(medRoom);
-                row.AddCell(new MyGuiControlTable.Cell(text: medRoom.CustomName));
-
-
-                var ownerText = new StringBuilder();
-                if (MySession.Static.Settings.EnableOxygen)
-                {
-                    ownerText.Append("O2 ");
-                    ownerText.Append((medRoom.GetOxygenLevel() * 100).ToString("F0"));
-                    ownerText.Append("% ");
-                }
-                ownerText.AppendStringBuilder(GetOwnerDisplayName(medRoom));
-
-                row.AddCell(new MyGuiControlTable.Cell(text: ownerText));
-                m_respawnsTable.Add(row);
-            }
+            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRooms_Implementation, MySession.LocalPlayerId,MySession.LocalHumanPlayer.Id.SteamId); 
         }
 
         private void RefreshSpawnShips()
@@ -303,10 +294,8 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private static StringBuilder GetOwnerDisplayName(MyMedicalRoom medRoom)
+        private static StringBuilder GetOwnerDisplayName(long owner)
         {
-            long owner = medRoom.IDModule.Owner;
-
             if (owner == 0) return MyTexts.Get(MySpaceTexts.BlockOwner_Nobody);
 
             var identity = Sync.Players.TryGetIdentity(owner);
@@ -314,11 +303,21 @@ namespace Sandbox.Game.Gui
             else return MyTexts.Get(MySpaceTexts.BlockOwner_Unknown);
         }
 
-        void GetAvailableMedicalRooms(long playerId, out List<MyMedicalRoom> medicalRooms)
+        [Event, Reliable, Server]
+        static void RefreshMedicalRooms_Implementation(long playerId, ulong steamId)
+        {
+            List<MyMedicalRoomInfo> medicalRooms;
+            GetAvailableMedicalRooms(playerId, out medicalRooms);
+
+            MyMultiplayer.RaiseStaticEvent(s => RefreshMedicalRoomsResponse_Implementation, medicalRooms, new EndpointId(steamId));
+           
+        }
+
+        static void GetAvailableMedicalRooms(long playerId, out List<MyMedicalRoomInfo> medicalRooms)
         {
             List<MyCubeGrid> cubeGrids = MyEntities.GetEntities().OfType<MyCubeGrid>().ToList();
 
-            medicalRooms = new List<MyMedicalRoom>();
+            medicalRooms = new List<MyMedicalRoomInfo>();
 
             foreach (var grid in cubeGrids)
             {
@@ -333,9 +332,25 @@ namespace Sandbox.Game.Gui
                         
                         if (medicalRoom.IsWorking)
                         {
-                            if (medicalRoom.HasPlayerAccess(playerId))
+                            if (medicalRoom.HasPlayerAccess(playerId) || medicalRoom.SetFactionToSpawnee)
                             {
-                                medicalRooms.Add(medicalRoom);
+                                MyMedicalRoomInfo info = new MyMedicalRoomInfo();
+                                info.MedicalRoomId = medicalRoom.EntityId;
+                                info.MedicalRoomName = medicalRoom.CustomName.ToString();
+                                info.OxygenLevel = medicalRoom.GetOxygenLevel();
+                                info.OwnerId = medicalRoom.IDModule.Owner;
+
+                                Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
+                                Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
+                                Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
+                              
+                                if (!cameraPosition.HasValue)
+                                    cameraPosition = preferredCameraPosition;
+
+                                info.PrefferedCameraPosition = cameraPosition.Value;
+                                info.MedicalRoomPos = medRoomPosition;
+
+                                medicalRooms.Add(info);
                             }
                         }
                     }
@@ -343,6 +358,30 @@ namespace Sandbox.Game.Gui
                 }
             }
         }
+
+        [Event, Reliable, Client]
+        static void RefreshMedicalRoomsResponse_Implementation(List<MyMedicalRoomInfo> medicalRooms)
+        {
+           foreach (var medRoom in medicalRooms)
+           {
+               var row = new MyGuiControlTable.Row(medRoom);
+               row.AddCell(new MyGuiControlTable.Cell(text: medRoom.MedicalRoomName));
+
+
+               var ownerText = new StringBuilder();
+               if (MySession.Static.Settings.EnableOxygen)
+               {
+                   ownerText.Append("O2 ");
+                   ownerText.Append((medRoom.OxygenLevel * 100).ToString("F0"));
+                   ownerText.Append("% ");
+               }
+               ownerText.AppendStringBuilder(GetOwnerDisplayName(medRoom.OwnerId));
+
+               row.AddCell(new MyGuiControlTable.Cell(text: ownerText));
+               MyGuiScreenMedicals.Static.m_respawnsTable.Add(row);
+           }
+        }
+
 
         public override bool Update(bool hasFocus)
         {
@@ -407,21 +446,16 @@ namespace Sandbox.Game.Gui
             {
                 m_respawnButton.Enabled = true;
 
-                if (m_respawnsTable.SelectedRow.UserData == null || m_respawnsTable.SelectedRow.UserData as MyMedicalRoom == null)
+                if (m_respawnsTable.SelectedRow.UserData == null || m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo == null)
                 {
                     MySession.SetCameraController(MyCameraControllerEnum.Spectator, null, new Vector3D(1000000)); //just somewhere out of the game area to see our beautiful skybox
                     return;
                 }
 
-                MyMedicalRoom medicalRoom = (MyMedicalRoom)m_respawnsTable.SelectedRow.UserData;
-                Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
-                Vector3D preferredCameraPosition = medRoomPosition + medicalRoom.WorldMatrix.Up * 20 + medicalRoom.WorldMatrix.Right * 20 + medicalRoom.WorldMatrix.Forward * 20;
-                Vector3D? cameraPosition = MyEntities.FindFreePlace(preferredCameraPosition, 1);
-                if (!cameraPosition.HasValue)
-                    cameraPosition = preferredCameraPosition;
+                var medicalRoom = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
 
-                MySession.SetCameraController(MyCameraControllerEnum.Spectator, null, cameraPosition);
-                MySpectatorCameraController.Static.Target = (Vector3D)medRoomPosition;
+                MySession.SetCameraController(MyCameraControllerEnum.Spectator, null, medicalRoom.PrefferedCameraPosition);
+                MySpectatorCameraController.Static.Target = medicalRoom.MedicalRoomPos;
             }
             else
             {
@@ -452,7 +486,7 @@ namespace Sandbox.Game.Gui
             }
             else
             {
-                RespawnAtMedicalRoom(((MyMedicalRoom)m_respawnsTable.SelectedRow.UserData).EntityId);
+                RespawnAtMedicalRoom(((MyMedicalRoomInfo)m_respawnsTable.SelectedRow.UserData).MedicalRoomId);
             }
         }
 
@@ -545,14 +579,12 @@ namespace Sandbox.Game.Gui
             CloseScreen();
         }
 
-
         void onRefreshClick(MyGuiControlButton sender)
         {
             RefreshRespawnPoints();
         }
 
         #endregion        
-
-   
+  
     }
 }

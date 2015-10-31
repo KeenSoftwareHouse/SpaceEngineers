@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Inventory;
@@ -18,34 +19,59 @@ namespace Sandbox.Game
 {
     public abstract class MyInventoryBase : MyEntityComponentBase
     {
+        public MyInventoryBase(string inventoryId)
+        {
+            InventoryId = MyStringId.GetOrCompute(inventoryId);
+        }
+
+        public override void Deserialize(MyObjectBuilder_ComponentBase builder)
+        {
+            base.Deserialize(builder);
+
+            var ob = builder as MyObjectBuilder_InventoryBase;
+            InventoryId = MyStringId.GetOrCompute(ob.InventoryId ?? "Inventory");
+        }
+
+        public override MyObjectBuilder_ComponentBase Serialize()
+        {
+            var ob = base.Serialize() as MyObjectBuilder_InventoryBase;
+            ob.InventoryId = InventoryId.ToString();
+
+            return ob;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + " - " + InventoryId.ToString();
+        }
 
         protected static MySyncInventory SyncObject;
 
         /// <summary>
         /// This is for the purpose of identifying the inventory in aggregates (i.e. "Backpack", "LeftHand", ...)
         /// </summary>
-        public abstract MyStringId InventoryId { get; }
+        public MyStringId InventoryId { get; private set; }
 
         public abstract MyFixedPoint CurrentMass { get; }
-
         public abstract MyFixedPoint MaxMass { get; }
 
         public abstract MyFixedPoint CurrentVolume { get; }
-
         public abstract MyFixedPoint MaxVolume { get; }
 
         public abstract MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId);
-
         public abstract MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None);
 
         public abstract bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item);
-
         public abstract bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item);
 
-        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount);
-
+        public abstract bool Add(IMyInventoryItem item, MyFixedPoint amount, bool stack = true);
         public abstract bool Remove(IMyInventoryItem item, MyFixedPoint amount);
-                
+
+        public abstract void CountItems(Dictionary<MyDefinitionId, MyFixedPoint> itemCounts);
+        public abstract void ApplyChanges(List<MyComponentChange> changes);
+
+        public abstract List<MyPhysicalInventoryItem> GetItems();
+
         //TODO: This should be deprecated, we shoud add IMyInventoryItems objects only , instead of items based on their objectbuilder
         /// <summary>
         /// Adds item to inventory
@@ -54,7 +80,7 @@ namespace Sandbox.Game
         /// <param name="objectBuilder"></param>
         /// <param name="index"></param>
         /// <returns>true if items were added, false if items didn't fit</returns>
-        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1);        
+        public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1, bool stack = true);        
 
         /// <summary>
         /// Remove items of a given amount and definition
@@ -62,15 +88,14 @@ namespace Sandbox.Game
         /// <param name="amount">amount ot remove</param>
         /// <param name="contentId">definition id of items to be removed</param>
         /// <param name="spawn">Set tru to spawn object in the world, after it was removed</param>
-        /// <returns>true if the selected amount was removd</returns>
-        public abstract bool RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false);
-
+        /// <returns>Returns the actually removed amount</returns>
+        public abstract MyFixedPoint RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false);
 
         /// <summary>
-        /// Transfers safely given item from one to another inventory, uses ItemsCanBeAdded and ItemsCanBeRemoved checks
+        /// Transfers safely given item from one to another inventory, uses ItemsCanBeAdded and ItemsCanBeRemoved checks. If sourceInventory == destionationInventory, it splits the amount.
         /// </summary>
         /// <returns>true if items were succesfully transfered, otherwise, false</returns>
-        public static bool TransferItems(MyInventoryBase sourceInventory, MyInventoryBase destinationInventory, IMyInventoryItem item, MyFixedPoint amount)
+        public static bool TransferItems(MyInventoryBase sourceInventory, MyInventoryBase destinationInventory, IMyInventoryItem item, MyFixedPoint amount, bool stack)
         {
             if (sourceInventory == null)
             {
@@ -92,30 +117,40 @@ namespace Sandbox.Game
                 return true;
             }
 
-
-            if (destinationInventory.ItemsCanBeAdded(amount, item) && sourceInventory.ItemsCanBeRemoved(amount, item))
+            if ((destinationInventory.ItemsCanBeAdded(amount, item) || destinationInventory == sourceInventory ) && sourceInventory.ItemsCanBeRemoved(amount, item))
             {
                 if (Sync.IsServer)
                 {
-                    if (destinationInventory.Add(item, amount))
+                    if (destinationInventory != sourceInventory)
                     {
-                        if (sourceInventory.Remove(item, amount))
+                        // try to add first and then remove to ensure this items don't disappear
+                        if (destinationInventory.Add(item, amount, stack))
                         {
-                            // successfull transaction
+                            if (sourceInventory.Remove(item, amount))
+                            {
+                                // successfull transaction
+                                return true;
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.Fail("Error! Items were added to inventory, but can't be removed!");
+                            }
+                        }                        
+                    }
+                    else
+                    {
+                        // same inventory transfer = splitting amount, need to remove first and add second
+                        if (sourceInventory.Remove(item, amount) && destinationInventory.Add(item, amount, stack))
+                        {
                             return true;
                         }
                         else
                         {
-                            System.Diagnostics.Debug.Fail("Error! Items were added to inventory, but can't be removed!");
+                            System.Diagnostics.Debug.Fail("Error! Unsuccesfull splitting!");
                         }
                     }
                 }
-                else
-                {
-                    MySyncInventory.SendTransferItemsMessage(sourceInventory, destinationInventory, item, amount);
-                }
-            }
-            
+            }     
             return false;
         }
 
@@ -128,12 +163,31 @@ namespace Sandbox.Game
             var handler = ContentsChanged;
             if (handler != null)
                 handler(this);
+            if (RemoveEntityOnEmpty && GetItemsCount() == 0)
+            {
+                Container.Entity.Close();
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of items in the inventory. This needs to be overrided, otherwise it returns 0!
+        /// </summary>
+        /// <returns>int - number of items in inventory</returns>
+        virtual public int GetItemsCount()
+        {
+            return 0;
         }
 
         /// <summary>
         /// Called if this inventory changed its owner
         /// </summary>
         public event Action<MyInventoryBase, MyComponentContainer> OwnerChanged;
+        /// <summary>
+        /// Setting this flag to true causes to call Close() on the Entity of Container, when the GetItemsCount() == 0.
+        /// This causes to remove entity from the world, when this inventory is empty.
+        /// </summary>
+        public bool RemoveEntityOnEmpty = false;
+
         protected void OnOwnerChanged()
         {
             var handler = OwnerChanged;
@@ -141,19 +195,15 @@ namespace Sandbox.Game
                 handler(this, Container);
         }
 
-        /// <summary>
-        /// Get all items in the inventory
-        /// </summary>
-        /// <returns>items in the inventory or empty list</returns>
-        public abstract List<MyPhysicalInventoryItem> GetItems();
-
 		public override bool IsSerialized()
 		{
 			return true;
 		}
 
-        // CH: TODO: New methods
-        public abstract void CollectItems(Dictionary<MyDefinitionId, int> itemCounts);
+        public override string ComponentTypeDebugString
+        {
+            get { return "Inventory"; }
+        }
     }
 
     public static class MyInventoryBaseExtension

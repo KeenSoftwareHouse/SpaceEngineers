@@ -97,7 +97,7 @@ namespace Sandbox.Game.Gui
                     amount = MyFixedPoint.Min(inventory.ComputeAmountThatFits(itemId), amount);
 
                 var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
-                inventory.AddItems(amount, builder);
+                inventory.DebugAddItems(amount, builder);
             }
 
             CloseScreen();
@@ -255,7 +255,7 @@ namespace Sandbox.Game.Gui
 
             var hit = hits.FirstOrDefault();
             if (hit.HkHitInfo.Body == null) return false;
-            IMyEntity entity = hit.HkHitInfo.Body.GetEntity();
+            IMyEntity entity = hit.HkHitInfo.GetHitEntity();
 
             if (!(entity is MyCargoContainer)) return false;
 

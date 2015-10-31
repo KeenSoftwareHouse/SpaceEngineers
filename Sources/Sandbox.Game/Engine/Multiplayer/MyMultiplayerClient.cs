@@ -27,13 +27,17 @@ using VRage.Utils;
 using VRage.Trace;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.Network;
+using VRage.Replication;
+using VRage.Library.Collections;
+using Sandbox.Game.Entities;
 
 
 #endregion
 
 namespace Sandbox.Engine.Multiplayer
 {
-    class MyMultiplayerClient : MyMultiplayerBase
+    class MyMultiplayerClient : MyMultiplayerBase, IReplicationClientCallback
     {
         #region Fields
 
@@ -142,7 +146,7 @@ namespace Sandbox.Engine.Multiplayer
             get;
             protected set;
         }
-        
+
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
         public override List<MyObjectBuilder_Checkpoint.ModItem> Mods
         {
@@ -273,6 +277,8 @@ namespace Sandbox.Engine.Multiplayer
         public GameServerItem Server { get; private set; }
         #endregion
 
+        public new MyReplicationClient ReplicationLayer { get { return (MyReplicationClient)base.ReplicationLayer; } }
+
         internal MyMultiplayerClient(GameServerItem server, MySyncLayer syncLayer)
             : base(syncLayer)
         {
@@ -283,20 +289,26 @@ namespace Sandbox.Engine.Multiplayer
             ServerId = server.SteamID;
 
             SyncLayer.TransportLayer.IsBuffering = true;
-
             SyncLayer.RegisterClientEvents(this);
+
+            SetReplicationLayer(new MyReplicationClient(this, new MyClientState()));
+            syncLayer.TransportLayer.Register(MyMessageId.SERVER_DATA, ReplicationLayer.ProcessServerData);
+            syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_CREATE, ReplicationLayer.ProcessReplicationCreate);
+            syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_DESTROY, ReplicationLayer.ProcessReplicationDestroy);
+            syncLayer.TransportLayer.Register(MyMessageId.SERVER_STATE_SYNC, ReplicationLayer.ProcessStateSync);
+            syncLayer.TransportLayer.Register(MyMessageId.RPC, ReplicationLayer.ProcessEvent);
 
             //MySyncLayer.RegisterMessage<ChatMsg>(OnChatMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
             //MySyncLayer.RegisterMessage<SendServerDataMsg>(OnServerData, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
             //MySyncLayer.RegisterMessage<ConnectedPlayerDataMsg>(OnPlayerConnected, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
 
-            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage);
-            RegisterControlMessage<ServerDataMsg>(MyControlMessageEnum.ServerData, OnServerData);
-            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnUserJoined);
-            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData);
+            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            RegisterControlMessage<ServerDataMsg>(MyControlMessageEnum.ServerData, OnServerData, MyMessagePermissions.FromServer);
+            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnUserJoined, MyMessagePermissions.FromServer);
+            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData, MyMessagePermissions.FromServer);
 
-            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.Any);
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
+            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             ClientJoined += MyMultiplayerClient_ClientJoined;
             ClientLeft += MyMultiplayerClient_ClientLeft;
@@ -307,6 +319,31 @@ namespace Sandbox.Engine.Multiplayer
 
             m_battleData = new MyMultiplayerBattleData(this);
         }
+
+        public override void Dispose()
+        {
+            CloseClient();
+
+            base.Dispose();
+        }
+
+        #region ReplicationClient
+        void IReplicationClientCallback.SendClientUpdate(BitStream stream)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_UPDATE, stream, false, new EndpointId(Sync.ServerId));
+        }
+
+        void IReplicationClientCallback.SendEvent(BitStream stream, bool reliable)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.RPC, stream, reliable, new EndpointId(Sync.ServerId));
+        }
+
+        void IReplicationClientCallback.SendReplicableReady(BitStream stream)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.REPLICATION_READY, stream, true, new EndpointId(Sync.ServerId));
+        }
+
+        #endregion
 
         void MyMultiplayerClient_HostLeft()
         {
@@ -322,8 +359,11 @@ namespace Sandbox.Engine.Multiplayer
         void Peer2Peer_SessionRequest(ulong remoteUserId)
         {
             if (IsClientKickedOrBanned(remoteUserId)) return;
-            
-            Peer2Peer.AcceptSession(remoteUserId);
+
+            if (IsServer || remoteUserId == ServerId)
+            {
+                Peer2Peer.AcceptSession(remoteUserId);
+            }
         }
 
         void MyMultiplayerClient_ClientLeft(ulong user, ChatMemberStateChangeEnum stateChange)
@@ -349,11 +389,11 @@ namespace Sandbox.Engine.Multiplayer
                     MyHud.Notifications.Add(clientLeft);
                 }
 
-                Peer2Peer.CloseSession(user);
+                //Peer2Peer.CloseSession(user);
             }
 
             m_memberData.Remove(user);
-        }                             
+        }
 
         void MyMultiplayerClient_ClientJoined(ulong user)
         {
@@ -404,18 +444,6 @@ namespace Sandbox.Engine.Multiplayer
             SendControlMessage(ServerId, ref msg);
         }
 
-        public override void Tick()
-        {
-            base.Tick();
-        }
-
-        public override void Dispose()
-        {
-            CloseClient();
-
-            base.Dispose();
-        }
-
         private void CloseClient()
         {
             MyTrace.Send(TraceWindow.Multiplayer, "Multiplayer client closed");
@@ -435,8 +463,6 @@ namespace Sandbox.Engine.Multiplayer
 
             //WARN: If closed here, previous control message probably not come
             Peer2Peer.CloseSession(ServerId);
-
-            CloseMemberSessions();
 
             Peer2Peer.ConnectionFailed -= Peer2Peer_ConnectionFailed;
             Peer2Peer.SessionRequest -= Peer2Peer_SessionRequest;
@@ -501,15 +527,17 @@ namespace Sandbox.Engine.Multiplayer
 
         void OnChatMessage(ref ChatMsg msg, ulong sender)
         {
-            RaiseChatMessageReceived(sender, msg.Text, ChatEntryTypeEnum.ChatMsg);
+            RaiseChatMessageReceived(msg.Author, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
 
         public override void SendChatMessage(string text)
         {
             ChatMsg msg = new ChatMsg();
             msg.Text = text;
+            msg.Author = MySteam.UserId;
 
-            SendControlMessageToAllAndSelf(ref msg);
+            OnChatMessage(ref msg, MySteam.AppId);
+            SendControlMessage(ServerId, ref msg);
         }
 
         void OnServerData(ref ServerDataMsg msg, ulong sender)
@@ -589,13 +617,13 @@ namespace Sandbox.Engine.Multiplayer
                         messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
                         messageText: MyTexts.Get(MySpaceTexts.MultiplayerErrorBannedByAdminsWithDialog),
                         buttonType: MyMessageBoxButtonsType.YES_NO);
-                     messageBox.ResultCallback = delegate(MyGuiScreenMessageBox.ResultEnum result)
-                    {
-                        if (result == MyGuiScreenMessageBox.ResultEnum.YES)
-                        {
-                            MySteam.API.OpenOverlayUser(admin);
-                        };
-                    };
+                    messageBox.ResultCallback = delegate(MyGuiScreenMessageBox.ResultEnum result)
+                   {
+                       if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                       {
+                           MySteam.API.OpenOverlayUser(admin);
+                       };
+                   };
                     MyGuiSandbox.AddScreen(messageBox);
                 }
                 else
@@ -629,7 +657,7 @@ namespace Sandbox.Engine.Multiplayer
 
                     case JoinResult.TicketCanceled:
                         resultText = MySpaceTexts.MultiplayerErrorTicketCanceled;
-                        break;                        
+                        break;
                     case JoinResult.TicketAlreadyUsed:
                         resultText = MySpaceTexts.MultiplayerErrorTicketAlreadyUsed;
                         break;
@@ -648,7 +676,7 @@ namespace Sandbox.Engine.Multiplayer
                     case JoinResult.VACCheckTimedOut:
                         resultText = MySpaceTexts.MultiplayerErrorVACCheckTimedOut;
                         break;
-        
+
                     default:
                         System.Diagnostics.Debug.Fail("Unknown JoinResult");
                         break;
@@ -713,8 +741,9 @@ namespace Sandbox.Engine.Multiplayer
             msg.Join = true;
 
             var buffer = new byte[1024];
-            uint length = 0;
-            if (!MySteam.API.GetAuthSessionTicket(buffer, ref length))
+            uint length;
+            uint ticketHandle; // TODO: Store handle and end auth session on end
+            if (!MySteam.API.GetAuthSessionTicket(out ticketHandle, buffer, out length))
             {
                 MyGuiScreenMainMenu.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -806,7 +835,7 @@ namespace Sandbox.Engine.Multiplayer
                         m_members.Add(client.SteamId);
 
                     if (!Sync.Clients.HasClient(client.SteamId))
-                        RaiseClientJoined(client.SteamId);
+                        Sync.Clients.AddClient(client.SteamId);
                 }
             }
 

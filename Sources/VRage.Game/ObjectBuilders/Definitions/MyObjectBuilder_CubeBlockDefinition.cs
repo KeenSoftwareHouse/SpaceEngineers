@@ -298,34 +298,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         }
 
         [ProtoContract]
-        public class MyAdditionalModelDefinition
-        {
-            [XmlAttribute]
-            [ProtoMember]
-            public string Type;
-
-            [XmlAttribute]
-            [ProtoMember]
-            [ModdableContentFile("mwm")]
-            public string File;
-
-            [XmlAttribute]
-            [ProtoMember, DefaultValue(false)]
-            public bool EnablePhysics = false;
-        }
-
-        [ProtoContract]
-        public class MyGeneratedBlockDefinition
-        {
-            [XmlAttribute]
-            [ProtoMember]
-            public string Type;
-
-            [ProtoMember]
-            public SerializableDefinitionId Id;
-        }
-
-        [ProtoContract]
         public class MySubBlockDefinition
         {
             [XmlAttribute]
@@ -334,6 +306,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
             [ProtoMember]
             public SerializableDefinitionId Id;
+        }
+
+        [ProtoContract]
+        public class EntityComponentDefinition
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string ComponentType;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public string BuilderType;
         }
 
         [ProtoMember]
@@ -367,6 +351,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public Variant[] Variants;
+
+        [XmlArrayItem("Component")]
+        [ProtoMember]
+        public EntityComponentDefinition[] EntityComponents;
 
         [ProtoMember, DefaultValue(MyPhysicsOption.Box)]
         public MyPhysicsOption PhysicsOption = MyPhysicsOption.Box;
@@ -418,8 +406,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public string PrimarySound;
 
+        [ProtoMember]
+        public string ActionSound;
+
         [ProtoMember, DefaultValue(null)] 
         public string BuildType = null;
+
+        [ProtoMember, DefaultValue(null)]
+        public string BuildMaterial = null;
 
         [XmlArrayItem("Template")]
         [ProtoMember, DefaultValue(null)]
@@ -457,7 +451,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(null)]
         public string GeneratedBlockType = null;
 
-        // Defines if the block is mirrored version of some other block (mirrored block is usually used as block stage)
+        // Defines if the block is mirrored version of some other block (mirrored block is usually used as block variant)
         [ProtoMember, DefaultValue(false)]
         public bool Mirrored = false;
 
@@ -484,5 +478,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(1)]
         public float BuildProgressToPlaceGeneratedBlocks = 1;
+
+        [ProtoMember, DefaultValue(null)]
+        public string DamagedSound;
+
     }
 }

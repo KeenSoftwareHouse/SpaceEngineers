@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    struct ConnectivityResult
+    public struct ConnectivityResult
     {
         public Vector3I Position;
         public MyCubeBlock FatBlock;
@@ -15,7 +15,7 @@ namespace Sandbox.Game.Entities.Cube
         public MyCubeBlockDefinition Definition;
     }
 
-    interface IMyGridConnectivityTest
+    public interface IMyGridConnectivityTest
     {
         void GetConnectedBlocks(Vector3I minI, Vector3I maxI, Dictionary<Vector3I, ConnectivityResult> outConnectedCubeBlocks);
     }

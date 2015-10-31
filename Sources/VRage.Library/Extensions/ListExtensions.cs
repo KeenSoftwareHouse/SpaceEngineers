@@ -80,6 +80,14 @@ namespace System.Collections.Generic
             return ListInternalAccessor<T>.GetArray(list);
         }
 
+        public static void AddOrInsert<T>(this List<T> list, T item, int index)
+        {
+            if (index < 0 || index > list.Count)
+                list.Add(item);
+            else
+                list.Insert(index, item);
+        }
+
         public static void AddArray<T>(this List<T> list, T[] itemsToAdd)
         {
             AddArray(list, itemsToAdd, itemsToAdd.Length);
@@ -112,6 +120,12 @@ namespace System.Collections.Generic
                 list.Add(item);
         }
 
+        public static void AddHashsetCasting<T1, T2>(this List<T1> list, HashSet<T2> hashset)
+        {
+            foreach (var item in hashset)
+                list.Add((T1)(object)item);
+        }
+
         /// <summary>
         /// Moves item in the list from original index to target index, reordering elements as if Remove and Insert was called.
         /// However, only elements in the range between the two indices are affected.
@@ -131,6 +145,78 @@ namespace System.Collections.Generic
         public static bool IsValidIndex<T>(this List<T> list, int index)
         {
             return 0 <= index && index < list.Count;
+        }
+
+        /**
+         * Remove each element in indices from the list.
+         * 
+         * The list of indices must be sorted.
+         */
+        public static void RemoveIndices<T>(this List<T> list, List<int> indices)
+        {
+            if (indices.Count == 0) return;
+
+            int offset = 0;
+            for (int i = indices[offset]; i < list.Count - indices.Count; i++)
+            {
+                while (offset < indices.Count && i == indices[offset] - offset)
+                    offset++;
+                list[i] = list[i + offset];
+            }
+
+            list.RemoveRange(list.Count - indices.Count, indices.Count);
+        }
+
+        public static void Swap<T>(this List<T> list, int a, int b)
+        {
+            T x = list[a];
+            list[a] = list[b];
+            list[b] = x;
+        }
+
+        /**
+         * Do a binary search in an array of interval limits, each member is the interval threshold.
+         * 
+         * The result is the index of the interval that contains the value searched for.
+         * 
+         * If the interval array is empty 0 is returned (as we assume we have only the (-∞,+∞) interval).
+         * 
+         * Return range: [0, Length]
+         */
+        public static int BinaryIntervalSearch<T>(this List<T> self, T value) where T : IComparable<T>
+        {
+            if (self.Count == 0) return 0;
+            if (self.Count == 1)
+            {
+                return value.CompareTo(self[0]) > 0 ? 1 : 0;
+            }
+
+            int mid;
+            int start = 0, end = self.Count;
+
+            while (end - start > 1)
+            {
+                mid = (start + end) / 2;
+
+                if (value.CompareTo(self[mid]) > 0)
+                {
+                    start = mid;
+                }
+                else
+                {
+                    end = mid;
+                }
+            }
+
+            int ret = start;
+
+            // end of array;
+            if (value.CompareTo(self[start]) > 0)
+            {
+                ret = end;
+            }
+
+            return ret;
         }
     }
 }

@@ -42,9 +42,9 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncUserControllableGun()
         {
-            MySyncLayer.RegisterMessage<ShootOnceMessage>(ShootOnceSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<BeginShootMessage>(BeginShootSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<EndShootMessage>(EndShootSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ShootOnceMessage>(ShootOnceSuccess, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<BeginShootMessage>(BeginShootSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<EndShootMessage>(EndShootSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         static void ShootOnceSuccess(ref ShootOnceMessage msg, MyNetworkClient sender)
@@ -54,6 +54,10 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.Shoot();
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
             }
         }
 
@@ -64,6 +68,10 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.BeginShoot();
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
             }
         }
 
@@ -74,6 +82,10 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.EndShoot();
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
             }
         }
 
@@ -83,7 +95,7 @@ namespace Sandbox.Game.Multiplayer
             m_block.Shoot();
             var msg = new ShootOnceMessage();
             msg.EntityId = m_block.EntityId;
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         public void SendBeginShootMessage()
@@ -92,7 +104,7 @@ namespace Sandbox.Game.Multiplayer
             m_block.BeginShoot();
             var msg = new BeginShootMessage();
             msg.EntityId = m_block.EntityId;
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         public void SendEndShootMessage()
@@ -100,7 +112,7 @@ namespace Sandbox.Game.Multiplayer
             m_block.EndShoot();
             var msg = new EndShootMessage();
             msg.EntityId = m_block.EntityId;
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
     }
 }

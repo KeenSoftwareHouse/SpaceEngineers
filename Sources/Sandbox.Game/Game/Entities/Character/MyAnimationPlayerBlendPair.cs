@@ -12,11 +12,12 @@ using Sandbox.Graphics;
 using VRage.Animations;
 using VRage.Import;
 using VRageMath;
+using VRage.FileSystem;
 
 
 #endregion
 
-namespace Sandbox.Game.Entities.Character
+namespace Sandbox.Game.Entities
 {
     class MyAnimationPlayerBlendPair
     {
@@ -26,12 +27,6 @@ namespace Sandbox.Game.Entities.Character
             BlendIn,
             Playing,
             BlendOut
-        }
-
-        public MyAnimationPlayerBlendPair(MyCharacter character, string[] bones)
-        {
-            m_bones = bones != null ? bones : new string[0];
-            m_character = character;
         }
 
         #region Fields
@@ -45,59 +40,36 @@ namespace Sandbox.Game.Entities.Character
         public float m_totalBlendTime = 0;
 
         string[] m_bones;
-        MyCharacter m_character;
+        MySkinnedEntity m_skinnedEntity;
+        string m_name;
+
+        Dictionary<float, string[]> m_boneLODs;
 
         #endregion
 
         #region Properties
 
-        public Quaternion SpineAdditionalRotation
-        {
-            set
-            {
-                BlendPlayer.SpineAdditionalRotation = value;
-                ActualPlayer.SpineAdditionalRotation = value;
-            }
-        }
-
-        public Quaternion HeadAdditionalRotation
-        {
-            set
-            {
-                BlendPlayer.HeadAdditionalRotation = value;
-                ActualPlayer.HeadAdditionalRotation = value;
-            }
-        }
-
-        public Quaternion HandAdditionalRotation
-        {
-            set
-            {
-                BlendPlayer.HandAdditionalRotation = value;
-                ActualPlayer.HandAdditionalRotation = value;
-            }
-        }
-
-        public Quaternion UpperHandAdditionalRotation
-        {
-            set
-            {
-                BlendPlayer.UpperHandAdditionalRotation = value;
-                ActualPlayer.UpperHandAdditionalRotation = value;
-            }
-        }
-
         #endregion
 
-        public void UpdateBones()
+
+        public MyAnimationPlayerBlendPair(MySkinnedEntity skinnedEntity, string[] bones, Dictionary<float, string[]> boneLODs, string name)
+        {
+            m_bones = bones;
+            m_skinnedEntity = skinnedEntity;
+            m_boneLODs = boneLODs;
+            m_name = name;
+        }
+
+
+        public void UpdateBones(float distance)
         {
             if (m_state != AnimationBlendState.Stopped)
             {
                 if (BlendPlayer.IsInitialized)
-                    BlendPlayer.UpdateBones();
+                    BlendPlayer.UpdateBones(distance);
 
                 if (ActualPlayer.IsInitialized)
-                    ActualPlayer.UpdateBones();
+                    ActualPlayer.UpdateBones(distance);
             }
         }
 
@@ -110,30 +82,32 @@ namespace Sandbox.Game.Entities.Character
                 m_currentBlendTime += stepTime * ActualPlayer.TimeScale;
                 ActualPlayer.Advance(stepTime);
 
-                if (!ActualPlayer.Looping && (ActualPlayer.Position >= ActualPlayer.Duration) && m_state == AnimationBlendState.Playing)
+                if (!ActualPlayer.Looping && ActualPlayer.AtEnd && m_state == AnimationBlendState.Playing)
                 {
                     Stop(m_totalBlendTime);
                 }
             }
+
+            //UpdateAnimation();
         }
 
-        public void UpdateAnimation()
+        public void UpdateAnimationState()
         {
-            //Upper body blend
-            float upperBlendRatio = 0;
+
+            float blendRatio = 0;
             if (ActualPlayer.IsInitialized && m_currentBlendTime > 0)
             {
-                upperBlendRatio = 1;
+                blendRatio = 1;
                 if (m_totalBlendTime > 0)
-                    upperBlendRatio = MathHelper.Clamp(m_currentBlendTime / m_totalBlendTime, 0, 1);
-            }
+                    blendRatio = MathHelper.Clamp(m_currentBlendTime / m_totalBlendTime, 0, 1);
+            }           
             if (ActualPlayer.IsInitialized)
             {
                 if (m_state == AnimationBlendState.BlendOut)
                 {
-                    ActualPlayer.Weight = 1 - upperBlendRatio;
+                    ActualPlayer.Weight = 1 - blendRatio;
 
-                    if (upperBlendRatio == 1)
+                    if (blendRatio == 1)
                     {
                         ActualPlayer.Done();
                         m_state = AnimationBlendState.Stopped;
@@ -141,27 +115,48 @@ namespace Sandbox.Game.Entities.Character
                 }
                 if (m_state == AnimationBlendState.BlendIn)
                 {
-                    ActualPlayer.Weight = upperBlendRatio;
+                    if (m_totalBlendTime == 0)
+                    {
+                        blendRatio = 1;
+                    }
+
+                    ActualPlayer.Weight = blendRatio;
 
                     if (BlendPlayer.IsInitialized)
                         BlendPlayer.Weight = 1;
 
-                    if (upperBlendRatio == 1)
+                    if (blendRatio == 1)
                     {
                         m_state = AnimationBlendState.Playing;
+                        BlendPlayer.Done();
                     }
                 }
             }
         }
 
-        public void Play(MyAnimationDefinition animationDefinition, bool loop, float blendTime, float timeScale, bool justFirstFrame)
+        public void Play(MyAnimationDefinition animationDefinition, bool firstPerson, MyFrameOption frameOption, float blendTime, float timeScale)
         {
-            System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(animationDefinition.AnimationModel));
+            string model = firstPerson && !string.IsNullOrEmpty(animationDefinition.AnimationModelFPS) ? animationDefinition.AnimationModelFPS : animationDefinition.AnimationModel;
+            System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(model));
+
 
             if (string.IsNullOrEmpty(animationDefinition.AnimationModel))
                 return;
 
-            MyModel animation = MyModels.GetModelOnlyAnimationData(animationDefinition.AnimationModel);
+
+            if (animationDefinition.Status == MyAnimationDefinition.AnimationStatus.Unchecked)
+            {
+                var fsPath = System.IO.Path.IsPathRooted(model) ? model : System.IO.Path.Combine(MyFileSystem.ContentPath, model);
+                if (!MyFileSystem.FileExists(fsPath))
+                {
+                    animationDefinition.Status = MyAnimationDefinition.AnimationStatus.Failed;
+                    return;
+                }
+            }
+
+            animationDefinition.Status = MyAnimationDefinition.AnimationStatus.OK;
+
+            MyModel animation = MyModels.GetModelOnlyAnimationData(model);
 
             System.Diagnostics.Debug.Assert(animation.Animations.Clips.Count > 0);
             if (animation.Animations.Clips.Count == 0)
@@ -171,16 +166,13 @@ namespace Sandbox.Game.Entities.Character
             if (animation.Animations.Clips.Count <= animationDefinition.ClipIndex)
                 return;
 
-            AnimationClip clip = animation.Animations.Clips[animationDefinition.ClipIndex];
-
             if (ActualPlayer.IsInitialized)
             {
                 BlendPlayer.Initialize(ActualPlayer);
             }
 
-            // Create a clip player and assign it to this model
-            ActualPlayer.Initialize(clip, m_character, 1, timeScale, justFirstFrame, m_bones);
-            ActualPlayer.Looping = loop;
+            // Create a clip player and assign it to this model                        
+            ActualPlayer.Initialize(animation, m_name, animationDefinition.ClipIndex, m_skinnedEntity, 1, timeScale, frameOption, m_bones, m_boneLODs);
 
             m_state = AnimationBlendState.BlendIn;
             m_currentBlendTime = 0;
@@ -202,6 +194,11 @@ namespace Sandbox.Game.Entities.Character
         public AnimationBlendState GetState()
         {
             return m_state;
+        }
+
+        public void SetBoneLODs(Dictionary<float, string[]> boneLODs)
+        {
+            m_boneLODs = boneLODs;
         }
     }
 }

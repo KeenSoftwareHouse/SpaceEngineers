@@ -166,6 +166,14 @@ namespace VRage.Audio
 
             m_masterVoice = new MasteringVoice(m_audioEngine, deviceIndex: m_deviceNumber);
 
+            //var limiter = new SharpDX.XAPO.Fx.MasteringLimiter();
+            //var param = limiter.Parameter;
+            //param.Loudness = 10;
+            //limiter.Parameter = param;
+            //m_masterVoice.SetEffectChain(new EffectDescriptor[] { new EffectDescriptor(limiter) });
+            //m_masterVoice.EnableEffect(0);
+            ////limiter.Dispose();
+
             m_calculateFlags = CalculateFlags.Matrix | CalculateFlags.Doppler;
             if ((m_deviceDetails.OutputFormat.ChannelMask & Speakers.LowFrequency) != 0)
             {
@@ -342,7 +350,10 @@ namespace VRage.Audio
                     // restarts music cue
                     m_musicCue = PlaySound(m_musicCue.CueEnum);
                     if (m_musicCue != null)
+                    {
                         m_musicCue.SetOutputVoices(m_musicAudioVoiceDesc);
+                        m_musicAudioVoice.SetVolume(m_volumeMusic);
+                    }
 
                     UpdateMusic(0);
                 }
@@ -966,7 +977,7 @@ namespace VRage.Audio
         private void Update3DCuePosition(IMy3DSoundEmitter source)
         {
             MySoundData cue = m_cueBank.GetCue(source.SoundId);
-            if (cue == null && source.Sound == null && !source.Sound.IsBuffered)
+            if (cue == null || source.Sound == null || !source.Sound.IsBuffered)
                 return;
 
             var sourceVoice = source.Sound as MySourceVoice;
@@ -1003,7 +1014,7 @@ namespace VRage.Audio
             m_3Dsounds.Clear();
         }
 
-        public bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyCueId cueId)
+        public bool SourceIsCloseEnoughToPlaySound(Vector3 sourcePosition, MyCueId cueId, float? customMaxDistance = 0)
         {
             if (m_cueBank == null || cueId.Hash == MyStringHash.NullOrEmpty)
                 return false;
@@ -1012,24 +1023,32 @@ namespace VRage.Audio
             if (cueDefinition == null)
                 return false;
 
-            float distanceToSound = Vector3.DistanceSquared(new Vector3(m_listener.Position.X, m_listener.Position.Y, m_listener.Position.Z), source.SourcePosition);
+            float distanceToSound = Vector3.DistanceSquared(new Vector3(m_listener.Position.X, m_listener.Position.Y, m_listener.Position.Z), sourcePosition);
 
-            if (source.CustomMaxDistance > 0)
-                return (distanceToSound <= source.CustomMaxDistance * source.CustomMaxDistance);
+            if (customMaxDistance > 0)
+                return (distanceToSound <= customMaxDistance * customMaxDistance);
             else
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
         }
 
         internal MySourceVoice PlaySound(MyCueId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
         {
-            var sound = GetSound(cueId, source, type);
-            if(sound != null)
-                sound.Start(skipIntro, skipToEnd);
+			int waveNumber = -1;
+			var sound = GetSound(cueId, out waveNumber, source, type);
+			if(source != null)
+				source.LastPlayedWaveNumber = -1;
+			if (sound != null)
+			{
+				sound.Start(skipIntro, skipToEnd);
+				if (source != null)
+					source.LastPlayedWaveNumber = waveNumber;
+			}
             return sound;
         }
 
-        internal MySourceVoice GetSound(MyCueId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
+        internal MySourceVoice GetSound(MyCueId cueId, out int waveNumber, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
         {
+			waveNumber = -1;
             //  If this computer can't play sound, we don't create cues
             if (cueId.Hash == MyStringHash.NullOrEmpty || !m_canPlay || m_cueBank == null)
                 return null;
@@ -1041,12 +1060,13 @@ namespace VRage.Audio
             if ((SoloCue != null) && (SoloCue != cue))
                 return null;
 
-            var sound = m_cueBank.GetVoice(cueId, type);
+			int waveNumberToIgnore = (source != null ? source.LastPlayedWaveNumber : -1);
+			var sound = m_cueBank.GetVoice(cueId, out waveNumber, type, waveNumberToIgnore);
             var originalType = type;
             if (sound == null && source != null && source.Force3D)
             {
                 originalType = type == MySoundDimensions.D3 ? MySoundDimensions.D2 : MySoundDimensions.D3;
-                sound = m_cueBank.GetVoice(cueId, originalType);
+                sound = m_cueBank.GetVoice(cueId, out waveNumber, originalType, waveNumberToIgnore);
             }
             if (sound == null)
                 return null;
@@ -1109,7 +1129,8 @@ namespace VRage.Audio
 
         IMySourceVoice IMyAudio.GetSound(MyCueId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
         {
-            return GetSound(cueId, source, type);
+			int waveNumber;
+            return GetSound(cueId, out waveNumber, source, type);
         }
 
         IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension)
@@ -1166,11 +1187,12 @@ namespace VRage.Audio
         {
             if (m_effectBank == null)
                 return null;
+			int waveNumber;
             List<MySourceVoice> voices = new List<MySourceVoice>();
             if(cueIds != null)
                 foreach(var cueId in cueIds)
                 {
-                    voices.Add(GetSound(cueId));
+                    voices.Add(GetSound(cueId, out waveNumber));
                 }
             return m_effectBank.CreateEffect(input, effect, voices.ToArray(), duration);
         }

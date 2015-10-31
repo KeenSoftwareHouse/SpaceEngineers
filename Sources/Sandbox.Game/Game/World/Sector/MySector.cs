@@ -39,7 +39,7 @@ namespace Sandbox.Game.World
 
         public static void SetDefaults()
         {
-            SunProperties = MySunProperties.Default;
+            SunProperties = new MySunProperties(MySunProperties.Default);
             FogProperties = MyFogProperties.Default;
             ImpostorProperties = new VRageRender.MyImpostorProperties[1];
             ParticleDustProperties = new MyParticleDustProperties();
@@ -47,7 +47,13 @@ namespace Sandbox.Game.World
             BackgroundTexture = "BackgroundCube";
         }
 
-        public static Vector3 DirectionToSunNormalized;
+        public static Vector3 DirectionToSunNormalized
+        {
+            get
+            {
+                return SunProperties.SunDirectionNormalized;
+            }
+        }
 
         public static float DistanceToSun;
         public static float DayTime;
@@ -61,7 +67,7 @@ namespace Sandbox.Game.World
             BackgroundOrientation    = Quaternion.CreateFromYawPitchRoll(o.Yaw, o.Pitch, o.Roll);
             DistanceToSun            = environment.DistanceToSun;
 
-            SunProperties = environment.SunProperties;
+            SunProperties = new MySunProperties(environment.SunProperties);
             FogProperties = environment.FogProperties;
 
             if (environmentBuilder != null)
@@ -69,6 +75,8 @@ namespace Sandbox.Game.World
                 Vector3 sunDirection;
                 Vector3.CreateFromAzimuthAndElevation(environmentBuilder.SunAzimuth, environmentBuilder.SunElevation, out sunDirection);
 
+                SunProperties.BaseSunDirectionNormalized = sunDirection;
+                
                 SunProperties.SunDirectionNormalized = sunDirection;
                 SunProperties.SunIntensity = environmentBuilder.SunIntensity;
 
@@ -77,7 +85,6 @@ namespace Sandbox.Game.World
                 FogProperties.FogColor = new Color(environmentBuilder.FogColor);
                 FogProperties.FogColor.A = 255;
             }
-            DirectionToSunNormalized = SunProperties.SunDirectionNormalized;
         }
 
         public static MyObjectBuilder_EnvironmentSettings GetEnvironmentSettings()
@@ -90,7 +97,7 @@ namespace Sandbox.Game.World
             var objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_EnvironmentSettings>();
 
             float azimuth, elevation;
-            Vector3.GetAzimuthAndElevation(SunProperties.SunDirectionNormalized, out azimuth, out elevation);
+            Vector3.GetAzimuthAndElevation(SunProperties.BaseSunDirectionNormalized, out azimuth, out elevation);
             objectBuilder.SunAzimuth = azimuth;
             objectBuilder.SunElevation = elevation;
             objectBuilder.SunIntensity = SunProperties.SunIntensity;

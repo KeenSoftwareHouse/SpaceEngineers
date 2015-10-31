@@ -15,7 +15,7 @@ namespace Sandbox.Definitions
 {
     public partial class MyDefinitionManager
     {
-        class DefinitionDictionary<V> : Dictionary<MyDefinitionId, V>
+        internal class DefinitionDictionary<V> : Dictionary<MyDefinitionId, V>
             where V : MyDefinitionBase
         {
             public DefinitionDictionary(int capacity)
@@ -48,7 +48,7 @@ namespace Sandbox.Definitions
             }
         }
 
-        class DefinitionSet
+        internal class DefinitionSet
         {
             static DefinitionDictionary<MyDefinitionBase> m_helperDict = new DefinitionDictionary<MyDefinitionBase>(100);
 
@@ -95,13 +95,14 @@ namespace Sandbox.Definitions
                 m_animationsBySkeletonType = new Dictionary<string, Dictionary<string, MyAnimationDefinition>>();
 
                 m_blueprintClasses = new DefinitionDictionary<MyBlueprintClassDefinition>(10);
-                m_blueprintClassEntries = new HashSet<BlueprintClassEntry>();             
+                m_blueprintClassEntries = new HashSet<BlueprintClassEntry>();
                 m_blueprintsByResultId = new DefinitionDictionary<MyBlueprintDefinitionBase>(10);
 
                 m_environmentItemsEntries = new HashSet<EnvironmentItemsEntry>();
                 m_componentBlockEntries = new HashSet<MyComponentBlockEntry>();
 
-                m_componentBlocks = new Dictionary<MyDefinitionId, bool>();
+                m_componentBlocks = new HashSet<MyDefinitionId>(MyDefinitionId.Comparer);
+                m_componentIdToBlock = new Dictionary<MyDefinitionId, MyCubeBlockDefinition>(MyDefinitionId.Comparer);
 
                 m_categoryClasses = new List<MyGuiBlockCategoryDefinition>(25);
                 m_categories = new Dictionary<string, MyGuiBlockCategoryDefinition>(25);
@@ -117,13 +118,17 @@ namespace Sandbox.Definitions
 
                 m_battleDefinition = new MyBattleDefinition();
 
-                m_planetGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
-                m_moonGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
-
                 m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
                 m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
 
-                m_planetPrefabDefinitions = new DefinitionDictionary<MyPlanetPrefabDefinition>(5);
+                m_groupedIds = new Dictionary<string, Dictionary<string, MyGroupedIds>>();
+
+                m_scriptedGroupDefinitions = new DefinitionDictionary<MyScriptedGroupDefinition>(10);
+                m_pirateAntennaDefinitions = new DefinitionDictionary<MyPirateAntennaDefinition>(4);
+
+                m_componentSubstitutions = new Dictionary<MyDefinitionId, MyComponentSubstitutionDefinition>();
+
+                m_destructionDefinition = new MyDestructionDefinition();
             }
 
             public void OverrideBy(DefinitionSet definitionSet)
@@ -193,7 +198,7 @@ namespace Sandbox.Definitions
                     }
                     else
                     {
-                        categoryDefinition.ItemIds.AddRange(classEntry.ItemIds);
+                        categoryDefinition.ItemIds.UnionWith(classEntry.ItemIds);
                     }
                 }
 
@@ -305,31 +310,35 @@ namespace Sandbox.Definitions
                         m_battleDefinition.Merge(definitionSet.m_battleDefinition);
                 }
 
+                foreach (var entry in definitionSet.m_componentSubstitutions)
+                {
+                    m_componentSubstitutions[entry.Key] = entry.Value;
+                }
+
                 m_componentGroups.Merge(definitionSet.m_componentGroups);
-                foreach (var entry in definitionSet.m_planetGeneratorDefinitions)
+
+                foreach (var entry in definitionSet.m_groupedIds)
                 {
-                    if (entry.Value.Enabled)
-                        m_planetGeneratorDefinitions[entry.Key] = entry.Value;
+                    if (m_groupedIds.ContainsKey(entry.Key))
+                    {
+                        var localGroup = m_groupedIds[entry.Key];
+                        foreach (var key in entry.Value)
+                            localGroup[key.Key] = key.Value;
+                    }
                     else
-                        m_planetGeneratorDefinitions.Remove(entry.Key);
+                    {
+                        m_groupedIds[entry.Key] = entry.Value;
+                    }
                 }
 
-                foreach (var entry in definitionSet.m_moonGeneratorDefinitions)
-                {
-                    if (entry.Value.Enabled)
-                        m_moonGeneratorDefinitions[entry.Key] = entry.Value;
-                    else
-                        m_moonGeneratorDefinitions.Remove(entry.Key);
-                }
+                m_scriptedGroupDefinitions.Merge(definitionSet.m_scriptedGroupDefinitions);
+                m_pirateAntennaDefinitions.Merge(definitionSet.m_pirateAntennaDefinitions);
 
-                foreach (var entry in definitionSet.m_planetPrefabDefinitions)
+                if (definitionSet.m_destructionDefinition != null)
                 {
-                    if (entry.Value.Enabled)
-                        m_planetPrefabDefinitions[entry.Key] = entry.Value;
-                    else
-                        m_planetPrefabDefinitions.Remove(entry.Key);
+                    if (definitionSet.m_destructionDefinition.Enabled)
+                        m_destructionDefinition.Merge(definitionSet.m_destructionDefinition);
                 }
-
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -393,7 +402,8 @@ namespace Sandbox.Definitions
             internal HashSet<EnvironmentItemsEntry> m_environmentItemsEntries;
             internal HashSet<MyComponentBlockEntry> m_componentBlockEntries;
 
-            public Dictionary<MyDefinitionId, bool> m_componentBlocks;
+            public HashSet<MyDefinitionId> m_componentBlocks;
+            public Dictionary<MyDefinitionId, MyCubeBlockDefinition> m_componentIdToBlock;
 
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsByResultId;
 
@@ -420,13 +430,18 @@ namespace Sandbox.Definitions
 
             internal MyBattleDefinition m_battleDefinition;
 
-            internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetGeneratorDefinitions;
-            internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_moonGeneratorDefinitions;
-
             internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
             internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;
+            
+            internal Dictionary<MyDefinitionId, MyComponentSubstitutionDefinition> m_componentSubstitutions;
 
-            internal DefinitionDictionary<MyPlanetPrefabDefinition> m_planetPrefabDefinitions;
+            internal Dictionary<string, Dictionary<string, MyGroupedIds>> m_groupedIds;
+
+            internal DefinitionDictionary<MyScriptedGroupDefinition> m_scriptedGroupDefinitions;
+
+            internal DefinitionDictionary<MyPirateAntennaDefinition> m_pirateAntennaDefinitions;
+
+            internal MyDestructionDefinition m_destructionDefinition;
         }
     }
 }

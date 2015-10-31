@@ -37,8 +37,10 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         private struct MyCutTreeInfo
         {
             public int ItemInstanceId;
-            public float Progress;
+            public float Progress { get { return MathHelper.Clamp((MaxPoints - HitPoints) / MaxPoints, 0, 1); } }
             public int LastHit;
+            public float HitPoints;
+            public float MaxPoints;
         }
         private List<MyCutTreeInfo> m_cutTreeInfos = new List<MyCutTreeInfo>();
 
@@ -53,14 +55,22 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         public MyTrees() { }
 
-        public override void DoDamage(float damage, int itemInstanceId, Vector3D position, Vector3 normal, MyDamageType type)
+        public override void DoDamage(float damage, int itemInstanceId, Vector3D position, Vector3 normal, MyStringHash type)
         {
-            // CH: TODO: Move the particle effect to definitions
-            MyParticleEffect effect;
-            if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.ChipOff_Wood, out effect))
+            MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
+            MyDefinitionId id = new MyDefinitionId(Definition.ItemDefinitionType, itemData.SubtypeId);
+            var itemDefinition = (MyTreeDefinition)MyDefinitionManager.Static.GetEnvironmentItemDefinition(id);
+
+
+            int effectId;
+            if (itemDefinition.CutEffect != null && MyParticlesLibrary.GetParticleEffectsID(itemDefinition.CutEffect, out effectId))
             {
-                effect.WorldMatrix = MatrixD.CreateWorld(position, Vector3.CalculatePerpendicularVector(normal), normal);
-                effect.AutoDelete = true;
+                MyParticleEffect effect;
+                if (MyParticlesManager.TryCreateParticleEffect(effectId, out effect))
+                {
+                    effect.WorldMatrix = MatrixD.CreateWorld(position, Vector3.CalculatePerpendicularVector(normal), normal);
+                    effect.AutoDelete = true;
+                }
             }
 
             if (!Sync.IsServer)
@@ -80,17 +90,19 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 }
             }
 
-            if (index == -1)
+            if (index == -1)            
             {
                 cutTreeInfo = new MyCutTreeInfo();
                 cutTreeInfo.ItemInstanceId = itemInstanceId;
+
+                cutTreeInfo.MaxPoints = cutTreeInfo.HitPoints = itemDefinition.HitPoints;
 
                 index = m_cutTreeInfos.Count;
                 m_cutTreeInfos.Add(cutTreeInfo);
             }
 
             cutTreeInfo.LastHit = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            cutTreeInfo.Progress += damage;
+            cutTreeInfo.HitPoints -= damage;
 
             if (cutTreeInfo.Progress >= 1)
             {
@@ -134,7 +146,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 //Remove static tree
                 MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
 
-                RemoveItem(itemInstanceId, physicsInstanceId, sync: true);
+                RemoveItem(itemInstanceId, physicsInstanceId, sync: true, immediateUpdate: true);
 
                 //Create fractured tree
                 MyDefinitionId id = new MyDefinitionId(Definition.ItemDefinitionType, itemData.SubtypeId);
@@ -145,14 +157,16 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 }
                 else
                 {
+                    ProfilerShort.Begin("Spawning tree");
                     // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
                     Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
                     MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
                     Vector3D pos = itemData.Transform.Position;
-                    Vector3D gravity = -MyGravityProviderSystem.CalculateGravityInPointForGrid(pos);
+                    Vector3D gravity = -MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
                     gravity.Normalize();
 
                     MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
+                    ProfilerShort.End();
                 }
             }
             
@@ -231,14 +245,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     var t = worldMatrix.Translation + worldMatrix.Up * 1.5f;
                     var o = Quaternion.CreateFromRotationMatrix(worldMatrix.GetOrientation());
                     MyPhysics.GetPenetrationsShape(shapeInst.Shape.GetShape(), ref t, ref o, m_tmpResults, MyPhysics.DefaultCollisionLayer);
+                    bool flagSet = false;
                     foreach (var res in m_tmpResults)
                     {
-                        if (res.GetEntity() is MyVoxelMap)
+                        var entity = res.GetCollisionEntity();
+
+                        if (entity is MyVoxelMap)
                         {
                             shapeInst.Shape.SetFlagRecursively(HkdBreakableShape.Flags.IS_FIXED);
                             containsFixedChildren = true;
+                            flagSet = true;
                             break;
                         }
+
+                        if (flagSet)
+                            break;
                     }
                     m_tmpResults.Clear();
                 }

@@ -384,5 +384,8 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         {
         }
 
+        public void ForceRecalc()
+        {
+        }
     }
 }

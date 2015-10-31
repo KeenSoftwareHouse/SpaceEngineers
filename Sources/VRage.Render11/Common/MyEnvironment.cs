@@ -23,19 +23,19 @@ namespace VRageRender
         internal static Matrix InvViewProjection;
 
         internal static MatrixD ViewD;
-        internal static MatrixD InvViewD;
-        internal static MatrixD ProjectionD;
-        internal static MatrixD InvProjectionD;
+        //internal static MatrixD InvViewD;
+        internal static MatrixD OriginalProjectionD;
+        //internal static MatrixD InvProjectionD;
         internal static MatrixD ViewProjectionD;
-        internal static MatrixD InvViewProjectionD;
+        //internal static MatrixD InvViewProjectionD;
 
         internal static float NearClipping;
         internal static float LargeDistanceFarClipping;
         internal static float FarClipping;
         internal static float FovY;
 
-        internal static BoundingFrustum ViewFrustum;
         internal static BoundingFrustumD ViewFrustumD;
+        internal static BoundingFrustumD ViewFrustumClippedD;
 
         static Vector3 m_directionalLightIntensity;
         internal static bool DirectionalLightEnabled;
@@ -58,5 +58,7 @@ namespace VRageRender
 
         internal static string NightSkybox = "Textures/BackgroundCube/Final/night/BackgroundCube_skybox.dds";
         internal static string NightSkyboxPrefiltered = "Textures/BackgroundCube/Final/night/BackgroundCube_skybox_prefiltered.dds";
+
+        internal static Quaternion BackgroundOrientation;
     }
 }

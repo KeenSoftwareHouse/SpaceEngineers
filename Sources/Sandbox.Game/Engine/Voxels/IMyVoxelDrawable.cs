@@ -26,6 +26,11 @@ namespace Sandbox.Engine.Voxels
             get;
         }
 
+        Matrix Orientation
+        {
+            get;
+        }
+
         Vector3I StorageMin
         {
             get;

@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 
 #endregion
 
@@ -117,12 +116,16 @@ namespace Sandbox.Game.Gui
                 Visible = true;
         }
 
-
-        public bool Visible { get; private set; }
+        private bool m_visible;
+        public bool Visible
+        {
+            get { return m_visible; }
+            set { m_visible = value; }
+        }
 
         public void Show(Action<MyHudScenarioInfo> propertiesInit)
         {
-            Visible = true;
+            Refresh();
             if (propertiesInit != null)
                 propertiesInit(this);
         }

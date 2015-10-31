@@ -4,6 +4,7 @@ using VRageMath;
 using VRage.ModAPI;
 using Sandbox.Common.ObjectBuilders.ComponentSystem;
 using System.ComponentModel;
+using VRage.Serialization;
 
 namespace VRage.ObjectBuilders
 {
@@ -19,7 +20,7 @@ namespace VRage.ObjectBuilders
 
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public abstract class MyObjectBuilder_EntityBase : MyObjectBuilder_Base
+    public class MyObjectBuilder_EntityBase : MyObjectBuilder_Base
     {
         [ProtoMember]
         public long EntityId;
@@ -28,6 +29,7 @@ namespace VRage.ObjectBuilders
         public MyPersistentEntityFlags2 PersistentFlags;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string Name;
 
         [ProtoMember]
@@ -40,11 +42,15 @@ namespace VRage.ObjectBuilders
         }
 
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_ComponentContainer ComponentContainer = null;
+
+        [ProtoMember, DefaultValue(null)]
+        public SerializableDefinitionId? EntityDefinitionId; // used to init entity from the definition - MyPhysicalItemDefinition
 
         public bool ShouldSerializeComponentContainer()
         {
-            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Length > 0;
+            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Count > 0;
         }
 
         /// <summary>
