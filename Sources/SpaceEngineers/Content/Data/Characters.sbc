@@ -1,0 +1,667 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Characters>    
+    <Character>
+      <Id>
+        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <SubtypeId>Default_Astronaut</SubtypeId>
+      </Id>
+
+      <Name>Default_Astronaut</Name>
+      <Model>Models\Characters\Astronaut\SE_astronaut.mwm</Model>
+      <Mass>100</Mass>
+      <ReflectorTexture>Textures\Lights\reflector.dds</ReflectorTexture>
+      <LeftGlare>GlareHeadlight</LeftGlare>
+      <RightGlare>GlareHeadlight</RightGlare>
+      <LightGlareSize>0.02</LightGlareSize>
+      <Skeleton>Humanoid</Skeleton>
+      <Stats>SpaceCharacterStats</Stats>
+	  
+  	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent InventorySpawnComponent</EnabledComponents>
+
+      <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
+      <InventorySpawnContainerId>
+        <TypeId>EntityBase</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </InventorySpawnContainerId>
+      <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
+      
+      <LootingTime>30</LootingTime>
+
+      <!-- CHARACTER CONTROL -->
+		<UseOnlyWalking>false</UseOnlyWalking>
+
+		<MaxSlope>70</MaxSlope>
+		<MaxSprintSpeed>7</MaxSprintSpeed>
+
+		<MaxRunSpeed>4</MaxRunSpeed>
+		<MaxBackrunSpeed>4</MaxBackrunSpeed>
+		<MaxRunStrafingSpeed>4</MaxRunStrafingSpeed>
+
+		<MaxWalkSpeed>2</MaxWalkSpeed>
+		<MaxBackwalkSpeed>2</MaxBackwalkSpeed>
+		<MaxWalkStrafingSpeed>2</MaxWalkStrafingSpeed>
+
+		<MaxCrouchWalkSpeed>2</MaxCrouchWalkSpeed>
+		<MaxCrouchBackwalkSpeed>2</MaxCrouchBackwalkSpeed>
+		<MaxCrouchStrafingSpeed>2</MaxCrouchStrafingSpeed>
+
+		<!-- <CharacterHeadSize>0.45</CharacterHeadSize>
+		<CharacterHeadHeight>0.25</CharacterHeadHeight>
+		<CharacterCollisionScale>1.1</CharacterCollisionScale> -->
+
+      <!-- BONE DEFINITIONS - MUST BE UPDATED IF SKELETON CHANGES - BONE NAMES CAN BE REVIEWED IN MODELVIEWER -->
+      <HeadBone>HeadDummy</HeadBone>
+      <Camera3rdBone>ThirdCameraDummy</Camera3rdBone>
+      <LeftHandIKStartBone>SE_RigLUpperarm</LeftHandIKStartBone>
+      <LeftHandIKEndBone>SE_RigLPalm</LeftHandIKEndBone>
+      <RightHandIKStartBone>SE_RigRUpperarm</RightHandIKStartBone>
+      <RightHandIKEndBone>SE_RigRPalm</RightHandIKEndBone>
+      <WeaponBone>SE_RigR_Weapon_pin</WeaponBone>
+      <LeftHandItemBone>SE_RigL_Weapon_pin</LeftHandItemBone>
+      <RightHandItemBone>SE_RigR_Weapon_pin</RightHandItemBone>
+      <LeftForearmBone>SE_RigLForearm1</LeftForearmBone>
+      <LeftUpperarmBone>SE_RigLUpperarm</LeftUpperarmBone>
+      <RightForearmBone>SE_RigRForearm1</RightForearmBone>
+      <RightUpperarmBone>SE_RigRUpperarm</RightUpperarmBone>
+      <SpineBone>SE_RigSpine1</SpineBone>
+	  <BendMultiplier1st>-0.3</BendMultiplier1st>
+	  <BendMultiplier3rd>-0.4</BendMultiplier3rd>
+      <LeftLightBone>LeftLightDummy</LeftLightBone>
+      <RightLightBone>RightLightDummy</RightLightBone>
+
+      <MaterialsDisabledIn1st>
+        <Material>Head</Material>
+        <Material>Light</Material>
+        <Material>Astronaut_glass</Material>
+      </MaterialsDisabledIn1st>
+      <OxygenConsumption>0.063</OxygenConsumption>
+      <PressureLevelForLowDamage>0.5</PressureLevelForLowDamage>
+      <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
+      <OxygenCapacity>60</OxygenCapacity>
+      <NeedsOxygen>false</NeedsOxygen>
+      <HelmetVariation>Engineer_suit_no_helmet</HelmetVariation>
+
+      <SuitResourceStorage>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <MaxCapacity>125</MaxCapacity>
+          <Throughput>1000</Throughput>
+        </Resource>
+      </SuitResourceStorage>
+
+      <Jetpack>
+        <Thrusts>
+          <Thrust>
+            <ThrustBone>FrontJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+          <Thrust>
+            <ThrustBone>BackJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+        </Thrusts>
+        
+        <ThrustProperties> <!-- Properties applied once to each direction -->
+          <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+          <ForceMagnitude>1600</ForceMagnitude>
+          <SlowdownFactor>3</SlowdownFactor>
+          <MinPowerConsumption>0.000000001</MinPowerConsumption>
+          <MaxPowerConsumption>0.0001</MaxPowerConsumption>
+          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          
+          <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+          <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+          <EffectivenessAtMinInfluence>0.67</EffectivenessAtMinInfluence>
+          <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+          
+          <FuelConverter>
+            <FuelId>
+              <TypeId>GasProperties</TypeId>
+              <SubtypeId>Hydrogen</SubtypeId>
+            </FuelId>
+            <Efficiency>1</Efficiency>
+          </FuelConverter>
+
+          <FlameLengthScale>1.15</FlameLengthScale>
+          <FlameIdleColor>
+            <X>0.2745098</X>
+            <Y>0.4090196</Y>
+            <Z>0.6505882</Z>
+            <W>0.75</W>
+          </FlameIdleColor>
+          <FlameFullColor>
+            <X>0.2745098</X>
+            <Y>0.4090196</Y>
+            <Z>0.6505882</Z>
+            <W>0.75</W>
+          </FlameFullColor>
+          <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+          <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+          <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+          <FlameVisibilityDistance>700</FlameVisibilityDistance>
+          <FlameGlareSize>0.779</FlameGlareSize>
+          <FlameGlareQuerySize>3</FlameGlareQuerySize>
+        </ThrustProperties>
+      </Jetpack>
+
+      <!-- Bone sets -->
+      <BoneSets>
+        <BoneSet>
+          <Name>Head</Name>
+          <Bones>SE_RigHead SE_RigNeck1</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>LeftHand</Name>
+          <Bones>SE_RigL_Weapon_pin SE_RigRibcage SE_RigLCollarbone SE_RigLUpperarm SE_RigLForearm1 SE_RigLForearm2 SE_RigLForearm3 SE_RigLPalm SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Little_1 SE_RigL_Little_3 SE_RigL_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>RightHand</Name>
+          <Bones>SE_RigR_Weapon_pin SE_RigRibcage SE_RigRCollarbone SE_RigRUpperarm SE_RigRForearm1 SE_RigRForearm2 SE_RigRForearm3 SE_RigRPalm SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>LeftFingers</Name>
+          <Bones>SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Little_1 SE_RigL_Little_3 SE_RigL_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>RightFingers</Name>
+          <Bones>SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3</Bones>
+        </BoneSet>
+		<BoneSet>
+		  <Name>Spine</Name>
+		  <Bones>SE_RigSpine1 SE_RigSpine2 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4 SE_RigRibcage SE_RigNeck SE_RigHead</Bones>
+		</BoneSet>
+      </BoneSets>
+
+	  <!-- Ragdoll definitions -->
+	  <RagdollRootBody>Ragdoll_SE_rig_Pelvis001</RagdollRootBody>
+	  <RagdollDataFile>Models\Characters\Astronaut\SE_astronaut.hkt</RagdollDataFile>
+	  <RagdollBonesMappings>
+		<!-- Always need to be at least the root bone and the last bone -->
+	  	<BoneSet>
+			<Name>Ragdoll_SE_rig_Pelvis001</Name>
+			<Bones>SE_RigPelvis SE_RigSpine1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Spine001</Name>
+			<Bones>SE_RigSpine1 SE_RigRibcage</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Ribcage001</Name>
+			<Bones>SE_RigRibcage SE_RigNeck</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LThigh001</Name>
+			<Bones>SE_RigLThigh SE_RigLCalf</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LCalf001</Name>
+			<Bones>SE_RigLCalf SE_RigLFoot</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LFoot001</Name>
+			<Bones>SE_RigLFoot SE_RigLR_Foot_tip1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RThigh001</Name>
+			<Bones>SE_RigRThigh SE_RigRCalf</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RCalf001</Name>
+			<Bones>SE_RigRCalf SE_RigRFoot</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RFoot001</Name>
+			<Bones>SE_RigRFoot SE_RigRR_Foot_tip1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LUpperarm001</Name>
+			<Bones>SE_RigLUpperarm SE_RigLForearm1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LForearm001</Name>
+			<Bones>SE_RigLForearm1 SE_RigLPalm</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RUpperarm001</Name>
+			<Bones>SE_RigRUpperarm SE_RigRForearm1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RForearm001</Name>
+			<Bones>SE_RigRForearm1 SE_RigRPalm</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RPalm001</Name>
+			<Bones>SE_RigRPalm SE_RigR_Index_1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LPalm001</Name>
+			<Bones>SE_RigLPalm SE_RigL_Index_1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Neck001</Name>
+			<Bones>SE_RigNeck SE_RigHead</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Oxygentank_bone001</Name>
+			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
+		</BoneSet>
+	  </RagdollBonesMappings>
+
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
+	  
+      <!-- for feet IK placement -->
+      <FeetIKEnabled>false</FeetIKEnabled>
+      <ModelRootBoneName>RootNode</ModelRootBoneName>
+      <LeftHipBoneName>SE_RigLThigh</LeftHipBoneName>
+      <LeftKneeBoneName>SE_RigLCalf</LeftKneeBoneName>
+      <LeftAnkleBoneName>SE_RigLFoot</LeftAnkleBoneName>
+      <RightHipBoneName>SE_RigRThigh</RightHipBoneName>
+      <RightKneeBoneName>SE_RigRCalf</RightKneeBoneName>
+      <RightAnkleBoneName>SE_RigRFoot</RightAnkleBoneName>
+      <FootLenght>0.22</FootLenght>
+      <FootWidth>0.1</FootWidth>
+      <AnkleHeight>0.10</AnkleHeight>
+      <ReachableDistanceBelowStanding>0.50</ReachableDistanceBelowStanding>
+      <MaxRaisedFootHeightStanding>0.80</MaxRaisedFootHeightStanding>
+      <MaxFootPlacementDistanceStanding>0.30</MaxFootPlacementDistanceStanding>
+      <ReachableDistanceBelowRunning>0.30</ReachableDistanceBelowRunning>
+      <MaxRaisedFootHeightRunning>0.80</MaxRaisedFootHeightRunning>
+      <MaxFootPlacementDistanceRunning>0.00</MaxFootPlacementDistanceRunning>
+
+      <AnimationMappings>
+        <Mapping Name="Walk" AnimationSubtypeName="Walk" />
+        <Mapping Name="WalkBack" AnimationSubtypeName="WalkBack" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkLeftBack" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkRightBack" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="StrafeLeft" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="StrafeRight" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkLeftFront" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkRightFront" />
+        <Mapping Name="Run" AnimationSubtypeName="Run" />
+        <Mapping Name="RunBack" AnimationSubtypeName="RunBack" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="RunLeftBack" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="RunRightBack" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="RunLeft" />
+        <Mapping Name="RunRight" AnimationSubtypeName="RunRight" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="RunLeftFront" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="RunRightFront" />
+        <Mapping Name="CrouchWalk" AnimationSubtypeName="CrouchWalk" />
+        <Mapping Name="CrouchWalkLeftFront" AnimationSubtypeName="CrouchWalkLeftFront" />
+        <Mapping Name="CrouchWalkRightFront" AnimationSubtypeName="CrouchWalkRightFront" />
+        <Mapping Name="CrouchWalkBack" AnimationSubtypeName="CrouchWalkBack" />
+        <Mapping Name="CrouchWalkLeftBack" AnimationSubtypeName="CrouchWalkLeftBack" />
+        <Mapping Name="CrouchWalkRightBack" AnimationSubtypeName="CrouchWalkRightBack" />
+        <Mapping Name="CrouchStrafeLeft" AnimationSubtypeName="CrouchStrafeLeft" />
+        <Mapping Name="CrouchStrafeRight" AnimationSubtypeName="CrouchStrafeRight" />
+        <Mapping Name="Sprint" AnimationSubtypeName="Sprint" />
+        <Mapping Name="Idle" AnimationSubtypeName="Idle" />
+        <Mapping Name="CrouchIdle" AnimationSubtypeName="CrouchIdle" />
+        <Mapping Name="Jetpack" AnimationSubtypeName="Jetpack" />
+        <Mapping Name="Jump" AnimationSubtypeName="Jump" />
+        <Mapping Name="FreeFall" AnimationSubtypeName="FreeFall" />
+        <Mapping Name="CrouchLeftTurn" AnimationSubtypeName="CrouchLeftTurn" />
+        <Mapping Name="CrouchRightTurn" AnimationSubtypeName="CrouchRightTurn" />
+        <Mapping Name="StandLeftTurn" AnimationSubtypeName="StandLeftTurn" />
+        <Mapping Name="StandRightTurn" AnimationSubtypeName="StandRightTurn" />
+        <Mapping Name="Died" AnimationSubtypeName="Died" />
+        <Mapping Name="DiedFps" AnimationSubtypeName="DiedFps" />
+        <Mapping Name="Building_pose" AnimationSubtypeName="Building_pose" />
+        <Mapping Name="cockpit23" AnimationSubtypeName="cockpit23" />
+        <Mapping Name="passengerseat_large" AnimationSubtypeName="passengerseat_large" />
+        <Mapping Name="cockpit1_small" AnimationSubtypeName="cockpit1_small"/>
+        <Mapping Name="FighterCockpitPosture" AnimationSubtypeName="FighterCockpitPosture" />
+        <Mapping Name="UseCubePlacerFingers" AnimationSubtypeName="UseCubePlacerFingers" />
+        <Mapping Name="passengerseat_small" AnimationSubtypeName="passengerseat_small" />
+      </AnimationMappings>
+    </Character>
+
+    <Character>
+      <Id>
+        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <SubtypeId>Engineer_suit_no_helmet</SubtypeId>
+      </Id>
+      
+      <Name>Engineer_suit_no_helmet</Name>
+      <Model>Models\Characters\Astronaut\SE_astronaut_no_helmet.mwm</Model>
+      <Mass>100</Mass>
+      <ReflectorTexture>Textures\Lights\reflector.dds</ReflectorTexture>
+      <LeftGlare>GlareHeadlight</LeftGlare>
+      <RightGlare>GlareHeadlight</RightGlare>
+      <LeftLightBone></LeftLightBone>
+      <RightLightBone></RightLightBone>
+      <LightGlareSize>0.02</LightGlareSize>
+      <Skeleton>Humanoid</Skeleton>
+
+	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent InventorySpawnComponent</EnabledComponents>
+      
+      <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
+      <InventorySpawnContainerId>
+        <TypeId>EntityBase</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </InventorySpawnContainerId>
+      <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
+      <LootingTime>30</LootingTime>
+
+
+      <Stats>SpaceCharacterStats</Stats>
+				
+		<!-- CHARACTER CONTROL -->
+		<UseOnlyWalking>false</UseOnlyWalking>
+
+		<MaxSlope>70</MaxSlope>
+		<MaxSprintSpeed>7</MaxSprintSpeed>
+
+		<MaxRunSpeed>4</MaxRunSpeed>
+		<MaxBackrunSpeed>4</MaxBackrunSpeed>
+		<MaxRunStrafingSpeed>4</MaxRunStrafingSpeed>
+
+		<MaxWalkSpeed>2</MaxWalkSpeed>
+		<MaxBackwalkSpeed>2</MaxBackwalkSpeed>
+		<MaxWalkStrafingSpeed>2</MaxWalkStrafingSpeed>
+
+		<MaxCrouchWalkSpeed>2</MaxCrouchWalkSpeed>
+		<MaxCrouchBackwalkSpeed>2</MaxCrouchBackwalkSpeed>
+		<MaxCrouchStrafingSpeed>2</MaxCrouchStrafingSpeed>
+
+		<!--<CharacterHeadSize>0.45</CharacterHeadSize>
+		<CharacterHeadHeight>0.25</CharacterHeadHeight>
+		<CharacterCollisionScale>1.1</CharacterCollisionScale> -->
+	  
+	  <!-- BONE DEFINITIONS - MUST BE UPDATED IF SKELETON CHANGES - BONE NAMES CAN BE REVIEWED IN MODELVIEWER -->
+      <HeadBone>HeadDummy</HeadBone>
+      <Camera3rdBone>ThirdCameraDummy</Camera3rdBone>
+      <LeftHandIKStartBone>SE_RigLUpperarm</LeftHandIKStartBone>
+      <LeftHandIKEndBone>SE_RigLPalm</LeftHandIKEndBone>
+      <RightHandIKStartBone>SE_RigRUpperarm</RightHandIKStartBone>
+      <RightHandIKEndBone>SE_RigRPalm</RightHandIKEndBone>
+      <WeaponBone>SE_RigR_Weapon_pin</WeaponBone>
+      <LeftHandItemBone>SE_RigL_Weapon_pin</LeftHandItemBone>
+      <RightHandItemBone>SE_RigR_Weapon_pin</RightHandItemBone>
+      <LeftForearmBone>SE_RigLForearm1</LeftForearmBone>
+      <LeftUpperarmBone>SE_RigLUpperarm</LeftUpperarmBone>
+      <RightForearmBone>SE_RigRForearm1</RightForearmBone>
+      <RightUpperarmBone>SE_RigRUpperarm</RightUpperarmBone>
+      <SpineBone>SE_RigSpine1</SpineBone>
+	  <BendMultiplier1st>-0.3</BendMultiplier1st>
+	  <BendMultiplier3rd>-0.4</BendMultiplier3rd>      
+	  
+      <MaterialsDisabledIn1st>
+        <Material>Astronaut_head</Material>
+        <Material>Light</Material>
+        <Material>Spacesuit_hood</Material>
+      </MaterialsDisabledIn1st>
+      <OxygenConsumption>0.063</OxygenConsumption>
+      <PressureLevelForLowDamage>0.5</PressureLevelForLowDamage>
+      <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
+      <OxygenCapacity>60</OxygenCapacity>
+      <NeedsOxygen>true</NeedsOxygen>
+      <HelmetVariation>Default_Astronaut</HelmetVariation>
+
+      <SuitResourceStorage>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <MaxCapacity>125</MaxCapacity>
+          <Throughput>1000</Throughput>
+        </Resource>
+      </SuitResourceStorage>
+
+      <!-- Jetpack -->
+      <Jetpack>
+        <Thrusts>
+          <Thrust>
+            <ThrustBone>FrontJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+          <Thrust>
+            <ThrustBone>BackJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+        </Thrusts>
+        
+        <ThrustProperties> <!-- Properties applied once to each direction -->
+          <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+          <ForceMagnitude>1600</ForceMagnitude>
+          <SlowdownFactor>3</SlowdownFactor>
+          <MinPowerConsumption>0.000000001</MinPowerConsumption>
+          <MaxPowerConsumption>0.0001</MaxPowerConsumption>
+          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          
+          <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+          <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+          <EffectivenessAtMinInfluence>0.67</EffectivenessAtMinInfluence>
+          <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+          
+          <FuelConverter>
+            <FuelId>
+              <TypeId>GasProperties</TypeId>
+              <SubtypeId>Hydrogen</SubtypeId>
+            </FuelId>
+            <Efficiency>1</Efficiency>
+          </FuelConverter>
+
+          <FlameLengthScale>1.15</FlameLengthScale>
+          <FlameIdleColor>
+            <X>0.2745098</X>
+            <Y>0.4090196</Y>
+            <Z>0.6505882</Z>
+            <W>0.75</W>
+          </FlameIdleColor>
+          <FlameFullColor>
+            <X>0.2745098</X>
+            <Y>0.4090196</Y>
+            <Z>0.6505882</Z>
+            <W>0.75</W>
+          </FlameFullColor>
+          <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+          <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+          <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+          <FlameVisibilityDistance>700</FlameVisibilityDistance>
+          <FlameGlareSize>0.779</FlameGlareSize>
+          <FlameGlareQuerySize>3</FlameGlareQuerySize>
+        </ThrustProperties>
+      </Jetpack>
+
+       <!-- Bone sets -->
+      <BoneSets>
+        <BoneSet>
+          <Name>Head</Name>
+          <Bones>SE_RigHead SE_RigNeck1</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>LeftHand</Name>
+          <Bones>SE_RigL_Weapon_pin SE_RigRibcage SE_RigLCollarbone SE_RigLUpperarm SE_RigLForearm1 SE_RigLForearm2 SE_RigLForearm3 SE_RigLPalm SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Little_1 SE_RigL_Little_3 SE_RigL_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>RightHand</Name>
+          <Bones>SE_RigR_Weapon_pin SE_RigRibcage SE_RigRCollarbone SE_RigRUpperarm SE_RigRForearm1 SE_RigRForearm2 SE_RigRForearm3 SE_RigRPalm SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>LeftFingers</Name>
+          <Bones>SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Little_1 SE_RigL_Little_3 SE_RigL_Little_3</Bones>
+        </BoneSet>
+        <BoneSet>
+          <Name>RightFingers</Name>
+          <Bones>SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3</Bones>
+        </BoneSet>
+		<BoneSet>
+		  <Name>Spine</Name>
+		  <Bones>SE_RigSpine1 SE_RigSpine2 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4 SE_RigRibcage SE_RigNeck SE_RigHead</Bones>
+		</BoneSet>
+      </BoneSets>
+
+	  <!-- Ragdoll definitions -->
+	  <RagdollRootBody>Ragdoll_SE_rig_Pelvis001</RagdollRootBody>
+	  <RagdollDataFile>Models\Characters\Astronaut\SE_astronaut.hkt</RagdollDataFile>
+	  <RagdollBonesMappings>
+		<!-- Always need to be at least the root bone and the last bone -->
+	  	<BoneSet>
+			<Name>Ragdoll_SE_rig_Pelvis001</Name>
+			<Bones>SE_RigPelvis SE_RigSpine1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Spine001</Name>
+			<Bones>SE_RigSpine1 SE_RigRibcage</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Ribcage001</Name>
+			<Bones>SE_RigRibcage SE_RigNeck</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LThigh001</Name>
+			<Bones>SE_RigLThigh SE_RigLCalf</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LCalf001</Name>
+			<Bones>SE_RigLCalf SE_RigLFoot</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LFoot001</Name>
+			<Bones>SE_RigLFoot SE_RigLR_Foot_tip1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RThigh001</Name>
+			<Bones>SE_RigRThigh SE_RigRCalf</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RCalf001</Name>
+			<Bones>SE_RigRCalf SE_RigRFoot</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RFoot001</Name>
+			<Bones>SE_RigRFoot SE_RigRR_Foot_tip1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LUpperarm001</Name>
+			<Bones>SE_RigLUpperarm SE_RigLForearm1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LForearm001</Name>
+			<Bones>SE_RigLForearm1 SE_RigLPalm</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RUpperarm001</Name>
+			<Bones>SE_RigRUpperarm SE_RigRForearm1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RForearm001</Name>
+			<Bones>SE_RigRForearm1 SE_RigRPalm</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_RPalm001</Name>
+			<Bones>SE_RigRPalm SE_RigR_Index_1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_LPalm001</Name>
+			<Bones>SE_RigLPalm SE_RigL_Index_1</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Neck001</Name>
+			<Bones>SE_RigNeck SE_RigHead</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Ragdoll_SE_rig_Oxygentank_bone001</Name>
+			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
+		</BoneSet>
+	  </RagdollBonesMappings>
+	  
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
+	  
+      <!-- for feet IK placement -->
+      <FeetIKEnabled>false</FeetIKEnabled>
+      <ModelRootBoneName>RootNode</ModelRootBoneName>
+      <LeftHipBoneName>SE_RigLThigh</LeftHipBoneName>
+      <LeftKneeBoneName>SE_RigLCalf</LeftKneeBoneName>
+      <LeftAnkleBoneName>SE_RigLFoot</LeftAnkleBoneName>
+      <RightHipBoneName>SE_RigRThigh</RightHipBoneName>
+      <RightKneeBoneName>SE_RigRCalf</RightKneeBoneName>
+      <RightAnkleBoneName>SE_RigRFoot</RightAnkleBoneName>
+      <FootLenght>0.22</FootLenght>
+      <FootWidth>0.1</FootWidth>
+      <AnkleHeight>0.10</AnkleHeight>
+      <ReachableDistanceBelowStanding>0.50</ReachableDistanceBelowStanding>
+      <MaxRaisedFootHeightStanding>0.80</MaxRaisedFootHeightStanding>
+      <MaxFootPlacementDistanceStanding>0.30</MaxFootPlacementDistanceStanding>
+      <ReachableDistanceBelowRunning>0.30</ReachableDistanceBelowRunning>
+      <MaxRaisedFootHeightRunning>0.80</MaxRaisedFootHeightRunning>
+      <MaxFootPlacementDistanceRunning>0.00</MaxFootPlacementDistanceRunning>
+
+      <AnimationMappings>
+        <Mapping Name="Walk" AnimationSubtypeName="Walk" />
+        <Mapping Name="WalkBack" AnimationSubtypeName="WalkBack" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkLeftBack" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkRightBack" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="StrafeLeft" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="StrafeRight" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkLeftFront" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkRightFront" />
+        <Mapping Name="Run" AnimationSubtypeName="Run" />
+        <Mapping Name="RunBack" AnimationSubtypeName="RunBack" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="RunLeftBack" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="RunRightBack" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="RunLeft" />
+        <Mapping Name="RunRight" AnimationSubtypeName="RunRight" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="RunLeftFront" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="RunRightFront" />
+        <Mapping Name="CrouchWalk" AnimationSubtypeName="CrouchWalk" />
+        <Mapping Name="CrouchWalkLeftFront" AnimationSubtypeName="CrouchWalkLeftFront" />
+        <Mapping Name="CrouchWalkRightFront" AnimationSubtypeName="CrouchWalkRightFront" />
+        <Mapping Name="CrouchWalkBack" AnimationSubtypeName="CrouchWalkBack" />
+        <Mapping Name="CrouchWalkLeftBack" AnimationSubtypeName="CrouchWalkLeftBack" />
+        <Mapping Name="CrouchWalkRightBack" AnimationSubtypeName="CrouchWalkRightBack" />
+        <Mapping Name="CrouchStrafeLeft" AnimationSubtypeName="CrouchStrafeLeft" />
+        <Mapping Name="CrouchStrafeRight" AnimationSubtypeName="CrouchStrafeRight" />
+        <Mapping Name="Sprint" AnimationSubtypeName="Sprint" />
+        <Mapping Name="Idle" AnimationSubtypeName="Idle" />
+        <Mapping Name="CrouchIdle" AnimationSubtypeName="CrouchIdle" />
+        <Mapping Name="Jetpack" AnimationSubtypeName="Jetpack" />
+        <Mapping Name="Jump" AnimationSubtypeName="Jump" />
+        <Mapping Name="FreeFall" AnimationSubtypeName="FreeFall" />
+        <Mapping Name="CrouchLeftTurn" AnimationSubtypeName="CrouchLeftTurn" />
+        <Mapping Name="CrouchRightTurn" AnimationSubtypeName="CrouchRightTurn" />
+        <Mapping Name="StandLeftTurn" AnimationSubtypeName="StandLeftTurn" />
+        <Mapping Name="StandRightTurn" AnimationSubtypeName="StandRightTurn" />
+        <Mapping Name="Died" AnimationSubtypeName="Died" />
+        <Mapping Name="DiedFps" AnimationSubtypeName="DiedFps" />
+        <Mapping Name="Building_pose" AnimationSubtypeName="Building_pose" />
+        <Mapping Name="cockpit23" AnimationSubtypeName="cockpit23" />
+        <Mapping Name="passengerseat_large" AnimationSubtypeName="passengerseat_large" />
+        <Mapping Name="cockpit1_small" AnimationSubtypeName="cockpit1_small"/>
+        <Mapping Name="FighterCockpitPosture" AnimationSubtypeName="FighterCockpitPosture" />
+        <Mapping Name="UseCubePlacerFingers" AnimationSubtypeName="UseCubePlacerFingers" />
+        <Mapping Name="passengerseat_small" AnimationSubtypeName="passengerseat_small" />
+      </AnimationMappings>
+    </Character>
+
+  </Characters>
+</Definitions>
