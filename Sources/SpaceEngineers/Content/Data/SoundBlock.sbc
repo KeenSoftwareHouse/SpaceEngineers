@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SoundCategories>
+    <SoundCategory>
+      <Id>
+        <TypeId>SoundCategoryDefinition</TypeId>
+        <SubtypeId>DefaultCategory</SubtypeId>
+      </Id>
+      <Sounds>
+        <SoundDesc Id="SoundBlockLightsOn" SoundName="SoundBlock_SoundName_LightsOn" />
+        <SoundDesc Id="SoundBlockLightsOff" SoundName="SoundBlock_SoundName_LightsOff" />
+        <SoundDesc Id="SoundBlockEnemyDetected" SoundName="SoundBlock_SoundName_EnemyDetected" />
+        <SoundDesc Id="SoundBlockObjectiveComplete" SoundName="SoundBlock_SoundName_ObjectiveComplete" />
+        <SoundDesc Id="SoundBlockAlert1" SoundName="SoundBlock_SoundName_Alert1" />
+        <SoundDesc Id="SoundBlockAlert2" SoundName="SoundBlock_SoundName_Alert2" />
+        <SoundDesc Id="SoundBlockAlert3" SoundName="SoundBlock_SoundName_Alert3" />
+        <SoundDesc Id="MusHeavyFight_KA02" SoundName="SoundBlock_SoundName_Music1" />
+        <SoundDesc Id="MusMystery_KA01" SoundName="SoundBlock_SoundName_Music2" />
+      </Sounds>
+    </SoundCategory>
+  </SoundCategories>
+</Definitions>
