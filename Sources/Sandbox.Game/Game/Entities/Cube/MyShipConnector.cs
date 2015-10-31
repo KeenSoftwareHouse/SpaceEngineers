@@ -594,7 +594,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else if (Sync.IsServer && !IsWorking)
             {
-                if (InConstraint && !Connected && (!IsFunctional || !Enabled || Enabled && !m_other.IsWorking))
+                if (InConstraint && !Connected && (!IsFunctional || !Enabled || !m_other.IsWorking))
                 {
                     Detach();
                 }
