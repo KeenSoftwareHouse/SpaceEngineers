@@ -1,5 +1,9 @@
 ﻿using ProtoBuf;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -14,7 +18,12 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public bool EnableBroadcasting = true;
         /* Nearby Antenna Patch
-        */ [ProtoMember]
+        */ [ProtoMember,DefaultValue(-1)]
         public long AntennaId = -1;
+        [ProtoMember,DefaultValue(false)]
+        public bool DataTransferEnabled = false;
+        [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
+        public Queue<string> PendingDataPacks = null;
     }
 }

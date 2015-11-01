@@ -1,15 +1,68 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRageMath;
 
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
     /// Antenna block interface
+    /// 
+    /// Added "Nearby Antenna Feature".
+    /// This is a programmable block only feature. To
+    /// use it, your programmable block has to grab the
+    /// interface of an antenna on the same ship. How
+    /// you get this interface is up to you. By name, by
+    /// position,...
+    /// <code>
+    /// IMyRadioAntenna antenna = ...;
+    /// </code>
+    /// 
+    /// Once you have your antenna interface, you can get
+    /// a list of all nearby antennae by ID by calling this
+    /// function:
+    /// <code>
+    /// var nearbyAntennaIds = antenna.FindNearbyAntennas();
+    /// </code>
+    /// You'll get a list of antenna IDs excluding the ID of
+    /// the antenna you're currently using. The returned list
+    /// might be empty if no antennas are within your radio
+    /// range.
+    /// 
+    /// You may query information about any existing antenna
+    /// in the game. However, you'll only receive actual data
+    /// if the antenna of the given ID is within your radio
+    /// range.
+    /// <code>
+    /// // Returns `null` if out of range or `ShowShipName` is disabled.
+    /// string otherShipName = antenna.GetNearbyAntennaShipName(42);
+    /// </code>
+    /// 
+    /// An other feature of the nearby antenna patch is the ability to
+    /// instantly send or broadcast some data to nearby antennas and
+    /// handle those data packs in programmable blocks. However, each
+    /// antenna has to enable this feature individually.
+    /// <code>
+    /// antenna.DataTransferEnabled = true;
+    /// </code>
+    /// You can then send data to nearby antennas which also have this
+    /// feature enabled.
+    /// <code>
+    /// bool success = antenna.SendToNearbyAntenna(42,"Hello, antenna #42!");
+    /// if(!success) {
+    ///   antenna.BroadcastToNearbyAntennas("HELP! My bestest buddy #42 is gone!");
+    /// }
+    /// </code>
+    /// Finally, you can read the data packs you received from other
+    /// antennas. A data pack is a string which has the sending antenna's
+    /// ID appended to the front end. E.g. if antenna #42 sent you a message,
+    /// this message will start with the substring ":42;".
+    /// <code>
+    /// string msg = antenna.GetReceivedData();
+    /// if(msg != null && msg.StartsWith(":42;")) {
+    ///   antenna.BroadcastToNearbyAntennas("Everything's well again. My buddy is back.");
+    /// }
+    /// </code>
     /// </summary>
     public interface IMyRadioAntenna : IMyFunctionalBlock
     {

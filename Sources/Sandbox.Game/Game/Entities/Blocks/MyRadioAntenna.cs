@@ -241,6 +241,10 @@ namespace Sandbox.Game.Entities.Cube
             objectBuilder.EnableBroadcasting = m_radioBroadcaster.WantsToBeEnabled;
             /* Nearby Antenna Patch
             */ objectBuilder.AntennaId = this.antennaId;
+            objectBuilder.EnableBroadcasting = this.dataTransferEnabled;
+            if((this.dataQueue == null) || (this.dataQueue.Count == 0)) {
+              objectBuilder.PendingDataPacks = this.dataQueue;
+            }
             return objectBuilder;
         }
 
@@ -248,6 +252,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.UpdateAfterSimulation10();
             m_radioReceiver.UpdateBroadcastersInRange();
+            /* Nearby Antenna Patch
+               NOTE:
+               Hope, that Update10 is fast enough...
+               Otherwise: Bug! 8D
+            */ this.ClearNearbyAntennaCache();
         }
 
         protected override void WorldPositionChanged(object source)
@@ -426,6 +435,26 @@ namespace Sandbox.Game.Entities.Cube
     private static long nextAntennaId = 0;
     //
     //
+    /* I expect that most programs that query multiple pieces of
+       information about nearby antennas sequentially will do so
+       antenna by antenna. I.e. take antenna 1, query all there is
+       to know about it, then go on with antenna 2, etc.
+       Thus, this caching trick might reduce an otherwise high amount
+       of redundant checks. This cache is invalidated each update.
+    */
+    private long cachedId = -1;
+    private long cachedDetailId = -1;
+    private MyRadioAntenna cachedAntenna = null;
+    private MyRadioAntenna cachedDetailAntenna = null;
+    //
+    private void ClearNearbyAntennaCache() {
+      cachedId = -1;
+      cachedDetailId = -1;
+      cachedAntenna = null;
+      cachedDetailAntenna = null;
+    }
+    //
+    //
     private MyRadioAntenna FindAntenna(long antennaId) {
       Debug.Assert(allExistingAntennas != null);
       MyRadioAntenna found = null;
@@ -470,13 +499,19 @@ namespace Sandbox.Game.Entities.Cube
     }
     //
     private MyRadioAntenna FindAntennaInDetailRange(long antennaId) {
-      var found = this.FindAntenna(antennaId);
-      return this.IsAntennaDetailReachable(found) ? found : null;
+      if(this.cachedDetailId == antennaId) { return this.cachedDetailAntenna; }
+      else {
+        var found = this.FindAntenna(antennaId);
+        return this.IsAntennaDetailReachable(found) ? found : null;
+      }
     }
     //
     private MyRadioAntenna FindAntennaInRange(long antennaId) {
-      var found = this.FindAntenna(antennaId);
-      return this.IsAntennaReachable(found) ? found : null;
+      if(this.cachedId == antennaId) { return this.cachedAntenna; }
+      else {
+        var found = this.FindAntenna(antennaId);
+        return this.IsAntennaReachable(found) ? found : null;
+      }
     }
     //
     private MyRadioAntenna FindAntennaInResponseRange(long antennaId) {
@@ -536,7 +571,7 @@ namespace Sandbox.Game.Entities.Cube
       Debug.Assert(allExistingAntennas != null);
       List<long> found = new List<long>();
       foreach(var en in allExistingAntennas) {
-        if(this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
+        if((en.Key != this.antennaId) && this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
       }
       return found;
     }
@@ -642,6 +677,13 @@ namespace Sandbox.Game.Entities.Cube
       if(allExistingAntennas == null) {
         allExistingAntennas = new Dictionary<long,MyRadioAntenna>();
       }
+      // Load a saved antenna? Make sure that `nextAntennaId` is set to an appropriate value.
+      // NOTE:
+      // This might cause a bug. If it is possible that a completely new antenna can be created
+      // while existing antennas are being loaded, then it is possible that two antennas get the
+      // very same `antennaId`.
+      // A fix might be to make `antennaId` map to/be an individual block ID. If there is such
+      // a thing. Is there any such thing? Just... don't bug, 'kay? D:
       if(builder.AntennaId != -1) {
         this.antennaId = builder.AntennaId;
         if(nextAntennaId <= builder.AntennaId) {
@@ -651,6 +693,8 @@ namespace Sandbox.Game.Entities.Cube
         this.antennaId = nextAntennaId++;
       }
       allExistingAntennas.Add(this.antennaId,this);
+      this.dataTransferEnabled = builder.DataTransferEnabled;
+      this.dataQueue = builder.PendingDataPacks;
     }
     //
     private void RemoveFromAntennaList() {
