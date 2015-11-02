@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_TutorialsHelper xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <TutorialUnlockedBy>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 01 - Movement, Life Support and Tools</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Default</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 02 - Inventory &amp; Terminals</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 01 - Movement, Life Support and Tools</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 03 - Energy</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 02 - Inventory &amp; Terminals</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 04 - Oxygen</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 03 - Energy</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 05 - Ore Refining &amp; Component Assembly</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 04 - Oxygen</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 06 - Conveyors, Connectors, Sorters &amp; Collectors</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 05 - Ore Refining &amp; Component Assembly</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 07 - Jetpack</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 06 - Conveyors, Connectors, Sorters &amp; Collectors</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 08 - Your First Ship</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 07 - Jetpack</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 09 - Ship Flight &amp; Tools</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 08 - Your First Ship</DeviceId>
+        </Value>
+      </item>
+      <item>
+        <Key xsi:type="xsd:string">Tutorial 10 - Grids, Merge Blocks &amp; Objects</Key>
+        <Value xsi:type="ArrayOfString6">
+          <DeviceId>Tutorial 09 - Ship Flight &amp; Tools</DeviceId>
+        </Value>
+      </item>
+    </dictionary>
+  </TutorialUnlockedBy>
+</MyObjectBuilder_TutorialsHelper>

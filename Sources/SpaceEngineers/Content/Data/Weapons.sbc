@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Weapons>
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>AutomaticRifleGun</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepPlayRifleShot" />
+      <!--    <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" /> -->
+      <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
+      <DeviateShotAngle>3</DeviateShotAngle>
+      <ReleaseTimeAfterFire>250</ReleaseTimeAfterFire>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+		<AmmoMagazine Subtype="NATO_5p56x45mm" />
+      <!--  <AmmoMagazine Subtype="Missile200mm" />  -->
+      </AmmoMagazines>
+    </Weapon>
+    <!--
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>AutomaticRocketLauncher</SubtypeId>
+      </Id>
+      <RateOfFire>60</RateOfFire>
+      <ShotSoundName>WepPlayRifleShot</ShotSoundName>
+      <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
+      <DeviateShotAngle>0.1</DeviateShotAngle>
+      <ReleaseTimeAfterFire>250</ReleaseTimeAfterFire>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+    </Weapon> -->
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>SmallMissileLauncher</SubtypeId>
+      </Id>
+      <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" />
+      <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
+      <AmmoMagazines>
+       <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+    </Weapon>
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>LargeMissileTurret</SubtypeId>
+      </Id>
+      <MissileAmmoData RateOfFire="67" ShootSoundName="WepTurretMissileShot" />
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+    </Weapon>
+
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>SmallMissileTurret</SubtypeId>
+      </Id>
+      <MissileAmmoData RateOfFire="20" ShootSoundName="WepTurretMissileShot" />
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+    </Weapon>
+
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>GatlingGun</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="700" ShootSoundName="WepShipGatlingShot" />
+      <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+	  <DeviateShotAngle>0.2</DeviateShotAngle>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="NATO_25x184mm" />
+      </AmmoMagazines>
+    </Weapon>
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>LargeGatlingTurret</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepTurretGatlingFire" />
+      <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="NATO_25x184mm" />
+      </AmmoMagazines>
+    </Weapon>
+
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>SmallGatlingTurret</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="300" ShootSoundName="WepTurretGatlingFire" />
+      <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="NATO_25x184mm" />
+      </AmmoMagazines>
+    </Weapon>
+    
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>LargeInteriorTurret</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepTurretInteriorFire" />
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="NATO_5p56x45mm" />
+      </AmmoMagazines>
+    </Weapon>
+  </Weapons>
+</Definitions>

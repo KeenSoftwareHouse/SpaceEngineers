@@ -94,7 +94,7 @@ namespace Sandbox.Engine.Voxels
                         {
                             var size3d = m_cache.Size3D;
                             Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
-                            mesher.CalculateMaterials(size3d.X, (VoxelData*)voxels, hasOcclusionHint);
+                            mesher.CalculateMaterials(size3d.X, (VoxelData*)voxels, hasOcclusionHint, -1);
                         }
                     }
                 }
