@@ -92,6 +92,13 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Returns the antenna's unique ID.
         /// </summary>
+        /// <remarks>
+        /// This actually just returns the antenna's
+        /// <code>EntityId</code>, but I think that this
+        /// alias gives people a better hint on where
+        /// to get the IDs for the patch-functions from
+        /// and which IDs won't make sense there.
+        /// </remarks>
         long AntennaId { get; }
         //
         /// <summary>

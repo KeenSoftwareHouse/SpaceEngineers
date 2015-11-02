@@ -240,9 +240,8 @@ namespace Sandbox.Game.Entities.Cube
             objectBuilder.ShowShipName = this.ShowShipName;
             objectBuilder.EnableBroadcasting = m_radioBroadcaster.WantsToBeEnabled;
             /* Nearby Antenna Patch
-            */ objectBuilder.AntennaId = this.antennaId;
-            objectBuilder.EnableBroadcasting = this.dataTransferEnabled;
-            if((this.dataQueue == null) || (this.dataQueue.Count == 0)) {
+            */ objectBuilder.EnableBroadcasting = this.dataTransferEnabled;
+            if((this.dataQueue != null) && (this.dataQueue.Count != 0)) {
               objectBuilder.PendingDataPacks = this.dataQueue;
             }
             return objectBuilder;
@@ -432,7 +431,6 @@ namespace Sandbox.Game.Entities.Cube
     */
     //
     private static Dictionary<long,MyRadioAntenna> allExistingAntennas = null;
-    private static long nextAntennaId = 0;
     //
     //
     /* I expect that most programs that query multiple pieces of
@@ -520,8 +518,7 @@ namespace Sandbox.Game.Entities.Cube
     }
     //
     //
-    private long antennaId = -1; // TODO impl antennaID
-    long IMyRadioAntenna.AntennaId { get { return antennaId; } }
+    long IMyRadioAntenna.AntennaId { get { return this.EntityId; } }
     //
     //
     float IMyRadioAntenna.DetailScanRange { get { return this.GetRadius() * 0.9f; } }
@@ -561,8 +558,13 @@ namespace Sandbox.Game.Entities.Cube
     }
     //
     string IMyRadioAntenna.GetReceivedData() {
-      if(dataQueue != null) {
-        if(dataQueue.Count != 0) { return dataQueue.Dequeue(); }
+      if(this.dataQueue != null) {
+        if(this.dataQueue.Count != 0) { return this.dataQueue.Dequeue(); }
+        else if(!this.dataTransferEnabled) {
+          // The queue might not be used again, soon,
+          // thus allow the GC to delete it.
+          this.dataQueue = null;
+        }
       }
       return null;
     }
@@ -571,7 +573,7 @@ namespace Sandbox.Game.Entities.Cube
       Debug.Assert(allExistingAntennas != null);
       List<long> found = new List<long>();
       foreach(var en in allExistingAntennas) {
-        if((en.Key != this.antennaId) && this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
+        if((en.Key != this.EntityId) && this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
       }
       return found;
     }
@@ -675,32 +677,21 @@ namespace Sandbox.Game.Entities.Cube
     //
     private void InitNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder) {
       if(allExistingAntennas == null) {
+        // TODO Move this into static constructor?
         allExistingAntennas = new Dictionary<long,MyRadioAntenna>();
       }
-      // Load a saved antenna? Make sure that `nextAntennaId` is set to an appropriate value.
-      // NOTE:
-      // This might cause a bug. If it is possible that a completely new antenna can be created
-      // while existing antennas are being loaded, then it is possible that two antennas get the
-      // very same `antennaId`.
-      // A fix might be to make `antennaId` map to/be an individual block ID. If there is such
-      // a thing. Is there any such thing? Just... don't bug, 'kay? D:
-      if(builder.AntennaId != -1) {
-        this.antennaId = builder.AntennaId;
-        if(nextAntennaId <= builder.AntennaId) {
-          nextAntennaId = 1 + builder.AntennaId;
-        }
-      } else {
-        this.antennaId = nextAntennaId++;
-      }
-      allExistingAntennas.Add(this.antennaId,this);
+      allExistingAntennas.Add(this.EntityId,this);
       this.dataTransferEnabled = builder.DataTransferEnabled;
       this.dataQueue = builder.PendingDataPacks;
+      if(builder.DataTransferEnabled && (builder.PendingDataPacks == null)) {
+        this.dataQueue = new Queue<string>();
+      }
     }
     //
     private void RemoveFromAntennaList() {
       Debug.Assert(allExistingAntennas != null);
       Debug.Assert(allExistingAntennas.Count > 0);
-      allExistingAntennas.Remove(this.antennaId);
+      allExistingAntennas.Remove(this.EntityId);
     }
 
 

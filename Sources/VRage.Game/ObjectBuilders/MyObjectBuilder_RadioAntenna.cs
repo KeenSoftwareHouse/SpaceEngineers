@@ -18,9 +18,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public bool EnableBroadcasting = true;
         /* Nearby Antenna Patch
-        */ [ProtoMember,DefaultValue(-1)]
-        public long AntennaId = -1;
-        [ProtoMember,DefaultValue(false)]
+        */ [ProtoMember,DefaultValue(false)]
         public bool DataTransferEnabled = false;
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
