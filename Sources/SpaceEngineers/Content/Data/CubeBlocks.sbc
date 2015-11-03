@@ -22848,66 +22848,6 @@
       <OpeningSpeed>0.1</OpeningSpeed>
       <SubpartMovementDistance>2.5</SubpartMovementDistance>
   </Definition>
-  <Definition xsi:type="MyObjectBuilder_AirtightSlideDoorDefinition">
-      <Id>
-        <TypeId>AirtightSlideDoor</TypeId>
-        <SubtypeId>LargeBlockSlideDoor</SubtypeId>
-      </Id>
-      <DisplayName>DisplayName_Block_AirtightSlideDoor</DisplayName>
-      <Icon>Textures\GUI\Icons\Cubes\SlideDoor.dds</Icon>
-      <CubeSize>Large</CubeSize>
-      <BlockTopology>TriangleMesh</BlockTopology>
-      <Size x="1" y="1" z="1" />
-      <ModelOffset x="0" y="0" z="0" />
-      <Center x="0" y="0" z="0" />
-      <Model>Models\Cubes\Large\SlideDoor.mwm</Model>
-      <Sound>BlockRotor</Sound>
-      <Components>
-        <Component Subtype="SteelPlate" Count="5" />
-        <Component Subtype="Construction" Count="15" />
-        <Component Subtype="SmallTube" Count="4" />
-        <Component Subtype="Motor" Count="4" />
-        <Component Subtype="Display" Count="1" />
-        <Component Subtype="Computer" Count="2" />
-        <Component Subtype="Construction" Count="25" />
-        <Component Subtype="BulletproofGlass" Count="15" />
-        <Component Subtype="SteelPlate" Count="15" />
-      </Components>    
-      <CriticalComponent Subtype="Computer" Index="0" />
-      <MountPoints>
-        <MountPoint Side="Front" StartX="0" StartY="0" EndX="0.05" EndY="1" />
-        <MountPoint Side="Front" StartX="0.95" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Front" StartX="0.05" StartY="0" EndX="0.95" EndY="0.05" />
-        <MountPoint Side="Front" StartX="0.05" StartY="0.95" EndX="0.95" EndY="1" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0.05" EndY="1" />
-        <MountPoint Side="Back" StartX="0.95" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Back" StartX="0.05" StartY="0" EndX="0.95" EndY="0.05" />
-        <MountPoint Side="Back" StartX="0.05" StartY="0.95" EndX="0.95" EndY="1" />
-        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
-      </MountPoints>
-      <BuildProgressModels>
-        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\SlideDoor_Construction_1.mwm" />
-        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\SlideDoor_Construction_2.mwm" />
-        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\SlideDoor_Construction_3.mwm" />
-      </BuildProgressModels>
-      <BlockPairName>AirtightSlide Door</BlockPairName>
-      <MirroringY>Z</MirroringY>
-      <MirroringZ>Y</MirroringZ>
-      <EdgeType>Light</EdgeType>
-      <BuildTimeSeconds>28</BuildTimeSeconds>
-      <DisassembleRatio>1.5</DisassembleRatio>
-      <DamageEffectId>212</DamageEffectId>
-      <DamagedSound>ParticleHeavyMech</DamagedSound>
-      <ResourceSinkGroup>Doors</ResourceSinkGroup>
-      <PowerConsumptionIdle>0.00001</PowerConsumptionIdle>
-      <PowerConsumptionMoving>0.001</PowerConsumptionMoving>
-      <OpeningSpeed>0.8</OpeningSpeed>
-      <SubpartMovementDistance>2.5</SubpartMovementDistance>
-  </Definition>
-
     <Definition xsi:type="MyObjectBuilder_DebugSphere1Definition">
       <Id>
         <TypeId>DebugSphere1</TypeId>
