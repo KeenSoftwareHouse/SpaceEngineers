@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
@@ -142,12 +143,5 @@ namespace Sandbox.Game.GameSystems
 
         public List<MyBlockGroup> BlockGroups { get { return m_blockGroups; } }
 
-        public void UpdateGridBlocksOwnership(long ownerID)
-        {
-            foreach (var block in m_blocks)
-            {
-                block.IsAccessibleForProgrammableBlock = block.HasPlayerAccess(ownerID);
-            }
-        }
     }
 }

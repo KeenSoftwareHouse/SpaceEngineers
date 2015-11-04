@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyShipConnector:IMyFunctionalBlock
+    public interface IMyShipConnector : IMyFunctionalBlock, IMyBlockDetector
     {
         bool ThrowOut { get; }
         bool CollectAll { get; }

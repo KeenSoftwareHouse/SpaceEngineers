@@ -19,6 +19,7 @@ namespace Sandbox.ModAPI.Ingame
         string GetOwnerFactionTag();
         Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
         Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
+        IngameScriptAccessibility GetProgrammableBlockAccessibility { get; }
         bool IsBeingHacked { get; }
         bool IsFunctional { get; }
         bool IsWorking { get; }

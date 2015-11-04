@@ -99,8 +99,6 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool IsAccessibleForProgrammableBlock = true;
-
         public void RequestShowOnHUD(bool enable)
         {
             MySyncBlockHelpers.SendShowOnHUDRequest(this, enable);

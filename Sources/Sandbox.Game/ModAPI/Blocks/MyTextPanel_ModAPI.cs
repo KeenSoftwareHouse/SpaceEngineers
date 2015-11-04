@@ -16,27 +16,31 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.ShowPublicTextOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PUBLIC);
+            if (GetProgrammableBlockAccessibility == ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
+                SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PUBLIC);
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowPrivateTextOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PRIVATE);
+            if (GetProgrammableBlockAccessibility == ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
+                SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PRIVATE);
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowTextureOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.NONE);
+            if (GetProgrammableBlockAccessibility == ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
+                SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.NONE);
         }
 
         void ModAPI.Ingame.IMyTextPanel.SetShowOnScreen(ShowTextOnScreenFlag set)
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)set);
+            if (GetProgrammableBlockAccessibility == ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
+                SyncObject.SendShowOnScreenChangeRequest((byte)set);
         }
 
         bool ModAPI.Ingame.IMyTextPanel.WritePublicTitle(string value, bool append)
         {
-            if (m_isOpen)
+            if (m_isOpen || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return false;
             }
@@ -56,7 +60,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePublicText(string value, bool append)
         {
-            if (m_isOpen)
+            if (m_isOpen || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return false;
             }
@@ -76,7 +80,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePrivateTitle(string value, bool append)
         {
-            if (m_isOpen)
+            if (m_isOpen || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return false;
             }
@@ -96,7 +100,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePrivateText(string value, bool append)
         {
-            if (m_isOpen)
+            if (m_isOpen || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return false;
             }
@@ -116,7 +120,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.AddImageToSelection(string id, bool checkExistence)
         {
-            if (id == null)
+            if (id == null || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return;
             }
@@ -140,7 +144,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.AddImagesToSelection(List<string> ids, bool checkExistence)
         {
-            if (ids == null)
+            if (ids == null || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return;
             }
@@ -180,7 +184,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.RemoveImageFromSelection(string id, bool removeDuplicates)
         {
-            if (id == null)
+            if (id == null || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return;
             }
@@ -214,7 +218,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.RemoveImagesFromSelection(List<string> ids, bool removeDuplicates)
         {
-            if (ids == null)
+            if (ids == null || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return;
             }
@@ -251,7 +255,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.ClearImagesFromSelection()
         {
-            if (m_selectedTexturesToDraw.Count == 0)
+            if (m_selectedTexturesToDraw.Count == 0 || GetProgrammableBlockAccessibility < ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
             {
                 return;
             }

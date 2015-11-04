@@ -794,6 +794,24 @@ namespace Sandbox.Game.Entities.Cube
             return m_attachedTo;
         }
 
+        public List<Sandbox.ModAPI.Ingame.IMyCubeBlock> DetectedBlocks
+        {
+            get
+            {
+                List<Sandbox.ModAPI.Ingame.IMyCubeBlock> blocksInGrid = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+                if (m_attachedTo != null && m_attachedTo is Sandbox.ModAPI.IMyCubeGrid)
+                {
+                    MyCubeGrid cubeGrid = (MyCubeGrid)m_attachedTo;
+
+                    foreach (MySlimBlock cubeBlock in cubeGrid.CubeBlocks)
+                    {
+                        blocksInGrid.Add(cubeBlock.FatBlock);
+                    }
+                }
+                return blocksInGrid;
+            }
+        }
+
         #region Sync class
 
         [PreloadRequired]

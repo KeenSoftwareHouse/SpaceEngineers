@@ -19,7 +19,7 @@ namespace Sandbox.Game.GameSystems
                 List<IMyTerminalBlock> ret = new List<IMyTerminalBlock>();
                 foreach (var block in Blocks)
                 {
-                    if (block.IsAccessibleForProgrammableBlock)
+                    if (block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                     {
                         ret.Add(block);
                     }

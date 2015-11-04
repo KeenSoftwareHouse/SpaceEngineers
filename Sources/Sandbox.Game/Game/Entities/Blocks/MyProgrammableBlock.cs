@@ -50,7 +50,10 @@ namespace Sandbox.Game.Entities.Blocks
         Assembly m_assembly = null;
         List<string> m_compilerErrors = new List<string>();
         private bool m_wasTerminated = false;
-        private bool m_isRunning = false;
+        private List<Sandbox.ModAPI.Ingame.IMyCubeBlock> m_readOnlyAccessibleBlocks = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+        private List<Sandbox.ModAPI.Ingame.IMyCubeBlock> m_writeAccessibleBlocks = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+        private static MyProgrammableBlock m_runningProgramBlock = null;
+        private bool m_isRunning { get { return this.Equals(m_runningProgramBlock); } }
         private bool m_mainMethodSupportsArgument;
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
@@ -258,10 +261,15 @@ namespace Sandbox.Game.Entities.Blocks
             }
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
             var terminalSystem = gridGroup.GroupData.TerminalSystem;
-            terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+
             m_instance.GridTerminalSystem = terminalSystem;
 
-            m_isRunning = true;
+
+            m_writeAccessibleBlocks = getWriteAccessableBlocks(terminalSystem.Blocks);
+            m_readOnlyAccessibleBlocks = getReadAccessableBlocks();
+
+            m_runningProgramBlock = this;
+
             string retVal = "";
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
 			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
@@ -288,7 +296,9 @@ namespace Sandbox.Game.Entities.Blocks
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 }
             }
-            m_isRunning = false;
+            m_writeAccessibleBlocks = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+            m_readOnlyAccessibleBlocks = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+            m_runningProgramBlock = null;
             return retVal;
         }
 
@@ -506,6 +516,48 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         bool IMyProgrammableBlock.IsRunning { get { return m_isRunning; } }
+
+        public static MyProgrammableBlock RunningBlock { get { return m_runningProgramBlock; }}
+
+        private List<Sandbox.ModAPI.Ingame.IMyCubeBlock> getWriteAccessableBlocks(HashSetReader<MyTerminalBlock> blocks)
+        {
+            List<Sandbox.ModAPI.Ingame.IMyCubeBlock> writeAccessableBlocks = blocks
+                            .Where(block => block.HasPlayerAccess(OwnerId))
+                            .Select(terminalBlock => terminalBlock as Sandbox.ModAPI.Ingame.IMyCubeBlock)
+                            .ToList();
+            return writeAccessableBlocks;
+        }
+
+        private List<Sandbox.ModAPI.Ingame.IMyCubeBlock> getReadAccessableBlocks()
+        {
+            List<Sandbox.ModAPI.Ingame.IMyCubeBlock> readAccessableBlocks = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+            foreach (Sandbox.ModAPI.Ingame.IMyCubeBlock writableBlock in m_writeAccessibleBlocks)
+            {
+                if (writableBlock is IMyBlockDetector)
+                {
+                    IMyBlockDetector blockDetector = writableBlock as IMyBlockDetector;
+                    readAccessableBlocks.AddList(blockDetector.DetectedBlocks);
+                }
+            }
+            return readAccessableBlocks;
+        }
+
+        
+        
+        public static IngameScriptAccessibility getIngameScriptAccessibility(Sandbox.ModAPI.Ingame.IMyCubeBlock block)
+        {
+            if (RunningBlock.m_writeAccessibleBlocks.Contains(block)) 
+            {
+                return IngameScriptAccessibility.readWriteAccess;
+            }
+
+            if (RunningBlock.m_readOnlyAccessibleBlocks.Contains(block)) 
+            {
+                return IngameScriptAccessibility.readAccess;
+            }
+
+            return IngameScriptAccessibility.noAccess;
+        }
 
         protected override void OnOwnershipChanged()
         {

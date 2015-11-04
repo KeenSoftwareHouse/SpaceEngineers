@@ -114,6 +114,7 @@
     <Compile Include="Components\MyIngameScript.cs" />
     <Compile Include="Components\MySessionComponentBase.cs" />
     <Compile Include="Components\MySessionComponentMapping.cs" />
+    <Compile Include="ModAPI\IMyBlockDetector.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
     <Compile Include="ModAPI\IMyConfig.cs" />
     <Compile Include="ModAPI\IMyDamageSystem.cs" />
@@ -229,6 +230,7 @@
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyJumpDrive.cs" />
+    <Compile Include="ModAPI\Ingame\IngameScriptAccessibility.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />

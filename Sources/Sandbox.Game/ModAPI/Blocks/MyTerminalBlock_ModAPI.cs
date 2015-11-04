@@ -1,4 +1,5 @@
 ﻿using Sandbox.ModAPI;
+using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,6 +97,18 @@ namespace Sandbox.Game.Entities.Cube
         public void GetProperties(List<Sandbox.ModAPI.Interfaces.ITerminalProperty> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalProperty, bool> collect = null)
         {
             (MyTerminalControlFactoryHelper.Static as IMyTerminalActionsHelper).GetProperties(this.GetType(), resultList, collect);
+        }
+
+        void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(string text)
+        {
+            if (GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
+                SetCustomName(text);
+        }
+
+        void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(StringBuilder text)
+        {
+            if (GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
+                SetCustomName(text);
         }
     }
 }

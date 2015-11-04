@@ -89,6 +89,24 @@ namespace Sandbox.Game.Entities.Blocks
             private set;
         }
 
+        public List<Sandbox.ModAPI.Ingame.IMyCubeBlock> DetectedBlocks
+        {
+            get
+            {
+                List<Sandbox.ModAPI.Ingame.IMyCubeBlock> blocksInGrid = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+                if (LastDetectedEntity != null && LastDetectedEntity is Sandbox.ModAPI.IMyCubeGrid)
+                {
+                    MyCubeGrid cubeGrid = (MyCubeGrid)LastDetectedEntity;
+                    
+                    foreach (MySlimBlock cubeBlock in cubeGrid.CubeBlocks)
+                    {
+                        blocksInGrid.Add(cubeBlock.FatBlock);
+                    }
+                }
+                return blocksInGrid;
+            }
+        }
+
         protected HkShape m_fieldShape;
         private bool m_recreateField;
 
