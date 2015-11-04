@@ -2161,9 +2161,10 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
     <value>Térfogat: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Tömeg: {1} kg
-Térfogat: {2} L</value>
+    <value>{0}{4}
+Mennyiség: {1}
+Tömeg: {2} kg
+Térfogat: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>X tengely szimmetria: {0} elfogad, {1} visszavon</value>

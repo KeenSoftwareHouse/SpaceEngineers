@@ -2160,9 +2160,10 @@ Mundu að þú samþykkir skilmála Steam Workshop ( http://steamcommunity.com/s
     <value>Stærð: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Massi: {1} kg
-Stærð: {2} L</value>
+    <value>{0}{4}
+Magn: {1}
+Massi: {2} kg
+Stærð: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Speglun X hlið: {0} til að setja, {1} til að endursetja</value>

@@ -2154,9 +2154,10 @@
     <value>Об'єм: {0} л</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Маса: {1} кґ
-Об'єм: {2} л</value>
+    <value>{0}{4}
+кількість: {1}
+Маса: {2} кґ
+Об'єм: {3} л</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Симетрія осі Х: {0}, аби встановити, {1}, щоб скинути</value>

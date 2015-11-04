@@ -2165,9 +2165,10 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
     <value>Volumen: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Masa: {1} kg
-Volumen: {2} L</value>
+    <value>{0}{4}
+Količina: {1}
+Masa: {2} kg
+Volumen: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>центрировать X плоскость:{0} установить, {1} сбросить</value>

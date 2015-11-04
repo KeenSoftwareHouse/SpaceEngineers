@@ -2159,9 +2159,10 @@ Nota che caricando questo oggetto, accetti i termini di servizio del workshop (c
     <value>Volume: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Massa: {1} kg
-Volume: {2} L</value>
+    <value>{0}{4}
+Quantità: {1}
+Massa: {2} kg
+Volume: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Simmetria sul piano X: {0} per impostare, {1} per reimpostare</value>

@@ -2162,9 +2162,10 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Apjoms: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Masa: {1} Kg
-Tilpums: {2} L</value>
+    <value>{0}{4}
+Daudzums: {1}
+Masa: {2} Kg
+Tilpums: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Simetrija pēc X plaknes: {0}, lai ieviestu, {1}, lai noņemtu</value>

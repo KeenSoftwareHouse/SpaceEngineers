@@ -2158,9 +2158,10 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Objem: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Hmotnosť: {1} kg
-Objem: {2} L</value>
+    <value>{0}{4}
+Množstvo: {1}
+Hmotnosť: {2} kg
+Objem: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Plocha symetrie X: {0} nastav, {1} reset</value>

@@ -2157,9 +2157,10 @@
     <value>Объем: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Масса: {1} кг
-Объём: {2} л</value>
+    <value>{0}{4}
+количество: {1}
+Масса: {2} кг
+Объём: {3} л</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Центрирование X плоскости: {0} установить, {1} обнулить</value>

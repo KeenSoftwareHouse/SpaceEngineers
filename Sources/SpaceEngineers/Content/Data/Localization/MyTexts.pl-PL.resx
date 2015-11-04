@@ -2157,9 +2157,10 @@ Jeśli się zgadzasz to równocześnie akceptujesz warunki warsztatu (zobacz htt
     <value>Pojemność: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3} 
-Masa: {1} kg 
-Pojemność: {2} L</value>
+    <value>{0}{4} 
+Ilość: {1}
+Masa: {2} kg 
+Pojemność: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Symetria względem osi X: {0} aby ustawić, {1} aby zresetować</value>
