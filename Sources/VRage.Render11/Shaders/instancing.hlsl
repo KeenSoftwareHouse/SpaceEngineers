@@ -25,8 +25,8 @@ struct VertexPosition {
 
 struct VertexNormal {
 	uint packed_unorm4;
-	uint shit0;
-	uint shit1;
+	uint int0;
+	uint int1;
 };
 
 struct InstanceIndirection {
@@ -62,7 +62,7 @@ struct VertexToPixel {
 	float4 position : SV_Position;
 	float3 normal : NORMAL;
 	float3 color : COLOR;
-	float3 someShit : TEXCOORD0;
+	float3 debug : TEXCOORD0;
 };
 
 static const float3 DEBUG_COLORS_LIST [] = {
@@ -111,7 +111,7 @@ void vs(uint sv_vertex_id : SV_VertexID, out VertexToPixel output)
 	output.position = position;
 	output.normal = normal;	
 	output.color = DEBUG_COLORS_LIST[instance_offset % DEBUG_COLORS_NUM];
-	output.someShit = float3(packed_nor.shit0, packed_nor.shit1, 0);
+	output.debug = float3(packed_nor.int0, packed_nor.int1, 0);
 }
 
 #include <gbuffer_write.h>

@@ -35,6 +35,7 @@ namespace VRageRender
         internal void Deregister()
         {
             m_dict.Remove(m_ID);
+            m_value = null;
         }
     }
 }

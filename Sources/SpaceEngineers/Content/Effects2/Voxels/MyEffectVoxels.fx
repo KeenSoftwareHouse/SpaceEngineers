@@ -1,7 +1,7 @@
 #include "MyEffectVoxelsBase.fxh"
 float4x4 WorldMatrix;
 
-#include "MyEffectVoxelsClipping.fxh"
+#include "MyEffectVoxelVertex.fxh"
 #include "../MyEffectAtmosphereBase.fxh"
 
 float4x4 ViewMatrix;
@@ -14,11 +14,17 @@ float3 PositionToLefBottomOffset;
 bool HasAtmosphere;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define DEBUG_TEX_COORDS 0
+
 MyGbufferPixelShaderOutput PixelShaderFunction(VertexShaderOutput input, uniform int renderQuality)
 {
-    MyGbufferPixelShaderOutput output = GetTriplanarPixel(0, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
+    float3 localPosition = VoxelVertex_CellRelativeToLocalPosition(input.CellRelativePosition);
+    MyGbufferPixelShaderOutput output = GetTriplanarPixel(0, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
     output.DiffuseAndSpecIntensity.rgb = output.DiffuseAndSpecIntensity.rgb * DiffuseColor + Highlight;
     output.DepthAndEmissivity.a = PackGBufferEmissivityReflection((1 - output.DepthAndEmissivity.w) + length(Highlight), 0.0f); //inverted emissivity, zero reflection
+#if DEBUG_TEX_COORDS
+    output.DiffuseAndSpecIntensity = float4(frac(localPosition), 1.0f);
+#endif
     return output;
 }
 
@@ -26,9 +32,10 @@ MyGbufferPixelShaderOutput PixelShaderFunction_Multimaterial(VertexShaderOutput_
 {
     VertexShaderOutput input = multiInput.Single;
 
-    MyGbufferPixelShaderOutput output0 = GetTriplanarPixel(0, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
-    MyGbufferPixelShaderOutput output1 = GetTriplanarPixel(1, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity2, SpecularPower2, input.Ambient, renderQuality);
-    MyGbufferPixelShaderOutput output2 = GetTriplanarPixel(2, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity3, SpecularPower3, input.Ambient, renderQuality);
+    float3 localPosition = VoxelVertex_CellRelativeToLocalPosition(input.CellRelativePosition);
+    MyGbufferPixelShaderOutput output0 = GetTriplanarPixel(0, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
+    MyGbufferPixelShaderOutput output1 = GetTriplanarPixel(1, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity2, SpecularPower2, input.Ambient, renderQuality);
+    MyGbufferPixelShaderOutput output2 = GetTriplanarPixel(2, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity3, SpecularPower3, input.Ambient, renderQuality);
 
     float3 normal0 = GetNormalVectorFromRenderTarget(output0.NormalAndSpecPower.xyz);
     float3 normal1 = GetNormalVectorFromRenderTarget(output1.NormalAndSpecPower.xyz);
@@ -43,110 +50,114 @@ MyGbufferPixelShaderOutput PixelShaderFunction_Multimaterial(VertexShaderOutput_
     output.DiffuseAndSpecIntensity.rgb = output.DiffuseAndSpecIntensity.rgb * DiffuseColor + Highlight;
     output.DepthAndEmissivity.a = PackGBufferEmissivityReflection((1 - output.DepthAndEmissivity.w) + length(Highlight), 0.0f); //inverted emissivity, zero reflection
 
+#if DEBUG_TEX_COORDS
+    output.DiffuseAndSpecIntensity = float4(frac(localPosition), 1.0f);
+#endif
+
     return output;
 }
 
-float4 CalculateLighting(VoxelPixelData pixelData,float viewDistance,float3 worldPosition)
+float4 CalculateLighting(VoxelPixelData pixelData,float viewDistance, float3 worldPosition)
 {
-	float3 normal = pixelData.Normal;
-	float NdLbase = dot(normal, -LightDirection);
-	float NdL = max(0,NdLbase);
-	
+    float3 normal = pixelData.Normal;
+    float NdLbase = dot(normal, -LightDirection);
+    float NdL = max(0,NdLbase);
+
     float backNdL = max(0,-NdLbase);
-	float3 backDiffuseLight = backNdL * BacklightColorAndIntensity.xyz * pixelData.DiffuseTexture.rgb;
+    float3 backDiffuseLight = backNdL * BacklightColorAndIntensity.xyz * pixelData.DiffuseTexture.rgb;
 
-	float3 diffuseLight = LightColorAndIntensity.rgb*NdL  * pixelData.DiffuseTexture.rgb;
+    float3 diffuseLight = LightColorAndIntensity.rgb*NdL  * pixelData.DiffuseTexture.rgb;
 
-	float3 ambientTexCoord = -pixelData.Normal.xyz;
-	float4 ambientSample = SampleAmbientTexture(ambientTexCoord);
-	float3 ambientColor = AmbientMinimumAndIntensity.w * ambientSample.xyz;
-	float3 finalAmbientColor =  max(ambientColor, AmbientMinimumAndIntensity.xyz) * pixelData.DiffuseTexture.rgb;
+    float3 ambientTexCoord = -pixelData.Normal.xyz;
+    float4 ambientSample = SampleAmbientTexture(ambientTexCoord);
+    float3 ambientColor = AmbientMinimumAndIntensity.w * ambientSample.xyz;
+    float3 finalAmbientColor =  max(ambientColor, AmbientMinimumAndIntensity.xyz) * pixelData.DiffuseTexture.rgb;
 
 
-	float3 reflectionVector = -(reflect(-LightDirection, normal.xyz));
-	float3 reflectionVectorBack = -(reflect(LightDirection, normal.xyz));
-	VoxelVertex_LocalToWorldPosition(worldPosition.xyz);
-	float3 directionToCamera = normalize(-worldPosition.xyz);
+    float3 reflectionVector = -(reflect(-LightDirection, normal.xyz));
+    float3 reflectionVectorBack = -(reflect(LightDirection, normal.xyz));
+    float3 directionToCamera = normalize(-worldPosition.xyz);
 
-	float3 specular = float3(0,0,0);
-	float specularLight = 0;	
-	if (pixelData.SpecularIntensity > 0)
-	{
-		//compute specular light
-		float specularLight = pixelData.SpecularIntensity * pow( saturate(dot(reflectionVector, directionToCamera)), pixelData.SpecularPower);
-		specular = specularLight.xxx*LightSpecularColor;
-	}
+    float3 specular = float3(0,0,0);
+    float specularLight = 0;
+    if (pixelData.SpecularIntensity > 0)
+    {
+        //compute specular light
+        float specularLight = pixelData.SpecularIntensity * pow( saturate(dot(reflectionVector, directionToCamera)), pixelData.SpecularPower);
+        specular = specularLight.xxx*LightSpecularColor;
+    }
 
-	float backSpecular = pixelData.SpecularIntensity * pow( saturate(dot(reflectionVectorBack, directionToCamera)), pixelData.SpecularPower) * 0.5f;
-	backSpecular = backSpecular.xxx * float3(1,1,1) * lerp(float3(1,1,1), pixelData.DiffuseTexture.rgb, 0.5);
+    float backSpecular = pixelData.SpecularIntensity * pow( saturate(dot(reflectionVectorBack, directionToCamera)), pixelData.SpecularPower) * 0.5f;
+    backSpecular = backSpecular.xxx * float3(1,1,1) * lerp(float3(1,1,1), pixelData.DiffuseTexture.rgb, 0.5);
 
-	float4 finalColor =  float4(LightColorAndIntensity.w * (diffuseLight + specular),1);
-	finalColor += float4(finalAmbientColor + BacklightColorAndIntensity.w * (backDiffuseLight + backSpecular) * ambientSample.w, 1);
+    float4 finalColor =  float4(LightColorAndIntensity.w * (diffuseLight + specular),1);
+    finalColor += float4(finalAmbientColor + BacklightColorAndIntensity.w * (backDiffuseLight + backSpecular) * ambientSample.w, 1);
 
-	float4 fogColor = CalculateFogLinear(viewDistance);
-	pixelData.DiffuseTexture.rgb = lerp(finalColor,fogColor,fogColor.a*EnableFog);
-	return pixelData.DiffuseTexture;
+    float4 fogColor = CalculateFogLinear(viewDistance);
+    pixelData.DiffuseTexture.rgb = lerp(finalColor,fogColor,fogColor.a*EnableFog);
+    return pixelData.DiffuseTexture;
 }
 
 
 float4 PixelShaderFunctionFar(VertexShaderOutput input, uniform int renderQuality):COLOR0
 {
-	VoxelPixelData pixelData = GetTriplanarPixelFar(0, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);	
-	pixelData.DiffuseTexture.rgb = pixelData.DiffuseTexture.rgb* DiffuseColor + Highlight;
-	
-	float4 final = CalculateLighting(pixelData, input.ViewDistance, input.WorldPositionForTextureCoords);
-	if (HasAtmosphere)
-	{ 
-		final = CalculateAtmosphere(input.WorldPositionForTextureCoords.xyz, PositionToLefBottomOffset,final.rgb);
-	}
-	return final;
+    float3 localPosition = VoxelVertex_CellRelativeToLocalPosition(input.CellRelativePosition);
+    VoxelPixelData pixelData = GetTriplanarPixelFar(0, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
+    pixelData.DiffuseTexture.rgb = pixelData.DiffuseTexture.rgb* DiffuseColor + Highlight;
+
+    float3 worldPosition = VoxelVertex_CellRelativeToWorldPosition(input.CellRelativePosition);
+    float4 final = CalculateLighting(pixelData, input.ViewDistance, worldPosition);
+    if (HasAtmosphere)
+    {
+        final = CalculateAtmosphere(localPosition, PositionToLefBottomOffset,final.rgb);
+    }
+    return final;
 }
 
 float4 PixelShaderFunctionFar_Multimaterial(VertexShaderOutput_Multimaterial multiInput, uniform int renderQuality):COLOR0
 {
     VertexShaderOutput input = multiInput.Single;
-	VoxelPixelData pixelData0 = GetTriplanarPixelFar(0, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
-	VoxelPixelData pixelData1 = GetTriplanarPixelFar(1, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity2, SpecularPower2, input.Ambient, renderQuality);
-	VoxelPixelData pixelData2 = GetTriplanarPixelFar(2, input.WorldPositionForTextureCoords, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity3, SpecularPower3, input.Ambient, renderQuality);
+    float3 localPosition = VoxelVertex_CellRelativeToLocalPosition(input.CellRelativePosition);
+    VoxelPixelData pixelData0 = GetTriplanarPixelFar(0, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity, SpecularPower, input.Ambient, renderQuality);
+    VoxelPixelData pixelData1 = GetTriplanarPixelFar(1, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity2, SpecularPower2, input.Ambient, renderQuality);
+    VoxelPixelData pixelData2 = GetTriplanarPixelFar(2, localPosition, input.TriplanarWeights, input.Normal, input.ViewDistance, SpecularIntensity3, SpecularPower3, input.Ambient, renderQuality);
 
-	VoxelPixelData pixelData;
-	pixelData.Normal = normalize(pixelData0.Normal * multiInput.Alpha.x + pixelData1.Normal* multiInput.Alpha.y + pixelData2.Normal * multiInput.Alpha.z);
-	pixelData.DiffuseTexture = pixelData0.DiffuseTexture * multiInput.Alpha.x + pixelData1.DiffuseTexture* multiInput.Alpha.y + pixelData2.DiffuseTexture * multiInput.Alpha.z;
-	pixelData.SpecularIntensity = pixelData0.SpecularIntensity * multiInput.Alpha.x + pixelData1.SpecularIntensity* multiInput.Alpha.y + pixelData2.SpecularIntensity * multiInput.Alpha.z;
-	pixelData.SpecularPower = pixelData0.SpecularPower * multiInput.Alpha.x + pixelData1.SpecularPower* multiInput.Alpha.y + pixelData2.SpecularPower * multiInput.Alpha.z;
+    VoxelPixelData pixelData;
+    pixelData.Normal = normalize(pixelData0.Normal * multiInput.Alpha.x + pixelData1.Normal* multiInput.Alpha.y + pixelData2.Normal * multiInput.Alpha.z);
+    pixelData.DiffuseTexture = pixelData0.DiffuseTexture * multiInput.Alpha.x + pixelData1.DiffuseTexture* multiInput.Alpha.y + pixelData2.DiffuseTexture * multiInput.Alpha.z;
+    pixelData.SpecularIntensity = pixelData0.SpecularIntensity * multiInput.Alpha.x + pixelData1.SpecularIntensity* multiInput.Alpha.y + pixelData2.SpecularIntensity * multiInput.Alpha.z;
+    pixelData.SpecularPower = pixelData0.SpecularPower * multiInput.Alpha.x + pixelData1.SpecularPower* multiInput.Alpha.y + pixelData2.SpecularPower * multiInput.Alpha.z;
 
-	pixelData.DiffuseTexture.rgb = pixelData.DiffuseTexture.rgb* DiffuseColor + Highlight;
-	float4 final = CalculateLighting(pixelData, input.ViewDistance, input.WorldPositionForTextureCoords);
+    pixelData.DiffuseTexture.rgb = pixelData.DiffuseTexture.rgb* DiffuseColor + Highlight;
+    float3 worldPosition = VoxelVertex_CellRelativeToWorldPosition(input.CellRelativePosition);
+    float4 final = CalculateLighting(pixelData, input.ViewDistance, worldPosition);
     if (HasAtmosphere)
-	{
-		final = CalculateAtmosphere(input.WorldPositionForTextureCoords.xyz, PositionToLefBottomOffset, final.rgb);
-	}
-	return final;
+    {
+        final = CalculateAtmosphere(localPosition, PositionToLefBottomOffset, final.rgb);
+    }
+    return final;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ReadLocalPosition(VertexShaderInput input, out float3 positionA, out float3 positionB)
+void ReadCellRelativePosition(VertexShaderInput input, out float3 positionA, out float3 positionB)
 {
-    positionA = input.PositionAndAmbient.xyz;
-    positionB = input.PositionMorph.xyz;
-    VoxelVertex_NormalizedToLocalPosition(positionA);
-    VoxelVertex_NormalizedToLocalPosition(positionB);
+    positionA = VoxelVertex_NormalizedToCellRelativePosition(input.PositionAndAmbient.xyz);
+    positionB = VoxelVertex_NormalizedToCellRelativePosition(input.PositionMorph.xyz);
 }
 
-void ComputeCommonOutput(VertexShaderInput input, float3 localPosition, float3 normal, out VertexShaderOutput output)
+void ComputeCommonOutput(VertexShaderInput input, float3 cellRelativePosition, float3 normal, float ambient, out VertexShaderOutput output)
 {
-    output.Ambient = UnpackVoxelAmbient(input.PositionAndAmbient);
-
-    output.WorldPositionForTextureCoords = localPosition;
-    VoxelVertex_LocalToWorldPosition(localPosition);
-    float4 viewPosition = mul(float4(localPosition, 1), ViewMatrix);
+    output.CellRelativePosition = cellRelativePosition;
+    float3 worldPosition = VoxelVertex_CellRelativeToWorldPosition(cellRelativePosition);
+    float4 viewPosition = mul(float4(worldPosition, 1), ViewMatrix);
 
     // We need distance between camera and the vertex. We don't want to use just Z, or Z/W, we just need that distance.
     output.ViewDistance = -viewPosition.z;
 
+    output.Ambient = ambient;
     output.Position = mul(viewPosition, ProjectionMatrix);
-    output.Normal = normal;
+    output.Normal = mul(normal, (float3x3)WorldMatrix);
     output.TriplanarWeights = GetTriplanarWeights(output.Normal);
 }
 
@@ -154,36 +165,42 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     float3 positionA, positionB, normalA, normalB;
 
-    ReadLocalPosition(input, positionA, positionB);
+    ReadCellRelativePosition(input, positionA, positionB);
     normalA = UnpackNormal(input.Normal);
     normalB = UnpackNormal(input.NormalMorph);
+    float ambientA = UnpackVoxelAmbient(input.PositionAndAmbient);
+    float ambientB = UnpackVoxelAmbient(input.PositionMorph);
 
     float morph = VoxelVertex_ComputeMorphParameter(positionA);
     float3 position = lerp(positionA, positionB, morph);
     float3 normal = normalize(lerp(normalA, normalB, morph));
+    float ambient = lerp(ambientA, ambientB, morph);
 
     VertexShaderOutput output;
-    ComputeCommonOutput(input, position, normal, output);
+    ComputeCommonOutput(input, position, normal, ambient, output);
     return output;
 }
 
 VertexShaderOutput_Multimaterial VertexShaderFunction_Multimaterial(VertexShaderInput input)
 {
     float3 positionA, positionB, alphaA, alphaB, normalA, normalB;
-    ReadLocalPosition(input, positionA, positionB);
+    ReadCellRelativePosition(input, positionA, positionB);
     alphaA = UnpackVoxelAlpha(input.PositionAndAmbient);
     alphaB = UnpackVoxelAlpha(input.PositionMorph);
     normalA = UnpackNormal(input.Normal);
     normalB = UnpackNormal(input.NormalMorph);
+    float ambientA = UnpackVoxelAmbient(input.PositionAndAmbient);
+    float ambientB = UnpackVoxelAmbient(input.PositionMorph);
 
     float morph = VoxelVertex_ComputeMorphParameter(positionA);
     float3 position = lerp(positionA, positionB, morph);
     float3 normal = normalize(lerp(normalA, normalB, morph));
+    float ambient = lerp(ambientA, ambientB, morph);
     float3 alpha = lerp(alphaA, alphaB, morph);
 
     VertexShaderOutput_Multimaterial output;
     output.Alpha = alpha;
-    ComputeCommonOutput(input, position, normal, output.Single);
+    ComputeCommonOutput(input, position, normal, ambient, output.Single);
     return output;
 }
 
@@ -283,12 +300,12 @@ technique Technique_RenderQualityExtreme_Multimaterial
 
 technique Technique_RenderQualityNormal_Far
 {
-	pass Pass1
+    pass Pass1
     {
-        DECLARE_TEXTURES_QUALITY_EXTREME
+        DECLARE_TEXTURES_QUALITY_NORMAL
 
         VertexShader = compile vs_3_0 VertexShaderFunction();
-		PixelShader = compile ps_3_0 PixelShaderFunctionFar(RENDER_QUALITY_EXTREME);
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar(RENDER_QUALITY_NORMAL);
     }
 }
 
@@ -296,12 +313,62 @@ technique Technique_RenderQualityNormal_Far
 
 technique Technique_RenderQualityNormal_Mulitmaterial_Far
 {
-	pass Pass1
+    pass Pass1
+    {
+        DECLARE_TEXTURES_QUALITY_NORMAL
+
+        VertexShader = compile vs_3_0 VertexShaderFunction_Multimaterial();
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar_Multimaterial(RENDER_QUALITY_NORMAL);
+    }
+}
+
+technique Technique_RenderQualityHigh_Far
+{
+    pass Pass1
+    {
+        DECLARE_TEXTURES_QUALITY_HIGH
+
+        VertexShader = compile vs_3_0 VertexShaderFunction();
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar(RENDER_QUALITY_HIGH);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+technique Technique_RenderQualityHigh_Mulitmaterial_Far
+{
+    pass Pass1
+    {
+        DECLARE_TEXTURES_QUALITY_HIGH
+
+        VertexShader = compile vs_3_0 VertexShaderFunction_Multimaterial();
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar_Multimaterial(RENDER_QUALITY_HIGH);
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+technique Technique_RenderQualityExtreme_Far
+{
+    pass Pass1
+    {
+        DECLARE_TEXTURES_QUALITY_EXTREME
+
+        VertexShader = compile vs_3_0 VertexShaderFunction();
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar(RENDER_QUALITY_EXTREME);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+technique Technique_RenderQualityExtreme_Mulitmaterial_Far
+{
+    pass Pass1
     {
         DECLARE_TEXTURES_QUALITY_EXTREME
 
         VertexShader = compile vs_3_0 VertexShaderFunction_Multimaterial();
-		PixelShader = compile ps_3_0 PixelShaderFunctionFar_Multimaterial(RENDER_QUALITY_EXTREME);
+        PixelShader = compile ps_3_0 PixelShaderFunctionFar_Multimaterial(RENDER_QUALITY_EXTREME);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

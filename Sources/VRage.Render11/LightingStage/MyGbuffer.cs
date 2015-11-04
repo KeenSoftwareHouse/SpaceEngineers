@@ -27,7 +27,7 @@ namespace VRageRender
         internal static MyDepthStencil m_resolvedDepth;
         internal static MyRenderTarget m_particlesRT;
         internal static MyRenderTarget m_ambientOcclusion;
-        internal static MyUnorderedAccessTexture m_test;
+//        internal static MyRenderTarget m_luminancePingpong;
 
         internal static MyRWStructuredBuffer m_tileIndexes;
 
@@ -40,15 +40,14 @@ namespace VRageRender
                 m_resolvedDepth.Release();
                 m_particlesRT.Release();
                 m_ambientOcclusion.Release();
-                m_test.Release();
                 m_tileIndexes.Release();
+//                m_luminancePingpong.Release();
             }
 
             m_resolvedDepth = new MyDepthStencil(width, height, 1, 0);
             m_particlesRT = new MyRenderTarget(width, height, Format.R16G16B16A16_Float, 1, 0);
             m_ambientOcclusion = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm, 1, 0);
-            m_test = new MyUnorderedAccessTexture(width, height, Format.R8G8B8A8_UNorm);
-
+//            m_luminancePingpong = new MyRenderTarget(width, height, Format.R11G11B10_Float, 1, 0);
             
             int tilesNum = ((width + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE) * ((height + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE);
             TilesNum = tilesNum;

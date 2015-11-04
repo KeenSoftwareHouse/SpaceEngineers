@@ -14,6 +14,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using VRage;
 using Sandbox.ModAPI.Ingame;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -60,20 +61,27 @@ namespace Sandbox.Game.Entities
             base.Init(objectBuilder, cubeGrid);
 
             m_cargoDefinition = (MyCargoContainerDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(objectBuilder.GetId());
-
-            m_inventory = new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this);
-
             var cargoBuilder = (MyObjectBuilder_CargoContainer)objectBuilder;
             m_containerType = cargoBuilder.ContainerType;
 
-            if (m_containerType != null && MyFakes.RANDOM_CARGO_PLACEMENT && (cargoBuilder.Inventory == null || cargoBuilder.Inventory.Items.Count == 0))
+            if (!Components.Has<MyInventoryBase>())
             {
-                SpawnRandomCargo();
+                m_inventory = new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this);
+				if(MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+					Components.Add<MyInventoryBase>(m_inventory);
+
+                if (m_containerType != null && MyFakes.RANDOM_CARGO_PLACEMENT && (cargoBuilder.Inventory == null || cargoBuilder.Inventory.Items.Count == 0))
+                    SpawnRandomCargo();
+                else
+                    m_inventory.Init(cargoBuilder.Inventory);
             }
             else
             {
-                m_inventory.Init(cargoBuilder.Inventory);
+                m_inventory = Components.Get<MyInventoryBase>() as MyInventory;
+				Debug.Assert(m_inventory != null);
+                //m_inventory.Owner = this;
             }
+
             if(MyPerGameSettings.InventoryMass)
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
@@ -82,7 +90,7 @@ namespace Sandbox.Game.Entities
             UpdateIsWorking();
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }
@@ -91,7 +99,11 @@ namespace Sandbox.Game.Entities
         {
             MyObjectBuilder_CargoContainer cargoBuilder = (MyObjectBuilder_CargoContainer)base.GetObjectBuilderCubeBlock(copy);
 
-            cargoBuilder.Inventory = m_inventory.GetObjectBuilder();
+			if (!MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+				cargoBuilder.Inventory = m_inventory.GetObjectBuilder();
+			else
+				cargoBuilder.Inventory = null;
+
             if (m_containerType != null)
             {
                 cargoBuilder.ContainerType = m_containerType;
@@ -100,14 +112,6 @@ namespace Sandbox.Game.Entities
             return cargoBuilder;
         }
 
-        internal override float GetMass()
-        {
-            var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
-                return mass + (float)m_inventory.CurrentMass;
-            else 
-                return mass;
-        }
         public void SpawnRandomCargo()
         {
             if (m_containerType == null) return;
@@ -115,25 +119,7 @@ namespace Sandbox.Game.Entities
             MyContainerTypeDefinition containerDefinition = MyDefinitionManager.Static.GetContainerTypeDefinition(m_containerType);
             if (containerDefinition != null && containerDefinition.Items.Count() > 0)
             {
-                int itemNumber = MyUtils.GetRandomInt(containerDefinition.CountMin, containerDefinition.CountMax);
-                for (int i = 0; i < itemNumber; ++i)
-                {
-                    MyContainerTypeDefinition.ContainerTypeItem item = containerDefinition.SelectNextRandomItem();
-                    MyFixedPoint amount = (MyFixedPoint)MyRandom.Instance.NextFloat((float)item.AmountMin, (float)item.AmountMax);
-
-                    if (MyDefinitionManager.Static.GetPhysicalItemDefinition(item.DefinitionId).HasIntegralAmounts)
-                    {
-                        amount = MyFixedPoint.Ceiling(amount); // Use ceiling to avoid amounts equal to 0
-                    }
-
-                    amount = MyFixedPoint.Min(m_inventory.ComputeAmountThatFits(item.DefinitionId), amount);
-                    if (amount > 0)
-                    {
-                        var inventoryItem = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.DefinitionId);
-                        m_inventory.AddItems(amount, inventoryItem);
-                    }
-                }
-                containerDefinition.DeselectAll();
+                m_inventory.GenerateContent(containerDefinition);
             }
         }
 
@@ -144,6 +130,23 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(index == 0);
             return m_inventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if(m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged -= Inventory_ContentsChanged;
+            }
+
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
         }
 
         String IMyInventoryOwner.DisplayNameText

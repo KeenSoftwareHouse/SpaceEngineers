@@ -65,7 +65,6 @@ namespace Sandbox.Game.Gui
         public static MyGuiScreenIntroVideo CreateBackgroundScreen()
         {
             var result = new MyGuiScreenIntroVideo(MyPerGameSettings.GUI.MainMenuBackgroundVideos);
-            result.m_colorMultiplier = new Vector4(0.5f, 0.5f, 0.5f, 1);
             return result;
         }
 
@@ -82,7 +81,7 @@ namespace Sandbox.Game.Gui
         private void LoadRandomVideo()
         {
             int index = MyUtils.GetRandomInt(0, m_videos.Length);
-            if (index > 0)
+            if (m_videos.Length > 0)
             {
                 m_currentVideo = m_videos[index];
             }

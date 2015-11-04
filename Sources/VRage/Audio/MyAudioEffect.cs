@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace VRage.Data.Audio
@@ -29,6 +29,6 @@ namespace VRage.Data.Audio
 
         public int ResultEmitterIdx;
         public List<List<SoundEffect>> SoundsEffects = new List<List<SoundEffect>>();
-        public MyStringId EffectId;
+        public MyStringHash EffectId;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System;
@@ -9,11 +9,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using VRage;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 
 namespace Sandbox.Game.World
 {
-
+    [MyEventType(typeof(MyObjectBuilder_GlobalEventBase))]
+    [MyEventType(typeof(MyObjectBuilder_GlobalEventDefinition), mainBuilder: false)]
     public class MyGlobalEventBase : IComparable
     {
         public bool IsOneTime
@@ -57,6 +59,9 @@ namespace Sandbox.Game.World
         public TimeSpan ActivationTime { private set; get; }
         public bool Enabled { get; set; }
 
+        // Set during the handling if a periodic event should be removed after the handler exits
+        public bool RemoveAfterHandlerExit { get; set; }
+
         public virtual void InitFromDefinition(MyGlobalEventDefinition definition)
         {
             Definition = definition;
@@ -70,20 +75,21 @@ namespace Sandbox.Game.World
                 RecalculateActivationTime();
             }
             Enabled = true;
+            RemoveAfterHandlerExit = false;
         }
 
         public virtual void Init(MyObjectBuilder_GlobalEventBase ob)
         {
-            Definition = MyDefinitionManager.Static.GetEventDefinition(ob.DefinitionId);
-            Action = MyGlobalEventFactory.GetEventHandler(Definition.Id);
+            Definition = MyDefinitionManager.Static.GetEventDefinition(ob.GetId());
+            Action = MyGlobalEventFactory.GetEventHandler(ob.GetId());
             ActivationTime = TimeSpan.FromMilliseconds(ob.ActivationTimeMs);
             Enabled = ob.Enabled;
+            RemoveAfterHandlerExit = false;
         }
 
         public virtual MyObjectBuilder_GlobalEventBase GetObjectBuilder()
         {
-            var ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEventBase>();
-            ob.DefinitionId = Definition.Id;
+            var ob = MyObjectBuilderSerializer.CreateNewObject(Definition.Id.TypeId, Definition.Id.SubtypeName) as MyObjectBuilder_GlobalEventBase;
             ob.ActivationTimeMs = ActivationTime.Ticks / TimeSpan.TicksPerMillisecond;
             ob.Enabled = Enabled;
             return ob;

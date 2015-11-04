@@ -136,7 +136,7 @@ namespace VRageRender
 
             SortTransparent();
             var mapping = MyMapping.MapDiscard(MyCommon.ProjectionConstants);
-            mapping.stream.Write(Matrix.Transpose(MyEnvironment.ViewProjection));
+            mapping.stream.Write(Matrix.Transpose(MyEnvironment.ViewProjectionAt0));
             mapping.Unmap();
 
             CheckBufferSize(m_vertexList.Count);

@@ -1,11 +1,15 @@
-﻿using Sandbox.Engine.Physics;
+﻿using Sandbox.Engine.Networking;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.Interfaces;
 using System;
 using System.Diagnostics;
+using VRage.Components;
 using VRage.Data;
 using VRage.Data.Audio;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game
@@ -45,6 +49,7 @@ namespace Sandbox.Game
         public Type OptionsScreen;
         public Type CustomWorldScreen;
         public Type ScenarioScreen;
+        public Type TutorialScreen;
         public Type EditWorldSettingsScreen;
         public Type HelpScreen;
         public Type VoxelMapEditingScreen;
@@ -52,6 +57,8 @@ namespace Sandbox.Game
         public Type BattleScreen;
         public Type BattleBlueprintScreen;
         public Type BattleLobbyClientScreen;
+        public Type ScenarioLobbyClientScreen;
+        public Type InventoryScreen;
 
         public string[] MainMenuBackgroundVideos;
 
@@ -83,7 +90,6 @@ namespace Sandbox.Game
         public static string GameIcon;
         public static bool EnableGlobalGravity;
         public static bool ZoomRequiresLookAroundPressed = false;
-        public static bool EnableWeaponWithoutInventory = false;
 
         public static bool EnablePregeneratedAsteroidHack = false;
         public static bool SendLogToKeen = true;
@@ -101,6 +107,8 @@ namespace Sandbox.Game
         public static MyPlacementSettings BuildingSettings;
         public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
+        public static string SandboxAssembly = "Sandbox.Common.dll";
+        public static string SandboxGameAssembly = "Sandbox.Game.dll";
 
         public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
@@ -109,6 +117,7 @@ namespace Sandbox.Game
         public static bool RestrictSpectatorFlyMode = false;
 
         private static Type m_isoMesherType = typeof(MyDualContouringMesher);
+        //private static Type m_isoMesherType = typeof(MyMarchingCubesMesher);
         public static Type IsoMesherType
         {
             get
@@ -134,8 +143,6 @@ namespace Sandbox.Game
             SprintAcceleration     = 100, //m/ss
             SprintDecceleration    = 20,  //m/ss
         };
-
-        public static float CharacterDefaultLootingCounter = 5 * 60.0f;
 
         public static MyCollisionParticleSettings CollisionParticle = new MyCollisionParticleSettings()
         {
@@ -194,18 +201,23 @@ namespace Sandbox.Game
             },
             HUDScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHudSpace),
             ToolbarConfigScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCubeBuilder),
-            OptionsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenOptionsSpace),
             CustomWorldScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             ScenarioScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenario),
+            TutorialScreen = typeof(Sandbox.Game.Gui.MyGuiScreenTutorial),
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
+            ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
         };
-        public static Type RespawnComponentType = null;
+
+        // Artificial intelligence
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
+        public static bool EnablePathfinding = false;
+        public static bool NavmeshPresumesDownwardGravity = false;
 
         public static Type ControlMenuInitializerType = null;
+        public static Type CompatHelperType = typeof(Sandbox.Game.World.MySessionCompatHelper);
 
         public static MyCredits Credits = new MyCredits();
 
@@ -213,44 +225,74 @@ namespace Sandbox.Game
 
         public static bool EnableObjectExport = true;
 
-        public static RigidBodyFlag LargeGridRBFlag = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
+        public static RigidBodyFlag LargeGridRBFlag =  MyFakes.ENABLE_DOUBLED_KINEMATIC ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT;
         public static RigidBodyFlag GridRBFlagOnClients = RigidBodyFlag.RBF_DEFAULT;
-        public static bool CharacterUpdatePositionPerFrame = false;
         public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
         public static float NetworkCharacterScale = 1.0f;
         public static int NetworkCharacterCollisionLayer = MyPhysics.CharacterNetworkCollisionLayer;
         public static bool TryConvertGridToDynamicAfterSplit = false;
+        public static bool AnimateOnlyVisibleCharacters = false;
 
-        public static float CharacterDamageCharacterEnergyScale = 0.025f;   // this reduces the damage on character caused by character's energy
-        public static float CharacterDamageObjectEnergyScale = 0.1f;    // this reduces the damage on character caused by object's energy when the object is squeezing the character
-        public static float CharacterDamageCharacterMinVelocity = 12.0f;    // minimal speed of character to cause damage to itself 3 blocks ~ 16.7 m/s, 2 blocks 13.47 m/s 1 block 9.0 m/s
-        public static float CharacterDamageObjectMinMass = 200f;    // minimal weight of the object to cause damage when squeezing the character
-        public static float CharacterDamageObjectMinVelocity = 3.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
-        public static float CharacterDamageScale = 1.0f;   // the scale of final damage = (object energy + character energy) * separating velocity * CharacterDamageScale;
-        public static bool AlwaysSpawnPlayerOnVoxel = false;
+        // DAMAGE SETTINGS
+        public static float CharacterDamageMinVelocity = 12.0f;    // minimal speed of character to cause damage to itself 3 blocks ~ 16.7 m/s, 2 blocks 13.47 m/s 1 block 9.0 m/s
+        public static float CharacterDamageDeadlyDamageVelocity = 16.0f; // speed to cause deadly damage
+        public static float CharacterDamageMediumDamageVelocity = 13.0f; // speed to cause mediun damage when character falls
+        public static float CharacterDamageHitObjectMinMass = 10f;    // minimal weight of the object to cause damage when squeezing the character
+        public static float CharacterDamageHitObjectMinVelocity = 8.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
+        public static float CharacterDamageHitObjectMediumEnergy = 100; // energy of the colliding object with the character to cause the medium damage
+        public static float CharacterDamageHitObjectSmallEnergy = 80;
+        public static float CharacterDamageHitObjectCriticalEnergy = 200;
+        public static float CharacterDamageHitObjectDeadlyEnergy = 500;
+        public static float CharacterSmallDamage = 10;  // amount of health points for that kind of damage
+        public static float CharacterMediumDamage = 30;
+        public static float CharacterCriticalDamage = 70;
+        public static float CharacterDeadlyDamage = 100;
+        public static float CharacterSqueezeDamageDelay = 1f; // delay before applying damage on character when squeezing
+        public static float CharacterSqueezeMinMass = 200f; // minimal mass to cause squeeze on character
+        public static float CharacterSqueezeMediumDamageMass = 1000;
+        public static float CharacterSqueezeCriticalDamageMass = 3000;
+        public static float CharacterSqueezeDeadlyDamageMass = 5000;
         
         public static bool CharacterSuicideEnabled = false;
+
+		public static bool NonloopingCharacterFootsteps = false;
 
         public static Func<bool> ConstrainInventory = () => Sandbox.Game.World.MySession.Static.SurvivalMode;
         
         public static bool SwitchToSpectatorCameraAfterDeath = false;
         public static bool SimplePlayerNames = false;
+        public static Type CharacterDetectionComponent;
 
-        public static bool DisableIntersectionOnUnsopportedCharacters = false;
         public static string BugReportUrl = "https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=http%3A%2F%2Fforums.keenswh.com%2Fregister%2Fsteam%3Fredirect%3Dhttp%253A%252F%252Fforums.keenswh.com%252Fforums%252Fbug-reports.326950%252F&openid.realm=http%3A%2F%2Fforums.keenswh.com&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select";
 
         public static bool EnableScenarios = false;
+        public static bool EnableTutorials = false;
 
         public static bool EnableRagdollModels = true;
 
         public static bool ShowObfuscationStatus = true;
 
         public static bool EnableKinematicMPCharacter = false;
+        public static bool EnablePerFrameCharacterSync = false;
 
         public static bool EnableRagdollInJetpack = false;
 
         public static bool InventoryMass = false;
 
         public static bool EnableCharacterCollisionDamage = false;
+        public static MyStringId DefaultGraphicsRenderer;
+
+        public static bool EnableWelderAutoswitch = false;
+
+        public static Type VoiceChatLogic = null;
+        public static bool VoiceChatEnabled = false;
+
+        public static bool EnableJumpDrive = false;
+
+        public static Func<float> GetElapsedMinutes = () => (float)Sandbox.Game.World.MySession.Static.ElapsedGameTime.TotalMinutes;
+
+        public static Engine.Networking.IMyAnalytics AnalyticsTracker = null; // = MyInfinarioAnalytics.Instance;
+        
+        public static bool EnableFloatingObjectsActiveSync = false;
     }
 }

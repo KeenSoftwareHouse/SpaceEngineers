@@ -148,7 +148,7 @@ namespace Sandbox.Game.Gui
             var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
             if (world == null)
                 return;
-            MySteamWorkshop.CreateWorldInstanceAsync(world, delegate(bool success, string sessionPath)
+            MySteamWorkshop.CreateWorldInstanceAsync(world, MySteamWorkshop.MyWorkshopPathInfo.CreateWorldInfo(), false, delegate(bool success, string sessionPath)
             {
                 if (success)
                     MyGuiScreenLoadSandbox.LoadSingleplayerSession(sessionPath);
@@ -181,9 +181,18 @@ namespace Sandbox.Game.Gui
             return base.Draw();
         }
 
+        protected override void OnClosed()
+        {
+            base.OnClosed();
+
+            MyAnalyticsHelper.ReportActivityEnd(null, "show_workshop");
+        }
+
         protected override void OnShow()
         {
             base.OnShow();
+
+            MyAnalyticsHelper.ReportActivityStart(null, "show_workshop", string.Empty, "gui", string.Empty);
 
             if (m_listNeedsReload)
                 FillList();

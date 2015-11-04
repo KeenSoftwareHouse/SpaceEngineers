@@ -13,10 +13,14 @@ namespace VRage.Audio
         bool IsPlaying { get; }
         float FrequencyRatio { get; set; }
         bool IsLoopable { get; }
-        MyStringId CueEnum { get; }
+        MyCueId CueEnum { get; }
 
         void Start(bool skipIntro, bool skipToEnd = false);
         void Stop(bool force = false);
+
+        void StartBuffered();
+        void SubmitBuffer(byte[] buffer, int size);
+        bool IsBuffered { get; }
 
         void Pause();
 
@@ -27,5 +31,7 @@ namespace VRage.Audio
         void SetVolume(float value);
 
         float Volume { get; }
+
+        void Cleanup();
     }
 }

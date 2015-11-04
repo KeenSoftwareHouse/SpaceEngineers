@@ -45,14 +45,51 @@ namespace Sandbox.Engine.Voxels
         void ResetOutsideBorders(MyVoxelBase voxelMap, BoundingBoxD worldAabb);
 
         void DebugDraw(MyVoxelBase voxelMap, MyVoxelDebugDrawMode mode);
+
+        IMyStorageDataProvider DataProvider { get; }
+
+        void Reset();
     }
 
     public static class IMyStorageExtensions
     {
         public static void ClampVoxelCoord(this Sandbox.ModAPI.Interfaces.IMyStorage self, ref Vector3I voxelCoord, int distance = 1)
         {
+            if (self == null) return;
             var sizeMinusOne = self.Size - distance;
             Vector3I.Clamp(ref voxelCoord, ref Vector3I.Zero, ref sizeMinusOne, out voxelCoord);
+        }
+
+        public static MyVoxelMaterialDefinition GetMaterialAt(this IMyStorage self, ref Vector3D localCoords)
+        {
+            MyVoxelMaterialDefinition def;
+
+            Vector3I voxelCoords = Vector3D.Floor(localCoords / MyVoxelConstants.VOXEL_SIZE_IN_METRES);
+
+            MyStorageDataCache cache = new MyStorageDataCache();
+            cache.Resize(Vector3I.One);
+            cache.ClearMaterials(0);
+
+            self.ReadRange(cache, MyStorageDataTypeFlags.Material, 0, ref voxelCoords, ref voxelCoords);
+
+            def = MyDefinitionManager.Static.GetVoxelMaterialDefinition(cache.Material(0));
+
+            return def;
+        }
+
+        public static MyVoxelMaterialDefinition GetMaterialAt(this IMyStorage self, ref Vector3I voxelCoords)
+        {
+            MyVoxelMaterialDefinition def;
+
+            MyStorageDataCache cache = new MyStorageDataCache();
+            cache.Resize(Vector3I.One);
+            cache.ClearMaterials(0);
+
+            self.ReadRange(cache, MyStorageDataTypeFlags.Material, 0, ref voxelCoords, ref voxelCoords);
+
+            def = MyDefinitionManager.Static.GetVoxelMaterialDefinition(cache.Material(0));
+
+            return def;
         }
     }
 }

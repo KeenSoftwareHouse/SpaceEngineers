@@ -171,7 +171,7 @@ namespace Sandbox.Graphics.GUI
             return ob;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             //draw buttons on head with texts
             var normalTexture = MyGuiConstants.TEXTURE_BUTTON_DEFAULT_NORMAL;
@@ -195,7 +195,7 @@ namespace Sandbox.Graphics.GUI
                 var font              = (isEnabled && isHighlight) ? MyFontEnum.White : MyFontEnum.Blue;
 
                 // Draw background texture
-                texture.Draw(currentPos, TabButtonSize, colorMaskModified, m_tabButtonScale);
+                texture.Draw(currentPos, TabButtonSize, ApplyColorMaskModifiers(ColorMask, isEnabled, transitionAlpha), m_tabButtonScale);
                 StringBuilder text = currentTab.Text;
                 if (text != null)
                 {
@@ -212,25 +212,20 @@ namespace Sandbox.Graphics.GUI
                 pos++;
             }
 
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
       
         public override MyGuiControlBase HandleInput()
         {
-            MyGuiControlBase ret = base.HandleInput();
-
-            if (ret == null)
+            int tab = GetMouseOverTab();
+            if (tab != -1 && GetTabSubControl(tab).Enabled && MyInput.Static.IsNewPrimaryButtonPressed())
             {
-                int tab = GetMouseOverTab();
-                if (tab != -1 && GetTabSubControl(tab).Enabled && MyInput.Static.IsNewPrimaryButtonPressed())
-                {
-                    MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
-                    SelectedPage = tab;
-                    ret = this;
-                }
+                MyGuiSoundManager.PlaySound(GuiSounds.MouseClick);
+                SelectedPage = tab;
+                return this;
             }
 
-            return ret;
+            return base.HandleInput();
         }
 
         public override void ShowToolTip()

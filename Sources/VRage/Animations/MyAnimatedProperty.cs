@@ -21,8 +21,20 @@ namespace VRage.Animations
         void GetInterpolatedValue(float time, out object value);
         void AddKey(float time, object val);
         void RemoveKey(float time);
+        void RemoveKey(int index);
         //IEnumerable GetKeys();
         void ClearKeys();
+        int GetKeysCount();        
+        void SetKey(int index, float time);
+
+        /// <summary>
+        /// Warning this will do allocations, use only in editor!
+        /// </summary>
+        void EditorSetKey(int index, float time, object value);
+        /// <summary>
+        /// Warning this will do allocations, use only in editor!
+        /// </summary>
+        void EditorGetKey(int index, out float time, out object value);        
     }
 
     [System.Reflection.Obfuscation(Feature = System.Reflection.Obfuscator.NoRename, Exclude = true, ApplyToMembers = true)]
@@ -122,6 +134,7 @@ namespace VRage.Animations
         public delegate void InterpolatorDelegate(ref T previousValue, ref T nextValue, float time, out T value);
         public InterpolatorDelegate Interpolator;
         string m_name;
+        bool m_interpolateAfterEnd;
         static MyKeysComparer m_keysComparer = new MyKeysComparer();
 
         public MyAnimatedProperty()
@@ -129,10 +142,11 @@ namespace VRage.Animations
             Init();
         }
 
-        public MyAnimatedProperty(string name, InterpolatorDelegate interpolator)
+        public MyAnimatedProperty(string name, bool interpolateAfterEnd, InterpolatorDelegate interpolator)
             : this()
         {
             m_name = name;
+            m_interpolateAfterEnd = interpolateAfterEnd;
             if (interpolator != null)
                 Interpolator = interpolator;
         }
@@ -154,7 +168,7 @@ namespace VRage.Animations
         {
         }
 
-        public object GetValue()
+        object IMyConstProperty.EditorGetValue()
         {
             return null;
         }
@@ -187,29 +201,60 @@ namespace VRage.Animations
 
             if (time > m_keys[m_keys.Count - 1].Time)
             {
-                value = (U)m_keys[m_keys.Count - 1].Value;
+                if (m_interpolateAfterEnd)
+                {
+                    T previousValue, nextValue;
+                    float previousTime, nextTime, difference;
+
+                    GetPreviousValue(m_keys[m_keys.Count - 1].Time, out previousValue, out previousTime);
+                    GetNextValue(time, out nextValue, out nextTime, out difference);
+
+                    T val;
+                    if (Interpolator != null)
+                    {
+                        Interpolator(ref previousValue, ref nextValue, (time - previousTime) * difference, out val);
+                        value = (U)val;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Fail("Interpolator is not set for this property!");
+                        value = default(U);
+                    }
+                }
+                else
+                    value = (U)m_keys[m_keys.Count - 1].Value;
+
                 return;
             }
 
-            T previousValue, nextValue;
-            float previousTime, nextTime, difference;
-
-            //   VRageRender.MyRenderProxy.GetRenderProfiler().StartParticleProfilingBlock("GetPreviousValue");
-            GetPreviousValue(time, out previousValue, out previousTime);
-            //   VRageRender.MyRenderProxy.GetRenderProfiler().EndParticleProfilingBlock();
-
-            //   VRageRender.MyRenderProxy.GetRenderProfiler().StartParticleProfilingBlock("GetNextValue");
-            GetNextValue(time, out nextValue, out nextTime, out difference);
-            //  VRageRender.MyRenderProxy.GetRenderProfiler().EndParticleProfilingBlock();
-
-            if (nextTime == previousTime)
-                value = (U)previousValue;
-            else
             {
-                T val;
-                Interpolator(ref previousValue, ref nextValue, (time - previousTime) * difference, out val);
+                T previousValue, nextValue;
+                float previousTime, nextTime, difference;
 
-                value = (U)val;
+                //   VRageRender.MyRenderProxy.GetRenderProfiler().StartParticleProfilingBlock("GetPreviousValue");
+                GetPreviousValue(time, out previousValue, out previousTime);
+                //   VRageRender.MyRenderProxy.GetRenderProfiler().EndParticleProfilingBlock();
+
+                //   VRageRender.MyRenderProxy.GetRenderProfiler().StartParticleProfilingBlock("GetNextValue");
+                GetNextValue(time, out nextValue, out nextTime, out difference);
+                //  VRageRender.MyRenderProxy.GetRenderProfiler().EndParticleProfilingBlock();
+
+                if (nextTime == previousTime)
+                    value = (U)previousValue;
+                else
+                {
+                    T val;
+                    if (Interpolator != null)
+                    {
+                        Interpolator(ref previousValue, ref nextValue, (time - previousTime) * difference, out val);
+                        value = (U)val;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Fail("Interpolator is not set for this property!");
+                        value = default(U);
+                    }
+                }
             }
         }
 
@@ -233,6 +278,30 @@ namespace VRage.Animations
                 previousTime = m_keys[i].Time;
                 previousValue = m_keys[i].Value;
             }
+        }
+
+        void IMyAnimatedProperty.EditorGetKey(int index, out float time, out object value)
+        {
+            T val;
+            GetKey(index, out time, out val);
+            value = val;
+        }
+
+        void IMyAnimatedProperty.EditorSetKey(int index, float time, object value)
+        {
+            var key = m_keys[index];
+            key.Time = time;
+            key.Value = (T)value;
+            m_keys[index] = key;
+            m_keys.Sort(m_keysComparer);
+        }
+
+        void IMyAnimatedProperty.SetKey(int index, float time)
+        {
+            var key = m_keys[index];
+            key.Time = time;
+            m_keys[index] = key;
+            m_keys.Sort(m_keysComparer);
         }
 
         public void GetNextValue(float time, out T nextValue, out float nextTime, out float difference)
@@ -312,6 +381,11 @@ namespace VRage.Animations
             }
         }
 
+        void IMyAnimatedProperty.RemoveKey(int index)
+        {
+            RemoveKey(index);
+        }
+
         void RemoveKey(int index)
         {
             m_keys.RemoveAt(index);
@@ -352,6 +426,11 @@ namespace VRage.Animations
             {
                 animatedTargetProp.AddKey(pair);
             }
+        }
+
+        Type IMyConstProperty.GetValueType()
+        {
+            return typeof(T);
         }
 
         #region Serialization
@@ -480,11 +559,11 @@ namespace VRage.Animations
         { }
 
         public MyAnimatedPropertyFloat(string name)
-            : this(name, null)
+            : this(name, false, null)
         { }
 
-        public MyAnimatedPropertyFloat(string name, InterpolatorDelegate interpolator)
-            : base(name, interpolator)
+        public MyAnimatedPropertyFloat(string name, bool interpolateAfterEnd, InterpolatorDelegate interpolator)
+            : base(name, interpolateAfterEnd, interpolator)
         {
         }
 
@@ -524,11 +603,11 @@ namespace VRage.Animations
         { }
 
         public MyAnimatedPropertyVector3(string name)
-            : this(name, null)
+            : this(name, false, null)
         { }
 
-        public MyAnimatedPropertyVector3(string name, InterpolatorDelegate interpolator)
-            : base(name, interpolator)
+        public MyAnimatedPropertyVector3(string name, bool interpolateAfterEnd, InterpolatorDelegate interpolator)
+            : base(name, interpolateAfterEnd, interpolator)
         {
         }
 
@@ -574,7 +653,7 @@ namespace VRage.Animations
         }
 
         public MyAnimatedPropertyVector4(string name, InterpolatorDelegate interpolator)
-            : base(name, interpolator)
+            : base(name, false, interpolator)
         {
         }
 
@@ -619,7 +698,7 @@ namespace VRage.Animations
         { }
 
         public MyAnimatedPropertyInt(string name, InterpolatorDelegate interpolator)
-            : base(name, interpolator)
+            : base(name, false, interpolator)
         {
         }
 

@@ -20,7 +20,105 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -89,7 +187,106 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -179,7 +376,104 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+           <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true" />
       </PossibleStartingStates>
@@ -215,7 +509,104 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
           <Transform>
@@ -257,7 +648,104 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -302,7 +790,104 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="RespawnShip" />
       </PossibleStartingStates>
@@ -326,10 +911,107 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
       </PossibleStartingStates>
     </ScenarioDefinition>
-  </Scenarios>
+</Scenarios>
 </ScenarioDefinitions>

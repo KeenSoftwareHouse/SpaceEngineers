@@ -10,10 +10,6 @@ namespace VRage.Voxels
     {
         public const string FILE_EXTENSION = ".vx2";
 
-        //  This is max number of cell contents (mixed cells).
-        // Decreased to 120K, 150K eat to much memory, best would be to decrease even more
-        public const int PREALLOCATED_CELL_CONTENTS_COUNT = 120000;
-
         //  This is the value that says if voxel is full or not (but only for marching cubes algorithm, not path-finding, etc)
         //  It's the middle of 0 and 255
         public const byte VOXEL_ISO_LEVEL = 127;
@@ -51,14 +47,6 @@ namespace VRage.Voxels
         public static readonly Vector3 GEOMETRY_CELL_SIZE_VECTOR_IN_METRES = new Vector3(GEOMETRY_CELL_SIZE_IN_METRES);
         public static readonly int GEOMETRY_CELL_CACHE_SIZE = (Environment.Is64BitProcess) ? (65536 * 4) : (int)(65536 * 1.2);
 
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS = 2;
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS = 1 << RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS;
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_TOTAL = RENDER_CELL_SIZE_IN_GEOMETRY_CELLS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS;
-        public const int RENDER_CELL_SIZE_IN_VOXELS = GEOMETRY_CELL_SIZE_IN_VOXELS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS;
-        public const float RENDER_CELL_SIZE_IN_METRES = RENDER_CELL_SIZE_IN_VOXELS * VOXEL_SIZE_IN_METRES;
-        public const float RENDER_CELL_SIZE_IN_METRES_HALF = RENDER_CELL_SIZE_IN_METRES / 2.0f;
-        public static readonly Vector3 RENDER_CELL_SIZE_VECTOR_IN_METRES = new Vector3(RENDER_CELL_SIZE_IN_METRES);
-
         // When wrinkling voxels using voxel hand, this is default wrinkle weight amount
         public const float DEFAULT_WRINKLE_WEIGHT_ADD = 0.5f;
         public const float DEFAULT_WRINKLE_WEIGHT_REMOVE = 0.45f;
@@ -66,6 +54,10 @@ namespace VRage.Voxels
         // Increment this when adding a new generator version
         public const int VOXEL_GENERATOR_VERSION = 2;
         public const int VOXEL_GENERATOR_MIN_ICE_VERSION = 1;
+
+        // Voxel ore priorities
+        public static readonly int PRIORITY_IGNORE_EXTRACTION = -1;
+        public static readonly int PRIORITY_NORMAL = 1;
     }
 
 }

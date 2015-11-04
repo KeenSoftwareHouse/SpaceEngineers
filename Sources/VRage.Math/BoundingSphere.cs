@@ -159,12 +159,10 @@ namespace VRageMath
         /// <param name="box">The BoundingBox to create the BoundingSphere from.</param>
         public static BoundingSphere CreateFromBoundingBox(BoundingBox box)
         {
-            BoundingSphere boundingSphere;
-            Vector3.Lerp(ref box.Min, ref box.Max, 0.5f, out boundingSphere.Center);
-            float result;
-            Vector3.Distance(ref box.Min, ref box.Max, out result);
-            boundingSphere.Radius = result * 0.5f;
-            return boundingSphere;
+            BoundingSphere result;
+            result.Center = (box.Min + box.Max) * .5f;
+            Vector3.Distance(ref result.Center, ref box.Max, out result.Radius);
+            return result;
         }
 
         /// <summary>
@@ -173,10 +171,8 @@ namespace VRageMath
         /// <param name="box">The BoundingBox to create the BoundingSphere from.</param><param name="result">[OutAttribute] The created BoundingSphere.</param>
         public static void CreateFromBoundingBox(ref BoundingBox box, out BoundingSphere result)
         {
-            Vector3.Lerp(ref box.Min, ref box.Max, 0.5f, out result.Center);
-            float result1;
-            Vector3.Distance(ref box.Min, ref box.Max, out result1);
-            result.Radius = result1 * 0.5f;
+            result.Center = (box.Min + box.Max) * .5f;
+            Vector3.Distance(ref result.Center, ref box.Max, out result.Radius);
         }
 
         /// <summary>

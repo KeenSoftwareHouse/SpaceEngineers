@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox.Definitions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using VRage.Voxels;
@@ -30,5 +31,10 @@ namespace Sandbox.Engine.Voxels
         void DebugDraw(ref MatrixD worldMatrix);
 
         void ReindexMaterials(Dictionary<byte, byte> oldToNewIndexMap);
+
+        //float GetDistanceToPoint(ref Vector3D localPos);
+
+        //MyVoxelMaterialDefinition GetMaterialAtPosition(ref Vector3D worldPosition);
+
     }
 }

@@ -289,10 +289,10 @@ namespace Sandbox.Graphics.GUI
             }
             set
             {
-                Debug.Assert(m_visibleRowIndexOffset >= 0, "Index should be positive!");
-                Debug.Assert(m_visibleRowIndexOffset < Items.Count, "Index should be in range!");
+                Debug.Assert(value >= 0, "Index should be positive!");
+                Debug.Assert(value < Items.Count, "Index should be in range!");
 
-                m_scrollBar.ChangeValue(value);
+                m_scrollBar.Value = value;
             }
         }
 
@@ -403,13 +403,13 @@ namespace Sandbox.Graphics.GUI
             return captureInput;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             Debug.Assert(m_visibleRowIndexOffset >= 0);
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var positionTopLeft = GetPositionAbsoluteTopLeft();
 
-            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var position = positionTopLeft + new Vector2(m_itemsRectangle.X, m_itemsRectangle.Y);
             int index = m_visibleRowIndexOffset;
@@ -508,6 +508,8 @@ namespace Sandbox.Graphics.GUI
             // if listbox supports icons and mouse is over any item, then show item's value in tooltip
             if (m_mouseOverItem != null && m_mouseOverItem.ToolTip != null && m_mouseOverItem.ToolTip.ToolTips.Count > 0)
                 m_toolTip = m_mouseOverItem.ToolTip;
+            else
+                m_toolTip = null;
 
             base.ShowToolTip();
         }
@@ -781,5 +783,134 @@ namespace Sandbox.Graphics.GUI
             if (ItemsSelected != null)
                 ItemsSelected(this);
         }
+
+        public void ClearItems()
+        {
+            Items.Clear();
+        }
+
+
+        #region store/restore
+        //this will save scrollbar position, selected items etc.
+        //you can re-populate list with new data and then restore over new content
+        //restore is only best effort as difference of content allows, no guarantees
+        private List<Item> m_StoredSelectedItems = new List<Item>();
+
+        private int m_StoredTopmostSelectedPosition;
+        private Item m_StoredTopmostSelectedItem;
+
+        private Item m_StoredMouseOverItem;
+        private int m_StoredMouseOverPosition;
+
+        private Item m_StoredItemOnTop;
+
+        private float m_StoredScrollbarValue;
+
+        public void StoreSituation()
+        {
+            m_StoredSelectedItems.Clear();
+            m_StoredTopmostSelectedItem = null;
+            m_StoredMouseOverItem = null;
+            m_StoredItemOnTop = null;
+            m_StoredTopmostSelectedPosition = m_visibleRows;
+            foreach (Item item in SelectedItems)
+            {
+                m_StoredSelectedItems.Add(item);
+                var pos = Items.IndexOf(SelectedItems[0]);
+                if (pos<m_StoredTopmostSelectedPosition && pos>=m_visibleRowIndexOffset)
+                {
+                    m_StoredTopmostSelectedPosition = pos;
+                    m_StoredTopmostSelectedItem = item;
+                }
+
+            }
+            m_StoredMouseOverItem = m_mouseOverItem;
+            int count = 0;
+            if (m_mouseOverItem!=null)
+                foreach (var item in Items)
+                {
+                    if (m_mouseOverItem == item)
+                    {
+                        m_StoredMouseOverPosition = count;
+                        break;
+                    }
+                    count++;
+                }
+
+            if (FirstVisibleRow<Items.Count)
+                m_StoredItemOnTop = Items[FirstVisibleRow];
+
+            m_StoredScrollbarValue = m_scrollBar.Value;
+        }
+
+        private bool CompareItems(Item item1, Item item2, bool compareUserData, bool compareText)
+        {
+            if (compareUserData && compareText)
+                if (item1.UserData == item2.UserData && 0 == item1.Text.CompareTo(item2.Text))
+                    return true;
+                else
+                    return false;
+            if (compareUserData)
+                if (item1.UserData == item2.UserData)
+                    return true;
+            if (compareText)
+                if (0 == item1.Text.CompareTo(item2.Text))
+                    return true;
+            return false;
+        }
+
+        public void RestoreSituation(bool compareUserData, bool compareText)
+        {
+            Debug.Assert(compareUserData||compareText,"Bad compare combination in listbox restore");
+            //RESTORE SELECTION:
+            SelectedItems.Clear();
+            foreach (var stored in m_StoredSelectedItems)
+                foreach (var item in Items)
+                    if (CompareItems(stored, item, compareUserData, compareText))
+                    {
+                        SelectedItems.Add(item);
+                        break;
+                    }
+
+            //RESTORE POSITION:
+            int topmostSelectedPosition = -1;
+            int topmostVisiblePosition = -1;
+            //highest priority: keep position of item under mouse
+            int count = 0;
+            foreach (var item in Items)
+            {
+                if (m_StoredMouseOverItem!=null)
+                    if (CompareItems(item, m_StoredMouseOverItem, compareUserData, compareText))//still exists, great!
+                    {
+                        m_scrollBar.Value = m_StoredScrollbarValue + count - m_StoredMouseOverPosition;
+                        return;
+                    }
+                if (m_StoredTopmostSelectedItem != null)
+                    if (CompareItems(item, m_StoredTopmostSelectedItem, compareUserData, compareText))
+                        topmostSelectedPosition = count;
+
+                if (m_StoredItemOnTop != null)
+                    if (CompareItems(item, m_StoredItemOnTop, compareUserData, compareText))
+                        topmostVisiblePosition = count;
+                count++;
+            }
+            //if a selected item was in view, keep its position
+            if (m_StoredTopmostSelectedPosition != m_visibleRows)
+            {
+                m_scrollBar.Value = m_StoredScrollbarValue + topmostSelectedPosition - m_StoredTopmostSelectedPosition;
+                return;
+            }
+            //keep item on top of visible area 
+            if (topmostVisiblePosition!=-1)
+            {
+                m_scrollBar.Value = topmostVisiblePosition;
+                return;
+            }
+
+            //no bright idea anymore, just set the scrollbar and hope for the best
+            m_scrollBar.Value = m_StoredScrollbarValue;
+            return;
+        }
+        #endregion
     }
 }

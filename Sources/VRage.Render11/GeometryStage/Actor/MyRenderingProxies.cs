@@ -1,26 +1,13 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
+﻿using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using VRage.Generics;
-
+using VRage.Utils;
 using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
 
 
 namespace VRageRender
@@ -97,34 +84,12 @@ namespace VRageRender
         }
     }
 
-    struct MyShaderBundle
-    {
-        internal InputLayout InputLayout;
-        internal VertexShader VS;
-        internal PixelShader PS;
-    }
-
-    class MyVertexDataProxy
-    {
-        internal Buffer[] VB;
-        internal int[] VertexStrides;
-        internal Buffer IB;
-        internal Format IndexFormat;
-    }
-
     struct MyVertexDataProxy_2
     {
         internal Buffer[] VB;
         internal int[] VertexStrides;
         internal Buffer IB;
         internal Format IndexFormat;
-    }
-
-    class MyShaderMaterialProxy
-    {
-        internal InputLayout InputLayout;
-        internal VertexShader VertexShader;
-        internal PixelShader PixelShader;
     }
 
     class MyCullProxy
@@ -145,9 +110,12 @@ namespace VRageRender
     enum MyRenderableProxyFlags
     {
         None = 0,
-        DepthSkipTextures = 1,
-        DisableFaceCulling = 2,
-        SkipInMainView = 4,
+        DepthSkipTextures = 1 << 0,
+        DisableFaceCulling = 1 << 1,
+        SkipInMainView =  1 << 2,
+		SkipIfTooSmall = 1 << 3,
+		DrawOutsideViewDistance = 1 << 4,
+		CastShadows = 1 << 5,
     }
 
     // should NOT own any data!
@@ -155,6 +123,7 @@ namespace VRageRender
     {
         internal const float NO_DITHER_FADE = Single.PositiveInfinity;
 
+        internal MatrixD WorldMatrix;
         internal MyObjectData ObjectData;
 
         internal LodMeshId Mesh;
@@ -164,26 +133,54 @@ namespace VRageRender
         internal MyMaterialShadersBundleId Shaders;
         internal MyMaterialShadersBundleId ForwardShaders;
 
-        internal MyDrawSubmesh Draw;
+        internal MyDrawSubmesh DrawSubmesh;
         //internal uint DrawMaterialIndex; // assigned every frame (frame uses subset of materials index by variable below)
         internal int PerMaterialIndex; // assigned on proxy rebuild
 
-        internal int instanceCount;
-        internal int startInstance;
+        internal int InstanceCount;
+        internal int StartInstance;
 
         internal bool InstancingEnabled { get { return Instancing != InstancingId.NULL; } }
 
-        internal Matrix[] skinningMatrices;
+        internal Matrix[] SkinningMatrices;
 
-        internal MyMaterialType type;
-        internal MyRenderableProxyFlags flags;
+        internal MyMaterialType Type;
+        internal MyRenderableProxyFlags Flags;
 
         internal int Lod;
 
-        internal Buffer objectBuffer; // different if instancing component/skinning components are on
+        internal Buffer ObjectBuffer; // different if instancing component/skinning components are on
 
-        internal MyRenderableComponent Parent;
-    };
+        internal MyActorComponent Parent;
+
+        internal MyStringId Material;
+
+		#region Methods
+		public bool SkipIfTooSmall()
+		{
+			if ((Flags & MyRenderableProxyFlags.SkipIfTooSmall) == MyRenderableProxyFlags.SkipIfTooSmall)
+			{
+				var distanceFromCamera = Vector3D.Distance(MyEnvironment.CameraPosition, WorldMatrix.Translation);
+				float cullRatio = MyRenderConstants.DISTANCE_CULL_RATIO;
+				if (Parent.m_owner.Aabb.HalfExtents.Length() < distanceFromCamera / cullRatio)
+					return true;
+			}
+			return false;
+		}
+
+		public bool IsInViewDistance()
+		{
+			if ((Flags & MyRenderableProxyFlags.DrawOutsideViewDistance) == 0)
+			{
+                var distanceFromCamera = Parent.m_owner.CalculateCameraDistance();
+                if (distanceFromCamera > MyEnvironment.FarClipping)
+                    return false;
+			}
+
+			return true;
+		}
+		#endregion
+	};
 
     struct MyConstantsPack
     {
@@ -265,7 +262,7 @@ namespace VRageRender
     static class MyProxiesFactory
     {
         static MyObjectsPool<MyCullProxy> m_cullProxyPool = new MyObjectsPool<MyCullProxy>(100);
-        static MyObjectsPool<MyRenderableProxy> m_rendrableProxyPool = new MyObjectsPool<MyRenderableProxy>(200);
+        static MyObjectsPool<MyRenderableProxy> m_renderableProxyPool = new MyObjectsPool<MyRenderableProxy>(200);
 
         internal static MyCullProxy CreateCullProxy()
         {
@@ -282,7 +279,7 @@ namespace VRageRender
         internal static MyRenderableProxy CreateRenderableProxy()
         {
             MyRenderableProxy item;
-            m_rendrableProxyPool.AllocateOrCreate(out item);
+            m_renderableProxyPool.AllocateOrCreate(out item);
 
             //item.geometry = null;
             item.Mesh = LodMeshId.NULL;
@@ -291,13 +288,13 @@ namespace VRageRender
             item.Shaders = MyMaterialShadersBundleId.NULL;
             //item.depthOnlyShaders = null;
             //item.shaders = null;
-            item.skinningMatrices = null;
+            item.SkinningMatrices = null;
             //item.depthOnlySubmeshes = null;
             //item.submeshes = null;
-            item.instanceCount = 0;
-            item.flags = 0;
-            item.type = MyMaterialType.OPAQUE;
-            item.objectBuffer = null;
+            item.InstanceCount = 0;
+            item.Flags = 0;
+            item.Type = MyMaterialType.OPAQUE;
+            item.ObjectBuffer = null;
             item.Parent = null;
             item.Lod = 0;
 
@@ -306,7 +303,26 @@ namespace VRageRender
 
         internal static void Remove(MyRenderableProxy proxy)
         {
-            m_rendrableProxyPool.Deallocate(proxy);
+            m_renderableProxyPool.Deallocate(proxy);
         }
+
+		internal static MyRenderableProxyFlags GetRenderableProxyFlags(RenderFlags flags)
+		{
+			MyRenderableProxyFlags proxyFlags = MyRenderableProxyFlags.None;
+
+			if ((flags & RenderFlags.SkipIfTooSmall) == RenderFlags.SkipIfTooSmall)
+				proxyFlags |= MyRenderableProxyFlags.SkipIfTooSmall;
+
+			if ((flags & RenderFlags.DrawOutsideViewDistance) == RenderFlags.DrawOutsideViewDistance)
+				proxyFlags |= MyRenderableProxyFlags.DrawOutsideViewDistance;
+
+			if ((flags & RenderFlags.CastShadows) == RenderFlags.CastShadows)
+				proxyFlags |= MyRenderableProxyFlags.CastShadows;
+
+			if ((flags & RenderFlags.NoBackFaceCulling) == RenderFlags.NoBackFaceCulling)
+				proxyFlags |= MyRenderableProxyFlags.DisableFaceCulling;
+
+			return proxyFlags;
+		}
     }
 }

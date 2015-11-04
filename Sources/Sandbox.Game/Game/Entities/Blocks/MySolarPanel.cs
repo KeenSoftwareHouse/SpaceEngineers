@@ -1,91 +1,71 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Gui;
-using Sandbox.Game.World;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRageMath;
-using VRageRender;
-
-
-using Sandbox.Common;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SolarPanel))]
-    class MySolarPanel : MyTerminalBlock, IMyPowerProducer, Sandbox.ModAPI.Ingame.IMySolarPanel
+    class MySolarPanel : MyTerminalBlock, Sandbox.ModAPI.Ingame.IMySolarPanel
     {
-        static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
+        static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
-        private float m_currentPowerOutput;
-        private float m_maxPowerOutput;
-        private MySolarPanelDefinition m_solarPanelDefinition;
-        public MySolarPanelDefinition SolarPanelDefinition { get { return m_solarPanelDefinition; } }
-        private MySolarGameLogicComponent m_solarComponent;
+	    public MySolarPanelDefinition SolarPanelDefinition { get; private set; }
+	    public MySolarGameLogicComponent SolarComponent { get; private set; }
 
-        public MySolarGameLogicComponent SolarComponent
-        {
-            get
-            {
-                return m_solarComponent;
-            }
-        }
+	    private MyResourceSourceComponent m_sourceComponent;
+		public MyResourceSourceComponent SourceComp
+		{
+			get { return m_sourceComponent; }
+			set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComponent = value; }
+		}
 
-        public override void Init(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock objectBuilder, Sandbox.Game.Entities.MyCubeGrid cubeGrid)
+	    public MySolarPanel()
+	    {
+			SourceComp = new MyResourceSourceComponent();
+	    }
+
+	    public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
 
-            m_solarPanelDefinition = BlockDefinition as MySolarPanelDefinition;
+            SolarPanelDefinition = BlockDefinition as MySolarPanelDefinition;
             IsWorkingChanged += OnIsWorkingChanged;
             NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
-            GameLogic = new MySolarGameLogicComponent();
-            m_solarComponent = GameLogic as MySolarGameLogicComponent;
+		    var sourceDataList = new List<MyResourceSourceInfo>
+		    {
+			    new MyResourceSourceInfo {ResourceTypeId = MyResourceDistributorComponent.ElectricityId, DefinedOutput = SolarPanelDefinition.MaxPowerOutput, IsInfiniteCapacity = true, ProductionToCapacityMultiplier = 60*60}
+		    };
 
-            m_solarComponent.Initialize(m_solarPanelDefinition.PanelOrientation, m_solarPanelDefinition.IsTwoSided, m_solarPanelDefinition.PanelOffset, this);
+			SourceComp.Init(SolarPanelDefinition.ResourceSourceGroup, sourceDataList);
+
+            GameLogic = new MySolarGameLogicComponent();
+            SolarComponent = GameLogic as MySolarGameLogicComponent;
+
+            SolarComponent.Initialize(SolarPanelDefinition.PanelOrientation, SolarPanelDefinition.IsTwoSided, SolarPanelDefinition.PanelOffset, this);
 
             AddDebugRenderComponent(new Components.MyDebugRenderComponentSolarPanel(this));
         }
 
-        bool IMyPowerProducer.Enabled
-        {
-            get { return true; }
-            set { }
-        }
-
-        public float MaxPowerOutput
-        {
-            get { return m_maxPowerOutput; }
-            private set
-            {
-                if (m_maxPowerOutput != value)
-                {
-                    m_maxPowerOutput = value;
-                    if (MaxPowerOutputChanged != null)
-                        MaxPowerOutputChanged(this);
-                }
-            }
-        }
-
-        private void UpdateDisplay()
+        internal void UpdateDisplay()
         {
             DetailedInfo.Clear();
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxOutput));
-            MyValueFormatter.AppendWorkInBestUnit(MaxPowerOutput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(SourceComp.MaxOutput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentOutput));
-            MyValueFormatter.AppendWorkInBestUnit(CurrentPowerOutput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(SourceComp.CurrentOutput, DetailedInfo);
             RaisePropertiesChanged();
             UpdateEmissivity();
         }
@@ -98,26 +78,26 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0);
                 }
                 return;
             }
-            if (MaxPowerOutput > 0)
+			if (SourceComp.MaxOutput > 0)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    if (i < (MaxPowerOutput / m_solarPanelDefinition.MaxPowerOutput) * 4)
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Green, null, null, 1);
+					if (i < (SourceComp.MaxOutput / SolarPanelDefinition.MaxPowerOutput) * 4)
+                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Green, 1);
                     else
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 1);
+                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 1);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[0], Color.Red, 0);
                 for (int i = 1; i < 4; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Red, null, null, 0);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Red, 0);
                 }
             }
         }
@@ -134,57 +114,24 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
         }
 
-        public float CurrentPowerOutput
-        {
-            get
-            {
-                return m_currentPowerOutput;
-            }
-            set
-            {
-                m_currentPowerOutput = value;
-                UpdateDisplay();
-            }
-        }
-
-       
-
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
             if (CubeGrid.Physics == null)
                 return;
 
-            float maxPowerOutput = m_solarComponent.MaxOutput * SolarPanelDefinition.MaxPowerOutput;
+            float maxPowerOutput = SolarComponent.MaxOutput * SolarPanelDefinition.MaxPowerOutput;
 
-            if (maxPowerOutput != m_maxPowerOutput)
-            {
-                MaxPowerOutput = maxPowerOutput;
-                UpdateDisplay();
+			if (maxPowerOutput != SourceComp.MaxOutput)
+			{
+			    float oldPowerOutput = SourceComp.MaxOutput;
+				SourceComp.SetMaxOutput(maxPowerOutput);
+			    if (oldPowerOutput != maxPowerOutput)
+			    {
+			        SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, maxPowerOutput != 0f);
+			        UpdateDisplay();
+			    }
             }
-        }
-
-        public bool HasCapacityRemaining
-        {
-            get { return true; }
-        }
-
-        public event Action<IMyPowerProducer> HasCapacityRemainingChanged
-        {
-            add { }
-            remove { }
-        }
-
-        public event Action<IMyPowerProducer> MaxPowerOutputChanged;
-
-        public float RemainingCapacity
-        {
-            get { return float.PositiveInfinity; }
-        }
-
-        MyProducerGroupEnum IMyPowerProducer.Group
-        {
-            get { return MyProducerGroupEnum.SolarPanels; }
         }
     }
 }

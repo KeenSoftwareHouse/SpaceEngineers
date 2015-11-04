@@ -74,10 +74,13 @@
   <ItemGroup>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
+    <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
     <Compile Include="Gui\MyLayoutVertical.cs" />
     <Compile Include="Gui\MyWikiMarkupParser.cs" />
     <Compile Include="Gui\RichTextLabel\MyRichLabelLink.cs" />
+    <Compile Include="Gui\ThrottledKeyStatus.cs" />
     <Compile Include="MyControlsGUI.cs" />
     <Compile Include="MyGuiSoundManager.cs" />
     <Compile Include="MyScreenManager.cs" />
@@ -137,7 +140,6 @@
     <Compile Include="MyTextureAtlas.cs" />
     <Compile Include="MyTransparentGeometryConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Render\MyRenderConstants.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessAntiAlias.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessChromaticAberration.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessColorMapping.cs" />
@@ -165,6 +167,10 @@
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
       <Name>Sandbox.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>

@@ -152,6 +152,7 @@ namespace VRageRender
 
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.SetCB(MyCommon.ALPHAMASK_VIEWS_SLOT, MyCommon.AlphamaskViewsConstants);
 
             Context.PixelShader.SetShaderResource(MyCommon.DITHER_8X8_SLOT, MyTextures.Views[MyTextures.Dithering8x8TexId.Index]);
 
@@ -164,7 +165,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void FeedProfiler(ulong nextSortingKey)
         {
             int type = (int)MyRenderableComponent.ExtractTypeFromSortingKey(nextSortingKey);
@@ -225,7 +226,7 @@ namespace VRageRender
 
         internal virtual void End()
         {
-            if (VRage.MyCompilationSymbols.RenderProfiling)
+            if (VRage.MyCompilationSymbols.PerformanceProfiling)
             {
                 if (m_currentProfilingBlock_renderableType != -1)
                 {
@@ -239,7 +240,7 @@ namespace VRageRender
 
         internal unsafe void SetProxyConstants(MyRenderableProxy proxy)
         {
-            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.objectBuffer);
+            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
 
             MyMapping mapping;
 
@@ -254,37 +255,37 @@ namespace VRageRender
             }
 
             if (!constantsChange
-                && proxy.skinningMatrices == null
-                && Locals.objectBuffer == proxy.objectBuffer)
+                && proxy.SkinningMatrices == null
+                && Locals.objectBuffer == proxy.ObjectBuffer)
             {
 
             }
             else
             {
                 Locals.objectData = proxy.ObjectData;
-                Locals.objectBuffer = proxy.objectBuffer;
+                Locals.objectBuffer = proxy.ObjectBuffer;
 
                 MyObjectData objectData = proxy.ObjectData;
-                objectData.Translate(-MyEnvironment.CameraPosition);
+                //objectData.Translate(-MyEnvironment.CameraPosition);
 
-                mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
+                mapping = MyMapping.MapDiscard(RC.Context, proxy.ObjectBuffer);
                 void* ptr = &objectData;
                 mapping.stream.Write(new IntPtr(ptr), 0, sizeof(MyObjectData));
 
-                if (proxy.skinningMatrices != null)
+                if (proxy.SkinningMatrices != null)
                 {
-                    if (proxy.Draw.BonesMapping == null)
+                    if (proxy.DrawSubmesh.BonesMapping == null)
                     {
-                        for (int j = 0; j < Math.Min(MyRender11Constants.SHADER_MAX_BONES, proxy.skinningMatrices.Length); j++)
+                        for (int j = 0; j < Math.Min(MyRender11Constants.SHADER_MAX_BONES, proxy.SkinningMatrices.Length); j++)
                         { 
-                            mapping.stream.Write(Matrix.Transpose(proxy.skinningMatrices[j]));
+                            mapping.stream.Write(Matrix.Transpose(proxy.SkinningMatrices[j]));
                         }
                     }
                     else
                     {
-                        for (int j = 0; j < proxy.Draw.BonesMapping.Length; j++)
+                        for (int j = 0; j < proxy.DrawSubmesh.BonesMapping.Length; j++)
                         {
-                            mapping.stream.Write(Matrix.Transpose(proxy.skinningMatrices[proxy.Draw.BonesMapping[j]]));
+                            mapping.stream.Write(Matrix.Transpose(proxy.SkinningMatrices[proxy.DrawSubmesh.BonesMapping[j]]));
                         }
                     }
                 }
@@ -297,17 +298,32 @@ namespace VRageRender
 
         internal void BindProxyGeometry(MyRenderableProxy proxy)
         {
-            //RC.SetVBs(proxy.geometry.VB, proxy.geometry.VertexStrides);
-            //RC.SetIB(proxy.geometry.IB, proxy.geometry.IndexFormat);
-            //RC.SetVB()
             var buffers = proxy.Mesh.Buffers;
-            Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(buffers.VB0.Buffer, buffers.VB0.Stride, 0), new VertexBufferBinding(buffers.VB1.Buffer, buffers.VB1.Stride, 0));
 
-            if (proxy.InstancingEnabled)
+            bool firstChanged = RC.UpdateVB(0, buffers.VB0.Buffer, buffers.VB0.Stride);
+            bool secondChanged = RC.UpdateVB(1, buffers.VB1.Buffer, buffers.VB1.Stride);
+            
+            if (firstChanged && secondChanged)
+            {
+                Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(buffers.VB0.Buffer, buffers.VB0.Stride, 0), new VertexBufferBinding(buffers.VB1.Buffer, buffers.VB1.Stride, 0));
+                RC.Stats.SetVB++;
+            }
+            else if (firstChanged)
+            {
+                Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(buffers.VB0.Buffer, buffers.VB0.Stride, 0));
+                RC.Stats.SetVB++;
+            }
+            else if (secondChanged)
+            {
+                Context.InputAssembler.SetVertexBuffers(1, new VertexBufferBinding(buffers.VB1.Buffer, buffers.VB1.Stride, 0));
+                RC.Stats.SetVB++;
+            }
+            
+            if (proxy.InstancingEnabled && proxy.Instancing.VB.Index != -1)
             {
                 Context.InputAssembler.SetVertexBuffers(2, new VertexBufferBinding(proxy.Instancing.VB.Buffer, proxy.Instancing.VB.Stride, 0));
+                RC.Stats.SetVB++;
             }
-
             RC.SetIB(buffers.IB.Buffer, buffers.IB.Format);
         }
 

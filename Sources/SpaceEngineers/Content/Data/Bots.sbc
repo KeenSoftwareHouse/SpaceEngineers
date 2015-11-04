@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Bots>
+    <Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
+      <Id>
+        <TypeId>BotDefinition</TypeId>
+        <SubtypeId>SpaceSpider</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Bots_Deer</DisplayName>
+      <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
+      <BotModel>Space_spider</BotModel>
+      <BotBehaviorTree Subtype="SpiderBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Spider</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Spider</TargetType>
+      <Public>true</Public>
+      <AvailableInSurvival>false</AvailableInSurvival>
+      <RemoveAfterDeath>false</RemoveAfterDeath>
+      <InventoryContentGenerated>true</InventoryContentGenerated>
+      <InventoryContainerTypeId>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>SpiderLoot</SubtypeId>
+      </InventoryContainerTypeId>
+    </Bot>
+  </Bots>
+</Definitions>

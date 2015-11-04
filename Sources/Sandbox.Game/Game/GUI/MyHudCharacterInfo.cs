@@ -1,12 +1,14 @@
 ﻿#region Using
 
 using Sandbox.Common;
-
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character.Components;
 using VRage;
 using VRage;
 
@@ -30,7 +32,8 @@ namespace Sandbox.Game.Gui
     {
         private enum LineEnum
         {
-            CharacterState,
+			CharacterState,
+            HelmetState,
             Health,
             Jetpack,
             Dampeners,
@@ -39,6 +42,7 @@ namespace Sandbox.Game.Gui
             Speed,
             Energy,
             Oxygen,
+            Hydrogen,
             Inventory,
             BroadcastRange,
             BroadcastOn,
@@ -114,18 +118,39 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private float m_speed;
+        private int m_highestSpeedIndex = 0;
+		private int m_currentSpeedIndex = 0;
+		private const int m_speedHistoryLength = 8;
+		private float[] m_speedHistory = new float[m_speedHistoryLength];
         public float Speed
         {
-            get { return m_speed; }
-            set
-            {
-                if (m_speed != value)
-                {
-                    m_speed = value;
-                    m_needsRefresh = true;
-                }
-            }
+            get { return m_speedHistory[m_highestSpeedIndex]; }
+			set
+			{
+				if (m_highestSpeedIndex == (m_currentSpeedIndex + 1) % m_speedHistoryLength)
+				{
+					var oldHighestValue = Speed;
+					float highestValue = float.MinValue;
+					int newHighestIndex = m_currentSpeedIndex;
+					for (int index = (m_highestSpeedIndex + 1) % m_speedHistoryLength; index != m_highestSpeedIndex; index = (++index) % m_speedHistoryLength)
+					{
+						if (m_speedHistory[index] > highestValue)
+						{
+							newHighestIndex = index;
+							highestValue = m_speedHistory[newHighestIndex];
+						}
+					}
+					m_highestSpeedIndex = newHighestIndex;
+					if(Speed != oldHighestValue)
+						m_needsRefresh = true;
+				}
+				m_speedHistory[m_currentSpeedIndex = ((m_currentSpeedIndex+1) % m_speedHistoryLength)] = value;
+				if (Speed <= value)
+				{
+					m_highestSpeedIndex = m_currentSpeedIndex;
+					m_needsRefresh = true;
+				}
+			}
         }
 
         /// <summary>
@@ -215,6 +240,20 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        private float m_hydrogenRatio;
+        public float HydrogenRatio
+        {
+            get { return m_hydrogenRatio; }
+            set
+            {
+                if (m_hydrogenRatio != value)
+                {
+                    m_hydrogenRatio = value;
+                    m_needsRefresh = true;
+                }
+            }
+        }
+
         private bool m_needsRefresh = true;
 
         public MyHudNameValueData Data
@@ -285,6 +324,7 @@ namespace Sandbox.Game.Gui
             items[(int)LineEnum.BroadcastRange].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameBroadcastRange));
             items[(int)LineEnum.BroadcastOn].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoBroadcasting));
             items[(int)LineEnum.Oxygen].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.DisplayName_Item_Oxygen));
+            items[(int)LineEnum.Hydrogen].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.DisplayName_Item_Hydrogen));
             m_needsRefresh = true;
         }
 
@@ -310,10 +350,19 @@ namespace Sandbox.Game.Gui
 
             if (MySession.Static.Settings.EnableOxygen)
             {
-                items[(int)LineEnum.CharacterState].Value.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoHelmet)).Append(" ").AppendStringBuilder(GetOnOffText(IsHelmetOn));
+				items[(int)LineEnum.HelmetState].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoHelmet));
+				items[(int)LineEnum.HelmetState].Value.Clear().AppendStringBuilder(GetOnOffText(IsHelmetOn));
             }
 
-            items[(int)LineEnum.CharacterState].Name.Clear().AppendStringBuilder(stateText);
+			items[(int)LineEnum.CharacterState].Name.Clear();
+			items[(int)LineEnum.CharacterState].Value.Clear();
+			if (!FitsInSmallBackground())
+			{
+				items[(int)LineEnum.CharacterState].Name.AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoState));
+				items[(int)LineEnum.CharacterState].Value.AppendStringBuilder(stateText);
+			}
+			else
+				items[(int)LineEnum.CharacterState].Name.AppendStringBuilder(stateText);
             items[(int)LineEnum.Lights].Value.Clear().AppendStringBuilder(GetOnOffText(LightEnabled));
             items[(int)LineEnum.Mass].Value.Clear().AppendInt32(Mass).Append(" kg");
             items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");
@@ -321,6 +370,8 @@ namespace Sandbox.Game.Gui
             items[(int)LineEnum.Dampeners].Value.Clear().AppendStringBuilder(GetOnOffText(DampenersEnabled));
             items[(int)LineEnum.BroadcastOn].Value.Clear().AppendStringBuilder(GetOnOffText(BroadcastEnabled));
             items[(int)LineEnum.Oxygen].Value.Clear().AppendDecimal(OxygenLevel * 100f, 1).Append(" %");
+
+            items[(int)LineEnum.Hydrogen].Value.Clear().AppendDecimal(HydrogenRatio * 100f, 1).Append(" %");
 
             items[(int)LineEnum.Lights].Visible    = true;
             items[(int)LineEnum.Mass].Visible      = true;
@@ -332,6 +383,7 @@ namespace Sandbox.Game.Gui
             var healthItem = items[(int)LineEnum.Health];
             var inventoryItem = items[(int)LineEnum.Inventory];
             var oxygenItem = items[(int)LineEnum.Oxygen];
+            var hydrogenItem = items[(int) LineEnum.Hydrogen];
             energyItem.Value.Clear().AppendDecimal((float)Math.Round(BatteryEnergy, 1), 1).Append(" %");
             healthItem.Value.Clear().AppendDecimal(HealthRatio * 100f, 0).Append(" %");
             inventoryItem.Value.Clear().AppendDecimal((double)InventoryVolume * 1000, 0).Append(" l");
@@ -344,6 +396,14 @@ namespace Sandbox.Game.Gui
 
             oxygenItem.NameFont = oxygenItem.ValueFont = IsOxygenLevelLow ? (MyFontEnum?)MyFontEnum.Red : null;
             oxygenItem.Visible = MySession.Static.Settings.EnableOxygen;
+
+            var character = MySession.LocalCharacter;
+            bool showHydrogen = MyFakes.ENABLE_HYDROGEN_FUEL;
+            if (showHydrogen && character != null)
+            {
+                showHydrogen = showHydrogen && character.OxygenComponent.ContainsGasStorage(MyCharacterOxygenComponent.HydrogenId);
+            }
+            hydrogenItem.Visible = showHydrogen;
         }
 
         private StringBuilder GetOnOffText(bool value)

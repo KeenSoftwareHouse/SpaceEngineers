@@ -23,6 +23,8 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 
 #endregion
 
@@ -233,7 +235,7 @@ namespace Sandbox.Game.Entities
 
                 var detectorShape = new HkSphereShape(CubeGrid.GridSize * 0.5f);
                 var massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(detectorShape.Radius, VirtualMass != 0 ? VirtualMass : 0.01f);
-                Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_KEYFRAMED_REPORTING);
+                Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_KEYFRAMED_REPORTING);
                 Physics.IsPhantom = false;
                 Physics.CreateFromCollisionObject(detectorShape, Vector3.Zero, WorldMatrix, massProperties, MyPhysics.VirtualMassLayer);
                 UpdateIsWorking();
@@ -249,7 +251,8 @@ namespace Sandbox.Game.Entities
 
         private void UpdatePhysics()
         {
-            Physics.Enabled = IsWorking && CubeGrid.Physics != null && CubeGrid.Physics.Enabled;
+            if(Physics != null)
+                Physics.Enabled = IsWorking && CubeGrid.Physics != null && CubeGrid.Physics.Enabled;
         }
 
         private void UpdateEmissivity()
@@ -298,7 +301,7 @@ namespace Sandbox.Game.Entities
             UpdateRadios(IsWorking);
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             var prop = value.Event.ContactProperties;
 

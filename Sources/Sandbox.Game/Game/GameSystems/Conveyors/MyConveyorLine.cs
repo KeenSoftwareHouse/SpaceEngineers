@@ -33,7 +33,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
     //                         |   o EP2
     //                         |       |
     //                         '-------'
-    class MyConveyorLine : IEnumerable<Vector3I>, IMyPathEdge<IMyConveyorEndpoint>
+    public class MyConveyorLine : IEnumerable<Vector3I>, IMyPathEdge<IMyConveyorEndpoint>
     {
         /// <summary>
         /// Enumerates inner line positions (i.e. not endpoint positions)
@@ -1383,7 +1383,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             }
 
             var grid = GetGrid();
-            m_isWorking = grid.GridSystems.ConveyorSystem.PowerReceiver.IsPowered;
+            m_isWorking = grid.GridSystems.ConveyorSystem.ResourceSink.IsPowered;
         }
 
         private bool UpdateIsFunctionalInternal()

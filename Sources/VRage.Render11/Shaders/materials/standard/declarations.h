@@ -5,12 +5,12 @@ struct MaterialConstants
 
 struct MaterialVertexPayload
 {
-#if !defined(DEPTH_ONLY) || defined(ALPHA_MASKED)
-	float2 texcoord0 	: TEXCOORD0;
-#endif
-#ifndef DEPTH_ONLY
-	float3 normal 		: NORMAL;
-	float4 tangent		: TANGENT;
+#ifndef DEPTH_ONLY	
+	float2 texcoord0 	 : TEXCOORD0;
+	float3 local_forward : TEXCOORD1;
+	float3 local_up		 : TEXCOORD2;
+	float3 normal		 : NORMAL;
+	float4 tangent		 : TANGENT;
 #endif
 };
 

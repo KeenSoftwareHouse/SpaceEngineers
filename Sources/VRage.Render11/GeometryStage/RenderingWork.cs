@@ -13,7 +13,7 @@ namespace VRageRender
         internal List<MyRenderContext> Contexts = new List<MyRenderContext>();
         internal List<MyRenderingPass> Passes = new List<MyRenderingPass>();
 
-        // some c sharp bullshit to override interface "virtual" methods, since they are not inherited properly by default 
+        // override interface "virtual" methods, since they are not inherited properly by default 
         public virtual void DoWork()
         {
             throw new NotImplementedException();
@@ -75,13 +75,13 @@ namespace VRageRender
             int to = m_to;
             for (int i = from; i < to; i++)
             {
-                var proxy = m_renderables[i].renderProxy;
+                var proxy = m_renderables[i].RenderProxy;
 
                 for (int p = 0; p < Passes.Count; p++)
                 {
                     if ((Passes[p].ProcessingMask & m_renderables[i].ProcessingMask.Data) > 0)
                     {
-                        Passes[p].FeedProfiler(m_renderables[i].sortKey);
+                        Passes[p].FeedProfiler(m_renderables[i].SortKey);
                         Passes[p].RecordCommands(proxy);
                     }
                 }
@@ -156,8 +156,8 @@ namespace VRageRender
 
                 for(int i=subwork.Begin; i<subwork.End; i++)
                 {
-                    subwork.Pass.FeedProfiler(subwork.Renderables[i].sortKey);
-                    subwork.Pass.RecordCommands(subwork.Renderables[i].renderProxy);
+                    subwork.Pass.FeedProfiler(subwork.Renderables[i].SortKey);
+                    subwork.Pass.RecordCommands(subwork.Renderables[i].RenderProxy);
                 }
 
                 if (subwork.List2 != null)

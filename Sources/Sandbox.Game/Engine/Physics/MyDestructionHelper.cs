@@ -13,20 +13,16 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Components;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 using VRageMath;
+using Sandbox.Game.EntityComponents;
 
 namespace Sandbox.Engine.Physics
 {
     public static class MyDestructionHelper
     {
-        public struct HitInfo
-        {
-            public Vector3D Position;
-            public Vector3D Normal;
-            public Vector3D Velocity; //of impacting entity/bulet, normalize to get direction
-        }
-
         public static readonly float MASS_REDUCTION_COEF = 1f/25f;
  
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
@@ -106,7 +102,7 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("CreateFracturePiece");
             var fracturedPiece = MyFracturedPiecesManager.Static.GetPieceFromPool(0);
             fracturedPiece.InitFromBreakableBody(b, worldMatrix, block);
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             //fracturedPiece.Physics.RigidBody.ContactPointCallbackDelay = 0;
             //fracturedPiece.Physics.RigidBody.ContactPointCallbackEnabled = true;
             ProfilerShort.End();
@@ -264,6 +260,23 @@ namespace Sandbox.Engine.Physics
             return fp;
         }
 
+        public static MyFracturedPiece CreateFracturePiece(MyFractureComponentCubeBlock fractureBlockComponent, bool sync)
+        {
+            System.Diagnostics.Debug.Assert(Sync.IsServer, "Only on server");
+            var m = fractureBlockComponent.Block.FatBlock.WorldMatrix;
+            var fp = CreateFracturePiece(ref fractureBlockComponent.Shape, fractureBlockComponent.Block.CubeGrid.Physics.HavokWorld.DestructionWorld, ref m, false);
+            fp.OriginalBlocks.Add(fractureBlockComponent.Block.BlockDefinition.Id);
+
+            MyPhysicalModelDefinition def;
+            if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(fp.OriginalBlocks[0], out def))
+                fp.Physics.MaterialType = def.PhysicalMaterial.Id.SubtypeId;
+
+            if (sync)
+                MySyncDestructions.CreateFracturePiece((Sandbox.Common.ObjectBuilders.MyObjectBuilder_FracturedPiece)fp.GetObjectBuilder());
+
+            return fp;
+        }
+
         private static MyFracturedPiece CreateFracturePiece(ref HkdBreakableShape shape, HkdWorld world, ref MatrixD worldMatrix, bool isStatic)
         {
             ProfilerShort.Begin("CreateFracturePiece");
@@ -291,14 +304,14 @@ namespace Sandbox.Engine.Physics
                 fracturedPiece.CreateSync();
             }
             ProfilerShort.End();
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             //physicsBody.RigidBody.ContactPointCallbackDelay = 0;
             //physicsBody.RigidBody.ContactPointCallbackEnabled = true;
             fracturedPiece.Physics = physicsBody;
             //FixPosition(fracturedPiece);
             fracturedPiece.SetDataFromHavok(shape);
             ProfilerShort.Begin("AddToWorld");
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             MyEntities.Add(fracturedPiece);
             shape.RemoveReference();
             ProfilerShort.End();

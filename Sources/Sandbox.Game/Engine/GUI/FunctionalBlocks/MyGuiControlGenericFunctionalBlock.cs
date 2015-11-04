@@ -20,6 +20,8 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Game.SessionComponents;
+using Sandbox.Game.Entities.Blocks;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -136,12 +138,17 @@ namespace Sandbox.Graphics.GUI
                 block.VisibilityChanged += block_VisibilityChanged;
             }
 
+            Sync.Players.IdentitiesChanged += Players_IdentitiesChanged;
+
             UpdateDetailedInfo();
 
             Size = new Vector2(0.595f, 0.64f);
         }
 
-
+        void Players_IdentitiesChanged()
+        {
+            UpdateOwnerGui();
+        }
 
         void block_OwnershipChanged(MyTerminalBlock sender)
         {
@@ -166,6 +173,8 @@ namespace Sandbox.Graphics.GUI
                 block.OwnershipChanged -= block_OwnershipChanged;
                 block.VisibilityChanged -= block_VisibilityChanged;
             }
+
+            Sync.Players.IdentitiesChanged -= Players_IdentitiesChanged;
 
             base.OnRemoving();
         }
@@ -204,12 +213,19 @@ namespace Sandbox.Graphics.GUI
             m_blockPropertiesLabel.Text.Clear();
             if (m_currentBlocks.Count() == 1)
             {
-                m_blockPropertiesLabel.Text.AppendStringBuilder(m_currentBlocks[0].DetailedInfo);
+                var block = m_currentBlocks[0];
+                m_blockPropertiesLabel.Text.AppendStringBuilder(block.DetailedInfo);
+                if(block.CustomInfo.Length > 0)
+                {
+                    m_blockPropertiesLabel.Text.TrimTrailingWhitespace().AppendLine();
+                    m_blockPropertiesLabel.Text.AppendStringBuilder(block.CustomInfo);
+                }
             }
             m_blockPropertiesLabel.RefreshText(false);
             ProfilerShort.End();
         }
 
+        MyScenarioBuildingBlock dummy = new MyScenarioBuildingBlock();
         private void RecreateBlockControls()
         {
             m_currentControls.Clear();
@@ -226,6 +242,14 @@ namespace Sandbox.Graphics.GUI
                         m_tmpControlDictionary.TryGetValue(control, out num);
                         m_tmpControlDictionary[control] = num + (control.IsVisible(block) ? 1 : 0);
                     }
+                }
+
+                if (MySession.Static.Settings.ScenarioEditMode && MyFakes.ENABLE_NEW_TRIGGERS)
+                {
+                    var scenarioType = typeof(MyTerminalBlock);
+                    var c = MyTerminalControlFactory.GetControls(scenarioType);
+                    foreach (var control in c)
+                        m_tmpControlDictionary[control] = m_currentBlocks.Count();
                 }
 
                 int blockCount = m_currentBlocks.Length;
@@ -439,7 +463,12 @@ namespace Sandbox.Graphics.GUI
                                 }
 
                                 if (m_requests.Count > 0)
-                                    MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests);
+                                {
+                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey))
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests);
+                                    else
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests);
+                                }
                             }
 
                             RecreateOwnershipControls();
@@ -607,15 +636,7 @@ namespace Sandbox.Graphics.GUI
 
         void OnNewNpcClick(MyGuiControlButton button)
         {
-            string npcName = "NPC " + MyRandom.Instance.Next(1000, 9999);
-            var identity = Sync.Players.CreateNewIdentity(npcName);
-            Sync.Players.MarkIdentityAsNPC(identity.IdentityId);
-            UpdateOwnerGui();
-            
-            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                buttonType: MyMessageBoxButtonsType.OK,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionInfo),
-                messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.NPCIdentityAdded), npcName)));
+            Sync.Players.RequestNewNpcIdentity();
         }
     }
 }

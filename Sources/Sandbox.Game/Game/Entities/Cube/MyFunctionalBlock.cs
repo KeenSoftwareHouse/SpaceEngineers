@@ -1,21 +1,18 @@
-﻿using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Screens.Terminal.Controls;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
     public partial class MyFunctionalBlock : MyTerminalBlock
     {
         protected MySoundPair m_baseIdleSound = new MySoundPair();
+        protected MySoundPair m_actionSound = new MySoundPair();
         protected MyEntity3DSoundEmitter m_soundEmitter;
+		internal MyEntity3DSoundEmitter SoundEmitter { get { return m_soundEmitter; } }
 
         private bool m_enabled;
 
@@ -72,6 +69,8 @@ namespace Sandbox.Game.Entities.Cube
 
             m_enabled = ob.Enabled;
             IsWorkingChanged += CubeBlock_IsWorkingChanged;
+            m_baseIdleSound = BlockDefinition.PrimarySound;
+            m_actionSound = BlockDefinition.ActionSound;
         }
 
         void CubeBlock_IsWorkingChanged(MyCubeBlock obj)
@@ -111,7 +110,8 @@ namespace Sandbox.Game.Entities.Cube
 
         protected virtual void OnStartWorking()
         {
-            m_soundEmitter.PlaySound(m_baseIdleSound, true);
+            if (this.InScene && this.CubeGrid.Physics != null)
+                m_soundEmitter.PlaySound(m_baseIdleSound, true);
         }
 
         protected virtual void OnStopWorking()
@@ -125,5 +125,22 @@ namespace Sandbox.Game.Entities.Cube
             if (m_soundEmitter != null) m_soundEmitter.StopSound(true);
             base.Closing();
         }
+        internal override void SetDamageEffect(bool show)
+        {
+            if (BlockDefinition.DamagedSound != null)
+                if (show)
+                    m_soundEmitter.PlaySound(BlockDefinition.DamagedSound, true);
+                else
+                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                        m_soundEmitter.StopSound(false);
+            base.SetDamageEffect(show);
+        }
+        internal override void StopDamageEffect()
+        {
+            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                m_soundEmitter.StopSound(true);
+            base.StopDamageEffect();
+        }
+
     }
 }

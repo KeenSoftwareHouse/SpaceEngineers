@@ -1,10 +1,15 @@
-﻿using ProtoBuf;
+﻿using Havok;
+using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Networking;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GUI;
 using Sandbox.Game.World;
 using SteamSDK;
 using System;
@@ -13,12 +18,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using VRage;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.Network;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    static class MySyncCreate
+    public static class MySyncCreate
     {
         [ProtoContract]
         [MessageId(37, P2PMessageEnum.Reliable)]
@@ -29,34 +39,17 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(38, P2PMessageEnum.Reliable)]
+        [MessageId(32, P2PMessageEnum.Reliable)]
         struct CreateCompressedMsg
         {
+            [ProtoMember]
+            public int PlayerSerialId;
+            
             [ProtoMember]
             public byte[] ObjectBuilders;
 
             [ProtoMember]
             public int[] BuilderLengths;
-        }
-
-        [ProtoContract]
-        [MessageId(11873, P2PMessageEnum.Reliable)]
-        struct MergingCopyPasteCompressedMsg
-        {
-            [ProtoMember]
-            public CreateCompressedMsg CreateMessage;
-
-            [ProtoMember]
-            public long MergeGridId;
-
-            [ProtoMember]
-            public SerializableVector3I MergeOffset;
-
-            [ProtoMember]
-            public Base6Directions.Direction MergeForward;
-
-            [ProtoMember]
-            public Base6Directions.Direction MergeUp;
         }
 
         [ProtoContract]
@@ -73,43 +66,69 @@ namespace Sandbox.Game.Multiplayer
             public SerializableVector3 RelativeVelocity;
         }
 
-        [ProtoContract]
         [MessageId(11875, P2PMessageEnum.Reliable)]
         struct SpawnGridMsg
         {
-            [ProtoMember]
-            public MyObjectBuilder_CubeGrid Grid;
-            
-            [ProtoMember]
+            public long BuilderEntityId;
             public DefinitionIdBlit Definition;
-            
-            [ProtoMember]
             public Vector3D Position;
-            
-            [ProtoMember]
             public Vector3 Forward;
-            
-            [ProtoMember]
             public Vector3 Up;
-            
+            public BoolBlit Static;
+        }
+
+        [MessageId(11876, P2PMessageEnum.Reliable)]
+        struct SpawnGridReplyMsg
+        { }
+
+        [MessageId(11877, P2PMessageEnum.Reliable)]
+        struct AfterGridCreatedMsg
+        {
+            public long BuilderEntityId;
+            public long GridEntityId;
+        }
+
+        [ProtoContract]
+        [MessageId(11879, P2PMessageEnum.Reliable)]
+        struct CreateAndInitMsg
+        {
             [ProtoMember]
-            public bool Static;
+            public byte[] ObjectBuilder;
+
+            [ProtoMember]
+            public int BuilderLength;
+
+            [ProtoMember]
+            public SerializableDefinitionId DefinitionId;
         }
 
         static MySyncCreate()
         {
-            MySyncLayer.RegisterMessage<CreateMsg>(OnMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<CreateCompressedMsg>(OnMessageCompressed, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<MergingCopyPasteCompressedMsg>(OnMessageCompressedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<CreateRelativeCompressedMsg>(OnMessageRelativeCompressed, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<CreateMsg>(OnMessage, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<CreateCompressedMsg>(OnMessageCompressed, MyMessagePermissions.FromServer|MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<CreateRelativeCompressedMsg>(OnMessageRelativeCompressed, MyMessagePermissions.FromServer|MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
+            MySyncLayer.RegisterMessage<AfterGridCreatedMsg>(OnMessageAfterGridCreated, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<CreateAndInitMsg>(OnMessageCreateAndInit, MyMessagePermissions.FromServer);
+        }
+        
+        public static void RequestEntityCreate(MyObjectBuilder_EntityBase entityBuilder)
+        {
+            Debug.Fail("Use replication instead of this!");
+            var msg = new CreateMsg() { ObjectBuilder = entityBuilder, };
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
         static void OnMessage(ref CreateMsg msg, MyNetworkClient sender)
         {
-            MySandboxGame.Log.WriteLine("CreateMsg: " + msg.ObjectBuilder.GetType().Name.ToString() + " EntityID: " + msg.ObjectBuilder.EntityId.ToString("X8"));
+            Debug.Fail("Use replication instead of this!");
+            MySandboxGame.Log.WriteLine("CreateMsg: Type: " + msg.ObjectBuilder.GetType().Name.ToString() + "  Name: " + msg.ObjectBuilder.Name + "  EntityID: " + msg.ObjectBuilder.EntityId.ToString("X8"));
             MyEntities.CreateFromObjectBuilderAndAdd(msg.ObjectBuilder);
             MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(msg.ObjectBuilder.EntityId) + ") InScene(" + ((msg.ObjectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
+            if (Sync.IsServer)
+                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
         }
 
         static void OnMessageCompressed(ref CreateCompressedMsg msg, MyNetworkClient sender)
@@ -118,35 +137,19 @@ namespace Sandbox.Game.Multiplayer
 
             Debug.Assert(msg.BuilderLengths != null);
             Debug.Assert(msg.ObjectBuilders != null);
-            
+
             if (msg.BuilderLengths == null)
                 return;
             if (msg.ObjectBuilders == null)
                 return;
 
-            int bytesOffset = 0;
-            for (int i = 0; i < msg.BuilderLengths.Length; ++i)
-            {
-                MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
-
-                MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
-                {
-                    Debug.Assert(entity != null);
-                    if (entity != null)
-                    {
-                        MySandboxGame.Log.WriteLine("CreateCompressedMsg: " + msg.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
-                        MyEntities.CreateFromObjectBuilderAndAdd(entity);
-                        MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(entity.EntityId) + ") InScene(" + ((entity.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
-                    }
-                }
-
-                bytesOffset += msg.BuilderLengths[i];
-            }
+            OnMessageCompressedInternal(ref msg);
+          
         }
 
         static void OnMessageRelativeCompressed(ref CreateRelativeCompressedMsg msg, MyNetworkClient sender)
         {
+            Debug.Fail("Use replication instead of this!");
             MySandboxGame.Log.WriteLine("CreateRelativeCompressedMsg received");
 
             int bytesOffset = 0;
@@ -155,13 +158,13 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.CreateMessage.ObjectBuilders, bytesOffset, msg.CreateMessage.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
-                    MySandboxGame.Log.WriteLine("CreateRelativeCompressedMsg: " + msg.CreateMessage.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
-
                     MyEntity baseEntity;
                     if (MyEntities.TryGetEntityById(msg.BaseEntity, out baseEntity))
                     {
+                        MySandboxGame.Log.WriteLine("CreateRelativeCompressedMsg: Type: " + baseEntity.GetType().Name.ToString() + "  Name: " + baseEntity.Name + "  EntityID: " + baseEntity.EntityId.ToString("X8"));
+
                         Matrix worldMatrix = entity.PositionAndOrientation.Value.GetMatrix() * baseEntity.WorldMatrix;
                         entity.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix);
 
@@ -176,23 +179,29 @@ namespace Sandbox.Game.Multiplayer
 
                 bytesOffset += msg.CreateMessage.BuilderLengths[i];
             }
+
+            if (Sync.IsServer)
+            {
+                MySession.Static.SyncLayer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
-        public static void SendEntitiesCreated(List<MyObjectBuilder_EntityBase> entities)
+        public static void SendEntitiesCreated(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId)
         {
             CreateCompressedMsg msg;
             if (!BuildCompressedMessage(entities, out msg))
                 return;
 
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         public static void SendEntityCreated(MyObjectBuilder_EntityBase entity)
         {
+            Debug.Fail("Use replication instead of this!");
             var msg = new CreateCompressedMsg();
 
             MemoryStream stream = new MemoryStream();
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -200,22 +209,30 @@ namespace Sandbox.Game.Multiplayer
                 MySandboxGame.Log.WriteLine("Cannot synchronize created entity: number of bytes when serialized is larger than int.MaxValue!");
                 return;
             }
-             
+
             msg.ObjectBuilders = stream.ToArray();
             msg.BuilderLengths = new int[1];
             msg.BuilderLengths[0] = (int)stream.Length;
-            
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+
+            if (Sync.IsServer)
+            {
+                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            }
+            else
+            {
+                MySession.Static.SyncLayer.SendMessageToServer(ref msg);
+            }
         }
 
         public static void SendEntityCreatedRelative(MyObjectBuilder_EntityBase entity, MyEntity baseEntity, Vector3 relativeVelocity)
         {
+            Debug.Fail("Use replication instead of this!");
             var msg = new CreateRelativeCompressedMsg();
 
             MemoryStream stream = new MemoryStream();
             Matrix relativeMatrix = entity.PositionAndOrientation.Value.GetMatrix() * baseEntity.PositionComp.WorldMatrixNormalizedInv;
             entity.PositionAndOrientation = new MyPositionAndOrientation(relativeMatrix);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -231,10 +248,17 @@ namespace Sandbox.Game.Multiplayer
             msg.BaseEntity = baseEntity.EntityId;
             msg.RelativeVelocity = relativeVelocity;
 
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            if (Sync.IsServer)
+            {
+                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            }
+            else
+            {
+                MySession.Static.SyncLayer.SendMessageToServer(ref msg);
+            }
         }
 
-        private static bool BuildCompressedMessage(List<MyObjectBuilder_EntityBase> entities, out CreateCompressedMsg msg)
+        private static bool BuildCompressedMessage(List<MyObjectBuilder_CubeGrid> entities, out CreateCompressedMsg msg)
         {
             msg = new CreateCompressedMsg();
 
@@ -244,7 +268,7 @@ namespace Sandbox.Game.Multiplayer
             long byteOffset = 0;
             foreach (var entity in entities)
             {
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+                MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
                 Debug.Assert(stream.Length <= int.MaxValue);
                 if (stream.Length > int.MaxValue)
@@ -262,74 +286,9 @@ namespace Sandbox.Game.Multiplayer
             return true;
         }
 
-        public static void RequestMergingCopyPaste(List<MyObjectBuilder_EntityBase> grids, long mergingGridId, MatrixI mergingTransform)
-        {
-            if (Sync.IsServer)
-            {
-                MySyncCreate.SendEntitiesCreated(grids);
-
-                MyEntity entity;
-                MyEntities.TryGetEntityById(mergingGridId, out entity);
-
-                MyCubeGrid grid = entity as MyCubeGrid;
-                Debug.Assert(grid != null);
-                if (grid == null) return;
-
-                MyEntity entity2;
-                MyEntities.TryGetEntityById(grids[0].EntityId, out entity2);
-
-                MyCubeGrid mergingGrid = entity2 as MyCubeGrid;
-                Debug.Assert(mergingGrid != null);
-                if (mergingGrid == null) return;
-
-                grid.MergeGrid_CopyPaste(mergingGrid, mergingTransform);
-            }
-            else
-            {
-                MySyncCreate.SendMergingCopyPasteRequest(grids, mergingGridId, mergingTransform);
-            }
-        }
-
-        private static void SendMergingCopyPasteRequest(List<MyObjectBuilder_EntityBase> grids, long mergingGridId, MatrixI mergingTransform)
-        {
-            MergingCopyPasteCompressedMsg msg;
-            if (!BuildCompressedMessage(grids, out msg.CreateMessage))
-                return;
-
-            msg.MergeGridId = mergingGridId;
-            msg.MergeOffset = mergingTransform.Translation;
-            msg.MergeForward = mergingTransform.Forward;
-            msg.MergeUp = mergingTransform.Up;
-
-            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
-        }
-
-        private static void OnMessageCompressedRequest(ref MergingCopyPasteCompressedMsg msg, MyNetworkClient sender)
-        {
-            MySandboxGame.Log.WriteLine("MergingCopyPasteCompressedMsg received");
-            MySession.Static.SyncLayer.SendMessageToAllButOne(ref msg.CreateMessage, sender.SteamUserId);
-
-            MyEntity firstEntity = OnMessageCompressedInternal(ref msg.CreateMessage);
-
-            MyEntity entity;
-            MyEntities.TryGetEntityById(msg.MergeGridId, out entity);
-
-            MyCubeGrid grid = entity as MyCubeGrid;
-            Debug.Assert(grid != null);
-            if (grid == null) return;
-
-            MyCubeGrid mergingGrid = firstEntity as MyCubeGrid;
-            Debug.Assert(mergingGrid != null);
-            if (mergingGrid == null) return;
-
-            Vector3I offset = msg.MergeOffset;
-            MatrixI mergeOffset = new MatrixI(ref offset, msg.MergeForward, msg.MergeUp);
-
-            grid.MergeGrid_CopyPaste(mergingGrid, mergeOffset);
-        }
-
         private static MyEntity OnMessageCompressedInternal(ref CreateCompressedMsg msg)
         {
+            Debug.Fail("Use replication instead of this!");
             MyEntity firstEntity = null;
 
             int bytesOffset = 0;
@@ -338,9 +297,9 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
-                    MySandboxGame.Log.WriteLine("CreateCompressedMsg: " + msg.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
+                    MySandboxGame.Log.WriteLine("CreateCompressedMsg: Type: " + entity.GetType().Name.ToString() + "  Name: " + entity.Name + "  EntityID: " + entity.EntityId.ToString("X8"));
                     if (i == 0)
                         firstEntity = MyEntities.CreateFromObjectBuilderAndAdd(entity);
                     else
@@ -354,22 +313,24 @@ namespace Sandbox.Game.Multiplayer
             return firstEntity;
         }
 
-
-        public static void RequestStaticGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix)
+        public static void RequestStaticGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix, long builderEntityId)
         {
+            Debug.Fail("Use replication instead of this!");
             SpawnGridMsg msg = new SpawnGridMsg();
-            
+
             msg.Definition = definition.Id;
             msg.Position = worldMatrix.Translation;
             msg.Forward = worldMatrix.Forward;
             msg.Up = worldMatrix.Up;
             msg.Static = true;
+            msg.BuilderEntityId = builderEntityId;
 
             MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
-        public static void RequestDynamicGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix)
+        public static void RequestDynamicGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix, long builderEntityId)
         {
+            Debug.Fail("Use replication instead of this!");
             SpawnGridMsg msg = new SpawnGridMsg();
 
             msg.Definition = definition.Id;
@@ -377,47 +338,118 @@ namespace Sandbox.Game.Multiplayer
             msg.Forward = worldMatrix.Forward;
             msg.Up = worldMatrix.Up;
             msg.Static = false;
+            msg.BuilderEntityId = builderEntityId;
 
             MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         static void OnMessageSpawnGrid(ref SpawnGridMsg msg, MyNetworkClient sender)
         {
-            if (Sync.IsServer)
+            Debug.Fail("Use replication instead of this!");
+            Debug.Assert(MyCubeBuilder.BuildComponent != null, "The build component was not set in cube builder!");
+
+            MyEntity builder = null;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
+
+            var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
+            MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
+
+            var reply = new SpawnGridReplyMsg();
+
+            MyCubeBuilder.BuildComponent.GetGridSpawnMaterials(definition, worldMatrix, msg.Static);
+            bool canSpawn = MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder);
+
+            MySession.Static.SyncLayer.SendMessage(ref reply, sender.SteamUserId, canSpawn ? MyTransportMessageEnum.Success : MyTransportMessageEnum.Failure);
+
+            if (!canSpawn) return;
+
+            MyCubeBuilder.SpawnGrid(definition, worldMatrix, builder, msg.Static);
+        }
+
+        static void OnMessageSpawnGridFailure(ref SpawnGridReplyMsg msg, MyNetworkClient sender)
+        {
+            MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+        }
+
+        static void OnMessageSpawnGridSuccess(ref SpawnGridReplyMsg msg, MyNetworkClient sender)
+        {
+            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
+        }
+
+        public static void SendAfterGridBuilt(long builderId, long gridId)
+        {
+            Debug.Fail("Use replication instead of this!");
+            var msg = new AfterGridCreatedMsg();
+            msg.BuilderEntityId = builderId;
+            msg.GridEntityId = gridId;
+
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+        }
+
+        static void OnMessageAfterGridCreated(ref AfterGridCreatedMsg msg, MyNetworkClient sender)
+        {
+            Debug.Fail("Use replication instead of this!");
+            MyEntity builder;
+            MyEntity gridEntity;
+            MyCubeGrid grid;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
+            MyEntities.TryGetEntityById(msg.GridEntityId, out gridEntity);
+
+            grid = gridEntity as MyCubeGrid;
+            Debug.Assert(grid != null, "Could not find the grid entity!");
+            if (grid == null)
             {
-                var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
-                MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
+                return;
+            }
 
-                MyCubeGrid grid = null;
+            MyCubeBuilder.AfterGridBuild(builder, grid);
+        }
 
-                if (msg.Static)
-                    grid = MyCubeBuilder.SpawnStaticGrid(definition, worldMatrix);
-                else
-                    grid = MyCubeBuilder.SpawnDynamicGrid(definition, worldMatrix);
 
-                if (grid != null)
+        public static void SendEntityCreated(MyObjectBuilder_EntityBase entityBuilder, MyDefinitionId myDefinitionId)
+        {
+            Debug.Fail("Use replication instead of this!");
+            var msg = new CreateAndInitMsg();
+
+            MemoryStream stream = new MemoryStream();
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entityBuilder, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+
+            Debug.Assert(stream.Length <= int.MaxValue);
+            if (stream.Length > int.MaxValue)
+            {
+                MySandboxGame.Log.WriteLine("Cannot synchronize created entity: number of bytes when serialized is larger than int.MaxValue!");
+                return;
+            }
+
+            msg.ObjectBuilder = stream.ToArray();
+            msg.BuilderLength = (int)stream.Length;
+            msg.DefinitionId = myDefinitionId;
+
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+        }
+
+
+        static void OnMessageCreateAndInit(ref CreateAndInitMsg msg, MyNetworkClient sender)
+        {
+            Debug.Fail("Use replication instead of this!");
+            MemoryStream stream = new MemoryStream(msg.ObjectBuilder, 0, msg.BuilderLength);
+
+            MyObjectBuilder_EntityBase entityBuilder;
+            if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entityBuilder))
+            {
+                if (entityBuilder == null)
                 {
-                    msg.Grid = grid.GetObjectBuilder() as MyObjectBuilder_CubeGrid;
-                    MySession.Static.SyncLayer.SendMessageToAll(ref msg);
-                }
-
-                if (grid != null && msg.Static)
-                {
-                    MyCubeBuilder.AfterStaticGridSpawn(grid);
+                    Debug.Fail("Object builder was not deserialized");
+                    return;
                 }
             }
             else
             {
-                System.Diagnostics.Debug.Assert(msg.Grid != null, "Client must obtain complete grid from server");
-
-                MyCubeGrid grid = MyEntities.CreateFromObjectBuilderAndAdd(msg.Grid) as MyCubeGrid;
-
-                if (grid != null)
-                {
-                    if (grid.IsStatic)
-                        MyCubeBuilder.AfterStaticGridSpawn(grid);
-                }
+                Debug.Fail("Deserialization failed");
+                return;
             }
+
+            MyEntities.CreateAndAddFromDefinition(entityBuilder, msg.DefinitionId);
         }
     }
 }

@@ -1860,6 +1860,31 @@ namespace VRageMath
             return matrix;
         }
 
+        public static Matrix CreateLookAtInverse(Vector3D cameraPosition, Vector3D cameraTarget, Vector3D cameraUpVector)
+        {
+            var vector3_1 = Vector3D.Normalize(cameraPosition - cameraTarget);
+            var vector3_2 = Vector3D.Normalize(Vector3D.Cross(cameraUpVector, vector3_1));
+            var vector1 = Vector3D.Cross(vector3_1, vector3_2);
+            MatrixD matrix;
+            matrix.M11 = vector3_2.X;
+            matrix.M12 = vector3_2.Y;
+            matrix.M13 = vector3_2.Z;
+            matrix.M14 = 0.0f;
+            matrix.M21 = vector1.X;
+            matrix.M22 = vector1.Y;
+            matrix.M23 = vector1.Z;
+            matrix.M24 = 0.0f;
+            matrix.M31 = vector3_1.X;
+            matrix.M32 = vector3_1.Y;
+            matrix.M33 = vector3_1.Z;
+            matrix.M34 = 0.0f;
+            matrix.M41 = cameraPosition.X;
+            matrix.M42 = cameraPosition.Y;
+            matrix.M43 = cameraPosition.Z;
+            matrix.M44 = 1f;
+            return matrix;
+        }
+
         /// <summary>
         /// Creates a view matrix.
         /// </summary>
@@ -1890,6 +1915,11 @@ namespace VRageMath
         public static MatrixD CreateWorld(Vector3D position, Vector3 forward, Vector3 up)
         {
             return CreateWorld(position, (Vector3D)forward, (Vector3D)up);
+        }
+
+        public static MatrixD CreateWorld(Vector3D position)
+        {
+            return CreateWorld(position, Vector3D.Forward, Vector3D.Up);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
@@ -10,8 +11,9 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using VRage;
+using VRage.Audio;
 using VRage.Input;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Components
@@ -55,6 +57,12 @@ namespace Sandbox.Game.Components
                 return;
             if (!(MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
                 return;
+
+            if (!
+                (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId)))
+                )
+                return;
+
 
             base.HandleInput();
 
@@ -111,7 +119,7 @@ namespace Sandbox.Game.Components
             }
         }
 
-        public void Throw(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyStringId throwSound)
+        public void Throw(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyCueId throwSound)
         {
             var entity = MyEntities.CreateFromObjectBuilder(grid);
             if (entity == null)
@@ -129,7 +137,7 @@ namespace Sandbox.Game.Components
 
             MyEntities.Add(entity);
 
-            if (throwSound != MyStringId.NullOrEmpty)
+            if (!throwSound.IsNull)
             {
                 var emitter = MyAudioComponent.TryGetSoundEmitter();
                 if (emitter != null)

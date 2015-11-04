@@ -438,6 +438,103 @@ namespace VRageMath
             return string.Format((IFormatProvider)currentCulture, "{{X:{0} Y:{1} Z:{2}}}", (object)this.X.ToString((IFormatProvider)currentCulture), (object)this.Y.ToString((IFormatProvider)currentCulture), (object)this.Z.ToString((IFormatProvider)currentCulture));
         }
 
+        public static bool TryParse(string str, out Vector3D retval)
+        {
+            retval = Vector3D.Zero;
+            if (str == null) return false;
+
+            int openBraces = 0;
+            int start = 0;
+            int parsedValues = 0;
+            bool success = true;
+
+            for (int i = 0; i < str.Length; ++i)
+            {
+                if (str[i] == '{')
+                {
+                    openBraces++;
+                }
+                else if (str[i] == ':')
+                {
+                    if (openBraces == 1)
+                    {
+                        start = i + 1;
+                    }
+                    else
+                    {
+                        success = false;
+                    }
+                }
+                else if (str[i] == ' ')
+                {
+                    if (openBraces == 1)
+                    {
+                        int len = i - start;
+                        string substr = str.Substring(start, len);
+                        double val = 0.0f;
+                        if (!double.TryParse(substr, out val)) success = false;
+
+                        if (parsedValues == 0)
+                        {
+                            retval.X = val;
+                        }
+                        else if (parsedValues == 1)
+                        {
+                            retval.Y = val;
+                        }
+                        else if (parsedValues == 2)
+                        {
+                            retval.Z = val;
+                        }
+                        else
+                        {
+                            success = false;
+                        }
+
+                        parsedValues++;
+                    }
+                }
+                else if (str[i] == '}')
+                {
+                    openBraces--;
+
+                    if (openBraces != 0)
+                    {
+                        success = false;
+                    }
+                    else
+                    {
+                        int len = i - start;
+                        string substr = str.Substring(start, len);
+                        double val = 0.0f;
+                        if (!double.TryParse(substr, out val)) success = false;
+
+                        if (parsedValues == 0)
+                        {
+                            retval.X = val;
+                        }
+                        else if (parsedValues == 1)
+                        {
+                            retval.Y = val;
+                        }
+                        else if (parsedValues == 2)
+                        {
+                            retval.Z = val;
+                        }
+                        else
+                        {
+                            success = false;
+                        }
+
+                        parsedValues++;
+                    }
+                }
+            }
+            if (openBraces != 0) success = false;
+
+            return success;
+        }
+
         public string ToString(string format)
         {
             CultureInfo currentCulture = CultureInfo.CurrentCulture;
@@ -1756,14 +1853,20 @@ namespace VRageMath
 
         public static void GetAzimuthAndElevation(Vector3D v, out double azimuth, out double elevation)
         {
-            double elevationCos, azimuthCos, azimuthSin;
-            Vector3D.Dot(ref v, ref Vector3D.Up, out elevationCos);
-            v.Y = 0;
+            double elevationSin, azimuthCos;
+            Vector3D.Dot(ref v, ref Vector3D.Up, out elevationSin);
+            v.Y = 0f;
             v.Normalize();
             Vector3D.Dot(ref v, ref Vector3D.Forward, out azimuthCos);
-            azimuthSin = Vector3D.Cross(v, Vector3D.Forward).Length();
-            elevation = (double)Math.Acos(elevationCos);
-            azimuth = (double)Math.Atan2(-azimuthSin, azimuthCos);
+            elevation = Math.Asin(elevationSin);
+            if (v.X >= 0)
+            {
+                azimuth = -Math.Acos(azimuthCos);
+            }
+            else
+            {
+                azimuth = Math.Acos(azimuthCos);
+            }
         }
 
         public static void CreateFromAzimuthAndElevation(double azimuth, double elevation, out Vector3D direction)
@@ -1839,6 +1942,16 @@ namespace VRageMath
         public static implicit operator Vector3D(Vector3 v)
         {
             return new Vector3D((double)v.X, (double)v.Y, (double)v.Z);
+        }
+
+        public static Vector3I Round(Vector3D vect3d)
+        {
+            return new Vector3I((vect3d + .5));
+        }
+
+        public static Vector3I Floor(Vector3D vect3d)
+        {
+            return new Vector3I((int)Math.Floor(vect3d.X), (int)Math.Floor(vect3d.Y), (int)Math.Floor(vect3d.Z));
         }
     }
 

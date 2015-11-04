@@ -38,6 +38,7 @@ cbuffer Constants : register( c1 )
 {
 	uint2 Texture_size;
 	int Texture_texels;
+	float Constant_luminance;
 };
 
 #include <math.h>
@@ -119,6 +120,8 @@ void luminance_reduce(
 		float prevlum = PrevLum[uint2(0, 0)].x;
 		prevlum = clamp(prevlum, 0, 100000);
 		float sum = ReduceBuffer[0].x / ReduceBuffer[0].y;
+		sum = max(sum, frame_.logLumThreshold);
+		//sum = lerp(frame_.logLumThreshold, sum, ReduceBuffer[0].y / 50000);
 #if MSAA_ENABLED
 		//sum /= MS_SAMPLE_COUNT;
 #endif
@@ -130,6 +133,10 @@ void luminance_reduce(
 #else
 		ReduceOutput[GroupID.xy] = ReduceBuffer[0];
 #endif
+		if (Constant_luminance > 0.0f)
+		{
+			ReduceOutput[GroupID.xy] = Constant_luminance;
+		}
 	}        
 }
 

@@ -11,6 +11,8 @@ namespace VRage.Collections
     {
         private readonly Dictionary<K, V> m_collection;
 
+        public static readonly DictionaryReader<K, V> Empty = default(DictionaryReader<K, V>);
+
         public DictionaryReader(Dictionary<K, V> collection)
         {
             m_collection = collection;
@@ -24,6 +26,11 @@ namespace VRage.Collections
         public bool ContainsKey(K key)
         {
             return m_collection.ContainsKey(key);
+        }
+
+        public bool TryGetValue(K key, out V value)
+        {
+            return m_collection.TryGetValue(key, out value);
         }
 
         public int Count()
@@ -130,6 +137,11 @@ namespace VRage.Collections
         IEnumerator<K> IEnumerable<K>.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public int Count()
+        {
+            return m_collection.Count;
         }
     }
 

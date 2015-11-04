@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using System;
 using VRage.Common;
@@ -8,13 +9,17 @@ using VRageMath;
 
 namespace Sandbox.Engine.Utils
 {
-    [PreloadRequired]
-    static class MyFakesLocal
+    public static class MyFakesLocal
     {
         static MyFakesLocal()
         {
-            // TODO: Set your fakes here, never commit this file
-            //MyFakes.QUICK_LAUNCH = null;          
+            // NOTE: Set your fakes here. Never commit this!
+            MyFakes.TEST_MODELS = false;
+        }
+
+        public static void SetupLocalPerGameSettings()
+        {
+            // NOTE: Change per game settings in this method. It will override the game's per game settings. Never commit this!
         }
     }
 }

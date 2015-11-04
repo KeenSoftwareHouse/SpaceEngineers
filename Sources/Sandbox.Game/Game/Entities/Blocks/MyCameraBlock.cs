@@ -1,11 +1,9 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
@@ -18,25 +16,21 @@ using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Input;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CameraBlock))]
-    class MyCameraBlock : MyFunctionalBlock, IMyPowerConsumer, IMyCameraController, IMyCameraBlock
+    class MyCameraBlock : MyFunctionalBlock, IMyCameraController, IMyCameraBlock
     {
         public new MyCameraBlockDefinition BlockDefinition
         {
             get { return (MyCameraBlockDefinition)base.BlockDefinition; }
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
         }
 
         private const float MIN_FOV = 0.01f;
@@ -54,7 +48,7 @@ namespace Sandbox.Game.Entities
         }
         public bool ForceFirstPersonCamera { get; set; }
 
-        private static MyHudNotification m_hudNotification;
+        private static readonly MyHudNotification m_hudNotification;
         private bool m_requestActivateAfterLoad = false;
 
         static MyCameraBlock()
@@ -93,6 +87,11 @@ namespace Sandbox.Game.Entities
 
                 CubeGrid.GridSystems.CameraSystem.SetAsCurrent(this);
                 SetView();
+                if (MyGuiScreenTerminal.IsOpen)
+                {
+                    MyGuiScreenTerminal.Hide();
+                }
+
             }
         }
 
@@ -109,10 +108,6 @@ namespace Sandbox.Game.Entities
             }
 
             MySession.SetCameraController(MyCameraControllerEnum.Entity, this);
-            if (MyGuiScreenTerminal.IsOpen)
-            {
-                MyGuiScreenTerminal.Hide();
-            }
 
             SetFov(m_fov);
 
@@ -136,15 +131,16 @@ namespace Sandbox.Game.Entities
 
             var ob = objectBuilder as MyObjectBuilder_CameraBlock;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
                 BlockDefinition.RequiredPowerInput,
-                this.CalculateRequiredPowerInput);
+                CalculateRequiredPowerInput);
 
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
-            PowerReceiver.Update();
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+			sinkComp.RequiredInputChanged += Receiver_RequiredInputChanged;
+			sinkComp.Update();
+	        ResourceSink = sinkComp;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             IsWorkingChanged += MyCameraBlock_IsWorkingChanged;
@@ -191,7 +187,7 @@ namespace Sandbox.Game.Entities
             base.UpdateAfterSimulation10();
             if (MyFakes.ENABLE_CAMERA_BLOCK)
             {
-                PowerReceiver.Update();
+                ResourceSink.Update();
             }
         }
 
@@ -199,7 +195,7 @@ namespace Sandbox.Game.Entities
         {
             base.OnAddedToScene(source);
             UpdateEmissivity();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         public void OnExitView()
@@ -210,7 +206,7 @@ namespace Sandbox.Game.Entities
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
             
             base.OnEnabledChanged();
@@ -227,7 +223,7 @@ namespace Sandbox.Game.Entities
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
         
         void Receiver_IsPoweredChanged()
@@ -245,7 +241,7 @@ namespace Sandbox.Game.Entities
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         private void UpdateEmissivity()
@@ -260,7 +256,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Receiver_RequiredInputChanged(MyPowerReceiver receiver, float oldRequirement, float newRequirement)
+        void Receiver_RequiredInputChanged(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver, float oldRequirement, float newRequirement)
         {
             UpdateText();
         }

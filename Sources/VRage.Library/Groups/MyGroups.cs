@@ -7,7 +7,7 @@ using VRage.Collections;
 
 namespace VRage.Groups
 {
-    public sealed partial class MyGroups<TNode, TGroupData> : MyGroupsBase<TNode>
+    public partial class MyGroups<TNode, TGroupData> : MyGroupsBase<TNode>
         where TGroupData : IGroupData<TNode>, new()
         where TNode : class
     {
@@ -21,7 +21,7 @@ namespace VRage.Groups
         /// You can use AddNode and RemoveNode.
         /// You have to manually call RemoveNode!
         /// </summary>
-        public readonly bool SupportsOphrans;
+        public bool SupportsOphrans { get; protected set; }
 
         Stack<Group> m_groupPool = new Stack<Group>(32);
         Stack<Node> m_nodePool = new Stack<Node>(32);
@@ -322,6 +322,7 @@ namespace VRage.Groups
             return groupA.m_members.Count >= groupB.m_members.Count;
         }
 
+        private List<Node> m_tmpList = new List<Node>();
         private void MergeGroups(Group groupA, Group groupB)
         {
             Debug.Assert(groupA != groupB, "Cannot merge group with itself");
@@ -332,17 +333,36 @@ namespace VRage.Groups
                 var tmp = groupA; groupA = groupB; groupB = tmp;
             }
 
-            foreach (var node in groupB.m_members)
+            if(m_tmpList.Capacity < groupB.m_members.Count)
+                m_tmpList.Capacity = groupB.m_members.Count;
+
+            m_tmpList.AddHashset(groupB.m_members);
+
+            foreach(var node in m_tmpList)
             {
                 // Set: Group.Members, Node.Group
                 // Keep: Node.Children (children are still the same)
 
-                // Set group to groupA
-                node.m_group = groupA;
-
+                groupB.m_members.Remove(node);
                 // Add between members of groupA
                 groupA.m_members.Add(node);
+                // Set group to groupA
+                node.m_group = groupA;
             }
+
+            m_tmpList.Clear();
+
+            //foreach (var node in groupB.m_members)
+            //{
+            //    // Set: Group.Members, Node.Group
+            //    // Keep: Node.Children (children are still the same)
+
+            //    // Set group to groupA
+            //    node.m_group = groupA;
+
+            //    // Add between members of groupA
+            //    groupA.m_members.Add(node);
+            //}
 
             // Clear members of groupB
             groupB.m_members.Clear();
@@ -381,7 +401,7 @@ namespace VRage.Groups
         {
             var group = m_groupPool.Count > 0 ? m_groupPool.Pop() : new Group();
             m_groups.Add(group);
-            group.GroupData.OnCreate();
+            group.GroupData.OnCreate(group);
             Debug.Assert(group.m_members.Count == 0, "New group is supposed to be empty, inconsistency!");
             return group;
         }

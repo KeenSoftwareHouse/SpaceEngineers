@@ -4,6 +4,7 @@
 #include <csm.h>
 #include <EnvAmbient.h>
 
+
 void base_color(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
@@ -22,28 +23,28 @@ void normal(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
-	output = float4(srgb_to_rgb(input.N * 0.5 + 0.5), 1);
+	output = float4(input.N , 1);
 }
 
 void glossiness(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
-	output = float4(srgb_to_rgb(input.gloss), 1);
+	output = float4(input.gloss.xxx, 1);
 }
 
 void metalness(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
-	output = float4(srgb_to_rgb(input.metalness), 1);
+	output = float4(input.metalness.xxx, 1);
 }
 
 void mat_id(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
-	output = float4(srgb_to_rgb(input.id), 1);
+	output = float4(input.id.xxx, 1);
 }
 
 void ambient_occlusion(PostprocessVertex vertex, out float4 output : SV_Target0)
@@ -60,12 +61,22 @@ void emissive(PostprocessVertex vertex, out float4 output : SV_Target0)
 	output = float4(srgb_to_rgb(input.emissive), 1);
 }
 
+void NDotL(PostprocessVertex vertex, out float4 output : SV_Target0)
+{
+	SurfaceInterface input = read_gbuffer(vertex.position.xy);
+
+	output = float4(dot(input.N, -frame_.directionalLightVec).xxx, 1.0);
+}
+
 void debug_ambient_diffuse(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
 	float3 albedo = surface_albedo(input.base_color, input.metalness);
 	output = float4(input.ao * ambient_diffuse(input.N) * albedo, 1);
+
+	// Pure diffuse
+	//output = float4(ambient_diffuse(input.N), 1);
 }
 
 void debug_ambient_specular(PostprocessVertex vertex, out float4 output : SV_Target0)
@@ -82,6 +93,9 @@ void debug_ambient_specular(PostprocessVertex vertex, out float4 output : SV_Tar
 
 	float3 f0 = surface_f0(input.base_color, input.metalness);
 	output = float4(input.ao * ambient_specular(f0, input.gloss, N, V), 1);
+	
+	//  Pure specular
+	//output = float4(ambient_specular(1.0f, 1.0f, N, V), 1.0f);
 }
 
 void debug_edge(PostprocessVertex vertex, out float4 output : SV_Target0)
@@ -109,16 +123,25 @@ static const float3 cascadeColor[] = {
 
 Texture2D<float> Shadows : register( MERGE(t,SHADOW_SLOT) );
 
+#ifdef CASCADES_NUM
 void cascades_shadow(PostprocessVertex vertex, out float4 output : SV_Target0)
 {
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 
 	float shadow = calculate_shadow(input.position, input.stencil);
+	shadow = 0.5f * shadow + 0.5f;
 	output = float4(cascadeColor[cascade_id_stencil(input.stencil)] * shadow, 1);
 }
+#endif
 
 
 Texture2D<float4> DebugTexture : register( t0 );
+Texture3D<float4> DebugTexture3D : register( t0 );
+Texture2DArray<float> DebugTextureArray : register( t0 );
+
+cbuffer DebugConstants : register(b5) {
+	float SliceTexcoord;
+};
 
 struct ScreenVertex {
 	float2 position : POSITION;
@@ -136,4 +159,12 @@ void screenVertex(ScreenVertex vertex, out float4 position : SV_Position, out fl
 
 void blitTexture(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) {
 	color = DebugTexture.Sample(LinearSampler, texcoord);
+}
+
+void blitTexture3D(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) {
+	color = DebugTexture3D.Sample(LinearSampler, float3(texcoord, SliceTexcoord) );
+}
+
+void blitTextureArray(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) {
+	color = DebugTextureArray.Sample(LinearSampler, float3(texcoord, SliceTexcoord));
 }

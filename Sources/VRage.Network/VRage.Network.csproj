@@ -23,6 +23,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -34,6 +35,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -45,6 +47,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -56,6 +59,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -64,12 +68,28 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IMyClientCallback.cs" />
+    <Compile Include="IMyPeerCallback.cs" />
+    <Compile Include="IMyServerCallback.cs" />
+    <Compile Include="MyChannelEnum.cs" />
+    <Compile Include="MyClientEntry.cs" />
+    <Compile Include="MyRakNetConnectionException.cs" />
+    <Compile Include="MyRakNetStartupException.cs" />
     <Compile Include="MyRakNetClient.cs" />
+    <Compile Include="MyRakNetLogger.cs" />
     <Compile Include="MyRakNetPeer.cs" />
     <Compile Include="MyRakNetServer.cs" />
-    <Compile Include="SyncLayer\MyRakNetSyncLayer.cs" />
+    <Compile Include="Rpc\CallSite.cs" />
+    <Compile Include="Rpc\CallSiteCache.cs" />
+    <Compile Include="Rpc\CallSite`1.cs" />
+    <Compile Include="Rpc\RpcAttribute.cs" />
+    <Compile Include="Rpc\RpcDispatcher.cs" />
+    <Compile Include="Rpc\RpcProxy.cs" />
+    <Compile Include="Rpc\Serializer.cs" />
     <Compile Include="SyncLayer\IMySyncedValue.cs" />
     <Compile Include="SyncLayer\MySyncedBase.cs" />
+    <Compile Include="SyncLayer\MySyncedBool.cs" />
     <Compile Include="SyncLayer\MySyncedFloat.cs" />
     <Compile Include="SyncLayer\MySyncedFloatSNorm.cs" />
     <Compile Include="SyncLayer\MySyncedFloatUNorm.cs" />
@@ -80,9 +100,6 @@
     <Compile Include="SyncLayer\MySyncedVector3.cs" />
     <Compile Include="SyncLayer\MySyncedVector3D.cs" />
     <Compile Include="SyncLayer\StateDataAttribute.cs" />
-    <Compile Include="SyncLayer\SynchronizedAttribute.cs" />
-    <Compile Include="tmp\Bar.cs" />
-    <Compile Include="tmp\Foo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="RakNet">

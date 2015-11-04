@@ -16,13 +16,14 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
     public class MyParticlesLibrary
     {
         static Dictionary<int, MyParticleEffect> m_libraryEffects = new Dictionary<int, MyParticleEffect>();
+        static Dictionary<string, MyParticleEffect> m_libraryEffectsString = new Dictionary<string, MyParticleEffect>();
         static readonly int Version = 0;
 
         static MyParticlesLibrary()
         {
-            MyLog.Default.WriteLine(string.Format("MyParticlesLibrary.ctor - START"));
+            MyLog.Default.WriteLine("MyParticlesLibrary.ctor - START");
             InitDefault();
-            MyLog.Default.WriteLine(string.Format("MyParticlesLibrary.ctor - END"));
+            MyLog.Default.WriteLine("MyParticlesLibrary.ctor - END");
         }
 
         public static void InitDefault()
@@ -52,11 +53,17 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public static void AddParticleEffect(MyParticleEffect effect)
         {
             m_libraryEffects.Add(effect.GetID(), effect);
+            m_libraryEffectsString[effect.Name] = effect;
         }
 
         public static bool EffectExists(int ID)
         {
             return m_libraryEffects.ContainsKey(ID);
+        }
+
+        public static MyParticleEffect GetParticleEffect(int particleEffectID)
+        {
+            return m_libraryEffects[particleEffectID];
         }
 
         public static void UpdateParticleEffectID(int ID)
@@ -76,6 +83,8 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             m_libraryEffects.TryGetValue(ID, out effect);
             if (effect != null)
             {
+                m_libraryEffectsString.Remove(effect.Name);
+
                 effect.Close(true);
                 MyParticlesManager.EffectsPool.Deallocate(effect);
             }
@@ -91,6 +100,24 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public static IEnumerable<MyParticleEffect> GetParticleEffects()
         {
             return m_libraryEffects.Values;
+        }
+
+        public static IEnumerable<int> GetParticleEffectsIDs()
+        {
+            return m_libraryEffects.Keys;
+        }
+
+        public static bool GetParticleEffectsID(string name, out int id)
+        {
+            MyParticleEffect effect;
+            if (m_libraryEffectsString.TryGetValue(name, out effect))
+            {
+                id = effect.GetID();
+                return true;
+            }
+
+            id = -1;
+            return false;
         }
 
         #region Serialization
@@ -184,7 +211,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             {
                 MyParticleEffect effect = MyParticlesManager.EffectsPool.Allocate();
                 effect.Deserialize(reader);
-                m_libraryEffects.Add(effect.GetID(), effect);
+                AddParticleEffect(effect);
             }
 
             reader.ReadEndElement(); //ParticleEffects
@@ -196,22 +223,32 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         static public MyParticleEffect CreateParticleEffect(int id)
         {
-            return m_libraryEffects[id].CreateInstance();
+            if (m_libraryEffects.ContainsKey(id))
+            {
+                return m_libraryEffects[id].CreateInstance();
+            }
+            return null;
         }
 
         static public void RemoveParticleEffectInstance(MyParticleEffect effect)
         {
             effect.Close(false);
             //if (effect.Enabled)
+            if (m_libraryEffects.ContainsKey(effect.GetID()))
             {
-                if (m_libraryEffects[effect.GetID()].GetInstances().Contains(effect))
+                var instances = m_libraryEffects[effect.GetID()].GetInstances();
+                if (instances != null)
                 {
-                    MyParticlesManager.EffectsPool.Deallocate(effect);
-                    m_libraryEffects[effect.GetID()].RemoveInstance(effect);
-                }
-                else
-                {
-                    System.Diagnostics.Debug.Assert(false, "Effect deleted twice!");
+                    if (instances.Contains(effect))
+                    {
+                        MyParticlesManager.EffectsPool.Deallocate(effect);
+                        m_libraryEffects[effect.GetID()].RemoveInstance(effect);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Assert(false, "Effect deleted twice!");
+
+                    }
                 }
             }
         }

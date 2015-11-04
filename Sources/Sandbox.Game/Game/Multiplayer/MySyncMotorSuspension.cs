@@ -10,7 +10,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncMotorSuspension : MySyncMotorBase
+    public class MySyncMotorSuspension : MySyncMotorBase
     {
         [MessageId(224, P2PMessageEnum.Reliable)]
         struct SteeringMsg : IEntityMessage
@@ -103,15 +103,40 @@ namespace Sandbox.Game.Multiplayer
             public float Steer;
         }
 
+        [MessageId(239, P2PMessageEnum.Reliable)]
+        struct UpdateSliderMsg : IEntityMessage
+        {
+            public long EntityId;
+
+            public long GetEntityId()
+            {
+                return EntityId;
+            }
+
+            public SliderEnum Slider;
+            public float Value;
+        }
+
+        public enum SliderEnum
+        {
+            Height,
+            MaxSteerAngle,
+            SteerSpeed,
+            SteerReturnSpeed,
+            InvertSteer,
+            SuspensionTravel
+        }
+
         static MySyncMotorSuspension()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteeringMsg>(OnChangeControllable, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, DampingMsg>(OnChangeDamping, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, StrengthMsg>(OnChangeStrength, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PropulsionMsg>(OnChangePropulsion, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, FrictionMsg>(OnChangeFriction, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PowerMsg>(OnChangePower, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteerMsg>(OnUpdateSteer, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteeringMsg>(OnChangeControllable, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, DampingMsg>(OnChangeDamping, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, StrengthMsg>(OnChangeStrength, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PropulsionMsg>(OnChangePropulsion, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, FrictionMsg>(OnChangeFriction, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PowerMsg>(OnChangePower, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteerMsg>(OnUpdateSteer, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, UpdateSliderMsg>(OnUpdateSlider, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
         }
 
         public new MyMotorSuspension Entity
@@ -130,12 +155,16 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Steering = value;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangeControllable(MySyncMotorSuspension sync, ref SteeringMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Steering = msg.Steering;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg,sender.SteamUserId);
+            }
         }
 
 
@@ -145,12 +174,16 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Damping = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangeDamping(MySyncMotorSuspension sync, ref DampingMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Damping = msg.Damping;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void ChangeStrength(float v)
@@ -159,12 +192,16 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Strength = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangeStrength(MySyncMotorSuspension sync, ref StrengthMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Strength = msg.Strength;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void ChangePropulsion(bool v)
@@ -173,12 +210,16 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Propulsion = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangePropulsion(MySyncMotorSuspension sync, ref PropulsionMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Propulsion = msg.Propulsion;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void ChangeFriction(float v)
@@ -187,13 +228,18 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Friction = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangeFriction(MySyncMotorSuspension sync, ref FrictionMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Friction = msg.Friction;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
+
 
 
         internal void ChangePower(float v)
@@ -202,12 +248,16 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Power = v;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         static void OnChangePower(MySyncMotorSuspension sync, ref PowerMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Power = msg.Power;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void UpdateSteer(float angle)
@@ -216,12 +266,56 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
             msg.Steer = angle;
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         static void OnUpdateSteer(MySyncMotorSuspension sync, ref SteerMsg msg, MyNetworkClient sender)
         {
             sync.Entity.SteerAngle = msg.Steer;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
+        }
+
+        internal void ChangeSlider(MySyncMotorSuspension.SliderEnum slider, float v)
+        {
+            var msg = new UpdateSliderMsg();
+            msg.EntityId = Entity.EntityId;
+            msg.Slider = slider;
+            msg.Value = v;
+
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
+        }
+
+        static void OnUpdateSlider(MySyncMotorSuspension sync, ref UpdateSliderMsg msg, MyNetworkClient sender)
+        {
+            switch (msg.Slider)
+            {
+                case SliderEnum.Height:
+                    sync.Entity.Height = msg.Value;
+                    break;
+                case SliderEnum.MaxSteerAngle:
+                    sync.Entity.MaxSteerAngle = msg.Value;
+                    break;
+                case SliderEnum.SteerSpeed:
+                    sync.Entity.SteerSpeed = msg.Value;
+                    break;
+                case SliderEnum.SteerReturnSpeed:
+                    sync.Entity.SteerReturnSpeed = msg.Value;
+                    break;
+                case SliderEnum.InvertSteer:
+                    sync.Entity.InvertSteer = msg.Value > 0;
+                    break;
+                case SliderEnum.SuspensionTravel:
+                    sync.Entity.SuspensionTravel = msg.Value;
+                    break;
+            }
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
     }
 }

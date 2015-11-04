@@ -19,6 +19,8 @@ using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.AI;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.AI.Pathfinding;
+using Sandbox.Game.AI.Navigation;
+using Sandbox.Game.AI.Actions;
 
 namespace Sandbox.Game.AI
 {
@@ -46,7 +48,7 @@ namespace Sandbox.Game.AI
         public MyBotDefinition BotDefinition { get { return m_definition as MyBotDefinition; } }
         public MyAgentDefinition AgentDefinition { get { return m_definition; } }
 
-        private MyAbstractBotActionProxy m_actions;
+        private MyBotActionsBase m_actions;
 
         public bool IsValidForUpdate
         {
@@ -194,29 +196,27 @@ namespace Sandbox.Game.AI
         internal MyBehaviorTreeState Action_Idle()
         {
             m_navigation.StopImmediate();
-            m_player.Character.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.WaitForPreviousEnd, 0.5f);
+            m_player.Character.PlayCharacterAnimation("Idle", MyBlendOption.WaitForPreviousEnd, MyFrameOption.Loop, 0.5f);
             return MyBehaviorTreeState.RUNNING;
         }
 
         public void Reset()
         {
-            BotMemory.ResetMemory(BehaviorTree, true);
+            BotMemory.ResetMemory(true);
             //m_target.UnsetTarget();
             m_navigation.StopImmediate(true);
         }
 
-        MyAbstractBotActionProxy IMyBot.BotActions
+        MyBotActionsBase IMyBot.BotActions
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
 
-
         public void InitLogic(MyBotLogic logic)
         {
             throw new NotImplementedException();
         }
-
 
         public MyBotLogic BotLogic
         {

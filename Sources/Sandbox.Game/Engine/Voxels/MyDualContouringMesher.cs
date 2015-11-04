@@ -14,14 +14,6 @@ namespace Sandbox.Engine.Voxels
 {
     class MyDualContouringMesher : IMyIsoMesher
     {
-        const int SIZE_IN_VOXELS = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
-        const float POSITION_SCALE = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS + 1f;
-        /// <summary>
-        /// Constant that ensures contoured voxel positions are in range 0 to 1 inclusive.
-        /// Such positions can be encoded as normalized unsigned integer values.
-        /// </summary>
-        const float CONTOURED_VOXEL_SIZE = 1f / POSITION_SCALE;
-
         private MyStorageDataCache m_cache = new MyStorageDataCache();
         private MyIsoMesh m_buffer = new MyIsoMesh();
 
@@ -50,10 +42,10 @@ namespace Sandbox.Engine.Voxels
                 + 1 // overlap to neighbor so geometry is stitched together within same LOD
                 + 1; // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
 
-            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true);
+            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true,true);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient)
         {
             // change range so normal can be computed at edges (expand by 1 in all directions)
             voxelStart -= 1;
@@ -65,16 +57,18 @@ namespace Sandbox.Engine.Voxels
                 return null;
             }
 
+            var center = (storage.Size / 2) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+            var voxelSize = MyVoxelConstants.VOXEL_SIZE_IN_METRES * (1 << lod);
+            var vertexCellOffset = voxelStart - AffectedRangeOffset;
+            double numCellsHalf = 0.5 * (m_cache.Size3D.X - 3);
+            var posOffset = ((Vector3D)vertexCellOffset + numCellsHalf) * (double)voxelSize;
+
             if (generateMaterials)
-            {
-                storage.ReadRange(m_cache, MyStorageDataTypeFlags.Material, lod, ref voxelStart, ref voxelEnd);
-            }
-            else
             {
                 m_cache.ClearMaterials(0);
             }
-            var voxelSize = MyVoxelConstants.VOXEL_SIZE_IN_METRES * (1 << lod);
 
+            IsoMesher mesher = new IsoMesher();
             ProfilerShort.Begin("Dual Contouring");
             unsafe
             {
@@ -82,10 +76,33 @@ namespace Sandbox.Engine.Voxels
                 {
                     var size3d = m_cache.Size3D;
                     Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
-                    IsoMesher.Calculate(size3d.X, (VoxelData*)voxels, m_buffer);
+                    mesher.Calculate(size3d.X, (VoxelData*)voxels, m_buffer, useAmbient, posOffset - center);
                 }
             }
             ProfilerShort.End();
+
+            if (generateMaterials)
+            {
+                using (MyVoxelMaterialRequestHelper.StartContouring())
+                {
+                    storage.ReadRange(m_cache, MyStorageDataTypeFlags.Material, lod, ref voxelStart, ref voxelEnd);
+                    bool hasOcclusionHint = false;
+                    FixCacheMaterial(voxelStart, voxelEnd);
+                    unsafe
+                    {
+                        fixed (byte* voxels = m_cache.Data)
+                        {
+                            var size3d = m_cache.Size3D;
+                            Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
+                            mesher.CalculateMaterials(size3d.X, (VoxelData*)voxels, hasOcclusionHint, -1);
+                        }
+                    }
+                }
+            }
+            else
+                m_cache.ClearMaterials(0);
+
+            mesher.Finish(m_buffer);
 
             if (m_buffer.VerticesCount == 0 && m_buffer.Triangles.Count == 0)
             {
@@ -94,20 +111,19 @@ namespace Sandbox.Engine.Voxels
 
             ProfilerShort.Begin("Geometry post-processing");
             {
-                var vertexCellOffset = voxelStart - AffectedRangeOffset;
                 var positions = m_buffer.Positions.GetInternalArray();
                 var vertexCells = m_buffer.Cells.GetInternalArray();
                 for (int i = 0; i < m_buffer.VerticesCount; i++)
                 {
-                    var min = -Vector3.One;
-                    var max = Vector3.One;
-                 //   Debug.Assert(positions[i].IsInsideInclusive(ref min, ref max));
+                    Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
                     vertexCells[i] += vertexCellOffset;
+                    Debug.Assert(vertexCells[i].IsInsideInclusive(voxelStart + 1, voxelEnd - 1));
                 }
 
-                float numCellsHalf = 0.5f * (m_cache.Size3D.X - 3);
-                m_buffer.PositionOffset = (vertexCellOffset + numCellsHalf) * voxelSize;
-                m_buffer.PositionScale = new Vector3(numCellsHalf * voxelSize);
+                m_buffer.PositionOffset = posOffset;
+                m_buffer.PositionScale = new Vector3((float)(numCellsHalf * voxelSize));
+                m_buffer.CellStart = voxelStart + 1;
+                m_buffer.CellEnd = voxelEnd - 1;
             }
             ProfilerShort.End();
 
@@ -116,6 +132,21 @@ namespace Sandbox.Engine.Voxels
             var buffer = m_buffer;
             m_buffer = new MyIsoMesh();
             return buffer;
+        }
+
+        private void FixCacheMaterial(Vector3I voxelStart, Vector3I voxelEnd)
+        {
+            var mcount = Sandbox.Definitions.MyDefinitionManager.Static.VoxelMaterialCount;
+            voxelEnd = Vector3I.Min(voxelEnd - voxelStart, m_cache.Size3D);
+            voxelStart = Vector3I.Zero;
+            var it = new Vector3I.RangeIterator(ref voxelStart, ref voxelEnd);
+            var pos = it.Current;
+            for(;it.IsValid();it.GetNext(out pos))
+            {
+                var lin = m_cache.ComputeLinear(ref pos);
+                if (m_cache.Material(lin) >= mcount)
+                    m_cache.Material(lin, 0);
+            }
         }
 
     }

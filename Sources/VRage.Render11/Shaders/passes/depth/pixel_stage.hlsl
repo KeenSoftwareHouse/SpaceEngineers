@@ -10,7 +10,7 @@ struct PixelStageInput
 void __pixel_shader(PixelStageInput input) {
 
 	PixelInterface pixel;
-	pixel.screen_position = input.position.xy;
+	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 	init_ps_interface(pixel);
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES

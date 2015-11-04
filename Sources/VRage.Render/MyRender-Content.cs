@@ -70,8 +70,6 @@ namespace VRageRender
         VoxelsMRT,
         Gizmo,
 
-        Atmosphere,
-
         //Occlusion queries
         OcclusionQueryDrawMRT,
 
@@ -333,7 +331,6 @@ namespace VRageRender
             m_manualCullingStructure.Clear();
             m_shadowPrunningStructure.Clear();
             m_farObjectsPrunningStructure.Clear();
-            m_atmospherePurunnigStructure.Clear();
             m_nearObjects.Clear();
 
             Clear();
@@ -424,17 +421,6 @@ namespace VRageRender
 
             }
 
-            m_farCullObjectListForDraw.Clear();
-            m_atmospherePurunnigStructure.OverlapAllBoundingBox(ref testAABB, m_farCullObjectListForDraw);
-            count = 0;
-            foreach (var obj in m_farCullObjectListForDraw)
-            {
-                count += ((MyCullableRenderObject)obj).EntitiesContained;
-                Debug.Assert(((MyCullableRenderObject)obj).EntitiesContained == 0, "There are some objects in manual culling structure which are not removed on unload!");
-
-                // ((MyCullableRenderObject)obj).CulledObjects.OverlapAllBoundingBox(ref testAABB, m_renderObjectListForDraw);
-
-            }
         }
 
         internal static void ReloadContent(MyRenderQualityEnum quality)
@@ -602,7 +588,7 @@ namespace VRageRender
                 m_renderTargets[(int)renderTarget] = new Texture(GraphicsDevice, width, height, mipmaps ? 0 : 1, usage, preferredFormat, Pool.Default);
                 m_renderTargets[(int)renderTarget].DebugName = renderTarget.ToString();
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 string formatStr = "Creating render target failed, target: {0}({1}), width: {2}, height: {3}, format: {4}, usage: {5}, mipmaps: {6}";
                 string str = String.Format(formatStr, renderTarget, (int)renderTarget, width, height, preferredFormat, usage, mipmaps);
@@ -775,57 +761,66 @@ namespace VRageRender
 
         internal static void LoadEffects()
         {
-            //Post process effects
-            //m_effects[(int)MyEffects.LodTransition2] = new MyEffectLodTransition2();
-            m_effects[(int)MyEffects.ClearGBuffer] = new MyEffectClearGbuffer();
-            m_effects[(int)MyEffects.ShadowMap] = new MyEffectShadowMap();
-            //m_effects[(int)MyEffects.ShadowOcclusion] = new MyEffectShadowOcclusion();
-            m_effects[(int)MyEffects.TransparentGeometry] = new MyEffectTransparentGeometry();
-            //m_effects[(int)MyEffects.HudSectorBorder] = new MyEffectHudSectorBorder();
-            m_effects[(int)MyEffects.Decals] = new MyEffectDecals();
-            m_effects[(int)MyEffects.PointLight] = new MyEffectPointLight();
-            m_effects[(int)MyEffects.DirectionalLight] = new MyEffectDirectionalLight();
-            m_effects[(int)MyEffects.BlendLights] = new MyEffectBlendLights();
-            m_effects[(int)MyEffects.SSAO] = new MyEffectSSAO3();
-            m_effects[(int)MyEffects.VolumetricSSAO] = new MyEffectVolumetricSSAO2();
-            m_effects[(int)MyEffects.SSAOBlur] = new MyEffectSSAOBlur2();
-            m_effects[(int)MyEffects.GaussianBlur] = new MyEffectGaussianBlur();
-            m_effects[(int)MyEffects.DownsampleForSSAO] = new MyEffectDownsampleDepthForSSAO();
-            m_effects[(int)MyEffects.AntiAlias] = new MyEffectAntiAlias();
-            m_effects[(int)MyEffects.Screenshot] = new MyEffectScreenshot();
-            m_effects[(int)MyEffects.Scale] = new MyEffectScale();
-            m_effects[(int)MyEffects.Threshold] = new MyEffectThreshold();
-            m_effects[(int)MyEffects.HDR] = new MyEffectHDR();
-            m_effects[(int)MyEffects.Luminance] = new MyEffectLuminance();
-            m_effects[(int)MyEffects.Contrast] = new MyEffectContrast();
-            m_effects[(int)MyEffects.VolumetricFog] = new MyEffectVolumetricFog();
-            m_effects[(int)MyEffects.GodRays] = new MyEffectGodRays();
-            m_effects[(int)MyEffects.Vignetting] = new MyEffectVignetting();
-            m_effects[(int)MyEffects.ColorMapping] = new MyEffectColorMapping();
-            m_effects[(int)MyEffects.ChromaticAberration] = new MyEffectChromaticAberration();
+            if (!m_settings.DebugDrawOnly)
+            {
+                //Post process effects
+                //m_effects[(int)MyEffects.LodTransition2] = new MyEffectLodTransition2();
+                m_effects[(int)MyEffects.ClearGBuffer] = new MyEffectClearGbuffer();
+                m_effects[(int)MyEffects.ShadowMap] = new MyEffectShadowMap();
+                //m_effects[(int)MyEffects.ShadowOcclusion] = new MyEffectShadowOcclusion();
+                m_effects[(int)MyEffects.TransparentGeometry] = new MyEffectTransparentGeometry();
+                //m_effects[(int)MyEffects.HudSectorBorder] = new MyEffectHudSectorBorder();
+                m_effects[(int)MyEffects.Decals] = new MyEffectDecals();
+                m_effects[(int)MyEffects.PointLight] = new MyEffectPointLight();
+                m_effects[(int)MyEffects.DirectionalLight] = new MyEffectDirectionalLight();
+                m_effects[(int)MyEffects.BlendLights] = new MyEffectBlendLights();
+                m_effects[(int)MyEffects.SSAO] = new MyEffectSSAO3();
+                m_effects[(int)MyEffects.VolumetricSSAO] = new MyEffectVolumetricSSAO2();
+                m_effects[(int)MyEffects.SSAOBlur] = new MyEffectSSAOBlur2();
+                m_effects[(int)MyEffects.GaussianBlur] = new MyEffectGaussianBlur();
+                m_effects[(int)MyEffects.DownsampleForSSAO] = new MyEffectDownsampleDepthForSSAO();
+                m_effects[(int)MyEffects.AntiAlias] = new MyEffectAntiAlias();
+                m_effects[(int)MyEffects.Screenshot] = new MyEffectScreenshot();
+                m_effects[(int)MyEffects.Scale] = new MyEffectScale();
+                m_effects[(int)MyEffects.Threshold] = new MyEffectThreshold();
+                m_effects[(int)MyEffects.HDR] = new MyEffectHDR();
+                m_effects[(int)MyEffects.Luminance] = new MyEffectLuminance();
+                m_effects[(int)MyEffects.Contrast] = new MyEffectContrast();
+                m_effects[(int)MyEffects.VolumetricFog] = new MyEffectVolumetricFog();
+                m_effects[(int)MyEffects.GodRays] = new MyEffectGodRays();
+                m_effects[(int)MyEffects.Vignetting] = new MyEffectVignetting();
+                m_effects[(int)MyEffects.ColorMapping] = new MyEffectColorMapping();
+                m_effects[(int)MyEffects.ChromaticAberration] = new MyEffectChromaticAberration();
 
-            //Model effects
-            m_effects[(int)MyEffects.Gizmo] = new MyEffectRenderGizmo();
-            m_effects[(int)MyEffects.ModelDNS] = new MyEffectModelsDNS();
-            m_effects[(int)MyEffects.ModelDiffuse] = new MyEffectModelsDiffuse();
-            m_effects[(int)MyEffects.VoxelDebrisMRT] = new MyEffectVoxelsDebris();
-            m_effects[(int)MyEffects.VoxelsMRT] = new MyEffectVoxels();
-            m_effects[(int)MyEffects.OcclusionQueryDrawMRT] = new MyEffectOcclusionQueryDraw();
-            m_effects[(int)MyEffects.SpriteBatch] = new MyEffectSpriteBatchShader();//prejmenovat enum..
-            m_effects[(int)MyEffects.AmbientMapPrecalculation] = new MyEffectAmbientPrecalculation();
+                //Model effects
+                m_effects[(int)MyEffects.Gizmo] = new MyEffectRenderGizmo();
+                m_effects[(int)MyEffects.ModelDNS] = new MyEffectModelsDNS();
+                m_effects[(int)MyEffects.ModelDiffuse] = new MyEffectModelsDiffuse();
+                m_effects[(int)MyEffects.VoxelDebrisMRT] = new MyEffectVoxelsDebris();
+                m_effects[(int)MyEffects.VoxelsMRT] = new MyEffectVoxels();
+                m_effects[(int)MyEffects.OcclusionQueryDrawMRT] = new MyEffectOcclusionQueryDraw();
+                m_effects[(int)MyEffects.SpriteBatch] = new MyEffectSpriteBatchShader();//prejmenovat enum..
+                m_effects[(int)MyEffects.AmbientMapPrecalculation] = new MyEffectAmbientPrecalculation();
 
-            m_effects[(int)MyEffects.Atmosphere] = new MyEffectAtmosphere();
+                //Background
+                m_effects[(int)MyEffects.DistantImpostors] = new MyEffectDistantImpostors();
+                m_effects[(int)MyEffects.BackgroundCube] = new MyEffectBackgroundCube();
 
-            //Background
-            m_effects[(int)MyEffects.DistantImpostors] = new MyEffectDistantImpostors();
-            m_effects[(int)MyEffects.BackgroundCube] = new MyEffectBackgroundCube();
+                //HUD
+                m_effects[(int)MyEffects.HudRadar] = new MyEffectHudRadar();
+                m_effects[(int)MyEffects.Hud] = new MyEffectHud();
+                m_effects[(int)MyEffects.CockpitGlass] = new MyEffectCockpitGlass();
 
-            //HUD
-            m_effects[(int)MyEffects.HudRadar] = new MyEffectHudRadar();
-            m_effects[(int)MyEffects.Hud] = new MyEffectHud();
-            m_effects[(int)MyEffects.CockpitGlass] = new MyEffectCockpitGlass();
+                Debug.Assert(m_effects.All(effect => effect != null));
+            }
+            else
+            {
+                m_effects[(int)MyEffects.SpriteBatch] = new MyEffectSpriteBatchShader();
+                m_effects[(int)MyEffects.ModelDiffuse] = new MyEffectModelsDiffuse();
+                m_effects[(int)MyEffects.ClearGBuffer] = new MyEffectClearGbuffer();
+                m_effects[(int)MyEffects.Screenshot] = new MyEffectScreenshot();
+            }
 
-            Debug.Assert(m_effects.All(effect => effect != null));
         }
 
         static void UnloadEffects()

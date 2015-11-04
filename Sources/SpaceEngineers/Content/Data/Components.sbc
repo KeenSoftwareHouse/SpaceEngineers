@@ -16,8 +16,10 @@
       <Mass>8</Mass>
       <Volume>2</Volume>
       <Model>Models\Components\construction_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>30</MaxIntegrity>
       <DropProbability>0.5</DropProbability>
+      <Health>18</Health>
     </Component>
     <Component>
       <Id>
@@ -34,8 +36,10 @@
       <Mass>6</Mass>
       <Volume>15</Volume>
       <Model>Models\Components\metal_grid_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>30</MaxIntegrity>
       <DropProbability>0.95</DropProbability>
+      <Health>69</Health>
     </Component>
     <Component>
       <Id>
@@ -52,8 +56,10 @@
       <Mass>3</Mass>
       <Volume>5</Volume>
       <Model>Models\Components\interior_plate_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>15</MaxIntegrity>
       <DropProbability>0.8</DropProbability>
+      <Health>36</Health>
     </Component>
     <Component>
       <Id>
@@ -70,8 +76,10 @@
       <Mass>20</Mass>
       <Volume>3</Volume>
       <Model>Models\Components\steel_plate_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>100</MaxIntegrity>
       <DropProbability>0.9</DropProbability>
+      <Health>53</Health>
     </Component>
     <Component>
       <Id>
@@ -88,6 +96,7 @@
       <Mass>6</Mass>
       <Volume>2</Volume>
       <Model>Models\Components\girder_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>15</MaxIntegrity>
       <DropProbability>0.5</DropProbability>
     </Component>
@@ -106,8 +115,10 @@
       <Mass>4</Mass>
       <Volume>2</Volume>
       <Model>Models\Components\small_tube_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>15</MaxIntegrity>
       <DropProbability>0.5</DropProbability>
+      <Health>18</Health>
     </Component>
     <Component>
       <Id>
@@ -124,8 +135,10 @@
       <Mass>25</Mass>
       <Volume>38</Volume>
       <Model>Models\Components\large_tube_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>60</MaxIntegrity>
       <DropProbability>0.6</DropProbability>
+      <Health>22</Health>
     </Component>
     <Component>
       <Id>
@@ -142,8 +155,10 @@
       <Mass>24</Mass>
       <Volume>8</Volume>
       <Model>Models\Components\motor_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>40</MaxIntegrity>
       <DropProbability>0.3</DropProbability>
+      <Health>14</Health>
     </Component>
     <Component>
       <Id>
@@ -160,8 +175,10 @@
       <Mass>8</Mass>
       <Volume>6</Volume>
       <Model>Models\Components\display_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>5</MaxIntegrity>
       <DropProbability>0.2</DropProbability>
+      <Health>12</Health>
     </Component>
     <Component>
       <Id>
@@ -178,8 +195,30 @@
       <Mass>15</Mass>
       <Volume>8</Volume>
       <Model>Models\Components\bulletproof_glass_component.mwm</Model>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
       <MaxIntegrity>60</MaxIntegrity>
       <DropProbability>0.3</DropProbability>
+      <Health>14</Health>
+    </Component>
+    <Component>
+      <Id>
+        <TypeId>Component</TypeId>
+        <SubtypeId>Superconductor</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Superconductor</DisplayName>
+      <Icon>Textures\GUI\Icons\component\superconductor_conducts_component.dds</Icon>
+      <Size>
+        <X>0.5</X>
+        <Y>0.5</Y>
+        <Z>0.03</Z>
+      </Size>
+      <Mass>15</Mass>
+      <Volume>8</Volume>
+      <Model>Models\Components\superconductor_conducts_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <MaxIntegrity>5</MaxIntegrity>
+      <DropProbability>0.3</DropProbability>
+      <Health>14</Health>
     </Component>
     <Component>
       <Id>
@@ -196,8 +235,10 @@
       <Mass>0.2</Mass>
       <Volume>1</Volume>
       <Model>Models\Components\computer_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>1</MaxIntegrity>
       <DropProbability>0.1</DropProbability>
+      <Health>11</Health>
     </Component>
     <Component>
       <Id>
@@ -214,8 +255,10 @@
       <Mass>25</Mass>
       <Volume>8</Volume>
       <Model>Models\Components\reactor_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>20</MaxIntegrity>
       <DropProbability>0.3</DropProbability>
+      <Health>14</Health>
     </Component>
     <Component>
       <Id>
@@ -232,8 +275,10 @@
       <Mass>40</Mass>
       <Volume>10</Volume>
       <Model>Models\Components\thrust_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>30</MaxIntegrity>
       <DropProbability>0.2</DropProbability>
+      <Health>12</Health>
     </Component>
     <Component>
       <Id>
@@ -250,8 +295,10 @@
       <Mass>800</Mass>
       <Volume>200</Volume>
       <Model>Models\Components\gravity_generator_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>500</MaxIntegrity>
       <DropProbability>0.2</DropProbability>
+      <Health>12</Health>
     </Component>
     <Component>
       <Id>
@@ -268,8 +315,10 @@
       <Mass>150</Mass>
       <Volume>160</Volume>
       <Model>Models\Components\medical_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>70</MaxIntegrity>
       <DropProbability>0.2</DropProbability>
+      <Health>12</Health>
     </Component>
     <Component>
       <Id>
@@ -286,8 +335,10 @@
       <Mass>8</Mass>
       <Volume>140</Volume>
       <Model>Models\Components\radio_communication_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>15</MaxIntegrity>
       <DropProbability>0.1</DropProbability>
+      <Health>11</Health>
     </Component>
     <Component>
       <Id>
@@ -304,8 +355,10 @@
       <Mass>5</Mass>
       <Volume>6</Volume>
       <Model>Models\Components\detector_components_component.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>4</MaxIntegrity>
       <DropProbability>0.1</DropProbability>
+      <Health>11</Health>
     </Component>
     <Component>
       <Id>
@@ -322,8 +375,10 @@
       <Mass>2</Mass>
       <Volume>2</Volume>
       <Model>Models\Components\ExplosivesComponent.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>5</MaxIntegrity>
       <DropProbability>0.4</DropProbability>
+      <Health>21</Health>
     </Component>
   <!--  <Component>
       <Id>
@@ -358,8 +413,10 @@
       <Mass>8</Mass>
       <Volume>20</Volume>
       <Model>Models\Components\SolarCell.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>1</MaxIntegrity>
       <DropProbability>0.1</DropProbability>
+      <Health>11</Health>
     </Component>
     <Component>
       <Id>
@@ -376,8 +433,10 @@
       <Mass>25</Mass>
       <Volume>45</Volume>
       <Model>Models\Components\PowerCellComponent.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>50</MaxIntegrity>
       <DropProbability>0.3</DropProbability>
+      <Health>14</Health>
     </Component>
   </Components>
 </Definitions>

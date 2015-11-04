@@ -17,19 +17,23 @@ using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Diagnostics;
+using Sandbox.Game.EntityComponents;
 using VRageMath;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
+using VRage.Utils;
+using Sandbox.Engine.Networking;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_HandDrill))]
-    class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyPowerConsumer
+    class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>
     {
         public readonly static MyDrillBase.Sounds m_sounds;
 
-        private const float SPIKE_MAX_ROTATION_SPEED = MathHelper.TwoPi; // radians per second
-        private const float SPIKE_THRUST_DISTANCE_HALF = 0.2f;
+	    private const float SPIKE_THRUST_DISTANCE_HALF = 0.2f;
         private const float SPIKE_THRUST_PERIOD_IN_SECONDS = 0.05f;
         private const float SPIKE_SLOWDOWN_TIME_IN_SECONDS = 0.5f;
 
@@ -49,11 +53,12 @@ namespace Sandbox.Game.Weapons
 
         MyOreDetectorComponent m_oreDetectorBase = new MyOreDetectorComponent();
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
+		private MyResourceSinkComponent m_sinkComp;
+		public MyResourceSinkComponent SinkComp
+		{
+			get { return m_sinkComp; }
+			set { if (Components.Contains(typeof(MyResourceSinkComponent))) Components.Remove<MyResourceSinkComponent>(); Components.Add<MyResourceSinkComponent>(value); m_sinkComp = value; }
+		}
 
         public float BackkickForcePerSecond
         {
@@ -79,7 +84,10 @@ namespace Sandbox.Game.Weapons
         {
             get { return m_drillBase.IsDrilling; }
         }
-
+        public bool IsBlocking
+        {
+            get { return false; }
+        }
         public int ShootDirectionUpdateTime
         {
             get { return 0; }
@@ -95,13 +103,13 @@ namespace Sandbox.Game.Weapons
             };
         }
 
-        MyPhysicalItemDefinition m_physItemDef;
+	    readonly MyPhysicalItemDefinition m_physItemDef;
 
         public MyHandDrill()
         {
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
 
-            PhysicalObject = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>("HandDrillItem");
+            PhysicalObject = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>("HandDrillItem");
             m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "HandDrillItem"));
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
         }
@@ -140,11 +148,12 @@ namespace Sandbox.Game.Weapons
             m_oreDetectorBase.DetectionRadius = 20;
             m_oreDetectorBase.OnCheckControl = OnCheckControl;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute("Utility"), 
                 MyEnergyConstants.REQUIRED_INPUT_HAND_DRILL,
-                () => m_tryingToDrill ? PowerReceiver.MaxRequiredInput : 0f);
+                () => m_tryingToDrill ? SinkComp.MaxRequiredInput : 0f);
+	        SinkComp = sinkComp;
         }
 
         public bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
@@ -166,8 +175,10 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
+            MyAnalyticsHelper.ReportActivityStartIf(!IsShooting, this.Owner, "Drilling", "Character", "HandTools", "HandDrill", false);
+
             DoDrillAction(collectOre: action == MyShootActionEnum.PrimaryAction);
         }
 
@@ -175,15 +186,15 @@ namespace Sandbox.Game.Weapons
         {
             m_drillBase.StopDrill();
             m_tryingToDrill = false;
-            PowerReceiver.Update();
+			SinkComp.Update();
         }
 
         private bool DoDrillAction(bool collectOre)
         {
             m_tryingToDrill = true;
-            PowerReceiver.Update();
+			SinkComp.Update();
 
-            if (!PowerReceiver.IsPowered)
+			if (!SinkComp.IsPowered)
                 return false;
 
             m_lastTimeDrilled = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -291,7 +302,7 @@ namespace Sandbox.Game.Weapons
             m_drillBase.IgnoredEntities.Remove(m_owner);
             m_drillBase.StopDrill();
             m_tryingToDrill = false;
-            PowerReceiver.Update();
+			SinkComp.Update();
             m_drillBase.OutputInventory = null;
 
             if (m_owner.ControllerInfo.IsLocallyControlled())

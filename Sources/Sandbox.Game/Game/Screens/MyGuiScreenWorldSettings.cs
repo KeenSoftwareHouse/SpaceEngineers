@@ -21,12 +21,10 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
 using VRage.Utils;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game.Localization;
-using VRage;
-using VRage.Utils;
 using VRage.Voxels;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -34,19 +32,10 @@ namespace Sandbox.Game.Gui
 {
     public class MyGuiScreenWorldSettings : MyGuiScreenBase
     {
-        public enum AsteroidAmountEnum
-        {
-            None = 0,
-            Normal = 4,
-            More = 7,
-            Many = 16,
-            ProceduralLow = -1,
-            ProceduralNormal = -2,
-            ProceduralHigh = -3,
-        }
 
         public static MyGuiScreenWorldSettings Static;
         internal MyGuiScreenAdvancedWorldSettings Advanced;
+        internal MyGuiScreenWorldGeneratorSettings WorldGenerator;
         internal MyGuiScreenMods ModsScreen;
 
         bool m_nameRewritten;
@@ -63,62 +52,9 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        MyGuiControlCheckbox m_scenarioEditMode;
+
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods;
-
-        /// Saved values of advanced screen that cannot be saved to MySessionSettings
-        /// CH:TODO: If there are more such settings later, consider creting a separate struct for them
-
-        /*private int AsteroidAmount
-        {
-            get
-            {
-                return m_asteroidAmount.HasValue ? m_asteroidAmount.Value : 4;
-            }
-            set
-            {
-                m_asteroidAmount = value;
-            }
-        }*/
-
-        private int? m_asteroidAmount;
-        public int AsteroidAmount
-        {
-            get
-            {
-                return m_asteroidAmount.HasValue ? m_asteroidAmount.Value : (int)AsteroidAmountEnum.ProceduralLow;
-            }
-            set
-            {
-                m_asteroidAmount = value;
-                switch (value)
-                {
-                    case (int)AsteroidAmountEnum.None:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.None);
-                        return;
-                    case (int)AsteroidAmountEnum.Normal:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Normal);
-                        return;
-                    case (int)AsteroidAmountEnum.More:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.More);
-                        return;
-                    case (int)AsteroidAmountEnum.Many:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Many);
-                        return;
-                    case (int)AsteroidAmountEnum.ProceduralLow:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralLow);
-                        return;
-                    case (int)AsteroidAmountEnum.ProceduralNormal:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralNormal);
-                        return;
-                    case (int)AsteroidAmountEnum.ProceduralHigh:
-                        m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralHigh);
-                        return;
-                    default:
-                        Debug.Assert(false, "Unhandled value in AsteroidAmountEnum");
-                        return;
-                }
-            }
-        }
 
         MyObjectBuilder_Checkpoint m_checkpoint;
         public MyObjectBuilder_Checkpoint Checkpoint
@@ -128,13 +64,53 @@ namespace Sandbox.Game.Gui
 
         MyGuiControlTextbox m_nameTextbox, m_descriptionTextbox;
         MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo;
-        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton;
+        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton,m_worldGeneratorButton;
         MyGuiControlSlider m_maxPlayersSlider;
         MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel;
         MyGuiControlCheckbox m_autoSave;
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
+
+        private int? m_asteroidAmount;
+        public int AsteroidAmount
+        {
+            get
+            {
+                return m_asteroidAmount.HasValue ? m_asteroidAmount.Value : (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow;
+            }
+            set
+            {
+                m_asteroidAmount = value;
+                switch (value)
+                {
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.None:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.None);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Normal:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Normal);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.More:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.More);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal);
+                        return;
+                    case (int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
+                        m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh);
+                        return;
+                    default:
+                        Debug.Assert(false, "Unhandled value in AsteroidAmountEnum");
+                        return;
+                }
+            }
+        }
 
         // New game constructor
         public MyGuiScreenWorldSettings()
@@ -166,7 +142,7 @@ namespace Sandbox.Game.Gui
         public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
-            float height = checkpoint == null ? 1.24f : 0.97f;
+            float height = checkpoint == null ? 1.24f : 1.00f;
             if (checkpoint != null)
                 height -= 0.05f;
             if (MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
@@ -177,6 +153,11 @@ namespace Sandbox.Game.Gui
 
         public override bool CloseScreen()
         {
+            if (WorldGenerator != null)
+            {
+                WorldGenerator.CloseScreen();
+            }
+            WorldGenerator = null;
             if (Advanced != null)
                 Advanced.CloseScreen();
             Advanced = null;
@@ -249,12 +230,15 @@ namespace Sandbox.Game.Gui
                 labelSpaceWidth: 0.05f,
                 intValue: true
                 );
-            m_scenarioTypesList = new MyGuiControlList();
+
+
 
             m_asteroidAmountLabel = MakeLabel(MySpaceTexts.Asteroid_Amount);
             m_asteroidAmountCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             m_asteroidAmountCombo.ItemSelected += m_asteroidAmountCombo_ItemSelected;
+
+            m_scenarioTypesList = new MyGuiControlList();
 
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -304,6 +288,8 @@ namespace Sandbox.Game.Gui
 
             var mods = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Mods), onButtonClick: OnModsClick);
 
+            m_worldGeneratorButton = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_WorldGenerator), onButtonClick: OnWorldGeneratorClick);
+
             // Add controls in pairs; label first, control second. They will be laid out automatically this way.
             Controls.Add(nameLabel);
             Controls.Add(m_nameTextbox);
@@ -336,6 +322,13 @@ namespace Sandbox.Game.Gui
             Controls.Add(autoSaveLabel);
             Controls.Add(m_autoSave);
 
+            var scenarioEditModeLabel = MakeLabel(MySpaceTexts.WorldSettings_ScenarioEditMode);
+            m_scenarioEditMode = new MyGuiControlCheckbox();
+            m_scenarioEditMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ScenarioEditMode));
+
+            Controls.Add(scenarioEditModeLabel);
+            Controls.Add(m_scenarioEditMode);
+
             if (MyFakes.ENABLE_WORKSHOP_MODS)
                 Controls.Add(mods);
 
@@ -364,7 +357,7 @@ namespace Sandbox.Game.Gui
                 else
                     control.Position = originC + controlsDelta * numControls++;
             }
-            
+
             Controls.Add(m_survivalModeButton);
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
@@ -399,6 +392,9 @@ namespace Sandbox.Game.Gui
             mods.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             mods.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, 0);
 
+            m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+            m_worldGeneratorButton.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, -0.06f);
+
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
 
@@ -414,11 +410,6 @@ namespace Sandbox.Game.Gui
         {
             SetDefaultName();
             UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
-        }
-
-        void m_asteroidAmountCombo_ItemSelected()
-        {
-            m_asteroidAmount = (int)m_asteroidAmountCombo.GetSelectedKey();
         }
 
         private MyGuiControlLabel MakeLabel(MyStringId textEnum)
@@ -442,7 +433,6 @@ namespace Sandbox.Game.Gui
             m_descriptionTextbox.Text = m_checkpoint.Description ?? "";
             m_settings = CopySettings(m_checkpoint.Settings);
             m_mods = m_checkpoint.Mods;
-            m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Normal);
             SetSettingsToControls();
         }
 
@@ -451,6 +441,8 @@ namespace Sandbox.Game.Gui
             m_scenarioTypesGroup.SelectByKey(0);
             m_settings = GetDefaultSettings();
             m_settings.EnableToolShake = true;
+
+            m_settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
@@ -525,6 +517,21 @@ namespace Sandbox.Game.Gui
             MyGuiSandbox.AddScreen(Advanced);
         }
 
+        private void OnWorldGeneratorClick(object sender)
+        {
+            WorldGenerator = new MyGuiScreenWorldGeneratorSettings(this);
+            WorldGenerator.OnOkButtonClicked += WorldGenerator_OnOkButtonClicked;
+            MyGuiSandbox.AddScreen(WorldGenerator);
+        }
+
+        void WorldGenerator_OnOkButtonClicked()
+        {
+            WorldGenerator.GetSettings(m_settings);
+            AsteroidAmount = WorldGenerator.AsteroidAmount;
+            SetSettingsToControls();
+        }
+
+
         private void OnModsClick(object sender)
         {
             MyGuiSandbox.AddScreen(new MyGuiScreenMods(m_mods));
@@ -534,47 +541,6 @@ namespace Sandbox.Game.Gui
         {
             m_creativeModeButton.Checked = !survivalEnabled;
             m_survivalModeButton.Checked = survivalEnabled;
-        }
-
-        public void UpdateAsteroidAmountEnabled(bool enabled)
-        {
-            m_asteroidAmountCombo.ClearItems();
-
-            if (enabled)
-            {
-                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
-                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
-                if (Environment.Is64BitProcess)
-                    m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
-
-                if (MyFakes.ENABLE_ASTEROID_FIELDS)
-                {
-                    m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
-                    m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
-                    if (Environment.Is64BitProcess)
-                        m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
-                }
-            }
-            else
-            {
-                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.None, MySpaceTexts.WorldSettings_AsteroidAmountNone);
-            }
-
-            // Try to preserve selection, but if not possible, select the first value
-            if (m_asteroidAmountCombo.TryGetItemByKey(AsteroidAmount) == null)
-            {
-                if (enabled)
-                    m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.ProceduralLow);
-                else
-                    m_asteroidAmountCombo.SelectItemByIndex(0);
-            }
-            else
-            {
-                m_asteroidAmountCombo.SelectItemByKey(AsteroidAmount);
-            }
-
-            m_asteroidAmountCombo.Enabled = enabled;
-            m_asteroidAmountLabel.Enabled = enabled;
         }
 
         void Advanced_OnOkButtonClicked()
@@ -683,6 +649,7 @@ namespace Sandbox.Game.Gui
             m_settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode   = GetGameMode();
+            m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;       
         }
 
         protected virtual void SetSettingsToControls()
@@ -694,6 +661,7 @@ namespace Sandbox.Game.Gui
             m_autoSave.IsChecked     = m_settings.AutoSaveInMinutes > 0;
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
+            m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
         }
 
         private string GetPassword()
@@ -740,7 +708,7 @@ namespace Sandbox.Game.Gui
         private void StartNewSandbox()
         {
             MyLog.Default.WriteLine("StartNewSandbox - Start");
-            
+
             GetSettingsFromControls();
             if (!MySteamWorkshop.CheckLocalModsAllowed(m_mods, m_settings.OnlineMode == MyOnlineModeEnum.OFFLINE))
             {
@@ -760,9 +728,11 @@ namespace Sandbox.Game.Gui
 
                     if (AsteroidAmount < 0)
                     {
-                        MyWorldGenerator.SetProceduralSettings(m_asteroidAmount, m_settings);
+                        MyWorldGenerator.SetProceduralSettings(AsteroidAmount, m_settings);
                         m_asteroidAmount = 0;
                     }
+
+                    MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
 
                     MyGuiScreenGamePlay.StartLoading(delegate
                     {
@@ -789,6 +759,53 @@ namespace Sandbox.Game.Gui
                 }
                 MyLog.Default.WriteLine("StartNewSandbox - End");
             });
+        }
+
+        public void UpdateAsteroidAmountEnabled(bool enabled)
+        {
+            m_asteroidAmountCombo.ClearItems();
+
+            if (enabled)
+            {
+                m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
+                m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
+                if (Environment.Is64BitProcess)
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+
+                if (MyFakes.ENABLE_ASTEROID_FIELDS)
+                {
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
+                    if (Environment.Is64BitProcess)
+                        m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+                }
+              
+            }
+            else
+            {
+                m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.None, MySpaceTexts.WorldSettings_AsteroidAmountNone);
+            }
+
+            // Try to preserve selection, but if not possible, select the first value
+            if (m_asteroidAmountCombo.TryGetItemByKey(AsteroidAmount) == null)
+            {
+                if (enabled)
+                    m_asteroidAmountCombo.SelectItemByKey((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow);
+                else
+                    m_asteroidAmountCombo.SelectItemByIndex(0);
+            }
+            else
+            {
+                m_asteroidAmountCombo.SelectItemByKey(AsteroidAmount);
+            }
+
+            m_asteroidAmountCombo.Enabled = enabled;
+            m_asteroidAmountLabel.Enabled = enabled;
+        }
+
+        void m_asteroidAmountCombo_ItemSelected()
+        {
+            m_asteroidAmount = (int)m_asteroidAmountCombo.GetSelectedKey();
         }
     }
 }

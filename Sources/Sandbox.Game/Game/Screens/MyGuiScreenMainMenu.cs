@@ -103,6 +103,7 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
+
             // Enable background fade when we're in game, but in main menu we disable it.
             var buttonSize = MyGuiControlButton.GetVisualStyle(MyGuiControlButtonStyleEnum.Default).NormalTexture.MinSizeGui;
             Vector2 leftButtonPositionOrigin = MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM) + new Vector2(buttonSize.X / 2f, 0f);
@@ -143,6 +144,8 @@ namespace Sandbox.Game.Gui
             }
             else // In-game
             {
+                MyAnalyticsHelper.ReportActivityStart(null, "show_main_menu", string.Empty, "gui", string.Empty);
+
                 EnabledBackgroundFade = true;
                 int buttonRowIndex = Sync.MultiplayerActive ? 6 : 5;
 
@@ -339,8 +342,7 @@ namespace Sandbox.Game.Gui
 
         public static void ReturnToMainMenu()
         {
-            if (MyScreenManager.GetFirstScreenOfType<MyGuiScreenMainMenu>() == null)
-                UnloadAndExitToMenu();
+            UnloadAndExitToMenu();
         }
 
         public static void UnloadAndExitToMenu()
@@ -408,12 +410,17 @@ namespace Sandbox.Game.Gui
             if (MyFakes.ENABLE_TUTORIAL_PROMPT && MySandboxGame.Config.NeedShowTutorialQuestion)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideoTutorial),
+                    messageText: MyTexts.Get(MyPerGameSettings.EnableTutorials ? MySpaceTexts.MessageBoxTextTutorialQuestion : MySpaceTexts.MessageBoxTextGuideQuestion),
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionTutorial),
                     callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
                     {
                         if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                        {
+                            if (MyPerGameSettings.EnableTutorials)
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenTutorial>());
+                            else
+                                MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                        }
                         else
                             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenStartSandbox>());
                     }));
@@ -470,7 +477,7 @@ namespace Sandbox.Game.Gui
                 case MyGuiScreenMessageBox.ResultEnum.YES:
                     MyAudio.Static.Mute = true;
                     MyAudio.Static.StopMusic();
-                    MyAsyncSaving.Start(callbackOnFinished: delegate() { UnloadAndExitToMenu(); });
+                    MyAsyncSaving.Start(callbackOnFinished: delegate() { MySandboxGame.Static.OnScreenshotTaken += UnloadAndExitAfterScreeshotWasTaken; });
                     break;
 
                 case MyGuiScreenMessageBox.ResultEnum.NO:
@@ -483,6 +490,12 @@ namespace Sandbox.Game.Gui
                     this.CanBeHidden = true;
                     break;
             }
+        }
+
+        private void UnloadAndExitAfterScreeshotWasTaken(object sender, EventArgs e)
+        {
+            MySandboxGame.Static.OnScreenshotTaken -= UnloadAndExitAfterScreeshotWasTaken;
+            UnloadAndExitToMenu();
         }
 
         private void OnClickCredits(MyGuiControlButton sender)
@@ -632,6 +645,8 @@ namespace Sandbox.Game.Gui
              if (MyGuiScreenGamePlay.Static != null && MyGuiScreenGamePlay.Static.IsPausable() && MySandboxGame.IsPaused())
                  MySandboxGame.SwitchPause();
          }    */
+            MyAnalyticsHelper.ReportActivityEnd(null, "show_main_menu");
+
             return ret;
         }
 
@@ -743,7 +758,7 @@ namespace Sandbox.Game.Gui
 
         private void DrawSteamStatus()
         {
-            if (MySandboxGame.Services.SteamService == null || !MySteam.IsActive)
+            if (MySandboxGame.Services == null || MySandboxGame.Services.SteamService == null || !MySteam.IsActive)
             {
                 Vector2 textRightBottomPosition = MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
                 textRightBottomPosition.Y -= 2 * TEXT_LINE_HEIGHT;

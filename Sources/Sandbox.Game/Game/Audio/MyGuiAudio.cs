@@ -8,7 +8,6 @@ using System.Text;
 using VRage.Audio;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 
 namespace Sandbox.Game.GUI
 {
@@ -81,7 +80,7 @@ namespace Sandbox.Game.GUI
             }
         }
 
-        internal static MyStringId GetCue(MyGuiSounds sound)
+        internal static MyCueId GetCue(MyGuiSounds sound)
         {
             return m_sounds[sound].SoundId;
         }

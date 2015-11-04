@@ -113,7 +113,7 @@ namespace Sandbox.Game.Gui
                 position: aboveControl.Position + new Vector2(0f, aboveControl.Size.Y),
                 width: 0.15f,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                minValue: 0,
+                minValue: 2,
                 maxValue: MyMultiplayer.Static != null ? MyMultiplayer.Static.MaxPlayers : 16,
                 labelText: new StringBuilder("{0}").ToString(),
                 labelDecimalPlaces: 0,
@@ -136,8 +136,21 @@ namespace Sandbox.Game.Gui
             m_playersTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.ScreenPlayers_GameAdmin));
             m_playersTable.SetColumnComparison(0, (a, b) => (a.Text.CompareToIgnoreCase(b.Text)));
             m_playersTable.ItemSelected += playersTable_ItemSelected;
-            foreach (var userId in MyMultiplayer.Static.Members)
-                AddPlayer(userId);
+
+            // CH: To show the clients correctly, we would need to know, whether the game is a dedicated-server-hosted game.
+            // We don't know that, so I just show all clients with players
+            foreach (var player in Sync.Players.GetAllPlayers())
+            {
+                if (player.SerialId != 0) continue;
+
+                for (int i = 0; i < m_playersTable.RowsCount; ++i)
+                {
+                    var row = m_playersTable.GetRow(i);
+                    if (row.UserData is ulong && (ulong)row.UserData == player.SteamId) continue;
+                }
+
+                AddPlayer(player.SteamId);
+            }
 
             m_inviteButton.ButtonClicked  += inviteButton_ButtonClicked;
             m_kickButton.ButtonClicked    += kickButton_ButtonClicked;
@@ -189,6 +202,9 @@ namespace Sandbox.Game.Gui
 
         private void UpdateButtonsEnabledState()
         {
+            if (MyMultiplayer.Static == null)
+                return;
+
             bool hasTarget       = m_playersTable.SelectedRow != null;
             ulong currentUserId  = SteamAPI.Instance.GetSteamUserId();
             ulong currentOwnerId = MyMultiplayer.Static.GetOwner();

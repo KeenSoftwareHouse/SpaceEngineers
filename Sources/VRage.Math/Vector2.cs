@@ -1019,5 +1019,22 @@ namespace VRageMath
             result.X = value1.X * num;
             result.Y = value1.Y * num;
         }
+
+        public bool Between(ref Vector2 start, ref Vector2 end)
+        {
+            return X >= start.X && X <= end.X || Y >= start.Y && Y <= end.Y;
+        }
+
+        public static Vector2 Floor(Vector2 position)
+        {
+            return new Vector2((float)Math.Floor(position.X), (float)Math.Floor(position.Y));
+        }
+
+        public void Rotate(double angle)
+        {
+            float tmpX = X;
+            X = X * (float)Math.Cos(angle) - Y * (float)Math.Sin(angle);
+            Y = Y * (float)Math.Cos(angle) + tmpX * (float)Math.Sin(angle);
+        }
     }
 }

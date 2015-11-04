@@ -38,14 +38,20 @@ namespace VRage
         public string ExtXZnYFar2;
         public string ExtYFar2;
 
-        public float Scale;
-        public float ScaleFar1;
-        public float ScaleFar2;
+        public Vector4 DistanceAndScale;
+        public Vector4 DistanceAndScaleFar;
+        public Vector2 DistanceAndScaleFar3;
+        public Vector4 Far3Color;
+        public float ExtensionDetailScale;
 
         public string ExtensionTextureArray1;
         public string ExtensionTextureArray2;
+        public string[] FoliageColorTextureArray;
+        public string[] FoliageNormalTextureArray;
+
         public float ExtensionDensity;
         public Vector2 ExtensionScale;
         public float ExtensionRandomRescaleMult;
+        public int ExtensionType;
     }
 }

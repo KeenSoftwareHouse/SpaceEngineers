@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using VRage;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
 
@@ -215,9 +216,9 @@ namespace Sandbox.Game.Gui
                 var view = MySession.Static.CameraController.GetViewMatrix();
                 var inv = Matrix.Invert(view);
 
-                //MyInventoryItem item = new MyInventoryItem(100, 
-                var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
-                var item = new MyInventoryItem(1, oreBuilder);
+                //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
+                var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
+                var item = new MyPhysicalInventoryItem(1, oreBuilder);
                 var obj = MyFloatingObjects.Spawn(item, inv.Translation + inv.Forward * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }
@@ -293,7 +294,7 @@ namespace Sandbox.Game.Gui
                 var view = MySession.Static.CameraController.GetViewMatrix();
                 var inv = Matrix.Invert(view);
 
-                var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
+                var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
                 var obj = new MyObjectBuilder_FloatingObject() { Item = new MyObjectBuilder_InventoryItem() { Content = oreBuilder, Amount = 1000 } };
                 obj.PositionAndOrientation = new MyPositionAndOrientation(inv.Translation + 2.0f * inv.Forward, inv.Forward, inv.Up);
                 obj.PersistentFlags = MyPersistentEntityFlags2.InScene;
@@ -367,7 +368,7 @@ namespace Sandbox.Game.Gui
                 {
                     MyFixedPoint amount = 20000;
 
-                    var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
+                    var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
                     MyInventory inventory = invObject.GetInventory(0);
                     inventory.AddItems(amount, oreBuilder);
                 }
@@ -378,7 +379,7 @@ namespace Sandbox.Game.Gui
             //if (MyInput.Static.IsNewKeyPressed(Keys.NumPad8))
             //{
             //    var pos = MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 2;
-            //    var grid = (MyObjectBuilder_CubeGrid)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(MyObjectBuilderTypeEnum.CubeGrid);
+            //    var grid = (MyObjectBuilder_CubeGrid)MyObjectBuilderSerializer.CreateNewObject(MyObjectBuilderTypeEnum.CubeGrid);
             //    grid.PositionAndOrientation = new MyPositionAndOrientation(pos, Vector3.Forward, Vector3.Up);
             //    grid.CubeBlocks = new List<MyObjectBuilder_CubeBlock>();
             //    grid.GridSizeEnum = MyCubeSize.Large;
@@ -398,7 +399,7 @@ namespace Sandbox.Game.Gui
             //if (MyInput.Static.IsNewKeyPressed(Keys.NumPad9))
             //{
             //    var pos = MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 2;
-            //    var grid =  (MyObjectBuilder_CubeGrid)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(MyObjectBuilderTypeEnum.CubeGrid);
+            //    var grid =  (MyObjectBuilder_CubeGrid)MyObjectBuilderSerializer.CreateNewObject(MyObjectBuilderTypeEnum.CubeGrid);
             //    grid.PositionAndOrientation = new MyPositionAndOrientation(pos, Vector3.Forward, Vector3.Up);
             //    grid.CubeBlocks = new List<MyObjectBuilder_CubeBlock>();
             //    grid.GridSizeEnum = MyCubeSize.Large;

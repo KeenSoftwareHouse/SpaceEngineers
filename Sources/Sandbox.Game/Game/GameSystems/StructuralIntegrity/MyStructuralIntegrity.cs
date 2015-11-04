@@ -33,6 +33,8 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         {
             m_cubeGrid = cubeGrid;
             m_cubeGrid.OnBlockAdded += cubeGrid_OnBlockAdded;
+            m_cubeGrid.OnBlockRemoved += cubeGrid_OnBlockRemoved;
+            m_cubeGrid.OnBlockIntegrityChanged += cubeGrid_OnBlockIntegrityChanged;
 
             switch (1)
             {
@@ -52,6 +54,8 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         public void Close()
         {
             m_cubeGrid.OnBlockAdded -= cubeGrid_OnBlockAdded;
+            m_cubeGrid.OnBlockRemoved -= cubeGrid_OnBlockRemoved;
+            m_cubeGrid.OnBlockIntegrityChanged -= cubeGrid_OnBlockIntegrityChanged;
 
             m_simulator.Close();
         }
@@ -61,9 +65,19 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             m_simulator.Add(block);
         }
 
-        internal void RemoveBlock(MySlimBlock block)
+        void cubeGrid_OnBlockRemoved(MySlimBlock block)
         {
             m_simulator.Remove(block);
+        }
+
+        void cubeGrid_OnBlockIntegrityChanged(MySlimBlock obj)
+        {
+            m_simulator.ForceRecalc();
+        }
+
+        public void ForceRecalculation()
+        {
+            m_simulator.ForceRecalc();
         }
 
         private int DestructionDelay = 10;

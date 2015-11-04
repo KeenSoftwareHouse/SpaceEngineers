@@ -12,11 +12,6 @@ namespace VRageRender.Techniques
             var shader = MyRender.GetEffect(MyEffects.VoxelsMRT) as MyEffectVoxels;
             SetupBaseEffect(shader, setup, lodType);
 
-            if (lodType == MyLodTypeEnum.LOD_BACKGROUND)
-            {
-                shader.ApplyMultimaterialFar();
-            }
-            else
             {
                 shader.ApplyMultimaterial();
             }

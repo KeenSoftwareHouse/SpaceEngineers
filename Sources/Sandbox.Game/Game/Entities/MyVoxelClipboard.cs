@@ -49,11 +49,6 @@ namespace Sandbox.Game.Entities
             private set;
         }
 
-        public List<MyVoxelMap> PreviewVoxelMaps
-        {
-            get { return m_previewVoxelMaps; }
-        }
-
         private void Activate()
         {
             ChangeClipboardPreview(true);
@@ -75,6 +70,14 @@ namespace Sandbox.Game.Entities
         {
             if (IsActive && m_previewVoxelMaps.Count == 0)
                 ChangeClipboardPreview(true);
+        }
+
+        public void ClearClipboard()
+        {
+            if (IsActive)
+                Deactivate();
+            m_copiedVoxelMapOffsets.Clear();
+            m_copiedVoxelMaps.Clear();
         }
 
         public void CutVoxelMap(MyVoxelMap voxelMap)
@@ -239,7 +242,7 @@ namespace Sandbox.Game.Entities
             //    voxelMap.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         private void EnablePhysicsRecursively(MyEntity entity)
@@ -252,7 +255,7 @@ namespace Sandbox.Game.Entities
             //    voxelMap.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                EnablePhysicsRecursively(child.Entity as MyEntity);
+                EnablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()
@@ -313,7 +316,7 @@ namespace Sandbox.Game.Entities
                         foreach (var entity in m_tmpResultHashset)
                         {
                             //ignore asteroids
-                            if (entity is MyVoxelMap)
+                            if (entity is MyVoxelBase)
                             {
                                 continue;
                             }
@@ -365,10 +368,10 @@ namespace Sandbox.Game.Entities
                 return MySession.ControlledEntity.GetHeadMatrix(true);
             }
             else
-                {
+            {
                 return MySector.MainCamera.WorldMatrix;
-                    }
-                }
+            }
+        }
 
         #region Pasting transform control
 

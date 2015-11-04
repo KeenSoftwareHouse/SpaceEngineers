@@ -1,16 +1,14 @@
 ﻿using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -112,6 +110,8 @@ namespace Sandbox.Game.Gui
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.THRUSTS));
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.BROADCASTING));
             basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.HELMET));
+			if (MySession.Static != null && (MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode))
+				basicPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.MISSION_SETTINGS));
 
             basicPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.PRIMARY_TOOL_ACTION));
             basicPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SLOT1));
@@ -197,6 +197,7 @@ namespace Sandbox.Game.Gui
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE));
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.STATION_ROTATION));
 
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_LEFT));
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_RIGHT));
@@ -210,12 +211,12 @@ namespace Sandbox.Game.Gui
             advancedPage2.RightColumn.Add(new ControlWithDescription("]", MyTexts.GetString(MySpaceTexts.ControlDescPreviousVoxelMaterial)));
             advancedPage2.RightColumn.Add(new ControlWithDescription("H", MyTexts.GetString(MySpaceTexts.ControlDescOpenVoxelHandSettings)));
 
+
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_NONE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_DELTA));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_FREE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_STATIC));
-
-
+            
 
             //These keys are to be used just for developers or testing
             if (MyInput.Static.ENABLE_DEVELOPER_KEYS)
@@ -277,7 +278,7 @@ namespace Sandbox.Game.Gui
             RecreateControls(true);
         }
 
-        [Conditional(ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         private static void AddProfilerControls(HelpPage developerPage)
         {
             developerPage.RightColumn.Add(new ControlWithDescription("Alt + Num0", "Enable/Disable render profiler or leave current child node."));

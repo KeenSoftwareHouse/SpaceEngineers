@@ -37,6 +37,9 @@ namespace VRage.Voxels
             get { return m_size3d; }
         }
 
+        [ThreadStatic]
+        private static readonly byte[] unitCache = new byte[2];
+
         /// <param name="start">Inclusive.</param>
         /// <param name="end">Inclusive.</param>
         public void Resize(Vector3I start, Vector3I end)
@@ -52,7 +55,11 @@ namespace VRage.Voxels
             m_sZ = size3D.Y * m_sY;
 
             m_sizeLinear = size * StepLinear;
-            if (m_data == null || m_data.Length < m_sizeLinear)
+            if (size == 1)
+            {
+                m_data = unitCache;
+            }
+            else if (m_data == null || m_data.Length < m_sizeLinear)
             {
                 int pow2Size = MathHelper.GetNearestBiggerPowerOfTwo(m_sizeLinear);
                 Debug.Assert((pow2Size - m_sizeLinear) < m_sizeLinear);
@@ -191,12 +198,37 @@ namespace VRage.Voxels
 
         public void BlockFillContent(Vector3I min, Vector3I max, byte content)
         {
-            Vector3I p;
-            for (p.Z = min.Z; p.Z <= max.Z; ++p.Z)
-            for (p.Y = min.Y; p.Y <= max.Y; ++p.Y)
-            for (p.X = min.X; p.X <= max.X; ++p.X)
+            AssertPosition(ref min);
+            AssertPosition(ref max);
+
+            min.Z *= m_sZ;
+            max.Z *= m_sZ;
+
+            min.Y *= m_sY;
+            max.Y *= m_sY;
+
+            min.X *= m_sX;
+            max.X *= m_sX;
+
+            int field = (int)MyStorageDataTypeEnum.Content;
+
+            unsafe
             {
-                Content(ref p, content);
+                fixed (byte* c = &m_data[0])
+                {
+                    Vector3I p;
+                    for (p.Z = min.Z; p.Z <= max.Z; p.Z += m_sZ)
+                    {
+                        int z = p.Z + field;
+                        for (p.Y = min.Y; p.Y <= max.Y; p.Y += m_sY)
+                        {
+                            for (p.X = min.X; p.X <= max.X; p.X += m_sX)
+                            {
+                                c[p.X + p.Y + z] = content;
+                            }
+                        }
+                    }
+                }
             }
         }
 

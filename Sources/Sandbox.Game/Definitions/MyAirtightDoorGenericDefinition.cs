@@ -1,16 +1,13 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
-    [MyDefinitionType(typeof(MyObjectBuilder_AirtightDoorGeneric))]
+    [MyDefinitionType(typeof(MyObjectBuilder_AirtightDoorGenericDefinition))]
     public class MyAirtightDoorGenericDefinition : MyCubeBlockDefinition
     {
+	    public string ResourceSinkGroup;
         public float PowerConsumptionIdle;
         public float PowerConsumptionMoving;
         public float OpeningSpeed;
@@ -23,7 +20,8 @@ namespace Sandbox.Definitions
 
             var builder = builderBase as MyObjectBuilder_AirtightDoorGenericDefinition;
             MyDebug.AssertDebug(builder != null, "Wrong object builder used in MyAirtightDoorBaseDefinition");
-            
+
+	        ResourceSinkGroup = builder.ResourceSinkGroup;
             PowerConsumptionIdle = builder.PowerConsumptionIdle;
             PowerConsumptionMoving = builder.PowerConsumptionMoving;
             OpeningSpeed = builder.OpeningSpeed;

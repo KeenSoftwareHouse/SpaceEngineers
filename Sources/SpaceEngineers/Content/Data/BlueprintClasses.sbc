@@ -158,6 +158,17 @@
       <InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
       <OutputConstraintIcon>Textures\GUI\Icons\filter_ingot.dds</OutputConstraintIcon>
     </Class>
+    <Class>
+      <Id>
+        <TypeId>BlueprintClassDefinition</TypeId>
+        <SubtypeId>HydrogenBottles</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_BlueprintClass_HydrogenBottles</DisplayName>
+      <Icon>Textures\GUI\Icons\ore_H2O_ice.dds</Icon>
+      <HighlightIcon>Textures\GUI\Icons\buttons\large_block_highlight.dds</HighlightIcon>
+      <InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
+      <OutputConstraintIcon>Textures\GUI\Icons\filter_ingot.dds</OutputConstraintIcon>
+    </Class>
   </BlueprintClasses>
   <BlueprintClassEntries>
    
@@ -166,6 +177,7 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="TextPanel/LargeLCDPanel" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="MyProgrammableBlock/LargeProgrammableBlock" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Assembler/LargeAssembler" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="AirtightSlideDoor/LargeBlockSlideDoor" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="BatteryBlock/LargeBlockBatteryBlock" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Beacon/LargeBlockBeacon" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="ButtonPanel/ButtonPanelLarge" />
@@ -264,11 +276,13 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="OreDetector/LargeOreDetector" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="OxygenGenerator/(null)" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="OxygenTank/(null)" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="OxygenTank/LargeHydrogenTank" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="OxygenFarm/LargeBlockOxygenFarm" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="CryoChamber/LargeBlockCryoChamber" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeProductivityModule" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeEffectivenessModule" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeEnergyModule" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="JumpDrive/LargeJumpDrive" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="AirVent/(null)" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Passage/(null)" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="AirtightHangarDoor/(null)" />
@@ -297,6 +311,10 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="CameraBlock/LargeCameraBlock" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockLargeThrust" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockSmallThrust" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockLargeAtmosphericThrust" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockSmallAtmosphericThrust" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockLargeHydrogenThrust" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="Thrust/LargeBlockSmallHydrogenThrust" />    
     <Entry Class="LargeBlocks" BlueprintSubtypeId="VirtualMass/VirtualMassLarge" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Warhead/LargeWarhead" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Wheel/RealWheel" />
@@ -306,6 +324,7 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Wheel/Wheel3x3" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Wheel/Wheel5x5" />
 
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="AirVent/SmallAirVent" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="SpaceBall/SpaceBallSmall" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="TextPanel/SmallLCDPanel" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="TextPanel/SmallLCDPanelWide" />
@@ -355,6 +374,8 @@
     <Entry Class="SmallBlocks" BlueprintSubtypeId="CubeBlock/SmallHeavyBlockArmorRoundSlope" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="CubeBlock/SmallHeavyBlockArmorRoundCorner" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="CubeBlock/SmallHeavyBlockArmorRoundCornerInv" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="LargeGatlingTurret/SmallGatlingTurret" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="LargeMissileTurret/SmallMissileTurret" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Decoy/SmallDecoy" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Drill/SmallBlockDrill" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Gyro/SmallBlockGyro" />
@@ -369,6 +390,7 @@
     <Entry Class="SmallBlocks" BlueprintSubtypeId="MotorSuspension/SmallSuspension5x5" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="OreDetector/SmallBlockOreDetector" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="OxygenTank/OxygenTankSmall" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="OxygenTank/SmallHydrogenTank" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="OxygenGenerator/OxygenGeneratorSmall" />
     <!--<Entry Class="SmallBlocks" BlueprintSubtypeId="PistonBase/SmallPistonBase" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="PistonTop/SmallPistonTop" />-->
@@ -396,6 +418,10 @@
     <Entry Class="SmallBlocks" BlueprintSubtypeId="CameraBlock/SmallCameraBlock" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockLargeThrust" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockSmallThrust" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockLargeAtmosphericThrust" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockSmallAtmosphericThrust" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockLargeHydrogenThrust" />
+    <Entry Class="SmallBlocks" BlueprintSubtypeId="Thrust/SmallBlockSmallHydrogenThrust" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="VirtualMass/VirtualMassSmall" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Warhead/SmallWarhead" />
     <Entry Class="SmallBlocks" BlueprintSubtypeId="Wheel/SmallRealWheel" />
@@ -428,8 +454,9 @@
     <Entry Class="Components" BlueprintSubtypeId="Missile200mm" />
     <Entry Class="Components" BlueprintSubtypeId="SolarCell" />
     <Entry Class="Components" BlueprintSubtypeId="PowerCell" />
-	
-	
+    <Entry Class="Components" BlueprintSubtypeId="Superconductor" />
+
+
     <Entry Class="Ammo" BlueprintSubtypeId="ExplosivesComponent" />
     <Entry Class="Ammo" BlueprintSubtypeId="NATO_5p56x45mmMagazine" />
     <Entry Class="Ammo" BlueprintSubtypeId="NATO_25x184mmMagazine" />
@@ -449,7 +476,8 @@
     <Entry Class="Electronics" BlueprintSubtypeId="Display" />
     <Entry Class="Electronics" BlueprintSubtypeId="PowerCell" />
     <Entry Class="Electronics" BlueprintSubtypeId="MedicalComponent" />
-	
+    <Entry Class="Electronics" BlueprintSubtypeId="Superconductor" />
+
     <Entry Class="ConstructionComponents" BlueprintSubtypeId="ConstructionComponent" />
     <Entry Class="ConstructionComponents" BlueprintSubtypeId="MotorComponent" />
     <Entry Class="ConstructionComponents" BlueprintSubtypeId="ReactorComponent" />
@@ -462,6 +490,7 @@
     <Entry Class="Tools" BlueprintSubtypeId="AngleGrinder" />
     <Entry Class="Tools" BlueprintSubtypeId="HandDrill" />
     <Entry Class="Tools" BlueprintSubtypeId="OxygenBottle" />
+    <Entry Class="Tools" BlueprintSubtypeId="HydrogenBottle" />
 
     <Entry Class="Ingots" BlueprintSubtypeId="StoneOreToIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="IronOreToIngot" />
@@ -493,5 +522,6 @@
     <Entry Class="EnergeticIngots" BlueprintSubtypeId="UraniumOreToIngot" />
     <Entry Class="Ice" BlueprintSubtypeId="IceToOxygen" />
     <Entry Class="OxygenBottles" BlueprintSubtypeId="OxygenBottlesRefill" />
+    <Entry Class="HydrogenBottles" BlueprintSubtypeId="HydrogenBottlesRefill" />
   </BlueprintClassEntries>
 </Definitions>

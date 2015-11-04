@@ -20,6 +20,9 @@ using Sandbox.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 namespace Sandbox.Definitions
 {
@@ -112,6 +115,10 @@ namespace Sandbox.Definitions
             public string File;
 
             public bool RandomOrientation;
+
+			public MountPoint[] MountPoints;
+
+            public bool Visible;
         }
 
         public struct MountPoint
@@ -142,6 +149,11 @@ namespace Sandbox.Definitions
             /// </summary>
             public byte PropertiesMask;
 
+			/// <summary>
+			/// Disabled mount points always return false when checking for connectivity
+			/// </summary>
+			public bool Enabled;
+
             public MyObjectBuilder_CubeBlockDefinition.MountPoint GetObjectBuilder(Vector3I cubeSize)
             {
                 MyObjectBuilder_CubeBlockDefinition.MountPoint ob = new MyObjectBuilder_CubeBlockDefinition.MountPoint();
@@ -158,6 +170,7 @@ namespace Sandbox.Definitions
 
                 ob.ExclusionMask = ExclusionMask;
                 ob.PropertiesMask = PropertiesMask;
+				ob.Enabled = Enabled;
 
                 return ob;
             }
@@ -203,9 +216,14 @@ namespace Sandbox.Definitions
         public bool IsAirTight = false;
 
         /// <summary>
-        /// Building type - always lower case.
+        /// Building type - always lower case (wall, ...).
         /// </summary>
         public string BuildType;
+
+        /// <summary>
+        /// Build material - always lower case (for walls - "stone", "wood"). 
+        /// </summary>
+        public string BuildMaterial;
 
         /// <summary>
         /// Allowed cube block directions.
@@ -219,6 +237,11 @@ namespace Sandbox.Definitions
         public MyDefinitionId[] GeneratedBlockDefinitions;
         public MyStringId GeneratedBlockType;
         public bool IsGeneratedBlock { get { return GeneratedBlockType != MyStringId.NullOrEmpty; } }
+
+        /// <summary>
+        /// Value of build progress when generated blocks start to generate.
+        /// </summary>
+        public float BuildProgressToPlaceGeneratedBlocks;
 
         public string[] CompoundTemplates;
 
@@ -274,6 +297,15 @@ namespace Sandbox.Definitions
         private string m_mirroringBlock;
 
         public MySoundPair PrimarySound;
+        public MySoundPair ActionSound;
+        public MySoundPair DamagedSound;
+
+        public int Points;
+
+        // This defines, which components should be created when the block is first built
+        // CH: TODO: This should be something like entity component definition list and the components should
+        // be able to construct themselves from the definitions
+        public Dictionary<string, MyObjectBuilder_ComponentBase> EntityComponents = null;
 
         public override String DisplayNameText
         {
@@ -326,9 +358,14 @@ namespace Sandbox.Definitions
             this.Mirrored              = ob.Mirrored;
             this.RandomRotation        = ob.RandomRotation;
             this.BuildType             = ob.BuildType != null ? ob.BuildType.ToLower() : null;
+            this.BuildMaterial         = ob.BuildMaterial != null ? ob.BuildMaterial.ToLower() : null;
+            this.BuildProgressToPlaceGeneratedBlocks = ob.BuildProgressToPlaceGeneratedBlocks;
             this.GeneratedBlockType    = MyStringId.GetOrCompute(ob.GeneratedBlockType != null ? ob.GeneratedBlockType.ToLower() : null);
             if (ob.DamageEffectId != 0)
                 this.DamageEffectID = ob.DamageEffectId;
+
+            this.Points = ob.Points;
+            InitEntityComponents(ob.EntityComponents);
 
             this.CompoundTemplates = ob.CompoundTemplates;
             Debug.Assert(this.CompoundTemplates == null || this.CompoundTemplates.Length > 0, "Wrong compound templates, array is empty");
@@ -424,10 +461,24 @@ namespace Sandbox.Definitions
 
                     Components[j] = tmp;
                 }
+
                 MaxIntegrity = integrity;
-                IntegrityPointsPerSec = integrity / ob.BuildTimeSeconds;
+
+                if (ob.MaxIntegrity != 0)
+                {
+                    criticalIntegrity = ob.MaxIntegrity * criticalIntegrity / MaxIntegrity;
+                    MaxIntegrity = ob.MaxIntegrity;
+                }
+
+                IntegrityPointsPerSec = MaxIntegrity / ob.BuildTimeSeconds;
                 DisassembleRatio = ob.DisassembleRatio;
-                Mass = mass;
+                if(!MyPerGameSettings.Destruction)
+                    Mass = mass;
+            }
+            else
+            {
+                if (ob.MaxIntegrity != 0)
+                    MaxIntegrity = ob.MaxIntegrity;
             }
 
             CriticalIntegrityRatio = criticalIntegrity / MaxIntegrity;
@@ -486,7 +537,10 @@ namespace Sandbox.Definitions
             CheckBuildProgressModels();
             // Components and CriticalComponent will be initialized elsewhere
 
-            this.PrimarySound = new MySoundPair(ob.PrimarySound);
+            PrimarySound = new MySoundPair(ob.PrimarySound);
+            ActionSound = new MySoundPair(ob.ActionSound);
+            if (ob.DamagedSound!=null)
+                DamagedSound = new MySoundPair(ob.DamagedSound);
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -515,10 +569,12 @@ namespace Sandbox.Definitions
             ob.Direction = this.Direction;
             ob.Mirrored = this.Mirrored;
             ob.BuildType = this.BuildType;
+            ob.BuildMaterial = this.BuildMaterial;
             ob.GeneratedBlockType = this.GeneratedBlockType.ToString();
             ob.DamageEffectId = this.DamageEffectID.HasValue ? this.DamageEffectID.Value : 0;
             ob.CompoundTemplates = this.CompoundTemplates;
             ob.Icon = Icon;
+            ob.Points = this.Points;
             //ob.SubBlockDefinitions = SubBlockDefinitions;
             //ob.BlockVariants = BlockVariants;
 
@@ -566,7 +622,7 @@ namespace Sandbox.Definitions
             return ratio >= OwnershipIntegrityRatio;
         }
 
-        public bool RationEnoughForDamageEffect(float ratio)
+        public bool RatioEnoughForDamageEffect(float ratio)
         {
             return ratio < CriticalIntegrityRatio;//tied to red line
         }
@@ -693,6 +749,14 @@ namespace Sandbox.Definitions
             return BlockSideEnum.Right;
         }
 
+		// Order of block sides: right, top, front, left, bottom, back
+		// Right = +X;    Top = +Y; Front = +Z
+		//  Left = -X; Bottom = -Y;  Back = -Z
+		// Side origins are always in lower left when looking at the side from outside.
+		private const float OFFSET_CONST = 0.001f;
+		private const float THICKNESS_HALF = 0.0004f;
+		private static List<int> m_tmpIndices = new List<int>();
+		private static List<MyObjectBuilder_CubeBlockDefinition.MountPoint> m_tmpMounts = new List<MyObjectBuilder_CubeBlockDefinition.MountPoint>();
         private void InitMountPoints(MyObjectBuilder_CubeBlockDefinition def)
         {
             if (MountPoints != null)
@@ -700,12 +764,6 @@ namespace Sandbox.Definitions
 
             var center = (Size - 1) / 2;
 
-            // Order of block sides: right, top, front, left, bottom, back
-            // Right = +X;    Top = +Y; Front = +Z
-            //  Left = -X; Bottom = -Y;  Back = -Z
-            // Side origins are always in lower left when looking at the side from outside.
-            const float OFFSET_CONST = 0.001f;
-            const float THICKNESS_HALF = 0.0004f;
 
             if (!Context.IsBaseGame)
             {
@@ -738,8 +796,8 @@ namespace Sandbox.Definitions
                     TransformMountPointPosition(ref end, 0, Size, out e1);
                     TransformMountPointPosition(ref start, 3, Size, out s2);
                     TransformMountPointPosition(ref end, 3, Size, out e2);
-                    mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalRight });
-                    mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalLeft });
+                    mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalRight, Enabled = true });
+                    mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalLeft, Enabled = true });
                 }
 
                 // Top and bottom walls
@@ -751,8 +809,8 @@ namespace Sandbox.Definitions
                     TransformMountPointPosition(ref end, 1, Size, out e1);
                     TransformMountPointPosition(ref start, 4, Size, out s2);
                     TransformMountPointPosition(ref end, 4, Size, out e2);
-                    mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalTop });
-                    mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalBottom });
+					mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalTop, Enabled = true });
+					mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalBottom, Enabled = true });
                 }
 
                 // Front and back walls
@@ -764,8 +822,8 @@ namespace Sandbox.Definitions
                     TransformMountPointPosition(ref end, 2, Size, out e1);
                     TransformMountPointPosition(ref start, 5, Size, out s2);
                     TransformMountPointPosition(ref end, 5, Size, out e2);
-                    mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalFront });
-                    mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalBack });
+					mps.Add(new MountPoint() { Start = s1, End = e1, Normal = normalFront, Enabled = true });
+					mps.Add(new MountPoint() { Start = s2, End = e2, Normal = normalBack, Enabled = true });
                 }
 
                 MountPoints = mps.ToArray();
@@ -773,27 +831,79 @@ namespace Sandbox.Definitions
             }
             else
             {
-                var mpBuilders = def.MountPoints;
-                MountPoints = new MountPoint[mpBuilders.Length];
-                for (int i = 0; i < MountPoints.Length; ++i)
-                {
-                    var mpBuilder = mpBuilders[i]; // 'mp' stands for mount point
-                    // I shrink mounts points a little to avoid overlaps when they are very close.
-                    var mpStart  = new Vector3((Vector2)mpBuilder.Start + OFFSET_CONST, THICKNESS_HALF);
-                    var mpEnd    = new Vector3((Vector2)mpBuilder.End - OFFSET_CONST, -THICKNESS_HALF);
-                    var sideIdx  = (int)mpBuilder.Side;
-                    var mpNormal = Vector3I.Forward;
-                    TransformMountPointPosition(ref mpStart, sideIdx, Size, out mpStart);
-                    TransformMountPointPosition(ref mpEnd, sideIdx, Size, out mpEnd);
-                    Vector3I.TransformNormal(ref mpNormal, ref m_mountPointTransforms[sideIdx], out mpNormal);
-                    MountPoints[i].Start          = mpStart;
-                    MountPoints[i].End            = mpEnd;
-                    MountPoints[i].Normal         = mpNormal;
-                    MountPoints[i].ExclusionMask  = mpBuilder.ExclusionMask;
-                    MountPoints[i].PropertiesMask = mpBuilder.PropertiesMask;
-                }
+				Debug.Assert(m_tmpMounts.Count == 0);
+				SetMountPoints(ref MountPoints, def.MountPoints, m_tmpMounts);
+
+				if (def.BuildProgressModels != null)
+				{
+					for (int index = 0; index < def.BuildProgressModels.Count; ++index)
+					{
+						var defBuildProgressModel = BuildProgressModels[index];
+						if (defBuildProgressModel == null)
+							continue;
+
+						var obBuildProgressModel = def.BuildProgressModels[index];
+						if (obBuildProgressModel.MountPoints == null)
+							continue;
+
+						foreach (var mountPoint in obBuildProgressModel.MountPoints)
+						{
+							int sideId = (int)mountPoint.Side;
+							if(!m_tmpIndices.Contains(sideId))
+							{
+								m_tmpMounts.RemoveAll((mount) => { return (int)mount.Side == sideId; });
+								m_tmpIndices.Add(sideId);
+							}
+							m_tmpMounts.Add(mountPoint);
+						}
+						m_tmpIndices.Clear();
+						defBuildProgressModel.MountPoints = new MountPoint[m_tmpMounts.Count];
+						SetMountPoints(ref defBuildProgressModel.MountPoints, m_tmpMounts.ToArray(), null);
+					}
+				}
+				m_tmpMounts.Clear();
             }
         }
+
+		private void SetMountPoints(ref MountPoint[] mountPoints, MyObjectBuilder_CubeBlockDefinition.MountPoint[] mpBuilders, List<MyObjectBuilder_CubeBlockDefinition.MountPoint> addedMounts)
+		{
+			if(mountPoints == null)
+				mountPoints = new MountPoint[mpBuilders.Length];
+			for (int i = 0; i < mountPoints.Length; ++i)
+			{
+				var mpBuilder = mpBuilders[i];
+				if(addedMounts != null)
+					addedMounts.Add(mpBuilder);
+				// shrink mount points a little to avoid overlaps when they are very close.
+				var mpStart = new Vector3((Vector2)mpBuilder.Start + OFFSET_CONST, THICKNESS_HALF);
+				var mpEnd = new Vector3((Vector2)mpBuilder.End - OFFSET_CONST, -THICKNESS_HALF);
+				var sideIdx = (int)mpBuilder.Side;
+				var mpNormal = Vector3I.Forward;
+				TransformMountPointPosition(ref mpStart, sideIdx, Size, out mpStart);
+				TransformMountPointPosition(ref mpEnd, sideIdx, Size, out mpEnd);
+				Vector3I.TransformNormal(ref mpNormal, ref m_mountPointTransforms[sideIdx], out mpNormal);
+				mountPoints[i].Start = mpStart;
+				mountPoints[i].End = mpEnd;
+				mountPoints[i].Normal = mpNormal;
+				mountPoints[i].ExclusionMask = mpBuilder.ExclusionMask;
+				mountPoints[i].PropertiesMask = mpBuilder.PropertiesMask;
+				mountPoints[i].Enabled = mpBuilder.Enabled;
+			}
+		}
+
+		public MountPoint[] GetBuildProgressModelMountPoints(float currentIntegrityRatio)
+		{
+			if (BuildProgressModels == null || BuildProgressModels.Length == 0 || currentIntegrityRatio >= BuildProgressModels[BuildProgressModels.Length-1].BuildRatioUpperBound)
+				return MountPoints;
+			int index = 0;
+			for(; index < BuildProgressModels.Length-1; ++index)
+			{
+				var progressModel = BuildProgressModels[index];
+				if (currentIntegrityRatio <= progressModel.BuildRatioUpperBound)
+					break;
+			}
+			return BuildProgressModels[index].MountPoints ?? MountPoints;
+		}
 
         public void InitPressurization()
         {
@@ -878,6 +988,30 @@ namespace Sandbox.Definitions
 
                 if (NavigationDefinition != null && NavigationDefinition.Mesh != null)
                     NavigationDefinition.Mesh.MakeStatic();
+            }
+        }
+
+        private void InitEntityComponents(MyObjectBuilder_CubeBlockDefinition.EntityComponentDefinition[] entityComponentDefinitions)
+        {
+            if (entityComponentDefinitions == null) return;
+
+            EntityComponents = new Dictionary<string, MyObjectBuilder_ComponentBase>(entityComponentDefinitions.Length);
+            for (int i = 0; i < entityComponentDefinitions.Length; ++i)
+            {
+                var definition = entityComponentDefinitions[i];
+
+                MyObjectBuilderType componentObType = MyObjectBuilderType.Parse(definition.BuilderType);
+                Debug.Assert(!componentObType.IsNull, "Could not parse object builder type of component: " + definition.BuilderType);
+
+                if (!componentObType.IsNull)
+                {
+                    var componentBuilder = MyObjectBuilderSerializer.CreateNewObject(componentObType) as MyObjectBuilder_ComponentBase;
+                    Debug.Assert(componentBuilder != null, "Could not create object builder of type " + componentObType);
+                    if (componentBuilder != null)
+                    {
+                        EntityComponents.Add(definition.ComponentType, componentBuilder);
+                    }
+                }
             }
         }
 

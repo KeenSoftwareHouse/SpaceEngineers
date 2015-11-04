@@ -250,8 +250,8 @@ namespace VRageRender
         {
             m_vs = MyShaders.CreateVs("billboard.hlsl", "vs");
             m_ps = MyShaders.CreatePs("billboard.hlsl", "ps");
-            m_vsLit = MyShaders.CreateVs("billboard.hlsl", "vs", MyShaderHelpers.FormatMacros("LIT_PARTICLE"));
-            m_psLit = MyShaders.CreatePs("billboard.hlsl", "ps", MyShaderHelpers.FormatMacros("LIT_PARTICLE"));
+            m_vsLit = MyShaders.CreateVs("billboard.hlsl", "vs", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
+			m_psLit = MyShaders.CreatePs("billboard.hlsl", "ps", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.TEXCOORD0_H));
 
             //MyCallbacks.RegisterDeviceResetListener(new OnDeviceResetDelegate(OnDeviceRestart));
@@ -438,7 +438,7 @@ namespace VRageRender
                 {
                     if (MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID) != null)
                     {
-                        var matrix = (MatrixD)MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID).WorldMatrix;
+                        var matrix = MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID).WorldMatrix;
                         Vector3D.Transform(ref pos0, ref matrix, out pos0);
                         Vector3D.Transform(ref pos1, ref matrix, out pos1);
                         Vector3D.Transform(ref pos2, ref matrix, out pos2);
@@ -606,10 +606,10 @@ namespace VRageRender
             RC.SetRS(MyRender11.m_nocullRasterizerState);
             RC.BindRawSRV(104, m_SB.Srv);
             RC.BindSRV(1, depthRead);
-            RC.SetCB(3, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
+            RC.SetCB(2, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
             RC.SetDS(MyDepthStencilState.DefaultDepthState);
 
-            RC.SetCB(2, MyShadows.m_csmConstants);
+            RC.SetCB(4, MyShadows.m_csmConstants);
             RC.Context.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
             RC.Context.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);
@@ -663,20 +663,49 @@ namespace VRageRender
     class MyBlendTargets : MyScreenPass
     {
         static PixelShaderId m_ps = PixelShaderId.NULL;
+        static PixelShaderId m_psPixelStencil = PixelShaderId.NULL;
 
         internal static void Init()
         {
             m_ps = MyShaders.CreatePs("postprocess.hlsl", "copy");
+            m_psPixelStencil = MyShaders.CreatePs("postprocess.hlsl", "copyWithStencilTest");
         }
 
-        internal static void Run(MyBindableResource dst, MyBindableResource src)
+        internal static void Run(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
         {
             //RC.SetBS(MyRender.BlendStateAdditive);
-            RC.SetBS(MyRender11.BlendAlphaPremult);
+            RC.SetBS(bs);
             RC.SetRS(null);
             RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, dst);
             RC.BindSRV(0, src);
             RC.SetPS(m_ps);
+
+            DrawFullscreenQuad();
+            RC.SetBS(null);
+        }
+
+        internal static void RunWithStencil(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
+        {
+            RC.SetDS(MyDepthStencilState.TestOutlineMeshStencil, 0x40);
+            RC.SetBS(bs);
+            RC.SetRS(null);
+            RC.BindDepthRT(MyGBuffer.Main.DepthStencil, DepthStencilAccess.ReadOnly, dst);
+            RC.BindSRV(0, src);
+            RC.SetPS(m_ps);
+
+            DrawFullscreenQuad();
+            RC.SetBS(null);
+        }
+
+        internal static void RunWithPixelStencilTest(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
+        {
+            RC.SetDS(null);
+            RC.SetBS(bs);
+            RC.SetRS(null);
+            RC.BindDepthRT(null, DepthStencilAccess.ReadOnly, dst);
+            RC.BindSRV(0, src);
+            RC.BindSRV(1, MyGBuffer.Main.DepthStencil.Stencil);
+            RC.SetPS(m_psPixelStencil);
 
             DrawFullscreenQuad();
             RC.SetBS(null);

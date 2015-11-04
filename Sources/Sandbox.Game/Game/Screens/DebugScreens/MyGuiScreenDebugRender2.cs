@@ -33,6 +33,7 @@ namespace Sandbox.Game.Gui
             AddCheckBox("Normals", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferNormal));
             AddCheckBox("Glossiness", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferGlossiness));
             AddCheckBox("Metalness", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferMetalness));
+            AddCheckBox("NDotL", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayNDotL));
             AddCheckBox("Material ID", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferMaterialID));
             AddCheckBox("Ambient occlusion", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAO));
             AddCheckBox("Emissive", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayEmissive));
@@ -43,24 +44,13 @@ namespace Sandbox.Game.Gui
             AddCheckBox("Ambient diffuse", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAmbientDiffuse));
             AddCheckBox("Ambient specular", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAmbientSpecular));
 
-            AddCheckBox("Night mode", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.NightMode ));
+            AddCheckBox("Wireframe", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Wireframe));
 
             m_currentPosition.Y += 0.01f;
             AddLabel("Scene objects", Color.Yellow.ToVector4(), 1.2f);
             AddCheckBox("Draw IDs", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayIDs));
             AddCheckBox("Draw AABBs", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAabbs));
             AddCheckBox("Draw only merge-instanced", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DrawOnlyMergedMeshes));
-
-            m_currentPosition.Y += 0.01f;
-            AddLabel("Shadow cascades", Color.Yellow.ToVector4(), 1.2f);
-
-            AddCheckBox("Force per-frame updating", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.UpdateCascadesEveryFrame));
-            AddCheckBox("Cascades debug", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayShadowsWithDebug));
-
-            AddCheckBox("Freeze cascade 0",() => MyRenderProxy.Settings.FreezeCascade0, (x) => MyRenderProxy.Settings.FreezeCascade0 = x);
-            AddCheckBox("Freeze cascade 1",() => MyRenderProxy.Settings.FreezeCascade1, (x) => MyRenderProxy.Settings.FreezeCascade1 = x);
-            AddCheckBox("Freeze cascade 2",() => MyRenderProxy.Settings.FreezeCascade2, (x) => MyRenderProxy.Settings.FreezeCascade2 = x);
-            AddCheckBox("Freeze cascade 3",() => MyRenderProxy.Settings.FreezeCascade3, (x) => MyRenderProxy.Settings.FreezeCascade3 = x);
 
             m_currentPosition.Y += 0.01f;
             AddLabel("Internal", Color.Yellow.ToVector4(), 1.2f);

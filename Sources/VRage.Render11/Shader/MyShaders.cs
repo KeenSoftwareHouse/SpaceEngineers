@@ -12,10 +12,10 @@ using VRageRender;
 using VRage.Generics;
 using System.Threading;
 using System.Security.Cryptography;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using System.Text.RegularExpressions;
+using SharpDX.Direct3D;
 namespace VRageRender
 {
     static class MyShaderDefines
@@ -762,6 +762,11 @@ namespace VRageRender
 
     static class MyShaders
     {
+        static readonly ShaderMacro[] DebugMacro = new ShaderMacro[]
+        {
+            new ShaderMacro("DEBUG", null)
+        };
+
         internal const string ShadersContentPath = "Shaders";
         internal const string UserCachePath = "ShaderCache";
         static MD5 m_md5 = System.Security.Cryptography.MD5.Create(); 
@@ -802,7 +807,7 @@ namespace VRageRender
 
         #region Low level compilation
 
-        static Dictionary<MyStringId, byte[]> CompilationCache = new Dictionary<MyStringId,byte[]>();
+        static Dictionary<MyStringId, byte[]> CompilationCache = new Dictionary<MyStringId, byte[]>(MyStringId.Comparer);
 
         static string CalculateCacheKey(string source, string function, string profile)
         {
@@ -887,7 +892,7 @@ namespace VRageRender
 
                 if(MyRender11.DebugMode)
                 {
-                    compilationResult = ShaderBytecode.Compile(source, function, profile, 0, 0, null, includes, name);
+                    compilationResult = ShaderBytecode.Compile(source, function, profile, 0, 0, DebugMacro, includes, name);
                 }
                 else
                 {
@@ -989,8 +994,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.VS_5_0,
                 Header = header,
                 Name = String.Format("vs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1019,8 +1024,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.PS_5_0,
                 Header = header,
                 Name = String.Format("ps_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1049,8 +1054,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.CS_5_0,
                 Header = header,
                 Name = String.Format("cs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1079,8 +1084,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.GS_5_0,
                 Header = header,
                 Name = String.Format("gs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1103,7 +1108,14 @@ namespace VRageRender
         {
             var info = Shaders[bytecode];
 
-            using (var reader = new StreamReader(Path.Combine(MyFileSystem.ContentPath, ShadersContentPath, info.File.ToString())))
+            var path = Path.Combine(MyFileSystem.ContentPath, ShadersContentPath, info.File.ToString());
+            if (!File.Exists(path))
+            {
+                MyRender11.Log.WriteLine("ERROR: Shaders Compile - can not find file: " + path);
+                throw new MyRenderException("Failed to compile shader" + info.Name, MyRenderExceptionEnum.Unassigned);                
+            }
+
+            using (var reader = new StreamReader(path))
             {
                 var compiled = Compile(MyRender11.GlobalShaderHeader + info.Header + reader.ReadToEnd(), info.Function.ToString(), info.Profile.Value(), info.Name, invalidateCache);
                 Bytecodes.Data[bytecode.Index].Bytecode = compiled != null ? compiled : Bytecodes.Data[bytecode.Index].Bytecode; 

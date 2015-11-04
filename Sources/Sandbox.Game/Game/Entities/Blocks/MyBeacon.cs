@@ -1,34 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Definitions;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Lights;
 using VRageMath;
 using Sandbox.Engine.Utils;
-using Sandbox.Graphics.GUI;
 using Sandbox.Game.Multiplayer;
-
-using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.Components;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Beacon))]
-    class MyBeacon : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyBeacon
+    class MyBeacon : MyFunctionalBlock, IMyComponentOwner<MyDataBroadcaster>, IMyBeacon
     {
         private static readonly Color COLOR_ON = new Color(255, 255, 128);
-        private static readonly Color COLOR_OFF = COLOR_ON ; //Color.Red;
+        private static readonly Color COLOR_OFF  = new Color(30, 30, 30);
         private static readonly float POINT_LIGHT_RANGE_SMALL = 2.0f;
         private static readonly float POINT_LIGHT_RANGE_LARGE = 7.5f;
         private static readonly float POINT_LIGHT_INTENSITY_SMALL = 4;
@@ -52,6 +46,11 @@ namespace Sandbox.Game.Entities.Cube
             show.Getter = (x) => x.ShowInTerminal;
             show.Setter = (x, v) => x.RequestShowInTerminal(v);
             MyTerminalControlFactory.AddControl(show);
+
+            var showConfig = new MyTerminalControlOnOffSwitch<MyBeacon>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            showConfig.Getter = (x) => x.ShowInToolbarConfig;
+            showConfig.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            MyTerminalControlFactory.AddControl(showConfig);
 
             var customName = new MyTerminalControlTextbox<MyBeacon>("CustomName", MySpaceTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
@@ -92,13 +91,14 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPowered && base.CheckIsWorking();
         }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
 
-            m_radioBroadcaster = new MyRadioBroadcaster(this, 10000, IsWorking);
+            m_radioBroadcaster = new MyRadioBroadcaster(this, 10000);
             if (((MyObjectBuilder_Beacon)objectBuilder).BroadcastRadius != 0)
                 m_radioBroadcaster.BroadcastRadius = ((MyObjectBuilder_Beacon)objectBuilder).BroadcastRadius;
             m_radioBroadcaster.OnBroadcastRadiusChanged += OnBroadcastRadiusChanged;
@@ -127,14 +127,18 @@ namespace Sandbox.Game.Entities.Cube
 
             UpdateLightPosition();
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+	        var beaconDefinition = BlockDefinition as MyBeaconDefinition;
+			Debug.Assert(beaconDefinition != null);
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute(beaconDefinition.ResourceSinkGroup),
                 MyEnergyConstants.MAX_REQUIRED_POWER_BEACON,
                 UpdatePowerInput);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
-            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+            sinkComp.Update();
+	        ResourceSink = sinkComp;
+            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink,this));
 
             AnimationRunning = true;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -190,6 +194,9 @@ namespace Sandbox.Game.Entities.Cube
 
         void Receiver_IsPoweredChanged()
         {
+
+            m_radioBroadcaster.Enabled = IsWorking;
+
             UpdatePower();
             UpdateLightProperties();
             UpdateIsWorking();
@@ -198,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             UpdatePower();
             UpdateLightProperties();
             UpdateText();
@@ -326,15 +333,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             UpdatePower();
 
             base.OnEnabledChanged();
@@ -353,7 +354,7 @@ namespace Sandbox.Game.Entities.Cube
         
         void OnBroadcastRadiusChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             UpdateText();
         }
 
@@ -370,7 +371,7 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
         float IMyBeacon.Radius

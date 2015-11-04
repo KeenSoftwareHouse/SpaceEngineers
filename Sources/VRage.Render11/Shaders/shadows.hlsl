@@ -29,8 +29,6 @@ Texture2D<float>	DepthBuffer	: register( t0 );
 Texture2D<float> Shadow : register( t0 );
 RWTexture2D<float> Output : register( u0 );
 
-//
-
 static const float2 PoissonSamplesArray[] = {
 	float2( 0.130697, -0.209628),
 	float2( -0.112312, 0.327448),
@@ -111,7 +109,7 @@ void write_shadow(
     	result /= PoissonSamplesNum;
     }
     else {
-    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(saturate(lpos.xy) != (lpos.xy));
     }
 
    	Output[Texel] = result;
@@ -140,7 +138,7 @@ void blur(uint3 dispatchThreadID : SV_DispatchThreadID) {
 			float sample = Shadow[Texel + float2(i, 0)];
 			#endif
 
-			result += sample * gaussian_weigth(i, 2);
+			result += sample * gaussian_weigth(i, 1.5);
 		}
 		#ifdef VERTICAL
 		result = pow(result, 2);

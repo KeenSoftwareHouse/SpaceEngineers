@@ -32,6 +32,9 @@ namespace Sandbox.Game.Entities.Cube
     using Sandbox.ModAPI.Ingame;
     using Sandbox.Game.Localization;
     using VRage;
+    using VRage.ModAPI;
+    using VRage.Network;
+    using Sandbox.Engine.Multiplayer;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorStator))]
     class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator
@@ -41,13 +44,11 @@ namespace Sandbox.Game.Entities.Cube
 
         private HkVelocityConstraintMotor m_motor;
 
-        private float m_torque;
-
-        private float m_brakingTorque;
-
-        private float m_targetVelocity;
-        private float m_minAngle;
-        private float m_maxAngle;
+        public readonly Sync<float> Torque;
+        public readonly Sync<float> BrakingTorque;
+        public readonly Sync<float> TargetVelocity;
+        private readonly Sync<float> m_minAngle;
+        private readonly Sync<float> m_maxAngle;
         private bool m_limitsActive;
         private bool m_isAttached = false;
         protected bool m_canBeDetached = false;
@@ -56,11 +57,11 @@ namespace Sandbox.Game.Entities.Cube
 
         static MyMotorStator()
         {
-            var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.ReverseValuesRequest());
+            var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.TargetVelocityRPM = -b.TargetVelocityRPM);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
 
-            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.OnDetachRotorBtnClick());
+            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => MyMultiplayer.RaiseEvent(b, x => x.Detach_Implementation));
 
             var actionDetach = detach.EnableAction(MyTerminalActionIcons.NONE);
             actionDetach.Enabled = (b) => b.m_canBeDetached;
@@ -68,7 +69,7 @@ namespace Sandbox.Game.Entities.Cube
             detach.Visible = (b) => b.m_canBeDetached;
             MyTerminalControlFactory.AddControl(detach);
 
-            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => b.SyncObject.AttachRotor());
+            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => MyMultiplayer.RaiseEvent(b, x => x.Attach_Implementation));
             var actionAttach = attach.EnableAction(MyTerminalActionIcons.NONE);
             actionAttach.Enabled = (b) => b.m_canBeDetached;
             attach.Enabled = (b) => !b.m_isAttached;
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var torque = new MyTerminalControlSlider<MyMotorStator>("Torque", MySpaceTexts.BlockPropertyTitle_MotorTorque, MySpaceTexts.BlockPropertyDescription_MotorTorque);
             torque.Getter = (x) => x.Torque;
-            torque.Setter = (x, v) => x.TorqueChangeRequest(v);
+            torque.Setter = (x, v) => x.Torque.Value = v;
             torque.DefaultValueGetter = (x) => x.MotorDefinition.MaxForceMagnitude;
             torque.Writer = (x, result) => MyValueFormatter.AppendTorqueInBestUnit(x.Torque, result);
             torque.EnableActions();
@@ -87,7 +88,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var brakingTorque = new MyTerminalControlSlider<MyMotorStator>("BrakingTorque", MySpaceTexts.BlockPropertyTitle_MotorBrakingTorque, MySpaceTexts.BlockPropertyDescription_MotorBrakingTorque);
             brakingTorque.Getter = (x) => x.BrakingTorque;
-            brakingTorque.Setter = (x, v) => x.BrakingTorqueChangeRequest(v);
+            brakingTorque.Setter = (x, v) => x.BrakingTorque.Value = v;
             brakingTorque.DefaultValue = 0;
             brakingTorque.Writer = (x, result) => MyValueFormatter.AppendTorqueInBestUnit(x.BrakingTorque, result);
             brakingTorque.EnableActions();
@@ -96,10 +97,10 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(brakingTorque);
 
             var targetVelocity = new MyTerminalControlSlider<MyMotorStator>("Velocity", MySpaceTexts.BlockPropertyTitle_MotorTargetVelocity, MySpaceTexts.BlockPropertyDescription_MotorVelocity);
-            targetVelocity.Getter = (x) => x.GetTargetVelocityRPM();
-            targetVelocity.Setter = (x, v) => x.SetTargetVelocity(v);
+            targetVelocity.Getter = (x) => x.TargetVelocityRPM;
+            targetVelocity.Setter = (x, v) => x.TargetVelocityRPM = v;
             targetVelocity.DefaultValue = 0;
-            targetVelocity.Writer = (x, result) => result.Concat(x.GetTargetVelocityRPM(), 2).Append(" rpm");
+            targetVelocity.Writer = (x, result) => result.Concat(x.TargetVelocityRPM, 2).Append(" rpm");
             targetVelocity.EnableActionsWithReset();
             targetVelocity.Denormalizer = (x, v) => x.DenormalizeRPM(v);
             targetVelocity.Normalizer = (x, v) => x.NormalizeRPM(v);
@@ -107,7 +108,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var lowerLimit = new MyTerminalControlSlider<MyMotorStator>("LowerLimit", MySpaceTexts.BlockPropertyTitle_MotorMinAngle, MySpaceTexts.BlockPropertyDescription_MotorLowerLimit);
             lowerLimit.Getter = (x) => x.MinAngle;
-            lowerLimit.Setter = (x, v) => x.MinAngleChangeRequest(v);
+            lowerLimit.Setter = (x, v) => x.MinAngle = v;
             lowerLimit.DefaultValue = -361;
             lowerLimit.SetLimits(-361, 360);
             lowerLimit.Writer = (x, result) => WriteAngle(x.m_minAngle, result);
@@ -116,7 +117,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var upperLimit = new MyTerminalControlSlider<MyMotorStator>("UpperLimit", MySpaceTexts.BlockPropertyTitle_MotorMaxAngle, MySpaceTexts.BlockPropertyDescription_MotorUpperLimit);
             upperLimit.Getter = (x) => x.MaxAngle;
-            upperLimit.Setter = (x, v) => x.MaxAngleChangeRequest(v);
+            upperLimit.Setter = (x, v) => x.MaxAngle = v;
             upperLimit.DefaultValue = 361;
             upperLimit.SetLimits(-360, 361);
             upperLimit.Writer = (x, result) => WriteAngle(x.m_maxAngle, result);
@@ -125,7 +126,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var rotorDisplacement = new MyTerminalControlSlider<MyMotorStator>("Displacement", MySpaceTexts.BlockPropertyTitle_MotorRotorDisplacement, MySpaceTexts.BlockPropertyDescription_MotorRotorDisplacement);
             rotorDisplacement.Getter = (x) => x.DummyDisplacement;
-            rotorDisplacement.Setter = (x, v) => x.SyncObject.ChangeRotorDisplacement(v);
+            rotorDisplacement.Setter = (x, v) => x.DummyDisplacement = v;
             rotorDisplacement.DefaultValueGetter = (x) => 0.0f;
             rotorDisplacement.SetLimits((x) => x.MotorDefinition.RotorDisplacementMin, (x) => x.MotorDefinition.RotorDisplacementMax);
             rotorDisplacement.Writer = (x, result) => MyValueFormatter.AppendDistanceInBestUnit(x.DummyDisplacement, result);
@@ -146,39 +147,12 @@ namespace Sandbox.Game.Entities.Cube
 
         #region Terminal properties and value writers
 
-        public new MySyncMotorStator SyncObject { get { return (MySyncMotorStator)base.SyncObject; } }
-
-        protected override MySyncEntity OnCreateSync()
-        {
-            var sync = new MySyncMotorStator(this);
-            sync.SetAngle = SyncAngle;
-            return sync;
-        }
-
         public static void WriteAngle(float angleRad, StringBuilder result)
         {
             if (float.IsInfinity(angleRad))
                 result.Append(MyTexts.Get(MySpaceTexts.BlockPropertyValue_MotorAngleUnlimited));
             else
                 result.Concat(MathHelper.ToDegrees(angleRad), 0).Append("°");
-        }
-
-        public void ReverseValuesRequest()
-        {
-            SyncObject.ChangeStatorTargetVelocity(-TargetVelocity);
-        }
-
-        public float Torque
-        {
-            get { return m_torque; }
-            set
-            {
-                if (m_torque != value)
-                {
-                    m_torque = value;
-                    RaisePropertiesChanged();
-                }
-            }
         }
 
         private float NormalizeTorque(float value)
@@ -197,128 +171,22 @@ namespace Sandbox.Game.Entities.Cube
                 return MathHelper.InterpLog(value, 1f, MotorDefinition.MaxForceMagnitude);
         }
 
-        public void TorqueChangeRequest(float torque)
+        public float TargetVelocityRPM
         {
-            if (Sync.IsServer)
-            {
-                Torque = torque;
-            }
-            SyncObject.ChangeStatorTorque(torque);
-        }
-
-        public float BrakingTorque
-        {
-            get { return m_brakingTorque; }
-            set
-            {
-                if (m_brakingTorque != value)
-                {
-                    m_brakingTorque = value;
-                    RaisePropertiesChanged();
-                }
-            }
-        }
-
-        public void BrakingTorqueChangeRequest(float brakingTorque)
-        {
-            if (Sync.IsServer)
-            {
-                BrakingTorque = brakingTorque;
-            }
-            SyncObject.ChangeStatorBrakingTorque(brakingTorque);
-        }
-
-        private float GetTargetVelocityRPM()
-        {
-            return MathHelper.RadiansPerSecondToRPM * m_targetVelocity;
-        }
-
-        private void SetTargetVelocity(float RPM, bool sync = true)
-        {
-            if (RPM != GetTargetVelocityRPM())
-            {
-                var velocity = MathHelper.RPMToRadiansPerMillisec * 1000 * RPM;
-                if (sync)
-                {
-                    if (Sync.IsServer)
-                    {
-                        TargetVelocity = velocity;
-                    }
-                    SyncObject.ChangeStatorTargetVelocity(velocity);
-                }
-                else
-                {
-                    TargetVelocity = velocity;
-                }
-            }
-        }
-
-        public float TargetVelocity
-        {
-            get { return m_targetVelocity; }
-            set
-            {
-                if (m_targetVelocity != value)
-                {
-                    m_targetVelocity = value;
-                    RaisePropertiesChanged();
-                }
-            }
-        }
-
-        public void TargetVelocityChangeRequest(float targetVelocity)
-        {
-            if (Sync.IsServer)
-            {
-                TargetVelocity = targetVelocity;
-            }
-            SyncObject.ChangeStatorTargetVelocity(targetVelocity);
+            get { return TargetVelocity * MathHelper.RadiansPerSecondToRPM; }
+            set { TargetVelocity.Value = value * MathHelper.RPMToRadiansPerSecond; }
         }
 
         public float MinAngle
         {
             get { return m_minAngle / DegreeToRadians; }
-            set
-            {
-                if (MinAngle != value)
-                {
-                    m_minAngle = value * DegreeToRadians;
-                    FixAngles(false);
-                    RaisePropertiesChanged();
-                }
-            }
-        }
-
-        public void MinAngleChangeRequest(float minAngle)
-        {
-            if (Sync.IsServer)
-            {
-                MinAngle = minAngle;
-            }
-            SyncObject.ChangeStatorMinAngle(minAngle);
+            set { m_minAngle.Value = value * DegreeToRadians; }
         }
 
         public float MaxAngle
         {
             get { return m_maxAngle / DegreeToRadians; }
-            set
-            {
-                if (MaxAngle != value)
-                {
-                    m_maxAngle = value * DegreeToRadians;
-                    FixAngles(true);
-                    RaisePropertiesChanged();
-                }
-            }
-        }
-
-        public void MaxAngleChangeRequest(float maxAngle)
-        {
-            if (Sync.IsServer)
-            {
-                MaxAngle = MaxAngle;
-            }
-            SyncObject.ChangeStatorMaxAngle(maxAngle);
+            set { m_maxAngle.Value = value * DegreeToRadians; }
         }
         #endregion
 
@@ -392,19 +260,19 @@ namespace Sandbox.Game.Entities.Cube
             if (m_maxAngle < m_minAngle)
             {
                 if (lowerIsFixed)
-                    m_maxAngle = m_minAngle;
+                    m_maxAngle.Value = m_minAngle;
                 else
-                    m_minAngle = m_maxAngle;
+                    m_minAngle.Value = m_maxAngle;
             }
 
             if (m_minAngle < MIN_LOWER_LIMIT)
             {
-                m_minAngle = float.NegativeInfinity;
+                m_minAngle.Value = float.NegativeInfinity;
             }
 
             if (m_maxAngle > MAX_UPPER_LIMIT)
             {
-                m_maxAngle = float.PositiveInfinity;
+                m_maxAngle.Value = float.PositiveInfinity;
             }
 
             m_limitsActive = false;
@@ -479,6 +347,29 @@ namespace Sandbox.Game.Entities.Cube
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
             m_canBeDetached = true;
+
+            SyncType.PropertyChanged += SyncType_PropertyChanged;
+        }
+
+        void SyncType_PropertyChanged(SyncBase obj)
+        {
+            if (obj == m_dummyDisplacement && m_constraint != null)
+                Reattach();
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void Attach_Implementation()
+        {
+            // Client calls this on server using terminal, server performs AttachRotor and broadcasts it to all clients
+            AttachRotor();
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void Detach_Implementation()
+        {
+            // Client calls this on server using terminal, server performs DetachRotor and broadcasts it to all clients
+            DummyDisplacement = 0.0f;
+            DetachRotor();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -487,11 +378,11 @@ namespace Sandbox.Game.Entities.Cube
             base.Init(objectBuilder, cubeGrid);
 
             var ob = (MyObjectBuilder_MotorStator)objectBuilder;
-            Torque = MathHelper.Clamp(DenormalizeTorque(ob.Force), 0f, MotorDefinition.MaxForceMagnitude);
-            BrakingTorque = MathHelper.Clamp(DenormalizeTorque(ob.Friction), 0f, MotorDefinition.MaxForceMagnitude);
-            TargetVelocity = MathHelper.Clamp(ob.TargetVelocity * MaxRotorAngularVelocity, -MaxRotorAngularVelocity, MaxRotorAngularVelocity);
-            m_minAngle = ob.MinAngle ?? float.NegativeInfinity;
-            m_maxAngle = ob.MaxAngle ?? float.PositiveInfinity;
+            Torque.Value = MathHelper.Clamp(DenormalizeTorque(ob.Force), 0f, MotorDefinition.MaxForceMagnitude);
+            BrakingTorque.Value = MathHelper.Clamp(DenormalizeTorque(ob.Friction), 0f, MotorDefinition.MaxForceMagnitude);
+            TargetVelocity.Value = MathHelper.Clamp(ob.TargetVelocity * MaxRotorAngularVelocity, -MaxRotorAngularVelocity, MaxRotorAngularVelocity);
+            m_minAngle.Value = ob.MinAngle ?? float.NegativeInfinity;
+            m_maxAngle.Value = ob.MaxAngle ?? float.PositiveInfinity;
             m_limitsActive = ob.LimitsActive;
             m_currentAngle = ob.CurrentAngle;
 
@@ -528,6 +419,49 @@ namespace Sandbox.Game.Entities.Cube
             return a2;
         }
 
+        private bool CheckVelocities()
+        {
+            if (!MyFakes.WELD_ROTORS)
+                return false;
+            if (CubeGrid.Physics == null)
+                return false;
+            if (CubeGrid.Physics.LinearVelocity.Length() > 40)
+            {
+                if (m_welded)
+                    return true;
+                else
+                {
+                    if (m_rotorGrid == null)
+                    {
+                        if (MyEntities.TryGetEntityById<MyMotorRotor>(m_rotorBlockId, out m_rotorBlock))
+                            m_rotorGrid = m_rotorBlock.CubeGrid;
+                    }
+                }
+                if (m_rotorGrid != null && MyWeldingGroups.Static.GetGroup(CubeGrid) != MyWeldingGroups.Static.GetGroup(m_rotorGrid))
+                {
+                    m_rotorBlockId = m_rotorBlock.EntityId;
+                    var topGrid = m_rotorGrid;
+                    Detach(reattach: false);
+                    MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+                    m_welded = true;
+                    return true;
+                }
+                return false;
+            }
+
+            if (CubeGrid.Physics.LinearVelocity.Length() < 39 && m_welded)
+            {
+                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_rotorGrid);
+                m_welded = false;
+                //if (m_topGrid == null && m_topBlockId != 0)
+                //    UpdateOnceBeforeFrame();
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            }
+            if (m_welded)
+                return true;
+            return false;
+        }
+
         public override void UpdateBeforeSimulation()
         {
             base.UpdateBeforeSimulation();
@@ -536,9 +470,17 @@ namespace Sandbox.Game.Entities.Cube
             {
                 //Debug.Assert(m_constraint != null, "Rotor constraint is not created although it should be!");
             }
+            if (CheckVelocities())
+                return;
 
             if (m_rotorGrid == null || SafeConstraint == null)
                 return;
+            if(SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
+            {
+                SafeConstraint.Enabled = false;
+                return;
+            }
+
             var oldAngle = m_currentAngle;
             m_currentAngle = HkLimitedHingeConstraintData.GetCurrentAngle(SafeConstraint);
             if (oldAngle != m_currentAngle)
@@ -624,7 +566,7 @@ namespace Sandbox.Game.Entities.Cube
                 var axisAPerp = PositionComp.LocalMatrix.Forward;
                 var axisB = rotor.PositionComp.LocalMatrix.Up;
                 var axisBPerp = rotor.PositionComp.LocalMatrix.Forward;
-                data.SetInBodySpace(ref posA, ref posB, ref axisA, ref axisB, ref axisAPerp, ref axisBPerp);
+                data.SetInBodySpace(posA, posB, axisA, axisB, axisAPerp, axisBPerp, CubeGrid.Physics, m_rotorGrid.Physics);
                 m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
 
                 m_constraint.WantRuntime = true;
@@ -641,6 +583,7 @@ namespace Sandbox.Game.Entities.Cube
                     OnConstraintAdded(GridLinkTypeEnum.Logical, m_rotorGrid);
                 }
                 m_isAttached = true;
+                m_rotorGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
                 return true;
             }
 
@@ -655,7 +598,7 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(m_motor != null);
             m_motor.Dispose();
             base.Detach(updateGroup, reattach);
-
+            
             return true;
         }
 
@@ -677,6 +620,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         event Action<bool> LimitReached;
+        private bool m_welded;
         event Action<bool> Sandbox.ModAPI.IMyMotorStator.LimitReached
         {
             add { LimitReached += value; }
@@ -687,6 +631,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             return (m_rotorGrid != null && m_rotorGrid.Physics != null);
         }
+
         public void AttachRotor()
         {
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -700,17 +645,12 @@ namespace Sandbox.Game.Entities.Cube
             this.Detach(true, false);
         }
 
-        void OnDetachRotorBtnClick()
-        {
-            this.SyncObject.ChangeRotorDisplacement(0.0f);
-            this.SyncObject.DetachRotor();
-        }
         #region Motor API interface
         bool IMyMotorStator.IsAttached { get { return m_isAttached; } }
         float IMyMotorStator.Angle { get { return m_currentAngle; } }
         float IMyMotorStator.Torque { get { return Torque; } }
         float IMyMotorStator.BrakingTorque { get { return BrakingTorque; } }
-        float IMyMotorStator.Velocity { get { return GetTargetVelocityRPM(); } }
+        float IMyMotorStator.Velocity { get { return TargetVelocityRPM; } }
         float IMyMotorStator.LowerLimit { get { return m_minAngle; } }
         float IMyMotorStator.UpperLimit { get { return m_maxAngle; } }
         float IMyMotorStator.Displacement { get { return m_dummyDisplacement; } }

@@ -1,12 +1,10 @@
 ﻿#region Using
 
 using Sandbox.Common;
-
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using System;
 using System.Text;
-
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Utils;
 
@@ -65,6 +63,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        public bool SpeedInKmH;
         private float m_speed;
         public float Speed
         {
@@ -208,19 +207,29 @@ namespace Sandbox.Game.Gui
         }
         private float m_fuelRemainingTime;
 
-        public MyPowerStateEnum PowerState
+		private bool m_allEnabledRecently = false;
+		public bool AllEnabledRecently
+		{
+			get { return m_allEnabledRecently; }
+			set
+			{
+				m_allEnabledRecently = value;
+			}
+		}
+
+        public MyResourceStateEnum ResourceState
         {
-            get { return m_powerState; }
+            get { return m_resourceState; }
             set
             {
-                if (m_powerState != value)
+                if (m_resourceState != value)
                 {
-                    m_powerState = value;
+                    m_resourceState = value;
                     m_needsRefresh = true;
                 }
             }
         }
-        private MyPowerStateEnum m_powerState;
+        private MyResourceStateEnum m_resourceState;
 
         public bool DampenersEnabled
         {
@@ -294,10 +303,13 @@ namespace Sandbox.Game.Gui
                 items[(int)LineEnum.Mass].Value.Clear().Append("-").Append(" kg");
             else
                 items[(int)LineEnum.Mass].Value.Clear().AppendInt32(Mass).Append(" kg");
-            items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");
+            if(SpeedInKmH)
+                items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed * 3.6f, 1).Append(" km/h");
+            else
+                items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");
 
             var powerState = items[(int)LineEnum.PowerState];
-            if (PowerState == MyPowerStateEnum.NoPower)
+            if (ResourceState == MyResourceStateEnum.NoPower)
             {
                 powerState.Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNoPower));
                 powerState.Visible = true;
@@ -306,13 +318,13 @@ namespace Sandbox.Game.Gui
                 powerState.Visible = false;
 
             var powerUsage = items[(int)LineEnum.PowerUsage];
-            if (PowerState == MyPowerStateEnum.OverloadBlackout || PowerState == MyPowerStateEnum.OverloadAdaptible)
+            if (ResourceState == MyResourceStateEnum.OverloadBlackout || ResourceState == MyResourceStateEnum.OverloadAdaptible)
                 powerUsage.NameFont = powerUsage.ValueFont = MyFontEnum.Red;
             else
                 powerUsage.NameFont = powerUsage.ValueFont = null;
 
             powerUsage.Value.Clear();
-            if (PowerState == MyPowerStateEnum.OverloadBlackout)
+            if (ResourceState == MyResourceStateEnum.OverloadBlackout)
                 powerUsage.Value.AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoPowerOverload));
             else
                 powerUsage.Value.AppendDecimal(PowerUsage * 100, 2).Append(" %");
@@ -325,7 +337,7 @@ namespace Sandbox.Game.Gui
 
             var fuelTime = items[(int)LineEnum.FuelTime];
             fuelTime.Value.Clear();
-            if (PowerState != MyPowerStateEnum.NoPower)
+            if (ResourceState != MyResourceStateEnum.NoPower)
             {
                 MyValueFormatter.AppendTimeInBestUnit(FuelRemainingTime * 3600, fuelTime.Value);
                 fuelTime.Visible = true;

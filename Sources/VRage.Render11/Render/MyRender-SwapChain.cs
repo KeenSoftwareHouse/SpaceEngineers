@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using SharpDX;
+﻿using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using VRageMath;
 using VRageRender.Resources;
 using Resource = SharpDX.Direct3D11.Resource;
-using System.Diagnostics;
 
-using System.Timers;
 
 namespace VRageRender
 {
@@ -48,17 +44,57 @@ namespace VRageRender
             }
         }
 
-        public static int Resolution(this MyShadowsQuality shadowQuality)
+        public static int ShadowCascadeResolution(this MyShadowsQuality shadowQuality)
         {
             switch (shadowQuality)
             {
                 case MyShadowsQuality.LOW:
                     return 512;
+				case MyShadowsQuality.MEDIUM:
+					return 1024;
                 case MyShadowsQuality.HIGH:
                     return 1024;
             }
             return -1;
         }
+
+		public static int BackOffset(this MyShadowsQuality shadowQuality)
+		{
+			switch(shadowQuality)
+			{
+				case MyShadowsQuality.LOW:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+				case MyShadowsQuality.MEDIUM:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+				case MyShadowsQuality.HIGH:
+					return (int)MyRender11.Settings.ShadowCascadeZOffset;
+			}
+			return -1;
+		}
+
+		public static float ShadowCascadeSplit(this MyShadowsQuality shadowQuality, int cascade)
+		{
+			if (cascade == 0)
+				return 1.0f;
+
+            var lastCascadeSplit = MyRender11.Settings.ShadowCascadeMaxDistance;
+			switch(shadowQuality)
+			{
+				case MyShadowsQuality.MEDIUM:
+                    lastCascadeSplit *= MyRender11.Settings.ShadowCascadeMaxDistanceMultiplierMedium;
+					break;
+				case MyShadowsQuality.HIGH:
+                    lastCascadeSplit *= MyRender11.Settings.ShadowCascadeMaxDistanceMultiplierHigh;
+					break;
+			}
+			//float lerpAmount = 0.00f;
+			var spreadFactor = MyRender11.Settings.ShadowCascadeSpreadFactor;
+			float logSplit = (float)Math.Pow(lastCascadeSplit, (cascade + spreadFactor) / (4.0 + spreadFactor));
+			//float uniformSplit = 1.0f + (cascade4 - 1.0f) * cascade / 4.0f;
+			//float practicalSplit = MathHelper.Lerp(logSplit, uniformSplit, lerpAmount);
+			//float usedSplit = practicalSplit;
+			return logSplit;
+		}
 
         public static int MipmapsToSkip(this MyTextureQuality quality, int width, int height)
         {
@@ -123,6 +159,16 @@ namespace VRageRender
             return MyShaderHelpers.FormatMacros(MyRender11.ShaderMultisamplingDefine());
         }
 
+		internal static string ShaderCascadesNumberDefine()
+		{
+			return "CASCADES_NUM " + MyRender11.Settings.ShadowCascadeCount;
+		}
+
+		internal static string ShaderCascadesNumberHeader()
+		{
+			return MyShaderHelpers.FormatMacros(ShaderCascadesNumberDefine());
+		}
+
         internal static OnSettingsChangedDelegate m_settingsChangedListeners;
 
         internal static void RegisterSettingsChangedListener(OnSettingsChangedDelegate func)
@@ -144,6 +190,7 @@ namespace VRageRender
             MyRender11.Log.WriteLine("AntialiasingMode = " + v.AntialiasingMode);
             MyRender11.Log.WriteLine("FoliageDetails = " + v.FoliageDetails);
             MyRender11.Log.WriteLine("MultithreadingEnabled = " + v.MultithreadingEnabled);
+            MyRender11.Log.WriteLine("TonemappingEnabled = " + v.TonemappingEnabled);
             MyRender11.Log.WriteLine("ShadowQuality = " + v.ShadowQuality);
             MyRender11.Log.WriteLine("TextureQuality = " + v.TextureQuality);
             MyRender11.Log.WriteLine("AnisotropicFiltering = " + v.AnisotropicFiltering);
@@ -165,6 +212,11 @@ namespace VRageRender
             MyRenderProxy.Settings.EnableCameraInterpolation = settings.InterpolationEnabled;
             MyRenderProxy.Settings.EnableObjectInterpolation = settings.InterpolationEnabled;
 
+            MyRenderProxy.Settings.GrassDensityFactor = settings.GrassDensityFactor;
+
+     //       if(settings.GrassDensityFactor != prevSettings.GrassDensityFactor)
+     //           MyRenderProxy.ReloadGrass();
+
             if (settings.ShadowQuality != prevSettings.ShadowQuality)
             {
                 MyShadows.ResizeCascades();
@@ -185,7 +237,8 @@ namespace VRageRender
 
             if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
             {
-                UpdateTextureSampler();
+                UpdateTextureSampler(m_textureSamplerState, TextureAddressMode.Wrap);
+                UpdateTextureSampler(m_alphamaskarraySamplerState, TextureAddressMode.Clamp);
             }
             
             if(settings.TextureQuality != prevSettings.TextureQuality)
@@ -211,6 +264,7 @@ namespace VRageRender
         internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA; } }
 
         internal static bool CommandsListsSupported { get; set; }
+        internal static bool IsIntelBrokenCubemapsWorkaround { get; set; }
 
         internal static bool DeferredContextsEnabled { get { return !MyRender11.Settings.ForceImmediateContext && CommandsListsSupported; } }
         internal static bool MultithreadedRenderingEnabled { get { return DeferredContextsEnabled && MyRender11.Settings.EnableParallelRendering && MyRender11.RenderSettings.MultithreadingEnabled; } }
@@ -251,6 +305,7 @@ namespace VRageRender
                 {
                     if (m_screenshot.Value.SizeMult == VRageMath.Vector2.One)
                     {
+                        MyCopyToRT.ClearAlpha(Backbuffer);
                         SaveScreenshotFromResource(Backbuffer.m_resource);
                     }
                     else
@@ -343,6 +398,27 @@ namespace VRageRender
             return !m_settings.Equals(ref settings);
         }
 
+        internal static void FixModeDescriptionForFullscreen(ref ModeDescription md)
+        {
+            var list = m_adapterModes.Get(m_settings.AdapterOrdinal);
+            if (list != null)
+            {
+                for (int i = 0; i < list.Length; i++)
+                {
+                    if (
+                        list[i].Height == m_settings.BackBufferHeight &&
+                        list[i].Width == m_settings.BackBufferWidth &&
+                        list[i].RefreshRate.Numerator == m_settings.RefreshRate)
+                    {
+                        md.Scaling = list[i].Scaling;
+                        md.ScanlineOrdering = list[i].ScanlineOrdering;
+                        md.RefreshRate = list[i].RefreshRate;
+                        break;
+                    }
+                }
+            }
+        }
+
         internal static void RestoreFullscreenMode()
         {
             if (!m_changeToFullscreen.HasValue)
@@ -358,23 +434,7 @@ namespace VRageRender
                     md.RefreshRate.Numerator = m_settings.RefreshRate;
                     md.RefreshRate.Denominator = 1000;
 
-                    var list = m_adapterModes[m_settings.AdapterOrdinal];
-                    if (list != null)
-                    {
-                        for (int i = 0; i < list.Length; i++)
-                        {
-                            if (
-                                list[i].Height == m_settings.BackBufferHeight &&
-                                list[i].Width == m_settings.BackBufferWidth &&
-                                list[i].RefreshRate.Numerator == m_settings.RefreshRate)
-                            {
-                                md.Scaling = list[i].Scaling;
-                                md.ScanlineOrdering = list[i].ScanlineOrdering;
-                                md.RefreshRate = list[i].RefreshRate;
-                                break;
-                            }
-                        }
-                    }
+                    FixModeDescriptionForFullscreen(ref md);
 
                     m_changeToFullscreen = md;
                 }
@@ -395,7 +455,7 @@ namespace VRageRender
                     var outputId = m_adapterInfoList[m_settings.AdapterOrdinal].OutputId;
 
                     m_swapchain.ResizeTarget(ref md);
-                    m_swapchain.SetFullscreenState(true, GetFactory().Adapters[adapterDevId].Outputs[outputId]);
+                    m_swapchain.SetFullscreenState(true, GetFactory().Adapters[adapterDevId].Outputs.Length > outputId ? GetFactory().Adapters[adapterDevId].Outputs[outputId] : null);
 
                     md.RefreshRate.Numerator = 0;
                     md.RefreshRate.Denominator = 0;
@@ -407,7 +467,10 @@ namespace VRageRender
                 }
                 catch(SharpDX.SharpDXException e)
                 {
-                    // there might be some fatal exception, or minor exception saying that windows is overlapped/has no mouse focus and going to fullscreen should be done later
+                    if(e.ResultCode == SharpDX.DXGI.ResultCode.Unsupported) 
+                        m_changeToFullscreen = null;
+
+                    MyRender11.Log.WriteLine("TryChangeToFullscreen failed with " + e.ResultCode);
                 }
             }
         }
@@ -433,8 +496,10 @@ namespace VRageRender
             MyRender11.Log.WriteLine("}");
         }
 
-        internal static void CheckAdapterChange(MyRenderDeviceSettings settings)
+        internal static void CheckAdapterChange(ref MyRenderDeviceSettings settings)
         {
+            settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
+
             bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
 
             if (differentAdapter)
@@ -461,6 +526,7 @@ namespace VRageRender
             LogSettings(ref settings);
 
             CommandsListsSupported = m_adapterInfoList[m_settings.AdapterOrdinal].MultithreadedRenderingSupported;
+            IsIntelBrokenCubemapsWorkaround = m_adapterInfoList[m_settings.AdapterOrdinal].Priority == 1; // 1 is intel
 
             bool deviceRemoved = false;
 
@@ -487,26 +553,10 @@ namespace VRageRender
                 md.Width = settings.BackBufferWidth;
                 md.Scaling = DisplayModeScaling.Unspecified;
                 md.ScanlineOrdering = DisplayModeScanlineOrder.Progressive;
-                md.RefreshRate.Numerator = settings.RefreshRate;
+                md.RefreshRate.Numerator = 60000;
                 md.RefreshRate.Denominator = 1000;
 
-                var list = m_adapterModes[m_settings.AdapterOrdinal];
-                if (list != null)
-                {
-                    for (int i = 0; i < list.Length; i++)
-                    {
-                        if (
-                            list[i].Height == settings.BackBufferHeight &&
-                            list[i].Width == settings.BackBufferWidth &&
-                            list[i].RefreshRate.Numerator == settings.RefreshRate)
-                        {
-                            md.Scaling = list[i].Scaling;
-                            md.ScanlineOrdering = list[i].ScanlineOrdering;
-                            md.RefreshRate = list[i].RefreshRate;
-                            break;
-                        }
-                    }
-                }
+                FixModeDescriptionForFullscreen(ref md);
 
                 // to fullscreen
                 if (settings.WindowMode == MyWindowModeEnum.Fullscreen)

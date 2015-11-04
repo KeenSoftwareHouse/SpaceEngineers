@@ -17,16 +17,21 @@ using Sandbox.Common.ObjectBuilders;
 using VRage;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using VRage.ObjectBuilders;
+using Sandbox.Engine.Physics;
+using VRage.ModAPI;
+using System.Diagnostics;
+using Sandbox.Game.Entities.Character;
 
 #endregion
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncFloatingObjects
+    public class MySyncFloatingObjects
     {
-        MyFloatingObjects m_floatingObjects;
-        static System.Collections.Generic.List<Havok.HkRigidBody> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkRigidBody>();
+        static MyFloatingObjects m_floatingObjects;
+        static System.Collections.Generic.List<Havok.HkBodyCollision> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkBodyCollision>();
 
         struct FloatingObjectsData
         {
@@ -34,13 +39,14 @@ namespace Sandbox.Game.Multiplayer
             public List<MyFloatingObject> Instances;
         }
         Dictionary<int, FloatingObjectsData> m_sortingMap = new Dictionary<int, FloatingObjectsData>();
+        static List<MakeStableEntityData> m_tmpStableData = new List<MakeStableEntityData>();
+        static List<long> m_tmpNonStableIds = new List<long>();
 
         [MessageId(1630, P2PMessageEnum.Unreliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         public struct FloatingObjectPositionUpdateMsg : IEntityMessage
         {
             // 68 B total
-
             public long EntityId;
 
             public Vector3D Position;
@@ -59,6 +65,8 @@ namespace Sandbox.Game.Multiplayer
         }
         public static int PositionUpdateMsgSize = BlitSerializer<FloatingObjectPositionUpdateMsg>.StructSize;
 
+        public const int MAX_SYNC_ON_REQUEST = 5;
+        public static List<MyFloatingObject> tmp_list = new List<MyFloatingObject>(MAX_SYNC_ON_REQUEST);
 
         [MessageId(10150, P2PMessageEnum.Reliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -121,6 +129,53 @@ namespace Sandbox.Game.Multiplayer
             public MyFixedPoint Amount;
         }
 
+        [MessageId(10152, P2PMessageEnum.Reliable)]
+        public struct AddFloatingObjectMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+
+            public MyFixedPoint Amount;
+        }
+
+        [MessageId(10155, P2PMessageEnum.Unreliable)]
+        struct MakeStableBatchMsg
+        {
+            public List<MakeStableEntityData> StableObjects;
+        }
+
+        public struct MakeStableEntityData
+        {
+            public long EntityId;
+            public Vector3D Position;
+            public Vector3D Forward;
+            public Vector3D Up;
+
+            public MyPositionAndOrientation GetPositionAndOrientation()
+            {
+                return new MyPositionAndOrientation(Position, Forward, Up);
+            }
+        }
+
+        struct RelativeEntityData
+        {
+            public long EntityId;
+            public HalfVector3 RelPosition;
+            public HalfVector3 RelForward;
+            public HalfVector3 RelUp;
+        }
+
+        [MessageId(10156, P2PMessageEnum.Unreliable)]
+        struct MakeUnstableBatchMsg
+        {
+            public List<long> Entities;
+        }
+
+        [MessageId(10157, P2PMessageEnum.Unreliable)]
+        struct MakeStableBatchReqMsg
+        {
+            public List<long> Entities;
+        }
 
         struct CreatedFloatingObject
         {
@@ -139,6 +194,13 @@ namespace Sandbox.Game.Multiplayer
         struct FloatingObjectsCreateMsg
         {
             public List<CreatedFloatingObject> FloatingObjects;
+        }
+
+        [MessageId(10154, P2PMessageEnum.Reliable)]
+        struct FloatingObjectRequestPosMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
         }
 
         class FloatingObjectsSerializer : ISerializer<FloatingObjectsCreateMsg>
@@ -208,23 +270,169 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        class MakeStableBatchReqSerializer : ISerializer<MakeStableBatchReqMsg>
+        {
+            void ISerializer<MakeStableBatchReqMsg>.Serialize(ByteStream destination, ref MakeStableBatchReqMsg data)
+            {
+                destination.Write7BitEncodedInt(data.Entities.Count);
+                for (int i = 0; i < data.Entities.Count; ++i)
+                {
+                    var l = data.Entities[i];
+                    BlitSerializer<long>.Default.Serialize(destination, ref l);
+                }
+            }
+
+            void ISerializer<MakeStableBatchReqMsg>.Deserialize(ByteStream source, out MakeStableBatchReqMsg data)
+            {
+                data = new MakeStableBatchReqMsg();
+                int length = source.Read7BitEncodedInt();
+                data.Entities = new List<long>(length);
+                for (int i = 0; i < length; ++i)
+                {
+                    long id;
+                    BlitSerializer<long>.Default.Deserialize(source, out id);
+                    data.Entities.Add(id);
+                }
+            }
+        }
+
+        class MakeStableBatchSerializer : ISerializer<MakeStableBatchMsg>
+        {
+            public void Serialize(ByteStream destination, ref MakeStableBatchMsg data)
+            {
+                var objs = data.StableObjects;
+                var count = objs.Count;
+                destination.Write7BitEncodedInt(count);
+                if (count == 0)
+                    return;
+                var firstIns = objs[0];
+                var firstPos = firstIns.Position;
+                var firstForward = firstIns.Forward;
+                var firstUp = firstIns.Up;
+                BlitSerializer<long>.Default.Serialize(destination, ref firstIns.EntityId);
+                BlitSerializer<Vector3D>.Default.Serialize(destination, ref firstPos);
+                BlitSerializer<Vector3D>.Default.Serialize(destination, ref firstForward);
+                BlitSerializer<Vector3D>.Default.Serialize(destination, ref firstUp);
+                for (int i = 1; i < count; ++i)
+                {
+                    var ins = objs[i];
+                    BlitSerializer<long>.Default.Serialize(destination, ref ins.EntityId);
+                    HalfVector3 rel = (Vector3)(ins.Position - firstPos);
+                    BlitSerializer<HalfVector3>.Default.Serialize(destination, ref rel);
+                    rel = (Vector3)(ins.Forward - firstForward);
+                    BlitSerializer<HalfVector3>.Default.Serialize(destination, ref rel);
+                    rel = (Vector3)(ins.Up - firstUp);
+                    BlitSerializer<HalfVector3>.Default.Serialize(destination, ref rel);
+                }
+            }
+
+            public void Deserialize(ByteStream source, out MakeStableBatchMsg data)
+            {
+                data = new MakeStableBatchMsg();
+                var count = source.Read7BitEncodedInt();
+                var objs = new List<MakeStableEntityData>(count);
+                if (count == 0)
+                    return;
+                var firstData = new MakeStableEntityData();
+                firstData.EntityId = source.ReadInt64();
+                BlitSerializer<Vector3D>.Default.Deserialize(source, out firstData.Position);
+                BlitSerializer<Vector3D>.Default.Deserialize(source, out firstData.Forward);
+                BlitSerializer<Vector3D>.Default.Deserialize(source, out firstData.Up);
+                objs.Add(firstData);
+                for (int i = 1; i < count; ++i)
+                {
+                    HalfVector3 tmp;
+                    var newIns = new MakeStableEntityData();
+                    BlitSerializer<long>.Default.Deserialize(source, out newIns.EntityId);
+                    BlitSerializer<HalfVector3>.Default.Deserialize(source, out tmp);
+                    newIns.Position = firstData.Position + tmp;
+                    BlitSerializer<HalfVector3>.Default.Deserialize(source, out tmp);
+                    newIns.Forward = firstData.Forward + tmp;
+                    BlitSerializer<HalfVector3>.Default.Deserialize(source, out tmp);
+                    newIns.Up = firstData.Up + tmp;
+                    objs.Add(newIns);
+                }
+                data.StableObjects = objs;
+            }
+        }
+
+        class MakeUnstableBatchSerializer : ISerializer<MakeUnstableBatchMsg>
+        {
+            void ISerializer<MakeUnstableBatchMsg>.Serialize(ByteStream destination, ref MakeUnstableBatchMsg data)
+            {
+                destination.Write7BitEncodedInt(data.Entities.Count);
+                for (int i = 0; i < data.Entities.Count; ++i)
+                {
+                    var l = data.Entities[i];
+                    BlitSerializer<long>.Default.Serialize(destination, ref l);
+                }
+            }
+
+            void ISerializer<MakeUnstableBatchMsg>.Deserialize(ByteStream source, out MakeUnstableBatchMsg data)
+            {
+                data = new MakeUnstableBatchMsg();
+                int length = source.Read7BitEncodedInt();
+                data.Entities = new List<long>(length);
+                for (int i = 0; i < length; ++i)
+                {
+                    long id;
+                    BlitSerializer<long>.Default.Deserialize(source, out id);
+                    data.Entities.Add(id);
+                }
+            }
+        }
 
         public static int PositionUpdateCompressedMsgSize = BlitSerializer<PositionUpdateCompressedMsg>.StructSize;
-
+        public static int MakeStableBatchEntityDataSize = BlitSerializer<MakeStableEntityData>.StructSize;
+        public static int RelativeEntityDataSize = BlitSerializer<RelativeEntityData>.StructSize;
 
         static MySyncFloatingObjects()
         {
             MySyncLayer.RegisterMessage<FloatingObjectPositionUpdateMsg>(OnUpdateCallback, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterMessage<PositionUpdateCompressedMsg>(OnUpdateCompressedCallback, MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterMessage<RemoveFloatingObjectMsg>(RemoveFloatingObjectRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<AddFloatingObjectMsg>(AddFloatingObjectSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<RemoveFloatingObjectMsg>(RemoveFloatingObjectSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<FloatingObjectsCreateMsg>(OnCreateFloatingObjectsCallback, MyMessagePermissions.Any, MyTransportMessageEnum.Request, new FloatingObjectsSerializer());
-        }
+            MySyncLayer.RegisterMessage<FloatingObjectsCreateMsg>(OnCreateFloatingObjectsCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request, new FloatingObjectsSerializer());
+            MySyncLayer.RegisterMessage<FloatingObjectRequestPosMsg>(OnFloatingObjectsRequestPosCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
 
-        public MySyncFloatingObjects()
+            //MySyncLayer.RegisterMessage<MakeStableMsg>(OnMakeStableSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            //MySyncLayer.RegisterMessage<MakeStableReqMsg>(OnMakeStableRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            //MySyncLayer.RegisterMessage<MakeStableReqMsg>(OnMakeStableFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
+            //MySyncLayer.RegisterMessage<MakeUnstableMsg>(OnMakeUnstableSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterMessage<MakeStableBatchReqMsg>(OnMakeStableBatchReq, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request, new MakeStableBatchReqSerializer());
+            MySyncLayer.RegisterMessage<MakeStableBatchReqMsg>(OnMakeStableBatchFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure, new MakeStableBatchReqSerializer());
+            MySyncLayer.RegisterMessage<MakeStableBatchMsg>(OnMakeStableBatchSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success, new MakeStableBatchSerializer());
+            MySyncLayer.RegisterMessage<MakeUnstableBatchMsg>(OnMakeUnstableBatchSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success, new MakeUnstableBatchSerializer());
+        }        
+
+        public MySyncFloatingObjects(MyFloatingObjects floatingObjects)
         {
+            m_floatingObjects = floatingObjects;
         }
 
-        public void OnRemoveFloatingObject(MyFloatingObject floatingObject, MyFixedPoint amount)
+        public void SendRemoveFloatingObjectRequest(MyFloatingObject floatingObject, MyFixedPoint amount)
+        {
+            System.Diagnostics.Debug.Assert(!Sync.IsServer);
+            var msg = new RemoveFloatingObjectMsg();
+            msg.EntityId = floatingObject.EntityId;
+            msg.Amount = amount;
+         
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        public void SendAddFloatingObject(MyFloatingObject floatingObject, MyFixedPoint amount)
+        {
+            System.Diagnostics.Debug.Assert(Sync.IsServer);
+            var msg = new AddFloatingObjectMsg();
+            msg.EntityId = floatingObject.EntityId;
+            msg.Amount = amount;
+
+            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+        }
+
+        public void SendRemoveFloatingObjectSuccess(MyFloatingObject floatingObject, MyFixedPoint amount)
         {
             System.Diagnostics.Debug.Assert(Sync.IsServer);
             var msg = new RemoveFloatingObjectMsg();
@@ -234,6 +442,14 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
         }
 
+        static void RemoveFloatingObjectRequest(ref RemoveFloatingObjectMsg msg, MyNetworkClient sender)
+        {
+            Debug.Assert(Sync.IsServer);
+            MyFloatingObject floatingObject;
+            if (MyEntities.TryGetEntityById<MyFloatingObject>(msg.EntityId, out floatingObject))
+                MyFloatingObjects.RemoveFloatingObject(floatingObject, msg.Amount);
+        }
+
         static void RemoveFloatingObjectSuccess(ref RemoveFloatingObjectMsg msg, MyNetworkClient sender)
         {
             MyFloatingObject floatingObject;
@@ -241,7 +457,14 @@ namespace Sandbox.Game.Multiplayer
                 MyFloatingObjects.RemoveFloatingObject(floatingObject, msg.Amount);
         }
 
-        public void UpdatePosition(MyFloatingObject floatingObject)
+        static void AddFloatingObjectSuccess(ref AddFloatingObjectMsg msg, MyNetworkClient sender)
+        {
+            MyFloatingObject floatingObject;
+            if (MyEntities.TryGetEntityById<MyFloatingObject>(msg.EntityId, out floatingObject))
+                MyFloatingObjects.AddFloatingObjectAmount(floatingObject, msg.Amount);
+        }
+               
+        public static void UpdatePosition(MyFloatingObject floatingObject, bool toAll = true, MyNetworkClient receiver = null )
         {
             var m = floatingObject.WorldMatrix;
 
@@ -267,12 +490,20 @@ namespace Sandbox.Game.Multiplayer
             //          msg.SetVelocities(floatingObject.Physics.LinearVelocity, floatingObject.Physics.AngularVelocity);
             //    }
             //}
-
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            if (toAll | receiver == null)
+            {
+                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            }
+            else
+            {
+                MySession.Static.SyncLayer.SendMessage(ref msg, receiver.SteamUserId);
+            }
         }
 
         static void OnUpdateCallback(ref FloatingObjectPositionUpdateMsg msg, MyNetworkClient sender)
         {
+            Debug.Assert(!Sync.IsServer);
+
             MyEntity entity;
             if (MyEntities.TryGetEntityById(msg.EntityId, out entity))
             {
@@ -280,19 +511,21 @@ namespace Sandbox.Game.Multiplayer
                 if (floatingObject != null)
                 {
                     MatrixD matrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
-
                     Vector3D translation = floatingObject.PositionComp.GetPosition();
                     //Quaternion rotation = Quaternion.CreateFromRotationMatrix(floatingObject.WorldMatrix.GetOrientation());
                     Quaternion rotation = Quaternion.Identity;
                     m_rigidBodyList.Clear();
-                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsShape(floatingObject.Physics.RigidBody.GetShape(), ref translation, ref rotation, m_rigidBodyList, 0);
-                    if (m_rigidBodyList.Count == 0)
-                    {
-                        floatingObject.PositionComp.SetWorldMatrix(matrix, sender);
-                    }
+                    
+                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsShape(floatingObject.Physics.RigidBody.GetShape(), ref translation, ref rotation, m_rigidBodyList, Sandbox.Engine.Physics.MyPhysics.NotCollideWithStaticLayer);
+                    
+                    //if (m_rigidBodyList.Count == 0 || MyPerGameSettings.EnableFloatingObjectsActiveSync)
+                    //{
+                    //    floatingObject.PositionComp.SetWorldMatrix(matrix, sender);
+                    //}
+
                     if (floatingObject.Physics != null)
                     {
-                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0] == floatingObject.Physics.RigidBody)
+                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0].Body == floatingObject.Physics.RigidBody)
                         {
                             floatingObject.PositionComp.SetWorldMatrix(matrix, sender);
                         }
@@ -392,7 +625,7 @@ namespace Sandbox.Game.Multiplayer
                 data.Instances.Clear();
             }
 
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
 
 
             //foreach (var floatingObject in floatingObjects)
@@ -420,7 +653,7 @@ namespace Sandbox.Game.Multiplayer
                     var objectBuilder = new MyObjectBuilder_FloatingObject();
                     objectBuilder.Item = new MyObjectBuilder_InventoryItem();
                     objectBuilder.Item.Amount = instance.Amount;
-                    objectBuilder.Item.Content = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
+                    objectBuilder.Item.Content = MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
                     objectBuilder.EntityId = instance.Location.EntityId;
                     objectBuilder.PositionAndOrientation = new MyPositionAndOrientation(instance.Location.Position, instance.Location.Forward, instance.Location.Up);
                     objectBuilder.PersistentFlags = MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.CastShadows;
@@ -433,6 +666,139 @@ namespace Sandbox.Game.Multiplayer
                     }
                 }
             }
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
+        }
+
+        public static void RequestPositionFromServer(MyFloatingObject floatingObject)
+        {
+            FloatingObjectRequestPosMsg msg = new FloatingObjectRequestPosMsg();
+            msg.EntityId = floatingObject.EntityId;
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
+        }
+
+        private static void OnFloatingObjectsRequestPosCallback(ref FloatingObjectRequestPosMsg msg, MyNetworkClient sender)
+        {
+            MyFloatingObject floatingObject;
+            MyEntity entity = null;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            
+            floatingObject = entity as MyFloatingObject;
+            if (floatingObject != null)
+            {
+
+                MatrixD matrix = floatingObject.WorldMatrix;
+
+                Vector3D translation = matrix.Translation;
+                Quaternion rotation =  Quaternion.CreateFromRotationMatrix(matrix.GetOrientation());
+
+                if (MyPerGameSettings.EnableFloatingObjectsActiveSync)
+                {
+                    m_rigidBodyList.Clear();
+                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsShape(floatingObject.Physics.RigidBody.GetShape(), ref translation, ref rotation, m_rigidBodyList, Sandbox.Engine.Physics.MyPhysics.NotCollideWithStaticLayer);
+
+                    tmp_list.Clear();
+
+                    foreach (var body in m_rigidBodyList)
+                    {
+                        var physicsBody = body.Body.UserObject as MyPhysicsBody;
+                        if (physicsBody != null)
+                        {
+                            var collidingFloatingObject = physicsBody.Entity as MyFloatingObject;
+                            if (collidingFloatingObject != null && !tmp_list.Contains(collidingFloatingObject))
+                            {
+                                tmp_list.Add(collidingFloatingObject);
+                                if (tmp_list.Count > MAX_SYNC_ON_REQUEST)
+                                    break;
+                            }
+                        }
+                    }
+
+                    foreach (var floatOb in tmp_list)
+                    {
+                        UpdatePosition(floatOb, false, sender);
+                    }
+                }
+                
+                UpdatePosition(floatingObject, false, sender);
+            }
+            else
+            {
+                //System.Diagnostics.Debug.Fail("Requested floating object wasn't found!");
+            }
+        }
+
+        public void SendMakeStableBatchReq(List<long> entities)
+        {  
+            MakeStableBatchReqMsg msg = new MakeStableBatchReqMsg();
+            msg.Entities = new List<long>(entities);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void OnMakeStableBatchReq(ref MakeStableBatchReqMsg msg, MyNetworkClient sender)
+        {
+            var character = sender.FirstPlayer.Character;
+            if (character == null)
+                return;
+            m_floatingObjects.ProcessStableBatchReq(msg.Entities, character, m_tmpStableData, m_tmpNonStableIds);
+
+            if (m_tmpStableData.Count > 0)
+            {
+                var totalSize = m_tmpStableData.Count * RelativeEntityDataSize + MakeStableBatchEntityDataSize;
+                if (totalSize > 1000)
+                {
+                    var desired = 1000 / RelativeEntityDataSize;
+                    var tmpList = new List<MakeStableEntityData>();
+                    for (int i = 0; i < m_tmpStableData.Count; i += desired)
+                    {
+                        int count = Math.Min(i + desired, m_tmpStableData.Count);
+                        for (int j = i; j < count; ++j)
+                            tmpList.Add(m_tmpStableData[j]);
+                        var partMsg = new MakeStableBatchMsg() { StableObjects = tmpList };
+                        Sync.Layer.SendMessage(ref partMsg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                        tmpList.Clear();
+                    }                   
+                }
+                else
+                {
+                    var batchMsg = new MakeStableBatchMsg() { StableObjects = m_tmpStableData };
+                    Sync.Layer.SendMessage(ref batchMsg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                }
+                m_tmpStableData.Clear();
+            }
+          
+            if (m_tmpNonStableIds.Count > 0)
+            {
+                msg = new MakeStableBatchReqMsg() { Entities = m_tmpNonStableIds };
+                Sync.Layer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Failure);
+                m_tmpNonStableIds.Clear();
+            }
+        }
+
+        static void OnMakeStableBatchFailure(ref MakeStableBatchReqMsg msg, MyNetworkClient sender)
+        {
+            m_floatingObjects.MakeStableFailed(msg.Entities);
+        }
+
+        static void OnMakeStableBatchSuccess(ref MakeStableBatchMsg msg, MyNetworkClient sender)
+        {
+            m_floatingObjects.MakeStable(msg.StableObjects);
+        }
+
+        public void SendMakeUnstable(List<long> objects)
+        {
+            var msg = new MakeUnstableBatchMsg()
+            {
+                Entities = objects,
+            };
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+        }
+
+        private static void OnMakeUnstableBatchSuccess(ref MakeUnstableBatchMsg msg, MyNetworkClient sender)
+        {
+            m_floatingObjects.MakeUnstable(msg.Entities);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Engine.Networking;
 using SteamSDK;
 using System;
@@ -10,7 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
+using VRage.ObjectBuilders;
 using VRage.Trace;
 
 namespace Sandbox.Engine.Multiplayer
@@ -97,7 +96,7 @@ namespace Sandbox.Engine.Multiplayer
                         if (m_receiveMsg.Stream.Length > 0)
                         {
                             MyObjectBuilder_World worldData;
-                            if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(m_receiveMsg.Stream, out worldData))
+                            if (MyObjectBuilderSerializer.DeserializeGZippedXML(m_receiveMsg.Stream, out worldData))
                             {
                                 WorldData = worldData;
                                 State = MyDownloadWorldStateEnum.Success;

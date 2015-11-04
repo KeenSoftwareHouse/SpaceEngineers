@@ -105,6 +105,8 @@ namespace VRageRender
 
         internal int[] BonesMapping;
 
+        internal Vector3 CenterOffset;
+
         internal MyMeshMaterialId Material;
     }
 
@@ -129,7 +131,8 @@ namespace VRageRender
     struct MyMeshInfo
     {
         internal int LodsNum;
-        internal MyStringId Name;
+        internal string Name;
+        internal MyStringId NameKey;
         internal bool Dynamic;
         internal bool RuntimeGenerated;
         internal bool Loaded;
@@ -201,10 +204,16 @@ namespace VRageRender
         internal int Part;
     }
 
+    // fractures are the only asset existing over sessions (performance reasons) and some parts need to be recreated after they get dropped on session end (like material ids)
+    struct MyRuntimeMeshPersistentInfo
+    {
+        internal MySectionInfo[] Sections;
+    }
+
     static class MyMeshes
     {
-        static Dictionary<MyStringId, MeshId> MeshNameIndex = new Dictionary<MyStringId, MeshId>();
-        static Dictionary<MyStringId, MeshId> RuntimeMeshNameIndex = new Dictionary<MyStringId, MeshId>();
+        static Dictionary<MyStringId, MeshId> MeshNameIndex = new Dictionary<MyStringId, MeshId>(MyStringId.Comparer);
+        static Dictionary<MyStringId, MeshId> RuntimeMeshNameIndex = new Dictionary<MyStringId, MeshId>(MyStringId.Comparer);
         internal static MyFreelist<MyMeshInfo> Meshes = new MyFreelist<MyMeshInfo>(4096);
         internal static MyFreelist<MyLodMeshInfo> Lods = new MyFreelist<MyLodMeshInfo>(4096);
         internal static MyMeshBuffers[] LodMeshBuffers = new MyMeshBuffers[4096];
@@ -218,6 +227,8 @@ namespace VRageRender
         static Dictionary<MyMeshPart, VoxelPartId> VoxelPartIndex = new Dictionary<MyMeshPart,VoxelPartId>();
 
 
+        static Dictionary<MeshId, MyRuntimeMeshPersistentInfo> InterSessionData = new Dictionary<MeshId, MyRuntimeMeshPersistentInfo>();
+        static HashSet<MeshId> InterSessionDirty = new HashSet<MeshId>();
 
         static HashSet<MeshId>[] State;
 
@@ -295,21 +306,31 @@ namespace VRageRender
             }
         }
 
-        internal static MeshId GetMeshId(MyStringId name)
+        internal static MeshId GetMeshId(MyStringId nameKey)
         {
-            if (RuntimeMeshNameIndex.ContainsKey(name))
+            if (RuntimeMeshNameIndex.ContainsKey(nameKey))
             {
-                return RuntimeMeshNameIndex[name];
+                var id = RuntimeMeshNameIndex[nameKey];
+
+                if(InterSessionDirty.Contains(id))
+                {
+                    RefreshMaterialIds(id);
+
+                    InterSessionDirty.Remove(id);
+                }
+
+                return id;
             }
 
-            if(!MeshNameIndex.ContainsKey(name))
+            if(!MeshNameIndex.ContainsKey(nameKey))
             {
                 var id = new MeshId{ Index = Meshes.Allocate() };
-                MeshNameIndex[name] = id;
+                MeshNameIndex[nameKey] = id;
 
                 Meshes.Data[id.Index] = new MyMeshInfo
                 {
-                    Name = name,
+                    Name = nameKey.ToString(),
+                    NameKey = nameKey,
                     LodsNum = -1
                 };
 
@@ -318,7 +339,7 @@ namespace VRageRender
                 MoveState(id, MyMeshState.WAITING, MyMeshState.LOADED);
             }
 
-            return MeshNameIndex[name];
+            return MeshNameIndex[nameKey];
         }
 
         internal static void RemoveMesh(MeshId model)
@@ -339,13 +360,17 @@ namespace VRageRender
                     Parts.Free(part.Index);
                 }
 
+                Lods.Data[mesh.Index].Data = new MyMeshRawData();
                 Lods.Free(mesh.Index);
             }
 
             Meshes.Free(model.Index);
 
-            MeshNameIndex.Remove(model.Info.Name);
-            RuntimeMeshNameIndex.Remove(model.Info.Name);
+            if (model.Info.NameKey != MyStringId.NullOrEmpty)
+            {
+                MeshNameIndex.Remove(model.Info.NameKey);
+                RuntimeMeshNameIndex.Remove(model.Info.NameKey);
+            }
 
             //internal static MyFreelist<MyLodMeshInfo> Lods = new MyFreelist<MyLodMeshInfo>(4096);
             //internal static MyFreelist<MyMeshPartInfo1> Parts = new MyFreelist<MyMeshPartInfo1>(8192);
@@ -362,16 +387,22 @@ namespace VRageRender
                 {
                     RemoveMesh(id);
                 }
+                else
+                {
+                    InterSessionDirty.Add(id);
+                }
             }
 
-            foreach (var id in MeshNameIndex.Values.ToArray())
-            {
-                RemoveMesh(id);
-            }
-
+            // remove voxels
             foreach (var id in MeshVoxelInfo.Keys.ToArray())
             {
                 RemoveVoxelCell(id);
+            }
+
+            // remove non-runtime meshes
+            foreach (var id in MeshNameIndex.Values.ToArray())
+            {
+                RemoveMesh(id);
             }
 
             MeshVoxelInfo.Clear();
@@ -449,6 +480,7 @@ namespace VRageRender
                 MyImporterConstants.TAG_BOUNDING_BOX,
                 MyImporterConstants.TAG_BOUNDING_SPHERE,
                 MyImporterConstants.TAG_LODS,
+                MyImporterConstants.TAG_PATTERN_SCALE
             });
             Dictionary<string, object> tagData = importer.GetTagData();
 
@@ -509,6 +541,21 @@ namespace VRageRender
                     storedTangents[i] = VF_Packer.PackTangentSignB4(ref tanW);
                 }
             }
+
+            object patternScale;
+            float PatternScale = 1f;
+            if (tagData.TryGetValue(MyImporterConstants.TAG_PATTERN_SCALE, out patternScale))
+            {
+                PatternScale = (float)patternScale;
+            }
+            if (PatternScale != 1f && texcoords.Length > 0)
+            {
+                for (int i = 0; i < texcoords.Length; ++i )
+                {
+                    texcoords[i] = new HalfVector2(texcoords[i].ToVector2() / PatternScale);
+                }
+            }
+
 
             bool hasBonesInfo = boneIndices.Length > 0 && boneWeights.Length > 0 && boneIndices.Length == verticesNum && boneWeights.Length == verticesNum;
             var bones = (MyModelBone[]) tagData[MyImporterConstants.TAG_BONES];
@@ -636,6 +683,28 @@ namespace VRageRender
 
                     var matId = MyMeshMaterials1.GetMaterialId(materialDesc, contentPath, file);
 
+                    Vector3 centerOffset = Vector3.Zero;
+                    if (materialDesc != null && (materialDesc.Facing == MyFacingEnum.Full || materialDesc.Facing == MyFacingEnum.Impostor))
+                    {
+                        Vector3[] unpackedPos = new Vector3[meshPart.m_indices.Count];
+                        for (int i = 0; i < meshPart.m_indices.Count; i++)
+                        {
+                            HalfVector4 packed = positions[meshPart.m_indices[i]];
+                            Vector3 pos = PositionPacker.UnpackPosition(ref packed);
+                            centerOffset += pos;
+                            unpackedPos[i] = pos;
+                        }
+
+                        centerOffset /= meshPart.m_indices.Count;
+
+                        for (int i = 0; i < meshPart.m_indices.Count; i++)
+                        {
+                            Vector3 pos = unpackedPos[i];
+                            pos -= centerOffset;
+                            positions[meshPart.m_indices[i]] = PositionPacker.PackPosition(ref pos);
+                        }
+                    }
+
                     parts[partIndex] = new MyMeshPartInfo1 
                     {
                         IndexCount = indexCount,
@@ -643,6 +712,8 @@ namespace VRageRender
                         BaseVertex = (int)baseVertex,
                         
                         Material = matId,
+
+                        CenterOffset = centerOffset,
                         
                         BonesMapping = partUsedBonesMap[partIndex]
                     };
@@ -786,16 +857,17 @@ namespace VRageRender
         }
 
         // 1 lod, n parts
-        internal static MeshId CreateRuntimeMesh(MyStringId name, int parts, bool dynamic)
+        internal static MeshId CreateRuntimeMesh(MyStringId nameKey, int parts, bool dynamic)
         {
-            Debug.Assert(!RuntimeMeshNameIndex.ContainsKey(name));
+            Debug.Assert(!RuntimeMeshNameIndex.ContainsKey(nameKey));
 
             var id = new MeshId { Index = Meshes.Allocate() };
-            RuntimeMeshNameIndex[name] = id;
+            RuntimeMeshNameIndex[nameKey] = id;
 
             Meshes.Data[id.Index] = new MyMeshInfo
             {
-                Name = name,
+                Name = nameKey.ToString(),
+                NameKey = nameKey,
                 LodsNum = 1,
                 Dynamic = dynamic,
                 RuntimeGenerated = true
@@ -808,6 +880,18 @@ namespace VRageRender
             return id;
         }
 
+        internal static void RefreshMaterialIds(MeshId mesh)
+        {
+            var sections = InterSessionData[mesh].Sections;
+            var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
+
+            for (int i = 0; i < sections.Length; i++)
+            {
+                var part = PartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = i }];
+                Parts.Data[part.Index].Material = MyMeshMaterials1.GetMaterialId(sections[i].MaterialName);
+            }
+        }
+
         internal static void UpdateRuntimeMesh(
             MeshId mesh,
             ushort[] indices,
@@ -817,6 +901,8 @@ namespace VRageRender
             BoundingBox aabb)
         {
             // get mesh lod 0
+
+            InterSessionData[mesh] = new MyRuntimeMeshPersistentInfo { Sections = sections };
 
             var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
 
@@ -1020,7 +1106,8 @@ namespace VRageRender
 
             Meshes.Data[id.Index] = new MyMeshInfo
             {
-                Name = X.TEXT(String.Format("VoxelCell {0} Lod {1}", coord, lod)),
+                Name = String.Format("VoxelCell {0} Lod {1}", coord, lod),
+                NameKey = MyStringId.NullOrEmpty,
                 LodsNum = 1,
                 Dynamic = false,
                 RuntimeGenerated = true
@@ -1038,30 +1125,14 @@ namespace VRageRender
 
             return id;
         }
-
-        internal struct MyBufferSegment
-        {
-            internal int vertexOffset;
-            internal int vertexCapacity;
-            internal int indexOffset;
-            internal int indexCapacity;
-
-            internal int indexCount;
-            internal int vertexCount;
-        }
-
-        struct MyVoxelCellUpdate
-        {
-            internal short[] indices;
-            internal MyVertexFormatVoxelSingleData[] vertexData;
-            internal int material0;
-            internal int material1;
-            internal int material2;
-        }
-
+      
         internal static void UpdateVoxelCell(MeshId mesh, List<MyClipmapCellBatch> batches)
         {
-            var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
+            var lodMesh = new MyLodMesh { Mesh = mesh, Lod = 0 };
+
+            Debug.Assert(LodMeshIndex.ContainsKey(lodMesh), "Lod mesh not found!");
+            if (!LodMeshIndex.ContainsKey(lodMesh)) return;
+            var lod = LodMeshIndex[lodMesh];
 
             int vertexCapacity = 0;
             int indexCapacity = 0;
@@ -1074,40 +1145,6 @@ namespace VRageRender
                 indexCapacity += batches[i].Indices.Length;
                 vertexCapacity += batches[i].Vertices.Length;
             }
-
-            //for (int i = 0; i < len; i++)
-            //{
-            //    var ilen = batches[i].Indices.Length;
-            //    var vlen = batches[i].Vertices.Length;
-
-            //    var key = new MyVoxelMaterialTriple(batches[i].Material0, batches[i].Material1, batches[i].Material2);
-
-            //    MyBufferSegment entry = new MyBufferSegment();
-
-            //    entry.indexCapacity = ilen;
-            //    entry.vertexCapacity = vlen;
-            //    entry.indexCount = ilen;
-            //    entry.vertexCount = vlen;
-            //    vbAllocations[key] = entry;
-            //}
-
-            //int voffset = 0;
-            //int ioffset = 0;
-
-            //// allocation
-            //var keys = vbAllocations.Keys.ToList();
-            //foreach (var key in keys)
-            //{
-            //    var val = vbAllocations[key];
-            //    val.indexOffset = ioffset;
-            //    val.vertexOffset = voffset;
-            //    ioffset += val.indexCapacity;
-            //    voffset += val.vertexCapacity;
-            //    vbAllocations[key] = val;
-            //}
-
-            //vertexCapacity = voffset;
-            //indexCapacity = ioffset;
 
             var indices = new ushort[indexCapacity];
             var vertices0 = new MyVertexFormatVoxel[vertexCapacity];
@@ -1144,33 +1181,9 @@ namespace VRageRender
                     vertices0[baseVertex + j] = new MyVertexFormatVoxel();
                     vertices0[baseVertex + j].Position = batchVertices[j].Position;
                     vertices0[baseVertex + j].PositionMorph = batchVertices[j].PositionMorph;
-                    
-                    var mat = batchVertices[j].MaterialAlphaIndex;
-                    switch (mat)
-                    {
-                        case 0:
-                            vertices0[baseVertex + j].Weight0 = 1;
-                            break;
-                        case 1:
-                            vertices0[baseVertex + j].Weight1 = 1;
-                            break;
-                        case 2:
-                            vertices0[baseVertex + j].Weight2 = 1;
-                            break;
-                    }
-                    mat = batchVertices[j].MaterialMorph;
-                    switch (mat)
-                    {
-                        case 0:
-                            vertices0[baseVertex + j].Weight0Morph = 1;
-                            break;
-                        case 1:
-                            vertices0[baseVertex + j].Weight1Morph = 1;
-                            break;
-                        case 2:
-                            vertices0[baseVertex + j].Weight2Morph = 1;
-                            break;
-                    }
+
+                    vertices0[baseVertex + j].m_positionMaterials.W = (ushort)batchVertices[j].PackedPositionAndAmbientMaterial.W;
+                    vertices0[baseVertex + j].m_positionMaterialsMorph.W = (ushort)batchVertices[j].PackedPositionAndAmbientMaterialMorph.W;
 
                     vertices1[baseVertex + j] = new MyVertexFormatNormal(batchVertices[j].PackedNormal, batchVertices[j].PackedNormalMorph);
                 }
@@ -1249,6 +1262,7 @@ namespace VRageRender
 
             ResizeVoxelParts(id, lod, 0);
             DisposeLodMeshBuffers(lod);
+            Lods.Data[lod.Index].Data = new MyMeshRawData();
             Lods.Free(lod.Index);
             Meshes.Free(id.Index);
 
@@ -1260,7 +1274,7 @@ namespace VRageRender
 
         static void LoadMesh(MeshId id)
         {
-            var assetName = Meshes.Data[id.Index].Name.ToString();
+            var assetName = Meshes.Data[id.Index].Name;
 
             MyLodMeshInfo meshMainLod = new MyLodMeshInfo
             {
@@ -1303,7 +1317,7 @@ namespace VRageRender
                 MyLodMeshInfo lodMesh = new MyLodMeshInfo
                 {
                     FileName = meshFile,
-                    LodDistance = lodDescriptors[i].Distance
+                    LodDistance = lodDescriptors[i].Distance,
                 };
                 
                 MyMeshPartInfo1 [] lodParts;

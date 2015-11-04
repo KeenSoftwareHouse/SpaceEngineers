@@ -14,6 +14,7 @@
         <string>TextPanel/LargeLCDPanel</string>
         <string>ProgrammableBlock/LargeProgrammableBlock</string>
         <string>Assembler/LargeAssembler</string>
+        <string>AirtightSlideDoor/LargeBlockSlideDoor</string>
         <string>BatteryBlock/LargeBlockBatteryBlock</string>
         <string>Beacon/LargeBlockBeacon</string>
         <string>ButtonPanel/ButtonPanelLarge</string>
@@ -161,6 +162,10 @@
         <string>CameraBlock/LargeCameraBlock</string>
         <string>Thrust/LargeBlockLargeThrust</string>
         <string>Thrust/LargeBlockSmallThrust</string>
+        <string>Thrust/LargeBlockLargeAtmosphericThrust</string>
+        <string>Thrust/LargeBlockSmallAtmosphericThrust</string>
+        <string>Thrust/LargeBlockLargeHydrogenThrust</string>
+        <string>Thrust/LargeBlockSmallHydrogenThrust</string>
         <string>VirtualMass/VirtualMassLarge</string>
         <string>Warhead/LargeWarhead</string>
         <string>Wheel/RealWheel</string>
@@ -173,6 +178,7 @@
         <string>LaserAntenna/LargeBlockLaserAntenna</string>
         <string>OxygenGenerator/(null)</string>
         <string>OxygenTank/(null)</string>
+        <string>OxygenTank/LargeHydrogenTank</string>
         <string>AirVent/(null)</string>
         <string>AirtightHangarDoor/(null)</string>
         <string>OxygenFarm/LargeBlockOxygenFarm</string>
@@ -180,6 +186,7 @@
         <string>UpgradeModule/LargeProductivityModule</string>
         <string>UpgradeModule/LargeEffectivenessModule</string>
         <string>UpgradeModule/LargeEnergyModule</string>
+        <string>JumpDrive/LargeJumpDrive</string>
       </ItemIds>
     </Category>
     <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
@@ -273,6 +280,8 @@
         <string>Drill/SmallBlockDrill</string>
         <string>Gyro/SmallBlockGyro</string>
         <string>LandingGear/SmallBlockLandingGear</string>
+        <string>LargeGatlingTurret/SmallGatlingTurret</string>
+        <string>LargeMissileTurret/SmallMissileTurret</string>
         <string>MergeBlock/SmallShipMergeBlock</string>
         <string>MotorRotor/SmallRotor</string>
         <string>MotorStator/SmallStator</string>
@@ -303,6 +312,10 @@
         <string>CameraBlock/SmallCameraBlock</string>
         <string>Thrust/SmallBlockLargeThrust</string>
         <string>Thrust/SmallBlockSmallThrust</string>
+        <string>Thrust/SmallBlockLargeAtmosphericThrust</string>
+        <string>Thrust/SmallBlockSmallAtmosphericThrust</string>
+        <string>Thrust/SmallBlockLargeHydrogenThrust</string>
+        <string>Thrust/SmallBlockSmallHydrogenThrust</string>
         <string>VirtualMass/VirtualMassSmall</string>
         <string>Warhead/SmallWarhead</string>
         <string>Wheel/SmallRealWheel</string>
@@ -315,7 +328,9 @@
         <string>Cockpit/DBSmallBlockFighterCockpit</string>
         <string>LaserAntenna/SmallBlockLaserAntenna</string>
         <string>OxygenTank/OxygenTankSmall</string>
+        <string>OxygenTank/SmallHydrogenTank</string>
         <string>OxygenGenerator/OxygenGeneratorSmall</string>
+        <string>AirVent/SmallAirVent</string>
       </ItemIds>
     </Category>
     <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
@@ -414,6 +429,8 @@
         <string>InteriorTurret/LargeInteriorTurret</string>
         <string>LargeGatlingTurret/(null)</string>
         <string>LargeMissileTurret/(null)</string>
+        <string>LargeGatlingTurret/SmallGatlingTurret</string>
+        <string>LargeMissileTurret/SmallMissileTurret</string>
         <string>ShipGrinder/LargeShipGrinder</string>
         <string>ShipWelder/LargeShipWelder</string>
         <string>SmallMissileLauncher/LargeMissileLauncher</string>
@@ -556,7 +573,7 @@
         <SubtypeId/>
       </Id>
       <DisplayName>DisplayName_Category_Cockpit</DisplayName>
-      <Name>Cocpits</Name>
+      <Name>Cockpits</Name>
       <ItemIds>
         <string>Cockpit/CockpitOpen</string>
         <string>Cockpit/LargeBlockCockpit</string>

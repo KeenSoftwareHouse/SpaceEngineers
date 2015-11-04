@@ -13,12 +13,13 @@ namespace VRage.Voxels
 {
     partial class MyClipmap
     {
-        private static readonly float[][] m_lodRangeGroups;
+        private static float[][] m_lodRangeGroups;
 
         private static MyBinaryHeap<FrameT, UpdateQueueItem> m_updateQueue = new MyBinaryHeap<FrameT, UpdateQueueItem>(comparer: new UpdateFrameComparer());
         private static HashSet<MyClipmap> m_toRemove = new HashSet<MyClipmap>();
         private static HashSet<MyClipmap> m_notReady = new HashSet<MyClipmap>();
         private static FrameT m_currentFrameIdx;
+        private static List<UpdateQueueItem> m_tmpDebugDraw = new List<UpdateQueueItem>();
 
         static MyClipmap()
         {
@@ -38,7 +39,7 @@ namespace VRage.Voxels
                 var lodRanges = m_lodRangeGroups[group];
                 lodRanges[0] = 0f;
                 int i = 1;
-                int copyStop = Math.Min(lodRanges.Length, lodDistances.Length + 1);
+                int copyStop = Math.Min(lodRanges.Length, lodDistances[group].Length + 1);
                 for (; i < copyStop; ++i)
                 {
                     lodRanges[i] = lodDistances[group][i - 1];
@@ -48,6 +49,7 @@ namespace VRage.Voxels
                 {
                     lodRanges[i] = lodRanges[i - 1] * 2f;
                 }
+                lodRanges[i - 1] = float.MaxValue; 
             }
 
             return true;
@@ -58,6 +60,8 @@ namespace VRage.Voxels
             min = m_lodRangeGroups[(int)scale][lod];
             max = m_lodRangeGroups[(int)scale][lod + 1];
         }
+
+        public static float[][] LodRangeGroups { get { return m_lodRangeGroups; } }
 
         public static void AddToUpdate(Vector3D cameraPos, MyClipmap clipmap)
         {
@@ -81,13 +85,13 @@ namespace VRage.Voxels
             FrameT framesTillUpdate;
             var lodRanges = m_lodRangeGroups[(int)clipmap.m_scaleGroup];
             if (cameraDistance < lodRanges[1])
-                framesTillUpdate = 3;
+                framesTillUpdate = 1;
             if (cameraDistance < lodRanges[2])
-                framesTillUpdate = 10;
+                framesTillUpdate = 1;
             else if (cameraDistance < lodRanges[5])
-                framesTillUpdate = 25;
+                framesTillUpdate = 1;
             else
-                framesTillUpdate = 100;
+                framesTillUpdate = 1;
 
             return (FrameT)(m_currentFrameIdx + framesTillUpdate);
         }
@@ -101,7 +105,7 @@ namespace VRage.Voxels
             var oldNotReadyCount = m_notReady.Count;
 
             int updatedCount = 0;
-            int maxUpdates = m_updateQueue.Count / 53; // 53 is just some prime number so it spreads better
+            int maxUpdates = m_updateQueue.Count / 11; // 53 is just some prime number so it spreads better
             while (m_updateQueue.Count > 0)
             {
                 var item = m_updateQueue.Min();
@@ -119,7 +123,7 @@ namespace VRage.Voxels
                 ++updatedCount;
                 BoundingBoxD tmp;
                 item.Clipmap.UpdateWorldAABB(out tmp);
-                float clipmapFarPlane = (item.Clipmap.m_scaleGroup == MyClipmapScaleEnum.Massive) ? largeDistanceFarPlane : farPlaneDistance;
+                float clipmapFarPlane = farPlaneDistance;
                 item.Clipmap.Update(ref cameraPos, clipmapFarPlane);
                 m_updateQueue.ModifyDown(item, ComputeNextUpdateFrame(ref cameraPos, item.Clipmap));
                 if (updatedCount > maxUpdates)
@@ -130,6 +134,18 @@ namespace VRage.Voxels
             {
                 MyRenderProxy.SendClipmapsReady();
             }
+        }
+
+        public static void DebugDrawClipmaps()
+        {
+            m_updateQueue.QueryAll(m_tmpDebugDraw);
+
+            foreach (var item in m_tmpDebugDraw)
+            {
+                item.Clipmap.DebugDraw();
+            }
+
+            m_tmpDebugDraw.Clear();
         }
 
         class UpdateQueueItem : HeapItem<FrameT>

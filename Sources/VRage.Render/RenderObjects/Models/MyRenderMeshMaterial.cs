@@ -42,33 +42,27 @@ namespace VRageRender
         private float? m_emissivity = null;
 
         Vector2 m_diffuseUVAnim;
+
         public Vector2 DiffuseUVAnim
         {
             get { return m_diffuseUVAnim; }
             set { m_diffuseUVAnim = value; ComputeHashCode(); }
         }
 
-        public Vector2 EmissiveUVAnim 
+        public Vector2 EmissiveUVAnim
         {
-            get 
+            get
             {
-                if (m_emissivityEnabled)
-                {
-                    return m_emissiveUVAnim;
-                }
-                else 
-                {
-                    return Vector2.Zero;
-                }
+                return m_emissivityEnabled ? m_emissiveUVAnim : Vector2.Zero;
             }
-            set 
+            set
             {
                 m_emissiveUVAnim = value;
                 ComputeHashCode();
             }
         }
-                
-        public bool EmissivityEnabled 
+
+        public bool EmissivityEnabled
         {
             get { return m_emissivityEnabled; }
             set
@@ -81,30 +75,30 @@ namespace VRageRender
             }
         }
 
-        public float EmissivityOffset 
+        public float EmissivityOffset
         {
-            get 
+            get
             {
                 if (EmissivityEnabled)
                 {
                     return MyRender.RenderTimeInMS / 1000.0f;
                 }
-                else 
+                else
                 {
                     return 0f;
                 }
             }
         }
 
-        public float HoloEmissivity 
+        public float HoloEmissivity
         {
-            get 
+            get
             {
                 if (EmissivityEnabled)
                 {
                     if (SpecularColor.Y > 0)
                     {  //material with animated emissivity
-                       return (((float)Math.Sin(MyRender.RenderTimeInMS / 1000.0f * SpecularColor.Y * 10.0f + SpecularColor.Z * 2 * (float)Math.PI)) + 1.0f) / 2.0f;
+                        return (((float)Math.Sin(MyRender.RenderTimeInMS / 1000.0f * SpecularColor.Y * 10.0f + SpecularColor.Z * 2 * (float)Math.PI)) + 1.0f) / 2.0f;
                     }
                     else //Holos and decals have multiplied emissivity
                     {
@@ -246,12 +240,12 @@ namespace VRageRender
             string baseName;
             if (m_diffuseName.EndsWith(deMatch))
                 baseName = m_diffuseName.Substring(0, m_diffuseName.Length - deMatch.Length);
-            else if(m_diffuseName.EndsWith(meMatch))
+            else if (m_diffuseName.EndsWith(meMatch))
                 baseName = m_diffuseName.Substring(0, m_diffuseName.Length - meMatch.Length);
             else
                 baseName = m_diffuseName.Substring(0, m_diffuseName.Length - ext.Length);
 
-            m_diffuseName = baseName + meMatch;
+            m_diffuseName = baseName + deMatch;
             DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(m_diffuseName, m_contentDir, CheckTexture, loadingMode);
             if (DiffuseTexture == null)
             {
@@ -260,7 +254,7 @@ namespace VRageRender
             }
             if (DiffuseTexture == null)
             {
-                m_diffuseName = baseName + deMatch;
+                m_diffuseName = baseName + meMatch;
                 DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(m_diffuseName, m_contentDir, CheckTexture, loadingMode);
             }
 
@@ -277,7 +271,7 @@ namespace VRageRender
                 string tex = m_hasNormalTexture ? (m_normalName ?? C_FAKE_NORMAL_TEXTURE) : C_FAKE_NORMAL_TEXTURE;
                 NormalTexture = MyTextureManager.GetTexture<MyTexture2D>(tex, m_contentDir, CheckTexture, loadingMode);
             }
-                        
+
             m_loadedContent = true;
         }
 
@@ -334,7 +328,7 @@ namespace VRageRender
             if (DiffuseUVAnim.GetHashCode() != 0)
             {
                 result = (result * 397) ^ DiffuseUVAnim.GetHashCode();
-                modCode += (1 << 7);               
+                modCode += (1 << 7);
             }
 
             if (EmissiveUVAnim.GetHashCode() != 0)
@@ -380,9 +374,9 @@ namespace VRageRender
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) 
+            if (ReferenceEquals(null, obj))
                 return false;
-            if (obj.GetType() != typeof(MyRenderMeshMaterial)) 
+            if (obj.GetType() != typeof(MyRenderMeshMaterial))
                 return false;
             return HashCode == obj.GetHashCode();
         }
@@ -400,6 +394,7 @@ namespace VRageRender
         public MyRenderMeshMaterial Clone()
         {
             MyRenderMeshMaterial newMaterial = new MyRenderMeshMaterial();
+
             newMaterial.m_contentDir = m_contentDir;
             newMaterial.m_diffuseTex = m_diffuseTex;
             newMaterial.m_normalTex = m_normalTex;
@@ -417,13 +412,13 @@ namespace VRageRender
             newMaterial.m_emissiveUVAnim = m_emissiveUVAnim;
             newMaterial.m_emissivityEnabled = m_emissivityEnabled;
 
-            if (m_loadedContent)
-                newMaterial.PreloadTexture();
+            newMaterial.m_loadedContent = m_loadedContent;
+            newMaterial.m_diffuseUVAnim = m_diffuseUVAnim;
 
             newMaterial.Enabled = Enabled;
+            newMaterial.EnableColorMask = EnableColorMask;
             newMaterial.m_emissivity = m_emissivity;
-
-            newMaterial.ComputeHashCode();
+            newMaterial.HashCode = HashCode;
 
             return newMaterial;
         }

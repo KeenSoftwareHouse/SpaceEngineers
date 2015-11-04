@@ -12,6 +12,7 @@ using System.IO;
 using System.IO.Compression;
 using Sandbox.Game.Gui;
 using Sandbox.Graphics.GUI;
+using System.Diagnostics;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -119,6 +120,16 @@ namespace Sandbox.Game.Multiplayer
             public string Response;
         }
 
+        [ProtoBuf.ProtoContract]
+        [MessageIdAttribute(16300, P2PMessageEnum.Reliable)]
+        protected struct ProgramRecompileMsg : IEntityMessage
+        {
+            [ProtoBuf.ProtoMember]
+            public long EntityId;
+
+            public long GetEntityId() { return EntityId; }
+        }
+
         static MySyncProgrammableBlock()
         {
             MySyncLayer.RegisterMessage<OpenEditorMsg>(OpenEditorRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
@@ -134,6 +145,7 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<ProgramRepsonseMsg>(ProgramResponeSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
+            MySyncLayer.RegisterMessage<ProgramRecompileMsg>(ProgramRecompileSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MySyncProgrammableBlock(MyProgrammableBlock block)
@@ -141,7 +153,7 @@ namespace Sandbox.Game.Multiplayer
             m_programmableBlock = block;
         }
 
-        public virtual void SendOpenEditorRequest(ulong user)
+        public void SendOpenEditorRequest(ulong user)
         {
             if (Sync.IsServer)
             {
@@ -207,7 +219,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public virtual void SendCloseEditor()
+        public void SendCloseEditor()
         {          
             if (Sync.IsServer)
             {
@@ -231,13 +243,23 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public virtual void SendUpdateProgramRequest(string program,string storage)
+        public void SendUpdateProgramRequest(string program,string storage)
         {
             var msg = new UpdateProgramMsg();
             msg.EntityId = m_programmableBlock.EntityId;
             msg.Program = StringCompressor.CompressString(program);
             msg.Storage = StringCompressor.CompressString(storage);
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        public void SendProgramRecompile()
+        {
+            Debug.Assert(Sync.IsServer);
+            if (!Sync.IsServer) return;
+
+            var msg = new ProgramRecompileMsg();
+            msg.EntityId = m_programmableBlock.EntityId;
+            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void UpdateProgramRequest(ref UpdateProgramMsg msg, MyNetworkClient sender)
@@ -268,7 +290,7 @@ namespace Sandbox.Game.Multiplayer
                 (entity as MyProgrammableBlock).Run(StringCompressor.DecompressString(msg.Argument));
             }
         }
-        public virtual void SendRunProgramRequest(string argument)
+        public void SendRunProgramRequest(string argument)
         {
             var msg = new RunProgramMsg();
             msg.EntityId = m_programmableBlock.EntityId;
@@ -285,12 +307,22 @@ namespace Sandbox.Game.Multiplayer
                 (entity as MyProgrammableBlock).WriteProgramResponse(msg.Response);
             }
         }
-        public virtual void SendProgramResponseMessage(string response)
+        public void SendProgramResponseMessage(string response)
         {
             var msg = new ProgramRepsonseMsg();
             msg.EntityId = m_programmableBlock.EntityId;
             msg.Response = response;
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+        }
+
+        static void ProgramRecompileSuccess(ref ProgramRecompileMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            if (entity is MyProgrammableBlock)
+            {
+                (entity as MyProgrammableBlock).Recompile();
+            }
         }
     }
 

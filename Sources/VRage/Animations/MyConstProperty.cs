@@ -20,10 +20,13 @@ namespace VRage.Animations
         void Deserialize(XmlReader reader);
         void SerializeValue(XmlWriter writer, object value);
         void DeserializeValue(XmlReader reader, out object value);
-
         void SetValue(object val);
-        //object GetValue();
-        IMyConstProperty Duplicate();
+        IMyConstProperty Duplicate();       
+        Type GetValueType();
+        /// <summary>
+        /// Warning, this does allocation, use only in editor!
+        /// </summary>
+        object EditorGetValue();
     }
 
     #endregion
@@ -54,18 +57,18 @@ namespace VRage.Animations
         protected virtual void Init()
         {
         }
-                      /*
-        public object GetValue()
+
+        object IMyConstProperty.EditorGetValue()
         {
             return m_value;
-        }               */
+        }             
 
         public U GetValue<U>() where U : T
         {
             return (U)m_value;
         }
 
-        public void SetValue(object val)
+        public virtual void SetValue(object val)
         {
             SetValue((T)val);
         }
@@ -84,6 +87,11 @@ namespace VRage.Animations
         protected virtual void Duplicate(IMyConstProperty targetProp)
         {
             targetProp.SetValue(GetValue<T>());
+        }
+
+        Type IMyConstProperty.GetValueType()
+        {
+            return typeof(T);
         }
 
         #region Serialization
@@ -275,7 +283,7 @@ namespace VRage.Animations
         #endregion
     }
 
-    public class MyConstPropertyEnum : MyConstPropertyInt
+    public class MyConstPropertyEnum : MyConstPropertyInt, IMyConstProperty
     {
         Type m_enumType;
         List<string> m_enumStrings;
@@ -322,6 +330,17 @@ namespace VRage.Animations
             prop.m_enumType = m_enumType;
             prop.m_enumStrings = m_enumStrings;
             return prop;
+        }
+
+        Type IMyConstProperty.GetValueType()
+        {
+            return m_enumType;
+        }
+
+        public override void SetValue(object val)
+        {            
+            int ival = Convert.ToInt32(val); // because just simple cast (int) thrown exception on ParticleTypeEnum type
+            base.SetValue(ival);
         }
     }
 

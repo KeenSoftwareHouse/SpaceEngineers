@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox;
 using SpaceEngineers.Game;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -117,40 +118,6 @@ namespace SpaceEngineers
                 }
                 return;
             }
-
-            MyFakes.ENABLE_DX11_RENDERER = false;
-
-            if (MyFakes.ENABLE_DX11_RENDERER)
-            {
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MinRadius = 0.095f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MaxRadius = 4.16f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Bias = 0.25f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
-
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Brightness = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Contrast = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 6;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.748f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.324f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.143f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.196f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.009f;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.130f;
-
-                
-            }
-
             if (MyFakes.DETECT_LEAKS)
             {
                 //Slow down
@@ -186,13 +153,30 @@ namespace SpaceEngineers
                 {
                     renderer = new MyNullRender();
                 }
-                else if (!MyFakes.ENABLE_DX11_RENDERER)
-                {
-                    renderer = new MyDX9Render();
-                }
                 else if (MyFakes.ENABLE_DX11_RENDERER)
                 {
-                    renderer = new MyDX11Render();
+                    var rendererId = MySandboxGame.Config.GraphicsRenderer;
+                    if (rendererId.HasValue && rendererId.Value == SpaceEngineersGame.DirectX11RendererKey)
+                    {
+                        renderer = new MyDX11Render();
+                        if (!renderer.IsSupported)
+                        {
+                            MySandboxGame.Log.WriteLine("DirectX 11 renderer not supported. Reverting to DirectX 9.");
+                            renderer = null;
+                        }
+                    }
+
+                    if (renderer == null)
+                    {
+                        renderer = new MyDX9Render();
+                        rendererId = SpaceEngineersGame.DirectX9RendererKey;
+                    }
+
+                    MySandboxGame.Config.GraphicsRenderer = rendererId;
+                }
+                else
+                {
+                    renderer = new MyDX9Render();
                 }
 
                 VRageRender.MyRenderProxy.Initialize(renderer);

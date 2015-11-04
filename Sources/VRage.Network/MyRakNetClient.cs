@@ -1,273 +1,186 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using VRage.Utils;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Diagnostics;
+//using System.Linq;
+//using System.Net;
+//using System.Text;
+//using VRage.Library.Collections;
+//using VRage.Utils;
+//using VRageMath;
 
-namespace VRage.Network
-{
-    public class MyRakNetClient : MyRakNetPeer
-    {
-        public override bool IsServer { get { return false; } }
-        public override ulong ServerId { get; protected set; }
-        public override ulong MySteamID { get; protected set; }
+//namespace VRage.Network
+//{
+//    public class MyRakNetClient : MyRakNetPeer
+//    {
+//        public MyReplicationClient ReplicationClient { get { return (MyReplicationClient)ReplicationLayer; } }
+//        protected new IMyClientCallback Callback { get { return (IMyClientCallback)base.Callback; } }
 
-        public MyRakNetClient(ulong steamID)
-            : base(steamID)
-        {
-            RegisterHandlers();
-        }
+//        public MyRakNetClient()
+//            : base(false)
+//        {
+//            ReplicationLayer = new MyReplicationClient(this);
+//            RegisterHandlers();
+//        }
 
-        public StartupResultEnum Startup(ushort port)
-        {
-            return base.Startup(1, port, null);
-        }
+//        public override void Dispose()
+//        {
+//            base.Dispose();
+//            ReplicationLayer.Dispose();
+//        }
 
-        public event Action OnConnectionAttemptFailed;
-        public event Action OnConnectionBanned;
-        public event Action OnInvalidPassword;
-        public event Action<List<ulong>> OnModListRecieved;
-        public event Action OnAlreadyConnected;
-        public event Action<uint, uint, uint> OnStateDataDownloadProgress;
-        public event Action OnDisconnectionNotification;
+//        public void Startup(ushort port, IMyClientCallback callback)
+//        {
+//            base.Startup(1, port, null, callback);
+//        }
 
-        private void RegisterHandlers()
-        {
-            AddMessageHandler(MessageIDEnum.CONNECTION_ATTEMPT_FAILED, ConnectionAttemptFailed);
-            AddMessageHandler(MessageIDEnum.CONNECTION_BANNED, ConnectionBanned);
-            AddMessageHandler(MessageIDEnum.INVALID_PASSWORD, InvalidPassword);
-            AddMessageHandler(MessageIDEnum.ALREADY_CONNECTED, AlreadyConnected);
-            AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
+//        private void RegisterHandlers()
+//        {
+//            AddMessageHandler(MessageIDEnum.CONNECTION_ATTEMPT_FAILED, ConnectionAttemptFailed);
+//            AddMessageHandler(MessageIDEnum.CONNECTION_BANNED, ConnectionBanned);
+//            AddMessageHandler(MessageIDEnum.INVALID_PASSWORD, InvalidPassword);
+//            AddMessageHandler(MessageIDEnum.ALREADY_CONNECTED, AlreadyConnected);
+//            AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
 
-            AddMessageHandler(MessageIDEnum.CONNECTION_REQUEST_ACCEPTED, SendClientData);
-            AddMessageHandler(MessageIDEnum.SERVER_DATA, ServerData);
-            AddMessageHandler(MessageIDEnum.STATE_DATA, StateData);
-            AddMessageHandler(MessageIDEnum.DOWNLOAD_PROGRESS, DownloadProgress);
+//            AddMessageHandler(MessageIDEnum.CONNECTION_REQUEST_ACCEPTED, SendClientData);
+//            AddMessageHandler(MessageIDEnum.SERVER_DATA, ServerData);
+//            AddMessageHandler(MessageIDEnum.STATE_DATA_FULL, StateDataFull);
+//            AddMessageHandler(MessageIDEnum.DOWNLOAD_PROGRESS, DownloadProgress);
 
-            AddMessageHandler(MessageIDEnum.REMOTE_CLIENT_CONNECTED, RemoteClientConnected);
-            AddMessageHandler(MessageIDEnum.REMOTE_CLIENT_DISCONNECTED, RemoteClientDisconnected);
-        }
+//            AddMessageHandler(MessageIDEnum.REPLICATION_CREATE, ReplicationCreate);
+//            AddMessageHandler(MessageIDEnum.REPLICATION_DESTROY, ReplicationDestroy);
 
-        private void DisconnectionNotification(Packet packet)
-        {
-            //ulong steamID = m_GUIDToSteamID[packet.GUID.g];
+//            //hacks
+//            AddMessageHandler(MessageIDEnum.STEAM_HACK_WORLD_RESULT, WorldRecieved);
+//        }
 
-            var handler = OnDisconnectionNotification;
-            if (handler != null)
-                handler();
+//        private void DisconnectionNotification(Packet packet)
+//        {
+//            Callback.OnDisconnectionNotification();
+//            UnregisterAllClients();
+//        }
 
-            m_steamIDToGUID.Clear();
-            m_GUIDToSteamID.Clear();
-        }
+//        private void DownloadProgress(Packet packet)
+//        {
+//            m_receiveStream.SetPacket(packet, false);
 
-        private void RemoteClientDisconnected(Packet packet)
-        {
-            long tmpLong;
-            bool success = packet.Data.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read remote client disconnected steamID");
+//            uint progress = m_receiveStream.ReadUInt32();
+//            uint total = m_receiveStream.ReadUInt32();
+//            uint partLength = m_receiveStream.ReadUInt32();
 
-            ulong steamID = (ulong)tmpLong;
+//            MessageIDEnum msgID = m_receiveStream.ReadMessageId();
 
-            RaiseOnClientLeft(steamID);
-        }
+//            if (msgID == MessageIDEnum.STEAM_HACK_WORLD_RESULT)
+//            {
+//                Callback.OnStateDataDownloadProgress(progress, total, partLength);
+//            }
+//        }
 
-        private void RemoteClientConnected(Packet packet)
-        {
-            long tmpLong;
-            bool success = packet.Data.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read remote client connected steamID");
+//        private void WorldRecieved(Packet packet)
+//        {
+//            m_peer.SetSplitMessageProgressInterval(0);
 
-            ulong steamID = (ulong)tmpLong;
+//            m_receiveStream.SetPacket(packet);
+//            Callback.OnWorldReceived(m_receiveStream);
 
-            RaiseOnClientJoined(steamID);
-        }
+//            SendClientReady();
+//        }
 
-        private void DownloadProgress(Packet packet)
-        {
-            BitStream bs = packet.Data;
-            bool success;
-            byte[] tmp = new byte[4 * 3];
+//        private void StateDataFull(Packet packet)
+//        {
+//            m_peer.SetSplitMessageProgressInterval(0);
 
-            uint progress;
-            uint total;
-            uint partLength;
+//            //MyRakNetSyncLayer.Static.DeserializeStateData(packet.Data);
 
-            success = bs.Read(tmp, 4 * 3);
-            Debug.Assert(success, "Failed to read download progress");
-            progress = BitConverter.ToUInt32(tmp, 0);
-            total = BitConverter.ToUInt32(tmp, 4);
-            partLength = BitConverter.ToUInt32(tmp, 8);
+//            SendClientReady();
+//        }
 
-            byte msgID;
-            success = bs.Read(out msgID);
-            Debug.Assert(success, "Failed to read message ID");
+//        private void SendClientReady()
+//        {
+//            m_sendStream.ResetWrite(MessageIDEnum.CLIENT_READY);
+//            SendMessageToServer(m_sendStream, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY);
 
-            if ((MessageIDEnum)msgID == MessageIDEnum.STATE_DATA)
-            {
-                var handler = OnStateDataDownloadProgress;
-                if (handler != null)
-                    handler(progress, total, partLength);
-            }
-        }
+//            ReplicationClient.OnLocalClientReady();
+//            Callback.OnLocalClientReady();
+//        }
 
-        private void StateData(Packet packet)
-        {
-            m_peer.SetSplitMessageProgressInterval(0);
+//        private void AlreadyConnected(Packet packet)
+//        {
+//            Callback.OnAlreadyConnected();
+//        }
 
-            MyRakNetSyncLayer.Static.DeserializeStateData(packet.Data);
+//        private void ServerData(Packet packet)
+//        {
+//            m_receiveStream.SetPacket(packet);
+//            ReplicationLayer.SerializeTypeTable(m_receiveStream);
 
-            SendClientReady();
-        }
+//            var client = RegisterClient(packet.GUID);
+//            OnClientJoined(client.EndpointId);
 
-        private void SendClientReady()
-        {
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.CLIENT_READY);
-            SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
-        }
+//            Callback.OnServerDataReceived(m_receiveStream);
 
-        private void AlreadyConnected(Packet packet)
-        {
-            var handler = OnAlreadyConnected;
-            if (handler != null)
-                handler();
-        }
+//            //hack for now
+//            //SendStateDataRequest();
+//            SendWorldRequest();
+//        }
 
-        private void ServerData(Packet packet)
-        {
-            BitStream bs = packet.Data;
-            bool success;
-            int count;
-            long tmpLong;
-            byte[] tmpGUID = new byte[16];
+//        private void SendWorldRequest()
+//        {
+//            m_peer.SetSplitMessageProgressInterval(1); // MTU
+//            m_sendStream.ResetWrite(MessageIDEnum.STEAM_HACK_WORLD_REQUEST);
+//            SendMessageToServer(m_sendStream, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY);
+//        }
 
-            success = bs.Read(out count);
-            Debug.Assert(success, "Failed to read client count");
-            List<ulong> clients = new List<ulong>(count);
+//        private void SendStateDataRequest()
+//        {
+//            m_peer.SetSplitMessageProgressInterval(1); // MTU
+//            m_sendStream.ResetWrite(MessageIDEnum.STATE_DATA_FULL_REQUEST);
+//            SendMessageToServer(m_sendStream, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY);
+//        }
 
-            for (int i = 0; i < count; i++)
-            {
-                success = bs.Read(out tmpLong);
-                Debug.Assert(success, "Failed to read client SteamID " + (i + 1) + "/" + count);
-                clients.Add((ulong)tmpLong);
-            }
+//        private void InvalidPassword(Packet packet)
+//        {
+//            Callback.OnInvalidPassword();
+//        }
 
-            success = bs.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read serverID");
-            ServerId = (ulong)tmpLong;
+//        private void ConnectionBanned(Packet packet)
+//        {
+//            Callback.OnConnectionBanned();
+//        }
 
-            m_steamIDToGUID[ServerId] = packet.GUID;
-            m_GUIDToSteamID[packet.GUID.G] = ServerId;
+//        private void ConnectionAttemptFailed(Packet packet)
+//        {
+//            Callback.OnConnectionAttemptFailed();
+//        }
 
-            RaiseOnClientJoined(ServerId);
+//        private void ReplicationDestroy(Packet packet)
+//        {
+//            ReplicationClient.ProcessReplicationDestroy(packet);
+//        }
 
-            success = bs.Read(out count);
-            Debug.Assert(success, "Failed to read mods count");
-            List<ulong> mods = new List<ulong>(count);
+//        private void ReplicationCreate(Packet packet)
+//        {
+//            ReplicationClient.ProcessReplicationCreate(packet);
+//        }
 
-            for (int i = 0; i < count; i++)
-            {
-                success = bs.Read(out tmpLong);
-                Debug.Assert(success, "Failed to read mod " + (i + 1) + "/" + count);
-                mods.Add((ulong)tmpLong);
-            }
+//        private void SendClientData(Packet packet)
+//        {
+//            m_sendStream.ResetWrite(MessageIDEnum.CLIENT_DATA);
+//            Callback.OnSendClientData(m_sendStream);
+//            SendMessageToServer(m_sendStream, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY);
+//        }
+        
+//        internal uint SendMessageToServer(BitStream bs, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, MyChannelEnum channel = MyChannelEnum.Default)
+//        {
+//            return SendMessage(bs, priority, reliability, channel, RakNetGUID.UNASSIGNED_RAKNET_GUID, true);
+//        }
 
-            var handler = OnModListRecieved;
-            if (handler != null)
-                handler(mods);
-
-            success = bs.Read(out count);
-            Debug.Assert(success, "Failed to read type table count");
-            List<Guid> types = new List<Guid>(count);
-
-            for (int i = 0; i < count; i++)
-            {
-                success = bs.Read(tmpGUID, 16);
-                Debug.Assert(success, "Failed to read type table GUID " + (i + 1) + "/" + count);
-                types.Add(new Guid(tmpGUID));
-            }
-
-            MyRakNetSyncLayer.Static.SetTypeTable(types);
-
-            SendStateDataRequest();
-        }
-
-        private void SendStateDataRequest()
-        {
-            m_peer.SetSplitMessageProgressInterval(1); // MTU
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.STATE_DATA_REQUEST);
-            SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
-        }
-
-        private void InvalidPassword(Packet packet)
-        {
-            var handler = OnInvalidPassword;
-            if (handler != null)
-                handler();
-        }
-
-        private void ConnectionBanned(Packet packet)
-        {
-            var handler = OnConnectionBanned;
-            if (handler != null)
-                handler();
-        }
-
-        private void ConnectionAttemptFailed(Packet packet)
-        {
-            var handler = OnConnectionAttemptFailed;
-            if (handler != null)
-                handler();
-        }
-
-        private void SendClientData(Packet packet)
-        {
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.CLIENT_DATA);
-            bs.Write((long)MySteamID);
-            bs.Write((int)Version);
-            SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
-        }
-
-        protected override void ChatMessage(Packet packet)
-        {
-            string message;
-            long tmpLong;
-            bool success = packet.Data.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read chat message sender steamID");
-
-            ulong senderSteamID = (ulong)tmpLong;
-
-            success = packet.Data.ReadCompressed(out message);
-            Debug.Assert(success, "Failed to read chat message string");
-
-            RiseOnChatMessage(senderSteamID, message);
-        }
-
-        public override void SendChatMessage(string message)
-        {
-            BitStream bs = new BitStream(null);
-
-            bs.Write((byte)MessageIDEnum.CHAT_MESSAGE);
-            bs.WriteCompressed(message);
-
-            SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED);
-        }
-
-        public uint SendMessageToServer(BitStream RnBitStream, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, byte channel = 0)
-        {
-            Debug.Assert(RnBitStream.GetNumberOfBytesUsed() > 0, "no data");
-            uint ret = m_peer.Send(RnBitStream, priority, reliability, channel, RakNetGUID.UNASSIGNED_RAKNET_GUID, true);
-            Debug.Assert(ret != 0, "bad input?");
-            return ret;
-        }
-
-        public ConnectionAttemptResultEnum Connect(string ip, ushort port, string password = "")
-        {
-            return m_peer.Connect(ip, port, password);
-        }
-    }
-}
+//        public void Connect(string ip, ushort port, string password = "")
+//        {
+//            var result = m_peer.Connect(ip, port, password);
+//            if(result != ConnectionAttemptResultEnum.CONNECTION_ATTEMPT_STARTED)
+//            {
+//                throw new MyRakNetConnectionException(string.Format("RakNet failed to start connecting: " + result), result);
+//            }
+//        }
+//    }
+//}

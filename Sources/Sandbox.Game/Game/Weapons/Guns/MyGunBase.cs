@@ -17,6 +17,8 @@ using VRage.Import;
 using VRage.Utils;
 using VRage.Serialization;
 using VRageMath;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Weapons
 {
@@ -41,11 +43,12 @@ namespace Sandbox.Game.Weapons
         protected Dictionary<int, DummyContainer> m_dummiesByAmmoType;
         protected MatrixD m_worldMatrix;
         protected IMyGunBaseUser m_user;
+
         #endregion
 
         #region Properties
 
-        public int CurrentAmmo { get; set; }
+        public int CurrentAmmo { get; private set; }
         private MyWeaponPropertiesWrapper WeaponProperties { get { return m_weaponProperties; } }
         public MyAmmoMagazineDefinition CurrentAmmoMagazineDefinition { get { return WeaponProperties.AmmoMagazineDefinition; } }
         public MyDefinitionId CurrentAmmoMagazineId { get { return WeaponProperties.AmmoMagazineId; } }
@@ -66,6 +69,7 @@ namespace Sandbox.Game.Weapons
         public float ReleaseTimeAfterFire { get { return m_weaponProperties.WeaponDefinition.ReleaseTimeAfterFire; } }
         public MySoundPair ShootSound { get { return m_weaponProperties.CurrentWeaponShootSound; } }
         public MySoundPair NoAmmoSound { get { return m_weaponProperties.WeaponDefinition.NoAmmoSound; } }
+        public MySoundPair ReloadSound { get { return m_weaponProperties.WeaponDefinition.ReloadSound; } }
         public float MechanicalDamage { get { return m_weaponProperties.AmmoDefinition.GetDamageForMechanicalObjects(); } }
         public float DeviateAngle { get { return m_weaponProperties.WeaponDefinition.DeviateShotAngle; } }
         public bool HasAmmoMagazines { get { return m_weaponProperties.WeaponDefinition.HasAmmoMagazines(); } }
@@ -82,6 +86,8 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+        public DateTime LastShootTime { get; private set; }
+
         #endregion
 
         public MyGunBase()
@@ -92,9 +98,10 @@ namespace Sandbox.Game.Weapons
 
         public MyObjectBuilder_GunBase GetObjectBuilder()
         {
-            var gunBaseObjectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GunBase>();
+            var gunBaseObjectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GunBase>();
             gunBaseObjectBuilder.CurrentAmmoMagazineName = CurrentAmmoMagazineId.SubtypeName;
             gunBaseObjectBuilder.RemainingAmmo = CurrentAmmo;
+            gunBaseObjectBuilder.LastShootTime = LastShootTime.Ticks;
             gunBaseObjectBuilder.RemainingAmmosList = new List<MyObjectBuilder_GunBase.RemainingAmmoIns>();
             foreach (var ammoMagazineRemaining in m_remainingAmmos)
             {
@@ -147,11 +154,15 @@ namespace Sandbox.Game.Weapons
                 {
                     m_remainingAmmos.Add(new MyDefinitionId(typeof(MyObjectBuilder_AmmoMagazine), remainingAmmo.SubtypeName), remainingAmmo.Amount);
                 }
+
+                LastShootTime = new DateTime(objectBuilder.LastShootTime);
             }
             else
             {
                 if (WeaponProperties.WeaponDefinition.HasAmmoMagazines())
                     m_weaponProperties.ChangeAmmoMagazine(m_weaponProperties.WeaponDefinition.AmmoMagazinesId[0]);
+
+                LastShootTime = new DateTime(0);
             }
             // object builder area - END
 
@@ -165,6 +176,27 @@ namespace Sandbox.Game.Weapons
 
                 RefreshAmmunitionAmount();
             }
+
+            if (m_user.Weapon != null)
+            {
+                m_user.Weapon.OnClosing += Weapon_OnClosing;
+                MySyncGunBase.AmmoCountChanged += MySyncGunBase_AmmoCountChanged;
+            }
+        }
+
+        void Weapon_OnClosing(MyEntity obj)
+        {
+            if (m_user.Weapon != null)
+            {
+                m_user.Weapon.OnClosing -= Weapon_OnClosing;
+                MySyncGunBase.AmmoCountChanged -= MySyncGunBase_AmmoCountChanged;
+            }
+        }
+
+        void MySyncGunBase_AmmoCountChanged(long weaponId, int ammoCount)
+        {
+            if (m_user.Weapon != null && m_user.Weapon.EntityId == weaponId)
+                CurrentAmmo = ammoCount;
         }
 
         public Vector3 GetDeviatedVector(float deviateAngle, Vector3 direction)
@@ -178,6 +210,7 @@ namespace Sandbox.Game.Weapons
             if (weaponProperties.IsDeviated)
             {
                 projectileForwardVector = GetDeviatedVector(weaponProperties.WeaponDefinition.DeviateShotAngle, direction);
+                projectileForwardVector.Normalize();
             }
 
             MyProjectiles.Add(weaponProperties.GetCurrentAmmoDefinitionAs<MyProjectileAmmoDefinition>(), initialPosition, initialVelocity, projectileForwardVector, m_user);
@@ -228,6 +261,8 @@ namespace Sandbox.Game.Weapons
             }
 
             MoveToNextMuzzle(ammoDef.AmmoType);
+
+            LastShootTime = DateTime.UtcNow;
         }
 
 
@@ -353,16 +388,32 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void ConsumeAmmo()
+        public void ConsumeAmmo(bool syncAmmoCount = false)
         {
-            CurrentAmmo -= AMMO_PER_SHOOT;
-            if (CurrentAmmo == -1)
+            if (!MySession.Static.CreativeMode)
             {
-                m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
-                CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
-            }
+                if (Sync.IsServer)
+                {
+                    CurrentAmmo -= AMMO_PER_SHOOT;
+                    if (CurrentAmmo == -1 && HasEnoughAmmunition())
+                    {
+                        CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
 
-            RefreshAmmunitionAmount();
+                        // Syncing of ammo count (must be before AmmoInventory.RemoveItemsOfType) - if there will be used magazines in inventory then this syncing can be removed
+                        if (syncAmmoCount)
+                            MySyncGunBase.RequestCurrentAmmoCountChangedMsg(m_user.Weapon.EntityId, CurrentAmmo);
+
+                        m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
+                    }
+                }
+                else
+                {
+                    if (CurrentAmmo > 0)
+                        CurrentAmmo -= AMMO_PER_SHOOT;
+                }
+
+                RefreshAmmunitionAmount();
+            }
         }
 
         public int GetTotalAmmunitionAmount()

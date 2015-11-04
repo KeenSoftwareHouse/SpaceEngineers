@@ -19,6 +19,8 @@ using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Multiplayer;
+using Havok;
 
 #endregion
 
@@ -36,8 +38,8 @@ namespace Sandbox.Game.Entities
             MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE,
         };
 
-        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
-        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
+        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
+        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
         public static float MIN_BLOCK_BUILDING_DISTANCE = 1f;
 
         protected static readonly int[] m_rotationDirections = new int[6] { -1, 1, 1, -1, 1, -1 };
@@ -55,7 +57,7 @@ namespace Sandbox.Game.Entities
 
         // Current hit info from havok's cast ray.
         protected MyPhysics.HitInfo? m_hitInfo;
-        internal MyPhysics.HitInfo? HitInfo
+        public MyPhysics.HitInfo? HitInfo
         {
             get
             {
@@ -65,7 +67,16 @@ namespace Sandbox.Game.Entities
 
         public abstract MyCubeBlockDefinition HudBlockDefinition { get; }
 
-        public static bool DeveloperSpectatorIsBuilding
+        private static bool AdminSpectatorIsBuilding
+        {
+            get
+            {
+                return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.Static != null && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
+                    && MyMultiplayer.Static != null && MySession.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId) && !MySession.Static.Battle;
+            }
+        }
+
+        private static bool DeveloperSpectatorIsBuilding
         {
             get
             {
@@ -74,11 +85,32 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public static bool SpectatorIsBuilding
+        {
+            get
+            {
+                return DeveloperSpectatorIsBuilding || AdminSpectatorIsBuilding;
+            }
+        }
+
+
+
+        public static bool CameraControllerSpectator
+        {
+            get
+            {
+                var cameraController = MySession.GetCameraControllerEnum();
+                return cameraController == MyCameraControllerEnum.Spectator || cameraController == MyCameraControllerEnum.SpectatorDelta;
+            }
+        }
+
         public static Vector3D IntersectionStart
         {
             get
             {
-                return MySector.MainCamera.Position;
+				var cameraController = MySession.GetCameraControllerEnum();
+				return (cameraController == MyCameraControllerEnum.Entity
+						|| cameraController == MyCameraControllerEnum.ThirdPersonSpectator) ? MySession.ControlledEntity.GetHeadMatrix(false).Translation : MySector.MainCamera.Position;
             }
         }
 
@@ -98,7 +130,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        protected internal float IntersectionDistance = DEFAULT_BLOCK_BUILDING_DISTANCE;
+        public float IntersectionDistance = DEFAULT_BLOCK_BUILDING_DISTANCE;
 
         public abstract bool IsActivated { get; }
         public abstract void Activate();
@@ -110,7 +142,7 @@ namespace Sandbox.Game.Entities
             m_invGridWorldMatrix = CurrentGrid != null ? Matrix.Invert(CurrentGrid.WorldMatrix) : Matrix.Identity;
         }
 
-        internal virtual void ChoosePlacementObject()
+        protected internal virtual void ChoosePlacementObject()
         {
             MyCubeGrid grid;
             MyVoxelMap voxelMap;
@@ -123,9 +155,6 @@ namespace Sandbox.Game.Entities
 
             m_invGridWorldMatrix = CurrentGrid != null ? MatrixD.Invert(CurrentGrid.WorldMatrix) : MatrixD.Identity;
         }
-
-        public abstract bool CanStartConstruction(MyCharacter character);
-        public abstract bool AddConstruction(MyCharacter character);
 
         protected static void AddFastBuildModelWithSubparts(ref MatrixD matrix, List<MatrixD> matrices, List<string> models, MyCubeBlockDefinition blockDefinition)
         {
@@ -183,13 +212,13 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return null;
 
-            MyCubeGrid closestGrid = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+            MyCubeGrid closestGrid = m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyCubeGrid;
             return closestGrid;
         }
 
@@ -209,23 +238,27 @@ namespace Sandbox.Game.Entities
 
             MyPhysics.CastRay(line.From, line.To, m_tmpHitList, MyPhysics.ObjectDetectionCollisionLayer);
             // Remove character hits.
-            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
+
+            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hitInfo)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hitInfo.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return false;
 
-            closestGrid = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+            var hit = m_tmpHitList[0];
+            closestGrid = hit.HkHitInfo.GetHitEntity() as MyCubeGrid;
             if (closestGrid != null)
-                m_hitInfo = m_tmpHitList[0];
+            {
+                m_hitInfo = hit;
+            }
 
             if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL)
             {
-                closestVoxelMap = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyVoxelMap;
+                closestVoxelMap = hit.HkHitInfo.GetHitEntity() as MyVoxelMap;
                 if (closestVoxelMap != null)
-                    m_hitInfo = m_tmpHitList[0];
+                    m_hitInfo = hit;
             }
 
             return closestGrid != null || closestVoxelMap != null;
@@ -276,7 +309,7 @@ namespace Sandbox.Game.Entities
         protected Vector3D? GetIntersectedBlockData(ref MatrixD inverseGridWorldMatrix, out Vector3D intersection, out MySlimBlock intersectedBlock, out ushort? compoundBlockId)
         {
             Debug.Assert(m_hitInfo != null);
-            Debug.Assert(m_hitInfo.Value.HkHitInfo.Body.GetEntity() == CurrentGrid);
+            //Debug.Assert(m_hitInfo.Value.HkHitInfo.GetEntity() == CurrentGrid);
 
             intersection = Vector3D.Zero;
             intersectedBlock = null;
@@ -301,30 +334,15 @@ namespace Sandbox.Game.Entities
             if (intersectedBlock.FatBlock is MyCompoundCubeBlock)
             {
                 MyCompoundCubeBlock compoundBlock = intersectedBlock.FatBlock as MyCompoundCubeBlock;
-                ListReader<MySlimBlock> slimBlocksInCompound = compoundBlock.GetBlocks();
-                double distanceSquaredInCompound = double.MaxValue;
                 ushort? idInCompound = null;
-                for (int i = 0; i < slimBlocksInCompound.Count; ++i)
-                {
-                    MySlimBlock cmpSlimBlock = slimBlocksInCompound.ItemAt(i);
-                    MyIntersectionResultLineTriangleEx? intersectionTriResult;
-                    if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
-                    {
-                        Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - IntersectionStart;
-                        double instrDistanceSq = startToIntersection.LengthSquared();
-                        if (instrDistanceSq < distanceSquaredInCompound)
-                        {
-                            distanceSquaredInCompound = instrDistanceSq;
-                            idInCompound = compoundBlock.GetBlockId(cmpSlimBlock);
-                        }
-                    }
-                }
 
-                // If not intersecting with any internal block and there is only one then set the index to it
-                if (idInCompound == null && compoundBlock.GetBlocksCount() == 1)
-                {
+                ushort blockId;
+                MyIntersectionResultLineTriangleEx? triIntersection;
+
+                if (compoundBlock.GetIntersectionWithLine(ref line, out triIntersection, out blockId))
+                    idInCompound = blockId;
+                else if (compoundBlock.GetBlocksCount() == 1) // If not intersecting with any internal block and there is only one then set the index to it
                     idInCompound = compoundBlock.GetBlockId(compoundBlock.GetBlocks()[0]);
-                }
 
                 compoundBlockId = idInCompound;
             }

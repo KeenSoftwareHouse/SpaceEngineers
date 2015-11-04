@@ -59,9 +59,12 @@ namespace VRageRender
             viewMatrixAt0.M44 = 1;
 
             var originalProjection = message.ProjectionMatrix;
-            var invOriginalProjection = Matrix.CreatePerspectiveFovInv(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane, message.FarPlane);
-            var complementaryProjection = Matrix.CreatePerspectiveFieldOfView(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
-            var invProj = Matrix.CreatePerspectiveFovInv(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
+            var invOriginalProjection = Matrix.CreatePerspectiveFovRhInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane, message.FarPlane);
+            var renderProjection = Matrix.CreatePerspectiveFieldOfView(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
+            var invProj = Matrix.CreatePerspectiveFovRhInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
+
+            renderProjection = Matrix.CreatePerspectiveFovRhInfiniteComplementary(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane);
+            invProj = Matrix.CreatePerspectiveFovRhInfiniteComplementaryInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane);
 
             var invView = Matrix.Transpose(viewMatrixAt0);
             invView.M41 = (float)message.CameraPosition.X;
@@ -70,21 +73,27 @@ namespace VRageRender
 
             MyEnvironment.ViewAt0 = viewMatrixAt0;
             MyEnvironment.InvViewAt0 = Matrix.Transpose(viewMatrixAt0);
-            MyEnvironment.ViewProjectionAt0 = viewMatrixAt0 * complementaryProjection;
+            MyEnvironment.ViewProjectionAt0 = viewMatrixAt0 * renderProjection;
             MyEnvironment.InvViewProjectionAt0 = invProj * Matrix.Transpose(viewMatrixAt0);
-
+            message.CameraPosition.AssertIsValid();
             MyEnvironment.CameraPosition = message.CameraPosition;
             MyEnvironment.View = message.ViewMatrix;
+            MyEnvironment.ViewD = message.ViewMatrix;
+            MyEnvironment.OriginalProjectionD = originalProjection;
             MyEnvironment.InvView = invView;
-            MyEnvironment.ViewProjection = message.ViewMatrix * complementaryProjection;
+            MyEnvironment.ViewProjection = message.ViewMatrix * renderProjection;
             MyEnvironment.InvViewProjection = invProj * invView;
-            MyEnvironment.Projection = complementaryProjection;
+            MyEnvironment.Projection = renderProjection;
             MyEnvironment.InvProjection = invProj;
+
+            MyEnvironment.ViewProjectionD = MyEnvironment.ViewD * (MatrixD)renderProjection;
             
             MyEnvironment.NearClipping = message.NearPlane;
             MyEnvironment.FarClipping = message.FarPlane;
+            MyEnvironment.LargeDistanceFarClipping = message.FarPlane*500.0f;
             MyEnvironment.FovY = message.FOV;
-            MyEnvironment.ViewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
+            MyEnvironment.ViewFrustumD = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
+            MyEnvironment.ViewFrustumClippedD = new BoundingFrustumD(MyEnvironment.ViewD * MyEnvironment.OriginalProjectionD);
         }
 
         private static void TransferPerformanceStats()
@@ -94,7 +103,7 @@ namespace VRageRender
             MyPerformanceCounter.PerCameraDraw11Write.MeshesDrawn = m_passStats.Meshes;
             MyPerformanceCounter.PerCameraDraw11Write.SubmeshesDrawn = m_passStats.Submeshes;
             MyPerformanceCounter.PerCameraDraw11Write.ObjectConstantsChanges = m_passStats.ObjectConstantsChanges;
-            MyPerformanceCounter.PerCameraDraw11Write.MaterialConstantsChanges = m_passStats.ObjectConstantsChanges;
+            MyPerformanceCounter.PerCameraDraw11Write.MaterialConstantsChanges = m_passStats.MaterialConstantsChanges;
             MyPerformanceCounter.PerCameraDraw11Write.TrianglesDrawn = m_passStats.Triangles;
             MyPerformanceCounter.PerCameraDraw11Write.InstancesDrawn = m_passStats.Instances;
 
@@ -124,12 +133,17 @@ namespace VRageRender
                     renderable.OnFrameUpdate();
                 }
             }
+            foreach (var instanceLodComponent in MyComponentFactory<MyInstanceLodComponent>.GetAll())
+            {
+                instanceLodComponent.OnFrameUpdate();
+            }
         }
 
         static bool m_resetEyeAdaptation = false;
 
         private static void DrawGameScene(bool blitToBackbuffer)
         {
+
             ResetStats();
             MyCommon.UpdateFrameConstants();
 
@@ -153,7 +167,7 @@ namespace VRageRender
             }
 
             // todo: shouldn't be necessary
-            if(true)
+            if (true)
             {
                 MyImmediateRC.RC.Clear();
                 MyImmediateRC.RC.Context.ClearState();
@@ -161,6 +175,7 @@ namespace VRageRender
 
             MyRender11.GetRenderProfiler().StartProfilingBlock("Render decals");
             MyGpuProfiler.IC_BeginBlock("Render decals");
+            MyRender11.CopyGbufferToScratch();
             MyScreenDecals.Draw();
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
@@ -188,7 +203,6 @@ namespace VRageRender
             MyShadows.MarkCascadesInStencil();
             MyGpuProfiler.IC_EndBlock();
 
-
             MyGpuProfiler.IC_BeginBlock("Shadows resolve");
             MyShadowsResolve.Run();
             MyGpuProfiler.IC_EndBlock();
@@ -203,6 +217,7 @@ namespace VRageRender
                 MyRender11.Context.ClearRenderTargetView(MyScreenDependants.m_ambientOcclusion.m_RTV, Color4.White);
             }
             MyGpuProfiler.IC_EndBlock();
+
 
             MyGpuProfiler.IC_BeginBlock("Lights");
             MyLightRendering.Render();
@@ -220,35 +235,37 @@ namespace VRageRender
                 MyBillboardRenderer.Render(MyScreenDependants.m_particlesRT, MyGBuffer.Main.DepthStencil, MyGBuffer.Main.DepthStencil.Depth);
             }
 
-            MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_particlesRT);
+            MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_particlesRT, MyRender11.BlendAlphaPremult);
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
 
             MyGpuProfiler.IC_BeginBlock("Luminance reduction");
             MyBindableResource avgLum = null;
-             
+
             if (MyRender11.MultisamplingEnabled)
             {
                 //MyLBufferResolve.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBufferResolved), MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyGBuffer.Main.DepthStencil.Stencil);
 
                 MyImmediateRC.RC.Context.ResolveSubresource(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer).m_resource, 0, MyGBuffer.Main.Get(MyGbufferSlot.LBufferResolved).m_resource, 0, SharpDX.DXGI.Format.R11G11B10_Float);
             }
+
             if (m_resetEyeAdaptation)
             {
                 MyImmediateRC.RC.Context.ClearUnorderedAccessView(m_prevLum.m_UAV, Int4.Zero);
                 m_resetEyeAdaptation = false;
             }
+
             avgLum = MyLuminanceAverage.Run(m_reduce0, m_reduce1, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), m_prevLum, m_localLum);
-            
+
             MyGpuProfiler.IC_EndBlock();
 
-            if(MyRender11.Settings.DispalyHdrDebug)
+            if (MyRender11.Settings.DispalyHdrDebug)
             {
                 var src = MyGBuffer.Main.Get(MyGbufferSlot.LBuffer) as MyRenderTarget;
                 MyHdrDebugTools.CreateHistogram(src.m_SRV, src.m_resolution, src.m_samples.X);
             }
 
-            
+
             MyGpuProfiler.IC_BeginBlock("Bloom");
             var bloom = MyBloom.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), avgLum);
             MyGpuProfiler.IC_EndBlock();
@@ -264,7 +281,7 @@ namespace VRageRender
             }
 
             MyGpuProfiler.IC_BeginBlock("Tone mapping");
-            MyToneMapping.Run(tonemapped, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), avgLum, bloom, MyRender11.Settings.EnableTonemapping && Postprocess.EnableTonemapping);
+            MyToneMapping.Run(tonemapped, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), avgLum, bloom, MyRender11.Settings.EnableTonemapping && Postprocess.EnableTonemapping && MyRender11.RenderSettings.TonemappingEnabled);
             MyGpuProfiler.IC_EndBlock();
 
             MyBindableResource renderedImage;
@@ -283,14 +300,35 @@ namespace VRageRender
                 renderedImage = tonemapped;
             }
 
+            if (MyOutline.AnyOutline())
+            {
+                MyOutline.Run();
+
+                if (MyRender11.FxaaEnabled)
+                {
+                    MyBlendTargets.RunWithStencil(m_rgba8_0.GetView(new MyViewKey { Fmt = SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.RtvView }), MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                }
+                else
+                {
+                    if (MyRender11.MultisamplingEnabled)
+                    {
+                        MyBlendTargets.RunWithPixelStencilTest(tonemapped, MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                    }
+                    else
+                    {
+                        MyBlendTargets.RunWithStencil(tonemapped, MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                    }
+                }
+            }
+
             m_finalImage = renderedImage;
 
-            if(blitToBackbuffer)
+            if (blitToBackbuffer)
             {
                 MyCopyToRT.Run(Backbuffer, renderedImage);
             }
 
-            if(MyRender11.Settings.DispalyHdrDebug)
+            if (MyRender11.Settings.DispalyHdrDebug)
             {
                 MyHdrDebugTools.DisplayHistogram(Backbuffer.m_RTV, (avgLum as IShaderResourceBindable).SRV);
             }
@@ -314,6 +352,7 @@ namespace VRageRender
             // uav3 stores final colors
             var surface = new MyRenderTarget(m_finalImage.GetSize().X, m_finalImage.GetSize().Y, SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, 1, 0);
             MyCopyToRT.Run(surface, m_finalImage);
+            MyCopyToRT.ClearAlpha(surface);
             SaveScreenshotFromResource(surface.m_resource);
             surface.Release();
 
@@ -339,7 +378,6 @@ namespace VRageRender
             QueryTexturesFromEntities();
             MyTextures.Load();
             GatherTextures();
-            MyComponents.UpdateCullProxies();
             MyComponents.ProcessEntities();
             MyComponents.SendVisible();
 
@@ -425,7 +463,7 @@ namespace VRageRender
             {
                 Resource.ToFile(MyRender11.Context, res, fmt, path);
 
-                MyRenderProxy.ScreenshotTaken(true, path, false);
+                MyRenderProxy.ScreenshotTaken(true, path, m_screenshot.Value.ShowNotification);
             }
             catch (SharpDX.SharpDXException e)
             {
@@ -434,7 +472,7 @@ namespace VRageRender
                     MyRender11.Log.WriteLine(String.Format("Failed to save screenshot {0}: {1}", path, e));
                 MyRender11.Log.DecreaseIndent();
 
-                MyRenderProxy.ScreenshotTaken(false, path, false);
+				MyRenderProxy.ScreenshotTaken(false, path, m_screenshot.Value.ShowNotification);
             }
         }
 

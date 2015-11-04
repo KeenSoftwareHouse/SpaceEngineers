@@ -40,8 +40,15 @@ namespace Sandbox.Game.Entities
     {
         public static void DrawSemiTransparentBox(MyCubeGrid grid, MySlimBlock block, Color color, bool onlyWireframe = false, string lineMaterial = null, Vector4? lineColor = null)
         {
-            var min = (block.Min * grid.GridSize) - new Vector3(grid.GridSize / 2.0f + 0.02f);
-            var max = (block.Max * grid.GridSize) + new Vector3(grid.GridSize / 2.0f + 0.02f);
+            DrawSemiTransparentBox(block.Min, block.Max, grid, color, onlyWireframe: onlyWireframe, lineMaterial: lineMaterial, lineColor: lineColor);
+        }
+
+        public static void DrawSemiTransparentBox(Vector3I minPosition, Vector3I maxPosition, MyCubeGrid grid, Color color, bool onlyWireframe = false, string lineMaterial = null,
+            Vector4? lineColor = null)
+        {
+            var gridSize = grid.GridSize;
+            var min = (minPosition * gridSize) - new Vector3(gridSize / 2.0f + 0.02f);
+            var max = (maxPosition * gridSize) + new Vector3(gridSize / 2.0f + 0.02f);
             BoundingBoxD boxr = new BoundingBoxD(min, max);
             MatrixD gridMatrix = grid.WorldMatrix;
             var lColor = Color.White;
@@ -56,6 +63,54 @@ namespace Sandbox.Game.Entities
                 Color faceColor = new Color(color * 0.2f, 0.3f);
                 MySimpleObjectDraw.DrawTransparentBox(ref gridMatrix, ref boxr, ref faceColor, MySimpleObjectRasterizer.Solid, 0, 0.04f, "Square", null, true);
             }
+        }
+
+        protected bool UpdateClipboards()
+        {
+            if (ShipCreationIsActivated)
+            {
+                m_shipCreationClipboard.Update();
+                ShipCreationClipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
+            }
+            else if (CopyPasteIsActivated)
+            {
+                Clipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
+            }
+            else if (CopyPasteFloatingObjectIsActivated)
+            {
+                FloatingObjectClipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
+            }
+            else if (MultiBlockCreationIsActivated)
+            {
+                m_multiBlockCreationClipboard.Update();
+                m_multiBlockCreationClipboard.CalculateRotationHints(m_rotationHints, false);
+            }
+
+            if (!BuildInputValid || MultiBlockCreationIsActivated || ShipCreationIsActivated || CopyPasteIsActivated || CopyPasteFloatingObjectIsActivated)
+            {
+                m_renderData.ClearInstanceData();
+                m_renderData.UpdateRenderInstanceData();
+                m_renderData.UpdateRenderEntitiesData(CurrentGrid != null ? CurrentGrid.WorldMatrix : MatrixD.Identity, UseTransparency);
+
+                if (!ShipCreationIsActivated && !CopyPasteIsActivated && !MultiBlockCreationIsActivated)
+                {
+                    m_rotationHints.Clear();
+                    VRageRender.MyRenderProxy.RemoveBillboardViewProjection(0);
+                }
+
+                if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
+                    DebugDrawModelTextures();
+
+                if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                    DebugDrawGeneratingBlock();
+
+                if (MultiBlockCreationIsActivated)
+                    UpdateBlockInfoHud();
+
+                return true;
+            }
+
+            return false;
         }
 
         public override void Draw()
@@ -82,63 +137,10 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            if (ShipCreationIsActivated)
-            {
-                m_shipCreationClipboard.Update();
-                ShipCreationClipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
-            }
-            else if (CopyPasteIsActivated)
-            {
-                Clipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
-            }
-            else if (CopyPasteFloatingObjectIsActivated)
-            {
-                FloatingObjectClipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
-            }
-            else if (MultiBlockCreationIsActivated)
-            {
-                m_multiBlockCreationClipboard.CalculateRotationHints(m_rotationHints, false);
-            }
-
-            if (!BuildInputValid || MultiBlockCreationIsActivated || ShipCreationIsActivated || CopyPasteIsActivated || CopyPasteFloatingObjectIsActivated)
-            {
-                m_renderData.ClearInstanceData();
-                m_renderData.UpdateRenderInstanceData();
-                m_renderData.UpdateRenderEntitiesData(CurrentGrid != null ? CurrentGrid.WorldMatrix : MatrixD.Identity, UseTransparency);
-
-                if (!ShipCreationIsActivated && !CopyPasteIsActivated && !MultiBlockCreationIsActivated)
-                {
-                    m_rotationHints.Clear();
-                    VRageRender.MyRenderProxy.RemoveBillboardViewProjection(0);
-                }
-
-                if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
-                    DebugDrawModelTextures();
-
-                if (MultiBlockCreationIsActivated)
-                    UpdateBlockInfoHud();
-
+            if (UpdateClipboards())
                 return;
-            }
-            var startPosition = m_gizmo.SpaceDefault.m_startBuild ?? m_gizmo.SpaceDefault.m_startRemove;
-            if (startPosition != null && m_gizmo.SpaceDefault.m_continueBuild != null)
-            {
-                Vector3I rotatedSize;
-                Vector3I.TransformNormal(ref CurrentBlockDefinition.Size, ref m_gizmo.SpaceDefault.m_localMatrixAdd, out rotatedSize);
-                rotatedSize = Vector3I.Abs(rotatedSize);
 
-                int stepCount;
-                Vector3I stepDelta;
-                Vector3I counter;
-
-                ComputeSteps(startPosition.Value, m_gizmo.SpaceDefault.m_continueBuild.Value,
-                    m_gizmo.SpaceDefault.m_startBuild.HasValue ? rotatedSize : Vector3I.One, out stepDelta, out counter, out stepCount);
-                m_cubeCountStringBuilder.Clear();
-                m_cubeCountStringBuilder.Append("  ");
-                m_cubeCountStringBuilder.AppendInt32(stepCount);
-
-                MyGuiManager.DrawString(MyFontEnum.White, m_cubeCountStringBuilder, new Vector2(0.5f, 0.5f), 1.5f);
-            }
+            DrawBuildingStepsCount(m_gizmo.SpaceDefault.m_startBuild, m_gizmo.SpaceDefault.m_startRemove, m_gizmo.SpaceDefault.m_continueBuild, ref m_gizmo.SpaceDefault.m_localMatrixAdd);
 
             bool addPos = m_gizmo.SpaceDefault.m_startBuild.HasValue;
             bool removePos = false;
@@ -157,8 +159,9 @@ namespace Sandbox.Game.Entities
                     if (!FreezeGizmo)
                     {
                         float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
+                        m_gizmo.SpaceDefault.m_removeBlocksInMultiBlock.Clear();
                         addPos = GetAddAndRemovePositions(gridSize, PlacingSmallGridOnLargeStatic, out m_gizmo.SpaceDefault.m_addPos, out m_gizmo.SpaceDefault.m_addPosSmallOnLarge, out m_gizmo.SpaceDefault.m_addDir,
-                            out m_gizmo.SpaceDefault.m_removePos, out m_gizmo.SpaceDefault.m_removeBlock, out m_gizmo.SpaceDefault.m_blockIdInCompound);
+                            out m_gizmo.SpaceDefault.m_removePos, out m_gizmo.SpaceDefault.m_removeBlock, out m_gizmo.SpaceDefault.m_blockIdInCompound, m_gizmo.SpaceDefault.m_removeBlocksInMultiBlock);
                     }
 
                     if (addPos)
@@ -180,7 +183,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !DeveloperSpectatorIsBuilding;
+            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
             //bool buildingDisabledByCockpit = true;
             if (!buildingDisabledByCockpit)
             {
@@ -249,6 +252,29 @@ namespace Sandbox.Game.Entities
             DebugDraw();
         }
 
+        protected void DrawBuildingStepsCount(Vector3I? startBuild, Vector3I? startRemove, Vector3I? continueBuild, ref Matrix localMatrixAdd )
+        {
+            var startPosition = startBuild ?? startRemove;
+            if (startPosition != null && continueBuild != null)
+            {
+                Vector3I rotatedSize;
+                Vector3I.TransformNormal(ref CurrentBlockDefinition.Size, ref localMatrixAdd, out rotatedSize);
+                rotatedSize = Vector3I.Abs(rotatedSize);
+
+                int stepCount;
+                Vector3I stepDelta;
+                Vector3I counter;
+
+                ComputeSteps(startPosition.Value, continueBuild.Value, startBuild.HasValue ? rotatedSize : Vector3I.One, out stepDelta, out counter, out stepCount);
+                m_cubeCountStringBuilder.Clear();
+                m_cubeCountStringBuilder.Append("  ");
+                m_cubeCountStringBuilder.AppendInt32(stepCount);
+
+                MyGuiManager.DrawString(MyFontEnum.White, m_cubeCountStringBuilder, new Vector2(0.5f, 0.5f), 1.5f);
+            }
+        }
+
+
         void DebugDraw()
         {
             /*
@@ -281,6 +307,40 @@ namespace Sandbox.Game.Entities
 
             if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                 DebugDrawModelTextures();
+
+            if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                DebugDrawGeneratingBlock();
+        }
+
+        private void DebugDrawGeneratingBlock()
+        {
+            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 200);
+            MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.LocalCharacter, null);
+
+            if (intersection.HasValue && intersection.Value.Entity is MyCubeGrid)
+            {
+                MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
+                MyIntersectionResultLineTriangleEx? t = null;
+                MySlimBlock block = null;
+                if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
+                {
+                    if (block.BlockDefinition.IsGeneratedBlock)
+                        DebugDrawGeneratingBlock(block);
+                }
+            }
+        }
+
+        private void DebugDrawGeneratingBlock(MySlimBlock generatedBlock)
+        {
+            var generatingBlock = generatedBlock.CubeGrid.GetGeneratingBlock(generatedBlock);
+            if (generatingBlock != null)
+            {
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 0), "Generated SubTypeId: " + generatedBlock.BlockDefinition.Id.SubtypeName + " " + generatedBlock.Min.ToString() + " " + generatedBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 14), "Generating SubTypeId: " + generatingBlock.BlockDefinition.Id.SubtypeName + " " + generatingBlock.Min.ToString() + " " + generatingBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+
+                Vector4 blue = new Vector4(Color.Blue.ToVector3() * 0.8f, 1);
+                MyCubeBuilder.DrawSemiTransparentBox(generatingBlock.CubeGrid, generatingBlock, Color.Blue, lineColor: blue);
+            }
         }
 
         private void DebugDrawModelTextures() 
@@ -413,7 +473,7 @@ namespace Sandbox.Game.Entities
 
         public static void DrawMountPoints(float cubeSize, MyCubeBlockDefinition def, ref MatrixD drawMatrix)
         {
-            var mountPoints = def.MountPoints;
+            var mountPoints = def.GetBuildProgressModelMountPoints(1.0f);
             if (mountPoints == null)
                 return;
 
@@ -428,7 +488,7 @@ namespace Sandbox.Game.Entities
 
                     foreach (var shape in model.HavokCollisionShapes)
                     {
-                        MyPhysicsBody.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
+                        MyPhysicsDebugDraw.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
                     }
 
                     var newMountPoints = AutogenerateMountpoints(model, cubeSize);
@@ -548,6 +608,7 @@ namespace Sandbox.Game.Entities
                 mountPoint.Normal = new Vector3I(direction);
                 mountPoint.Start = (aabb.Min + new Vector3(centerOffset)) / gridSize;
                 mountPoint.End = (aabb.Max + new Vector3(centerOffset)) / gridSize;
+				mountPoint.Enabled = true;
                 //because it didnt work if shape wasnt realy near the edge
                 var zExt = Vector3.Abs(direction) * mountPoint.Start;
                 bool add = zExt.AbsMax() > 0.5f;
@@ -669,5 +730,30 @@ namespace Sandbox.Game.Entities
             if (dist < cubeSize * 3.0f)
                 MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref bb, ref black, MySimpleObjectRasterizer.Wireframe, def.Size * 10, 0.005f / (float)bb.Size.Max() * cubeSize, onlyFrontFaces: true);
         }
+
+        protected static void DrawRemovingCubes(Vector3I? startRemove, Vector3I? continueBuild, MySlimBlock removeBlock)
+        {
+            if (startRemove == null || continueBuild == null || removeBlock == null)
+                return;
+
+            Color white = Color.White;
+
+            Vector3I stepDelta;
+            Vector3I counter;
+            int stepCount;
+            ComputeSteps(startRemove.Value, continueBuild.Value, Vector3I.One, out stepDelta, out counter, out stepCount);
+
+            var matrix = removeBlock.CubeGrid.WorldMatrix;
+            BoundingBoxD aabb = BoundingBoxD.CreateInvalid();
+            aabb.Include((startRemove.Value * removeBlock.CubeGrid.GridSize));
+            aabb.Include((continueBuild.Value * removeBlock.CubeGrid.GridSize));
+            aabb.Min -= new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
+            aabb.Max += new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
+
+            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref white, MySimpleObjectRasterizer.Wireframe, counter, 0.04f, null, "GizmoDrawLineRed", true);
+            Color faceColor = new Color(Color.Red * 0.2f, 0.3f);
+            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref faceColor, MySimpleObjectRasterizer.Solid, 0, 0.04f, "Square", null, true);
+        }
+
     }
 }

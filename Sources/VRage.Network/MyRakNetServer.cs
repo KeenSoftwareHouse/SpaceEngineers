@@ -1,205 +1,214 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Diagnostics;
+//using System.Linq;
+//using System.Text;
+//using VRage.Library.Collections;
+//using VRageMath;
 
-namespace VRage.Network
-{
-    public class MyRakNetServer : MyRakNetPeer
-    {
-        public override bool IsServer { get { return true; } }
-        public override ulong ServerId { get; protected set; }
-        public override ulong MySteamID { get { return ServerId; } protected set { ServerId = value; } }
+//namespace VRage.Network
+//{
+//    public delegate void ValidationDelegate(EndpointId endpoint, byte[] clientData);
 
-        private List<ulong> m_mods = new List<ulong>();
-        public List<ulong> Mods
-        {
-            get { return m_mods; }
-            set { m_mods = value; }
-        }
+//    public class MyRakNetServer : MyRakNetPeer
+//    {
+//        List<Vector3D> m_areasOfInterestTmp = new List<Vector3D>();
 
-        public MyRakNetServer(ulong steamID)
-            : base(steamID)
-        {
-            RegisterHandlers();
-            RegisterEvents();
-        }
+//        public List<ulong> Mods = new List<ulong>();
+//        public MyReplicationServer ReplicationServer { get { return (MyReplicationServer)ReplicationLayer; } }
 
-        public new StartupResultEnum Startup(uint maxConnections, ushort port, string host)
-        {
-            m_peer.SetMaximumIncomingConnections((ushort)maxConnections);
-            return base.Startup(maxConnections, port, host);
-        }
+//        protected new IMyServerCallback Callback { get { return (IMyServerCallback)base.Callback; } }
 
-        public event Action<ulong, BitStream> OnRequestWorld;
-        public event Action<ulong> OnClientReady;
+//        public MyRakNetServer()
+//            : base(true)
+//        {
+//            ReplicationLayer = new MyReplicationServer(this);
+//            RegisterHandlers();
+//        }
 
-        private void RegisterHandlers()
-        {
-            AddIgnoredMessage(MessageIDEnum.NEW_INCOMING_CONNECTION);
+//        public override void Dispose()
+//        {
+//            base.Dispose();
+//            ReplicationLayer.Dispose();
+//        }
 
-            AddMessageHandler(MessageIDEnum.CLIENT_DATA, ClientData);
-            AddMessageHandler(MessageIDEnum.STATE_DATA_REQUEST, StateDataRequest);
-            AddMessageHandler(MessageIDEnum.CLIENT_READY, ClientReady);
-            AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
-        }
+//        public void Startup(uint maxConnections, ushort port, string host, IMyServerCallback callback)
+//        {
+//            m_peer.SetMaximumIncomingConnections((ushort)maxConnections);
+//            base.Startup(maxConnections, port, host, callback);
+//        }
 
-        private void RegisterEvents()
-        {
-            OnConnectionLost += SendClientDisconnected;
-        }
+//        private void RegisterHandlers()
+//        {
+//            AddIgnoredMessage(MessageIDEnum.NEW_INCOMING_CONNECTION);
 
-        private void DisconnectionNotification(Packet packet)
-        {
-            ulong steamID = m_GUIDToSteamID[packet.GUID.G];
+//            AddMessageHandler(MessageIDEnum.CLIENT_DATA, ClientData);
+//            AddMessageHandler(MessageIDEnum.STATE_DATA_FULL_REQUEST, StateDataFullRequest);
+//            AddMessageHandler(MessageIDEnum.CLIENT_READY, ClientReady);
+//            AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
+//            AddMessageHandler(MessageIDEnum.CLIENT_UPDATE, ClientUpdate);
 
-            m_steamIDToGUID.Remove(steamID);
-            m_GUIDToSteamID.Remove(packet.GUID.G);
+//            AddMessageHandlerAsync(MessageIDEnum.SND_RECEIPT_ACKED, SendReceiptAcked);
+//            AddMessageHandlerAsync(MessageIDEnum.SND_RECEIPT_LOSS, SendReceiptLoss);
 
-            SendClientDisconnected(steamID);
+//            // hacks
+//            AddMessageHandler(MessageIDEnum.STEAM_HACK_WORLD_REQUEST, WorldRequest);
+//        }
 
-            RaiseOnClientLeft(steamID);
-        }
+//        private void WorldRequest(Packet packet)
+//        {
+//            m_sendStream.ResetWrite(MessageIDEnum.STEAM_HACK_WORLD_RESULT);
 
-        private void ClientReady(Packet packet)
-        {
-            ulong steamID = m_GUIDToSteamID[packet.GUID.G];
+//            Callback.OnRequestWorld(packet.GUID.ToEndpoint(), m_sendStream);
 
-            var handler = OnClientReady;
-            if (handler != null)
-                handler(steamID);
-        }
+//            SendMessage(m_sendStream, packet.GUID, PacketReliabilityEnum.RELIABLE_ORDERED, PacketPriorityEnum.IMMEDIATE_PRIORITY);
 
-        private void StateDataRequest(Packet packet)
-        {
-            ulong steamID = m_GUIDToSteamID[packet.GUID.G];
+//            StartReplicating(packet.GUID.ToEndpoint());
+//        }
 
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.STATE_DATA);
+//        private void ClientUpdate(Packet packet)
+//        {
+//            m_receiveStream.SetPacket(packet);
 
-            MyRakNetSyncLayer.Static.SerializeStateData(steamID, bs);
+//            ReplicationServer.SetClientState(packet.GUID.ToEndpoint(), m_receiveStream);
+//        }
 
-            var handler = OnRequestWorld;
-            if (handler != null)
-                handler(steamID, bs);
+//        private void SendReceiptLoss(Packet packet)
+//        {
+//            // TODO:SK endianity is probably wrong here
+//            m_receiveStream.SetPacket(packet);
+//            uint packetID = m_receiveStream.ReadUInt32();
+//            //MyRakNetSyncLayer.Static.ProcessSendReceiptLoss(packetID);
+//        }
 
-            SendMessage(bs, packet.GUID, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED);
-        }
+//        private void SendReceiptAcked(Packet packet)
+//        {
+//            // TODO:SK endianity is probably wrong here
+//            m_receiveStream.SetPacket(packet);
+//            uint packetID = m_receiveStream.ReadUInt32();
+//            //MyRakNetSyncLayer.Static.ProcessSendReceiptAcked(packetID);
+//        }
 
-        private void ClientData(Packet packet)
-        {
-            BitStream bs = packet.Data;
-            long tmpLong;
-            bool success = bs.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read steamID");
-            ulong steamID = (ulong)tmpLong;
+//        private void DisconnectionNotification(Packet packet)
+//        {
+//            MyClientEntry client;
+//            if (m_endpointIdToClient.TryGetValue(packet.GUID.ToEndpoint(), out client))
+//            {
+//                UnregisterClient(client);
+//                OnClientLeft(packet.GUID.ToEndpoint());
+//            }
+//            else
+//            {
+//                Debug.Fail("DisconnectionNotification, client not found");
+//            }
+//        }
 
-            int version;
-            success = bs.Read(out version);
-            Debug.Assert(success, "Failed to read version");
-            if (version != Version)
-            {
-                m_peer.CloseConnection(packet.GUID, true);
-                return;
-            }
+//        protected override void OnClientLeft(EndpointId endpoint)
+//        {
+//            ReplicationServer.OnClientLeft(endpoint);
+//            base.OnClientLeft(endpoint);
+//        }
 
-            SendServerData(packet.GUID);
+//        private void ClientReady(Packet packet)
+//        {
+//            MyClientEntry client;
+//            if (m_endpointIdToClient.TryGetValue(packet.GUID.ToEndpoint(), out client))
+//            {
+//                Callback.OnClientReady(client.EndpointId);
+//            }
+//            else
+//            {
+//                Debug.Fail("ClientReady, client not found");
+//            }
+//        }
 
-            m_steamIDToGUID.Add(steamID, packet.GUID);
-            m_GUIDToSteamID.Add(packet.GUID.G, steamID);
+//        private void StartReplicating(EndpointId endpoint)
+//        {
+//            MyClientEntry client;
+//            if (m_endpointIdToClient.TryGetValue(endpoint, out client))
+//            {
+//                var clientState = Callback.CreateClientState();
+//                clientState.EndpointId = client.EndpointId;
+//                ReplicationServer.OnClientJoined(client.EndpointId, clientState);
+//            }
+//            else
+//            {
+//                Debug.Fail("StartReplicating, client not found");
+//            }
+//        }
 
-            SendClientConnected(steamID, packet.GUID);
+//        private void StateDataFullRequest(Packet packet)
+//        {
+//            MyClientEntry client;
+//            if (m_endpointIdToClient.TryGetValue(packet.GUID.ToEndpoint(), out client))
+//            {
+//                m_sendStream.ResetWrite(MessageIDEnum.STATE_DATA_FULL);
+//                Callback.OnRequestStateData(client.EndpointId, m_sendStream);
 
-            RaiseOnClientJoined(steamID);
-        }
+//                SendMessage(m_sendStream, packet.GUID, PacketReliabilityEnum.RELIABLE_ORDERED, PacketPriorityEnum.IMMEDIATE_PRIORITY);
+//            }
+//            else
+//            {
+//                Debug.Fail("StateDataFullRequest, client not found");
+//            }
+//        }
 
-        private void SendClientConnected(ulong steamID, RakNetGUID exclude)
-        {
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.REMOTE_CLIENT_CONNECTED);
-            bs.Write((long)steamID);
-            BroadcastMessage(bs, PacketPriorityEnum.HIGH_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED, 0, exclude);
-        }
+//        private void ClientData(Packet packet)
+//        {
+//            m_receiveStream.SetPacket(packet);
 
-        private void SendClientDisconnected(ulong steamID)
-        {
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.REMOTE_CLIENT_DISCONNECTED);
-            bs.Write((long)steamID);
-            BroadcastMessage(bs, PacketPriorityEnum.HIGH_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
-        }
+//            // already connected
+//            // TODO:SK handle properly on the client
+//            if (m_endpointIdToClient.ContainsKey(packet.GUID.ToEndpoint()))
+//            {
+//                m_peer.CloseConnection(packet.GUID, true);
+//                return;
+//            }
 
-        private void SendServerData(RakNetGUID recipent)
-        {
-            BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.SERVER_DATA);
+//            Callback.ValidateUser(packet.GUID.ToEndpoint(), m_receiveStream);
+//        }
 
-            // connected client steamIDs
-            bs.Write(m_steamIDToGUID.Count);
-            foreach (var steamID in m_steamIDToGUID.Keys)
-            {
-                bs.Write((long)steamID);
-            }
+//        public void ValidationSuccessful(EndpointId endpoint)
+//        {
+//            var guid = new RakNetGUID(endpoint.Value);
+//            var client = RegisterClient(guid);
+//            OnClientJoined(endpoint);
+//            SendServerData(client);
+//        }
 
-            // serverID
-            bs.Write((long)ServerId);
+//        public void ValidationUnsuccessful(EndpointId endpoint)
+//        {
+//            var guid = new RakNetGUID(endpoint.Value);
+//            m_peer.CloseConnection(guid, true);
+//        }
 
-            // Mods
-            bs.Write(m_mods.Count);
-            foreach (ulong modId in m_mods)
-            {
-                bs.Write((long)modId);
-            }
+//        private void SendServerData(MyClientEntry client)
+//        {
+//            m_sendStream.ResetWrite(MessageIDEnum.SERVER_DATA);
+//            ReplicationLayer.SerializeTypeTable(m_sendStream);
 
-            // type table
-            var types = MyRakNetSyncLayer.Static.GetTypeTable();
-            bs.Write(types.Count);
-            foreach (var type in types)
-            {
-                bs.Write(type.GUID.ToByteArray(), 16);
-            }
+//            Callback.OnRequestServerData(client.EndpointId, m_sendStream);
 
-            SendMessage(bs, recipent, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
-        }
+//            SendMessage(m_sendStream, client.GUID, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY);
+//        }
 
-        protected override void ChatMessage(Packet packet)
-        {
-            string message;
+//        internal uint BroadcastMessage(BitStream bs, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, MyChannelEnum channel = MyChannelEnum.Default, RakNetGUID? exclude = null)
+//        {
+//            return SendMessage(bs, priority, reliability, channel, exclude ?? RakNetGUID.UNASSIGNED_RAKNET_GUID, true);
+//        }
 
-            bool success = packet.Data.ReadCompressed(out message);
-            Debug.Assert(success, "Failed to read chat message string");
+//        public bool Kick(EndpointId endpoint, bool sendNotification = true)
+//        {
+//            MyClientEntry client;
+//            if (m_endpointIdToClient.TryGetValue(endpoint, out client))
+//            {
+//                m_peer.CloseConnection(client.GUID, sendNotification);
 
-            ulong steamID = m_GUIDToSteamID[packet.GUID.G];
-
-            SendChatMessageInternal(steamID, message, packet.GUID);
-
-            RiseOnChatMessage(steamID, message);
-        }
-
-        public override void SendChatMessage(string message)
-        {
-            SendChatMessageInternal(MySteamID, message);
-        }
-
-        private void SendChatMessageInternal(ulong steamID, string message, RakNetGUID? exclude = null)
-        {
-            BitStream bs = new BitStream(null);
-
-            bs.Write((byte)MessageIDEnum.CHAT_MESSAGE);
-            bs.Write((long)steamID);
-            bs.WriteCompressed(message);
-
-            BroadcastMessage(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED, 0, exclude);
-        }
-
-        public uint BroadcastMessage(BitStream data, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, byte channel = 0, RakNetGUID? exclude = null)
-        {
-            exclude = exclude.HasValue ? exclude.Value : RakNetGUID.UNASSIGNED_RAKNET_GUID;
-            Debug.Assert(data.GetNumberOfBytesUsed() > 0, "no data");
-            uint ret = m_peer.Send(data, priority, reliability, channel, exclude.Value, true);
-            Debug.Assert(ret != 0, "bad input?");
-            return ret;
-        }
-    }
-}
+//                UnregisterClient(client);
+//                OnClientLeft(endpoint);
+//                return true;
+//            }
+//            return false;
+//        }
+//    }
+//}

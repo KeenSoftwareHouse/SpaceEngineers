@@ -5,16 +5,15 @@ Welcome to the Space Engineers source code!
 
 From this repository you can build Space Engineers. To play Space Engineers you need to own the game on Steam. Assets (audio, models, textures) are not included in this repository.
 
-Before downloading the source code please read carefully
-[End User License Agreement](https://github.com/KeenSoftwareHouse/SpaceEngineers/blob/master/EULA.txt)
+Before downloading the source code please read the EULA carefully - [End User License Agreement](https://github.com/KeenSoftwareHouse/SpaceEngineers/blob/master/EULA.txt).
 
-See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes.   
-Have you found a problem related to source codes? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues).   
+See the [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes.   
+Have you found a problem related to the source code? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues).   
 Discuss source code on our [source code sub-forum](http://forum.keenswh.com/forums/source-code.423135/).
 
 Prerequisities
 --------------
-- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different version of VS2013
+- [Visual Studio 2013 Community Edition with Update 4] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different version of VS2013 with Update 4
 - Steam Client + Space Engineers game (to run and test the game)
 
 Quickstart
@@ -41,18 +40,28 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - Use the GitHub program to **Sync** the project's files to a folder on your computer.
 - Open up **SpaceEngineers.sln** in Visual Studio.
 - Modify the source codes and test your changes.
-- Using the GitHub program, you can easily **submit contributions** back up to your **fork**.  These files will be visible to all subscribers.
+- Using the GitHub program, you can easily **submit contributions** back up to your **fork**.
+- Do not **commit to master**, for each feature **create new branch**.
 - When you're ready to send the changes to the Keen Software House for review, simply create a [Pull Request](https://help.github.com/articles/using-pull-requests).
+
+**Advanced topics:**
+- You can update your master branch by executing:
+  - git pull https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
+- If your master is tainted and any branch you make contains junk, you can do **hard reset**. All unmerged commits on master branch will be lost.
+  - git checkout master
+  - git fetch https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
+  - git reset --hard FETCH_HEAD
+  - git push --force origin master
 
 Common issues
 -------------
 **Build error: The command "..\3rd\Utils\RunTemplate.bat "....\MyEnumToStringsGenerated"" exited with code 1.**
-Common when using old versions of visual studio, see [Visual Studio support](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Visual-Studio-support). It can also happen when  TextTemplating.exe was not found for some reason (it should be installed with Visual Studio).
+This is common when using old versions of Visual Studio, see [Visual Studio support](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Visual-Studio-support). It can also happen when  TextTemplating.exe was not found for some reason (it should be installed with Visual Studio).
 
 **Assert: unable to find audio/model/texture file: 'xxxxxx'**.
 This happens because repository is slightly ahead of content in Steam folder. Definitions (Content/Data) are taken from repository and may contain new definitions referencing assets which are not yet in Steam content folder. We decided to use definitions from repository by default, so you can easily modify it. You can edit **global.props** to use definitions from Steam (that should fix the issue). When running on **Release** asserts won't be shown; missing assets won't crash the game.  More info [here](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Initial-setup#setting-path-to-the-games-content).
 
-Where is 64-bit version?
+Where is the 64-bit version?
 ------------------------
 
-We're unable to provide 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate better license which will allows us to do that.
+We're unable to provide a 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate a better license which will allow us to do that.

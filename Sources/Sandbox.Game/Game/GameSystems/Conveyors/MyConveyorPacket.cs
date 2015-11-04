@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.GameSystems.Conveyors
@@ -13,7 +14,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
     [MyEntityType(typeof(MyObjectBuilder_ConveyorPacket))]
     class MyConveyorPacket : MyEntity
     {
-        public MyInventoryItem Item;
+        public MyPhysicalInventoryItem Item;
         public int LinePosition;
 
         // Used for position interpolation
@@ -22,7 +23,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         public void Init(MyObjectBuilder_ConveyorPacket builder, MyEntity parent)
         {
-            Item = new MyInventoryItem(builder.Item);
+            Item = new MyPhysicalInventoryItem(builder.Item);
             LinePosition = builder.LinePosition;
 
             var physicalItem = MyDefinitionManager.Static.GetPhysicalItemDefinition(Item.Content);

@@ -1,9 +1,7 @@
 ﻿using Havok;
-using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems.Electricity;
@@ -11,24 +9,25 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
-using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using VRage;
-using VRage;
 using VRage.Import;
-using VRage.Utils;
 using VRageMath;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage.Utils;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonBase))]
-    class MyPistonBase : MyFunctionalBlock, IMyPowerConsumer, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyPistonBase
+    class MyPistonBase : MyFunctionalBlock, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyPistonBase
     {
         private HkConstraint m_subpartsConstraint;
         private HkConstraint m_constraint;
@@ -48,6 +47,8 @@ namespace Sandbox.Game.Entities.Blocks
         private HkFixedConstraintData m_subpartsFixedData;
         private bool m_resetInterpolationFlag = true;
         private bool m_subPartContraintInScene = false;
+        bool m_retryAttach = false;
+        private bool m_welded = false;
 
         private HkFixedConstraintData ConstraintData { get { return m_fixedData; } }
 
@@ -182,13 +183,14 @@ namespace Sandbox.Game.Entities.Blocks
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                PistonDefinition.ResourceSinkGroup,
                 PistonDefinition.RequiredPowerInput,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0.0f);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0.0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.Update();
 
             var ob = objectBuilder as MyObjectBuilder_PistonBase;
             Velocity = ob.Velocity * BlockDefinition.MaxVelocity;
@@ -204,6 +206,9 @@ namespace Sandbox.Game.Entities.Blocks
 
         void CubeGrid_OnPhysicsChanged(MyEntity obj)
         {
+            if (MyFakes.WELD_PISTONS &&
+                ((CubeGrid.Physics != null && CubeGrid.Physics.LinearVelocity.Length() > 40) || m_welded))
+                return;
             DisposeSubpartsPhysics();
             LoadSubparts();
             UpdatePosition(true);
@@ -224,12 +229,12 @@ namespace Sandbox.Game.Entities.Blocks
         protected override void OnEnabledChanged()
         {
             base.OnEnabledChanged();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void OnAddedToScene(object source)
@@ -307,8 +312,6 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_subpartsFixedData = new HkFixedConstraintData();
             m_subpartsFixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-            float res;
-            var x = m_subpartsFixedData.GetInertiaStabilizationFactor(out res);
             m_subpartsFixedData.SetInertiaStabilizationFactor(1);
             var matAD = MatrixD.CreateWorld(Position * CubeGrid.GridSize + Vector3D.Transform(Vector3D.Transform(m_subpartsConstraintPos, WorldMatrix), CubeGrid.PositionComp.LocalMatrix), PositionComp.LocalMatrix.Forward, PositionComp.LocalMatrix.Up);
             matAD.Translation = CubeGrid.Physics.WorldToCluster(matAD.Translation);
@@ -319,6 +322,7 @@ namespace Sandbox.Game.Entities.Blocks
             //Dont dispose the fixed data or we wont have access to them
             breakableData.Threshold = BreakOffTreshold;
             m_subpartsConstraint = new HkConstraint(CubeGrid.Physics.RigidBody, subpart.Physics.RigidBody, breakableData);
+            Debug.Assert(m_subpartsConstraint.RigidBodyA != null);
             m_subpartsConstraint.WantRuntime = true;
 
             m_posChanged = true;
@@ -348,18 +352,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
         }
 
         public override void OnBuildSuccess(long builtBy)
@@ -383,6 +381,8 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
+            if (CheckVelocities())
+                return;
             UpdatePhysicsShape();
         }
 
@@ -392,12 +392,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (!m_posChanged || subpart == null || subpart.Physics == null || subpart.Physics.RigidBody == null)
                 return;
             m_posChanged = false;
-            if (m_currentPos > 0.4f)
+            var speedCorrection = Velocity < 0 ? Velocity / 6 : 0;
+            if (m_currentPos - 0.4f + speedCorrection > 0.02f)
             {
                 Vector3 vec = new Vector3(0, subpart.Model.BoundingBoxSize.Y + 0.3f, 0);
                 if (m_currentPos > 2 * Range / 3)
                     vec.Y -= m_currentPos - 2 * Range / 3;
-                var speedCorrection = Velocity < 0 ? Velocity / 6 : 0;
                 Vector3 vecB = vec + new Vector3(0, m_currentPos - 0.4f + speedCorrection, 0);
 
                 var existingShape = subpart.Physics.RigidBody.GetShape();
@@ -417,10 +417,12 @@ namespace Sandbox.Game.Entities.Blocks
                     subpart.Physics.RigidBody2.SetShape(shape);
                 shape.Base.RemoveReference();
                 subpart.Physics.Enabled = true;
+                //jn:TODO hack fix
+                CheckSubpartConstraint();
                 UpdateSubpartFixedData();
-                if (CubeGrid.Physics.IsInWorld)
+                if (CubeGrid.Physics.IsInWorldWelded() && subpart.Physics.IsInWorldWelded())
                 {
-                    if (m_subpartsConstraint != null &&!m_subpartsConstraint.InWorld)
+                    if (m_subpartsConstraint != null &&!m_subpartsConstraint.InWorld && !m_subPartContraintInScene)
                     {
                         m_subPartContraintInScene = true;
                         CubeGrid.Physics.AddConstraint(m_subpartsConstraint);
@@ -444,11 +446,34 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private void CheckSubpartConstraint()
+        {
+            if(m_subpartsConstraint != null && (m_subpartsConstraint.RigidBodyA == null))
+            {
+                if (m_subPartContraintInScene)
+                {
+                    m_subPartContraintInScene = false;
+                    CubeGrid.Physics.RemoveConstraint(m_subpartsConstraint);
+                }
+                m_subpartsConstraint.Dispose();
+                m_subpartsConstraint = null;
+                var breakableData = new HkBreakableConstraintData(m_subpartsFixedData);
+                //Dont dispose the fixed data or we wont have access to them
+                breakableData.Threshold = BreakOffTreshold;
+                m_subpartsConstraint = new HkConstraint(CubeGrid.Physics.RigidBody, m_subpart1.Physics.RigidBody, breakableData);
+                Debug.Assert(m_subpartsConstraint.RigidBodyA != null);
+                m_subpartsConstraint.WantRuntime = true;
+            }
+        }
+
         public override void UpdateBeforeSimulation()
         {
             ProfilerShort.Begin("MyTerminalBlock.UpdateBeforeSim");
             base.UpdateBeforeSimulation();
             ProfilerShort.End();
+
+            if (CheckVelocities())
+                return;
 
             ProfilerShort.Begin("TopPartCheck");
             if (m_topBlock == null && m_topBlockId != 0)
@@ -463,7 +488,17 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     Debug.Assert(topBlock is MyPistonTop);
                     if ((topBlock is MyPistonTop))
-                        Attach(topBlock as MyPistonTop, false);
+                    {
+                        if ((topBlock as MyCubeBlock).CubeGrid.InScene == false)
+                        {
+                            RetryAttach(m_topBlockId);
+                        }
+                        else
+                        {
+                            Attach(topBlock as MyPistonTop, false);
+                            m_retryAttach = false;
+                        }
+                    }
                 }
             }
             ProfilerShort.End();
@@ -471,6 +506,48 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.Begin("UpdatePos");
             UpdatePosition();
             ProfilerShort.End();
+        }
+
+        private bool CheckVelocities()
+        {
+            if (!MyFakes.WELD_PISTONS)
+                return false;
+            if (CubeGrid.Physics == null)
+                return false;
+            if (CubeGrid.Physics.LinearVelocity.Length() > 40)
+            {
+                if (m_welded)
+                    return true;
+                else
+                {
+                    if(m_topGrid == null)
+                    {
+                        if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId, out m_topBlock))
+                            m_topGrid = m_topBlock.CubeGrid;
+                    }
+                }
+                if (m_topGrid != null && MyWeldingGroups.Static.GetGroup(CubeGrid) != MyWeldingGroups.Static.GetGroup(m_topGrid))
+                {
+                    m_topBlockId = m_topBlock.EntityId;
+                    var topGrid = m_topGrid;
+                    Detach();
+                    MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+                    m_welded = true;
+                    return true;
+                }
+                return false;
+            }
+
+            if (CubeGrid.Physics.LinearVelocity.Length() < 39)
+            {
+                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_topGrid);
+                m_welded = false;
+                //if (m_topGrid == null && m_topBlockId != 0)
+                //    UpdateOnceBeforeFrame();
+            }
+            if (m_welded)
+                    return true;
+            return false;
         }
 
         private void UpdatePosition(bool forceUpdate = false)
@@ -542,7 +619,7 @@ namespace Sandbox.Game.Entities.Blocks
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("SetInBodySpace");
-                ConstraintData.SetInBodySpace(ref matA, ref matB);
+                ConstraintData.SetInBodySpace(matA, matB, CubeGrid.Physics, m_topGrid.Physics);
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("UpdateSubpartFixedData");
@@ -559,7 +636,7 @@ namespace Sandbox.Game.Entities.Blocks
                 offset.Y -= m_currentPos - 2 * Range / 3;
             var matB = Matrix.CreateWorld(offset, Vector3.Forward, Vector3.Up);
             if (m_subpartsFixedData != null)
-                m_subpartsFixedData.SetInBodySpace(ref matA, ref matB);
+                m_subpartsFixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, m_subpart1.Physics);
             else
                 MySandboxGame.Log.WriteLine("m_subpartsFixedData is null");
             //if (CubeGrid.SyncObject.ResponsibleForUpdate(Sync.Clients.LocalClient))
@@ -639,7 +716,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_fixedData = new HkFixedConstraintData();
                 m_fixedData.SetInertiaStabilizationFactor(10);
                 m_fixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-                m_fixedData.SetInBodySpace(ref matA, ref matB);
+                m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, m_topGrid.Physics);
                 var breakData = new HkBreakableConstraintData(m_fixedData);
                 //Dont dispose the fixed data or we wont have access to them
 
@@ -681,7 +758,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
             gridBuilder.IsStatic = false;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);
@@ -696,7 +773,6 @@ namespace Sandbox.Game.Entities.Blocks
 
             MyEntities.Add(grid);
 
-            MySyncCreate.SendEntityCreated(grid.GetObjectBuilder());
             m_topBlockId = topBlock.EntityId;
         }
 
@@ -746,14 +822,23 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_topBlockId != 0 && m_topBlock == null)
             {
                 MyPistonTop top;
-                if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId, out top))
+                if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId, out top) && top.InScene)
                 {
                     m_topBlock = top;
-                    Attach(m_topBlock, true);
+                    Attach(m_topBlock, Sync.IsServer);
+                    m_retryAttach = false;
                 }
                 else
+                {
                     if (Sync.IsServer)
+                    {
                         m_topBlockId = 0;
+                    }
+                    if(m_retryAttach)
+                    {
+                        RetryAttach(m_topBlockId);
+                    }
+                }
             }
 
             LoadSubparts();
@@ -810,6 +895,13 @@ namespace Sandbox.Game.Entities.Blocks
         {
             add { LimitReached += value; }
             remove { LimitReached -= value; }
+        }
+
+        public void RetryAttach(long entityId)
+        {
+            m_topBlockId = entityId;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            m_retryAttach = true;
         }
     }
 

@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Text;
 using Vector2 = VRageMath.Vector2;
 using VRage.Library.Utils;
+using VRageRender.RenderProxy;
 
 #endregion
 
@@ -62,8 +63,14 @@ namespace VRageRender
         }
 
         MyMessageQueue m_outputQueue = new MyMessageQueue();
+        MyNullRenderProfiler m_profiler = new MyNullRenderProfiler();
         public MyMessageQueue OutputQueue { get { return m_outputQueue; } }
         public uint GlobalMessageCounter { get { return 0; } set { } }
+
+        public MyNullRender()
+        {
+            m_profiler.SetAutocommit(false);
+        }
 
         public void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)
         {
@@ -84,7 +91,7 @@ namespace VRageRender
 
         public MyRenderProfiler GetRenderProfiler()
         {
-            return null;
+            return m_profiler;
         }
 
 
@@ -111,11 +118,6 @@ namespace VRageRender
         public Vector2 GetVideoSize(uint id)
         {
             return Vector2.Zero;
-        }
-
-        public void RestoreDXGISwapchainFullscreenMode()
-        {
-
         }
 
         public MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
@@ -150,10 +152,7 @@ namespace VRageRender
         {
         }
 
-        public MyAdapterInfo[] GetAdaptersList()
-        {
-            return null;
-        }
+        bool IMyRender.IsSupported { get { return true; } }
 
         public bool SettingsChanged(MyRenderDeviceSettings settings)
         {
@@ -167,5 +166,7 @@ namespace VRageRender
         public void Present()
         {
         }
+
+        public void HandleFocusMessage(MyWindowFocusMessage msg) { }
     }
 }

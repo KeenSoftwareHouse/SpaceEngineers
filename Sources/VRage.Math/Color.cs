@@ -10,8 +10,11 @@ namespace VRageMath
     [ProtoBuf.ProtoContract, Serializable]
     public struct Color : IPackedVector<uint>, IPackedVector, IEquatable<Color>
     {
+        /// <summary>
+        /// Gets the current color as a packed value.
+        /// </summary>
         [ProtoBuf.ProtoMember]
-        private uint packedValue;
+        public uint PackedValue;
 
         /// <summary>
         /// Gets or sets the red component value of this Color.
@@ -20,11 +23,11 @@ namespace VRageMath
         {
             get
             {
-                return (byte)this.packedValue;
+                return (byte)this.PackedValue;
             }
             set
             {
-                this.packedValue = this.packedValue & 4294967040U | (uint)value;
+                this.PackedValue = this.PackedValue & 4294967040U | (uint)value;
             }
         }
 
@@ -35,11 +38,11 @@ namespace VRageMath
         {
             get
             {
-                return (byte)(this.packedValue >> 8);
+                return (byte)(this.PackedValue >> 8);
             }
             set
             {
-                this.packedValue = (uint)((int)this.packedValue & -65281 | (int)value << 8);
+                this.PackedValue = (uint)((int)this.PackedValue & -65281 | (int)value << 8);
             }
         }
 
@@ -50,11 +53,11 @@ namespace VRageMath
         {
             get
             {
-                return (byte)(this.packedValue >> 16);
+                return (byte)(this.PackedValue >> 16);
             }
             set
             {
-                this.packedValue = (uint)((int)this.packedValue & -16711681 | (int)value << 16);
+                this.PackedValue = (uint)((int)this.PackedValue & -16711681 | (int)value << 16);
             }
         }
 
@@ -65,26 +68,11 @@ namespace VRageMath
         {
             get
             {
-                return (byte)(this.packedValue >> 24);
+                return (byte)(this.PackedValue >> 24);
             }
             set
             {
-                this.packedValue = (uint)((int)this.packedValue & 16777215 | (int)value << 24);
-            }
-        }
-
-        /// <summary>
-        /// Gets the current color as a packed value.
-        /// </summary>
-        public uint PackedValue
-        {
-            get
-            {
-                return this.packedValue;
-            }
-            set
-            {
-                this.packedValue = value;
+                this.PackedValue = (uint)((int)this.PackedValue & 16777215 | (int)value << 24);
             }
         }
 
@@ -1641,7 +1629,7 @@ namespace VRageMath
 
         public Color(uint packedValue)
         {
-            this.packedValue = packedValue;
+            this.PackedValue = packedValue;
         }
 
         /// <summary>
@@ -1658,7 +1646,7 @@ namespace VRageMath
             }
             g <<= 8;
             b <<= 16;
-            this.packedValue = (uint)(r | g | b | -16777216);
+            this.PackedValue = (uint)(r | g | b | -16777216);
         }
 
         /// <summary>
@@ -1677,12 +1665,12 @@ namespace VRageMath
             g <<= 8;
             b <<= 16;
             a <<= 24;
-            this.packedValue = (uint)(r | g | b | a);
+            this.PackedValue = (uint)(r | g | b | a);
         }
 
         public Color(float rgb)
         {
-            this.packedValue = Color.PackHelper(rgb, rgb, rgb, 1f);
+            this.PackedValue = Color.PackHelper(rgb, rgb, rgb, 1f);
         }
 
 
@@ -1692,7 +1680,7 @@ namespace VRageMath
         /// <param name="r">Red component.</param><param name="g">Green component.</param><param name="b">Blue component.</param>
         public Color(float r, float g, float b)
         {
-            this.packedValue = Color.PackHelper(r, g, b, 1f);
+            this.PackedValue = Color.PackHelper(r, g, b, 1f);
         }
 
         /// <summary>
@@ -1701,12 +1689,12 @@ namespace VRageMath
         /// <param name="r">Red component.</param><param name="g">Green component.</param><param name="b">Blue component.</param><param name="a">Alpha component.</param>
         public Color(float r, float g, float b, float a)
         {
-            this.packedValue = Color.PackHelper(r, g, b, a);
+            this.PackedValue = Color.PackHelper(r, g, b, a);
         }
 
         public Color(Color color, float a)
         {
-            this.packedValue = Color.PackHelper(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, a);
+            this.PackedValue = Color.PackHelper(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, a);
         }
 
         /// <summary>
@@ -1715,7 +1703,7 @@ namespace VRageMath
         /// <param name="vector">A three-component color.</param>
         public Color(Vector3 vector)
         {
-            this.packedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, 1f);
+            this.PackedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, 1f);
         }
 
         /// <summary>
@@ -1724,7 +1712,7 @@ namespace VRageMath
         /// <param name="vector">A four-component color.</param>
         public Color(Vector4 vector)
         {
-            this.packedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
+            this.PackedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
         }
 
         /// <summary>
@@ -1733,7 +1721,7 @@ namespace VRageMath
         /// <param name="value">A four-component color</param><param name="scale">Scale factor.</param>
         public static Color operator *(Color value, float scale)
         {
-            uint num1 = value.packedValue;
+            uint num1 = value.PackedValue;
             uint num2 = (uint)(byte)num1;
             uint num3 = (uint)(byte)(num1 >> 8);
             uint num4 = (uint)(byte)(num1 >> 16);
@@ -1753,7 +1741,7 @@ namespace VRageMath
             if (num10 > (uint)byte.MaxValue)
                 num10 = (uint)byte.MaxValue;
             Color color;
-            color.packedValue = (uint)((int)num7 | (int)num8 << 8 | (int)num9 << 16 | (int)num10 << 24);
+            color.PackedValue = (uint)((int)num7 | (int)num8 << 8 | (int)num9 << 16 | (int)num10 << 24);
             return color;
         }
 
@@ -1777,7 +1765,7 @@ namespace VRageMath
 
         void IPackedVector.PackFromVector4(Vector4 vector)
         {
-            this.packedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
+            this.PackedValue = Color.PackHelper(vector.X, vector.Y, vector.Z, vector.W);
         }
 
         /// <summary>
@@ -1787,7 +1775,7 @@ namespace VRageMath
         public static Color FromNonPremultiplied(Vector4 vector)
         {
             Color color;
-            color.packedValue = Color.PackHelper(vector.X * vector.W, vector.Y * vector.W, vector.Z * vector.W, vector.W);
+            color.PackedValue = Color.PackHelper(vector.X * vector.W, vector.Y * vector.W, vector.Z * vector.W, vector.W);
             return color;
         }
 
@@ -1805,7 +1793,7 @@ namespace VRageMath
             b <<= 16;
             a <<= 24;
             Color color;
-            color.packedValue = (uint)(r | g | b | a);
+            color.PackedValue = (uint)(r | g | b | a);
             return color;
         }
 
@@ -1840,9 +1828,9 @@ namespace VRageMath
         public Vector3 ToVector3()
         {
             Vector3 vector3;
-            vector3.X = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue);
-            vector3.Y = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue >> 8);
-            vector3.Z = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue >> 16);
+            vector3.X = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue);
+            vector3.Y = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue >> 8);
+            vector3.Z = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue >> 16);
             return vector3;
         }
 
@@ -1852,10 +1840,10 @@ namespace VRageMath
         public Vector4 ToVector4()
         {
             Vector4 vector4;
-            vector4.X = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue);
-            vector4.Y = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue >> 8);
-            vector4.Z = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue >> 16);
-            vector4.W = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.packedValue >> 24);
+            vector4.X = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue);
+            vector4.Y = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue >> 8);
+            vector4.Z = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue >> 16);
+            vector4.W = PackUtils.UnpackUNorm((uint)byte.MaxValue, this.PackedValue >> 24);
             return vector4;
         }
 
@@ -1865,8 +1853,8 @@ namespace VRageMath
         /// <param name="value1">A four-component color.</param><param name="value2">A four-component color.</param><param name="amount">Interpolation factor.</param>
         public static Color Lerp(Color value1, Color value2, float amount)
         {
-            uint num1 = value1.packedValue;
-            uint num2 = value2.packedValue;
+            uint num1 = value1.PackedValue;
+            uint num2 = value2.PackedValue;
             int num3 = (int)(byte)num1;
             int num4 = (int)(byte)(num1 >> 8);
             int num5 = (int)(byte)(num1 >> 16);
@@ -1881,7 +1869,7 @@ namespace VRageMath
             int num14 = num5 + ((num9 - num5) * num11 >> 16);
             int num15 = num6 + ((num10 - num6) * num11 >> 16);
             Color color;
-            color.packedValue = (uint)(num12 | num13 << 8 | num14 << 16 | num15 << 24);
+            color.PackedValue = (uint)(num12 | num13 << 8 | num14 << 16 | num15 << 24);
             return color;
         }
 
@@ -1891,7 +1879,7 @@ namespace VRageMath
         /// <param name="value">The source, four-component color.</param><param name="scale">The scale factor.</param>
         public static Color Multiply(Color value, float scale)
         {
-            uint num1 = value.packedValue;
+            uint num1 = value.PackedValue;
             uint num2 = (uint)(byte)num1;
             uint num3 = (uint)(byte)(num1 >> 8);
             uint num4 = (uint)(byte)(num1 >> 16);
@@ -1911,7 +1899,7 @@ namespace VRageMath
             if (num10 > (uint)byte.MaxValue)
                 num10 = (uint)byte.MaxValue;
             Color color;
-            color.packedValue = (uint)((int)num7 | (int)num8 << 8 | (int)num9 << 16 | (int)num10 << 24);
+            color.PackedValue = (uint)((int)num7 | (int)num8 << 8 | (int)num9 << 16 | (int)num10 << 24);
             return color;
         }
 
@@ -1928,7 +1916,7 @@ namespace VRageMath
         /// </summary>
         public override int GetHashCode()
         {
-            return this.packedValue.GetHashCode();
+            return this.PackedValue.GetHashCode();
         }
 
         /// <summary>
@@ -1949,7 +1937,7 @@ namespace VRageMath
         /// <param name="other">A four-component color.</param>
         public bool Equals(Color other)
         {
-            return this.packedValue.Equals(other.packedValue);
+            return this.PackedValue.Equals(other.PackedValue);
         }
 
         public static implicit operator Color(Vector3 v)
@@ -1970,6 +1958,12 @@ namespace VRageMath
         public static implicit operator Vector4(Color v)
         {
             return v.ToVector4();
+        }
+
+        uint IPackedVector<uint>.PackedValue
+        {
+            get { return PackedValue; }
+            set { PackedValue = value; }
         }
     }
 }

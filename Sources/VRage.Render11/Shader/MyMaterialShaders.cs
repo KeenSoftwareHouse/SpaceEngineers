@@ -9,7 +9,6 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 
 
 namespace VRageRender
@@ -76,6 +75,10 @@ namespace VRageRender
             {
                 sb.AppendLine("#define ALPHA_MASKED");
             }
+            if ((flags & MyShaderUnifiedFlags.ALPHAMASK_ARRAY) > 0)
+            {
+                sb.AppendLine("#define ALPHA_MASK_ARRAY");
+            }
             if ((flags & MyShaderUnifiedFlags.TRANSPARENT) > 0)
             {
                 sb.AppendLine("#define TRANSPARENT");
@@ -112,10 +115,14 @@ namespace VRageRender
             {
                 sb.AppendLine("#define USE_VOXEL_MORPHING");
             }
+            if((flags & MyShaderUnifiedFlags.USE_SHADOW_CASCADES) == MyShaderUnifiedFlags.USE_SHADOW_CASCADES)
+			{
+				sb.AppendLine(MyRender11.ShaderCascadesNumberHeader());
+			}
         }
 
-        static Dictionary<MyStringId, MyMaterialShaderInfo> MaterialSources = new Dictionary<MyStringId, MyMaterialShaderInfo>();
-        static Dictionary<MyStringId, MyMaterialPassInfo> MaterialPassSources = new Dictionary<MyStringId, MyMaterialPassInfo>();
+        static Dictionary<MyStringId, MyMaterialShaderInfo> MaterialSources = new Dictionary<MyStringId, MyMaterialShaderInfo>(MyStringId.Comparer);
+        static Dictionary<MyStringId, MyMaterialPassInfo> MaterialPassSources = new Dictionary<MyStringId, MyMaterialPassInfo>(MyStringId.Comparer);
 
         static Dictionary<int, MyMaterialShadersBundleId> HashIndex = new Dictionary<int,MyMaterialShadersBundleId>();
         static MyFreelist<MyMaterialShadersInfo> BundleInfo = new MyFreelist<MyMaterialShadersInfo>(64);
@@ -270,7 +277,6 @@ namespace VRageRender
             source.AppendLine();
             source.AppendLine(MaterialPassSources[info.Pass].PixelStageTemplate);
 
-            
             var psName = String.Format("[{0}][{1}]_{2}_{3}", info.Pass.ToString(), info.Material.ToString(), "ps", info.Flags);
             var psSource = source.ToString();
 
@@ -301,7 +307,7 @@ namespace VRageRender
                 }
 
                 try
-                { 
+                {
                     Bundles[id.Index].VS = new VertexShader(MyRender11.Device, vsBytecode);
                     Bundles[id.Index].PS = new PixelShader(MyRender11.Device, psBytecode);
                     Bundles[id.Index].IL = info.Layout.Elements.Length > 0 ? new InputLayout(MyRender11.Device, vsBytecode, info.Layout.Elements) : null;

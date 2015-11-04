@@ -19,12 +19,16 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Common;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.UseObject;
+using VRage.Game.Entity.UseObject;
+
 //using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncControllableEntity : MySyncEntity
+    public class MySyncControllableEntity : MySyncEntity
     {
         public delegate void SwitchToWeaponDelegate(MyDefinitionId? weapon, MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId);
         public delegate void SwitchAmmoMagazineDelegate();
@@ -151,17 +155,17 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ControlledEntity_UseMsg>(ControlledEntity_UseRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ControlledEntity_UseMsg>(ControlledEntity_UseCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponRequest, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponFailure, MyMessagePermissions.Any, MyTransportMessageEnum.Failure);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponRequest, MyMessagePermissions.ToServer ,  MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
 
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ShootBeginMsg>(ShootBeginCallback, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ShootEndMsg>(ShootEndCallback, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ShootDirectionChangeMsg>(ShootDirectionChangeCallback, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ShootDirectionChangeMsg>(ShootDirectionChangeCallback, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineRequest, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineFailure, MyMessagePermissions.Any, MyTransportMessageEnum.Failure);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineRequest, MyMessagePermissions.ToServer , MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
         }
 
         public event Action ControlledEntity_Used;
@@ -197,7 +201,7 @@ namespace Sandbox.Game.Multiplayer
         {
             m_switchWeaponCounter = 0;
             m_switchAmmoMagazineCounter = 0;
-            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.MaxValue.Value + 1];
+            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
         }
 
         public virtual void ControlledEntity_Use()
@@ -287,14 +291,14 @@ namespace Sandbox.Game.Multiplayer
 
                 if (controllableEntity != null)
                 {
-                    MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.FactionShare;
+                    MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.NoOwnership;
                     var cubeBlock = sync.Entity as MyCubeBlock;
                     if (cubeBlock != null && controllableEntity.ControllerInfo.Controller != null)
                     {
                         relation = cubeBlock.GetUserRelationToOwner(controllableEntity.ControllerInfo.Controller.Player.Identity.IdentityId);
                     }
 
-                    if (relation == MyRelationsBetweenPlayerAndBlock.FactionShare || relation == MyRelationsBetweenPlayerAndBlock.Owner)
+                    if (relation.IsFriendly())
                     {
                         sync.RaiseUseSuccess(msg.UseAction, controllableEntity);
                     }
@@ -445,7 +449,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.EntityId = SyncedEntityId;
                 msg.Direction = direction;
 
-                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+                MySession.Static.SyncLayer.SendMessageToServer(ref msg);
                 m_lastShootDirectionUpdate = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             }
             ShootDirection = direction;
@@ -496,6 +500,10 @@ namespace Sandbox.Game.Multiplayer
         static void ShootDirectionChangeCallback(MySyncControllableEntity sync, ref ShootDirectionChangeMsg msg, MyNetworkClient sender)
         {
             sync.ShootDirection = msg.Direction;
+            if(Sync.IsServer)
+            {
+                MySession.Static.SyncLayer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         private void StartShooting(MyShootActionEnum action, Vector3 direction)

@@ -41,7 +41,7 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_LOGIN_WAS_SUCCESSFUL = "LastLoginWasSuccessful";
         readonly string REMEBER_USERNAME_AND_PASSWORD = "RememberUsernameAndPassword";
         readonly string AUTOLOGIN = "Autologin";
-        readonly string RENDER_QUALITY = "RenderQuality";
+        readonly string DX9_RENDER_QUALITY = "RenderQuality";
         readonly string FIELD_OF_VIEW = "FieldOfView";
         readonly string ENABLE_DAMAGE_EFFECTS = "EnableDamageEffects";
         readonly string RENDER_INTERPOLATION = "RenderInterpolation";
@@ -66,7 +66,9 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_FRIEND_SECTOR_USER_ID = "LastFriendSectorUserId";
         readonly string LAST_FRIEND_SECTOR_POSITION = "LastFriendSectorPosition";
         readonly string LAST_MY_SANDBOX_SECTOR = "LastMySandboxSector";
+        readonly string FIRST_TIME_RUN = "FirstTimeRun";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
+        readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
         readonly string DEBUG_INPUT_COMPONENTS_INFO = "DebugComponentsInfo";
         readonly string MINIMAL_HUD = "MinimalHud";
@@ -82,10 +84,15 @@ namespace Sandbox.Engine.Utils
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
+        readonly string TONEMAPPING = "Tonemapping";
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
-
+        readonly string GRASS_DENSITY = "GrassDensity";
+        readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
+        readonly string ENABLE_VOICE_CHAT = "VoiceChat";
+        readonly string UI_TRANSPARENCY = "UiTransparency";
+        readonly string UI_BK_TRANSPARENCY = "UiBkTransparency";
 
         public MyConfig(string fileName)
             : base(fileName)
@@ -162,6 +169,31 @@ namespace Sandbox.Engine.Utils
             }
         }
 
+        public bool FirstTimeRun
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(FIRST_TIME_RUN), true);
+            }
+            set
+            {
+                SetParameterValue(FIRST_TIME_RUN, value);
+            }
+        }
+
+        public bool NeedShowBattleTutorialQuestion
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION), true);
+            }
+
+            set
+            {
+                SetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION, value);
+            }
+        }
+
         public string Username
         {
             get
@@ -229,11 +261,11 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public MyRenderQualityEnum? RenderQuality
+        public MyRenderQualityEnum? Dx9RenderQuality
         {
             get
             {
-                int? retInt = MyUtils.GetIntFromString(GetParameterValue(RENDER_QUALITY));
+                int? retInt = MyUtils.GetIntFromString(GetParameterValue(DX9_RENDER_QUALITY));
                 if (retInt.HasValue && Enum.IsDefined(typeof(MyRenderQualityEnum), retInt.Value))
                     return (MyRenderQualityEnum)retInt.Value;
                 else
@@ -242,7 +274,7 @@ namespace Sandbox.Engine.Utils
 
             set
             {
-                SetParameterValue(RENDER_QUALITY, (int)value);
+                SetParameterValue(DX9_RENDER_QUALITY, (int)value);
             }
         }
 
@@ -256,6 +288,19 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(RENDER_INTERPOLATION, value);
+            }
+        }
+
+        public float GrassDensityFactor
+        {
+            get
+            {
+                return MyUtils.GetFloatFromString(GetParameterValue(GRASS_DENSITY), 1.0f);
+            }
+
+            set
+            {
+                SetParameterValue(GRASS_DENSITY, value);
             }
         }
 
@@ -321,6 +366,18 @@ namespace Sandbox.Engine.Utils
                     SetParameterValue(MULTITHREADED_RENDERING, value.Value);
                 else
                     RemoveParameterValue(MULTITHREADED_RENDERING);
+            }
+        }
+
+        public bool? Tonemapping
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(TONEMAPPING)); }
+            set
+            {
+                if (value.HasValue)
+                    SetParameterValue(TONEMAPPING, value.Value);
+                else
+                    RemoveParameterValue(TONEMAPPING);
             }
         }
 
@@ -704,10 +761,47 @@ namespace Sandbox.Engine.Utils
             }
         }
 
+        public float UIOpacity
+        {
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 0.0f); }
+            set { SetParameterValue(UI_TRANSPARENCY, value); }
+        }
+
+        public float UIBkOpacity
+        {
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 0.0f); }
+            set { SetParameterValue(UI_BK_TRANSPARENCY, value); }
+        }
+
         public bool HudWarnings
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(HUD_WARNINGS), true); }
             set { SetParameterValue(HUD_WARNINGS, value); }
+        }
+
+        public bool EnableVoiceChat
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_VOICE_CHAT), true); }
+            set { SetParameterValue(ENABLE_VOICE_CHAT, value); }
+        }
+
+        public MyStringId? GraphicsRenderer
+        {
+            get
+            {
+                var id = MyStringId.TryGet(GetParameterValue(GRAPHICS_RENDERER));
+                if (id != MyStringId.NullOrEmpty)
+                    return id;
+                else
+                    return null;
+            }
+            set
+            {
+                if (value.HasValue)
+                    SetParameterValue(GRAPHICS_RENDERER, value.Value.ToString());
+                else
+                    RemoveParameterValue(GRAPHICS_RENDERER);
+            }
         }
 
         #region ModAPI
@@ -833,7 +927,7 @@ namespace Sandbox.Engine.Utils
 
         MyRenderQualityEnum? ModAPI.IMyConfig.RenderQuality
         {
-            get { return RenderQuality; }
+            get { return Dx9RenderQuality; }
         }
 
         bool ModAPI.IMyConfig.RotationHints

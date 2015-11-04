@@ -13,8 +13,13 @@ namespace VRage.Import
     public class MyMaterialDescriptor
     {
         public string MaterialName { get; private set; }
+
         public Vector3 DiffuseColor = Vector3.One;
-        public float SpecularPower;
+        public float DiffuseColorX { get { return DiffuseColor.X; } set { DiffuseColor.X = value; } }
+        public float DiffuseColorY { get { return DiffuseColor.Y; } set { DiffuseColor.Y = value; } }
+        public float DiffuseColorZ { get { return DiffuseColor.Z; } set { DiffuseColor.Z = value; } }
+
+        public float SpecularPower { get; set; }
         /// <summary>
         /// Extra data (animation of holos)
         /// </summary>
@@ -29,11 +34,11 @@ namespace VRage.Import
         public Dictionary<string, string> Textures = new Dictionary<string, string>();
         public Dictionary<string, string> UserData = new Dictionary<string, string>();
 
-        public string Technique = "MESH";
+        public string Technique { get; set; }
 
-        public string GlassCW = "";
-        public string GlassCCW = "";
-        public bool GlassSmoothNormals = true;
+        public string GlassCW { get; set; }
+        public string GlassCCW { get; set; }
+        public bool GlassSmoothNormals { get; set; }
 
         /// <summary>
         /// c-tor
@@ -42,6 +47,10 @@ namespace VRage.Import
         public MyMaterialDescriptor(string materialName)
         {
             MaterialName = materialName;
+            Technique = "MESH";
+            GlassCCW = String.Empty;
+            GlassCW = String.Empty;
+            GlassSmoothNormals = true;
         }
 
         public MyMaterialDescriptor() {;}
@@ -169,6 +178,77 @@ namespace VRage.Import
             }
 
             return true;
+        }
+
+        public Vector2I UVTiles
+        {
+            get 
+            { 
+                string val;
+                if (UserData.TryGetValue("UVTiles", out val))
+                {
+                    string[] cmps = val.Split(' ');
+                    if (cmps.Length != 2)
+                        return Vector2I.One;
+
+                    int x, y;
+                    
+                    if (!int.TryParse(cmps[0], out x))
+                        return Vector2I.One;
+
+                    if (!int.TryParse(cmps[1], out y))
+                        return Vector2I.One;
+
+                    return new Vector2I(x, y);
+                }
+
+                return Vector2I.One;
+            }
+        }
+
+        public MyFacingEnum Facing
+        {
+            get
+            {
+                string facingVal;
+                if (UserData.TryGetValue("Facing", out facingVal))
+                {
+                    MyFacingEnum facing;
+                    if (!Enum.TryParse(facingVal, out facing))
+                        return MyFacingEnum.None;
+
+                    return facing;
+                }
+
+                return MyFacingEnum.None;
+            }
+        }
+
+        public Vector2 WindScaleAndFreq
+        {
+            get
+            {
+                string windScaleVal;
+                Vector2 windScaleAndFreq = Vector2.Zero;
+                if (UserData.TryGetValue("WindScale", out windScaleVal))
+                {
+                    float f;
+                    if (!float.TryParse(windScaleVal, out f))
+                        return windScaleAndFreq;
+
+                    windScaleAndFreq.X = f;
+
+                    if (UserData.TryGetValue("WindFrequency", out windScaleVal))
+                    {
+                        if (!float.TryParse(windScaleVal, out f))
+                            return windScaleAndFreq;
+                    }
+
+                    windScaleAndFreq.Y = f;
+                }
+
+                return windScaleAndFreq;
+            }
         }
     }
 }

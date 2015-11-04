@@ -49,21 +49,9 @@ namespace VRage.Library.Utils
             }
         }
 
-        public static int GetHash(string text, int seed = 0)
+        public static int GetDivisionCeil(int num, int div)
         {
-            int hash = seed;
-            unchecked
-            {
-                if (text != null)
-                {
-                    foreach (char c in text)
-                    {
-                        hash = hash * 31 + c;
-                    }
-                }
-                return hash;
-            }
+            return (num - 1) / div + 1;
         }
-
     }
 }

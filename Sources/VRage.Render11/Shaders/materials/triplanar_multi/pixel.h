@@ -1,6 +1,29 @@
 #include <common.h>
 #include <math.h>
 #include <triplanar_sampling.h>
+#include <voxel_ambient_occlusion.h>
+
+float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
+{
+	float curDistance = 0;
+	float curScale = materialSettings.x;
+
+	float nextDistance = materialSettings.y;
+	float nextScale = materialSettings.z;
+
+
+	while (nextDistance < distance)
+	{
+		curDistance = nextDistance;
+		curScale = nextScale;
+
+		nextDistance *= materialSettings.w;
+		nextScale *= materialSettings.z;
+	}
+
+	return float4(curDistance, nextDistance, curScale, nextScale);
+}
+
 
 void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
@@ -10,85 +33,213 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	float d = pixel.custom.distance;
 	float3 N = normalize(pixel.custom.normal);
 	float3 weights = saturate(triplanar_weights(N));
-	float3 texcoords = pixel.custom.texcoords;
+	
 	weights /= dot(weights, 1);
 
-	float2 texcoords_ddx[3]; 
-	float2 texcoords_ddy[3];
-	calc_derivatives(texcoords, texcoords_ddx, texcoords_ddy);
-
-	float4 distances = frame_.terrain_texture_distances;
-	float A = (d - distances.x) * distances.y;
-	float B = (d - distances.z) * distances.w;
-	#ifndef ENABLE_L3
-		B = 0;
-	#endif
-	float3 L_w = saturate(float3( lerp(1, 0, A), min(lerp(0, 1, A), lerp(1, 0, B)), lerp(0, 1, B) ));
-	
-	uint val = dot((L_w > 0), uint3(1, 2, 4));
-	uint from = firstbithigh(val);
-	uint to = 31 - firstbithigh(reversebits(val));
 
 	float4 color_metal = 0;
 	float3 normal = 0;
 	float gloss = 0;
+	float4 ext = 0;
+
 
 	[unroll]
-	for(uint i=0; i<3; i++)
+	for (uint t = 0; t < 3; t++)
 	{
 		[branch]
-		if(i == 2 && mat_weights[2] == 0)
+		if (t == 2 && mat_weights[2] == 0)
 		{
 			break;
 		}
 
-		float3 scales_factor = material_.scales[i].xyz;
+		float4 das = GetNearestDistanceAndScale(d, material_.distance_and_scale[t]);
 
-		[branch]
-		if(L_w[0])
+		float scale_near = das.z;
+		float scale_far = das.w;
+
+		float distance_near = das.x;
+		float distance_far = das.y;
+
+		int texture_near = 0;
+		int texture_far = 0;
+
+		float pixelizationDistance = 10;
+
+		float pixelizationMultiplier_near = step(pixelizationDistance, das.x);
+		float pixelizationMultiplier_far = step(pixelizationDistance, das.y);
+
+
+		if (material_.distance_and_scale_far[t].y > 0)
 		{
-			float blend = mat_weights[i] * L_w[0];
-			color_metal += sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * i + 0], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[0]) * blend;	
-			float4 normal_gloss = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * i + 0], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[0]) * blend;
-			normal += normal_gloss.xyz;
-			gloss += normal_gloss.w;
-		}
-		[branch]
-		if(L_w[1])
-		{
-			float blend = mat_weights[i] * L_w[1];
-			color_metal += sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * i + 1], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[1]) * blend;	
-			float4 normal_gloss = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * i + 1], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[1]) * blend;
-			normal += normal_gloss.xyz;
-			gloss += normal_gloss.w;
-		}
-		#ifdef ENABLE_L3
-			[branch]
-			if(L_w[2])
+			if (distance_near >= material_.distance_and_scale_far[t].y)
 			{
-				float blend = mat_weights[i] * L_w[2];
-				color_metal += sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * i + 2], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[2]) * blend;	
-				float4 normal_gloss = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * i + 2], texcoords, weights, N, texcoords_ddx, texcoords_ddy, scales_factor[2]) * blend;
-				normal += normal_gloss.xyz;
-				gloss += normal_gloss.w;
+				scale_near = material_.distance_and_scale_far[t].x;
+				texture_near = 1;
 			}
-		#endif
-	}
+			if (distance_far >= material_.distance_and_scale_far[t].y)
+			{
+				scale_far = material_.distance_and_scale_far[t].x;
+				texture_far = 1;
+			}
+		}
+
+		if (material_.distance_and_scale_far[t].w > 0)
+		{
+			if (distance_near >= material_.distance_and_scale_far[t].w)
+			{
+				scale_near = material_.distance_and_scale_far[t].z;
+				texture_near = 2;
+			}
+			if (distance_far >= material_.distance_and_scale_far[t].w)
+			{
+				scale_far = material_.distance_and_scale_far[t].z;
+				texture_far = 2;
+			}
+		}
+
+
+
+
+		float scale_weight = saturate(saturate((d - distance_near) / (distance_far - distance_near) - 0.25f) * 1.5f);
+
+		scale_near = 1.0f / scale_near;
+		scale_far = 1.0f / scale_far;
+
+		float3 offset_near = pixelizationMultiplier_near * object_.voxel_offset;
+		float3 offset_far = pixelizationMultiplier_far * object_.voxel_offset;
+
+		float3 texcoords_near = pixel.custom.texcoords + offset_near;
+		float3 texcoords_far = pixel.custom.texcoords + offset_far;
+
 	
 
+		float2 texcoords_ddx[3];
+		float2 texcoords_ddy[3];
+		calc_derivatives(texcoords_far, texcoords_ddx, texcoords_ddy);
+
+		float4 color_near = float4(0, 0, 0, 0);
+		float4 normal_gloss_near = float4(0, 0, 0, 0);
+
+		float4 color_far = float4(0, 0, 0, 0);
+		float4 normal_gloss_far = float4(0, 0, 0, 0);
+
+		float4 ext_far = float4(0, 0, 0, 0);
+		float4 ext_near = float4(0, 0, 0, 0);
+		
+		if (texture_near == 0)
+		{
+			color_near = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+			normal_gloss_near = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+			ext_near = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+		}
+		else
+			if (texture_near == 1)
+			{
+				color_near = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t + 1], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+				normal_gloss_near = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t + 1], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+				ext_near = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 1], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+			}
+			else
+				if (texture_near == 2)
+				{
+					color_near = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t + 2], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+					normal_gloss_near = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t + 2], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+					ext_near = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 2], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_near) *  mat_weights[t];
+				}
+
+		if (texture_far == 0)
+		{
+			color_far = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+			normal_gloss_far = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+			ext_far = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+		}
+		else
+			if (texture_far == 1)
+			{
+				color_far = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t + 1], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+				normal_gloss_far = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t + 1], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+				ext_far = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 1], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+			}
+			else
+				if (texture_far == 2)
+				{
+					color_far = sample_color_triplanar_grad(ColorMetal_BottomSides_Up[3 * t + 2], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+					normal_gloss_far = sample_normal_gloss_triplanar_grad(NormalGloss_BottomSides_Up[3 * t + 2], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+					ext_far = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 2], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, scale_far) *  mat_weights[t];
+				}
+
+		float highPass = 1;
+		if (material_.extension_detail_scale[t] > 0)
+		{
+			float4 highPass1 = 1;
+			float4 highPass2 = 1;
+
+			if (pixelizationMultiplier_near > 0)
+			{
+				if (texture_near == 0)
+				{
+					highPass1 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 0], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+				}
+				else
+					if (texture_near == 1)
+					{
+						highPass1 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 1], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+					}
+					else
+						if (texture_near == 2)
+						{
+							highPass1 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 2], texcoords_near, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+						}
+			}
+
+			if (pixelizationMultiplier_far > 0)
+			{
+				if (texture_far == 0)
+				{
+					highPass2 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 0], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+				}
+				else
+					if (texture_far == 1)
+					{
+						highPass2 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 1], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+					}
+					else
+						if (texture_far == 2)
+						{
+							highPass2 = sample_color_triplanar_grad(Ext_BottomSides_Up[3 * t + 2], texcoords_far, weights, N, texcoords_ddx, texcoords_ddy, material_.extension_detail_scale);
+						}
+			}
+
+			highPass = lerp(highPass1.z, highPass2.z, scale_weight);
+		}
+
+		ext += lerp(ext_near, ext_far, scale_weight);
+
+		color_metal += highPass * lerp(color_near, color_far, scale_weight);
+		//color_metal += lerp(color_near, color_far, scale_weight);
+		//color_metal += float4(highPass, highPass, highPass, 1);
+		normal += lerp(normal_gloss_near.xyz, normal_gloss_far.xyz, scale_weight);
+		gloss += lerp(normal_gloss_near.w, normal_gloss_far.w, scale_weight);
+	}
+
 	output.base_color = color_metal.xyz;
+
+	if (frame_.debug_voxel_lod == 1.0f)
+	{
+		float3 debugColor = DEBUG_COLORS[clamp(object_.voxelLodSize, 0, 15)];
+		output.base_color.xyz = debugColor;
+		//output.base_color.xyz = pixel.custom.distance;
+	}
+
 	output.metalness = color_metal.w;
 
-	output.normal = normalize(normal.xyz);
+	output.normal = normalize(mul(normal.xyz, pixel.custom.world_matrix));
 	output.gloss = gloss;
+	output.emissive = ext.y;
+	output.id = 4;
 
 
-	// ambient 
-	const float PerVertexAmbient = -0.349896222;
-	const float highAmbientStart = 2000;
-	const float highAmbientFull = 2500;
-	float ambientMultiplier = lerp(1.0f, 1.5f, (d - highAmbientStart) / (highAmbientFull - highAmbientStart));
-	ambientMultiplier = clamp(ambientMultiplier, 1, 1.5f);
-	output.ao = saturate(1 + PerVertexAmbient * ambientMultiplier);
+	// ambient
+	output.ao = ext.x *ext.x*ext.x* compute_voxel_ambient_occlusion(pixel.custom.ambient_occlusion, d);
 #endif
 }

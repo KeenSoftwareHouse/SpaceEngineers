@@ -1,15 +1,7 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Audio;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
-using Sandbox.Game.World;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Audio;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -18,14 +10,29 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_PhysicalMaterialDefinition))]
     public class MyPhysicalMaterialDefinition : MyDefinitionBase
     {
+        public struct CollisionProperty
+        {
+            public MySoundPair Sound;
+            public string ParticleEffect;
+            public ContactPropertyParticleProperties ParticleEffectProperties;
+
+            public CollisionProperty(string soundCue, string particleEffectName, ContactPropertyParticleProperties effectProperties)
+            {
+                Sound = new MySoundPair(soundCue);
+                ParticleEffect = particleEffectName;
+	            ParticleEffectProperties = effectProperties;
+            }
+        }
+
         public float Density;
         public float HorisontalTransmissionMultiplier;
         public float HorisontalFragility;
         public float SupportMultiplier;
         public float CollisionMultiplier;
-        public Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>> CollisionSounds = new Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>();
-        public Dictionary<MyStringId, MySoundPair> GeneralSounds = new Dictionary<MyStringId, MySoundPair>();
-        public MyStringId InheritSoundsFrom = MyStringId.NullOrEmpty;
+        public Dictionary<MyStringId, Dictionary<MyStringHash, CollisionProperty>> CollisionProperties = new Dictionary<MyStringId, Dictionary<MyStringHash, CollisionProperty>>(MyStringId.Comparer);
+        public Dictionary<MyStringId, MySoundPair> GeneralSounds = new Dictionary<MyStringId, MySoundPair>(MyStringId.Comparer);
+        public MyStringHash InheritSoundsFrom = MyStringHash.NullOrEmpty;
+        public string DamageDecal;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -40,28 +47,29 @@ namespace Sandbox.Definitions
                 HorisontalFragility = materialBuilder.HorisontalFragility;
                 SupportMultiplier = materialBuilder.SupportMultiplier;
                 CollisionMultiplier = materialBuilder.CollisionMultiplier;
+                DamageDecal = materialBuilder.DamageDecal;
             }
-            var soundBuilder = builder as MyObjectBuilder_MaterialSoundsDefinition;
+            var soundBuilder = builder as MyObjectBuilder_MaterialPropertiesDefinition;
             if(soundBuilder != null)
             {
-                InheritSoundsFrom = MyStringId.GetOrCompute(soundBuilder.InheritFrom);
+                InheritSoundsFrom = MyStringHash.GetOrCompute(soundBuilder.InheritFrom);
                 
 
-                foreach(var sound in soundBuilder.ContactSounds)
+                foreach(var sound in soundBuilder.ContactProperties)
                 {
                     var type = MyStringId.GetOrCompute(sound.Type);
-                    if (!CollisionSounds.ContainsKey(type))
-                        CollisionSounds[type] = new Dictionary<MyStringId, MySoundPair>();
-                    var material = MyStringId.GetOrCompute(sound.Material);
+                    if (!CollisionProperties.ContainsKey(type))
+                        CollisionProperties[type] = new Dictionary<MyStringHash, CollisionProperty>(MyStringHash.Comparer);
+                    var material = MyStringHash.GetOrCompute(sound.Material);
 
-                    Debug.Assert(!CollisionSounds[type].ContainsKey(material), "Overwriting material sound!");
+                    Debug.Assert(!CollisionProperties[type].ContainsKey(material), "Overwriting material sound!");
 
-                    CollisionSounds[type][material] = new MySoundPair(sound.Cue);
+                    CollisionProperties[type][material] = new CollisionProperty(sound.SoundCue, sound.ParticleEffect, sound.ParticleProperties);
                 }
 
-                foreach(var sound in soundBuilder.GeneralSounds)
+                foreach(var sound in soundBuilder.GeneralProperties)
                 {
-                    GeneralSounds[MyStringId.GetOrCompute(sound.Type)] = new MySoundPair(sound.Cue);
+                    GeneralSounds[MyStringId.GetOrCompute(sound.Type)] = new MySoundPair(sound.SoundCue);
                 }
             }
         }   

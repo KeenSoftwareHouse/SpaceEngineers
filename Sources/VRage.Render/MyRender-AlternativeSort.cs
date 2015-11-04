@@ -25,8 +25,6 @@ namespace VRageRender
             m_drawTechniques[(int)MyMeshDrawTechnique.DECAL] = new MyDrawTechniqueDecal();
             m_drawTechniques[(int)MyMeshDrawTechnique.ALPHA_MASKED] = new MyDrawTechniqueAlphaMasked();
             m_drawTechniques[(int)MyMeshDrawTechnique.VOXELS_DEBRIS] = new MyDrawTechniqueVoxelDebris();
-            m_drawTechniques[(int)MyMeshDrawTechnique.ATMOSPHERE] = new MyDrawTechniqueAtmosphere();
-            m_drawTechniques[(int)MyMeshDrawTechnique.PLANET_SURFACE] = new MyDrawTechniquePlanetSurface();
             m_drawTechniques[(int)MyMeshDrawTechnique.VOXEL_MAP_SINGLE] = new MyDrawTechniqueVoxelSingle();
             m_drawTechniques[(int)MyMeshDrawTechnique.VOXEL_MAP_MULTI] = new MyDrawTechniqueVoxelMulti();
             m_drawTechniques[(int)MyMeshDrawTechnique.SKINNED] = new MyDrawTechniqueSkinned();
@@ -68,17 +66,6 @@ namespace VRageRender
             var shader = (MyEffectVoxels)tech.PrepareAndBeginShader(m_currentSetup, lod);         
             MyPerformanceCounter.PerCameraDrawWrite.TechniqueChanges[(int)lod]++;
            
-            if (lod == MyLodTypeEnum.LOD_BACKGROUND)
-            {
-                shader.SetAmbientMinimumAndIntensity(new Vector4(AmbientColor * AmbientMultiplier, EnvAmbientIntensity));
-                shader.SetSunDirection(m_sun.Direction);
-                shader.SetSunColorAndIntensity(new Vector3(m_sun.Color.X, m_sun.Color.Y, m_sun.Color.Z), m_sun.Intensity);
-                shader.SetBacklightColorAndIntensity(new Vector3(m_sun.BackColor.X, m_sun.BackColor.Y, m_sun.BackColor.Z), m_sun.BackIntensity);
-                var postProcess = MyRender.GetPostProcess(MyPostProcessEnum.VolumetricFog) as MyPostProcessVolumetricFog;
-                shader.EnableFog(postProcess.Enabled);
-                shader.SetSunSpecularColor(m_sun.SpecularColor);
-            }
-
             foreach (var mat in matDict.Voxels)
             {
                 var firstElement = mat.Value.FirstOrDefault();
@@ -198,19 +185,7 @@ namespace VRageRender
                                 MyPerformanceCounter.PerCameraDrawWrite.EntityChanges[(int)lod]++;
                                 tech.SetupEntity(shader, renderElement);
                             
-                                if (technique == MyMeshDrawTechnique.ATMOSPHERE)
-                                {
-                                    RasterizerState.CullClockwise.Apply();
-                                    BlendState.Additive.Apply();
-                                }
-                                else if(technique == MyMeshDrawTechnique.PLANET_SURFACE)
-                                {
-                                    if ((lastRenderObject as MyRenderAtmosphere).IsInside(MyRenderCamera.Position))
-                                    {
-                                        RasterizerState.CullClockwise.Apply();
-                                    }
-                                }                                   
-                                else
+                                if(doubleSided == false)
                                 {
                                     currentRasterizer.Apply();
                                     BlendState.Opaque.Apply();

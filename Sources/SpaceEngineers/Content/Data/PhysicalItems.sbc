@@ -16,6 +16,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Stone</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -33,6 +34,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Fe</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -50,6 +52,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Ni</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -67,6 +70,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Co</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -84,6 +88,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Mg</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -101,6 +106,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Si</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -118,6 +124,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Ag</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -135,6 +142,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Au</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -152,6 +160,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Pt</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -169,6 +178,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_U</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -186,6 +196,7 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Ingots\stone_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Gravel</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -203,6 +214,7 @@
       <Mass>1</Mass>
       <Volume>0.127</Volume>
       <Model>Models\Ingots\iron_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Fe</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -220,6 +232,7 @@
       <Mass>1</Mass>
       <Volume>0.112</Volume>
       <Model>Models\Ingots\nickel_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Ni</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -237,6 +250,7 @@
       <Mass>1</Mass>
       <Volume>0.112</Volume>
       <Model>Models\Ingots\cobalt_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Co</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -254,6 +268,7 @@
       <Mass>1</Mass>
       <Volume>0.575</Volume>
       <Model>Models\Ingots\magnesium_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Mg</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -271,6 +286,7 @@
       <Mass>1</Mass>
       <Volume>0.429</Volume>
       <Model>Models\Ingots\silicon_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Si</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -288,6 +304,7 @@
       <Mass>1</Mass>
       <Volume>0.095</Volume>
       <Model>Models\Ingots\silver_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Ag</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -305,6 +322,7 @@
       <Mass>1</Mass>
       <Volume>0.052</Volume>
       <Model>Models\Ingots\gold_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Au</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -322,6 +340,7 @@
       <Mass>1</Mass>
       <Volume>0.047</Volume>
       <Model>Models\Ingots\platinum_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_Pt</IconSymbol>
     </PhysicalItem>
     <PhysicalItem>
@@ -339,6 +358,7 @@
       <Mass>1</Mass>
       <Volume>0.052</Volume>
       <Model>Models\Ingots\uranium_ingot.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <IconSymbol>IconSymbol_U</IconSymbol>
     </PhysicalItem>
     <PhysicalItem xsi:type="MyObjectBuilder_WeaponItemDefinition">
@@ -356,7 +376,9 @@
       <Mass>3</Mass>
       <Volume>14</Volume>
       <Model>Models\Weapons\AutomaticRifle.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
       <WeaponDefinitionId Subtype="AutomaticRifleGun" />
+      <ShowAmmoCount>true</ShowAmmoCount>
     </PhysicalItem>
     <PhysicalItem xsi:type="MyObjectBuilder_OxygenContainerDefinition">
       <Id>
@@ -370,28 +392,38 @@
         <Y>0.24</Y>
         <Z>0.08</Z>
       </Size>
-      <Mass>150</Mass>
-      <Volume>160</Volume>
+      <Mass>30</Mass>
+      <Volume>120</Volume>
       <Model>Models\Components\OxygenTankItem.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Oxygen</SubtypeId>
+      </StoredGasId>
       <Capacity>100</Capacity>
     </PhysicalItem>
-    <!-- <PhysicalItem xsi:type="MyObjectBuilder_WeaponItemDefinition">
+    <PhysicalItem xsi:type="MyObjectBuilder_OxygenContainerDefinition">
       <Id>
-        <TypeId>PhysicalGunObject</TypeId>
-        <SubtypeId>AutomaticRocketLauncher</SubtypeId>
+        <TypeId>GasContainerObject</TypeId>
+        <SubtypeId>HydrogenBottle</SubtypeId>
       </Id>
-      <DisplayName>DisplayName_Item_Welder</DisplayName>
-      <Icon>Textures\GUI\Icons\WeaponAutomaticRifle.dds</Icon>
+      <DisplayName>DisplayName_Item_HydrogenBottle</DisplayName>
+      <Icon>Textures\GUI\Icons\component\HydrogenBottle_Component.dds</Icon>
       <Size>
         <X>0.8</X>
         <Y>0.24</Y>
         <Z>0.08</Z>
       </Size>
-      <Mass>3</Mass>
-      <Volume>14</Volume>
-      <Model>Models\Weapons\AutomaticRifle.mwm</Model>
-      <WeaponDefinitionId Subtype="AutomaticRocketLauncher" />
-    </PhysicalItem> -->
+      <Mass>30</Mass>
+      <Volume>120</Volume>
+      <Model>Models\Components\HydrogenTankItem.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Hydrogen</SubtypeId>
+      </StoredGasId>
+      <Capacity>1000</Capacity>
+    </PhysicalItem>
     <PhysicalItem>
       <Id>
         <TypeId>PhysicalGunObject</TypeId>
@@ -407,6 +439,7 @@
       <Mass>5</Mass>
       <Volume>8</Volume>
       <Model>Models\Weapons\Welder.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -423,6 +456,7 @@
       <Mass>3</Mass>
       <Volume>20</Volume>
       <Model>Models\Weapons\AngleGrinder.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -437,8 +471,9 @@
         <Z>0.3</Z>
       </Size>
       <Mass>22</Mass>
-      <Volume>120</Volume>
+      <Volume>25</Volume>
       <Model>Models\Weapons\HandDrill.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -470,6 +505,7 @@
       <Mass>1</Mass>
       <Volume>0.254</Volume>
       <Model>Models\Components\ScrapMetalComponent.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -487,6 +523,7 @@
       <Mass>1</Mass>
       <Volume>0.254</Volume>
       <Model>Models\Components\ScrapMetalComponent.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -503,7 +540,332 @@
       <Mass>1</Mass>
       <Volume>0.37</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
       <IconSymbol>IconSymbol_Ice</IconSymbol>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>Ore</TypeId>
+        <SubtypeId>Organic</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Organic</DisplayName>
+      <Icon>Textures\GUI\Icons\ore_biomass.dds</Icon>
+      <Size>
+        <X>0.07</X>
+        <Y>0.07</Y>
+        <Z>0.07</Z>
+      </Size>
+      <Mass>1</Mass>
+      <Volume>0.37</Volume>
+      <Model>Models\Components\Sphere.mwm</Model>
+      <PhysicalMaterial>Stone</PhysicalMaterial>
+      <IconSymbol>IconSymbol_Organic</IconSymbol>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>TreeObject</TypeId>
+        <SubtypeId>DesertTree</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>1500</Mass>
+      <Volume>8000</Volume>
+      <Model>Models\Environment\Trees\DesertTree.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>TreeObject</TypeId>
+        <SubtypeId>DesertTreeDead</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>1500</Mass>
+      <Volume>8000</Volume>
+      <Model>Models\Environment\Trees\DesertTreeDead.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>TreeObject</TypeId>
+        <SubtypeId>LeafTree</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>1500</Mass>
+      <Volume>8000</Volume>
+      <Model>Models\Environment\Trees\LeafTree.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>PineTree</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.4</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1500</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\PineTree.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+      </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>PineTreeSnow</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.4</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1500</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\PineTreeSnow.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>LeafTreeMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.24</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\LeafTreeMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>DesertTreeMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.24</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\DesertTreeMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>DesertTreeDeadMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.24</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\DesertTreeDeadMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>PineTreeMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.24</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\PineTreeMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>PineTreeSnowMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.24</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Trees\PineTreeSnowMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>DeadBushMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\DeadBushMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>DesertBushMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\DesertBushMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>LeafBushMedium_var1</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\LeafBushMedium_var1.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>LeafBushMedium_var2</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\LeafBushMedium_var2.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>PineBushMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\PineBushMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+        <Id>
+          <TypeId>TreeObject</TypeId>
+          <SubtypeId>SnowPineBushMedium</SubtypeId>
+        </Id>
+        <DisplayName>DisplayName_Item_Welder</DisplayName>
+        <Icon>Textures\GUI\Icons\WeaponWelder.dds</Icon>
+        <Size>
+          <X>0.2</X>
+          <Y>0.2</Y>
+          <Z>0.1</Z>
+        </Size>
+        <Mass>1300</Mass>
+        <Volume>8000</Volume>
+        <Model>Models\Environment\Bushes\SnowPineBushMedium.mwm</Model>
+        <PhysicalMaterial>Wood</PhysicalMaterial>
+        <CanSpawnFromScreen>false</CanSpawnFromScreen>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>EntityBase</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_AstronautBackpack</DisplayName>
+      <Icon>Textures\GUI\Icons\AstronautBackpack.dds</Icon>
+      <Size>
+        <X>0.3</X>
+        <Y>1.0</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>5</Mass>
+      <Volume>60</Volume>
+      <Model>Models\Characters\Astronaut\AstronautBackpack.mwm</Model>
+      <Public>false</Public>
+      <CanSpawnFromScreen>false</CanSpawnFromScreen>
     </PhysicalItem>
   </PhysicalItems>
 </Definitions>

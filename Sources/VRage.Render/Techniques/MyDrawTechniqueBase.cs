@@ -18,10 +18,6 @@ namespace VRageRender.Techniques
             {
                 shader.SetProjectionMatrix(ref MyRenderCamera.ProjectionMatrixForNearObjects);
             }
-            else if (lodType == MyLodTypeEnum.LOD_BACKGROUND)
-            {
-                shader.SetProjectionMatrix(ref MyRenderCamera.ProjectionMatrixForFarObjects);
-            }
             else
             {
                 shader.SetProjectionMatrix(ref MyRenderCamera.ProjectionMatrix);

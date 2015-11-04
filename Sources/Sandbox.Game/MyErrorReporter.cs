@@ -9,6 +9,7 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game;
 using VRage.Utils;
+using System.Diagnostics;
 
 namespace Sandbox
 {
@@ -161,13 +162,15 @@ namespace Sandbox
 
                 try
                 {
-                    string renderLog = Path.Combine(Path.GetDirectoryName(logName), "VRageRender" + Path.GetExtension(logName));
-                    if (renderLog != null && File.Exists(renderLog))
+                    foreach (var renderLog in Directory.GetFiles(Path.GetDirectoryName(logName), "VRageRender*.log", SearchOption.TopDirectoryOnly))
                     {
-                        using (var file = File.Open(renderLog, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var reader = new StreamReader(file))
+                        if (renderLog != null && File.Exists(renderLog))
                         {
-                            additionalInfo = reader.ReadToEnd() ?? String.Empty;
+                            using (var file = File.Open(renderLog, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            using (var reader = new StreamReader(file))
+                            {
+                                additionalInfo += reader.ReadToEnd() ?? String.Empty;
+                            }
                         }
                     }
                 }

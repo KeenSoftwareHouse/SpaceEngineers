@@ -1,10 +1,13 @@
 ﻿
 using Sandbox.Game.Entities;
 using Sandbox.Game.GUI;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Input;
@@ -25,7 +28,7 @@ namespace Sandbox.Game.Gui
         private MyGuiControlPanel m_colorVariantPanel;
         private List<Vector3> m_oldPaletteList;
         private MyGuiControlPanel m_highlightControlPanel;
-        private List<MyGuiControlPanel> m_colorPaletteControlsList = new List<MyGuiControlPanel>(MyToolbar.m_colorMaskHSVSlots.Count);
+        private List<MyGuiControlPanel> m_colorPaletteControlsList = new List<MyGuiControlPanel>(MyPlayer.BuildColorSlotCount);
         private const int x = -170;
         private const int y = -250;
         private const int defColLine = 300;
@@ -33,16 +36,19 @@ namespace Sandbox.Game.Gui
 
         private const string m_hueScaleTexture = "Textures\\GUI\\HueScale.png";
 
-        
-
         public MyGuiScreenColorPicker()
             : base(GetInitPosition(), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(400f / 1600f, 700 / 1200f))
         {
             CanHideOthers = false;
             RecreateControls(true);
             m_oldPaletteList = new List<Vector3>();
-            m_oldPaletteList.AddList(MyToolbar.m_colorMaskHSVSlots);
-            UpdateSliders(MyToolbar.ColorMaskHSV);
+
+			Debug.Assert(MySession.LocalHumanPlayer != null, "Creating gui color picker without local human player!");
+			foreach (var element in MySession.LocalHumanPlayer.BuildColorSlots)
+			{
+				m_oldPaletteList.Add(element);
+			}
+			UpdateSliders(MyPlayer.SelectedColor);
             UpdateLabels();
         }
 
@@ -120,16 +126,16 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_valueSlider);
             Controls.Add(new MyGuiControlButton(
                 size: new Vector2(100f, 0.1f),
-                position: new Vector2(0 / 1600f, (y + 285 + (MyToolbar.m_colorMaskHSVSlots.Count/7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 285 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("Defaults"),
                 onButtonClick: OnDefaultsClick));
             Controls.Add(new MyGuiControlButton(
                 size: new Vector2 (100f,0.1f),
-                position: new Vector2(0 / 1600f, (y + 360 + (MyToolbar.m_colorMaskHSVSlots.Count / 7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 360 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("OK"),
                 onButtonClick: OnOkClick));
             Controls.Add(new MyGuiControlButton(
-                position: new Vector2(0 / 1600f, (y + 435 + (MyToolbar.m_colorMaskHSVSlots.Count/7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 435 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("Cancel"),
                 onButtonClick: OnCancelClick));
             
@@ -137,17 +143,17 @@ namespace Sandbox.Game.Gui
             int j = 0;
             m_highlightControlPanel = new MyGuiControlPanel(
                 size: new Vector2(0.03f, 0.03f),
-                position: new Vector2(((x + defColCol) / 1600f) + (MyToolbar.m_currentColorMaskHSV % 7) * 0.03f, (y + defColLine) / 1200f + (MyToolbar.m_currentColorMaskHSV / 7) * 0.03f));
+				position: new Vector2(((x + defColCol) / 1600f) + (MyPlayer.SelectedColorSlot % 7) * 0.03f, (y + defColLine) / 1200f + (MyPlayer.SelectedColorSlot / 7) * 0.03f));
             m_highlightControlPanel.ColorMask = c.ToVector4();
             m_highlightControlPanel.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
             Controls.Add(m_highlightControlPanel);
-            int tmpx = MyToolbar.m_colorMaskHSVSlots.Count;
-            for (int i = 0; i < MyToolbar.m_colorMaskHSVSlots.Count; )
+            int tmpx = MyPlayer.BuildColorSlotCount;
+			for (int i = 0; i < MyPlayer.BuildColorSlotCount; )
             {
                 MyGuiControlPanel tmpPanel = new MyGuiControlPanel(
                 size: new Vector2(0.025f, 0.025f),
                 position: new Vector2(((x + defColCol) / 1600f) + (i % 7) * 0.03f, (y + defColLine) / 1200f + j * 0.03f));
-                tmpPanel.ColorMask = (prev(MyToolbar.m_colorMaskHSVSlots[i])).HSVtoColor().ToVector4();
+                tmpPanel.ColorMask = (prev(MyPlayer.ColorSlots.ItemAt(i))).HSVtoColor().ToVector4();
                 tmpPanel.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
                 m_colorPaletteControlsList.Add(tmpPanel);
                 Controls.Add(tmpPanel);
@@ -207,16 +213,19 @@ namespace Sandbox.Game.Gui
             {
                 CloseScreenNow();
             }
-            if (MyInput.Static.IsNewLeftMousePressed())
+            
+			var humanPlayer = MySession.LocalHumanPlayer;
+			if (humanPlayer != null && 
+				(MyInput.Static.IsNewLeftMousePressed() || MyControllerHelper.IsControl(Sandbox.Engine.Utils.MySpaceBindingCreator.CX_GUI, MyControlsGUI.ACCEPT, MyControlStateType.NEW_PRESSED)))
             {
                 for (int i = 0; i < m_colorPaletteControlsList.Count; i++)
                 {
                     if (m_colorPaletteControlsList[i].IsMouseOver)
                     {
                         MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
-                        MyToolbar.m_currentColorMaskHSV = i;
-                        m_highlightControlPanel.Position = new Vector2(((x + defColCol) / 1600f) + (MyToolbar.m_currentColorMaskHSV % 7) * 0.03f, (y + defColLine) / 1200f + (MyToolbar.m_currentColorMaskHSV / 7) * 0.03f);
-                        UpdateSliders(MyToolbar.ColorMaskHSV);
+						humanPlayer.SelectedBuildColorSlot = i;
+						m_highlightControlPanel.Position = new Vector2(((x + defColCol) / 1600f) + (humanPlayer.SelectedBuildColorSlot % 7) * 0.03f, (y + defColLine) / 1200f + (humanPlayer.SelectedBuildColorSlot / 7) * 0.03f);
+						UpdateSliders(humanPlayer.SelectedBuildColor);
                     }
                 }
             }
@@ -225,30 +234,60 @@ namespace Sandbox.Game.Gui
 
         private void OnValueChange(MyGuiControlSlider sender)
         {
+			var humanPlayer = MySession.LocalHumanPlayer;
+			if (humanPlayer == null)
+				return;
+
             UpdateLabels();
             Color c = new Color();
             c = (new Vector3(m_hueSlider.Value/360f, MathHelper.Clamp(m_saturationSlider.Value/100f + 0.8f,0f,1f), MathHelper.Clamp(m_valueSlider.Value/100f + 0.55f,0f,1f))).HSVtoColor();
-            m_colorPaletteControlsList[MyToolbar.m_currentColorMaskHSV].ColorMask = c.ToVector4();
-            MyToolbar.ColorMaskHSV = new Vector3((m_hueSlider.Value / 360f), (m_saturationSlider.Value / 100f), (m_valueSlider.Value / 100f));
+			m_colorPaletteControlsList[humanPlayer.SelectedBuildColorSlot].ColorMask = c.ToVector4();
+			humanPlayer.SelectedBuildColor = new Vector3((m_hueSlider.Value / 360f), (m_saturationSlider.Value / 100f), (m_valueSlider.Value / 100f));
         }
 
         private void OnDefaultsClick(MyGuiControlButton sender)
         {
-            MyToolbar.SetDefaultColors();
+			var humanPlayer = MySession.LocalHumanPlayer;
+			if (humanPlayer == null)
+				return;
+
+			humanPlayer.SetDefaultColors();
             Color c = Color.White;
-            for (int i = 0; i < 7; i++)
-                m_colorPaletteControlsList[i].ColorMask = (prev(MyToolbar.m_colorMaskHSVSlots[i])).HSVtoColor().ToVector4();
-            UpdateSliders(MyToolbar.ColorMaskHSV);
+            for (int index = 0; index < MyPlayer.BuildColorSlotCount; ++index)
+                m_colorPaletteControlsList[index].ColorMask = (prev(humanPlayer.BuildColorSlots[index])).HSVtoColor().ToVector4();
+            UpdateSliders(humanPlayer.SelectedBuildColor);
         }
 
         private void OnOkClick(MyGuiControlButton sender)
         {
+			var humanPlayer = MySession.LocalHumanPlayer;
+			if (humanPlayer != null)
+			{
+				bool colorsChanged = false;
+				int index = 0;
+				foreach(var color in humanPlayer.BuildColorSlots)
+				{
+					if(m_oldPaletteList[index] != color)
+					{
+						colorsChanged = true;
+						m_oldPaletteList[index] = color;
+					}
+					++index;
+				}
+
+				if(colorsChanged)
+					Sync.Players.RequestPlayerColorsChanged(humanPlayer.Id.SerialId, m_oldPaletteList);	
+			}
+
             this.CloseScreenNow();
         }
 
         private void OnCancelClick(MyGuiControlButton sender)
         {
-            MyToolbar.m_colorMaskHSVSlots = m_oldPaletteList;
+			var humanPlayer = MySession.LocalHumanPlayer;
+			if (humanPlayer != null)
+				humanPlayer.SetBuildColorSlots(m_oldPaletteList);
+
             this.CloseScreenNow();
         }
 

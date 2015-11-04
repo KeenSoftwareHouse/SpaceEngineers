@@ -11,13 +11,13 @@ using VRageRender;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
-    interface IMyConveyorSegmentBlock
+    public interface IMyConveyorSegmentBlock
     {
         MyConveyorSegment ConveyorSegment { get; }
         void InitializeConveyorSegment();
     }
 
-    class MyConveyorSegment
+    public class MyConveyorSegment
     {
         public MyConveyorLine ConveyorLine { get; private set; }
         public ConveyorLinePosition ConnectingPosition1 { get; private set; }
@@ -99,11 +99,11 @@ namespace Sandbox.Game.GameSystems.Conveyors
             switch(Base6Directions.GetAxis(ConnectingPosition1.Direction))
             {
                 case Base6Directions.Axis.ForwardBackward:
-                    return new Vector3I(ConnectingPosition1.LocalGridPosition + new Vector3I(0, 0, posDist.Z));
+                    return ConnectingPosition1.LocalGridPosition + new Vector3I(0, 0, posDist.Z);
                 case Base6Directions.Axis.LeftRight:
-                    return new Vector3I(ConnectingPosition1.LocalGridPosition + new Vector3I(posDist.X, 0, 0));
+                    return ConnectingPosition1.LocalGridPosition + new Vector3I(posDist.X, 0, 0);
                 case Base6Directions.Axis.UpDown:
-                    return new Vector3I(ConnectingPosition1.LocalGridPosition + new Vector3I(0, posDist.Y, 0));
+                    return ConnectingPosition1.LocalGridPosition + new Vector3I(0, posDist.Y, 0);
             }
 
             Debug.Fail("Should not get here");

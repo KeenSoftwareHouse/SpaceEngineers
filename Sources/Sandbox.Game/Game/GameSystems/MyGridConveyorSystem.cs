@@ -4,24 +4,22 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
-using VRage;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridConveyorSystem : IMyPowerConsumer
+    public class MyGridConveyorSystem
     {
         private static readonly float CONVEYOR_SYSTEM_CONSUMPTION = 0.005f;
 
@@ -36,9 +34,9 @@ namespace Sandbox.Game.GameSystems
         private MyCubeGrid m_grid;
 
         private static List<ConveyorLinePosition> m_tmpConveyorPositionList = new List<ConveyorLinePosition>(6);
-        private static List<MyInventoryItem> m_tmpInventoryItems = new List<MyInventoryItem>();
+        private static List<MyPhysicalInventoryItem> m_tmpInventoryItems = new List<MyPhysicalInventoryItem>();
 
-        private static List<MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>> m_tmpPullRequests = new List<MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>>();
+        private static List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>> m_tmpPullRequests = new List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>>();
         private static PullRequestItemSet m_tmpRequestedItemSet = new PullRequestItemSet();
 
         private static MyPathFindingSystem<IMyConveyorEndpoint> m_pathfinding = new MyPathFindingSystem<IMyConveyorEndpoint>();
@@ -56,10 +54,36 @@ namespace Sandbox.Game.GameSystems
 
         public bool IsClosing = false;
 
-        public MyPowerReceiver PowerReceiver
+        public MyResourceSinkComponent ResourceSink
         {
             get;
             private set;
+        }
+
+        public bool IsInteractionPossible
+        {
+            get
+            {
+                bool inConstraint = false;
+                foreach (var connector in m_connectors)
+                {
+                    inConstraint |= connector.InConstraint;
+                }
+                return inConstraint;
+            }
+        }
+
+        public bool Connected
+        {
+            get
+            {
+                bool connected = false;
+                foreach (var connector in m_connectors)
+                {
+                    connected |= connector.Connected;
+                }
+                return connected;
+            }
         }
 
         public MyGridConveyorSystem(MyCubeGrid grid)
@@ -70,14 +94,14 @@ namespace Sandbox.Game.GameSystems
             m_linePoints = null;
             m_deserializedLines = null;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Conveyors,
-                false,
+			ResourceSink = new MyResourceSinkComponent();
+            ResourceSink.Init(
+                MyStringHash.GetOrCompute("Conveyors"),
                 CONVEYOR_SYSTEM_CONSUMPTION,
-                () => CalculateConsumption());
+                CalculateConsumption);
 
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink.Update();
+            ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
         }
 
         public void BeforeBlockDeserialization(List<MyObjectBuilder_ConveyorLine> lines)
@@ -284,7 +308,7 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation10()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         void Receiver_IsPoweredChanged()
@@ -553,10 +577,15 @@ namespace Sandbox.Game.GameSystems
         private static bool NeedsLargeTube(MyDefinitionId itemDefinitionId)
         {
             MyPhysicalItemDefinition itemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(itemDefinitionId);
+
+			// A bit hacky but in this case better than adding something to the definitions
+			if (itemDefinitionId.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
+				return false;
+
             return itemDef.Size.AbsMax() > 0.25f;
         }
 
-        public static void AppendReachableEndpoints(IMyConveyorEndpoint source, long playerId, List<IMyConveyorEndpoint> reachable, MyInventoryItem item, Predicate<IMyConveyorEndpoint> endpointFilter = null)
+        public static void AppendReachableEndpoints(IMyConveyorEndpoint source, long playerId, List<IMyConveyorEndpoint> reachable, MyPhysicalInventoryItem item, Predicate<IMyConveyorEndpoint> endpointFilter = null)
         {
             IMyConveyorEndpointBlock block = source.CubeBlock as IMyConveyorEndpointBlock;
             Debug.Assert(block != null);
@@ -713,8 +742,8 @@ namespace Sandbox.Game.GameSystems
 
                             var transferedAmount = item.Amount;
 
-                            var oxygenBottle = item.Content as Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_OxygenContainerObject;
-                            if (oxygenBottle != null && oxygenBottle.OxygenLevel == 1f)
+                            var oxygenBottle = item.Content as Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_GasContainerObject;
+							if (oxygenBottle != null && oxygenBottle.GasLevel == 1f)
                                 continue;
 
                             if (!MySession.Static.CreativeMode)
@@ -731,7 +760,7 @@ namespace Sandbox.Game.GameSystems
                                 continue;
 
                             // SK: this is mental
-                            m_tmpPullRequests.Add(new MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>(m_startingEndpoint.CubeBlock as IMyConveyorEndpointBlock, item));
+                            m_tmpPullRequests.Add(new MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>(m_startingEndpoint.CubeBlock as IMyConveyorEndpointBlock, item));
                             //MyInventory.Transfer(inventory, destinationInventory, item.Content.GetId(), MyItemFlags.None, transferedAmount);
                         }
                     }
@@ -832,7 +861,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public static bool ItemPushRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId, MyInventoryItem toSend, MyFixedPoint? amount = null)
+        public static bool ItemPushRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId, MyPhysicalInventoryItem toSend, MyFixedPoint? amount = null)
         {
             var itemBuilder = toSend.Content;
             if (amount.HasValue)

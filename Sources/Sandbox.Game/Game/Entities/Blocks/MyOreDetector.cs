@@ -1,37 +1,29 @@
 ﻿#region Using
 
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
 
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OreDetector))]
-    class MyOreDetector : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
+    class MyOreDetector : MyFunctionalBlock, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
     {
         private MyOreDetectorDefinition m_definition;
 
         MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();
 
         public new MySyncOreDetector SyncObject;
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
+	    
         static MyOreDetector()
         {
             var range = new MyTerminalControlSlider<MyOreDetector>("Range", MySpaceTexts.BlockPropertyTitle_OreDetectorRange, MySpaceTexts.BlockPropertyDescription_OreDetectorRange);
@@ -50,7 +42,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -75,14 +67,16 @@ namespace Sandbox.Game.Entities.Cube
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Factory,
-                false,
+            var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(	
+				m_definition.ResourceSinkGroup,
                 MyEnergyConstants.MAX_REQUIRED_POWER_ORE_DETECTOR,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+
+			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
         }
 
@@ -96,13 +90,13 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()

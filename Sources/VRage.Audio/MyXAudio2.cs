@@ -50,6 +50,8 @@ namespace VRage.Audio
         bool m_musicOn;
         bool m_gameSoundsOn;
 
+        bool m_voiceChatEnabled;
+
         MyMusicState m_musicState;
         bool m_loopMusic;
 
@@ -95,9 +97,9 @@ namespace VRage.Audio
         event VolumeChangeHandler OnSetVolumeHud, OnSetVolumeGame, OnSetVolumeMusic;
 
 
-        Dictionary<MyStringId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_cueBank.CueDefinitions; } }
+        Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_cueBank.CueDefinitions; } }
         List<MyStringId> IMyAudio.GetCategories() { return m_cueBank.GetCategories(); }
-        MySoundData IMyAudio.GetCue(MyStringId cue) { return m_cueBank.GetCue(cue); }
+        MySoundData IMyAudio.GetCue(MyCueId cueId) { return m_cueBank.GetCue(cueId); }
 
         public MySoundData SoloCue { get; set; }
         public bool GameSoundIsPaused { get; private set; }
@@ -163,6 +165,14 @@ namespace VRage.Audio
             }
 
             m_masterVoice = new MasteringVoice(m_audioEngine, deviceIndex: m_deviceNumber);
+
+            //var limiter = new SharpDX.XAPO.Fx.MasteringLimiter();
+            //var param = limiter.Parameter;
+            //param.Loudness = 10;
+            //limiter.Parameter = param;
+            //m_masterVoice.SetEffectChain(new EffectDescriptor[] { new EffectDescriptor(limiter) });
+            //m_masterVoice.EnableEffect(0);
+            ////limiter.Dispose();
 
             m_calculateFlags = CalculateFlags.Matrix | CalculateFlags.Doppler;
             if ((m_deviceDetails.OutputFormat.ChannelMask & Speakers.LowFrequency) != 0)
@@ -340,7 +350,10 @@ namespace VRage.Audio
                     // restarts music cue
                     m_musicCue = PlaySound(m_musicCue.CueEnum);
                     if (m_musicCue != null)
+                    {
                         m_musicCue.SetOutputVoices(m_musicAudioVoiceDesc);
+                        m_musicAudioVoice.SetVolume(m_volumeMusic);
+                    }
 
                     UpdateMusic(0);
                 }
@@ -509,6 +522,29 @@ namespace VRage.Audio
                     OnSetVolumeGame(m_volumeDefault);
             }
         }
+
+        public bool EnableVoiceChat 
+        { 
+            get 
+            {
+                if (!m_canPlay)
+                    return false;
+                return m_voiceChatEnabled; 
+            } 
+            set 
+            {
+                if (!m_canPlay)
+                    return;
+                if (m_voiceChatEnabled != value)
+                {
+                    m_voiceChatEnabled = value;
+                    if (VoiceChatEnabled != null)
+                        VoiceChatEnabled(m_voiceChatEnabled);
+                }
+            } 
+        }
+
+        public event Action<bool> VoiceChatEnabled;
 
         public void Pause()
         {
@@ -941,16 +977,25 @@ namespace VRage.Audio
         private void Update3DCuePosition(IMy3DSoundEmitter source)
         {
             MySoundData cue = m_cueBank.GetCue(source.SoundId);
-            if (cue == null)
+            if (cue == null || source.Sound == null || !source.Sound.IsBuffered)
                 return;
 
             var sourceVoice = source.Sound as MySourceVoice;
             if (sourceVoice == null)
                 return;
 
-            m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, cue, m_deviceDetails.OutputFormat.Channels, source.CustomMaxDistance);
-            float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : cue.MaxDistance;
-            m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio);
+            if (!sourceVoice.IsBuffered)
+            {
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, cue, m_deviceDetails.OutputFormat.Channels, source.CustomMaxDistance);
+                float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : cue.MaxDistance;
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio);
+            }
+            else
+            {
+                float maxDistance = source.CustomMaxDistance.Value;
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, MyCurveType.Linear);
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);     
+            }
         }
 
         private void StopUpdating3DCue(IMy3DSoundEmitter source)
@@ -969,79 +1014,43 @@ namespace VRage.Audio
             m_3Dsounds.Clear();
         }
 
-        public bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyStringId cue)
+        public bool SourceIsCloseEnoughToPlaySound(Vector3 sourcePosition, MyCueId cueId, float? customMaxDistance = 0)
         {
-            if (m_cueBank == null || cue == MyStringId.NullOrEmpty)
+            if (m_cueBank == null || cueId.Hash == MyStringHash.NullOrEmpty)
                 return false;
 
-            MySoundData cueDefinition = m_cueBank.GetCue(cue);
+            MySoundData cueDefinition = m_cueBank.GetCue(cueId);
             if (cueDefinition == null)
                 return false;
 
-            float distanceToSound = Vector3.DistanceSquared(new Vector3(m_listener.Position.X, m_listener.Position.Y, m_listener.Position.Z), source.SourcePosition);
+            float distanceToSound = Vector3.DistanceSquared(new Vector3(m_listener.Position.X, m_listener.Position.Y, m_listener.Position.Z), sourcePosition);
 
-            if (source.CustomMaxDistance > 0)
-                return (distanceToSound <= source.CustomMaxDistance * source.CustomMaxDistance);
+            if (customMaxDistance > 0)
+                return (distanceToSound <= customMaxDistance * customMaxDistance);
             else
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
         }
 
-        public IMySourceVoice PlayTestSound(MyStringId cue)
+        internal MySourceVoice PlaySound(MyCueId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
         {
-            if (cue == MyStringId.NullOrEmpty)
-                return null;
-
-            MySoundData cueDefinition = m_cueBank.GetCue(cue);
-
-            //  If this computer can't play sound, we don't create cues
-            if (!m_canPlay)
-                return null;
-
-            if (m_cueBank == null)
-                return null;
-
-            MySourceVoice sound = m_cueBank.GetVoice(cue);
-            if (sound == null)
-                sound = m_cueBank.GetVoice(cue, MySoundDimensions.D3);
-            if (sound == null)
-                return null;
-
-            if (cueDefinition.PitchVariation != 0f)
-            {
-                float semitones = PitchVariation(cueDefinition);
-                sound.FrequencyRatio = SemitonesToFrequencyRatio(semitones);
-            }
-            else
-                sound.FrequencyRatio = 1f;
-
-            float volume = cueDefinition.Volume;
-            if (cueDefinition.VolumeVariation != 0f)
-            {
-                float variation = VolumeVariation(cueDefinition);
-                volume = MathHelper.Clamp(volume + variation, 0f, 1f);
-            }
-
-            sound.SetVolume(volume);
-            sound.SetOutputVoices(m_gameAudioVoiceDesc);
-
-            //  Play the cue
-            sound.Start(false);
-
+			int waveNumber = -1;
+			var sound = GetSound(cueId, out waveNumber, source, type);
+			if(source != null)
+				source.LastPlayedWaveNumber = -1;
+			if (sound != null)
+			{
+				sound.Start(skipIntro, skipToEnd);
+				if (source != null)
+					source.LastPlayedWaveNumber = waveNumber;
+			}
             return sound;
         }
 
-        internal MySourceVoice PlaySound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
+        internal MySourceVoice GetSound(MyCueId cueId, out int waveNumber, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
         {
-            var sound = GetSound(cueId, source, type);
-            if(sound != null)
-                sound.Start(skipIntro, skipToEnd);
-            return sound;
-        }
-
-        internal MySourceVoice GetSound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
-        {
+			waveNumber = -1;
             //  If this computer can't play sound, we don't create cues
-            if (cueId == MyStringId.NullOrEmpty || !m_canPlay || m_cueBank == null)
+            if (cueId.Hash == MyStringHash.NullOrEmpty || !m_canPlay || m_cueBank == null)
                 return null;
 
             //  If this is one-time cue, we check if it is close enough to hear it and if not, we don't even play - this is for optimization only.
@@ -1051,12 +1060,13 @@ namespace VRage.Audio
             if ((SoloCue != null) && (SoloCue != cue))
                 return null;
 
-            var sound = m_cueBank.GetVoice(cueId, type);
+			int waveNumberToIgnore = (source != null ? source.LastPlayedWaveNumber : -1);
+			var sound = m_cueBank.GetVoice(cueId, out waveNumber, type, waveNumberToIgnore);
             var originalType = type;
             if (sound == null && source != null && source.Force3D)
             {
                 originalType = type == MySoundDimensions.D3 ? MySoundDimensions.D2 : MySoundDimensions.D3;
-                sound = m_cueBank.GetVoice(cueId, originalType);
+                sound = m_cueBank.GetVoice(cueId, out waveNumber, originalType, waveNumberToIgnore);
             }
             if (sound == null)
                 return null;
@@ -1112,14 +1122,42 @@ namespace VRage.Audio
             return sound;
         }
 
-        IMySourceVoice IMyAudio.PlaySound(MyStringId cueId, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd)
+        IMySourceVoice IMyAudio.PlaySound(MyCueId cueId, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd)
         {
             return PlaySound(cueId, source, type, skipIntro, skipToEnd);
         }
 
-        IMySourceVoice IMyAudio.GetSound(MyStringId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
+        IMySourceVoice IMyAudio.GetSound(MyCueId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
         {
-            return GetSound(cueId, source, type);
+			int waveNumber;
+            return GetSound(cueId, out waveNumber, source, type);
+        }
+
+        IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension)
+        {
+            if (!m_canPlay)
+                return null;
+
+            var waveFormat = new WaveFormat(sampleRate, channels);
+            source.SourceChannels = channels;
+            var sourceVoice = new MySourceVoice(m_audioEngine, waveFormat);
+
+            float volume = source.CustomVolume.HasValue ? source.CustomVolume.Value : 1;
+            float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : 0;
+
+            sourceVoice.SetVolume(volume);
+
+            if (dimension == MySoundDimensions.D3)
+            {
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, MyCurveType.Linear);
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);
+                Update3DCuesState();
+                Add3DCueToUpdateList(source);
+
+                ++m_soundInstancesTotal3D;
+            }
+
+            return sourceVoice;
         }
 
         public void WriteDebugInfo(StringBuilder sb)
@@ -1128,9 +1166,9 @@ namespace VRage.Audio
                 m_cueBank.WriteDebugInfo(sb);
         }
 
-        public bool IsLoopable(MyStringId cueId)
+        public bool IsLoopable(MyCueId cueId)
         {
-            if (cueId == MyStringId.NullOrEmpty || m_cueBank == null)
+            if (cueId.Hash == MyStringHash.NullOrEmpty || m_cueBank == null)
                 return false;
             MySoundData cueDefinition = m_cueBank.GetCue(cueId);
             if (cueDefinition == null)
@@ -1145,15 +1183,16 @@ namespace VRage.Audio
         }
 
 
-        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringId effect, MyStringId[] cues = null, float? duration = null)
+        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null)
         {
             if (m_effectBank == null)
                 return null;
+			int waveNumber;
             List<MySourceVoice> voices = new List<MySourceVoice>();
-            if(cues != null)
-                foreach(var cue in cues)
+            if(cueIds != null)
+                foreach(var cueId in cueIds)
                 {
-                    voices.Add(GetSound(cue));
+                    voices.Add(GetSound(cueId, out waveNumber));
                 }
             return m_effectBank.CreateEffect(input, effect, voices.ToArray(), duration);
         }

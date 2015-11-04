@@ -1,65 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using Havok;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Physics;
-using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
-
-using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Screens;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
+using Sandbox.Common;
+using Sandbox.Game.EntityComponents;
+using Sandbox.Game.Localization;
+using VRage;
+using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    using Sandbox.Game.GameSystems.Conveyors;
-    using System.Reflection;
-    using Sandbox.Common;
-    using Sandbox.Game.GameSystems;
-    using Sandbox.Game.Screens.Terminal.Controls;
-    using Sandbox.Game.Localization;
-    using VRage;
-    using VRage.Utils;
-
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyBatteryBlock
     {
-        static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
+        static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
         private MyBatteryBlockDefinition m_batteryBlockDefinition;
+		public MyBatteryBlockDefinition BatteryBlockDefinition { get { return m_batteryBlockDefinition; } }
         private bool m_hasRemainingCapacity;
-        private float m_maxPowerOutput;
-        private float m_currentPowerOutput;
+        private float m_maxOutput;
+        private float m_currentOutput;
         private float m_currentStoredPower;
         private float m_maxStoredPower;
         private float m_timeRemaining = 0;
         private bool m_isFull;
 
+        private Color m_prevEmissiveColor = Color.Black;
+        private int m_prevFillCount = -1;
+
         private new MySyncBatteryBlock SyncObject;
+
+		private MyResourceSourceComponent m_sourceComp;
+		public MyResourceSourceComponent SourceComp
+		{
+			get { return m_sourceComp; }
+			set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
+		}
 
         protected override bool CheckIsWorking()
         {
-            return HasCapacityRemaining && base.CheckIsWorking();
+			return SourceComp.HasCapacityRemaining && base.CheckIsWorking();
         }
 
         static MyBatteryBlock()
         {
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
-            recharge.Getter = (x) => !x.ProducerEnabled;
+			recharge.Getter = (x) => !x.SourceComp.ProductionEnabled;
             recharge.Setter = (x, v) => x.SyncObject.SendProducerEnableChange(!v);
             recharge.Enabled = (x) => !x.SemiautoEnabled;
             recharge.EnableAction();
@@ -73,6 +67,12 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(semiAuto);
         }
 
+	    public MyBatteryBlock()
+	    {
+			SourceComp = new MyResourceSourceComponent();
+			ResourceSink = new MyResourceSinkComponent();
+	    }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
@@ -83,23 +83,28 @@ namespace Sandbox.Game.Entities
             m_batteryBlockDefinition = BlockDefinition as MyBatteryBlockDefinition;
             MyDebug.AssertDebug(m_batteryBlockDefinition != null);
 
+	        var sourceDataList = new List<MyResourceSourceInfo>
+	        {
+		        new MyResourceSourceInfo { ResourceTypeId = MyResourceDistributorComponent.ElectricityId, DefinedOutput = m_batteryBlockDefinition.MaxPowerOutput, ProductionToCapacityMultiplier = 60*60}
+	        };
+
+			SourceComp.Init(m_batteryBlockDefinition.ResourceSourceGroup, sourceDataList);
+			SourceComp.HasCapacityRemainingChanged += (id, source) => UpdateIsWorking();
+
             MaxStoredPower = m_batteryBlockDefinition.MaxStoredPower;
 
-            PowerReceiver = new MyPowerReceiver(
-            MyConsumerGroupEnum.BatteryBlock,
-            true,
+			ResourceSink.Init(
+            m_batteryBlockDefinition.ResourceSinkGroup, 
             m_batteryBlockDefinition.RequiredPowerInput,
-            () => (Enabled && IsFunctional && !ProducerEnabled && (CurrentPowerOutput == 0) && !m_isFull) ? PowerReceiver.MaxRequiredInput : 0.0f);
-            PowerReceiver.Update();
-
-            CurrentPowerOutput = 0;
+			() => (Enabled && IsFunctional && !SourceComp.ProductionEnabled && !m_isFull) ? ResourceSink.MaxRequiredInput : 0.0f);
+			ResourceSink.Update();
 
             var obGenerator = (MyObjectBuilder_BatteryBlock)objectBuilder;
             CurrentStoredPower = obGenerator.CurrentStoredPower;
-            ProducerEnabled = obGenerator.ProducerEnabled;
+			SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, obGenerator.ProducerEnabled);
             SemiautoEnabled = obGenerator.SemiautoEnabled;
 
-            RefreshRemainingCapacity();
+            UpdateMaxOutputAndEmissivity();
 
             UpdateText();
 
@@ -115,14 +120,14 @@ namespace Sandbox.Game.Entities
         void MyBatteryBlock_IsWorkingChanged(MyCubeBlock obj)
         {
             UpdateMaxOutputAndEmissivity();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var ob = (MyObjectBuilder_BatteryBlock)base.GetObjectBuilderCubeBlock(copy);
             ob.CurrentStoredPower = CurrentStoredPower;
-            ob.ProducerEnabled = ProducerEnabled;
+			ob.ProducerEnabled = SourceComp.ProductionEnabled;
             ob.SemiautoEnabled = SemiautoEnabled;
             return ob;
         }
@@ -145,23 +150,18 @@ namespace Sandbox.Game.Entities
             UpdateEmissivity();
         }
 
-        public override void UpdateAfterSimulation()
-        {
-            base.UpdateAfterSimulation();
-        }
-
         private void CalculateOutputTimeRemaining()
         {
-            if (CurrentStoredPower != 0 && CurrentPowerOutput != 0)
-                TimeRemaining = CurrentStoredPower / (CurrentPowerOutput / (60 * 60));
+			if (CurrentStoredPower != 0 && SourceComp.CurrentOutput != 0)
+				TimeRemaining = CurrentStoredPower / (SourceComp.CurrentOutput / SourceComp.ProductionToCapacityMultiplier);
             else
                 TimeRemaining = 0;
         }
 
         private void CalculateInputTimeRemaining()
         {
-            if (PowerReceiver.CurrentInput != 0)
-                TimeRemaining = (MaxStoredPower - CurrentStoredPower) / (PowerReceiver.CurrentInput / (60 * 60));
+			if (ResourceSink.CurrentInput != 0)
+				TimeRemaining = (MaxStoredPower - CurrentStoredPower) / (ResourceSink.CurrentInput / SourceComp.ProductionToCapacityMultiplier);
             else
                 TimeRemaining = 0;
         }
@@ -176,20 +176,20 @@ namespace Sandbox.Game.Entities
                 {
                     if (CurrentStoredPower == 0)
                     {
-                        ProducerEnabled = false;
+						SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, false);
                         SyncObject.SendProducerEnableChange(false);
                         SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
                     }
                     if (CurrentStoredPower == MaxStoredPower)
                     {
-                        ProducerEnabled = true;
+						SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, true);
                         SyncObject.SendProducerEnableChange(true);
                         SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
                     }
                 }
 
-                PowerReceiver.Update();
-                RefreshRemainingCapacity();
+				ResourceSink.Update();
+                UpdateMaxOutputAndEmissivity();
 
                 int timeDelta = 100 * MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
                 if (!MySession.Static.CreativeMode)
@@ -197,8 +197,8 @@ namespace Sandbox.Game.Entities
                     if ((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-                        if (!ProducerEnabled)
-                            StorePower(timeDelta, PowerReceiver.CurrentInput);
+						if (!SourceComp.ProductionEnabled)
+							StorePower(timeDelta, ResourceSink.CurrentInput);
                         else
                             ConsumePower(timeDelta);
                     }
@@ -208,48 +208,36 @@ namespace Sandbox.Game.Entities
                     if ((Sync.IsServer && IsFunctional && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-                        if (!ProducerEnabled)
-                            StorePower(timeDelta, (3600 * MaxStoredPower) / 8f );
+                        if (!SourceComp.ProductionEnabled)
+                            StorePower(timeDelta, (SourceComp.ProductionToCapacityMultiplier*MaxStoredPower)/8f);
                         else
-                            if (ProducerEnabled)
-                            {
-                                RefreshRemainingCapacity();
-                                UpdateIsWorking();
-                                if (!HasCapacityRemaining)
-                                    return;
-                                PowerReceiver.Update();
-                                CalculateOutputTimeRemaining();
-                            }
+                        {
+                            UpdateIsWorking();
+                            if (!SourceComp.HasCapacityRemaining)
+                                return;
+                            ResourceSink.Update();
+                            CalculateOutputTimeRemaining();
+                        }
                     }
                 }
 
-                if (!ProducerEnabled)
+				if (!SourceComp.ProductionEnabled)
                     CalculateInputTimeRemaining();
                 else
                     CalculateOutputTimeRemaining();
             }
         }
 
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-        }
-
-        public override void OnRemovedByCubeBuilder()
-        {
-            base.OnRemovedByCubeBuilder();
-        }
-
         protected override void OnEnabledChanged()
         {
             UpdateMaxOutputAndEmissivity();
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
         private void UpdateMaxOutputAndEmissivity()
         {
-            MaxPowerOutput = ComputeMaxPowerOutput();
+			SourceComp.SetMaxOutput(ComputeMaxPowerOutput());
             UpdateEmissivity();
         }
 
@@ -269,15 +257,15 @@ namespace Sandbox.Game.Entities
             MyValueFormatter.AppendWorkHoursInBestUnit(MaxStoredPower, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.CurrentInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.CurrentInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentOutput));
-            MyValueFormatter.AppendWorkInBestUnit(CurrentPowerOutput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(SourceComp.CurrentOutput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_StoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(CurrentStoredPower, DetailedInfo);
             DetailedInfo.Append("\n");
-            if (!ProducerEnabled)
+			if (!SourceComp.ProductionEnabled)
             {
                 DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RechargedIn));
                 MyValueFormatter.AppendTimeInBestUnit(m_timeRemaining, DetailedInfo);
@@ -292,7 +280,7 @@ namespace Sandbox.Game.Entities
 
         private void StorePower(int timeDelta, float input)
         {
-            float inputPowerPerMillisecond = input / (60 * 60 * 1000);
+            float inputPowerPerMillisecond = input / (SourceComp.ProductionToCapacityMultiplier * 1000);
             float increment = (timeDelta * inputPowerPerMillisecond) * 0.80f;
 
             if ((CurrentStoredPower + increment) < MaxStoredPower)
@@ -315,24 +303,21 @@ namespace Sandbox.Game.Entities
 
         private void ConsumePower(int timeDelta)
         {
-            if (!HasCapacityRemaining)
+            if (!SourceComp.HasCapacityRemaining)
                 return;
 
-            float consumptionPerMillisecond = CurrentPowerOutput / (60 * 60 * 1000);
-            float consumedPower = (float)(timeDelta * consumptionPerMillisecond);
+			float consumptionPerMillisecond = SourceComp.CurrentOutput / (SourceComp.ProductionToCapacityMultiplier * 1000);
+            float consumedPower = timeDelta * consumptionPerMillisecond;
 
             if (consumedPower == 0)
-            {
                 return;
-            }
 
             if ((CurrentStoredPower - consumedPower) <= 0)
             {
-                MaxPowerOutput = 0;
-                CurrentPowerOutput = 0;
+				SourceComp.SetMaxOutput(0);
+				SourceComp.SetOutput(0);
                 CurrentStoredPower = 0;
                 TimeRemaining = 0;
-                HasCapacityRemaining = false;
             }
             else
             {
@@ -345,14 +330,8 @@ namespace Sandbox.Game.Entities
             }
             SyncObject.CapacityChange(CurrentStoredPower);
         }
-        private void RefreshRemainingCapacity()
-        {
-            if (CurrentStoredPower != 0)
-                HasCapacityRemaining = true;
-            UpdateMaxOutputAndEmissivity();
-        }
 
-        private void UpdateEmissivity()
+        internal void UpdateEmissivity()
         {
             if (!InScene)
                 return;
@@ -362,91 +341,60 @@ namespace Sandbox.Game.Entities
                 if (IsWorking)
                 {
 
-                    float percentage = (CurrentStoredPower / MaxStoredPower) * 100;
+                    float percentage = (CurrentStoredPower / MaxStoredPower);
 
-                    if (percentage >= 25)
+                    if (SourceComp.ProductionEnabled)
                     {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.SteelBlue, null, null, 1);
+                        SetEmissive(Color.Green, percentage);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Black, null, null, 1);
+                        SetEmissive(Color.SteelBlue, percentage);
                     }
-                    if (percentage >= 50)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 75)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 100)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
-                    }
-
                 }
                 else
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
+                    SetEmissive(Color.Red, 0.25f);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Red, null, null, 0);
+                SetEmissive(Color.Red, 1f);
             }
+        }
+
+        private void SetEmissive(Color color, float fill)
+        {
+            int fillCount = (int)(fill * m_emissiveNames.Length);
+
+            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED && (color != m_prevEmissiveColor || fillCount != m_prevFillCount))
+            {
+                for (int i = 0; i < m_emissiveNames.Length; i++)
+                {
+                    if (i < fillCount)
+                    {
+                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], color, 1f);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0f);
+                    }
+                }
+                m_prevEmissiveColor = color;
+                m_prevFillCount = fillCount;
+            }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         private float ComputeMaxPowerOutput()
         {
-            return IsWorking && ProducerEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
-        #region IMyPowerProducer
-
-        public event Action<IMyPowerProducer> MaxPowerOutputChanged;
-        public event Action<IMyPowerProducer> HasCapacityRemainingChanged;
-
-        bool IMyPowerProducer.Enabled
-        {
-            get { return ProducerEnabled; }
-            set { ProducerEnabled = value; }
+            return IsWorking && SourceComp.ProductionEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;
         }
 
         public float TimeRemaining
@@ -459,45 +407,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public bool HasCapacityRemaining
-        {
-            get { return m_hasRemainingCapacity; }
-            private set
-            {
-                if (m_hasRemainingCapacity != value)
-                {
-                    m_hasRemainingCapacity = value;
-                    UpdateIsWorking();
-                    if (HasCapacityRemainingChanged != null)
-                        HasCapacityRemainingChanged(this);
-                }
-            }
-        }
-
-        public float MaxPowerOutput
-        {
-            get { return m_maxPowerOutput; }
-            private set
-            {
-                if (m_maxPowerOutput != value)
-                {
-                    m_maxPowerOutput = value;
-                    if (MaxPowerOutputChanged != null)
-                        MaxPowerOutputChanged(this);
-                }
-            }
-        }
-
-        public float CurrentPowerOutput
-        {
-            get { return m_currentPowerOutput; }
-            set
-            {
-                MyDebug.AssertRelease(!float.IsNaN(value), "Reactor Power Output is NaN.");
-                MyDebug.AssertDebug(value <= MaxPowerOutput && value >= 0.0f);
-                m_currentPowerOutput = value;
-            }
-        }
+		public bool HasCapacityRemaining { get { return SourceComp.HasCapacityRemaining; } }
 
         public float MaxStoredPower
         {
@@ -505,45 +415,20 @@ namespace Sandbox.Game.Entities
             private set
             {
                 if (m_maxStoredPower != value)
-                {
                     m_maxStoredPower = value;
-                }
             }
         }
 
         public float CurrentStoredPower
         {
-            get { return m_currentStoredPower; }
+            get { return SourceComp.RemainingCapacity; }
             set
             {
                 MyDebug.AssertDebug(value <= MaxStoredPower && value >= 0.0f);
-                m_currentStoredPower = value;
+                SourceComp.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, value);
+                UpdateMaxOutputAndEmissivity();
             }
         }
-
-        public float RemainingCapacity { get { return m_currentStoredPower; } private set { ;} }
-
-        MyProducerGroupEnum IMyPowerProducer.Group
-        {
-            get { return MyProducerGroupEnum.Battery; }
-        }
-
-        public bool ProducerEnabled
-        {
-            get { return m_producerEnabled; }
-            set
-            {
-                m_producerEnabled = value;
-
-                if (!m_producerEnabled)
-                {
-                    CurrentPowerOutput = 0.0f;
-                }
-
-                UpdateEmissivity();
-            }
-        }
-        private bool m_producerEnabled;
 
         public bool SemiautoEnabled
         {
@@ -553,19 +438,15 @@ namespace Sandbox.Game.Entities
                 m_semiautoEnabled = value;
 
                 UpdateMaxOutputAndEmissivity();
-                PowerReceiver.Update();
+				ResourceSink.Update();
             }
         }
         private bool m_semiautoEnabled;
-
-        #endregion
 
         void ComponentStack_IsFunctionalChanged()
         {
             UpdateMaxOutputAndEmissivity();
         }
-
-        #region Sync class
 
         [PreloadRequired]
         class MySyncBatteryBlock
@@ -606,7 +487,7 @@ namespace Sandbox.Game.Entities
                 MyBatteryBlock batteryBlock;
                 if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
                 {
-                    batteryBlock.ProducerEnabled = msg.ProducerEnabled;
+                    batteryBlock.SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, msg.ProducerEnabled);
                     if (Sync.IsServer)
                         Sync.Layer.SendMessageToAll(ref msg);
                 }
@@ -726,6 +607,5 @@ namespace Sandbox.Game.Entities
                 Sync.Layer.SendMessageToServer(ref msg);
             }
         }
-        #endregion
     }
 }

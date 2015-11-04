@@ -24,6 +24,13 @@ namespace Sandbox.Game.Entities
         public static MySoundPair Empty = new MySoundPair();
         static StringBuilder m_cache = new StringBuilder();
 
+		//jn:TODO create properties on cues or something
+		private MyCueId m_arcade;
+		public MyCueId Arcade { get { return m_arcade; } }
+
+		private MyCueId m_realistic;
+		public MyCueId Realistic { get { return m_realistic; } }
+
         public MySoundPair()
         {
             Init(null);
@@ -38,13 +45,13 @@ namespace Sandbox.Game.Entities
         {
             if (string.IsNullOrEmpty(cueName) || MySandboxGame.IsDedicated || MyAudio.Static == null)
             {
-                m_arcade = MyStringId.NullOrEmpty;
-                m_realistic = MyStringId.NullOrEmpty;
+                m_arcade = new MyCueId(MyStringHash.NullOrEmpty);
+                m_realistic = new MyCueId(MyStringHash.NullOrEmpty);
             }
             else
             {
                 m_arcade = MyAudio.Static.GetCueId(cueName);
-                if (m_arcade != MyStringId.NullOrEmpty)
+                if (m_arcade.Hash != MyStringHash.NullOrEmpty)
                 {
                     m_realistic = m_arcade;
                     return;
@@ -57,38 +64,41 @@ namespace Sandbox.Game.Entities
                 m_realistic = MyAudio.Static.GetCueId(m_cache.ToString());
 
                 //Debug.Assert(m_arcade != MySpaceTexts.NullOrEmpty || m_realistic != MySpaceTexts.NullOrEmpty, string.Format("Could not find any sound for '{0}'", cueName));
-                if (m_arcade == MyStringId.NullOrEmpty && m_realistic == MyStringId.NullOrEmpty)
+                if (m_arcade.Hash == MyStringHash.NullOrEmpty && m_realistic.Hash == MyStringHash.NullOrEmpty)
                     MySandboxGame.Log.WriteLine(string.Format("Could not find any sound for '{0}'", cueName));
+                else
+                {
+                    if (m_arcade.IsNull)
+                        string.Format("Could not find arcade sound for '{0}'", cueName);
+                    if (m_realistic.IsNull)
+                        string.Format("Could not find realistic sound for '{0}'", cueName);
+                }
             }
         }
 
-        public void Init(MyStringId cueId)
+        public void Init(MyCueId cueId)
         {
             if (!MySandboxGame.IsDedicated)
             {
                 if (MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS)
                 {
                     m_realistic = cueId;
-                    m_arcade = MyStringId.NullOrEmpty;
+                    m_arcade = new MyCueId(MyStringHash.NullOrEmpty);
                 }
                 else
                 {
                     m_arcade = cueId;
-                    m_realistic = MyStringId.NullOrEmpty;
+                    m_realistic = new MyCueId(MyStringHash.NullOrEmpty);
                 }
             }
             else
             {
-                m_arcade = MyStringId.NullOrEmpty;
-                m_realistic = MyStringId.NullOrEmpty;
+                m_arcade = new MyCueId(MyStringHash.NullOrEmpty);
+                m_realistic = new MyCueId(MyStringHash.NullOrEmpty);
             }
         }
 
-        //jn:TODO create properties on cues or something
-        public MyStringId Arcade { get { return m_arcade; } }
-        public MyStringId Realistic { get { return m_realistic; } }
-
-        public MyStringId SoundId
+        public MyCueId SoundId
         {
             get
             {
@@ -98,9 +108,6 @@ namespace Sandbox.Game.Entities
                     return m_arcade;
             }
         }
-
-        private MyStringId m_arcade;
-        private MyStringId m_realistic;
 
         public override bool Equals(object obj)
         {
@@ -119,15 +126,15 @@ namespace Sandbox.Game.Entities
             return SoundId.ToString();
         }
 
-        public static MyStringId GetCueId(string cueName)
+        public static MyCueId GetCueId(string cueName)
         {
             if (string.IsNullOrEmpty(cueName))
             {
-                return MyStringId.NullOrEmpty;
+                return new MyCueId(MyStringHash.NullOrEmpty);
             }
 
             var cueId = MyAudio.Static.GetCueId(cueName);
-            if (cueId != MyStringId.NullOrEmpty)
+            if (cueId.Hash != MyStringHash.NullOrEmpty)
                 return cueId;
             m_cache.Clear();
             if (MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS)
@@ -155,12 +162,12 @@ namespace Sandbox.Game.Entities
 
         #region Fields
 
-        private MyStringId m_cueEnum = MyStringId.NullOrEmpty;
+        private MyCueId m_cueEnum = new MyCueId(MyStringHash.NullOrEmpty);
         private IMySourceVoice m_sound;
         private MyEntity m_entity;
         private Vector3? m_position;
         private Vector3? m_velocity;
-        private List<MyStringId> m_soundsQueue = new List<MyStringId>();
+        private List<MyCueId> m_soundsQueue = new List<MyCueId>();
         private bool m_playing2D;
 
         #endregion
@@ -174,7 +181,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPlaying { get { return m_sound != null && m_sound.IsPlaying; } }
 
-        public MyStringId SoundId
+        public MyCueId SoundId
         {
             get { return m_cueEnum; }
             set
@@ -219,11 +226,12 @@ namespace Sandbox.Game.Entities
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsOnSameGrid);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsControlledEntity);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsBeingWelded);
+                EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsInOxygen);
 
                 EmitterMethods[MethodsEnum.ShouldPlay2D].Add((Func<bool>)IsCurrentWeapon);
 
-                EmitterMethods[MethodsEnum.CueType].Add((Func<MySoundPair, MyStringId>)SelectCue);
-                EmitterMethods[MethodsEnum.ImplicitEffect].Add((Func<MyStringId>)SelectEffect);
+                EmitterMethods[MethodsEnum.CueType].Add((Func<MySoundPair, MyCueId>)SelectCue);
+                EmitterMethods[MethodsEnum.ImplicitEffect].Add((Func<MyStringHash>)SelectEffect);
             }
         }
 
@@ -281,7 +289,7 @@ namespace Sandbox.Game.Entities
 
         private bool IsCloseEnough()
         {
-            return MyAudio.Static.SourceIsCloseEnoughToPlaySound(this, SoundId);
+            return MyAudio.Static.SourceIsCloseEnoughToPlaySound(this.SourcePosition, SoundId, this.CustomMaxDistance);
         }
 
         private bool IsInTerminal()
@@ -331,28 +339,53 @@ namespace Sandbox.Game.Entities
             return targetCube.FatBlock == cubeBlock;
         }
 
-        private MyStringId SelectCue(MySoundPair sound)
+        private bool IsInOxygen()
         {
-            //af:da:TODO: this.SourcePosition && listener.Position in pressurized room play arcade
+            return (MySession.LocalCharacter != null && MySession.LocalCharacter.OxygenComponent.EnvironmentOxygenLevel > 0.1f);
+        }
+
+        private MyCueId SelectCue(MySoundPair sound)
+        {
             if (MySession.Static != null && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS)
             {
-                return sound.Realistic;
+                if (IsInOxygen())
+                {
+                    return sound.Arcade;
+                }
+                else
+                {
+                    return sound.Realistic;
+                }
             }
             else
                 return sound.Arcade;
         }
 
-        static MyStringId m_helmetEffect = MyStringId.GetOrCompute("LowPassHelmet");
-        private MyStringId SelectEffect()
+        static MyStringHash m_helmetEffect = MyStringHash.GetOrCompute("LowPassHelmet");
+        private MyStringHash SelectEffect()
         {
-            if (false) //af:da:TODO: listener in pressurized room with helmet on -> lowPass
+            if (MyFakes.ENABLE_NEW_SOUNDS && MySession.LocalCharacter != null && !MySession.LocalCharacter.Definition.NeedsOxygen && IsInOxygen())
             {
                 return m_helmetEffect;
             }
-            return MyStringId.NullOrEmpty;
+            return MyStringHash.NullOrEmpty;
         }
 
-        public void PlaySingleSound(MyStringId soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false)
+        public void PlaySound(byte[] buffer, int size, int sampleRate, float volume = 1, float maxDistance = 0, MySoundDimensions dimension = MySoundDimensions.D3)
+        {
+            CustomMaxDistance = maxDistance;
+            CustomVolume = volume;
+            if (Sound == null)
+                Sound = MyAudio.Static.GetSound(this, sampleRate, 1, dimension);
+            if (Sound != null)
+            {
+                Sound.SubmitBuffer(buffer, size);
+                if (!Sound.IsPlaying)
+                    Sound.StartBuffered();
+            }
+        }
+
+        public void PlaySingleSound(MyCueId soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false)
         {
             if (m_cueEnum == soundId)
                 return;
@@ -362,10 +395,10 @@ namespace Sandbox.Game.Entities
 
         public void PlaySingleSound(MySoundPair soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false)
         {
-            MyStringId cueId = soundId.Arcade;
+            var cueId = soundId.Arcade;
             if (EmitterMethods[MethodsEnum.CueType].Count > 0)
             {
-                var select = (Func<MySoundPair, MyStringId>)EmitterMethods[MethodsEnum.CueType][0];
+                var select = (Func<MySoundPair, MyCueId>)EmitterMethods[MethodsEnum.CueType][0];
                 cueId = select(soundId);
             }
             if (m_cueEnum == cueId)
@@ -376,16 +409,16 @@ namespace Sandbox.Game.Entities
 
         public void PlaySound(MySoundPair soundId, bool stopPrevious = false, bool skipIntro = false)
         {
-            MyStringId cueId = soundId.Arcade;
+            var cueId = soundId.Arcade;
             if (EmitterMethods[MethodsEnum.CueType].Count > 0)
             {
-                var select = (Func<MySoundPair, MyStringId>)EmitterMethods[MethodsEnum.CueType][0];
+                var select = (Func<MySoundPair, MyCueId>)EmitterMethods[MethodsEnum.CueType][0];
                 cueId = select(soundId);
             }
             PlaySound(cueId, stopPrevious, skipIntro);
         }
 
-        public void PlaySound(MyStringId soundId, bool stopPrevious = false, bool skipIntro = false)
+        public void PlaySound(MyCueId soundId, bool stopPrevious = false, bool skipIntro = false)
         {
             if (m_sound != null)
                 if (stopPrevious)
@@ -413,7 +446,7 @@ namespace Sandbox.Game.Entities
                     if (cleanUp)
                     {
                         Loop = false;
-                        SoundId = MyStringId.NullOrEmpty;
+                        SoundId = new MyCueId(MyStringHash.NullOrEmpty);
                     }
                 }
                 else
@@ -431,7 +464,7 @@ namespace Sandbox.Game.Entities
                 if (cleanUp)
                 {
                     Loop = false;
-                    SoundId = MyStringId.NullOrEmpty;
+                    SoundId = new MyCueId(MyStringHash.NullOrEmpty);
                 }
             }
         }
@@ -449,8 +482,8 @@ namespace Sandbox.Game.Entities
                 Sound.StoppedPlaying = OnStopPlaying;
                 if (EmitterMethods[MethodsEnum.ImplicitEffect].Count > 0)
                 {
-                    var effectId = ((Func<MyStringId>)EmitterMethods[MethodsEnum.ImplicitEffect][0])();
-                    if (effectId != MyStringId.NullOrEmpty)
+                    var effectId = ((Func<MyStringHash>)EmitterMethods[MethodsEnum.ImplicitEffect][0])();
+                    if (effectId != MyStringHash.NullOrEmpty)
                     {
                         var effect = MyAudio.Static.ApplyEffect(Sound, effectId);
                         if (effect != null)
@@ -466,8 +499,20 @@ namespace Sandbox.Game.Entities
         {
             var retVal = EmitterMethods[MethodsEnum.ShouldPlay2D].Count == 0;
             foreach (var func in EmitterMethods[MethodsEnum.ShouldPlay2D])
-                retVal |= ((Func<bool>)func)();
+            {
+                if(func != null)
+                    retVal |= ((Func<bool>)func)();
+            }
             return retVal;
+        }
+
+        public void Cleanup()
+        {
+            if (Sound != null)
+            {
+                Sound.Cleanup();
+                Sound = null;
+            }
         }
 
         private void OnStopPlaying()
@@ -558,6 +603,13 @@ namespace Sandbox.Game.Entities
             get;
             set;
         }
+
+		private int m_lastPlayedWaveNumber = -1;
+		int IMy3DSoundEmitter.LastPlayedWaveNumber
+		{
+			get { return m_lastPlayedWaveNumber; }
+			set { m_lastPlayedWaveNumber = value; }
+		}
 
         #endregion
     }

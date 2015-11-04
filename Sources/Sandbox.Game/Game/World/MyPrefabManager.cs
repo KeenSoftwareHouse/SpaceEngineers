@@ -1,112 +1,34 @@
 ﻿using ProtoBuf;
-using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using VRage;
 using VRageMath;
 using VRage.Utils;
 using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
-using Sandbox.Game.GameSystems.Electricity;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Physics;
+using Sandbox.Game.EntityComponents;
+using Sandbox.Game.GameSystems;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.Blocks;
 
 namespace Sandbox.Game.World
 {
-    [PreloadRequired]
-    internal class MySyncPrefabManager
-    {
-        [ProtoContract]
-        [MessageIdAttribute(9234, P2PMessageEnum.Reliable)]
-        protected struct SpawnPrefabMsg
-        {
-            [ProtoMember]
-            public String PrefabName;
-
-            [ProtoMember]
-            public MyPositionAndOrientation PositionAndOrientation;
-
-            [ProtoMember]
-            public Vector3 LinearVelocity;
-
-            [ProtoMember]
-            public Vector3 AngularVelocity;
-
-            [ProtoMember, DefaultValue(null)]
-            public String BeaconName;
-            public bool ShouldSerializeBeaconName() { return BeaconName != null; }
-
-            [ProtoMember]
-            public Sandbox.ModAPI.SpawningOptions SpawningOptions;
-
-            [ProtoMember]
-            public int RngSeed;
-        }
-
-        static MySyncPrefabManager()
-        {
-            MySyncLayer.RegisterMessage<SpawnPrefabMsg>(OnPrefabSpawned, MyMessagePermissions.FromServer);
-        }
-
-        internal static void SendPrefabSpawned(
-            String prefabName,
-            MyPositionAndOrientation posAndOri,
-            Vector3 linearV,
-            Vector3 angularV,
-            String beaconName,
-            Sandbox.ModAPI.SpawningOptions options,
-            int rngSeed)
-        {
-            Debug.Assert(Sync.IsServer, "Only server can spawn new prefabs");
-
-            var msg = new SpawnPrefabMsg();
-            msg.PrefabName = prefabName;
-            msg.PositionAndOrientation = posAndOri;
-            msg.LinearVelocity = linearV;
-            msg.AngularVelocity = angularV;
-            msg.BeaconName = beaconName;
-            msg.SpawningOptions = options;
-            msg.RngSeed = rngSeed;
-
-            Sync.Layer.SendMessageToAll(ref msg);
-        }
-
-        static void OnPrefabSpawned(ref SpawnPrefabMsg msg, MyNetworkClient sender)
-        {
-            using (MyRandom.Instance.PushSeed(msg.RngSeed))
-            {
-                MyPrefabManager.Static.SpawnPrefab(
-                    msg.PrefabName,
-                    (Vector3)(Vector3D)msg.PositionAndOrientation.Position,
-                    msg.PositionAndOrientation.Forward,
-                    msg.PositionAndOrientation.Up,
-                    msg.LinearVelocity,
-                    msg.AngularVelocity,
-                    msg.BeaconName,
-                    msg.SpawningOptions,
-                    updateSync: false);
-            }
-        }
-    }
-
     public class MyPrefabManager : Sandbox.ModAPI.IMyPrefabManager
     {
-
         private static List<MyCubeGrid> m_tmpSpawnedGridList = new List<MyCubeGrid>();
 
         static MyPrefabManager()
@@ -120,15 +42,15 @@ namespace Sandbox.Game.World
         {
             var fsPath = Path.Combine(MyFileSystem.ContentPath, Path.Combine("Data", "Prefabs", prefabName + ".sbc"));
 
-            var prefab = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
+            var prefab = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
             prefab.Id = new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition)), prefabName);
             prefab.CubeGrid = (MyObjectBuilder_CubeGrid)entity;
             
-            var definitions = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             definitions.Prefabs = new MyObjectBuilder_PrefabDefinition[1];
             definitions.Prefabs[0] = prefab;
             
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(fsPath, false, definitions);
+            MyObjectBuilderSerializer.SerializeXML(fsPath, false, definitions);
         }
 
         public static void SavePrefab(string prefabName, List<MyObjectBuilder_CubeGrid> copiedPrefab)
@@ -140,26 +62,20 @@ namespace Sandbox.Game.World
 
         public static void SavePrefabToPath(string prefabName, string path, List<MyObjectBuilder_CubeGrid> copiedPrefab)
         {
-            var prefab = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
+            var prefab = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
             prefab.Id = new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition)), prefabName);
             prefab.CubeGrids = copiedPrefab.ToArray();
 
-            var definitions = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             definitions.Prefabs = new MyObjectBuilder_PrefabDefinition[1];
             definitions.Prefabs[0] = prefab;
 
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(path, false, definitions);
+            MyObjectBuilderSerializer.SerializeXML(path, false, definitions);
         }
 
         public MyObjectBuilder_CubeGrid[] GetGridPrefab(string prefabName)
         {
             var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
 
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return null;
@@ -177,12 +93,7 @@ namespace Sandbox.Game.World
             CreateGridsFromPrefab(m_tmpSpawnedGridList, prefabName, worldMatrix ?? Matrix.Identity);
 
             foreach (var entity in m_tmpSpawnedGridList)
-            {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(entity, true);
-				else	// Survival
-					TurnShipReactorsOnOff(entity, false);
-
+            {			
                 MyEntities.Add(entity);
             }
 
@@ -217,11 +128,6 @@ namespace Sandbox.Game.World
 
             foreach (var grid in m_tmpSpawnedGridList)
             {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(grid, true);
-				else
-					TurnShipReactorsOnOff(grid, false);
-
                 MyEntities.Add(grid);
             }
 
@@ -236,11 +142,6 @@ namespace Sandbox.Game.World
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return;
 
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
             MyObjectBuilder_CubeGrid[] gridObs = prefabDefinition.CubeGrids;
 
             Debug.Assert(gridObs.Count() != 0);
@@ -277,8 +178,6 @@ namespace Sandbox.Game.World
                     MatrixD originalGridMatrix = gridObs[i].PositionAndOrientation.HasValue ? gridObs[i].PositionAndOrientation.Value.GetMatrix() : MatrixD.Identity;
                     MatrixD newWorldMatrix;
                     newWorldMatrix = MatrixD.Multiply(originalGridMatrix, MatrixD.Multiply(translateToOriginMatrix, worldMatrix));
-
-                    Sandbox.Game.Gui.MyCestmirDebugInputComponent.AddDebugPoint(newWorldMatrix.Translation, Color.Red);
 
                     if (cubeGrid.IsStatic)
                     {
@@ -326,20 +225,6 @@ namespace Sandbox.Game.World
             MyEntities.IgnoreMemoryLimits = ignoreMemoryLimitsPrevious;
         }
 
-
-        private static void TurnShipReactorsOnOff(MyEntity entity, bool newState)
-        {
-            MyCubeGrid grid = entity as MyCubeGrid;
-            Debug.Assert(grid != null, "Ship prefab was not a ship");
-            if (grid != null)
-            {
-                foreach (var reactor in grid.GetFatBlocks<MyReactor>())
-                {
-                    reactor.Enabled = newState;
-                }
-            }
-        }
-
         public void SpawnPrefab(
             String prefabName,
             Vector3 position,
@@ -349,10 +234,11 @@ namespace Sandbox.Game.World
             Vector3 initialAngularVelocity = default(Vector3),
             String beaconName = null,
             SpawningOptions spawningOptions = SpawningOptions.None,
+            long ownerId = 0,
             bool updateSync = false)
         {
             m_tmpSpawnedGridList.Clear();
-            SpawnPrefabInternal(m_tmpSpawnedGridList, prefabName, position, forward, up, initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, updateSync);
+            SpawnPrefabInternal(m_tmpSpawnedGridList, prefabName, position, forward, up, initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, ownerId, updateSync);
             m_tmpSpawnedGridList.Clear();
         }
 
@@ -366,9 +252,10 @@ namespace Sandbox.Game.World
             Vector3 initialAngularVelocity = default(Vector3),
             String beaconName = null,
             SpawningOptions spawningOptions = SpawningOptions.None,
+            long ownerId = 0,
             bool updateSync = false)
         {
-            SpawnPrefabInternal(resultList, prefabName, position, forward, up, initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, updateSync);
+            SpawnPrefabInternal(resultList, prefabName, position, forward, up, initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, ownerId, updateSync);
         }
 
         void IMyPrefabManager.SpawnPrefab(
@@ -377,14 +264,33 @@ namespace Sandbox.Game.World
            Vector3D position,
            Vector3 forward,
            Vector3 up,
-           Vector3 initialLinearVelocity = default(Vector3),
-           Vector3 initialAngularVelocity = default(Vector3),
-           String beaconName = null,
-           SpawningOptions spawningOptions = SpawningOptions.None,
-           bool updateSync = false)
+           Vector3 initialLinearVelocity,
+           Vector3 initialAngularVelocity,
+           String beaconName,
+           SpawningOptions spawningOptions,
+           bool updateSync)
         {
             List<MyCubeGrid> results=new List<MyCubeGrid>();
-            SpawnPrefab(results,prefabName,position,forward,up,initialLinearVelocity,initialAngularVelocity,beaconName,spawningOptions,updateSync);
+            SpawnPrefab(results,prefabName,position,forward,up,initialLinearVelocity,initialAngularVelocity,beaconName,spawningOptions,0,updateSync);
+            foreach (var result in results)
+                resultList.Add(result);
+        }
+
+        void IMyPrefabManager.SpawnPrefab(
+           List<IMyCubeGrid> resultList,
+           String prefabName,
+           Vector3D position,
+           Vector3 forward,
+           Vector3 up,
+           Vector3 initialLinearVelocity,
+           Vector3 initialAngularVelocity,
+           String beaconName,
+           SpawningOptions spawningOptions,
+           long ownerId,
+           bool updateSync)
+        {
+            List<MyCubeGrid> results = new List<MyCubeGrid>();
+            SpawnPrefab(results, prefabName, position, forward, up, initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, ownerId, updateSync);
             foreach (var result in results)
                 resultList.Add(result);
         }
@@ -399,6 +305,7 @@ namespace Sandbox.Game.World
             Vector3 initialAngularVelocity,
             String beaconName,
             SpawningOptions spawningOptions,
+            long ownerId,
             bool updateSync)
         {
             Debug.Assert(Vector3.IsUnit(ref forward));
@@ -418,13 +325,14 @@ namespace Sandbox.Game.World
                 bool setNeutralOwner = spawningOptions.HasFlag(SpawningOptions.SetNeutralOwner);
                 bool needsToIterateThroughBlocks = spawnCargo || rotateToCockpit || setNeutralOwner || beaconName != null;
 
-                long owner = 0;
+                long owner = ownerId;
                 if (updateSync && spawningOptions.HasFlag(SpawningOptions.SetNeutralOwner) && resultList.Count != 0)
                 {
                     string npcName = "NPC " + MyRandom.Instance.Next(1000, 9999);
                     var identity = Sync.Players.CreateNewIdentity(npcName);
                     owner = identity.IdentityId;
                 }
+                bool setOwnership = owner != 0;
 
                 foreach (var grid in resultList)
                 {
@@ -432,7 +340,9 @@ namespace Sandbox.Game.World
 
                     if (spawningOptions.HasFlag(SpawningOptions.DisableDampeners))
                     {
-                        grid.GridSystems.ThrustSystem.DampenersEnabled = false;
+	                    var thrustComp = grid.Components.Get<MyEntityThrustComponent>();
+						if(thrustComp != null)
+							thrustComp.DampenersEnabled = false;
                     }
 
                     if ((spawningOptions.HasFlag(SpawningOptions.DisableSave)))
@@ -460,11 +370,16 @@ namespace Sandbox.Game.World
                                 MyBeacon beacon = block.FatBlock as MyBeacon;
                                 beacon.SetCustomName(beaconName);
                             }
-                            else if (spawningOptions.HasFlag(SpawningOptions.TurnOffReactors) && block.FatBlock is IMyPowerProducer)
-                            {
-                                (block.FatBlock as IMyPowerProducer).Enabled = false;
-                            }
-                            if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
+							else if (spawningOptions.HasFlag(SpawningOptions.TurnOffReactors) && block.FatBlock != null && block.FatBlock.Components.Contains(typeof(MyResourceSourceComponent)))
+							{
+								var sourceComp = block.FatBlock.Components.Get<MyResourceSourceComponent>();
+								if (sourceComp != null)
+								{
+									if(sourceComp.ResourceTypes.Contains(MyResourceDistributorComponent.ElectricityId))
+										sourceComp.Enabled = false;
+								}
+							}
+                            if (setOwnership && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
                             {
                                 block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
                             }
@@ -486,7 +401,7 @@ namespace Sandbox.Game.World
                 }
 
                 foreach (var grid in resultList)
-                {                  
+                {
                     if (firstCockpit != null)
                     {
                         grid.WorldMatrix = grid.WorldMatrix * transform;
@@ -500,11 +415,6 @@ namespace Sandbox.Game.World
                     ProfilerShort.Begin("Add entity");
                     MyEntities.Add(grid);
                     ProfilerShort.End();
-                }
-
-                if (updateSync == true)
-                {
-                    MySyncPrefabManager.SendPrefabSpawned(prefabName, new MyPositionAndOrientation(position, forward, up), initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, rngSeed);
                 }
             }
         }

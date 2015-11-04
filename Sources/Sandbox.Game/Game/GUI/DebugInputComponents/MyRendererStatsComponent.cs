@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
@@ -47,14 +46,12 @@ namespace Sandbox.Game.Gui
             m_frameDebugText.AppendLine();
             m_frameDebugText.AppendFormat("ViewFrustumObjects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.ViewFrustumObjectsNum);
             m_frameDebugText.AppendLine();
-            m_frameDebugText.AppendFormat("Cascade0 Objects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.Cascade0ObjectsNum);
-            m_frameDebugText.AppendLine();
-            m_frameDebugText.AppendFormat("Cascade1 Objects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.Cascade1ObjectsNum);
-            m_frameDebugText.AppendLine();
-            m_frameDebugText.AppendFormat("Cascade2 Objects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.Cascade2ObjectsNum);
-            m_frameDebugText.AppendLine();
-            m_frameDebugText.AppendFormat("Cascade3 Objects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.Cascade3ObjectsNum);
-            m_frameDebugText.AppendLine();
+
+			for (int cascadeIndex = 0; cascadeIndex < MyRenderProxy.Settings.ShadowCascadeCount; ++cascadeIndex)
+			{
+				m_frameDebugText.AppendFormat("Cascade" + cascadeIndex.ToString() + " Objects: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.ShadowCascadeObjectsNum[cascadeIndex]);
+				m_frameDebugText.AppendLine();
+			}
 
             m_frameDebugText.AppendFormat("MeshesDrawn: {0: #,0}", MyPerformanceCounter.PerCameraDraw11Read.MeshesDrawn);
             m_frameDebugText.AppendLine();

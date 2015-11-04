@@ -16,12 +16,11 @@ using VRage.Utils;
 using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Compression;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game;
 using Sandbox.Game.Localization;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Engine.Networking
 {
@@ -44,6 +43,31 @@ namespace Sandbox.Engine.Networking
             public string[] Tags;
         }
 
+        public struct MyWorkshopPathInfo
+        {
+            public string Path;
+            public string Suffix;
+            public string NamePrefix;
+
+            public static MyWorkshopPathInfo CreateWorldInfo()
+            {
+                var info = new MyWorkshopPathInfo();
+                info.Path = m_workshopWorldsPath;
+                info.Suffix = m_workshopWorldSuffix;
+                info.NamePrefix = "Workshop";
+                return info;
+            }
+
+            public static MyWorkshopPathInfo CreateScenarioInfo()
+            {
+                var info = new MyWorkshopPathInfo();
+                info.Path = m_workshopScenariosPath;
+                info.Suffix = m_workshopScenariosSuffix;
+                info.NamePrefix = "Scenario";
+                return info;
+            }
+        }
+
         private static readonly string m_workshopWorldsDir = "WorkshopWorlds";
         private static readonly string m_workshopWorldsPath = Path.Combine(MyFileSystem.UserDataPath, m_workshopWorldsDir);
         private static readonly string m_workshopWorldSuffix = ".sbw";
@@ -55,6 +79,9 @@ namespace Sandbox.Engine.Networking
 
         private static readonly string m_workshopModsPath = MyFileSystem.ModsPath;
         private static readonly string m_workshopModSuffix = ".sbm";
+
+        private static readonly string m_workshopScenariosPath = Path.Combine(MyFileSystem.UserDataPath, "Scenarios", "workshop");
+        private static readonly string m_workshopScenariosSuffix = ".sbs";
 
         private static readonly string[] m_previewFileNames = { "thumb.png", MyTextConstants.SESSION_THUMB_NAME_AND_EXTENSION };
 
@@ -71,10 +98,12 @@ namespace Sandbox.Engine.Networking
         private static Category[] m_modCategories;
         private static Category[] m_worldCategories;
         private static Category[] m_blueprintCategories;
+        private static Category[] m_scenarioCategories;
 
         public static Category[] ModCategories { get { return m_modCategories; } }
         public static Category[] WorldCategories { get { return m_worldCategories; } }
         public static Category[] BlueprintCategories { get { return m_blueprintCategories; } }
+        public static Category[] ScenarioCategories { get { return m_scenarioCategories; } }
 
         /// <summary>
         /// Do NOT change this value, as it would break worlds published to workshop!!!
@@ -83,13 +112,15 @@ namespace Sandbox.Engine.Networking
         public const string WORKSHOP_WORLD_TAG = "world";
         public const string WORKSHOP_MOD_TAG = "mod";
         public const string WORKSHOP_BLUEPRINT_TAG = "blueprint";
+        public const string WORKSHOP_SCENARIO_TAG = "scenario";
         private const string WORKSHOP_INGAMESCRIPT_TAG = "ingameScript";
 
-        public static void Init(Category[] modCategories, Category[] worldCategories, Category[] blueprintCategories)
+        public static void Init(Category[] modCategories, Category[] worldCategories, Category[] blueprintCategories, Category[] scenarioCategories)
         {
             m_modCategories = modCategories;
             m_worldCategories = worldCategories;
             m_blueprintCategories = blueprintCategories;
+            m_scenarioCategories = scenarioCategories;
         }
 
         #region Publishing
@@ -124,7 +155,7 @@ namespace Sandbox.Engine.Networking
         {
             var modInfoPath = Path.Combine(MyFileSystem.ModsPath, localModFolder, "modinfo.sbmi");
             MyObjectBuilder_ModInfo modInfo;
-            if (File.Exists(modInfoPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
+            if (File.Exists(modInfoPath) && MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
                 return modInfo.WorkshopId;
             return 0ul;
         }
@@ -133,7 +164,7 @@ namespace Sandbox.Engine.Networking
         {
             var modInfoPath = Path.Combine(MyFileSystem.ModsPath, localModFolder, "modinfo.sbmi");
             MyObjectBuilder_ModInfo modInfo;
-            if (File.Exists(modInfoPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
+            if (File.Exists(modInfoPath) && MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
                 return modInfo.SteamIDOwner;
             return 0ul;
         }
@@ -174,6 +205,27 @@ namespace Sandbox.Engine.Networking
 
             string[] ignoredExtensions = { };
 
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+                null,
+                () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
+                endActionPublish));
+        }
+
+        public static void PublishScenarioAsync(string localWorldFolder,
+            string publishedTitle,
+            string publishedDescription,
+            ulong? publishedFileId,
+            //string[] tags,
+            PublishedFileVisibility visibility,
+            Action<bool, Result, ulong> callbackOnFinished = null)
+        {
+            m_onPublishingFinished = callbackOnFinished;
+            m_publishSuccess = false;
+            m_publishedFileId = 0;
+            m_publishResult = Result.Fail;
+
+            string[] ignoredExtensions = { };
+            string[] tags = { WORKSHOP_SCENARIO_TAG };
             MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
@@ -482,6 +534,23 @@ namespace Sandbox.Engine.Networking
             finally
             {
                 MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedModsBlocking - END");
+            }
+        }
+
+
+        /// <summary>
+        /// Do NOT call this method from update thread.
+        /// </summary>
+        public static bool GetSubscribedScenariosBlocking(List<SubscribedItem> results)
+        {
+            MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedScenariosBlocking - START");
+            try
+            {
+                return GetSubscribedItemsBlocking(results, WORKSHOP_SCENARIO_TAG);
+            }
+            finally
+            {
+                MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedScenariosBlocking - END");
             }
         }
 
@@ -1420,11 +1489,11 @@ namespace Sandbox.Engine.Networking
 
         public static bool GenerateModInfo(string modPath, ulong publishedFileId, ulong steamIDOwner)
         {
-            var modInfo = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ModInfo>();
+            var modInfo = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ModInfo>();
             modInfo.WorkshopId = publishedFileId;
             modInfo.SteamIDOwner = steamIDOwner;
 
-            if (!Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(Path.Combine(modPath, "modinfo.sbmi"), false, modInfo))
+            if (!MyObjectBuilderSerializer.SerializeXML(Path.Combine(modPath, "modinfo.sbmi"), false, modInfo))
             {
                 MySandboxGame.Log.WriteLine(string.Format("Error creating modinfo: workshopID={0}, mod='{1}'", publishedFileId, modPath));
                 return false;
@@ -1435,11 +1504,11 @@ namespace Sandbox.Engine.Networking
         #endregion
 
         #region Subscribed world instance creation
-        public static void CreateWorldInstanceAsync(SubscribedItem world, Action<bool, string> callbackOnFinished = null)
+        public static void CreateWorldInstanceAsync(SubscribedItem world, MyWorkshopPathInfo pathInfo, bool overwrite, Action<bool, string> callbackOnFinished = null)
         {
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextCreatingWorld,
                 null,
-                () => new CreateWorldResult(world, callbackOnFinished),
+                () => new CreateWorldResult(world, pathInfo, callbackOnFinished, overwrite),
                 endActionCreateWorldInstance));
         }
 
@@ -1458,7 +1527,56 @@ namespace Sandbox.Engine.Networking
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool TryCreateWorldInstanceBlocking(SubscribedItem world, out string sessionPath)
+        public static bool TryCreateWorldInstanceBlocking(SubscribedItem world, MyWorkshopPathInfo pathInfo, out string sessionPath, bool overwrite)
+        {
+            m_stop = false;
+            if (!Directory.Exists(pathInfo.Path))
+                Directory.CreateDirectory(pathInfo.Path);
+
+            string safeName = MyUtils.StripInvalidChars(world.Title);
+            sessionPath = null;
+
+            var localPackedWorldFullPath = Path.Combine(pathInfo.Path, world.PublishedFileId + pathInfo.Suffix);
+
+            if (!MySteam.IsOnline)
+                return false;
+
+            if (!IsModUpToDateBlocking(localPackedWorldFullPath, world, true))
+            {
+                if (!DownloadItemBlocking(localPackedWorldFullPath, world.UGCHandle))
+                    return false;
+            }
+
+            // Extract packaged world.
+            sessionPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+
+            //overwrite?
+            if (overwrite && Directory.Exists(sessionPath))
+                Directory.Delete(sessionPath, true);
+
+            // Find new non existing folder. The game folder name may be different from game name, so we have to
+            // make sure we don't overwrite another save
+            while (Directory.Exists(sessionPath))
+                sessionPath = MyLocalCache.GetSessionSavesPath(safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"), false, false);
+
+            MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);
+
+            // Update some meta-data of the new world.
+            ulong checkPointSize;
+            var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkPointSize);
+            checkpoint.SessionName = string.Format("({0}) {1}", pathInfo.NamePrefix, world.Title);
+            checkpoint.LastSaveTime = DateTime.Now;
+            checkpoint.WorkshopId = null;
+            MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+            MyLocalCache.SaveLastLoadedTime(sessionPath, DateTime.Now);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Do NOT call this method from update thread.
+        /// </summary>
+        public static bool TryCreateBattleWorldInstanceBlocking(SubscribedItem world, string workshopBattleWorldsPath, out string sessionPath)
         {
             if (!Directory.Exists(m_workshopWorldsPath))
                 Directory.CreateDirectory(m_workshopWorldsPath);
@@ -1477,27 +1595,30 @@ namespace Sandbox.Engine.Networking
                     return false;
             }
 
-            // Extract packaged world.
-            sessionPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+            if (!Directory.Exists(workshopBattleWorldsPath))
+                Directory.CreateDirectory(workshopBattleWorldsPath);
+
+            sessionPath = Path.Combine(workshopBattleWorldsPath, safeName);
 
             // Find new non existing folder. The game folder name may be different from game name, so we have to
             // make sure we don't overwrite another save
             while (Directory.Exists(sessionPath))
-                sessionPath = MyLocalCache.GetSessionSavesPath(safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"), false, false);
+                sessionPath = Path.Combine(workshopBattleWorldsPath, safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
 
             MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);
 
             // Update some meta-data of the new world.
             ulong checkPointSize;
             var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkPointSize);
-            checkpoint.SessionName = string.Format("(Workshop) {0}", world.Title);
+            checkpoint.SessionName = world.Title;
             checkpoint.LastSaveTime = DateTime.Now;
-            checkpoint.WorkshopId = null;
+            checkpoint.WorkshopId = world.PublishedFileId;
             MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
             MyLocalCache.SaveLastLoadedTime(sessionPath, DateTime.Now);
 
             return true;
         }
+
 
         class CreateWorldResult : IMyAsyncResult
         {
@@ -1521,12 +1642,12 @@ namespace Sandbox.Engine.Networking
                 private set;
             }
 
-            public CreateWorldResult(SubscribedItem world, Action<bool, string> callback)
+            public CreateWorldResult(SubscribedItem world, MyWorkshopPathInfo pathInfo, Action<bool, string> callback, bool overwrite)
             {
                 Callback = callback;
                 Task = Parallel.Start(() =>
                 {
-                    Success = TryCreateWorldInstanceBlocking(world, out m_createdSessionPath);
+                    Success = TryCreateWorldInstanceBlocking(world, pathInfo, out m_createdSessionPath, overwrite);
                 });
             }
 

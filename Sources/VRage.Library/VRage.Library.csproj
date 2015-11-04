@@ -63,6 +63,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -81,6 +84,9 @@
     <Compile Include="Algorithms\MyPathfindingData.cs" />
     <Compile Include="Algorithms\MyUnionFind.cs" />
     <Compile Include="Algorithms\Partition.cs" />
+    <Compile Include="Algorithms\SequenceIdGenerator.cs" />
+    <Compile Include="Collections\BitReaderWriter.cs" />
+    <Compile Include="Collections\BitStreamExtensions.cs" />
     <Compile Include="BulletXNA\BulletCollision\BoxCollision.cs" />
     <Compile Include="BulletXNA\BulletCollision\GImpactBvh.cs" />
     <Compile Include="BulletXNA\BulletCollision\GImpactQuantization.cs" />
@@ -92,12 +98,36 @@
     <Compile Include="BulletXNA\LinearMath\ObjectArray.cs" />
     <Compile Include="BulletXNA\LinearMath\UShortVector3.cs" />
     <Compile Include="BulletXNA\MathUtil.cs" />
+    <Compile Include="Collections\BitReader.cs" />
+    <Compile Include="Collections\BitStream.Write.cs" />
+    <Compile Include="Collections\BitStream.Read.cs" />
+    <Compile Include="Collections\BitStream.cs" />
+    <Compile Include="Collections\BitStreamException.cs" />
+    <Compile Include="Collections\CacheList.cs" />
     <Compile Include="Collections\CachingDictionary.cs" />
+    <Compile Include="Collections\CachingHashSet.cs" />
     <Compile Include="Collections\CachingList.cs" />
+    <Compile Include="Collections\DynamicSerializerDelegate.cs" />
+    <Compile Include="Collections\EmptyArray.cs" />
+    <Compile Include="Collections\IBitSerializable.cs" />
+    <Compile Include="Collections\MyConcurrentDictionary.cs" />
+    <Compile Include="Collections\MyConcurrentHashSet.cs" />
+    <Compile Include="Collections\MyIndexArray.cs" />
+    <Compile Include="Collections\MyIndexList.cs" />
+    <Compile Include="Collections\IMyQueue.cs" />
     <Compile Include="Collections\MyBinaryStructHeap.cs" />
     <Compile Include="Collections\MyConcurrentDeque.cs" />
+    <Compile Include="Collections\MyConcurrentList.cs" />
     <Compile Include="Collections\MyDeque.cs" />
     <Compile Include="Collections\MyIntervalList.cs" />
+    <Compile Include="Collections\MyMultiKeyDictionary`4.cs" />
+    <Compile Include="Collections\MyMultiKeyDictionary`3.cs" />
+    <Compile Include="Collections\MyMultiKeyIndex`4.cs" />
+    <Compile Include="Collections\MyMultiKeyIndex`3.cs" />
+    <Compile Include="Collections\QueueReader.cs" />
+    <Compile Include="Collections\SerializableDictionaryHack.cs" />
+    <Compile Include="Collections\SmallBitField.cs" />
+    <Compile Include="Collections\ThreadSafeStore.cs" />
     <Compile Include="Collections\UniqueListReader.cs" />
     <Compile Include="Collections\MyBinaryHeap.cs" />
     <Compile Include="Collections\MySinglyLinkedList.cs" />
@@ -110,8 +140,8 @@
     <Compile Include="Collections\MyCommitQueue.cs" />
     <Compile Include="Collections\MyQueue.cs" />
     <Compile Include="Collections\MyUniqueList.cs" />
-    <Compile Include="Collections\SerializableDictionary.cs" />
     <Compile Include="Collections\StackReader.cs" />
+    <Compile Include="Compiler\ClassIdAttribute.cs" />
     <Compile Include="Compiler\IlCompiler.cs" />
     <Compile Include="Compiler\IlInjector.cs" />
     <Compile Include="Compiler\TestScriptHelpers.cs" />
@@ -126,8 +156,10 @@
     <Compile Include="DShow\DsUuids.cs" />
     <Compile Include="DShow\QEdit.cs" />
     <Compile Include="DShow\VideoPlayer.cs" />
+    <Compile Include="Extensions\AttributeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
+    <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FloatExtensions.cs" />
     <Compile Include="Extensions\HashSetExtensions.cs" />
     <Compile Include="Filesystem\IFileVerifier.cs" />
@@ -325,7 +357,11 @@
     <Compile Include="ProtobufNet\SubItemToken.cs" />
     <Compile Include="ProtobufNet\WireType.cs" />
     <Compile Include="Reflection\ConstructorHelper.cs" />
+    <Compile Include="Reflection\FieldAccess.cs" />
     <Compile Include="Reflection\FullyQualifiedNameComparer.cs" />
+    <Compile Include="Reflection\GenericCallCache.cs" />
+    <Compile Include="Reflection\MemberAccess.cs" />
+    <Compile Include="Reflection\PropertyAccess.cs" />
     <Compile Include="Security\Crc32.cs" />
     <Compile Include="Security\FnvHash.cs" />
     <Compile Include="Security\Md5.cs" />
@@ -348,8 +384,11 @@
     <Compile Include="Trace\MyNullTrace.cs" />
     <Compile Include="Trace\MyTrace.cs" />
     <Compile Include="Trace\MyWintraceWrapper.cs" />
+    <Compile Include="Utils\BlittableHelper.cs" />
     <Compile Include="Utils\Disposable.cs" />
     <Compile Include="Utils\DontCheckAttribute.cs" />
+    <Compile Include="Utils\FixedLoop.cs" />
+    <Compile Include="Utils\GenericLoop.cs" />
     <Compile Include="Utils\MyBrowserHelper.cs" />
     <Compile Include="Filesystem\MyCheckSums.cs" />
     <Compile Include="Utils\MyEnum.cs" />
@@ -357,7 +396,6 @@
     <Compile Include="Utils\MyGameTimer.cs" />
     <Compile Include="Utils\MyInterpolationQueue.cs" />
     <Compile Include="Utils\MyRandom.cs" />
-    <Compile Include="Utils\MyStringId.cs" />
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
     <Compile Include="Utils\MyUtils.cs" />
@@ -366,7 +404,9 @@
     <Compile Include="Win32\WinApi-Helpers.cs" />
     <Compile Include="Win32\WinApi-Structures.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Collections\BitStream.Dynamic.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Native\NativeCallHelper.cs" />
   </ItemGroup>

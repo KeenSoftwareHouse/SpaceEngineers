@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Input;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Engine.Utils
 {
@@ -57,6 +57,7 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_TOOL_ACTION, MyJoystickAxesEnum.Zpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_BUILD_ACTION,  MyJoystickAxesEnum.Zneg); // MW:TODO shouldn't be this way I think
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_BUILD_ACTION,MyJoystickAxesEnum.Zpos); // this too
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.COPY_PASTE_ACTION,     MyJoystickAxesEnum.Zneg); // this too
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_LEFT,         MyJoystickAxesEnum.RotationXneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_RIGHT,        MyJoystickAxesEnum.RotationXpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_UP,           MyJoystickAxesEnum.RotationYneg);
@@ -78,6 +79,7 @@ namespace Sandbox.Engine.Utils
         private static void CreateForSpaceship()
         {
             MyControllerHelper.AddContext(CX_SPACESHIP, CX_CHARACTER);
+            MyControllerHelper.AddControl(CX_SPACESHIP, MyControlsSpace.LANDING_GEAR, MyJoystickButtonsEnum.J02);
             MyControllerHelper.AddControl(CX_SPACESHIP, MyControlsSpace.TOGGLE_REACTORS, MyJoystickButtonsEnum.J04);
             MyControllerHelper.NullControl(CX_SPACESHIP, MyControlsSpace.PRIMARY_BUILD_ACTION);
             MyControllerHelper.NullControl(CX_SPACESHIP, MyControlsSpace.SECONDARY_BUILD_ACTION);
@@ -86,7 +88,7 @@ namespace Sandbox.Engine.Utils
         private static void CreateForBuildMode()
         {
             MyControllerHelper.AddContext(CX_BUILD_MODE, CX_CHARACTER);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.NEXT_BLOCK_STAGE, MyJoystickButtonsEnum.J01);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_COLOR_CHANGE, MyJoystickButtonsEnum.J01);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.USE_SYMMETRY, MyJoystickButtonsEnum.J03);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.SYMMETRY_SWITCH, MyJoystickButtonsEnum.J04);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, MyJoystickButtonsEnum.J05);

@@ -21,6 +21,7 @@ using Sandbox.Game.Components;
 using VRage.Utils;
 using VRage;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -42,7 +43,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             public Vector3 Normal;
             public Color Color;
-            public int EdgeModel;
+            public MyStringHash EdgeModel;
         }
 
         public readonly MyRenderComponentCubeGrid m_gridRenderComponent;
@@ -166,7 +167,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 //Find opposite normals and remove them
                 Color color;
-                int edgeModel;
+                MyStringHash edgeModel;
                 Base27Directions.Direction normal0, normal1;
                 for (int i = 0; i < MyFourEdgeInfo.MaxInfoCount; i++)
                 {
@@ -179,7 +180,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 int c = 0;
                 bool wasFour = m_edgesToCompare.Count == 4;
-                int baseEdgeModel = m_edgesToCompare[0].EdgeModel;
+                var baseEdgeModel = m_edgesToCompare[0].EdgeModel;
 
                 while (c < m_edgesToCompare.Count)
                 {
@@ -265,7 +266,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (isVisible)
                 {
-                    var definition = MyDefinitionManager.Static.GetEdgesDefinition(new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_EdgesDefinition)), MyStringId.Get(baseEdgeModel)));
+                    var definition = MyDefinitionManager.Static.GetEdgesDefinition(new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_EdgesDefinition)), baseEdgeModel));
                     var edgesSet = m_gridRenderComponent.GridSizeEnum == MyCubeSize.Large ? definition.Large : definition.Small;
 
                     int modelId = 0;
@@ -330,7 +331,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (list[i] == MyRenderProxy.RENDER_ID_UNASSIGNED)
                 {
                     list[i] = renderObjectId;
-                    MyEntities.AddRenderObjectToMap(renderObjectId, m_gridRenderComponent.Entity);
+                    MyEntities.AddRenderObjectToMap(renderObjectId, m_gridRenderComponent.Container.Entity);
                     return;
                 }
             }
@@ -353,7 +354,7 @@ namespace Sandbox.Game.Entities.Cube
             list = forPositionUpdates ? m_gridRenderComponent.RenderObjectIDs : m_gridRenderComponent.AdditionalRenderObjects;
             
             list[pos] = renderObjectId;
-            MyEntities.AddRenderObjectToMap(renderObjectId, m_gridRenderComponent.Entity);
+            MyEntities.AddRenderObjectToMap(renderObjectId, m_gridRenderComponent.Container.Entity);
         }
 
         void RemoveRenderObjectId(uint renderObjectId, bool forPositionUpdates)
@@ -377,13 +378,13 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (m_instanceBufferId == MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer(m_gridRenderComponent.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Entity.EntityId.ToString() + ", instance buffer " + DebugName, MyRenderInstanceBufferType.Cube);
+                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer(m_gridRenderComponent.Container.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Container.Entity.EntityId.ToString() + ", instance buffer " + DebugName, MyRenderInstanceBufferType.Cube);
                 AddRenderObjectId(m_instanceBufferId, false);
             }
 
             if (m_parentCullObject == MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                m_parentCullObject = MyRenderProxy.CreateManualCullObject(m_gridRenderComponent.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Entity.EntityId.ToString() + ", cull object", m_gridRenderComponent.Entity.PositionComp.WorldMatrix);
+                m_parentCullObject = MyRenderProxy.CreateManualCullObject(m_gridRenderComponent.Container.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Container.Entity.EntityId.ToString() + ", cull object", m_gridRenderComponent.Container.Entity.PositionComp.WorldMatrix);
                 AddRenderObjectId(m_parentCullObject, true);
             }
 
@@ -427,9 +428,9 @@ namespace Sandbox.Game.Entities.Cube
                 if (!exists && hasAnyInstances)
                 {
                     renderObjectId = VRageRender.MyRenderProxy.CreateRenderEntity(
-                        m_gridRenderComponent.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Entity.EntityId.ToString() + ", part: " + item.Key,
+                        m_gridRenderComponent.Container.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Container.Entity.EntityId.ToString() + ", part: " + item.Key,
                         MyModel.GetById(item.Key),
-                        (MatrixD)m_gridRenderComponent.Entity.PositionComp.WorldMatrix,
+                        (MatrixD)m_gridRenderComponent.Container.Entity.PositionComp.WorldMatrix,
                         MyMeshDrawTechnique.MESH,
                         flags,
                         CullingOptions.Default,
@@ -469,10 +470,10 @@ namespace Sandbox.Game.Entities.Cube
         {
             string text = String.Format("CubeParts:{0}, EdgeParts{1}", m_cubeParts.Count, m_edgeInfosNew.Count);
 
-            MyRenderProxy.DebugDrawText3D(m_boundingBox.Center + m_gridRenderComponent.Entity.PositionComp.WorldMatrix.Translation, text, Color.Red, 0.75f, false);
+            MyRenderProxy.DebugDrawText3D(m_boundingBox.Center + m_gridRenderComponent.Container.Entity.PositionComp.WorldMatrix.Translation, text, Color.Red, 0.75f, false);
 
             var localMatrix = Matrix.CreateScale(m_boundingBox.Size) * Matrix.CreateTranslation(m_boundingBox.Center);
-            var matrix = localMatrix * m_gridRenderComponent.Entity.PositionComp.WorldMatrix;
+            var matrix = localMatrix * m_gridRenderComponent.Container.Entity.PositionComp.WorldMatrix;
             MyRenderProxy.DebugDrawOBB(matrix, Color.Red.ToVector3(), 0.25f, true, true);
         }
 

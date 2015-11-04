@@ -1,8 +1,10 @@
-﻿using SharpDX.Multimedia;
+﻿using SharpDX;
+using SharpDX.Multimedia;
 using SharpDX.XAudio2;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Audio
 {
@@ -11,18 +13,20 @@ namespace VRage.Audio
         public Action StoppedPlaying { get; set; }
         MySourceVoicePool m_owner;
         SourceVoice m_voice;
-        MyStringId m_cue;
+        MyCueId m_cueId;
         MyInMemoryWave[] m_loopBuffers = new MyInMemoryWave[3];
         float m_frequencyRatio = 1f;
         VoiceSendDescriptor[] m_currentDescriptor;
+        Queue<DataStream> m_dataStreams = new Queue<DataStream>();
 
         bool m_isPlaying;
         bool m_isPaused;
         bool m_isLoopable;
         private bool m_valid;
+        private bool m_buffered;
 
         public SourceVoice Voice { get { return m_voice; }}
-        public MyStringId CueEnum { get { return m_cue; } }
+        public MyCueId CueEnum { get { return m_cueId; } }
         public bool IsPlaying { get { return m_isPlaying; } }
         public bool IsPaused { get { return m_isPaused; } }
         public bool IsLoopable { get { return m_isLoopable; } }
@@ -34,6 +38,16 @@ namespace VRage.Audio
             set { m_frequencyRatio = value; }
         }
         public float Volume { get { return Voice != null ? Voice.Volume : 0; } }
+        public bool IsBuffered { get { return m_buffered; } }
+
+        public MySourceVoice(XAudio2 device, WaveFormat sourceFormat)
+        {
+            m_voice = new SourceVoice(device, sourceFormat, true);
+            m_voice.BufferEnd += OnStopPlaying;
+            m_valid = true;
+
+            Flush();
+        }
 
         public MySourceVoice(MySourceVoicePool owner, XAudio2 device, WaveFormat sourceFormat)
         {
@@ -61,7 +75,7 @@ namespace VRage.Audio
 
         public void Flush()
         {
-            m_cue = MyStringId.NullOrEmpty;
+            m_cueId = new MyCueId(MyStringHash.NullOrEmpty);
             m_voice.Stop();
             m_voice.FlushSourceBuffers();
             for (int i = 0; i < m_loopBuffers.Length; i++ )
@@ -72,10 +86,10 @@ namespace VRage.Audio
             m_currentDescriptor = null;
         }
 
-        internal void SubmitSourceBuffer(MyStringId cue, MyInMemoryWave wave, MyCueBank.CuePart part)
+        internal void SubmitSourceBuffer(MyCueId cueId, MyInMemoryWave wave, MyCueBank.CuePart part)
         {
             m_loopBuffers[(int)part] = wave;
-            m_cue = cue;
+            m_cueId = cueId;
             m_isLoopable |= (wave.Buffer.LoopCount > 0);
         }
 
@@ -111,12 +125,42 @@ namespace VRage.Audio
                 OnStopPlaying(m_voice.NativePointer);
         }
 
+        public void StartBuffered()
+        {
+            if (m_voice.State.BuffersQueued > 0)
+            {
+                m_voice.SetFrequencyRatio(FrequencyRatio);
+                m_voice.Start();
+                m_isPlaying = true;
+                m_buffered = true;
+            }
+            else
+                OnStopPlaying(m_voice.NativePointer);
+        }
+
+        public void SubmitBuffer(byte[] buffer, int size)
+        {
+            var dataStream = DataStream.Create(buffer, true, false);
+            AudioBuffer buff = new AudioBuffer(dataStream);
+            buff.Flags = BufferFlags.None;
+
+            m_dataStreams.Enqueue(dataStream);
+            m_voice.SubmitSourceBuffer(buff, null);
+        }
+
         private void OnStopPlaying(IntPtr context)
         {
+            if (m_dataStreams.Count > 0)
+            {
+                var dataStream = m_dataStreams.Dequeue();
+                dataStream.Dispose();
+            }
             if (m_voice.State.BuffersQueued == 0)
             {
+                m_buffered = false;
                 m_isPlaying = false;
-                m_owner.OnStopPlaying(this);
+                if (m_owner != null)
+                    m_owner.OnStopPlaying(this);
                 if (StoppedPlaying != null)
                     StoppedPlaying();
             }
@@ -127,7 +171,7 @@ namespace VRage.Audio
             if (!IsValid || !m_isPlaying)
                 return;
 
-            if (force || m_isLoopable)
+            if ((force || m_isLoopable) && m_owner != null)
                 m_owner.AddToFadeoutList(this);
             else
             {
@@ -158,7 +202,7 @@ namespace VRage.Audio
 
         public void SetVolume(float volume)
         {
-            if (m_voice != null)
+            if (IsValid)
                 m_voice.SetVolume(volume);
         }
 
@@ -173,13 +217,21 @@ namespace VRage.Audio
 
         public override string ToString()
         {
-            return string.Format(m_cue.ToString());
+            return string.Format(m_cueId.ToString());
         }
 
         internal void DestroyVoice()
         {
             m_voice.DestroyVoice();
             m_voice = null;
+        }
+
+        public void Cleanup()
+        {
+            DestroyVoice();
+            foreach (var dataStream in m_dataStreams)
+                dataStream.Dispose();
+            m_dataStreams.Clear();
         }
     }
 }

@@ -27,15 +27,24 @@ namespace VRageRender
 
     struct MyProjectionInfo
     {
-        internal Matrix WorldToProjection;
-        internal Matrix LocalToProjection;
+        internal MatrixD WorldToProjection;
+        internal MatrixD LocalToProjection;
         internal Vector3D WorldCameraOffsetPosition;
 
-        internal Matrix CurrentLocalToProjection { get { return Matrix.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
+        internal MatrixD CurrentLocalToProjection { get { return MatrixD.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
+    }
+
+    class MyLightsCameraDistanceComparer : IComparer<LightId> {
+
+        public int Compare(LightId x, LightId y)
+        {
+            return x.ViewerDistanceSquared.CompareTo(y.ViewerDistanceSquared);
+        }
     }
 
     class MyShadows : MyImmediateRC
     {
+        const int MAX_SPOTLIGHT_SHADOWCASTERS = 4;
         const bool VisualizeDebug = false;
 
         internal struct MyShadowmapQuery
@@ -46,66 +55,51 @@ namespace VRageRender
             internal Vector3 ProjectionDir;
             internal float ProjectionFactor;
             internal MyFrustumEnum QueryType;
+            internal int CascadeIndex;
 
             internal HashSet<uint> IgnoredEntities;
         }
 
         internal static RwTexId m_cascadeShadowmapArray = RwTexId.NULL;
+        internal static RwTexId m_cascadeShadowmapBackup = RwTexId.NULL;
         internal static ConstantsBufferId m_csmConstants;
-        static int m_cascadeResolution;
-        static int m_cascadesNum;
-        
-        internal static float[] m_splitDepth;
-        internal static Vector4[] m_cascadeScale = new Vector4[4];
+
+        private static int m_initializedShadowCascadesCount;
+        internal static float[] ShadowCascadeSplitDepths;
+        internal static Vector4[] ShadowCascadeScales;
+        private static Vector3D[] m_shadowCascadeLightDirections;
+        private static int[] m_shadowCascadeFramesSinceUpdate;
+
         internal static List<MyShadowmapQuery> m_shadowmapQueries = new List<MyShadowmapQuery>();
         internal static MyProjectionInfo [] m_cascadeInfo = new MyProjectionInfo[8];
 
-        internal static List<MyShadowmapQuery> ShadowmapList { get { return m_shadowmapQueries; } }
-        internal static Vector3[] m_cornersCS;
+        internal static List<MyShadowmapQuery> ShadowMapQueries { get { return m_shadowmapQueries; } }
+        internal static Vector3D[] m_cornersCS;
 
         static InputLayoutId m_inputLayout;
         static VertexShaderId m_markVS;
         static PixelShaderId m_markPS;
 
-        internal static void ResizeCascades()
-        {
-            if (m_cascadeShadowmapArray != RwTexId.NULL)
-            {
-                MyRwTextures.Destroy(m_cascadeShadowmapArray);
-            }
-
-            m_cascadeResolution = MyRender11.m_renderSettings.ShadowQuality.Resolution();
-
-            m_cascadeShadowmapArray = MyRwTextures.CreateShadowmapArray(m_cascadeResolution, m_cascadeResolution,
-                m_cascadesNum, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "cascades shadowmaps");
-        }
+        static MyLightsCameraDistanceComparer m_spotlightCastersComparer = new MyLightsCameraDistanceComparer();
 
         internal unsafe static void Init()
         {
-            //m_spotlightShadowmapPool = new MyShadowmapArray(256, 256, 4, Format.R16_Typeless, Format.D16_UNorm, Format.R16_Float);
-            //m_spotlightShadowmapPool.SetDebugName("spotlight shadowmaps pool");
-
-            m_cascadesNum = 4;
-            m_splitDepth = new float[m_cascadesNum + 1];
-
-            m_cascadeResolution = 1024;
-            ResizeCascades();
+            ResetCascades();
 
             m_csmConstants = MyHwBuffers.CreateConstantsBuffer((sizeof(Matrix) + sizeof(Vector2)) * 8 + 2 * sizeof(Vector4) );
 
-            m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * 4, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
             InitIB();
 
-            m_cornersCS = new Vector3[8] {
-                    new Vector3(-1, -1, 0),
-                    new Vector3(-1, 1, 0),
-                    new Vector3( 1, 1, 0),
-                    new Vector3( 1, -1, 0),
+            m_cornersCS = new Vector3D[8] {
+                    new Vector3D(-1, -1, 0),
+                    new Vector3D(-1, 1, 0),
+                    new Vector3D( 1, 1, 0),
+                    new Vector3D( 1, -1, 0),
 
-                    new Vector3(-1, -1, 1),
-                    new Vector3(-1, 1, 1),
-                    new Vector3( 1, 1, 1),
-                    new Vector3( 1, -1, 1)
+                    new Vector3D(-1, -1, 1),
+                    new Vector3D(-1, 1, 1),
+                    new Vector3D( 1, 1, 1),
+                    new Vector3D( 1, -1, 1)
                 };
 
             m_markVS = MyShaders.CreateVs("shape.hlsl", "vs");
@@ -113,14 +107,43 @@ namespace VRageRender
             m_inputLayout = MyShaders.CreateIL(m_markVS.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3));
         }
 
-        internal static void ResetShadowmaps()
+        internal unsafe static void ResetCascades()
+        {
+            m_initializedShadowCascadesCount = MyRenderProxy.Settings.ShadowCascadeCount;
+
+            ShadowCascadeSplitDepths = new float[m_initializedShadowCascadesCount + 1];
+            ShadowCascadeScales = new Vector4[m_initializedShadowCascadesCount];
+            m_shadowCascadeLightDirections = new Vector3D[m_initializedShadowCascadesCount];
+            m_shadowCascadeFramesSinceUpdate = new int[m_initializedShadowCascadesCount];
+            m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * m_initializedShadowCascadesCount, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+
+            ResizeCascades();
+        }
+
+        internal static void ResizeCascades()
+        {
+            if (m_cascadeShadowmapArray != RwTexId.NULL)
+            {
+                MyRwTextures.Destroy(m_cascadeShadowmapArray);
+                MyRwTextures.Destroy(m_cascadeShadowmapBackup);
+            }
+
+            var cascadeResolution = MyRender11.m_renderSettings.ShadowQuality.ShadowCascadeResolution();
+
+            m_cascadeShadowmapArray = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
+                m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps");
+            m_cascadeShadowmapBackup = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
+                m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps backup");
+        }
+
+        internal static void PrepareShadowmaps()
         {
             m_shadowmapQueries.Clear();
 
             PrepareSpotlights();
             PrepareCascades();
 
-            for(int i=0; i<m_shadowmapQueries.Count; i++)
+            for(int i=0; i < m_shadowmapQueries.Count; i++)
             {
                 MyRender11.Context.ClearDepthStencilView(m_shadowmapQueries[i].DepthBuffer, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
             }
@@ -130,27 +153,31 @@ namespace VRageRender
 
         static void PrepareSpotlights()
         {
-            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustum, MyLightRendering.VisibleSpotlights);
+            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, MyLightRendering.VisibleSpotlights);
+
+            MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
             MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
 
             int index = 0;
             int casterIndex = 0;
             foreach (var id in MyLightRendering.VisibleSpotlights)
             {
-                MyLights.WriteSpotlightConstants(id, ref MyLightRendering.Spotlights[index]);
+                var shadowMatrix = MatrixD.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up) *
+                    MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, 0.5f, id.ShadowDistance);
+                MatrixD localToProjection = MatrixD.CreateTranslation(MyEnvironment.CameraPosition) * shadowMatrix;
+                MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(localToProjection * MyMatrixHelpers.ClipspaceToTexture);
 
-                if (id.CastsShadows)
+                if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
                 {
                     var query = new MyShadowmapQuery();
-
+                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
+                    
                     if(MyLights.IgnoredEntitites.ContainsKey(id))
                     {
                         query.IgnoredEntities = MyLights.IgnoredEntitites[id];
                     }
-
-                    var shadowMatrix = Matrix.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up) *
-                        Matrix.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, 0.5f, id.ShadowDistance);
-
+                
+                
                     if(ShadowmapsPool.Count <= casterIndex)
                     {
                         ShadowmapsPool.Add(MyRwTextures.CreateShadowmap(512, 512));
@@ -163,111 +190,120 @@ namespace VRageRender
                     {
                         WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
                         WorldToProjection = shadowMatrix,
-                        LocalToProjection = Matrix.CreateTranslation(MyEnvironment.CameraPosition) * shadowMatrix
+                        LocalToProjection = localToProjection
                     };
-
-                    MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(query.ProjectionInfo.CurrentLocalToProjection * MyMatrixHelpers.ClipspaceToTexture);
-
                     m_shadowmapQueries.Add(query);
                     casterIndex++;
                 }
+                else
+                {
+                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = false;
+                }
+                MyLights.WriteSpotlightConstants(id, ref MyLightRendering.Spotlights[index]);
+
                 index++;
             }
         }
 
         static Matrix m_oldView;
 
-        static Matrix CreateGlobalMatrix()
+        static MatrixD CreateGlobalMatrix()
         {
-            var verticesWS = new Vector3[8];
-            Vector3.Transform(m_cornersCS, ref MyEnvironment.InvViewProjection, verticesWS);
+            var verticesWorldSpace = new Vector3D[8];
+            MatrixD invView = MyEnvironment.InvViewProjection;
+            Vector3D.Transform(m_cornersCS, ref invView, verticesWorldSpace);
 
-            var centroid = verticesWS.Aggregate((x, y) => x + y) / 8f;
-            var view = Matrix.CreateLookAt(centroid, centroid - MyEnvironment.DirectionalLightDir, Vector3.UnitY);
-            var proj = Matrix.CreateOrthographic(1, 1, 0, 1);
+            var centroid = verticesWorldSpace.Aggregate((x, y) => x + y) / 8f;
+            var view = MatrixD.CreateLookAt(centroid, centroid - MyEnvironment.DirectionalLightDir, Vector3D.UnitY);
+            var proj = MatrixD.CreateOrthographic(1, 1, 0, 1);
 
             return view * proj * MyMatrixHelpers.ClipspaceToTexture;
         }
 
-        static Vector3[] CascadeLightDirection = new Vector3[4];
-        static int[] FramesSinceUpdate = new int[4];
-
         static void PrepareCascades()
         {
+			MyImmediateRC.RC.BeginProfilingBlock("PrepareCascades");
+            MyImmediateRC.RC.Context.CopyResource(m_cascadeShadowmapArray.Resource, m_cascadeShadowmapBackup.Resource);
+
             bool stabilize = true;
-
-            for (int i = 0; i < 4; i++)
-            {
-                ++FramesSinceUpdate[i];
-            }
-
-            CascadeLightDirection[0] = MyEnvironment.DirectionalLightDir;
-            CascadeLightDirection[1] = MyEnvironment.DirectionalLightDir;
-
             const float DirectionDifferenceThreshold = 0.02f;
 
+            for (int cascadeIndex = 0; cascadeIndex < m_initializedShadowCascadesCount; ++cascadeIndex)
+            {
+                ++m_shadowCascadeFramesSinceUpdate[cascadeIndex];
 
-            if (FramesSinceUpdate[2] > 180 || MyEnvironment.DirectionalLightDir.Dot(CascadeLightDirection[2]) < (1 - DirectionDifferenceThreshold))
-            {
-                FramesSinceUpdate[2] = 0;
-                CascadeLightDirection[2] = MyEnvironment.DirectionalLightDir;    
-            }
-            if (FramesSinceUpdate[3] > 180 || MyEnvironment.DirectionalLightDir.Dot(CascadeLightDirection[3]) < (1 - DirectionDifferenceThreshold))
-            {
-                FramesSinceUpdate[3] = 0;
-                CascadeLightDirection[3] = MyEnvironment.DirectionalLightDir;
+                if( m_shadowCascadeFramesSinceUpdate[cascadeIndex] > cascadeIndex*60 ||
+                    MyEnvironment.DirectionalLightDir.Dot(m_shadowCascadeLightDirections[cascadeIndex]) < (1 - DirectionDifferenceThreshold))
+                {
+                    m_shadowCascadeLightDirections[cascadeIndex] = MyEnvironment.DirectionalLightDir;
+                    m_shadowCascadeFramesSinceUpdate[cascadeIndex] = 0;
+                }
             }
 
             var globalMatrix = CreateGlobalMatrix();
 
-            Matrix[] cascadesMatrices = new Matrix[8];
+            MatrixD[] cascadesMatrices = new MatrixD[8];
 
-            var cascadeFrozen = MyRender11.Settings.FreezeCascade.Any(x => x == true);
+            var cascadeFrozen = MyRender11.Settings.ShadowCascadeFrozen.Any(x => x == true);
             if (!cascadeFrozen)
-            {
                 m_oldView = MyEnvironment.View;
-            }
 
             float cascadesNearClip = 1f;
-            float cascadesFarClip = 1000f;
-            float backOffset = 100f; // more and fit projection to objects inside
-            float shadowmapSize = m_cascadeResolution;
 
-            m_splitDepth[0] = cascadesNearClip;
-            m_splitDepth[1] = MyRender11.Settings.CascadesSplit0;
-            m_splitDepth[2] = MyRender11.Settings.CascadesSplit1;
-            m_splitDepth[3] = MyRender11.Settings.CascadesSplit2;
-            m_splitDepth[4] = MyRender11.Settings.CascadesSplit3;
+			float cascadesFarClip = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeSplit(m_initializedShadowCascadesCount);
+            float backOffset = MyRender11.RenderSettings.ShadowQuality.BackOffset();
+            float shadowmapSize = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeResolution();
 
-            float unitWidth = 1 / MyEnvironment.Projection.M11;
-            float unitHeight = 1 / MyEnvironment.Projection.M22;
-            var vertices = new Vector3[]
+			var oldCascadeSplit = 0.0f;
+			bool useFarShadows = MyRenderProxy.Settings.FarShadowDistanceOverride > MyRender11.Settings.ShadowCascadeMaxDistance;
+			if (useFarShadows)
+			{
+				oldCascadeSplit = MyRender11.Settings.ShadowCascadeMaxDistance;
+              
+				MyRender11.Settings.ShadowCascadeMaxDistance = MyRenderProxy.Settings.FarShadowDistanceOverride;
+			}
+
+			for (int cascadeIndex = 0; cascadeIndex < ShadowCascadeSplitDepths.Length; ++cascadeIndex)
+                ShadowCascadeSplitDepths[cascadeIndex] = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
+            
+			if (useFarShadows)
+				MyRender11.Settings.ShadowCascadeMaxDistance = oldCascadeSplit;
+
+            double unitWidth = 1.0 / MyEnvironment.Projection.M11;
+			double unitHeight = 1.0 / MyEnvironment.Projection.M22;
+            var vertices = new Vector3D[]
             {
-                new Vector3( -unitWidth, -unitHeight, -1), 
-                new Vector3( -unitWidth, unitHeight, -1), 
-                new Vector3( unitWidth, unitHeight, -1), 
-                new Vector3( unitWidth, -unitHeight, -1), 
+                new Vector3D( -unitWidth, -unitHeight, -1), 
+                new Vector3D( -unitWidth, unitHeight, -1), 
+                new Vector3D( unitWidth, unitHeight, -1), 
+                new Vector3D( unitWidth, -unitHeight, -1), 
             };
-            var frustumVerticesWS = new Vector3[8];
+            var frustumVerticesWS = new Vector3D[8];
 
-            for (int c = 0; c < m_cascadesNum; c++)
+            for (int cascadeIndex = 0; cascadeIndex < m_initializedShadowCascadesCount; ++cascadeIndex)
             {
                 for (int i = 0; i < 4; i++) {
-                    frustumVerticesWS[i] = vertices[i] * m_splitDepth[c];
-                    frustumVerticesWS[i + 4] = vertices[i] * m_splitDepth[c + 1];
+                    frustumVerticesWS[i] = vertices[i] * ShadowCascadeSplitDepths[cascadeIndex];
+                    frustumVerticesWS[i + 4] = vertices[i] * ShadowCascadeSplitDepths[cascadeIndex + 1];
                 }
 
-                if (MyRender11.Settings.FreezeCascade[c])
+                if (MyRender11.Settings.ShadowCascadeFrozen[cascadeIndex])
                 {
                     // draw cascade bounding primtiive
                     if (VisualizeDebug)
-                    { 
-                        var invView = Matrix.Invert(m_oldView);
-                        Vector3.Transform(frustumVerticesWS, ref invView, frustumVerticesWS);
+                    {
+                        var oldInvView = MatrixD.Invert(m_oldView);
+                        Vector3D.Transform(frustumVerticesWS, ref oldInvView, frustumVerticesWS);
+                        
+                        var verticesF = new Vector3[8];
+                        for (int i = 0; i < 8; i++)
+                        {
+                            verticesF[i] = frustumVerticesWS[i];
+                        }
                         var batch = MyLinesRenderer.CreateBatch();
-                        batch.Add6FacedConvex(frustumVerticesWS, Color.Blue);
+                        batch.Add6FacedConvex(verticesF, Color.Blue);
 
-                        var bs = BoundingSphere.CreateFromPoints(frustumVerticesWS);
+                        var bs = BoundingSphere.CreateFromPoints(verticesF);
                         var bb = BoundingBox.CreateFromSphere(bs);
                         batch.AddBoundingBox(bb, Color.OrangeRed);
 
@@ -280,45 +316,49 @@ namespace VRageRender
 
                 /*
                  * Cascades update scheme:
-                 * 0: 1 1 1 1
-                 * 1: 1 0 1 0
-                 * 2: 0 1 0 0
-                 * 3: 0 0 0 1
+                 *    1 2 3 4 5 6 7
+                 * 0: 1 1 1 1 1 1 1
+                 * 1: 1 0 1 0 1 0 1
+                 * 2: 0 1 0 0 1 0 0
+                 * 3: 0 0 0 1 0 0 0
+                 * 4: 0 0 0 0 0 1 0
+                 * 5: 0 0 0 0 0 0 1
                  */
-
-                bool skipCascade1 = c == 1 && (MyCommon.FrameCounter % 2) != 0;
-                bool skipCascade2 = c == 2 && (MyCommon.FrameCounter % 4) != 1;
-                bool skipCascade3 = c == 3 && (MyCommon.FrameCounter % 4) != 3;
-                // 
-                if (skipCascade1 || skipCascade2 || skipCascade3)
-                {
-                    if (!MyRender11.Settings.UpdateCascadesEveryFrame)
-                    { 
-                        continue;
-                    }
-                }
                 
-                Vector3.Transform(frustumVerticesWS, ref MyEnvironment.InvView, frustumVerticesWS);
+                bool skipCascade = false;  // TODO: properly
+                bool skipCascade1 = cascadeIndex == 1 && (MyCommon.FrameCounter % 2) != 0;
+                bool skipCascade2 = cascadeIndex == 2 && (MyCommon.FrameCounter % 4) != 1;
+                bool skipCascade3 = cascadeIndex == 3 && (MyCommon.FrameCounter % 4) != 3;
+                bool skipCascade4 = cascadeIndex == 4 && (MyCommon.FrameCounter % 8) != 5;
+                bool skipCascade5 = cascadeIndex == 5 && (MyCommon.FrameCounter % 8) != 7;
+                skipCascade = skipCascade1 || skipCascade2 || skipCascade3 || skipCascade4 || skipCascade5;
+                // 
+                if (skipCascade && !MyRender11.Settings.UpdateCascadesEveryFrame)
+                    continue;
 
-                var bSphere = BoundingSphere.CreateFromPoints(frustumVerticesWS);
+                MatrixD invView = MyEnvironment.InvView;
+                Vector3D.Transform(frustumVerticesWS, ref invView, frustumVerticesWS);
+
+                var bSphere = BoundingSphereD.CreateFromPoints((IEnumerable<Vector3D>)frustumVerticesWS);
                 if (stabilize) 
                 { 
                     bSphere.Center = bSphere.Center.Round();
-                    bSphere.Radius = (float)Math.Ceiling(bSphere.Radius);
+                    bSphere.Radius = Math.Ceiling(bSphere.Radius);
                 }
 
-                var offset = bSphere.Radius + cascadesNearClip + backOffset;
-                var shadowCameraPosWS = bSphere.Center + CascadeLightDirection[c] * (bSphere.Radius + cascadesNearClip);
+                var shadowCameraPosWS = bSphere.Center + m_shadowCascadeLightDirections[cascadeIndex] * (bSphere.Radius + cascadesNearClip);
 
-                var lightView = VRageMath.Matrix.CreateLookAt(shadowCameraPosWS, shadowCameraPosWS - CascadeLightDirection[c], Math.Abs(Vector3.UnitY.Dot(CascadeLightDirection[c])) < 0.99f ? Vector3.UnitY : Vector3.UnitX);
+                var lightView = VRageMath.MatrixD.CreateLookAt(shadowCameraPosWS, shadowCameraPosWS - m_shadowCascadeLightDirections[cascadeIndex], Math.Abs(Vector3.UnitY.Dot(m_shadowCascadeLightDirections[cascadeIndex])) < 0.99f ? Vector3.UnitY : Vector3.UnitX);
+				var longestShadow = MyRenderProxy.Settings.LongShadowFactor;
+                var offset = bSphere.Radius + cascadesNearClip + backOffset + (longestShadow < 0 ? 0.0 : longestShadow);
 
-                Vector3 vMin = new Vector3(-bSphere.Radius, -bSphere.Radius, cascadesNearClip);
-                Vector3 vMax = new Vector3(bSphere.Radius, bSphere.Radius, offset + bSphere.Radius);
+                Vector3D vMin = new Vector3D(-bSphere.Radius, -bSphere.Radius, cascadesNearClip);
+                Vector3D vMax = new Vector3D(bSphere.Radius, bSphere.Radius, offset + bSphere.Radius);
 
-                var cascadeProjection = Matrix.CreateOrthographicOffCenter(vMin.X, vMax.X, vMin.Y, vMax.Y, vMax.Z, vMin.Z);
-                cascadesMatrices[c] = lightView * cascadeProjection;
+                var cascadeProjection = MatrixD.CreateOrthographicOffCenter(vMin.X, vMax.X, vMin.Y, vMax.Y, vMax.Z, vMin.Z);
+                cascadesMatrices[cascadeIndex] = lightView * cascadeProjection;
                 
-                var transformed = Vector3.Transform(Vector3.Zero, ref cascadesMatrices[c]) * shadowmapSize / 2;
+                var transformed = Vector3D.Transform(Vector3D.Zero, cascadesMatrices[cascadeIndex]) * shadowmapSize / 2;
                 var smOffset = (transformed.Round() - transformed) * 2 / shadowmapSize;
 
                 // stabilize 1st cascade only
@@ -326,46 +366,40 @@ namespace VRageRender
                 {
                     cascadeProjection.M41 += smOffset.X;
                     cascadeProjection.M42 += smOffset.Y;
-                    cascadesMatrices[c] = lightView * cascadeProjection;
+                    cascadesMatrices[cascadeIndex] = lightView * cascadeProjection;
                 }
 
-                var inverseCascadeMatrix = Matrix.Invert(cascadesMatrices[c]);
-                var corner0 = Vector3.Transform(Vector3.Transform(new Vector3(-1, -1, 0), inverseCascadeMatrix), globalMatrix);
-                var corner1 = Vector3.Transform(Vector3.Transform(new Vector3(1, 1, 1), inverseCascadeMatrix), globalMatrix);
+                var inverseCascadeMatrix = MatrixD.Invert(cascadesMatrices[cascadeIndex]);
+                var corner0 = Vector3D.Transform(Vector3D.Transform(new Vector3D(-1, -1, 0), inverseCascadeMatrix), globalMatrix);
+                var corner1 = Vector3D.Transform(Vector3D.Transform(new Vector3D(1, 1, 1), inverseCascadeMatrix), globalMatrix);
 
                 var d = corner1 - corner0;
 
                 var cascadeScale = 1f / (corner1 - corner0);
-                m_cascadeScale[c] = new Vector4(cascadeScale, 0);
+                ShadowCascadeScales[cascadeIndex] = new Vector4D(cascadeScale, 0);
 
                 var query = new MyShadowmapQuery();
-                query.DepthBuffer = m_cascadeShadowmapArray.SubresourceDsv(c);
+                query.DepthBuffer = m_cascadeShadowmapArray.SubresourceDsv(cascadeIndex);
                 query.Viewport = new MyViewport(shadowmapSize, shadowmapSize);
 
-                m_cascadeInfo[c].WorldCameraOffsetPosition = MyEnvironment.CameraPosition;
-                m_cascadeInfo[c].WorldToProjection = cascadesMatrices[c];
+                m_cascadeInfo[cascadeIndex].WorldCameraOffsetPosition = MyEnvironment.CameraPosition;
+                m_cascadeInfo[cascadeIndex].WorldToProjection = cascadesMatrices[cascadeIndex];
                 // todo: skip translation, recalculate matrix in local space, keep world space matrix only for bounding frustum
-                m_cascadeInfo[c].LocalToProjection = Matrix.CreateTranslation(MyEnvironment.CameraPosition) * cascadesMatrices[c];
+                m_cascadeInfo[cascadeIndex].LocalToProjection = Matrix.CreateTranslation(MyEnvironment.CameraPosition) * cascadesMatrices[cascadeIndex];
 
-                query.ProjectionInfo = m_cascadeInfo[c];
-                query.ProjectionDir = CascadeLightDirection[c];
-                query.ProjectionFactor = shadowmapSize * shadowmapSize / (bSphere.Radius * bSphere.Radius * 4);
+                query.ProjectionInfo = m_cascadeInfo[cascadeIndex];
+                query.ProjectionDir = m_shadowCascadeLightDirections[cascadeIndex];
+                query.ProjectionFactor = (float)(shadowmapSize * shadowmapSize / (bSphere.Radius * bSphere.Radius * 4));
 
-                if (c == 0)
-                    query.QueryType = MyFrustumEnum.Cascade0;
-                if (c == 1)
-                    query.QueryType = MyFrustumEnum.Cascade1;
-                if (c == 2)
-                    query.QueryType = MyFrustumEnum.Cascade2;
-                if (c == 3)
-                    query.QueryType = MyFrustumEnum.Cascade3;
+                query.QueryType = MyFrustumEnum.ShadowCascade;
+                query.CascadeIndex = cascadeIndex;
                 
                 m_shadowmapQueries.Add(query);
             }
 
             if (true)
             {
-                var verticesWS = new Vector3[8];
+                var verticesWS = new Vector3D[8];
 
                 var batch = MyLinesRenderer.CreateBatch();
 
@@ -377,23 +411,28 @@ namespace VRageRender
                         Color.Yellow
                     };
 
-                for (int c = 0; c < m_cascadesNum; c++)
+                for (int c = 0; c < m_initializedShadowCascadesCount; c++)
                 {
-                    if (MyRender11.Settings.FreezeCascade[c])
+                    if (MyRender11.Settings.ShadowCascadeFrozen[c])
                     {
                         if (VisualizeDebug)
                         {
-                            var inverseViewProj = Matrix.Invert(cascadesMatrices[c]);
-                            Vector3.Transform(m_cornersCS, ref inverseViewProj, verticesWS);
-
+                            var inverseViewProj = MatrixD.Invert(cascadesMatrices[c]);
+                            Vector3D.Transform(m_cornersCS, ref inverseViewProj, verticesWS);
+                        
                             for (int i = 0; i < verticesWS.Length; i++ )
                             {
                                 verticesWS[i] += MyEnvironment.CameraPosition;
                             }
 
-                            MyPrimitivesRenderer.Draw6FacedConvex(verticesWS, cascadeColor[c], 0.2f);
+                            var verticesF = new Vector3[8];
+                            for (int i = 0; i < 8; i++)
+                            {
+                                verticesF[i] = verticesWS[i];
+                            }
 
-                            batch.Add6FacedConvex(verticesWS, Color.Pink);
+                            MyPrimitivesRenderer.Draw6FacedConvex(verticesF, cascadeColor[c], 0.2f);
+                            batch.Add6FacedConvex(verticesF, Color.Pink);
                         }
                     }
                 }
@@ -402,21 +441,23 @@ namespace VRageRender
             }
 
             var mapping = MyMapping.MapDiscard(m_csmConstants);
-            for (int c = 0; c < m_cascadesNum; c++) {
+            for (int c = 0; c < m_initializedShadowCascadesCount; c++) {
                 mapping.stream.Write(Matrix.Transpose(m_cascadeInfo[c].CurrentLocalToProjection * MyMatrixHelpers.ClipspaceToTexture));
             }
-            for (int i = m_cascadesNum; i < 8; i++)
+            for (int i = m_initializedShadowCascadesCount; i < 8; i++)
                 mapping.stream.Write(Matrix.Zero);
 
-            for (int i = 0; i < m_splitDepth.Length; i++)
-                mapping.stream.Write(m_splitDepth[i]);
-            for (int i = m_splitDepth.Length; i < 8; i++)
+            for (int i = 0; i < ShadowCascadeSplitDepths.Length; i++)
+                mapping.stream.Write(ShadowCascadeSplitDepths[i]);
+            for (int i = ShadowCascadeSplitDepths.Length; i < 8; i++)
                 mapping.stream.Write(0.0f);
 
-            for (int i = 0; i < 4; i++)
-                mapping.stream.Write(m_cascadeScale[i] / m_cascadeScale[0]);
+            for (int i = 0; i < m_initializedShadowCascadesCount; i++)
+                mapping.stream.Write(ShadowCascadeScales[i] / ShadowCascadeScales[0]);
             
             mapping.Unmap();
+
+			MyImmediateRC.RC.EndProfilingBlock();
         }
 
         static IndexBufferId m_cubeIB = IndexBufferId.NULL;
@@ -479,35 +520,39 @@ namespace VRageRender
             RC.SetVS(m_markVS);
             RC.SetPS(m_markPS);
 
-            var verticesCS = new Vector3[8] {
-                    new Vector3(-1, -1, 0),
-                    new Vector3(-1, 1, 0),
-                    new Vector3( 1, 1, 0),
-                    new Vector3( 1, -1, 0),
+            var verticesCS = new Vector3D[8] {
+                    new Vector3D(-1, -1, 0),
+                    new Vector3D(-1, 1, 0),
+                    new Vector3D( 1, 1, 0),
+                    new Vector3D( 1, -1, 0),
 
-                    new Vector3(-1, -1, 1),
-                    new Vector3(-1, 1, 1),
-                    new Vector3( 1, 1, 1),
-                    new Vector3( 1, -1, 1)
+                    new Vector3D(-1, -1, 1),
+                    new Vector3D(-1, 1, 1),
+                    new Vector3D( 1, 1, 1),
+                    new Vector3D( 1, -1, 1)
                 };
-            var verticesLS = new Vector3[8];
+            var verticesLS = new Vector3D[8];
 
             var mapping = MyMapping.MapDiscard(m_cascadesBoundingsVertices.Buffer);
-            for (int c = 0; c < m_cascadesNum; c++)
+            for (int c = 0; c < m_initializedShadowCascadesCount; c++)
             {
-                var inverseViewProj = Matrix.Invert(m_cascadeInfo[c].CurrentLocalToProjection);
-                Vector3.Transform(verticesCS, ref inverseViewProj, verticesLS);
-
-                fixed (Vector3* V = verticesLS)
+                var inverseViewProj = MatrixD.Invert(m_cascadeInfo[c].CurrentLocalToProjection);
+                Vector3D.Transform(verticesCS, ref inverseViewProj, verticesLS);
+                Vector3[] verticesF = new Vector3[8];
+                for (int i = 0; i < 8; i++)
+                {
+                    verticesF[i] = verticesLS[i];
+                }
+                fixed (Vector3* V = verticesF)
                 {
                     mapping.stream.Write(new IntPtr(V), 0, 8 * sizeof(Vector3));
                 }
             }
             mapping.Unmap();
 
-            for(int i=0; i<m_cascadesNum; i++)
+            for (int i = 0; i < m_initializedShadowCascadesCount; i++)
             {
-                RC.SetDS(MyDepthStencilState.MarkIfInside[i], 1 << i);
+                RC.SetDS(MyDepthStencilState.MarkIfInsideCascade[i], 1 << i);
                 // mark ith bit on depth near
                 RC.Context.DrawIndexed(36, 0, 8 * i);
             }

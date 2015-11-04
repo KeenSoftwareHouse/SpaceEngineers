@@ -12,7 +12,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncMotorBase : MySyncCubeBlock
+    public class MySyncMotorBase : MySyncCubeBlock
     {
         private MyMotorBase myMotorBase;
 
@@ -51,6 +51,7 @@ namespace Sandbox.Game.Multiplayer
             if (!MyEntities.TryGetEntityById(msg.AttachableEntityId, out rotorEntity))
             {
                 Debug.Assert(false, "Could not find rotor entity to attach to stator");
+                stator.RetryAttach(msg.AttachableEntityId);
                 return;
             }
             MyMotorRotor rotor = (MyMotorRotor)rotorEntity;

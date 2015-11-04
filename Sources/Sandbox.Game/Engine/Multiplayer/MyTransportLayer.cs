@@ -18,6 +18,10 @@ using VRage.Compiler;
 using VRage.Trace;
 using VRageRender;
 using VRage.Plugins;
+using VRage.Replication;
+using VRage.Library.Collections;
+using VRage.Network;
+using VRage.Library.Utils;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -29,7 +33,7 @@ namespace Sandbox.Engine.Multiplayer
     }
 
     /// <summary>
-    /// Message id, random number from 0 to ushort.max / 4
+    /// Message id, random number from 0 to 16383
     /// Must be unique (there's assert for it to)
     /// </summary>
     [AttributeUsage(AttributeTargets.Struct)]
@@ -90,8 +94,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         Dictionary<ushort, CallbackInfo> m_callbacks = new Dictionary<ushort, CallbackInfo>();
+        HashSet<ulong> m_pendingFlushes = new HashSet<ulong>();
         static Dictionary<Type, Tuple<ushort, P2PMessageEnum>> TypeMap;
 
+        static readonly int MessageTypeCount = (int)MyEnum<MyMessageId>.Range.Max + 1;
+        Queue<int>[] m_slidingWindows = Enumerable.Range(0, MessageTypeCount).Select(s => new Queue<int>(120)).ToArray();
+        int[] m_thisFrameTraffic = new int[MessageTypeCount];
 
         static MyTransportLayer()
         {
@@ -103,7 +111,7 @@ namespace Sandbox.Engine.Multiplayer
                 RegisterFromAssembly(MyPlugins.GameAssembly);
 
             if (MyPlugins.UserAssembly != null)
-                RegisterFromAssembly(MyPlugins.UserAssembly);            
+                RegisterFromAssembly(MyPlugins.UserAssembly);
         }
 
         static void RegisterFromAssembly(Assembly assembly)
@@ -121,8 +129,6 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        const ushort FlushMsgId = ushort.MaxValue;
-
         ByteStream m_sendStream;
         ByteStream m_receiveStream;
 
@@ -131,6 +137,8 @@ namespace Sandbox.Engine.Multiplayer
 
         List<Buffer> m_buffer;
         AddMessageDelegate m_loopback;
+        Dictionary<MyMessageId, Action<MyPacket>> m_handlers = new Dictionary<MyMessageId, Action<MyPacket>>();
+        MyReplicationLayer m_replicationLayer;
 
         public Dictionary<string, NetworkStat> SendStats = new Dictionary<string, NetworkStat>();
         public Dictionary<string, NetworkStat> ReceiveStats = new Dictionary<string, NetworkStat>();
@@ -168,6 +176,8 @@ namespace Sandbox.Engine.Multiplayer
 
         public MyTransportLayer(int channel)
         {
+            m_handlers.Add(MyMessageId.OLD_GAME_EVENT, HandleOldGameEvent);
+
             m_channel = channel;
             m_sendStream = new ByteStream(64 * 1024, true);
             m_receiveStream = new ByteStream();
@@ -184,7 +194,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             //if (Sync.Layer != null)
             //{
-                //return Sync.Layer.Interpolation.Timer.CurrentTime;
+            //return Sync.Layer.Interpolation.Timer.CurrentTime;
             //}
             return TimeSpan.Zero;
         }
@@ -192,9 +202,8 @@ namespace Sandbox.Engine.Multiplayer
         public void SendFlush(ulong sendTo)
         {
             m_sendStream.Position = 0;
-            m_sendStream.WriteUShort(FlushMsgId);
-
-            SendMessage(m_sendStream, P2PMessageEnum.Reliable, sendTo, m_channel);
+            m_sendStream.WriteByte((byte)MyMessageId.OLD_GAME_EVENT_FLUSH);
+            SendMessage(m_sendStream, P2PMessageEnum.ReliableWithBuffering, sendTo, m_channel);
         }
 
         public void SendMessage<TMessage>(ref TMessage msg, List<ulong> recipients, MyTransportMessageEnum messageType, bool includeSelf)
@@ -208,6 +217,7 @@ namespace Sandbox.Engine.Multiplayer
             P2PMessageEnum sendType = msgId.Item2;
 
             m_sendStream.Position = 0;
+            m_sendStream.WriteByte((byte)MyMessageId.OLD_GAME_EVENT);
             m_sendStream.WriteUShort(msgId.Item1);
             c.Write(m_sendStream, ref msg);
 
@@ -215,8 +225,11 @@ namespace Sandbox.Engine.Multiplayer
             if ((sendType == P2PMessageEnum.Unreliable || sendType == P2PMessageEnum.UnreliableNoDelay) && m_sendStream.Position > mtu)
             {
                 Debug.Fail("Sending unreliable message as reliable, because it's bigger than MTU, message type: " + FindDebugName(msgId.Item1));
-                sendType = P2PMessageEnum.Reliable;
+                sendType = P2PMessageEnum.ReliableWithBuffering;
             }
+
+            if (sendType == P2PMessageEnum.Reliable) // Always with buffering
+                sendType = P2PMessageEnum.ReliableWithBuffering;
 
             Stats.Network.WriteFormat(StatName<TMessage>.Name, (int)m_sendStream.Position, VRage.Stats.MyStatTypeEnum.CounterSum, 1000, 0);
 
@@ -233,7 +246,6 @@ namespace Sandbox.Engine.Multiplayer
             {
                 Debug.Assert(Sync.MultiplayerActive);
                 TraceMessage("Sending: ", msg.ToString(), sendTo, m_sendStream.Position, sendType);
-                ByteCountSent += m_sendStream.Position;
                 SendMessage(m_sendStream, sendType, sendTo, m_channel);
             }
         }
@@ -252,13 +264,69 @@ namespace Sandbox.Engine.Multiplayer
             stat.UniqueMessageCount++;
         }
 
-        static void SendMessage(ByteStream sendStream, P2PMessageEnum sendType, ulong sendTo, int channel)
+        void SendMessage(ByteStream sendStream, P2PMessageEnum sendType, ulong sendTo, int channel)
         {
             SendHandler(sendTo, sendStream.Data, (int)sendStream.Position, sendType, channel);
         }
 
-        static void SendHandler(ulong remoteUser, byte[] data, int byteCount, P2PMessageEnum msgType, int channel)
+        public unsafe void SendMessage(MyMessageId id, BitStream stream, bool reliable, EndpointId endpoint)
         {
+            m_sendStream.Position = 0;
+            m_sendStream.WriteByte((byte)id);
+            if (stream != null)
+            {
+                m_sendStream.WriteNoAlloc((byte*)(void*)stream.DataPointer, 0, stream.BytePosition);
+            }
+
+            SendMessage(m_sendStream, reliable ? P2PMessageEnum.ReliableWithBuffering : P2PMessageEnum.Unreliable, endpoint.Value, m_channel);
+        }
+
+        public unsafe void Tick()
+        {
+            foreach (var steamId in m_pendingFlushes)
+            {
+                byte data = 0;
+                if (!Peer2Peer.SendPacket(steamId, &data, 0, P2PMessageEnum.Reliable, m_channel))
+                {
+                    System.Diagnostics.Debug.Fail("P2P packet send fail (flush)");
+                }
+            }
+            m_pendingFlushes.Clear();
+
+            int totalSum = 0;
+            NetProfiler.Begin("Avg per frame (60 frames window)");
+            for (int i = 0; i < MessageTypeCount; i++)
+            {
+                var window = m_slidingWindows[i];
+                window.Enqueue(m_thisFrameTraffic[i]);
+                m_thisFrameTraffic[i] = 0;
+
+                while (window.Count > 60)
+                    window.Dequeue();
+
+                int sum = 0;
+                foreach (var item in window)
+                {
+                    sum += item;
+                }
+                if (sum > 0)
+                {
+                    NetProfiler.Begin(MyEnum<MyMessageId>.GetName((MyMessageId)i));
+                    NetProfiler.End(sum / 60.0f, sum / 1024.0f, "{0} KB/s");
+                }
+                totalSum += sum;
+            }
+            NetProfiler.End(totalSum / 60.0f, totalSum / 1024.0f, "{0} KB/s");
+        }
+
+        void SendHandler(ulong remoteUser, byte[] data, int byteCount, P2PMessageEnum msgType, int channel)
+        {
+            if (msgType == P2PMessageEnum.ReliableWithBuffering)
+            {
+                m_pendingFlushes.Add(remoteUser);
+            }
+
+            ByteCountSent += byteCount;
             if (!Peer2Peer.SendPacket(remoteUser, data, byteCount, msgType, channel))
             {
                 System.Diagnostics.Debug.Fail("P2P packet send fail");
@@ -270,17 +338,19 @@ namespace Sandbox.Engine.Multiplayer
             try
             {
                 IsProcessingBuffer = true;
+                NetProfiler.Begin("Processing buffered events");
                 foreach (var b in m_buffer)
                 {
-                    HandleMessage(b.Data, b.Data.Length, b.Sender, TimeSpan.Zero);
+                    ProcessMessage(b.Data, b.Data.Length, b.Sender, TimeSpan.Zero);
                 }
+                NetProfiler.End();
             }
             finally
             {
                 IsProcessingBuffer = false;
             }
         }
-        
+
         private string GetGroupName(string messageType)
         {
             var c = Char.ToUpperInvariant(messageType.Length > 0 ? messageType[0] : '_');
@@ -296,37 +366,75 @@ namespace Sandbox.Engine.Multiplayer
 
         private void HandleMessage(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
         {
-            if (dataSize < sizeof(ushort)) // This would cause crash, message has to contain at least msgId
+            if (dataSize < sizeof(byte)) // This would cause crash, message has to contain at least MyMessageId
                 return;
+
+            ProfilerShort.Begin("Handle message");
 
             if (sender != Sync.MyId)
                 ByteCountReceived += dataSize;
 
-            m_receiveStream.Reset(data, Math.Min(data.Length, dataSize));
-            ushort msgId = m_receiveStream.ReadUShort();
+            MyMessageId id = (MyMessageId)data[0];
 
-            if (IsBuffering)
-            {
-                if (msgId == FlushMsgId)
-                {
-                    m_buffer.Clear();
-                }
-                else
-                {
-                    var buff = new Buffer();
-                    buff.Sender = sender;
-                    buff.Data = new byte[dataSize];
-                    Array.Copy(data, buff.Data, dataSize);
-                    m_buffer.Add(buff);
-                }
-                return;
-            }
-            else if (msgId == FlushMsgId)
+            m_thisFrameTraffic[(int)id] += dataSize;
+
+            if (id == MyMessageId.OLD_GAME_EVENT_FLUSH) // Flush buffer
             {
                 if (m_buffer != null)
                     m_buffer.Clear();
-                return;
             }
+            else if (IsBuffering) // Buffer event
+            {
+                var buff = new Buffer();
+                buff.Sender = sender;
+                buff.Data = new byte[dataSize];
+                Array.Copy(data, buff.Data, dataSize);
+                m_buffer.Add(buff);
+            }
+            else // Process event
+            {
+                NetProfiler.Begin("Live data", 0);
+                ProcessMessage(data, dataSize, sender, timestamp);
+                NetProfiler.End();
+            }
+
+            ProfilerShort.End();
+        }
+
+        private void ProcessMessage(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        {
+            Debug.Assert(data.Length >= dataSize, "Wrong size");
+
+            MyMessageId id = (MyMessageId)data[0];
+
+            MyPacket p = new MyPacket();
+            p.Data = data;
+            p.PayloadOffset = 1; // First byte is message id
+            p.PayloadLength = dataSize - p.PayloadOffset;
+            p.Sender = new VRage.Network.EndpointId(sender);
+            p.Timestamp = timestamp;
+
+            Action<MyPacket> handler;
+            if (m_handlers.TryGetValue(id, out handler))
+            {
+                ProfilerShort.Begin(MyEnum<MyMessageId>.GetName(id));
+                NetProfiler.Begin(MyEnum<MyMessageId>.GetName(id));
+                handler(p);
+                NetProfiler.End(p.PayloadLength);
+                ProfilerShort.End();
+            }
+            else
+            {
+                Debug.Fail("No handler for message type: " + id);
+            }
+        }
+
+        public void HandleOldGameEvent(MyPacket packet)
+        {
+            m_receiveStream.Reset(packet.Data, packet.PayloadOffset + packet.PayloadLength);
+            m_receiveStream.Position = packet.PayloadOffset;
+
+            ushort msgId = m_receiveStream.ReadUShort();
 
             CallbackInfo info;
             if (m_callbacks.TryGetValue(msgId, out info))
@@ -335,19 +443,22 @@ namespace Sandbox.Engine.Multiplayer
 
                 ProfilerShort.Begin(GetGroupName(handler.MessageType));
                 ProfilerShort.Begin(handler.MessageType);
+                NetProfiler.Begin(handler.MessageType);
 
-                if (sender != Sync.MyId)
+                if (packet.Sender.Value != Sync.MyId)
                 {
                     if (!MySandboxGame.IsDedicated)
-                        LogStats(ReceiveStats, handler.MessageType, dataSize, 1, info.SendType);
+                        LogStats(ReceiveStats, handler.MessageType, packet.PayloadOffset + packet.PayloadLength, 1, info.SendType);
+
                     // TODO: Log stats here
                     //info.Callback.MessageType;
                     //info.SendType;
                     //info.MessageId;
                 }
 
-                handler.Receive(m_receiveStream, sender, timestamp);
+                handler.Receive(m_receiveStream, packet.Sender.Value, packet.Timestamp);
 
+                NetProfiler.End((int)m_receiveStream.Length);
                 ProfilerShort.End();
                 ProfilerShort.End();
             }
@@ -355,6 +466,12 @@ namespace Sandbox.Engine.Multiplayer
             {
                 Debug.Fail(String.Format("No handler defined for message {0}, of type {1}", msgId, FindDebugName(msgId)));
             }
+        }
+
+        public ITransportCallback<TMsg> GetCallback<TMsg>(MyTransportMessageEnum messageType)
+        {
+            var msgId = GetId<TMsg>(messageType);
+            return (ITransportCallback<TMsg>)m_callbacks[msgId.Item1].Callback;
         }
 
         public Tuple<ushort, P2PMessageEnum> GetId<TMsg>(MyTransportMessageEnum messageType)
@@ -428,6 +545,21 @@ namespace Sandbox.Engine.Multiplayer
         public void Unregister<TMessage>(MyTransportMessageEnum messageType)
         {
             m_callbacks.Remove(GetId<TMessage>(messageType).Item1);
+        }
+
+        public bool IsRegistered(MyMessageId messageId)
+        {
+            return m_handlers.ContainsKey(messageId);
+        }
+
+        public void Register(MyMessageId messageId, Action<MyPacket> handler)
+        {
+            m_handlers.Add(messageId, handler);
+        }
+
+        public void Unregister(MyMessageId messageId)
+        {
+            m_handlers.Remove(messageId);
         }
 
         string FindDebugName(ushort msgId)

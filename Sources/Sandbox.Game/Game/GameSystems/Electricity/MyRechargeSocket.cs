@@ -1,50 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Game.Entities;
+﻿using System.Diagnostics;
+using Sandbox.Game.EntityComponents;
 
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    class MyRechargeSocket
+    public class MyRechargeSocket
     {
-        private MyPowerDistributor m_powerDistributor;
-        private IMyPowerConsumer m_pluggedInConsumer;
+        private MyResourceDistributorComponent m_resourceDistributor;
+        private MyResourceSinkComponent m_pluggedInConsumer;
 
-        public MyPowerDistributor PowerDistributor
+		public MyResourceDistributorComponent ResourceDistributor
         {
-            get { return m_powerDistributor; }
+            get { return m_resourceDistributor; }
             set
             {
-                if (m_powerDistributor != value)
+                if (m_resourceDistributor != value)
                 {
-                    if (m_pluggedInConsumer != null && m_powerDistributor != null)
-                        m_powerDistributor.RemoveConsumer(m_pluggedInConsumer);
-                    m_powerDistributor = value;
-                    if (m_pluggedInConsumer != null && m_powerDistributor != null)
-                        m_powerDistributor.AddConsumer(m_pluggedInConsumer);
+                    if (m_pluggedInConsumer != null && m_resourceDistributor != null)
+                        m_resourceDistributor.RemoveSink(m_pluggedInConsumer);
+                    m_resourceDistributor = value;
+                    if (m_pluggedInConsumer != null && m_resourceDistributor != null)
+                        m_resourceDistributor.AddSink(m_pluggedInConsumer);
                 }
             }
         }
 
-        public void PlugIn(IMyPowerConsumer consumer)
+		public void PlugIn(MyResourceSinkComponent consumer)
         {
             if (m_pluggedInConsumer == consumer)
                 return;
             Debug.Assert(m_pluggedInConsumer == null, "Consumer already plugged in.");
             m_pluggedInConsumer = consumer;
-            if (m_powerDistributor != null)
-                m_powerDistributor.AddConsumer(consumer);
+			if (m_resourceDistributor != null)
+			{
+				m_resourceDistributor.AddSink(consumer);
+				consumer.Update();
+			}
         }
 
         public void Unplug()
         {
             Debug.Assert(m_pluggedInConsumer != null, "Consumer not plugged in.");
-            if (m_powerDistributor != null)
-                m_powerDistributor.RemoveConsumer(m_pluggedInConsumer);
+            if (m_resourceDistributor != null)
+                m_resourceDistributor.RemoveSink(m_pluggedInConsumer);
             m_pluggedInConsumer = null;
         }
     }

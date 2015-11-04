@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
@@ -10,7 +11,7 @@ namespace VRage.Audio
 {
     public class MyNullAudio : IMyAudio
     {
-        Dictionary<MyStringId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return null; } }
+        Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return null; } }
         MySoundData IMyAudio.SoloCue { get; set; }
         bool IMyAudio.ApplyReverb { get { return false; } set { } }
         float IMyAudio.VolumeMusic { get; set; }
@@ -19,9 +20,11 @@ namespace VRage.Audio
         bool IMyAudio.GameSoundIsPaused { get { return true; } }
         bool IMyAudio.Mute { get { return true; } set { } }
         bool IMyAudio.MusicAllowed { get { return false; } set { } }
+        bool IMyAudio.EnableVoiceChat { get { return false; } set { } }
+        event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
 
         List<MyStringId> IMyAudio.GetCategories() { return null; }
-        MySoundData IMyAudio.GetCue(MyStringId cue) { return null; }
+        MySoundData IMyAudio.GetCue(MyCueId cue) { return null; }
 
         void IMyAudio.Pause() { }
         void IMyAudio.Resume() { }
@@ -41,15 +44,15 @@ namespace VRage.Audio
         int IMyAudio.GetSoundInstancesTotal2D() { return 0; }
         int IMyAudio.GetSoundInstancesTotal3D() { return 0; }
         void IMyAudio.StopUpdatingAll3DCues() { }
-        bool IMyAudio.SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyStringId cueEnum) { return false; }
-        IMySourceVoice IMyAudio.PlayTestSound(MyStringId cue) { return null; }
+        bool IMyAudio.SourceIsCloseEnoughToPlaySound(Vector3 position, MyCueId cueId, float? customMaxDistance) { return false; }
         object IMyAudio.CalculateDspSettingsDebug(IMy3DSoundEmitter source) { return null; }
         void IMyAudio.WriteDebugInfo(StringBuilder sb) { }
-        bool IMyAudio.IsLoopable(MyStringId cueId) { return false; }
+        bool IMyAudio.IsLoopable(MyCueId cueId) { return false; }
         bool IMyAudio.ApplyTransition(MyStringId transitionEnum, int priority, MyStringId? category, bool loop) { return false; }
-        IMySourceVoice IMyAudio.PlaySound(MyStringId cue, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd) { return null; }
-        IMySourceVoice IMyAudio.GetSound(MyStringId cue, IMy3DSoundEmitter source, MySoundDimensions type) { return null; }
+        IMySourceVoice IMyAudio.PlaySound(MyCueId cue, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd) { return null; }
+        IMySourceVoice IMyAudio.GetSound(MyCueId cue, IMy3DSoundEmitter source, MySoundDimensions type) { return null; }
         ListReader<IMy3DSoundEmitter> IMyAudio.Get3DSounds() { return null; }
-        IMyAudioEffect IMyAudio.ApplyEffect(IMySourceVoice input, MyStringId effect, MyStringId[] cues, float? duration) { return null; }
+        IMyAudioEffect IMyAudio.ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds, float? duration) { return null; }
+        IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension) { return null; }
     }
 }

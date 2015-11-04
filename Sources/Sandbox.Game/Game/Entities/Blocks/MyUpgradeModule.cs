@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Game.GameSystems.Conveyors;
 using VRage.Import;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using System.Reflection;
-using System.Linq.Expressions;
 using VRageRender;
-using Sandbox.Game.GameSystems.Electricity;
 using System.Diagnostics;
+using Sandbox.Game.EntityComponents;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_UpgradeModule))]
-    class MyUpgradeModule : MyTerminalBlock
+    class MyUpgradeModule : MyFunctionalBlock, ModAPI.IMyUpgradeModule
     {
         private ConveyorLinePosition[] m_connectionPositions;
         private Dictionary<ConveyorLinePosition, MyCubeBlock> m_connectedBlocks;
@@ -32,7 +27,7 @@ namespace Sandbox.Game.Entities.Blocks
         SortedDictionary<string, MyModelDummy> m_dummies;
         private bool m_needsRefresh;
 
-        private MyPowerStateEnum m_oldPowerState = MyPowerStateEnum.NoPower;
+        private MyResourceStateEnum m_oldResourceState = MyResourceStateEnum.NoPower;
 
         private new MyUpgradeModuleDefinition BlockDefinition
         {
@@ -111,13 +106,13 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
-            if (CubeGrid.GridSystems.PowerDistributor.PowerState != m_oldPowerState)
+            if (CubeGrid.GridSystems.ResourceDistributor.ResourceState != m_oldResourceState)
             {
-                m_oldPowerState = CubeGrid.GridSystems.PowerDistributor.PowerState;
+                m_oldResourceState = CubeGrid.GridSystems.ResourceDistributor.ResourceState;
                 UpdateEmissivity();
             }
 
-            m_oldPowerState = CubeGrid.GridSystems.PowerDistributor.PowerState;
+            m_oldResourceState = CubeGrid.GridSystems.ResourceDistributor.ResourceState;
         }
 
         private void InitDummies()
@@ -310,14 +305,14 @@ namespace Sandbox.Game.Entities.Blocks
                     emissivity = 0f;
                 }
 
-                if (m_oldPowerState != MyPowerStateEnum.Ok)
+                if (m_oldResourceState != MyResourceStateEnum.Ok)
                 {
                     emissivity = 0f;
                 }
 
                 if (Render.RenderObjectIDs[0] != MyRenderProxy.RENDER_ID_UNASSIGNED)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, emissiveName, null, color, null, null, emissivity);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, emissiveName, color, emissivity);
                 }
             }
         }
@@ -359,6 +354,41 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             return count;
+        }
+
+        void ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList(out List<MyUpgradeModuleInfo> upgradelist)
+        {
+            upgradelist = new List<MyUpgradeModuleInfo>();
+            foreach (var value in m_upgrades)
+                upgradelist.Add(value);
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.UpgradeCount
+        {
+            get
+            {
+                return (uint)m_upgrades.Count();
+            }
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.Connections
+        {
+            get
+            {
+                uint count = 0;
+                MyCubeBlock lastblock = null;
+                foreach (var value in m_connectedBlocks.Values)
+                {
+                    if (lastblock == value)
+                        continue;
+                    if (value != null)
+                    {
+                        count++;
+                        lastblock = value;
+                    }
+                }
+                return count;
+            }
         }
     }
 }

@@ -60,11 +60,6 @@ namespace VRageRender
         {
         }
 
-        public MyAdapterInfo[] GetAdaptersList()
-        {
-            return MyRender11.GetAdaptersList();
-        }
-
         public bool SettingsChanged(MyRenderDeviceSettings settings)
         {
             return MyRender11.SettingsChanged(settings);
@@ -72,7 +67,7 @@ namespace VRageRender
 
         public void ApplySettings(MyRenderDeviceSettings settings)
         {
-            MyRender11.CheckAdapterChange(settings);
+            MyRender11.CheckAdapterChange(ref settings);
             MyRender11.ApplySettings(settings);
         }
 
@@ -145,11 +140,6 @@ namespace VRageRender
             return MyRender11.GetRenderProfiler();
         }
 
-        public void RestoreDXGISwapchainFullscreenMode()
-        {
-            MyRender11.RestoreFullscreenMode();
-        }
-
         public bool IsVideoValid(uint id)
         {
             MyVideoFactory.VideoMutex.WaitOne();
@@ -170,5 +160,43 @@ namespace VRageRender
             MyVideoFactory.VideoMutex.ReleaseMutex();
             return result;
         }
+
+        public void HandleFocusMessage(MyWindowFocusMessage msg)
+        {
+            if (msg == MyWindowFocusMessage.Activate && MyRenderProxy.RenderThread.CurrentSettings.WindowMode == MyWindowModeEnum.Fullscreen)
+            {
+                MyRenderProxy.RenderThread.UpdateSize(MyWindowModeEnum.FullscreenWindow);
+            }
+
+            if (msg == MyWindowFocusMessage.SetFocus && MyRenderProxy.RenderThread.CurrentSettings.WindowMode == MyWindowModeEnum.Fullscreen)
+            {
+                MyRenderProxy.RenderThread.UpdateSize(MyWindowModeEnum.Fullscreen);
+                MyRender11.RestoreFullscreenMode();
+            }
+        }
+
+        public bool IsSupported
+        {
+            get
+            {
+                try
+                {
+                    var adapters = MyRender11.GetAdaptersList();
+
+                    foreach(var adapter in adapters) {
+                        if (adapter.IsDx11Supported)
+                        { 
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
     }
 }

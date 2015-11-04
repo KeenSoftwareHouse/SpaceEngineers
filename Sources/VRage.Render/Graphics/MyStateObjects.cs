@@ -184,39 +184,6 @@ namespace VRageRender.Graphics
             StencilMask = 1
         };
 
-        public static readonly DepthStencilState DepthStencil_WriteNearAtmosphere = new DepthStencilState()
-        {
-            //  Depth buffer is not required when working with stencil only
-            DepthBufferEnable = false,
-            DepthBufferWriteEnable = true,
-
-            //  Write color only where stencil enables it (where stencil value equals 1)
-            //  But disable writing to stencil buffer
-            StencilEnable = true,
-            StencilFunction = Compare.Equal,
-            ReferenceStencil = 4,
-            StencilPass = StencilOperation.Replace,
-            StencilFail = StencilOperation.Keep,
-            StencilWriteMask = 4,
-            StencilMask = 3
-        };
-
-        public static readonly DepthStencilState DepthStencil_RenderNearPlanetSurfaceInAtmosphere = new DepthStencilState()
-        {
-            //  Depth buffer is not required when working with stencil only
-            DepthBufferEnable = true,
-            DepthBufferWriteEnable = false,
-
-            //  Write color only where stencil enables it (where stencil value equals 1)
-            //  But disable writing to stencil buffer
-            StencilEnable = true,
-            StencilFunction = Compare.Equal,
-            ReferenceStencil = 6,
-            StencilPass = StencilOperation.Keep,
-            StencilFail = StencilOperation.Keep,
-            StencilWriteMask = 4,
-            StencilMask = 2
-        };
         public static readonly DepthStencilState DepthStencil_TestFarObject_DepthReadOnly = new DepthStencilState()
         {
             //  Depth buffer is not required when working with stencil only

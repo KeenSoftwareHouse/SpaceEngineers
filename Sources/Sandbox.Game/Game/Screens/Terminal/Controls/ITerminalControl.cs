@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Game.World;
+using VRage.Library.Collections;
 
 
 namespace Sandbox.Game.Gui
 {
-    interface ITerminalControl
+    public interface ITerminalControl
     {
         string Id { get; }
 

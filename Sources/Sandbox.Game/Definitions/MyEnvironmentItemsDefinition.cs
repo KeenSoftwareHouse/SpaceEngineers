@@ -5,7 +5,9 @@ using Sandbox.Game.Entities.EnvironmentItems;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
+using System;
 
 
 namespace Sandbox.Definitions
@@ -13,8 +15,11 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_EnvironmentItemsDefinition))]
     public class MyEnvironmentItemsDefinition : MyDefinitionBase
     {
-        private HashSet<MyStringId> m_itemDefinitions;
-        private List<MyStringId> m_definitionList;
+        private HashSet<MyStringHash> m_itemDefinitions;
+        private List<MyStringHash> m_definitionList;
+
+        private List<float> Frequencies;
+        private float[] Intervals;
 
         private MyObjectBuilderType m_itemDefinitionType = MyObjectBuilderType.Invalid;
         public MyObjectBuilderType ItemDefinitionType { get { return m_itemDefinitionType; } }
@@ -27,7 +32,7 @@ namespace Sandbox.Definitions
         // You can imagine it as an average diameter of an item's bounding sphere
         public float ItemSize { get; private set; }
 
-        public MyStringId Material { get; private set; }
+        public MyStringHash Material { get; private set; }
 
         public int ItemDefinitionCount { get { return m_definitionList.Count; } }
 
@@ -38,8 +43,8 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_EnvironmentItemsDefinition;
             MyDebug.AssertDebug(ob != null);
 
-            m_itemDefinitions = new HashSet<MyStringId>();
-            m_definitionList = new List<MyStringId>();
+            m_itemDefinitions = new HashSet<MyStringHash>(MyStringHash.Comparer);
+            m_definitionList = new List<MyStringHash>();
 
             System.Type classType = builder.Id.TypeId;
             var attribs = classType.GetCustomAttributes(typeof(MyEnvironmentItemsAttribute), inherit: false);
@@ -58,19 +63,51 @@ namespace Sandbox.Definitions
             MaxViewDistance = ob.MaxViewDistance;
             SectorSize = ob.SectorSize;
             ItemSize = ob.ItemSize;
-            Material = MyStringId.GetOrCompute(ob.PhysicalMaterial);
+            Material = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
+
+            Frequencies = new List<float>();
         }
 
-        public void AddItemDefinition(MyStringId definition)
+        public void AddItemDefinition(MyStringHash definition, float frequency, bool recompute = true)
         {
-            System.Diagnostics.Debug.Assert(!m_itemDefinitions.Contains(definition));
+            Debug.Assert(!m_itemDefinitions.Contains(definition));
             if (m_itemDefinitions.Contains(definition)) return;
 
             m_itemDefinitions.Add(definition);
             m_definitionList.Add(definition);
+
+            Frequencies.Add(frequency);
+
+            if (recompute)
+                RecomputeFrequencies();
         }
 
-        public MyEnvironmentItemDefinition GetItemDefinition(MyStringId subtypeId)
+        public void RecomputeFrequencies()
+        {
+            if (m_definitionList.Count == 0)
+            {
+                Intervals = null;
+                return;
+            }
+
+            Intervals = new float[m_definitionList.Count-1];
+            float totalFrequency = 0;
+
+            foreach (var f in Frequencies)
+            {
+                totalFrequency += f;
+            }
+
+            float acc = 0;
+
+            for (int i = 0; i < Intervals.Length; i++)
+            {
+                acc += Frequencies[i];
+                Intervals[i] = acc / totalFrequency;
+            }
+        }
+
+        public MyEnvironmentItemDefinition GetItemDefinition(MyStringHash subtypeId)
         {
             MyEnvironmentItemDefinition retval = null;
 
@@ -93,18 +130,24 @@ namespace Sandbox.Definitions
         {
             if (m_definitionList.Count == 0) return null;
 
-            int index = MyRandom.Instance.Next(0, m_definitionList.Count);
-            return GetItemDefinition(m_definitionList[index]);
+            float value = MyRandom.Instance.Next(0, 65536) / 65536.0f;
+
+            return GetItemDefinition(m_definitionList[Intervals.BinaryIntervalSearch(value)]);
         }
 
-        public bool ContainsItemDefinition(MyStringId subtypeId)
+        public bool ContainsItemDefinition(MyStringHash subtypeId)
         {
             return m_itemDefinitions.Contains(subtypeId);
         }
 
+        public bool ContainsItemDefinition(MyDefinitionId definitionId)
+        {
+            return definitionId.TypeId == m_itemDefinitionType && m_itemDefinitions.Contains(definitionId.SubtypeId);
+        }
+
         public bool ContainsItemDefinition(MyEnvironmentItemDefinition itemDefinition)
         {
-            return itemDefinition.Id.TypeId == m_itemDefinitionType && ContainsItemDefinition(itemDefinition.Id.SubtypeId);
+            return ContainsItemDefinition(itemDefinition.Id);
         }
     }
 }

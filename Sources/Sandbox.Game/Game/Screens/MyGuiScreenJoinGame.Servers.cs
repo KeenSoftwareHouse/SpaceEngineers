@@ -248,9 +248,10 @@ namespace Sandbox.Game.Gui
         {
             GameServerItem serverItem = SteamAPI.Instance.GetDedicatedServerDetails(server);
 
-            AddServerItem(serverItem);
-
-            m_serversPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Servers).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            AddServerItem(serverItem, delegate()
+            {
+                m_serversPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Servers).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            });
         }
 
         void OnDedicatedServersCompleteResponse(MatchMakingServerResponseEnum response)
@@ -302,7 +303,7 @@ namespace Sandbox.Game.Gui
             m_gamesTable.SelectedRowIndex = null;
         }
 
-        bool AddServerItem(GameServerItem server, bool isFiltered = false)
+        bool AddServerItem(GameServerItem server, Action onAddedServerItem, bool isFiltered = false)
         {
             if (m_allowedGroups.IsChecked && !SteamAPI.Instance.Friends.IsUserInGroup(server.GetGameTagByPrefixUlong("groupId")))
                 return false;
@@ -315,8 +316,6 @@ namespace Sandbox.Game.Gui
                 if (!server.Name.ToLower().Contains(m_blockSearch.Text.ToLower()))
                     return false;
             }
-
-            var row = new MyGuiControlTable.Row(server);
 
             string sessionName = server.Map;
             int appVersion = server.ServerVersion;
@@ -345,6 +344,40 @@ namespace Sandbox.Game.Gui
                 gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
                 gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
             }
+            else if (gamemode == "B")
+            {
+                IPEndPoint endpoint = server.NetAdr;
+                if (endpoint == null)
+                    return false;
+
+                // Started battle write key value "BattleCanBeJoinedTag" "0" to server which can be accessed asynchronously from rules.
+                MySandboxGame.Services.SteamService.SteamAPI.GetServerRules(endpoint.Address.ToIPv4NetworkOrder(), (ushort)endpoint.Port, delegate(Dictionary<string, string> rules)
+                {
+                    if (rules == null)
+                        return;
+
+                    bool canBeJoined = true;
+                    string strCanBeJoined;
+                    if (rules.TryGetValue(MyMultiplayer.BattleCanBeJoinedTag, out strCanBeJoined))
+                    {
+                        canBeJoined = strCanBeJoined != 0.ToString();
+                    }
+
+                    if (canBeJoined)
+                    {
+                        gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+                        gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+
+                        AddServerItem(server, sessionName, gamemodeSB, gamemodeToolTipSB);
+
+                        if (onAddedServerItem != null)
+                            onAddedServerItem();
+                    }
+                },
+                delegate() { });
+
+                return false;
+            }
             else if(!string.IsNullOrWhiteSpace(gamemode))
             {
                 var multipliers = gamemode.Substring(1);
@@ -362,6 +395,16 @@ namespace Sandbox.Game.Gui
                 }
             }
 
+            AddServerItem(server, sessionName, gamemodeSB, gamemodeToolTipSB);
+
+            if (onAddedServerItem != null)
+                onAddedServerItem();
+
+            return true;
+        }
+
+        private void AddServerItem(GameServerItem server, string sessionName, StringBuilder gamemodeSB, StringBuilder gamemodeToolTipSB)
+        {
             ulong modCount = server.GetGameTagByPrefixUlong(MyMultiplayer.ModCountTag);
 
             string limit = server.MaxPlayers.ToString();
@@ -375,6 +418,7 @@ namespace Sandbox.Game.Gui
                 gamemodeToolTipSB.AppendFormat(MyTexts.Get(MySpaceTexts.JoinGame_GameTypeToolTip_ViewDistance).ToString(), viewDistance);
             }
 
+            var row = new MyGuiControlTable.Row(server);
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(sessionName), userData: server.SteamID, toolTip: m_textCache.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: gamemodeSB, toolTip: gamemodeToolTipSB.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(server.Name), toolTip: m_gameTypeToolTip.Clear().AppendLine(server.Name).Append(server.NetAdr.ToString()).ToString()));
@@ -382,13 +426,11 @@ namespace Sandbox.Game.Gui
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(server.Ping), toolTip: m_textCache.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(modCount == 0 ? "---" : modCount.ToString()), toolTip: MyTexts.GetString(MySpaceTexts.JoinGame_SelectServerToShowModList)));
             m_gamesTable.Add(row);
-            
+
             var selectedRow = m_gamesTable.SelectedRow;
             m_gamesTable.Sort(false);
 
             m_gamesTable.SelectedRowIndex = m_gamesTable.FindRow(selectedRow);
-
-            return true;
         }
 
         #endregion

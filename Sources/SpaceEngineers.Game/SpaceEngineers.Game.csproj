@@ -45,6 +45,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SteamSDK">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,9 +58,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\MyObjectBuilder_SpaceSpawnComponent.cs" />
+    <Compile Include="AI\MySpaceBotFactory.cs" />
+    <Compile Include="AI\MySpaceSpawnComponent.cs" />
+    <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
+    <Compile Include="Entities\Blocks\MyShipWelder.cs" />
+    <Compile Include="Entities\MySpaceBuildComponent.cs" />
+    <Compile Include="Entities\UseObjects\MyUseObjectInventory.cs" />
+    <Compile Include="Entities\UseObjects\MyUseObjectMedicalRoom.cs" />
+    <Compile Include="Entities\UseObjects\MyUseObjectWardrobe.cs" />
+    <Compile Include="Entities\Weapons\MyCubePlacer.cs" />
+    <Compile Include="GUI\MyGuiScreenMedicals.cs" />
+    <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
+    <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
+    <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\MySpaceControlMenuInitializer.cs" />
+    <Compile Include="VoiceChat\MyVoiceChatLogic.cs" />
+    <Compile Include="World\Environment\MyEnvironmentalParticleLogicSpace.cs" />
+    <Compile Include="World\Generator\MyShipStartingState.cs" />
+    <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
+    <Compile Include="World\MySpaceRespawnComponent.cs" />
+    <Compile Include="World\MySpaceSessionCompatHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
@@ -67,10 +92,37 @@
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842bf2d4}</Project>
       <Name>Sandbox.Game</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sandbox.Graphics\Sandbox.Graphics.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842ba2d4}</Project>
+      <Name>Sandbox.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
+      <Name>VRage.Input</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Network\VRage.Network.csproj">
+      <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
+      <Name>VRage.Network</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Players\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

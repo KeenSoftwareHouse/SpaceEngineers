@@ -8,12 +8,11 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
-using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
-    class MyMultilineConveyorEndpoint : IMyConveyorEndpoint
+    public class MyMultilineConveyorEndpoint : IMyConveyorEndpoint
     {
         protected MyConveyorLine[] m_conveyorLines;
 
@@ -72,7 +71,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             }
 
             myBlock.SlimBlock.ComponentStack.IsFunctionalChanged += UpdateLineFunctionality;
-            myBlock.CubeGrid.GridSystems.ConveyorSystem.PowerReceiver.IsPoweredChanged += UpdateLineFunctionality;
+            myBlock.CubeGrid.GridSystems.ConveyorSystem.ResourceSink.IsPoweredChanged += UpdateLineFunctionality;
 
             m_pathfindingData = new MyPathfindingData(this);
             ProfilerShort.End();

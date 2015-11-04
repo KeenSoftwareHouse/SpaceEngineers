@@ -19,6 +19,7 @@ using Plane = VRageMath.Plane;
 using Ray = VRageMath.Ray;
 using VRageRender.Vertex;
 using VRageMath.PackedVector;
+using VRage.Voxels;
 
 namespace VRageRender
 {
@@ -38,9 +39,12 @@ namespace VRageRender
         static PixelShaderId m_ambientSpecularShader;
         static PixelShaderId m_edgeDebugShader;
         static PixelShaderId m_shadowsDebugShader;
+        static PixelShaderId m_NDotLShader;
 
         static VertexShaderId m_screenVertexShader;
         static PixelShaderId m_blitTextureShader;
+        static PixelShaderId m_blitTexture3DShader;
+        static PixelShaderId m_blitTextureArrayShader;
         static InputLayoutId m_inputLayout;
 
         static VertexBufferId m_quadBuffer;
@@ -48,7 +52,7 @@ namespace VRageRender
         internal static void Init()
         {
             //MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
-            m_baseColorShader = MyShaders.CreatePs("debug.hlsl", "base_color");
+			m_baseColorShader = MyShaders.CreatePs("debug.hlsl", "base_color");
             m_baseColorLinearShader = MyShaders.CreatePs("debug.hlsl", "base_color_linear");
             m_normalShader = MyShaders.CreatePs("debug.hlsl", "normal");
             m_glossinessShader = MyShaders.CreatePs("debug.hlsl", "glossiness");
@@ -59,20 +63,24 @@ namespace VRageRender
             m_ambientDiffuseShader = MyShaders.CreatePs("debug.hlsl", "debug_ambient_diffuse");
             m_ambientSpecularShader = MyShaders.CreatePs("debug.hlsl", "debug_ambient_specular");
             m_edgeDebugShader = MyShaders.CreatePs("debug.hlsl", "debug_edge");
-            m_shadowsDebugShader = MyShaders.CreatePs("debug.hlsl", "cascades_shadow");
+			m_shadowsDebugShader = MyShaders.CreatePs("debug.hlsl", "cascades_shadow", MyRender11.ShaderCascadesNumberHeader());
+            m_NDotLShader = MyShaders.CreatePs("debug.hlsl", "NDotL");
 
 
             m_screenVertexShader = MyShaders.CreateVs("debug.hlsl", "screenVertex");
             m_blitTextureShader = MyShaders.CreatePs("debug.hlsl", "blitTexture");
+            m_blitTexture3DShader = MyShaders.CreatePs("debug.hlsl", "blitTexture3D");
+            m_blitTextureArrayShader = MyShaders.CreatePs("debug.hlsl", "blitTextureArray");
             m_inputLayout = MyShaders.CreateIL(m_screenVertexShader.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION2, MyVertexInputComponentType.TEXCOORD0));
 
             m_quadBuffer = MyHwBuffers.CreateVertexBuffer(6, MyVertexFormatPosition2Texcoord.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic);
         }
 
-        internal static void DrawQuad(float x, float y, float w, float h, int i)
+        internal static void DrawQuad(float x, float y, float w, float h)
         {
+            //RC.Context.PixelShader.Set(m_blitTextureShader);
+
             RC.Context.VertexShader.Set(m_screenVertexShader);
-            RC.Context.PixelShader.Set(m_blitTextureShader);
             RC.Context.InputAssembler.InputLayout = m_inputLayout;
 
             var mapping = MyMapping.MapDiscard(m_quadBuffer.Buffer);
@@ -87,24 +95,50 @@ namespace VRageRender
 
             mapping.Unmap();
 
-
             RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            RC.Context.PixelShader.SetShaderResource(0, MyGeometryRenderer.m_envProbe.cubemapPrefiltered.SubresourceSrv(i, 1));
 
             RC.Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(m_quadBuffer.Buffer, m_quadBuffer.Stride, 0));
             RC.Context.Draw(6, 0);
+        }
+
+        internal static void DrawEnvProbeQuad(float x, float y, float w, float h, int i)
+        {
+            RC.Context.PixelShader.Set(m_blitTextureShader);
+            
+            RC.Context.PixelShader.SetShaderResource(0, MyGeometryRenderer.m_envProbe.cubemapPrefiltered.SubresourceSrv(i, 1));
+
+            DrawQuad(x, y, w, h);
+        }
+
+        internal static void DrawCascades()
+        {
+            RC.Context.PixelShader.Set(m_blitTextureArrayShader);
+            RC.Context.PixelShader.SetShaderResource(0, MyShadows.m_cascadeShadowmapArray.ShaderView);
+
+            var cb = MyCommon.GetMaterialCB(sizeof(uint));
+            RC.Context.PixelShader.SetConstantBuffer(5, cb);
+
+            for (uint i = 0; i < 4; i++)
+            {
+                var mapping = MyMapping.MapDiscard(cb);
+                mapping.stream.Write((float)i);
+                mapping.Unmap();
+                DrawQuad(0, 256 * i, 410, 256);
+
+            }
+            RC.Context.PixelShader.SetShaderResource(0, null);
         }
 
         internal static void DrawEnvProbe()
         {
             //MyGeometryRenderer.m_envProbe.cubemap
 
-            DrawQuad(256 * 2, 256 * 1, 256, 256, 0);
-            DrawQuad(256 * 0, 256 * 1, 256, 256, 1);
-            DrawQuad(256 * 1, 256 * 0, 256, 256, 2);
-            DrawQuad(256 * 1, 256 * 2, 256, 256, 3);
-            DrawQuad(256 * 1, 256 * 1, 256, 256, 4);
-            DrawQuad(256 * 3, 256 * 1, 256, 256, 5);
+            DrawEnvProbeQuad(256 * 2, 256 * 1, 256, 256, 0);
+            DrawEnvProbeQuad(256 * 0, 256 * 1, 256, 256, 1);
+            DrawEnvProbeQuad(256 * 1, 256 * 0, 256, 256, 2);
+            DrawEnvProbeQuad(256 * 1, 256 * 2, 256, 256, 3);
+            DrawEnvProbeQuad(256 * 1, 256 * 1, 256, 256, 4);
+            DrawEnvProbeQuad(256 * 3, 256 * 1, 256, 256, 5);
         }
 
         internal static void Draw()
@@ -189,8 +223,15 @@ namespace VRageRender
                 context.PixelShader.Set(m_shadowsDebugShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
-
+            else if (MyRender11.Settings.DisplayNDotL)
+            {
+                context.PixelShader.Set(m_NDotLShader);
+                MyScreenPass.DrawFullscreenQuad();
+            }
             //DrawEnvProbe();
+            //DrawAtmosphereTransmittance(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
+            //DrawAtmosphereInscatter(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
+            //DrawCascades();
 
             if (MyRender11.Settings.DisplayIDs || MyRender11.Settings.DisplayAabbs)
             {
@@ -211,18 +252,18 @@ namespace VRageRender
             // draw terrain lods
             if (MyRender11.Settings.DebugRenderClipmapCells)
             {
-                var batch = MyLinesRenderer.CreateBatch();
+                //var batch = MyLinesRenderer.CreateBatch();
 
-                //foreach (var renderable in MyComponentFactory<MyRenderableComponent>.GetAll().Where(x => ((x.GetMesh() as MyVoxelMesh) != null)))
+                //foreach (var renderable in MyComponentFactory<MyRenderableComponent>.GetAll().Where(x => (MyMeshes.IsVoxelMesh(x.Mesh))))
                 //{
-                //    if(renderable.IsVisible)
-                //    { 
-                //        var cellMesh = renderable.GetMesh() as MyVoxelMesh;
-
-                //        if (cellMesh.m_lod >= LOD_COLORS.Length)
+                //    if (renderable.IsVisible)
+                //    {
+                //        if (renderable.m_lod >= LOD_COLORS.Length)
                 //            return;
 
-                //        batch.AddBoundingBox(renderable.m_owner.Aabb, new Color(LOD_COLORS[cellMesh.m_lod]));
+                //        BoundingBox bb = new BoundingBox(renderable.m_owner.Aabb.Min - MyEnvironment.CameraPosition,renderable.m_owner.Aabb.Max - MyEnvironment.CameraPosition);
+
+                //        batch.AddBoundingBox(bb, new Color(LOD_COLORS[renderable.m_voxelLod]));
 
 
                 //        if (renderable.m_lods != null && renderable.m_voxelLod != renderable.m_lods[0].RenderableProxies[0].ObjectData.CustomAlpha)
@@ -232,7 +273,9 @@ namespace VRageRender
                 //    }
                 //}
 
-                batch.Commit();
+                //batch.Commit();
+
+                MyClipmap.DebugDrawClipmaps();
             }
 
             //if(true)
@@ -283,16 +326,30 @@ namespace VRageRender
             }
         }
 
-        private static readonly Vector4[] LOD_COLORS = new Vector4[]
-        {
-            new Vector4(1f, 0f, 0f, 1f),
-            new Vector4(0f, 1f, 0f, 1f),
-            new Vector4(0f, 0f, 1f, 1f),
-            new Vector4(1f, 1f, 0f, 1f),
-            new Vector4(1f, 0f, 1f, 1f),
-            new Vector4(0f, 1f, 1f, 1f),
-            new Vector4(1f, 1f, 1f, 1f),
-        };
+       private static readonly Vector4[]  LOD_COLORS = 
+    {
+	new Vector4( 1, 0, 0, 1 ),
+	new Vector4(  0, 1, 0, 1 ),
+	new Vector4(  0, 0, 1, 1 ),
+
+	new Vector4(  1, 1, 0, 1 ),
+	new Vector4(  0, 1, 1, 1 ),
+	new Vector4(  1, 0, 1, 1 ),
+
+	new Vector4(  0.5f, 0, 1, 1 ),
+	new Vector4(  0.5f, 1, 0, 1 ),
+	new Vector4(  1, 0, 0.5f, 1 ),
+	new Vector4(  0, 1, 0.5f, 1 ),
+
+	new Vector4(  1, 0.5f, 0, 1 ),
+	new Vector4(  0, 0.5f, 1, 1 ),
+
+	new Vector4(  0.5f, 1, 1, 1 ),
+	new Vector4(  1, 0.5f, 1, 1 ),
+	new Vector4(  1, 1, 0.5f, 1 ),
+	new Vector4(  0.5f, 0.5f, 1, 1 ),	
+};
+
 
         //internal static void BeginQuadRendering()
         //{
@@ -375,7 +432,7 @@ namespace VRageRender
 
                     if(h != null)
                     {
-                        BoundingBox bb = BoundingBox.CreateInvalid();
+                        var bb = BoundingBoxD.CreateInvalid();
 
                         foreach (var child in h.m_children)
                         {
@@ -385,12 +442,12 @@ namespace VRageRender
                             }
                         }
 
-                        batch.AddBoundingBox(bb, Color.Red);
-                        MyPrimitivesRenderer.Draw6FacedConvex(bb.GetCorners(), Color.Red, 0.1f);
+                        batch.AddBoundingBox((BoundingBox)bb, Color.Red);
+                        MyPrimitivesRenderer.Draw6FacedConvex(bb.GetCorners().Select(x=>(Vector3)x).ToArray(), Color.Red, 0.1f);
                     }
                     else if(r!=null && actor.GetGroupLeaf() == null)
                     {
-                        batch.AddBoundingBox(r.m_owner.Aabb, Color.Green);
+                        batch.AddBoundingBox((BoundingBox)r.m_owner.Aabb, Color.Green);
                     }
                 }
             }
@@ -508,7 +565,7 @@ namespace VRageRender
                 {
                     if(r.m_owner.GetComponent(MyActorComponentEnum.Instancing) != null)
                     {
-                        batch.AddBoundingBox(r.m_owner.Aabb, Color.Blue);
+                        batch.AddBoundingBox((BoundingBox)r.m_owner.Aabb, Color.Blue);
                     }
                 }
 

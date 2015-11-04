@@ -20,6 +20,7 @@ using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Weapons
 {
@@ -193,10 +194,10 @@ namespace Sandbox.Game.Weapons
                             CreateParticles(entry.Value.DetectionPoint, false, true, false);
                         }
                     }
-                    else if (entity is MyVoxelMap)
+                    else if (entity is MyVoxelBase)
                     {
                         ProfilerShort.Begin("Drill voxel map");
-                        var voxels = entity as MyVoxelMap;
+                        var voxels = entity as MyVoxelBase;
                         drillingSuccess = TryDrillVoxels(voxels, entry.Value.DetectionPoint, collectOre, !Sync.IsServer);
                         ProfilerShort.BeginNextBlock("Create particles");
                         if (drillingSuccess)
@@ -223,7 +224,7 @@ namespace Sandbox.Game.Weapons
                                     invOwn.GetInventory(0).TakeFloatingObject(flObj);
                                 }
                                 else
-                                    (entity as MyFloatingObject).DoDamage(70, MyDamageType.Drill, true);
+                                    (entity as MyFloatingObject).DoDamage(70, MyDamageType.Drill, true, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
                             }
                             drillingSuccess = true;
                         }
@@ -237,7 +238,7 @@ namespace Sandbox.Game.Weapons
                         {
                             //MyRenderProxy.DebugDrawSphere(sphere.Center, sphere.Radius, Color.Green.ToVector3(), 1, true);
                             if (Sync.IsServer)
-                                character.DoDamage(20, MyDamageType.Drill, true);
+                                character.DoDamage(20, MyDamageType.Drill, true, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
                             drillingSuccess = true;
                         }
                         else
@@ -248,7 +249,7 @@ namespace Sandbox.Game.Weapons
                             {
                                 //MyRenderProxy.DebugDrawSphere(sphere.Center, sphere.Radius, Color.Green.ToVector3(), 1, true);
                                 if (Sync.IsServer)
-                                    character.DoDamage(20, MyDamageType.Drill, true);
+                                    character.DoDamage(20, MyDamageType.Drill, true, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
                                 drillingSuccess = true;
                             }
                         }
@@ -395,23 +396,23 @@ namespace Sandbox.Game.Weapons
             var gridSpacePos = Vector3I.Round(gridLocalPos / grid.GridSize);
             var block = grid.GetCubeBlock(gridSpacePos);
 
-            bool createDebris = false;
-            if (!onlyCheck && MySession.Static.DestructibleBlocks)
-            {    
-                if (block != null && block is IMyDestroyableObject)
+            int createDebris = 0;
+            if (!onlyCheck)
+            {
+                if (block != null && block is IMyDestroyableObject && block.CubeGrid.BlocksDestructionEnabled)
                 {
                     var destroyable = (block as IMyDestroyableObject);
-                    destroyable.DoDamage(60, MyDamageType.Drill, Sync.IsServer);
+                    destroyable.DoDamage(60, MyDamageType.Drill, Sync.IsServer, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
+                    createDebris = grid.Physics.ApplyDeformation(0.25f, 1.5f, 2f, gridLocalTarget, Vector3.Normalize(gridLocalPos - gridLocalPosCenter), MyDamageType.Drill, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);
                 }
-                createDebris = grid.Physics.ApplyDeformation(0.25f, 1.5f, 2f, gridLocalTarget, Vector3.Normalize(gridLocalPos - gridLocalPosCenter), MyDamageType.Drill);
             }
 
-            m_target = createDebris ? null : block;
+            m_target = createDebris != 0 ? null : block;
 
             bool success = false;
             if (block != null)
             {
-                if (createDebris)
+                if (createDebris != 0)
                 {
                     BoundingSphereD bsphere = m_cutOut.Sphere;
                     BoundingBoxD aabb = BoundingBoxD.CreateFromSphere(bsphere);
@@ -424,9 +425,11 @@ namespace Sandbox.Game.Weapons
             return success;
         }
 
-        protected virtual bool TryDrillVoxels(MyVoxelMap voxels, Vector3D hitPosition, bool collectOre, bool onlyCheck)
+        protected virtual bool TryDrillVoxels(MyVoxelBase voxels, Vector3D hitPosition, bool collectOre, bool onlyCheck)
         {
             const float DISCARDING_MULTIPLIER = 3.0f;
+
+            if (voxels.GetOrePriority() == MyVoxelConstants.PRIORITY_IGNORE_EXTRACTION) return false;
 
             bool somethingDrilled = false;
             var  bsphere = new MyShapeSphere()
@@ -483,7 +486,7 @@ namespace Sandbox.Game.Weapons
             if (!onlyCheck)
             {
                 ProfilerShort.Begin("TryHarvestOreMaterial");
-                var oreObjBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(material.MinedOre);
+                var oreObjBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(material.MinedOre);
                 float amountCubicMeters = (float)(((float)removedAmount / (float)MyVoxelConstants.VOXEL_CONTENT_FULL) * MyVoxelConstants.VOXEL_VOLUME_IN_METERS * VoxelHarvestRatio);
                 amountCubicMeters *= (float)material.MinedOreRatio;
 
@@ -527,7 +530,7 @@ namespace Sandbox.Game.Weapons
             {
                 MyFixedPoint dropAmount = MyFixedPoint.Min(amountItems, maxAmountPerDrop);
                 amountItems -= dropAmount;
-                var inventoryItem = new MyInventoryItem(dropAmount, oreObjBuilder);
+                var inventoryItem = new MyPhysicalInventoryItem(dropAmount, oreObjBuilder);
                 var item = MyFloatingObjects.Spawn(inventoryItem, bsphere, null, voxelMaterial);
                 item.Physics.LinearVelocity = MyUtils.GetRandomVector3HemisphereNormalized(forward) * MyUtils.GetRandomFloat(5, 8);
                 item.Physics.AngularVelocity = MyUtils.GetRandomVector3Normalized() * MyUtils.GetRandomFloat(4, 8);

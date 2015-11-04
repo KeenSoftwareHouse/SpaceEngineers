@@ -1,10 +1,14 @@
-﻿using Sandbox.Definitions;
+﻿
+using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Noise;
 using VRage.Utils;
@@ -12,39 +16,7 @@ using VRageMath;
 
 namespace Sandbox.Game.World.Generator
 {
-    class MyMaterialLayer
-    {
-        public float StartAngle = -1.0f;
-        public float EndAngle  = 1;
-        public float StartHeight;
-        public float EndHeight;
-        public float HeightStartDeviation = 0.0f;
-        public float AngleStartDeviation = 0.0f;
-        public float HeightEndDeviation = 0.0f;
-        public float AngleEndDeviation = 0.0f;
-
-        public string MaterialName;
-        public MyVoxelMaterialDefinition MaterialDefinition;
-
-        public MyMaterialLayer()
-        {
-            StartHeight = 0;
-            EndHeight = 0;
-            MaterialName = null;
-            MaterialDefinition = null;
-        }
-
-        public MyMaterialLayer(float start, float end, string name)
-        {
-            StartHeight = start;
-            EndHeight = end;
-            MaterialName = name;
-            MaterialDefinition = null;
-        }
-    }
-
     internal delegate void MyCompositeShapeGeneratorDelegate(int seed, float size, out MyCompositeShapeGeneratedData data);
-    internal delegate void MyCompositeShapeGeneratorPlanetDelegate(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, MyMaterialLayer[] materialLevels, out MyCompositeShapeGeneratedData data);
 
     internal static class MyCompositeShapes
     {
@@ -63,16 +35,11 @@ namespace Sandbox.Game.World.Generator
             Generator2,
         };
 
-        public static readonly MyCompositeShapeGeneratorPlanetDelegate[] PlanetGenerators = new MyCompositeShapeGeneratorPlanetDelegate[]
-        {
-            PlanetGenerator0,
-        };
-
         private static void Generator0(int seed, float size, out MyCompositeShapeGeneratedData data)
         {
             Generator(0, seed, size, out data);
         }
-       
+
         //Added ice material
         private static void Generator1(int seed, float size, out MyCompositeShapeGeneratedData data)
         {
@@ -83,89 +50,6 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(2, seed, size, out data);
         }
-        private static void PlanetGenerator0(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, MyMaterialLayer[] materialLevels, out MyCompositeShapeGeneratedData data)
-        {
-            PlanetGenerator(ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLevels, out data);
-        }
-
-
-        private static void PlanetGenerator(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, MyMaterialLayer[] materialLevels, out MyCompositeShapeGeneratedData data)
-        {
-            var random = MyRandom.Instance;
-            using (var stateToken = random.PushSeed(shapeAttributes.Seed))
-            {
-                data = new MyCompositeShapeGeneratedData();
-                data.FilledShapes = new MyCsgShapeBase[1];
-                data.RemovedShapes = new MyCsgShapeBase[0];
-
-
-                data.MacroModule = new MyBillowFast(quality: MyNoiseQuality.Low,seed: shapeAttributes.Seed, frequency: shapeAttributes.NoiseFrequency / shapeAttributes.Radius, layerCount: 4);
-
-                data.DetailModule = new MyBillowFast(
-                           seed: shapeAttributes.Seed,
-                           quality: MyNoiseQuality.Low,
-                           frequency: shapeAttributes.NoiseFrequency / shapeAttributes.Radius,
-                           layerCount: 1);
-
-                float halfSize = shapeAttributes.Radius * 0.5f;
-                float storageSize = VRageMath.MathHelper.GetNearestBiggerPowerOfTwo(shapeAttributes.Radius);
-                float halfStorageSize = storageSize * 0.5f;
-                float storageOffset = halfStorageSize - halfSize;
-
-                data.FilledShapes[0] = new MyCsgShapePlanet(
-                                        random,
-                                        new Vector3(halfStorageSize),
-                                        ref shapeAttributes,
-                                        ref hillAttributes,
-                                        ref canyonAttributes,
-                                        detailFrequency: 0.09f,
-                                        deviationFrequency: 10.0f);
-
-
-                foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-                {
-                    if (material.MinedOre == "Stone") // Surface
-                    {
-                        m_surfaceMaterials.Add(material);
-                    }
-                }
-
-                data.DefaultMaterial = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
-
-                int depositCount = 1;
-                data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
-
-                MyMaterialLayer[] materialLayers = new MyMaterialLayer[materialLevels.Length];
-
-                float surfaceSize = (shapeAttributes.Radius/2.0f) * (1 - shapeAttributes.DeviationScale * hillAttributes.SizeRatio);
-                for (int i = 0; i < materialLayers.Length; ++i)
-                {
-                    materialLayers[i] = new MyMaterialLayer();
-                    materialLayers[i].StartHeight = materialLevels[i].StartHeight + surfaceSize;
-                    materialLayers[i].EndHeight = materialLevels[i].EndHeight + surfaceSize;
-                    materialLayers[i].MaterialDefinition = GetMaterialByName(materialLevels[i].MaterialName);
-                    materialLayers[i].StartAngle = materialLevels[i].StartAngle;
-                    materialLayers[i].EndAngle = materialLevels[i].EndAngle;
-                    materialLayers[i].HeightStartDeviation = materialLevels[i].HeightStartDeviation;
-                    materialLayers[i].AngleStartDeviation = materialLevels[i].AngleStartDeviation;
-                    materialLayers[i].HeightEndDeviation = materialLevels[i].HeightEndDeviation;
-                    materialLayers[i].AngleEndDeviation = materialLevels[i].AngleEndDeviation;
-                }
-
-                for (int i = 0; i < depositCount; ++i)
-                {
-                    data.Deposits[i] = new MyCompositeLayeredOreDeposit(new MyCsgSimpleSphere(
-                                                                        new Vector3(halfStorageSize), halfSize), materialLayers, 
-                                                                        new MyBillowFast(layerCount:3, 
-                                                                        seed:shapeAttributes.LayerDeviationSeed,frequency: shapeAttributes.LayerDeviationNoiseFreqeuncy / shapeAttributes.Radius));
-                }
-
-                m_surfaceMaterials.Clear();
-                m_coreMaterials.Clear();
-            }
-        }
-
-
         private static MyVoxelMaterialDefinition GetMaterialByName(String name)
         {
             foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
@@ -397,30 +281,7 @@ namespace Sandbox.Game.World.Generator
 
                 { // generating materials
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
-                    foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-                    {
-                        if (material.MinVersion > version)
-                            continue;
-
-                        if (material.MinedOre == "Stone") // Surface
-                            m_surfaceMaterials.Add(material);
-                        else if (material.MinedOre == "Iron") // Core
-                            m_coreMaterials.Add(material);
-                        else if (material.MinedOre == "Uranium") // Uranium
-                        {
-                            // We want more uranium, by design
-                            m_depositMaterials.Add(material);
-                            m_depositMaterials.Add(material);
-                        }
-                        else if (material.MinedOre == "Ice")
-                        { 
-                            // We also want more ice, by design
-                            m_depositMaterials.Add(material);
-                            m_depositMaterials.Add(material);
-                        }
-                        else
-                            m_depositMaterials.Add(material);
-                    }
+                    FillMaterials(version);
 
                     Action<List<MyVoxelMaterialDefinition>> shuffleMaterials = (list) =>
                     {
@@ -506,6 +367,41 @@ namespace Sandbox.Game.World.Generator
                     m_depositMaterials.Clear();
                 }
             }
+        }
+
+        private static void FillMaterials(int version)
+        {
+            m_depositMaterials.Clear();
+            m_surfaceMaterials.Clear();
+            m_coreMaterials.Clear();
+
+            foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
+            {
+                if (!material.SpawnsInAsteroids || material.MinVersion > version) // filter out non-natural and version-incompatible materials
+                    continue;
+
+                if (material.MinedOre == "Stone") // Surface
+                    m_surfaceMaterials.Add(material);
+                else if (material.MinedOre == "Iron") // Core
+                    m_coreMaterials.Add(material);
+                else if (material.MinedOre == "Uranium") // Uranium
+                {
+                    // We want more uranium, by design
+                    m_depositMaterials.Add(material);
+                    m_depositMaterials.Add(material);
+                }
+                else if (material.MinedOre == "Ice")
+                {
+                    // We also want more ice, by design
+                    m_depositMaterials.Add(material);
+                    m_depositMaterials.Add(material);
+                }
+                else
+                    m_depositMaterials.Add(material);
+            }
+
+            if (m_surfaceMaterials.Count == 0) // this can happen if all materials are disabled or set to not spawn in asteroids
+                throw new Exception("There are no voxel materials allowed to spawn in asteroids!");
         }
 
         private static Vector3 CreateRandomPointInBox(MyRandom self, float boxSize)

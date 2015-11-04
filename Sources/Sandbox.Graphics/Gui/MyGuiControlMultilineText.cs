@@ -1,6 +1,8 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Gui;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -18,36 +20,6 @@ namespace Sandbox.Graphics.GUI
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlMultilineLabel))]
     public class MyGuiControlMultilineText : MyGuiControlBase
     {
-        protected enum MyMultilineTextKeys
-        {
-            UP = 0,
-            DOWN = 1,
-            LEFT = 2,
-            RIGHT = 3,
-            C = 4,
-            A = 5,
-            V = 6,
-            X=  7,
-            HOME = 8,
-            END = 9,
-            DELETE = 10,
-        }
-        private class MyMultilineKeyTimeController
-        {
-            public Keys Key;
-
-            /// <summary>
-            /// This is not for converting key to string, but for controling repeated key input with delay
-            /// </summary>
-            public int LastKeyPressTime;
-
-            public MyMultilineKeyTimeController(Keys key)
-            {
-                Key = key;
-                LastKeyPressTime = MyGuiManager.FAREST_TIME_IN_PAST;
-            }
-        }
-
         #region Fields
 
         private float m_textScale;
@@ -65,11 +37,12 @@ namespace Sandbox.Graphics.GUI
 
         private bool m_selectable;
 
+        protected MyKeyThrottler m_keyThrottler;
+
         //Carriage data for selectable texts
         private int m_carriageBlinkerTimer;
         protected int m_carriagePositionIndex;
         protected MyGuiControlMultilineSelection m_selection;
-        private static MyMultilineKeyTimeController[] m_keys;
 
         protected int CarriagePositionIndex
         {
@@ -80,7 +53,7 @@ namespace Sandbox.Graphics.GUI
                 if (m_carriagePositionIndex != newPos)
                 {
                     m_carriagePositionIndex = newPos;
-                    if(!CarriageVisible())
+                    if (!CarriageVisible())
                         ScrollToShowCarriage();
                 }
             }
@@ -150,11 +123,11 @@ namespace Sandbox.Graphics.GUI
         public float ScrollbarOffset
         {
             get { return m_scrollbarOffset; }
-            set 
+            set
             {
                 m_scrollbarOffset = value;
                 m_scrollbar.ChangeValue(m_scrollbarOffset);
-                RecalculateScrollBar(); 
+                RecalculateScrollBar();
             }
         }
 
@@ -175,7 +148,7 @@ namespace Sandbox.Graphics.GUI
             bool drawScrollbar = true,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             bool selectable = false)
-            : base( position: position,
+            : base(position: position,
                     size: size,
                     colorMask: backgroundColor,
                     toolTip: null)
@@ -199,19 +172,7 @@ namespace Sandbox.Graphics.GUI
             if (contents != null && contents.Length > 0)
                 Text = contents;
 
-            m_keys = new MyMultilineKeyTimeController[11];
-            m_keys[(int)MyMultilineTextKeys.UP] = new MyMultilineKeyTimeController(Keys.Up);
-            m_keys[(int)MyMultilineTextKeys.DOWN] = new MyMultilineKeyTimeController(Keys.Down);
-            m_keys[(int)MyMultilineTextKeys.LEFT] = new MyMultilineKeyTimeController(Keys.Left);
-            m_keys[(int)MyMultilineTextKeys.RIGHT] = new MyMultilineKeyTimeController(Keys.Right);
-            
-            m_keys[(int)MyMultilineTextKeys.C] = new MyMultilineKeyTimeController(Keys.C);
-            m_keys[(int)MyMultilineTextKeys.A] = new MyMultilineKeyTimeController(Keys.A);
-            m_keys[(int)MyMultilineTextKeys.V] = new MyMultilineKeyTimeController(Keys.V);
-            m_keys[(int)MyMultilineTextKeys.X] = new MyMultilineKeyTimeController(Keys.X);
-            m_keys[(int)MyMultilineTextKeys.HOME] = new MyMultilineKeyTimeController(Keys.Home);
-            m_keys[(int)MyMultilineTextKeys.END] = new MyMultilineKeyTimeController(Keys.End);
-            m_keys[(int)MyMultilineTextKeys.DELETE] = new MyMultilineKeyTimeController(Keys.Delete);
+            m_keyThrottler = new MyKeyThrottler();
         }
 
         public override void Init(MyObjectBuilder_GuiControlBase objectBuilder)
@@ -221,11 +182,11 @@ namespace Sandbox.Graphics.GUI
             m_label.MaxLineWidth = ComputeRichLabelWidth();
             var ob = (MyObjectBuilder_GuiControlMultilineLabel)objectBuilder;
 
-            this.TextAlign    = (MyGuiDrawAlignEnum)ob.TextAlign;
+            this.TextAlign = (MyGuiDrawAlignEnum)ob.TextAlign;
             this.TextBoxAlign = (MyGuiDrawAlignEnum)ob.TextBoxAlign;
-            this.TextScale    = ob.TextScale;
-            this.TextColor    = new Color(ob.TextColor);
-            this.Font         = ob.Font;
+            this.TextScale = ob.TextScale;
+            this.TextColor = new Color(ob.TextColor);
+            this.Font = ob.Font;
 
             MyStringId textEnum;
             if (Enum.TryParse<MyStringId>(ob.Text, out textEnum))
@@ -238,11 +199,11 @@ namespace Sandbox.Graphics.GUI
         {
             var ob = (MyObjectBuilder_GuiControlMultilineLabel)base.GetObjectBuilder();
 
-            ob.TextScale    = TextScale;
-            ob.TextColor    = TextColor.ToVector4();
-            ob.TextAlign    = (int)TextAlign;
+            ob.TextScale = TextScale;
+            ob.TextColor = TextColor.ToVector4();
+            ob.TextAlign = (int)TextAlign;
             ob.TextBoxAlign = (int)TextBoxAlign;
-            ob.Font         = Font;
+            ob.Font = Font;
             if (m_useEnum)
                 ob.Text = TextEnum.ToString();
             else
@@ -308,7 +269,7 @@ namespace Sandbox.Graphics.GUI
 
         private void OnLinkClickedInternal(string url)
         {
-            if(OnLinkClicked != null)
+            if (OnLinkClicked != null)
                 OnLinkClicked(this, url);
         }
 
@@ -322,7 +283,7 @@ namespace Sandbox.Graphics.GUI
         {
             m_label.Clear();
             RecalculateScrollBar();
-        }        
+        }
 
         private void RecalculateScrollBar()
         {
@@ -332,21 +293,21 @@ namespace Sandbox.Graphics.GUI
 
             m_scrollbar.Visible = vScrollbarVisible;
             m_scrollbar.Init(realHeight, Size.Y);
-            m_scrollbar.Layout(new Vector2(0.5f * Size.X  - m_scrollbar.Size.X, -0.5f * Size.Y), Size.Y);
+            m_scrollbar.Layout(new Vector2(0.5f * Size.X - m_scrollbar.Size.X, -0.5f * Size.Y), Size.Y);
 
             if (!m_drawScrollbar)
             {
                 if (TextAlign == MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM ||
                     TextAlign == MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM ||
                     TextAlign == MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM)
-                        //m_scrollbar.Value = realHeight;
-                        m_scrollbar.Value = 0;
+                    //m_scrollbar.Value = realHeight;
+                    m_scrollbar.Value = 0;
                 else
-                if (TextAlign == MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP ||
-                   TextAlign == MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP ||
-                   TextAlign == MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP)
-                    //m_scrollbar.Value = 0;
-                    m_scrollbar.Value = realHeight;
+                    if (TextAlign == MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP ||
+                       TextAlign == MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP ||
+                       TextAlign == MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP)
+                        //m_scrollbar.Value = 0;
+                        m_scrollbar.Value = realHeight;
             }
         }
 
@@ -366,21 +327,27 @@ namespace Sandbox.Graphics.GUI
                         MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP
                    );
 
-                currentPos += line.Length +1 ; //+1 because of \n that split cuts out
+                currentPos += line.Length + 1; //+1 because of \n that split cuts out
             }
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var textArea = new MyRectangle2D(Vector2.Zero, Size);
             textArea.LeftTop += GetPositionAbsoluteTopLeft();
             Vector2 carriageOffset = GetCarriageOffset(CarriagePositionIndex);
 
             var scissor = new RectangleF(textArea.LeftTop, textArea.Size);
+            
+            // Adjust the scissor a little bit, because currently it's hiding the carriage at its left side, and it's
+            // too far out on the edges.
+            scissor.X -= 0.001f;
+            scissor.Y -= 0.001f;
+
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
-                DrawSelectionBackgrounds(textArea, transitionAlpha);
+                DrawSelectionBackgrounds(textArea, backgroundTransitionAlpha);
                 DrawText(m_scrollbar.Value);
 
 
@@ -416,81 +383,80 @@ namespace Sandbox.Graphics.GUI
             if (HasFocus && Selectable)
             {
                 //  Move left
-                if ((MyInput.Static.IsKeyPress(MyKeys.Left)))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Left))
                 {
-                    if ((IsEnoughDelay(MyMultilineTextKeys.LEFT, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))
-                    {
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
+                        return this;
+
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         if (MyInput.Static.IsAnyCtrlKeyPressed())
                             CarriagePositionIndex = GetPreviousSpace();
                         else
                             CarriagePositionIndex--;
 
-                        UpdateLastKeyPressTimes(MyMultilineTextKeys.LEFT);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
                         else
                             m_selection.Reset(this);
-                    }
-                    return this;
+                        return this;
                 }
 
                 //  Move right
-                if ((MyInput.Static.IsKeyPress(MyKeys.Right)))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Right))
                 {
-                    if ((IsEnoughDelay(MyMultilineTextKeys.RIGHT, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))
-                    {
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
+                        return this;
+
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         if (MyInput.Static.IsAnyCtrlKeyPressed())
                             CarriagePositionIndex = GetNextSpace();
                         else
                             ++CarriagePositionIndex;
-                        UpdateLastKeyPressTimes(MyMultilineTextKeys.RIGHT);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
                         else
                             m_selection.Reset(this);
-                    }
-                    return this;
+                        return this;
                 }
 
                 //  Move Down
-                if ((MyInput.Static.IsKeyPress(MyKeys.Down)))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Down))
                 {
-                    if ((IsEnoughDelay(MyMultilineTextKeys.DOWN, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))
-                    {
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
+                        return this;
+
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         CarriagePositionIndex = GetIndexUnderCarriage(CarriagePositionIndex);
-                        UpdateLastKeyPressTimes(MyMultilineTextKeys.DOWN);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
                         else
                             m_selection.Reset(this);
-                    }
-                    return this;
+                        return this;
                 }
 
                 //  Move Up
-                if ((MyInput.Static.IsKeyPress(MyKeys.Up)))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Up))
                 {
-                    if ((IsEnoughDelay(MyMultilineTextKeys.UP, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))
-                    {
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
+                        return this;
+
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         CarriagePositionIndex = GetIndexOverCarriage(CarriagePositionIndex);
-                        UpdateLastKeyPressTimes(MyMultilineTextKeys.UP);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
                         else
                             m_selection.Reset(this);
-                    }
-                    return this;
+                        return this;
                 }
-              
+
                 //Copy
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.C) && IsEnoughDelay(MyMultilineTextKeys.C, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.C) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
-                    UpdateLastKeyPressTimes(MyMultilineTextKeys.C);
                     m_selection.CopyText(this);
                 }
 
                 //Select All
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.A) && IsEnoughDelay(MyMultilineTextKeys.A, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.A) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     m_selection.SelectAll(this);
                     return this;
@@ -507,7 +473,6 @@ namespace Sandbox.Graphics.GUI
                 captured = true;
             }
 
-
             if (m_drawScrollbar)
             {
                 bool capturedScrollbar = m_scrollbar.HandleInput();
@@ -515,6 +480,7 @@ namespace Sandbox.Graphics.GUI
                 if (capturedScrollbar || captured)
                     return this;
             }
+
             if (IsMouseOver && m_label.HandleInput(GetPositionAbsoluteTopLeft(), m_scrollbar.Value))
                 return this;
 
@@ -566,7 +532,7 @@ namespace Sandbox.Graphics.GUI
 
             return baseResult;
         }
-       
+
         /// <summary>
         /// Draws the text with the offset given by the scrollbar.
         /// </summary>
@@ -692,7 +658,7 @@ namespace Sandbox.Graphics.GUI
         {
             Vector2 offset = GetCarriageOffset(CarriagePositionIndex);
             float height = GetCarriageHeight();
-            return (offset.Y >= 0 && offset.Y +  height <= Size.Y);
+            return (offset.Y >= 0 && offset.Y + height <= Size.Y);
         }
 
         virtual protected int GetCarriagePositionFromMouseCursor()
@@ -819,27 +785,6 @@ namespace Sandbox.Graphics.GUI
             return CarriagePositionIndex + Math.Min(nextSpace, nextLine) + 1;
         }
 
-        protected bool IsEnoughDelay(MyMultilineTextKeys key, int forcedDelay)
-        {
-            MyMultilineKeyTimeController keyEx = m_keys[(int)key];
-            if (keyEx == null) return true;
-
-            return ((MyGuiManager.TotalTimeInMilliseconds - keyEx.LastKeyPressTime) > forcedDelay);
-        }
-
-        protected void UpdateLastKeyPressTimes(MyMultilineTextKeys key)
-        {
-            //  This will reset the counter so it starts blinking whenever we enter the textbox
-            //  And also when user presses a lot of keys, it won't blink for a while
-            m_carriageBlinkerTimer = 0;
-
-            //  Making delays between one long key press
-            MyMultilineKeyTimeController keyEx = m_keys[(int)key];
-            if (keyEx != null)
-            {
-                keyEx.LastKeyPressTime = MyGuiManager.TotalTimeInMilliseconds;
-            }
-        }
         #endregion
         #region selection
         protected class MyGuiControlMultilineSelection
@@ -954,9 +899,9 @@ namespace Sandbox.Graphics.GUI
         }
         #endregion
 
-        protected float ScrollbarValue 
+        protected float ScrollbarValue
         {
-            get 
+            get
             {
                 return m_scrollbar.Value;
             }

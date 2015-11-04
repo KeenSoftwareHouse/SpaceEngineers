@@ -15,6 +15,9 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.Character;
 using VRage.Trace;
+using VRage.ModAPI;
+using VRage.Components;
+using Sandbox.Common;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -27,7 +30,7 @@ namespace Sandbox.Engine.Voxels
         internal HashSet<Vector3I> InvalidCells = new HashSet<Vector3I>(Vector3I.Comparer);
         internal MyPrecalcJobPhysicsBatch RunningBatchTask;
 
-        public readonly MyVoxelMap m_voxelMap;
+        public readonly MyVoxelBase m_voxelMap;
         private bool m_needsShapeUpdate;
         private HkpAabbPhantom m_aabbPhantom;
         private readonly HashSet<IMyEntity> m_nearbyEntities = new HashSet<IMyEntity>();
@@ -43,14 +46,40 @@ namespace Sandbox.Engine.Voxels
 
         private readonly Vector3I m_cellsOffset = new Vector3I(0, 0, 0);
 
-        internal MyVoxelPhysicsBody(MyVoxelMap voxelMap): base(voxelMap, RigidBodyFlag.RBF_STATIC)
+        bool m_staticForCluster = true;
+
+        float m_phantomExtend = 0.0f;
+        float m_predictionSize = 3.0f;
+
+        internal MyVoxelPhysicsBody(MyVoxelBase voxelMap,float phantomExtend, float predictionSize = 3.0f): base(voxelMap, RigidBodyFlag.RBF_STATIC)
         {
+            m_predictionSize = predictionSize;
+            m_phantomExtend = phantomExtend;
             m_voxelMap = voxelMap;
             Vector3I storageSize = m_voxelMap.Size;
             Vector3I numCels = storageSize >> MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
             m_cellsOffset = m_voxelMap.StorageMin >> MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
 
-            HkUniformGridShape shape = new HkUniformGridShape(
+            HkUniformGridShape shape;
+            HkRigidBody lod1rb = null;
+            if (MyFakes.USE_LOD1_VOXEL_PHYSICS)
+            {
+                shape = new HkUniformGridShape(
+                    new HkUniformGridShapeArgs()
+                    {
+                        CellsCount = numCels,
+                        CellSize = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES,
+                        CellOffset = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF,
+                        CellExpand = MyVoxelConstants.VOXEL_SIZE_IN_METRES,
+                    });
+                shape.SetShapeRequestHandler(RequestShapeBlockingLod1);
+
+                CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.VoxelLod1CollisionLayer);
+                shape.Base.RemoveReference();
+                lod1rb = RigidBody;
+                RigidBody = null;
+            }
+            shape = new HkUniformGridShape(
                 new HkUniformGridShapeArgs()
                 {
                     CellsCount = numCels,
@@ -60,9 +89,10 @@ namespace Sandbox.Engine.Voxels
                 });
             shape.SetShapeRequestHandler(RequestShapeBlocking);
 
-            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.StaticCollisionLayer);
+            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.VoxelCollisionLayer);
             shape.Base.RemoveReference();
-
+            if (MyFakes.USE_LOD1_VOXEL_PHYSICS)
+                RigidBody2 = lod1rb;
             if (ENABLE_AABB_PHANTOM)
             {
                 m_aabbPhantom = new Havok.HkpAabbPhantom(new BoundingBox(Vector3.Zero, m_voxelMap.SizeInMetres), 0);
@@ -73,7 +103,7 @@ namespace Sandbox.Engine.Voxels
             if (MyFakes.ENABLE_PHYSICS_HIGH_FRICTION)
                 Friction = 0.65f;
 
-            MaterialType = Sandbox.Common.MyMaterialType.ROCK;
+            MaterialType = MyMaterialType.ROCK;
         }
 
         private void UpdateRigidBodyShape()
@@ -85,15 +115,20 @@ namespace Sandbox.Engine.Voxels
 
             ProfilerShort.Begin("MyVoxelPhysicsBody.RigidBody.UpdateShape()");
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
-            //jn: peaks with Render profiling and destruction
             if (RigidBody != null)
                 RigidBody.UpdateShape();
             ProfilerShort.End();
-
-            m_voxelMap.RaisePhysicsChanged();
         }
 
+        private void RequestShapeBlockingLod1(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy)
+        {
+            RequestShapeBlockingInternal(x, y, z, out shape, out refPolicy, true);
+        }
         private void RequestShapeBlocking(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy)
+        {
+            RequestShapeBlockingInternal(x, y, z, out shape, out refPolicy, false);
+        }
+        private void RequestShapeBlockingInternal(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy, bool lod1physics)
         {
             ProfilerShort.Begin("MyVoxelPhysicsBody.RequestShapeBlocking");
 
@@ -109,9 +144,11 @@ namespace Sandbox.Engine.Voxels
                 ProfilerShort.End();
                 return;
             }
-
+            //BoundingBoxD aabb;
+            //MyVoxelCoordSystems.GeometryCellCoordToWorldAABB(m_voxelMap.PositionLeftBottomCorner, ref cellCoord.CoordInLod, out aabb);
+            //MyRenderProxy.DebugDrawAABB(aabb, Color.Red, 1, 1, false);
             ProfilerShort.Begin("Generating geometry");
-            MyIsoMesh geometryData = CreateMesh(m_voxelMap.Storage, cellCoord.CoordInLod);
+            MyIsoMesh geometryData = CreateMesh(m_voxelMap.Storage, cellCoord.CoordInLod, lod1physics);
             ProfilerShort.End();
 
             if (!MyIsoMesh.IsEmpty(geometryData))
@@ -144,11 +181,15 @@ namespace Sandbox.Engine.Voxels
             Vector3I minCellChangedVoxelMap, maxCellChangedVoxelMap;
             minCellChangedVoxelMap = minCellChanged - m_cellsOffset;
             maxCellChangedVoxelMap = maxCellChanged - m_cellsOffset;
+            var maxCell = m_voxelMap.Size - 1;
+            MyVoxelCoordSystems.VoxelCoordToGeometryCellCoord(ref maxCell, out maxCell);
+            Vector3I.Min(ref maxCellChangedVoxelMap, ref maxCell, out maxCellChangedVoxelMap);
 
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
             {
-                var shape = (HkUniformGridShape)RigidBody.GetShape();
+                var shape = (HkUniformGridShape)GetShape();//RigidBody.GetShape();
+                Debug.Assert(shape.Base.IsValid);
                 var tmpBuffer = m_cellsToGenerateBuffer;
                 int invalidCount = shape.InvalidateRange(ref minCellChangedVoxelMap, ref maxCellChangedVoxelMap, tmpBuffer);
                 if (invalidCount > tmpBuffer.Length)
@@ -166,29 +207,31 @@ namespace Sandbox.Engine.Voxels
                 {
                     InvalidCells.Add(tmpBuffer[i]);
                 }
-                if (RunningBatchTask != null)
+                if (RunningBatchTask == null && InvalidCells.Count != 0)
                 {
-                    RunningBatchTask.Cancel();
-                    foreach (var oldInvalidCell in RunningBatchTask.CellBatch)
-                    {
-                        InvalidCells.Add(oldInvalidCell);
-                    }
-                    RunningBatchTask = null;
-                }
-                if (InvalidCells.Count != 0)
                     MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
+                }
             }
 
-            var cell = minCellChanged;
-            for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged);
-                it.IsValid(); it.GetNext(out cell))
+            if (minCellChangedVoxelMap == Vector3I.Zero && maxCellChangedVoxelMap == maxCell)
             {
-                m_workTracker.Cancel(cell);
+                m_workTracker.CancelAll();
+            }
+            else
+            {
+                var cell = minCellChanged;
+                for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged);
+                    it.IsValid(); it.GetNext(out cell))
+                {
+                    m_workTracker.Cancel(cell);
+                }
             }
 
             m_needsShapeUpdate = true;
 
             ProfilerShort.End();
+
+            m_voxelMap.RaisePhysicsChanged();
         }
 
         internal void UpdateBeforeSimulation10()
@@ -200,11 +243,12 @@ namespace Sandbox.Engine.Voxels
         {
             UpdateRigidBodyShape();
 
-            var nearby = m_nearbyEntities;
-
             // Apply prediction based on movement of nearby entities.
             foreach (var entity in m_nearbyEntities)
             {
+                if (!(entity is MyCubeGrid)) //jn:TODO prediction for lod0
+                    continue;
+
                 if (entity.MarkedForClose)
                     continue;
 
@@ -213,14 +257,19 @@ namespace Sandbox.Engine.Voxels
 
                 var predictionOffset = ComputePredictionOffset(entity);
                 var aabb = entity.WorldAABB;
-                aabb.Inflate(MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES);
+                aabb.Inflate(MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES * 3);
                 aabb.Translate(predictionOffset);
                 if (!aabb.Intersects(m_voxelMap.PositionComp.WorldAABB))
                     continue;
-
                 Vector3I min, max;
-                MyVoxelCoordSystems.WorldPositionToVoxelCoord(m_voxelMap.PositionLeftBottomCorner, ref aabb.Min, out min);
-                MyVoxelCoordSystems.WorldPositionToVoxelCoord(m_voxelMap.PositionLeftBottomCorner, ref aabb.Max, out max);
+                Vector3D localPositionMin, localPositionMax;
+
+                MyVoxelCoordSystems.WorldPositionToLocalPosition(aabb.Min, m_voxelMap.PositionComp.WorldMatrix, m_voxelMap.PositionComp.WorldMatrixInvScaled, m_voxelMap.SizeInMetresHalf, out localPositionMin);
+                MyVoxelCoordSystems.WorldPositionToLocalPosition(aabb.Max, m_voxelMap.PositionComp.WorldMatrix, m_voxelMap.PositionComp.WorldMatrixInvScaled, m_voxelMap.SizeInMetresHalf, out localPositionMax);
+
+
+                MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref localPositionMin, out min);
+                MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref localPositionMax, out max);
                 m_voxelMap.Storage.ClampVoxelCoord(ref min);
                 m_voxelMap.Storage.ClampVoxelCoord(ref max);
                 MyVoxelCoordSystems.VoxelCoordToGeometryCellCoord(ref min, out min);
@@ -232,7 +281,8 @@ namespace Sandbox.Engine.Voxels
                         m_cellsToGenerateBuffer = new Vector3I[MathHelper.GetNearestBiggerPowerOfTwo(size)];
                     }
                 }
-                var shape = (HkUniformGridShape)RigidBody.GetShape();
+                var shape = (HkUniformGridShape)GetShape();// RigidBody.GetShape();
+                Debug.Assert(shape.Base.IsValid);
                 int requiredCellsCount = shape.GetMissingCellsInRange(ref min, ref max, m_cellsToGenerateBuffer);
 
                 for (int i = 0; i < requiredCellsCount; ++i)
@@ -249,20 +299,28 @@ namespace Sandbox.Engine.Voxels
                     });
                 }
             }
-            if (m_nearbyEntities.Count == 0 && RigidBody != null && MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING)
+            var voxelShape = (HkUniformGridShape)GetShape();
+            if (m_nearbyEntities.Count == 0 && RigidBody != null && MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING && voxelShape.ShapeCount > 0)
             {
-                var shape = (HkUniformGridShape)RigidBody.GetShape();
-                shape.DiscardLargeData();
+                // RigidBody.GetShape();
+                Debug.Assert(voxelShape.Base.IsValid);
+                voxelShape.DiscardLargeData();
+                if(RigidBody2 != null)
+                {
+                    voxelShape = (HkUniformGridShape)RigidBody2.GetShape();
+                    voxelShape.DiscardLargeData();
+                }
             }
         }
 
         private Vector3 ComputePredictionOffset(IMyEntity entity)
         {
-            return entity.Physics.LinearVelocity * 3.0f;
+            return entity.Physics.LinearVelocity; //*m_predictionSize;
         }
 
-        internal new void DebugDraw()
+        public override void DebugDraw()
         {
+            base.DebugDraw();
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_PHYSICS_PREDICTION)
             {
                 foreach (var entity in m_nearbyEntities)
@@ -295,8 +353,12 @@ namespace Sandbox.Engine.Voxels
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
             {
-                var shape = (HkUniformGridShape)RigidBody.GetShape();
+                var shape = (HkUniformGridShape)GetShape();//RigidBody.GetShape();
+                Debug.Assert(shape.Base.IsValid);
                 shape.SetChild(coord.X, coord.Y, coord.Z, childShape, HkReferencePolicy.None);
+                //BoundingBoxD worldAabb;
+                //MyVoxelCoordSystems.GeometryCellCoordToWorldAABB(m_voxelMap.PositionLeftBottomCorner, ref coord, out worldAabb);
+                //VRageRender.MyRenderProxy.DebugDrawAABB(worldAabb, Color.Green, 1f, 1f, true);
                 m_needsShapeUpdate = true;
             }
         }
@@ -306,7 +368,8 @@ namespace Sandbox.Engine.Voxels
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
             {
-                var shape = (HkUniformGridShape)RigidBody.GetShape();
+                var shape = (HkUniformGridShape)GetShape();//RigidBody.GetShape();
+                Debug.Assert(shape.Base.IsValid);
                 foreach (var entry in newShapes)
                 {
                     var coord = entry.Key;
@@ -314,10 +377,12 @@ namespace Sandbox.Engine.Voxels
                     shape.SetChild(coord.X, coord.Y, coord.Z, childShape, HkReferencePolicy.None);
                 }
                 m_needsShapeUpdate = true;
+                if (InvalidCells.Count != 0)
+                    MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
             }
         }
 
-        internal MyIsoMesh CreateMesh(IMyStorage storage, Vector3I coord)
+        internal MyIsoMesh CreateMesh(IMyStorage storage, Vector3I coord, bool lod1Physics = false)
         {
             // mk:NOTE This method must be thread safe. Called from worker threads.
 
@@ -325,9 +390,17 @@ namespace Sandbox.Engine.Voxels
             var min = coord << MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
             var max = min + MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
             // overlap to neighbor; introduces extra data but it makes logic for raycasts and collisions simpler (no need to check neighbor cells)
+            if (!lod1Physics)
+            {
+                min -= 1;
+                max += 2;
+                return MyPrecalcComponent.IsoMesher.Precalc(storage, 0, min, max, false, false);
+            }
+            min >>= 1;
+            max >>= 1;
             min -= 1;
-            max += 2;
-            return MyPrecalcComponent.IsoMesher.Precalc(storage, 0, min, max, false);
+            max += 1;
+            return MyPrecalcComponent.IsoMesher.Precalc(storage, 1, min, max, false, false);
         }
 
         internal HkBvCompressedMeshShape CreateShape(MyIsoMesh mesh)
@@ -364,7 +437,8 @@ namespace Sandbox.Engine.Voxels
 
         public override bool IsStaticForCluster
         {
-            get { return true; }
+            get { return m_staticForCluster; }
+            set { m_staticForCluster = value; }
         }
 
         public override void Activate(object world, ulong clusterObjectID)
@@ -414,7 +488,7 @@ namespace Sandbox.Engine.Voxels
             {
                 var center = GetRigidBodyMatrix().Translation + m_voxelMap.SizeInMetresHalf;
                 var size = m_voxelMap.SizeInMetres;
-                size *= 3;
+                size *= m_phantomExtend;
                 m_aabbPhantom.Aabb = new BoundingBox(center - 0.5f * size, center + 0.5f * size);
                 MyTrace.Send(TraceWindow.Analytics, "AddPhantom-before");
                 HavokWorld.AddPhantom(m_aabbPhantom);
@@ -439,20 +513,25 @@ namespace Sandbox.Engine.Voxels
             var rb = eventData.RigidBody;
             if (rb == null) // ignore phantoms
                 return;
+            var entities = rb.GetAllEntities();
 
-            var grid = rb.UserObject as MyGridPhysics;
-            var character = rb.UserObject as MyPhysicsBody;
-            // I get both rigid bodies reported but they don't match, I will only track RB 1
-            if (IsDynamicGrid(rb, grid) ||
-                IsCharacter(rb, character))
+            foreach (var entity in entities)
             {
-                using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
+                var grid = entity.Physics as MyGridPhysics;
+                var character = entity.Physics as MyPhysicsBody;
+                // I get both rigid bodies reported but they don't match, I will only track RB 1
+                if (IsDynamicGrid(rb, grid) ||
+                    IsCharacter(rb, character))
                 {
-                    IMyEntity entity = grid == null ? character.Entity : grid.Entity;
-                    Debug.Assert(!m_nearbyEntities.Contains(entity), "Entity added twice");
-                    m_nearbyEntities.Add(entity);
+                    using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
+                    {
+                        //unreliable
+                        //Debug.Assert(!m_nearbyEntities.Contains(entity), "Entity added twice");
+                        m_nearbyEntities.Add(entity);
+                    }
                 }
             }
+            entities.Clear();
         }
 
         private static bool IsCharacter(HkRigidBody rb, MyPhysicsBody character)
@@ -478,23 +557,27 @@ namespace Sandbox.Engine.Voxels
             var rb = eventData.RigidBody;
             if (rb == null) // ignore phantoms
                 return;
-
-            var grid = rb.UserObject as MyGridPhysics;
-            var character = rb.UserObject as MyPhysicsBody;
-            if (IsDynamicGrid(rb, grid) ||
-                IsCharacter(rb, character))
+            var entities = rb.GetAllEntities();
+            foreach (var entity in entities)
             {
-                using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
+                var grid = entity.Physics as MyGridPhysics;
+                var character = entity.Physics as MyPhysicsBody;
+                if (IsDynamicGrid(rb, grid) ||
+                    IsCharacter(rb, character))
                 {
-                    if (character != null)
+                    using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
                     {
-                        MyTrace.Send(TraceWindow.Analytics, string.Format("{0} Removed character", character.Entity.EntityId));
+                        if (character != null)
+                        {
+                            MyTrace.Send(TraceWindow.Analytics, string.Format("{0} Removed character", character.Entity.EntityId));
+                        }
+                        //unreliable
+                        //Debug.Assert(m_nearbyEntities.Contains(entity), "Removing entity which was not added");
+                        m_nearbyEntities.Remove(entity);
                     }
-                    IMyEntity entity = grid == null ? character.Entity : grid.Entity;
-                    Debug.Assert(m_nearbyEntities.Contains(entity), "Removing entity which was not added");
-                    m_nearbyEntities.Remove(entity);
                 }
             }
+            entities.Clear();
         }
 
         internal void GenerateAllShapes()

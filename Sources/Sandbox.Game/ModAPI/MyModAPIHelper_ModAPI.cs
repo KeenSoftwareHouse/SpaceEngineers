@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI
 { 
@@ -36,6 +37,8 @@ namespace Sandbox.ModAPI
                 public ushort ModID;
                 [ProtoBuf.ProtoMember]
                 public byte[] Message;
+                [ProtoBuf.ProtoMember]
+                public ulong SendToId;
             }
             [ProtoBuf.ProtoContract]
             [MessageIdAttribute(16296, P2PMessageEnum.Unreliable)]
@@ -45,35 +48,60 @@ namespace Sandbox.ModAPI
                 public ushort ModID;
                 [ProtoBuf.ProtoMember]
                 public byte[] Message;
+                [ProtoBuf.ProtoMember]
+                public ulong SendToId;
             }
 
             static Dictionary<ushort, List<Action<byte[]>>> m_registeredListeners = new Dictionary<ushort, List<Action<byte[]>>>();
 
             static MyMultiplayerSyncObject()
             {
-                MySyncLayer.RegisterMessage<CustomModMsg>(ModMessageRecieved, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<CustomModMsgUnreliable>(ModMessageRecievedUnreliable, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+                MySyncLayer.RegisterMessage<CustomModMsg>(ModMessageRecieved, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+                MySyncLayer.RegisterMessage<CustomModMsgUnreliable>(ModMessageRecievedUnreliable, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             }
 
             static void ModMessageRecieved(ref CustomModMsg msg, MyNetworkClient sender)
             {
-                List<Action<byte[]>> actionsList = null;
-                if (m_registeredListeners.TryGetValue(msg.ModID, out actionsList) && actionsList != null)
+                if (Sync.IsServer && msg.SendToId != Sync.MyId && msg.SendToId != 0)
                 {
-                    foreach (var action in actionsList)
+                    Sync.Layer.SendMessage(ref msg, msg.SendToId,MyTransportMessageEnum.Success);
+                }
+                else
+                {
+                    List<Action<byte[]>> actionsList = null;
+                    if (m_registeredListeners.TryGetValue(msg.ModID, out actionsList) && actionsList != null)
                     {
-                        action(msg.Message);
+                        foreach (var action in actionsList)
+                        {
+                            action(msg.Message);
+                        }
+                    }
+
+                    if(Sync.IsServer && msg.SendToId == 0)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
                     }
                 }
             }
             static void ModMessageRecievedUnreliable(ref CustomModMsgUnreliable msg, MyNetworkClient sender)
             {
-                List<Action<byte[]>> actionsList = null;
-                if (m_registeredListeners.TryGetValue(msg.ModID, out actionsList) && actionsList != null)
+                if (Sync.IsServer && msg.SendToId != Sync.MyId && msg.SendToId != 0)
                 {
-                    foreach (var action in actionsList)
+                    Sync.Layer.SendMessage(ref msg, msg.SendToId, MyTransportMessageEnum.Success);
+                }
+                else
+                {
+                    List<Action<byte[]>> actionsList = null;
+                    if (m_registeredListeners.TryGetValue(msg.ModID, out actionsList) && actionsList != null)
                     {
-                        action(msg.Message);
+                        foreach (var action in actionsList)
+                        {
+                            action(msg.Message);
+                        }
+                    }
+                    if (Sync.IsServer && msg.SendToId == 0)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
                     }
                 }
             }
@@ -85,14 +113,16 @@ namespace Sandbox.ModAPI
                     CustomModMsg msg = new CustomModMsg();
                     msg.ModID = id;
                     msg.Message = message;
-                    Sync.Layer.SendMessage(ref msg, recipient, MyTransportMessageEnum.Success);
+                    msg.SendToId = recipient;
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
                 else
                 {
                     CustomModMsgUnreliable msg = new CustomModMsgUnreliable();
                     msg.ModID = id;
                     msg.Message = message;
-                    Sync.Layer.SendMessage(ref msg, recipient, MyTransportMessageEnum.Success);
+                    msg.SendToId = recipient;
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
             }
 
@@ -103,14 +133,16 @@ namespace Sandbox.ModAPI
                     CustomModMsg msg = new CustomModMsg();
                     msg.ModID = id;
                     msg.Message = message;
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                    msg.SendToId = 0;
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
                 else
                 {
                     CustomModMsgUnreliable msg = new CustomModMsgUnreliable();
                     msg.ModID = id;
                     msg.Message = message;
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                    msg.SendToId = 0;
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
             }
 
@@ -121,6 +153,7 @@ namespace Sandbox.ModAPI
                     CustomModMsg msg = new CustomModMsg();
                     msg.ModID = id;
                     msg.Message = message;
+                    msg.SendToId = Sync.ServerId;
                     Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
                 else
@@ -128,6 +161,7 @@ namespace Sandbox.ModAPI
                     CustomModMsgUnreliable msg = new CustomModMsgUnreliable();
                     msg.ModID = id;
                     msg.Message = message;
+                    msg.SendToId = Sync.ServerId;
                     Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
                 }
             }
@@ -207,9 +241,9 @@ namespace Sandbox.ModAPI
                 return false;
             }
 
-            public void SendEntitiesCreated(List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase> objectBuilders)
+            public void SendEntitiesCreated(List<MyObjectBuilder_EntityBase> objectBuilders)
             {
-                MySyncCreate.SendEntitiesCreated(objectBuilders);
+               // MySyncCreate.SendEntitiesCreated(objectBuilders);
             }
 
             public bool SendMessageToServer(ushort id, byte[] message, bool reliable)
@@ -241,7 +275,20 @@ namespace Sandbox.ModAPI
                 SyncObject.SendMessageTo(id, message, recipient, reliable);
                 return true;
             }
-       
+
+            public void JoinServer(string address)
+            {
+                if (MySandboxGame.IsDedicated && IsServer)
+                    return;
+
+                System.Net.IPEndPoint endpoint;
+                if (System.Net.IPAddressExtensions.TryParseEndpoint(address, out endpoint))
+                {
+                    Sandbox.Game.Gui.MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                    MySandboxGame.Services.SteamService.SteamAPI.PingServer(System.Net.IPAddressExtensions.ToIPv4NetworkOrder(endpoint.Address), (ushort)endpoint.Port);
+                }
+            }
+
             public void RegisterMessageHandler(ushort id, Action<byte[]> messageHandler)
             {
                 SyncObject.RegisterMessageHandler(id, messageHandler);

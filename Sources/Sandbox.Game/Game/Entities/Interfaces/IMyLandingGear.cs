@@ -16,14 +16,12 @@ namespace Sandbox.Game.Entities.Interfaces
 
     interface IMyLandingGear
     {
+        bool AutoLock { get; }
         LandingGearMode LockMode { get; }
 
         event LockModeChangedHandler LockModeChanged;
 
         void RequestLock(bool enable);
-
-        bool AutoLock { get; }
-
         void ResetAutolock();
     }
 }

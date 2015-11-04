@@ -19,6 +19,8 @@ using VRage.Serialization;
 using VRageMath;
 using Sandbox.Game.World.Generator;
 using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -48,6 +50,14 @@ namespace Sandbox.Game.World.Generator
 
         public static bool RemoveEncounter(BoundingBoxD boundingVolume, int seed)
         {
+            boundingVolume.Max.X = Math.Round(boundingVolume.Max.X, 2);
+            boundingVolume.Max.Y = Math.Round(boundingVolume.Max.Y, 2);
+            boundingVolume.Max.Z = Math.Round(boundingVolume.Max.Z, 2);
+
+            boundingVolume.Min.X = Math.Round(boundingVolume.Min.X, 2);
+            boundingVolume.Min.Y = Math.Round(boundingVolume.Min.Y, 2);
+            boundingVolume.Min.Z = Math.Round(boundingVolume.Min.Z, 2);
+
             bool wasFound = false;
             for (int i = 0; i < 2; ++i)
             {
@@ -78,12 +88,20 @@ namespace Sandbox.Game.World.Generator
             return wasFound;
         }
 
-        public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyAsteroidCellGenerator.MyObjectSeedType seedType)
+        public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyObjectSeedType seedType)
         {
             if (MySession.Static.Settings.EnableEncounters == false)
             {
                 return false;
             }
+
+            boundingVolume.Max.X = Math.Round(boundingVolume.Max.X, 2);
+            boundingVolume.Max.Y = Math.Round(boundingVolume.Max.Y, 2);
+            boundingVolume.Max.Z = Math.Round(boundingVolume.Max.Z, 2);
+
+            boundingVolume.Min.X = Math.Round(boundingVolume.Min.X, 2);
+            boundingVolume.Min.Y = Math.Round(boundingVolume.Min.Y, 2);
+            boundingVolume.Min.Z = Math.Round(boundingVolume.Min.Z, 2);
 
             Vector3D placePosition = boundingVolume.Center;
             m_random.SetSeed(seed);
@@ -110,8 +128,8 @@ namespace Sandbox.Game.World.Generator
                 m_randomEncounters.Clear();
                 m_placePositions.Clear();
                 m_encountersId.Clear();
-                int numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
-                List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
+                int numEncoutersToPlace = seedType == MyObjectSeedType.EncounterMulti ? 2 : 1;
+                List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
 
                 for (int i = 0; i < numEncoutersToPlace; ++i)
                 {
@@ -121,7 +139,7 @@ namespace Sandbox.Game.World.Generator
                         continue;
                     }
                     m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
-                    Vector3D newPosition = placePosition + (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
+                    Vector3D newPosition = placePosition + (numEncoutersToPlace - 1) * (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
                     Vector3D savedPosition = Vector3D.Zero;
                     if (true == m_movedOnlyEncounters.Dictionary.TryGetValue(encounterPosition, out savedPosition))
                     {
@@ -155,7 +173,7 @@ namespace Sandbox.Game.World.Generator
                 {
                     for (int i = 0; i < m_randomEncounters.Count; ++i)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        SpawnEncounter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
                     }
                 }
             }
@@ -175,22 +193,26 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
+        private static void SpawnEncounter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
         {
-            foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
+            var spawnGroup = candidates[selectedEncounter];
+
+            long ownerId = 0; // 0 means that the owner won't be changed
+            if (spawnGroup.IsPirate)
+                ownerId = MyPirateAntennas.GetPiratesId();
+
+            foreach (var selectedPrefab in spawnGroup.Prefabs)
             {
                 m_createdGrids.Clear();
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
 
-                var spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                var spawningOptions = spawnGroup.ReactorsOn ? Sandbox.ModAPI.SpawningOptions.None : Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
                 if (selectedPrefab.Speed > 0.0f)
                 {
                     spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
                                      Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      Sandbox.ModAPI.SpawningOptions.DisableDampeners;
-
-
 
                     float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
                     direction = -Vector3D.Normalize(placePosition);
@@ -206,26 +228,18 @@ namespace Sandbox.Game.World.Generator
                 }
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 
-                var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(selectedPrefab.SubtypeId);
-                Vector3D prefabPosDeltaValue = Vector3D.Zero;
-                if (prefabDefinition.CubeGrids.Length > 0)
-                {
-                    if (prefabDefinition.CubeGrids[0].PositionAndOrientation.HasValue)
-                    {
-                        prefabPosDeltaValue = prefabDefinition.CubeGrids[0].PositionAndOrientation.Value.Position;
-                    }
-                }
-                prefabPosDeltaValue -= prefabDefinition.BoundingSphere.Center;
+                if (selectedPrefab.PlaceToGridOrigin) spawningOptions |= SpawningOptions.UseGridOrigin;
 
                 MyPrefabManager.Static.SpawnPrefab(
                    resultList: m_createdGrids,
                    prefabName: selectedPrefab.SubtypeId,
-                   position: placePosition + selectedPrefab.Position - prefabPosDeltaValue,
+                   position: placePosition + selectedPrefab.Position,
                    forward: direction,
                    up:upVector,
                    beaconName: selectedPrefab.BeaconText,
                    initialLinearVelocity: direction * selectedPrefab.Speed,
-                   spawningOptions: spawningOptions,
+                   spawningOptions: spawningOptions | SpawningOptions.UseGridOrigin,
+                   ownerId: ownerId,
                    updateSync: true);
 
                 ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);
@@ -271,10 +285,10 @@ namespace Sandbox.Game.World.Generator
 
         private static void OnCreatedEntityPositionChanged(MyPositionComponentBase obj)
         {
-            if (obj.Entity.Save == false)
+            if (obj.Container.Entity.Save == false)
             {
                 MyEncounterId id;
-                if (m_entityToEncounterConversion.TryGetValue(obj.Entity, out id))
+                if (m_entityToEncounterConversion.TryGetValue(obj.Container.Entity, out id))
                 {
                     Vector3D newPosition = obj.GetPosition();
                     if (Vector3D.Distance(id.PlacePosition, newPosition) > m_minDistanceToRecognizeMovement)
@@ -322,7 +336,24 @@ namespace Sandbox.Game.World.Generator
         {
             if (encountersObjectBuilder != null)
             {
-                m_savedEncounters = encountersObjectBuilder.SavedEcounters ?? m_savedEncounters;
+                if (encountersObjectBuilder.SavedEcounters != null)
+                {
+                    foreach (var savedEncounter in encountersObjectBuilder.SavedEcounters)
+                    {
+                        MyEncounterId id = savedEncounter;
+
+                        id.BoundingBox.Max.X = Math.Round(savedEncounter.BoundingBox.Max.X, 2);
+                        id.BoundingBox.Max.Y = Math.Round(savedEncounter.BoundingBox.Max.Y, 2);
+                        id.BoundingBox.Max.Z = Math.Round(savedEncounter.BoundingBox.Max.Z, 2);
+
+                        id.BoundingBox.Min.X = Math.Round(savedEncounter.BoundingBox.Min.X, 2);
+                        id.BoundingBox.Min.Y = Math.Round(savedEncounter.BoundingBox.Min.Y, 2);
+                        id.BoundingBox.Min.Z = Math.Round(savedEncounter.BoundingBox.Min.Z, 2);
+
+                        m_savedEncounters.Add(id);
+                    }
+                }
+
                 m_movedOnlyEncounters = encountersObjectBuilder.MovedOnlyEncounters ?? m_movedOnlyEncounters;
             }
         }

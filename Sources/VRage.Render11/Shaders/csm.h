@@ -1,29 +1,34 @@
+#ifndef CSM_CONSTANTS__
+#define CSM_CONSTANTS__
+
 #include <common.h>
 
 SamplerComparisonState	ShadowmapSampler	: register( MERGE(s,SHADOW_SAMPLER_SLOT) );
 
-const static int CASCADES_NUM = 4;
-const static int MAX_CASCADES = 7;
-
-Texture2DArray<float> CSM : register( MERGE(t,CASCADES_SM_SLOT) );
-
+#ifdef CASCADES_NUM
 struct CsmConstants {
 	matrix 	cascade_matrix[8];
 	float4 	split_dist[2];
 	float4 	cascade_scale[4]; 
 };
 
-cbuffer CSM : register ( b2 )
+cbuffer CSM : register ( b4 )
 {
 	CsmConstants csm_;	
 }
+#endif
+
+#ifndef CUSTOM_CASCADE_SLOT
+Texture2DArray<float> CSM : register( MERGE(t,CASCADES_SM_SLOT) );
+#endif
 
 static const float cascade_size = 1024.f;
 static const float zbias = 0;//0.0015f;
 
 static const float F_INF = pow(2, 50);
 
-float cascade_index_by_split(float linear_depth)
+#ifdef CASCADES_NUM
+float cascade_index_by_split(float linear_depth)	// TODO: CASCADES_NUM != 4
 {
 	float4 near = float4(csm_.split_dist[0]);
 	float4 far = float4(csm_.split_dist[0].yzw, csm_.split_dist[1].x);
@@ -37,6 +42,7 @@ float cascade_index_by_split(float linear_depth)
 
 	return index;
 }
+#endif
 
 uint cascade_id_stencil(uint stencil)
 {
@@ -68,6 +74,11 @@ static const float2 Poisson_samples[] = {
 	float2( -0.134360, 0.982611),
 };
 
+static const float cascade_zbias_facing[] = {
+	0.0f, 0.0035f, 0.002f, 0.001f
+};
+
+#ifdef CASCADES_NUM
 float calculate_shadow(float3 world_pos, uint stencil)
 {
 	uint c_id = cascade_id_stencil(stencil);
@@ -114,7 +125,15 @@ float calculate_shadow_fast(float3 world_pos, uint stencil)
 	uint c_id = cascade_id_stencil(stencil);
 	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[c_id]);
 	lpos.z -= zbias;
-	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(lpos.xy != saturate(lpos.xy));
+}
+
+float calculate_shadow_facing(float3 world_pos, uint stencil)
+{
+	uint c_id = cascade_id_stencil(stencil);
+	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[c_id]);
+	lpos.z -= cascade_zbias_facing[c_id];
+	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(lpos.xy != saturate(lpos.xy));
 }
 
 float calculate_shadow_fast_particle(float3 world_pos, float depth)
@@ -124,3 +143,13 @@ float calculate_shadow_fast_particle(float3 world_pos, float depth)
 	lpos.z -= zbias;
 	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
 }
+
+float calculate_shadow_fast_aprox(float3 world_pos)
+{
+	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[0]);
+	lpos.z -= zbias;
+	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, 0), lpos.z);	
+}
+#endif
+
+#endif

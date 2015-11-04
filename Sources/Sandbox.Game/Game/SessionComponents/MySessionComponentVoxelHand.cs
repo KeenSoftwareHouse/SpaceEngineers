@@ -253,8 +253,16 @@ namespace Sandbox.Game.SessionComponents
             var shape = CurrentShape as MyBrushAutoLevel;
             if (shape != null)
             {
-                if      (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED)) shape.FixAxis();
-                else if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED)) shape.UnFix();
+                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED) ||
+                    MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED))
+                {
+                    shape.FixAxis();
+                }
+                else if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED) ||
+                    MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED))
+                {
+                    shape.UnFix();
+                }
             }
 
             if      (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.PRESSED)) CurrentShape.Fill(m_currentVoxelMap, m_selectedMaterial);
@@ -324,7 +332,7 @@ namespace Sandbox.Game.SessionComponents
                 bool found = false;
                 foreach (var hit in hitList)
                 {
-                    var entity = hit.HkHitInfo.Body.GetEntity();
+                    var entity = hit.HkHitInfo.GetHitEntity();
                     if (entity == this.m_currentVoxelMap)
                     {
                         Vector3D pos = hit.Position;
@@ -379,7 +387,7 @@ namespace Sandbox.Game.SessionComponents
 
                     foreach (var entity in m_foundElements)
                     {
-                        if (MySyncVoxel.IsForbiddenEntity(entity))
+                        if (MyVoxelBase.IsForbiddenEntity(entity))
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;
@@ -1390,7 +1398,10 @@ namespace Sandbox.Game.SessionComponents
         }
 
         public void Paint(MyVoxelBase map, byte matId) { }
-        public void CutOut(MyVoxelBase map) { }
+        public void CutOut(MyVoxelBase map) 
+        {
+            MyVoxelGenerator.RequestCutOutShape(map, m_shape);
+        }
 
         public void SetPosition(ref Vector3D targetPosition)
         {

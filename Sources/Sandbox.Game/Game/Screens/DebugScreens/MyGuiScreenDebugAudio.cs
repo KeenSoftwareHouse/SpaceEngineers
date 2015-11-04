@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Audio;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Graphics.GUI;
 using System;
@@ -10,11 +9,11 @@ using System.Text;
 using VRage.Audio;
 using VRage.Utils;
 using VRage.Data.Audio;
-using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Entities;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {
@@ -133,7 +132,7 @@ namespace Sandbox.Game.Gui
                 Controls.Remove(box);
             }
             m_cues.Clear();
-            var eff = MyStringId.TryGet(m_effects.GetSelectedValue().ToString());
+            var eff = MyStringHash.TryGet(m_effects.GetSelectedValue().ToString());
             MyAudioEffectDefinition def;
             if(MyDefinitionManager.Static.TryGetDefinition<MyAudioEffectDefinition>(new MyDefinitionId(typeof(MyObjectBuilder_AudioEffectDefinition), eff), out def))
             {
@@ -178,7 +177,7 @@ namespace Sandbox.Game.Gui
         void cuesCombo_OnSelect()
         {
             m_currentCueSelectedItem = (int)m_cuesCombo.GetSelectedKey();
-            var cue = MyStringId.TryGet(m_cuesCombo.GetSelectedValue().ToString());
+            var cue = new MyCueId(MyStringHash.TryGet(m_cuesCombo.GetSelectedValue().ToString()));
             m_currentCue = MyAudio.Static.GetCue(cue);
            
             UpdateCueValues();
@@ -268,19 +267,19 @@ namespace Sandbox.Game.Gui
             m_canUpdateValues = true;
         }
 
-        List<MyStringId> m_cueCache = new List<MyStringId>();
+        List<MyCueId> m_cueCache = new List<MyCueId>();
         void OnPlaySelected(MyGuiControlButton button)
         {
             if ((m_sound != null) && (m_sound.IsPlaying))
                 m_sound.Stop(true);
-            var cue = MyStringId.TryGet(m_cuesCombo.GetSelectedValue().ToString());
-            m_sound = MyAudio.Static.PlayTestSound(cue);
-            var effect = MyStringId.TryGet(m_effects.GetSelectedValue().ToString());
-            if(effect != MyStringId.NullOrEmpty)
+            var cue = new MyCueId(MyStringHash.TryGet(m_cuesCombo.GetSelectedValue().ToString()));
+            m_sound = MyAudio.Static.PlaySound(cue);
+            var effect = MyStringHash.TryGet(m_effects.GetSelectedValue().ToString());
+            if(effect != MyStringHash.NullOrEmpty)
             {
                 foreach(var box in m_cues)
                 {
-                    var effCue = MyStringId.TryGet(box.GetSelectedValue().ToString());
+                    var effCue = new MyCueId(MyStringHash.TryGet(box.GetSelectedValue().ToString()));
                     m_cueCache.Add(effCue);
                 }
                 var eff = MyAudio.Static.ApplyEffect(m_sound, effect, m_cueCache.ToArray());

@@ -15,7 +15,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRageMath;
+using Sandbox.Game.EntityComponents;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -26,6 +31,13 @@ namespace Sandbox.Game.Entities.Cube
 
         private static List<HkdShapeInstanceInfo> m_children = new List<HkdShapeInstanceInfo>();
         private static List<HkdShapeInstanceInfo> m_shapeInfos = new List<HkdShapeInstanceInfo>();
+
+        public class MultiBlockPartInfo
+        {
+            public MyDefinitionId MultiBlockDefinition;
+            public int MultiBlockId;
+        }
+
         public struct Info
         {
             public HkdBreakableShape Shape;
@@ -33,11 +45,16 @@ namespace Sandbox.Game.Entities.Cube
             public bool Compound;
             public List<MyDefinitionId> OriginalBlocks;// = new List<MyDefinitionId>();
             public List<MyBlockOrientation> Orientations;// = new List<MyDefinitionId>();
+            // Info about blocks in multiblock (list can be null or value can be null).
+            public List<MultiBlockPartInfo> MultiBlocks;
         }
 
         public HkdBreakableShape Shape;
         public List<MyDefinitionId> OriginalBlocks;// = new List<MyDefinitionId>();
         public List<MyBlockOrientation> Orientations;
+        public List<MultiBlockPartInfo> MultiBlocks;
+
+
         public MyFracturedBlock()
             : base()
         {
@@ -54,6 +71,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
+            Debug.Assert(!MyFakes.ENABLE_FRACTURE_COMPONENT, "Fractured block saved with fracture components enabled");
+
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_FracturedBlock;
             if (string.IsNullOrEmpty(Shape.Name) || Shape.IsCompound())
             {
@@ -74,10 +93,23 @@ namespace Sandbox.Game.Entities.Cube
             {
                 ob.Shapes.Add(new MyObjectBuilder_FracturedBlock.ShapeB() { Name = Shape.Name });
             }
+
             foreach (var def in OriginalBlocks)
                 ob.BlockDefinitions.Add(def);
             foreach (var or in Orientations)
                 ob.BlockOrientations.Add(or);
+
+            if (MultiBlocks != null) 
+            {
+                foreach (var mbpart in MultiBlocks)
+                {
+                    if (mbpart != null)
+                        ob.MultiBlocks.Add(new MyObjectBuilder_FracturedBlock.MyMultiBlockPart() { MultiBlockDefinition = mbpart.MultiBlockDefinition, MultiBlockId = mbpart.MultiBlockId });
+                    else
+                        ob.MultiBlocks.Add(null);
+                }
+            }
+
             return ob;
         }
 
@@ -92,7 +124,10 @@ namespace Sandbox.Game.Entities.Cube
             if (ob.Shapes.Count == 0)
             {
                 ProfilerShort.End();
-                return;
+                if(ob.CreatingFracturedBlock)
+                    return;
+                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed.");
+                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed.");
             }
             
             OriginalBlocks = new List<MyDefinitionId>();
@@ -101,21 +136,51 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var def in ob.BlockDefinitions)
             {
                 var blockDef = MyDefinitionManager.Static.GetCubeBlockDefinition(def);
-                if (MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes == null)
-                {
-                    MyDestructionData.Static.LoadModelDestruction(blockDef, false, Vector3.One);
-                }
-                var shape = MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes[0];
+
+                var model = blockDef.Model;
+                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                    MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 lst.Add(si);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
+                if(blockDef.BuildProgressModels != null)
+                {
+                    foreach(var progress in blockDef.BuildProgressModels)
+                    {
+                        model = progress.File;
+                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        si = new HkdShapeInstanceInfo(shape, null, null);
+                        lst.Add(si);
+                        m_children.Add(si);
+                        shape.GetChildren(m_children);
+                    }
+                }
+
+
                 OriginalBlocks.Add(def);
             }
+
             foreach (var or in ob.BlockOrientations)
             {
                 Orientations.Add(or);
             }
+
+            if (ob.MultiBlocks.Count > 0)
+            {
+                MultiBlocks = new List<MultiBlockPartInfo>();
+                foreach (var mbpart in ob.MultiBlocks)
+                {
+                    if (mbpart != null)
+                        MultiBlocks.Add(new MultiBlockPartInfo() { MultiBlockDefinition = mbpart.MultiBlockDefinition, MultiBlockId = mbpart.MultiBlockId });
+                    else
+                        MultiBlocks.Add(null);
+                }
+            }
+
             m_shapes.AddRange(ob.Shapes);
             for (int i = 0; i < m_children.Count; i++)
             {
@@ -251,10 +316,10 @@ namespace Sandbox.Game.Entities.Cube
                 foreach (var child in m_children)
                 {
                     var shape = child.Shape;
-                    shape = AddMountForShape(shape, child.GetTransform(), ref blockBB);
+                    shape = MyFractureComponentCubeBlock.AddMountForShape(shape, child.GetTransform(), ref blockBB, CubeGrid.GridSize, MountPoints);
                 }
                 if (m_children.Count == 0)
-                    AddMountForShape(Shape, Matrix.Identity, ref blockBB);
+                    MyFractureComponentCubeBlock.AddMountForShape(Shape, Matrix.Identity, ref blockBB, CubeGrid.GridSize, MountPoints);
                 m_children.Clear();
             }
             else
@@ -262,64 +327,6 @@ namespace Sandbox.Game.Entities.Cube
                 MountPoints = MyCubeBuilder.AutogenerateMountpoints(new HkShape[] { Shape.GetShape() }, CubeGrid.GridSize);
             }
             ProfilerShort.End();
-        }
-
-        private HkdBreakableShape AddMountForShape(HkdBreakableShape shape, Matrix transform, ref BoundingBox blockBB)
-        {
-            Vector4 min;
-            Vector4 max;
-            shape.GetShape().GetLocalAABB(0.01f, out min, out max);//.Transform(CubeGrid.PositionComp.WorldMatrix);
-            var bb = new BoundingBox(new Vector3(min), new Vector3(max));
-            bb = bb.Transform(transform);
-            bb.Min /= CubeGrid.GridSize; //normalize for mount point
-            bb.Max /= CubeGrid.GridSize;
-            
-            bb.Inflate(0.04f);//add tolerance (fracture shapes are smaller than block)
-            bb.Min += blockBB.HalfExtents;
-            bb.Max += blockBB.HalfExtents;
-            
-            if (blockBB.Contains(bb) == ContainmentType.Intersects)
-            {
-                bb.Inflate(-0.04f);
-                foreach (var directionEnum in Base6Directions.EnumDirections)
-                {
-                    int dirEnum = (int)directionEnum;
-                    Vector3 direction = Base6Directions.Directions[dirEnum];
-                    Vector3 absDir = Vector3.Abs(direction);
-                    var mp = new MyCubeBlockDefinition.MountPoint();
-                    mp.Start = bb.Min;
-                    mp.End = bb.Max;
-                    var start = mp.Start * absDir / (blockBB.HalfExtents * 2) - absDir * 0.04f;
-                    var end = mp.End * absDir / (blockBB.HalfExtents * 2) + absDir * 0.04f;
-                    bool add = false;
-                    bool one = false;
-                    if (start.Max() < 1 && end.Max() > 1 && direction.Max() > 0)
-                    {
-                        add = true;
-                        one = true;
-                    }
-                    else if (start.Min() < 0 && end.Max() > 0 && direction.Min() < 0)
-                    {
-                        add = true;
-                    }
-                    if (!add)
-                    {
-                        continue;
-                    }
-                    mp.Start -= mp.Start * absDir - absDir * 0.04f;
-                    mp.End -= mp.End * absDir + absDir * 0.04f;
-                    if (one)
-                    {
-                        mp.Start += absDir * blockBB.HalfExtents * 2;
-                        mp.End += absDir * blockBB.HalfExtents * 2;
-                    }
-                    mp.Start -= blockBB.HalfExtents - Vector3.One / 2;
-                    mp.End -= blockBB.HalfExtents - Vector3.One / 2;
-                    mp.Normal = new Vector3I(direction);
-                    MountPoints.Add(mp);
-                }
-            }
-            return shape;
         }
 
         protected override void Closing()
@@ -347,20 +354,150 @@ namespace Sandbox.Game.Entities.Cube
                 m_mpCache.AddRange((other.FatBlock as MyFracturedBlock).MountPoints);
             else
             {
-                if(other != null && other.FatBlock is MyCompoundCubeBlock)
-                {
-                    var lst = new List<MyCubeBlockDefinition.MountPoint>();
-                    foreach(var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
-                    {
-                        MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, ref b.Orientation);
-                        m_mpCache.AddRange(lst);
-                    }
-                }
-                else
-                    MyCubeGrid.TransformMountPoints(m_mpCache, def, ref or);
+				if (other != null && other.FatBlock is MyCompoundCubeBlock)
+				{
+					var lst = new List<MyCubeBlockDefinition.MountPoint>();
+					foreach (var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
+					{
+						var mountPoints = b.BlockDefinition.GetBuildProgressModelMountPoints(b.BuildLevelRatio);
+						MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, mountPoints, ref b.Orientation);
+						m_mpCache.AddRange(lst);
+					}
+				}
+				else if(other != null)
+				{
+					var mountPoints = def.GetBuildProgressModelMountPoints(other.BuildLevelRatio);
+					MyCubeGrid.TransformMountPoints(m_mpCache, def, mountPoints, ref or);
+				}
             }
             return MyCubeGrid.CheckMountPointsForSide(MountPoints, ref SlimBlock.Orientation, ref position, BlockDefinition.Id, ref faceNormal, m_mpCache,
                 ref or, ref otherPos, def.Id);
+        }
+
+        /// <summary>
+        /// Returns true if the fractured block is part of the given multiblock, otherwise false.
+        /// </summary>
+        public bool IsMultiBlockPart(MyDefinitionId multiBlockDefinition, int multiblockId)
+        {
+            if (MultiBlocks == null)
+                return false;
+
+            foreach (var mbpart in MultiBlocks)
+            {
+                if (mbpart != null && mbpart.MultiBlockDefinition == multiBlockDefinition && mbpart.MultiBlockId == multiblockId)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public MyObjectBuilder_CubeBlock ConvertToOriginalBlocksWithFractureComponent()
+        {
+            List<MyObjectBuilder_CubeBlock> blockBuilders = new List<MyObjectBuilder_CubeBlock>();
+            Quaternion q;
+            for (int i = 0; i < OriginalBlocks.Count; ++i)
+            {
+                var defId = OriginalBlocks[i];
+                MyCubeBlockDefinition def;
+                MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out def);
+                if (def == null)
+                {
+                    Debug.Fail("Cube block definition not found");
+                    continue;
+                }
+                var orientation = Orientations[i];
+                MultiBlockPartInfo multiBlockInfo = MultiBlocks != null && MultiBlocks.Count > i ? MultiBlocks[i] : null;
+
+                MyObjectBuilder_CubeBlock blockBuilder = MyObjectBuilderSerializer.CreateNewObject(defId) as MyObjectBuilder_CubeBlock;
+                orientation.GetQuaternion(out q);
+                blockBuilder.Orientation = q;
+                blockBuilder.Min = Position;
+                blockBuilder.MultiBlockId = multiBlockInfo != null ? multiBlockInfo.MultiBlockId : 0;
+                blockBuilder.MultiBlockDefinition = null;
+                if (multiBlockInfo != null)
+                    blockBuilder.MultiBlockDefinition = multiBlockInfo.MultiBlockDefinition;
+                blockBuilder.ComponentContainer = new MyObjectBuilder_ComponentContainer();
+
+                var fractureBuilder = new MyObjectBuilder_FractureComponentCubeBlock();
+                HashSet<string> shapeNames = new HashSet<string>();
+                GetAllBlockBreakableShapeNames(def, shapeNames);
+                ConvertAllShapesToFractureComponentShapeBuilder(Shape, ref Matrix.Identity, orientation, shapeNames, fractureBuilder);
+                // Count of shapes can be 0!
+                if (fractureBuilder.Shapes.Count == 0)
+                    continue;
+
+                var componentData = new MyObjectBuilder_ComponentContainer.ComponentData();
+                componentData.TypeId = typeof(MyFractureComponentBase).Name;
+                componentData.Component = fractureBuilder;
+                blockBuilder.ComponentContainer.Components.Add(componentData);
+
+                if (i == 0 && CubeGrid.GridSizeEnum == MyCubeSize.Small)
+                    return blockBuilder;
+
+                blockBuilders.Add(blockBuilder);
+            }
+
+            if (blockBuilders.Count > 0)
+            {
+                MyObjectBuilder_CompoundCubeBlock compoundBuilder = MyCompoundCubeBlock.CreateBuilder(blockBuilders);
+                return compoundBuilder;
+            }
+
+            return null;
+        }
+
+        private static void GetAllBlockBreakableShapeNames(MyCubeBlockDefinition blockDef, HashSet<string> outNames)
+        {
+            var model = blockDef.Model;
+            if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+
+            var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+            GetAllBlockBreakableShapeNames(shape, outNames);
+        }
+
+        private static void GetAllBlockBreakableShapeNames(HkdBreakableShape shape, HashSet<string> outNames)
+        {
+            var name = shape.Name;
+            if (!string.IsNullOrEmpty(name))
+                outNames.Add(name);
+
+            if (shape.GetChildrenCount() > 0)
+            {
+                List<HkdShapeInstanceInfo> children = new List<HkdShapeInstanceInfo>();
+                shape.GetChildren(children);
+                foreach (var child in children)
+                    GetAllBlockBreakableShapeNames(child.Shape, outNames);
+            }
+        }
+
+        private static void ConvertAllShapesToFractureComponentShapeBuilder(HkdBreakableShape shape, ref Matrix shapeRotation, MyBlockOrientation blockOrientation, HashSet<string> names, MyObjectBuilder_FractureComponentCubeBlock fractureComponentBuilder)
+        {
+            var name = shape.Name;
+            if (names.Contains(name))
+            {
+                MyBlockOrientation shapeOrientation = new MyBlockOrientation(ref shapeRotation);
+                if (shapeOrientation == blockOrientation)
+                {
+                    MyObjectBuilder_FractureComponentCubeBlock.FracturedShape builderShape = new MyObjectBuilder_FractureComponentBase.FracturedShape();
+                    builderShape.Name = name;
+                    builderShape.Fixed = MyDestructionHelper.IsFixed(shape);
+
+                    fractureComponentBuilder.Shapes.Add(builderShape);
+                }
+            }
+
+            if (shape.GetChildrenCount() > 0)
+            {
+                List<HkdShapeInstanceInfo> children = new List<HkdShapeInstanceInfo>();
+                shape.GetChildren(children);
+                foreach (var child in children) 
+                {
+                    var childShapeRotation = child.GetTransform();
+                    ConvertAllShapesToFractureComponentShapeBuilder(child.Shape, ref childShapeRotation, blockOrientation, names, fractureComponentBuilder);
+                }
+            }
+
         }
 
         class MyFBDebugRender : MyDebugRenderComponentBase

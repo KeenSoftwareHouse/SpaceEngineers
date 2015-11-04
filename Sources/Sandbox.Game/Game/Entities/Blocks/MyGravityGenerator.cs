@@ -1,31 +1,17 @@
 ﻿#region Using
 
-using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using Havok;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Multiplayer;
-
-using VRage.Trace;
 using VRageMath;
-using Sandbox.Game.World;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
-using System.Diagnostics;
 using System;
-using VRageRender;
-using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.Components;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
@@ -37,7 +23,7 @@ using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_GravityGenerator))]
-    class MyGravityGenerator : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGenerator
+    class MyGravityGenerator : MyGravityGeneratorBase, IMyGravityGenerator
     {
         private const int NUM_DECIMALS = 0;
         private new MyGravityGeneratorDefinition BlockDefinition
@@ -113,10 +99,10 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(fieldDepth);
 
             var gravityAcceleration = new MyTerminalControlSlider<MyGravityGenerator>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-            gravityAcceleration.SetLimits(-1, 1);
-            gravityAcceleration.DefaultValue = 1;
-            gravityAcceleration.Getter = (x) => x.GravityAcceleration / MyGravityProviderSystem.G;
-            gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v * MyGravityProviderSystem.G);
+            gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
+			gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
+            gravityAcceleration.Getter = (x) => x.GravityAcceleration;
+            gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v);
             gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();
             MyTerminalControlFactory.AddControl(gravityAcceleration);
@@ -130,22 +116,28 @@ namespace Sandbox.Game.Entities
             base.Init(objectBuilder, cubeGrid);
 
             SyncObject = new MySyncGravityGenerator(this);
-            
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
-                BlockDefinition.RequiredPowerInput,
-                this.CalculateRequiredPowerInput);
-            if (CubeGrid.CreatePhysics)
-            {
-                PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-                PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
-                PowerReceiver.Update();
-                AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
-            }
         }
 
-        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+	    protected override void InitializeSinkComponent()
+	    {
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+				BlockDefinition.ResourceSinkGroup,
+				BlockDefinition.RequiredPowerInput,
+				CalculateRequiredPowerInput);
+			ResourceSink = sinkComp;
+
+			if (CubeGrid.CreatePhysics)
+			{
+				ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+				ResourceSink.RequiredInputChanged += Receiver_RequiredInputChanged;
+				ResourceSink.Update();
+				AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
+			}
+
+	    }
+
+	    public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_GravityGenerator)base.GetObjectBuilderCubeBlock(copy);
 
@@ -171,10 +163,10 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
 

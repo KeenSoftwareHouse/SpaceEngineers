@@ -40,6 +40,14 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                   controlledObject.SwitchToWeapon(null);
                 }
+
+                if (MySessionComponentVoxelHand.Static.Enabled)
+                {
+                    // Some parts of the cubebuilder can be active (clipboards) without cube placer
+                    if (MyCubeBuilder.Static.IsActivated)
+                        MyCubeBuilder.Static.Deactivate();
+                }
+
                 return true;
             }
             return false;

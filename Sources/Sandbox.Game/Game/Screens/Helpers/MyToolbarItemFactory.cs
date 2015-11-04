@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -31,6 +31,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_objectFactory = new MyObjectFactory<MyToolbarItemDescriptor, MyToolbarItem>();
             m_objectFactory.RegisterFromAssembly(Assembly.GetAssembly(typeof(MyToolbarItem)));
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+            m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
         }
 
@@ -48,46 +49,52 @@ namespace Sandbox.Game.Screens.Helpers
         #region "auxiliary functions to create toolbar items"
         public static MyObjectBuilder_ToolbarItem ObjectBuilderFromDefinition(MyDefinitionBase defBase)
         {
-            if (defBase is MyPhysicalItemDefinition)
+            if (defBase is MyConsumableItemDefinition)
             {
-                MyObjectBuilder_ToolbarItemWeapon weaponData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+                MyObjectBuilder_ToolbarItemConsumable consumableData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemConsumable>();
+                consumableData.DefinitionId = defBase.Id;
+                return consumableData;
+            }
+            else if ((defBase is MyPhysicalItemDefinition) && (defBase.Id.TypeId == typeof(MyObjectBuilder_PhysicalGunObject)))
+            {
+                MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
                 weaponData.DefinitionId = defBase.Id;
                 return weaponData;
             }
             else if (defBase is MyCubeBlockDefinition)
             {
                 MyCubeBlockDefinition blockDef = defBase as MyCubeBlockDefinition;
-                MyObjectBuilder_ToolbarItemCubeBlock cubeData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemCubeBlock>();
+                MyObjectBuilder_ToolbarItemCubeBlock cubeData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemCubeBlock>();
                 cubeData.DefinitionId = defBase.Id;
                 return cubeData;
             }
             else if (defBase is MyAnimationDefinition)
             {
-                var animData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAnimation>();
+                var animData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAnimation>();
                 animData.DefinitionId = defBase.Id;
                 return animData;
             }
             else if (defBase is MyVoxelHandDefinition)
             {
-                var vhData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemVoxelHand>();
+                var vhData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemVoxelHand>();
                 vhData.DefinitionId = defBase.Id;
                 return vhData;
             }
             else if (defBase is MyPrefabThrowerDefinition)
             {
-                var ptData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemPrefabThrower>();
+                var ptData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemPrefabThrower>();
                 ptData.DefinitionId = defBase.Id;
                 return ptData;
             }
             else if (defBase is MyBotDefinition)
             {
-                var bdData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemBot>();
+                var bdData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemBot>();
                 bdData.DefinitionId = defBase.Id;
                 return bdData;
             }
             else if (defBase is MyAiCommandDefinition)
             {
-                var acData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAiCommand>();
+                var acData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAiCommand>();
                 acData.DefinitionId = defBase.Id;
                 return acData;
             }
@@ -97,6 +104,12 @@ namespace Sandbox.Game.Screens.Helpers
                 ob.DefinitionId = defBase.Id;
                 return ob;
             }
+			else if (defBase is MyAreaMarkerDefinition)
+			{
+				var acData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAreaMarker>();
+				acData.DefinitionId = defBase.Id;
+				return acData;
+			}
             return new MyObjectBuilder_ToolbarItemEmpty();
         }
 
@@ -125,7 +138,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public static MyObjectBuilder_ToolbarItemTerminalBlock TerminalBlockObjectBuilderFromBlock(MyTerminalBlock block)
         {
-            MyObjectBuilder_ToolbarItemTerminalBlock output = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalBlock>();
+            MyObjectBuilder_ToolbarItemTerminalBlock output = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalBlock>();
             output.BlockEntityId = block.EntityId;
             output.Action = null;
 
@@ -134,7 +147,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public static MyObjectBuilder_ToolbarItemTerminalGroup TerminalGroupObjectBuilderFromGroup(MyBlockGroup group)
         {
-            MyObjectBuilder_ToolbarItemTerminalGroup output = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalGroup>();
+            MyObjectBuilder_ToolbarItemTerminalGroup output = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalGroup>();
             output.GroupName = group.Name.ToString();
             output.Action = null;
             return output;

@@ -14,11 +14,17 @@
   <FogMultiplier>0.13</FogMultiplier>
   <FogBacklightMultiplier>1</FogBacklightMultiplier>
   <FogColor x="1" y="1" z="1" />
+  <FogDensity>0.0005</FogDensity>
   <SunDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
-  <SunIntensity>1.456</SunIntensity>
+  <SunIntensity>0.6</SunIntensity>
   <SunSpecular x="0.784313738" y="0.784313738" z="0.784313738" />
   <BackLightDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
-  <BackLightIntensity>0.239</BackLightIntensity>
+  <BackLightIntensity>1.01</BackLightIntensity>
+  <AdditionalSunDirection>
+    <LightDirection x="4.27" y ="1.11" />
+    <LightDirection x="5.8" y ="2.07" />
+    <LightDirection x="3.73" y ="2.02" />
+  </AdditionalSunDirection>
   <AmbientColor x="0.141176477" y="0.141176477" z="0.141176477" />
   <AmbientMultiplier>0.969</AmbientMultiplier>
   <EnvironmentAmbientIntensity>0.5</EnvironmentAmbientIntensity>
@@ -29,5 +35,25 @@
   <LargeShipMaxSpeed>100</LargeShipMaxSpeed>
   <SmallShipMaxAngularSpeed>360</SmallShipMaxAngularSpeed>
   <LargeShipMaxAngularSpeed>180</LargeShipMaxAngularSpeed>
+  <EnvironmentalParticles>
+    <ParticleType>
+      <Id>
+        <TypeId>MyObjectBuilder_EnvironmentalParticleLogicSpace</TypeId>
+        <SubtypeId>SpaceParticles</SubtypeId>
+      </Id>
+      <Material>Stardust</Material>
+      <Color>
+        <X>0.375</X>
+        <Y>0.375</Y>
+        <Z>0.375</Z>
+        <W>0.375</W>
+      </Color>
+      <MaxSpawnDistance>10</MaxSpawnDistance>
+      <DespawnDistance>15</DespawnDistance>
+      <Density>0.0000235</Density>
+      <MaxLifeTime>1500</MaxLifeTime>
+      <MaxParticles>128</MaxParticles>
+    </ParticleType>
+  </EnvironmentalParticles>
   </Environment>
 </Definitions>

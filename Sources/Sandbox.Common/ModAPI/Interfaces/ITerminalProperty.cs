@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Collections;
 using VRageMath;
 
 namespace Sandbox.ModAPI.Interfaces
@@ -53,6 +54,11 @@ namespace Sandbox.ModAPI.Interfaces
             return property.As<Color>();
         }
 
+        public static ITerminalProperty<bool> AsBool(this ITerminalProperty property)
+        {
+            return property.As<bool>();
+        }
+
         public static float GetValueFloat(this Ingame.IMyTerminalBlock block, string propertyId)
         {
             return block.GetValue<float>(propertyId);
@@ -61,6 +67,16 @@ namespace Sandbox.ModAPI.Interfaces
         public static void SetValueFloat(this Ingame.IMyTerminalBlock block, string propertyId, float value)
         {
             block.SetValue<float>(propertyId, value);
+        }
+
+        public static bool GetValueBool(this Ingame.IMyTerminalBlock block, string propertyId)
+        {
+            return block.GetValue<bool>(propertyId);
+        }
+
+        public static void SetValueBool(this Ingame.IMyTerminalBlock block, string propertyId, bool value)
+        {
+            block.SetValue<bool>(propertyId, value);
         }
 
         public static void SetValue<T>(this Ingame.IMyTerminalBlock block, string propertyId, T value)

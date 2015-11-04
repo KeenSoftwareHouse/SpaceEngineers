@@ -70,8 +70,8 @@ namespace VRageRender
         private const float INV_AMBIENT_MULTIPLIER = 1.0f / AMBIENT_MULTIPLIER;
 
         // Packed vertex format
-        public MyShort4 PackedPositionAndAmbient;
-        public MyShort4 PackedPositionAndMaterialMorph;
+        public MyShort4 PackedPositionAndAmbientMaterial;
+        public MyShort4 PackedPositionAndAmbientMaterialMorph;
         public Byte4 PackedNormal;
         public Byte4 PackedNormalMorph;
 
@@ -79,14 +79,14 @@ namespace VRageRender
         {
             get
             {
-                return new Vector3(PackedPositionAndAmbient.X, PackedPositionAndAmbient.Y, PackedPositionAndAmbient.Z) / (float)short.MaxValue;
+                return new Vector3(PackedPositionAndAmbientMaterial.X, PackedPositionAndAmbientMaterial.Y, PackedPositionAndAmbientMaterial.Z) / (float)short.MaxValue;
             }
             set
             {
                 Debug.Assert(value.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
-                PackedPositionAndAmbient.X = (short)(value.X * short.MaxValue);
-                PackedPositionAndAmbient.Y = (short)(value.Y * short.MaxValue);
-                PackedPositionAndAmbient.Z = (short)(value.Z * short.MaxValue);
+                PackedPositionAndAmbientMaterial.X = (short)(value.X * short.MaxValue);
+                PackedPositionAndAmbientMaterial.Y = (short)(value.Y * short.MaxValue);
+                PackedPositionAndAmbientMaterial.Z = (short)(value.Z * short.MaxValue);
             }
         }
 
@@ -94,15 +94,14 @@ namespace VRageRender
         {
             get
             {
-                return new Vector3(PackedPositionAndMaterialMorph.X, PackedPositionAndMaterialMorph.Y, PackedPositionAndMaterialMorph.Z) / (float)short.MaxValue;
+                return new Vector3(PackedPositionAndAmbientMaterialMorph.X, PackedPositionAndAmbientMaterialMorph.Y, PackedPositionAndAmbientMaterialMorph.Z) / (float)short.MaxValue;
             }
             set
             {
-                // mk:TODO Reenable this assert.
-                // Debug.Assert(value.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
-                PackedPositionAndMaterialMorph.X = (short)(value.X * short.MaxValue);
-                PackedPositionAndMaterialMorph.Y = (short)(value.Y * short.MaxValue);
-                PackedPositionAndMaterialMorph.Z = (short)(value.Z * short.MaxValue);
+            //    Debug.Assert(value.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
+                PackedPositionAndAmbientMaterialMorph.X = (short)(value.X * short.MaxValue);
+                PackedPositionAndAmbientMaterialMorph.Y = (short)(value.Y * short.MaxValue);
+                PackedPositionAndAmbientMaterialMorph.Z = (short)(value.Z * short.MaxValue);
             }
         }
 
@@ -110,22 +109,28 @@ namespace VRageRender
         /// For multimaterial vertex only
         /// 0, 1 or 2, indicates what material is on this vertex
         /// </summary>
-        public byte MaterialAlphaIndex
+        public byte Material
         {
-            get { return VF_Packer.UnpackAlpha(PackedPositionAndAmbient.W); }
-            set { PackedPositionAndAmbient.W = VF_Packer.PackAmbientAndAlpha(Ambient, value); }
+            get { return VF_Packer.UnpackAlpha(PackedPositionAndAmbientMaterial.W); }
+            set { PackedPositionAndAmbientMaterial.W = VF_Packer.PackAmbientAndAlpha(Ambient, value); }
         }
 
         public byte MaterialMorph
         {
-            get { return VF_Packer.UnpackAlpha(PackedPositionAndMaterialMorph.W); }
-            set { PackedPositionAndMaterialMorph.W = VF_Packer.PackAmbientAndAlpha(0f, value); }
+            get { return VF_Packer.UnpackAlpha(PackedPositionAndAmbientMaterialMorph.W); }
+            set { PackedPositionAndAmbientMaterialMorph.W = VF_Packer.PackAmbientAndAlpha(AmbientMorph, value); }
         }
 
         public float Ambient
         {
-            get { return VF_Packer.UnpackAmbient(PackedPositionAndAmbient.W); }
-            set { PackedPositionAndAmbient.W = VF_Packer.PackAmbientAndAlpha(value, MaterialAlphaIndex); }
+            get { return VF_Packer.UnpackAmbient(PackedPositionAndAmbientMaterial.W); }
+            set { PackedPositionAndAmbientMaterial.W = VF_Packer.PackAmbientAndAlpha(value, Material); }
+        }
+
+        public float AmbientMorph
+        {
+            get { return VF_Packer.UnpackAmbient(PackedPositionAndAmbientMaterialMorph.W); }
+            set { PackedPositionAndAmbientMaterialMorph.W = VF_Packer.PackAmbientAndAlpha(value, MaterialMorph); }
         }
 
         public Vector3 Normal
@@ -185,6 +190,7 @@ namespace VRageRender
         public HalfVector4 m_row1;
         public HalfVector4 m_row2;
         public HalfVector4 ColorMaskHSV;
+        public HalfVector2 UVOffset;
 
         public Matrix LocalMatrix
         {

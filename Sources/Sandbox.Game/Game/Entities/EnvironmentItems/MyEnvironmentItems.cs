@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Havok;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Physics;
@@ -26,6 +25,9 @@ using Sandbox.Game.Weapons;
 using Sandbox.Game.Components;
 using Medieval.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
+using VRage.ObjectBuilders;
+using VRage.Components;
+using VRage.ModAPI;
 
 #endregion
 
@@ -41,9 +43,10 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         {
             public int Id;
             public MyTransformD Transform;
-            public MyStringId SubtypeId;
+            public MyStringHash SubtypeId;
             public bool Enabled;
             public int SectorInstanceId;
+            public MyModel Model;
         }
 
         public class MyEnvironmentItemsSpawnData
@@ -52,9 +55,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             public MyEnvironmentItems EnvironmentItems;
 
             // Physics shapes for subtypes.
-            public Dictionary<MyStringId, HkShape> SubtypeToShapes = new Dictionary<MyStringId, HkShape>();
+            public Dictionary<MyStringHash, HkShape> SubtypeToShapes = new Dictionary<MyStringHash, HkShape>(MyStringHash.Comparer);
             // Root physics shapes per sector id.
-            public HkStaticCompoundShape SectorRootShape = new HkStaticCompoundShape(HkReferencePolicy.None);
+            public HkStaticCompoundShape SectorRootShape;
             // Bounding box of all environment items transformed to world space.
             public BoundingBoxD AabbWorld = BoundingBoxD.CreateInvalid();
         }
@@ -63,7 +66,24 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         {
             public int LocalId;
             public MyTransformD Transform;
-            public MyStringId SubtypeId;
+            public MyStringHash SubtypeId;
+        }
+
+        private struct AddItemData
+        {
+            public Vector3D Position;
+            public MyStringHash SubtypeId;
+        }
+
+        private struct ModifyItemData
+        {
+            public int LocalId;
+            public MyStringHash SubtypeId;
+        }
+
+        private struct RemoveItemData
+        {
+            public int LocalId;
         }
 
         private readonly MyInstanceFlagsEnum m_instanceFlags;
@@ -76,21 +96,44 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         // Map from key in items data to Havok's instance identifier.
         protected readonly Dictionary<int, int> m_localIdToPhysicsShapeInstanceId = new Dictionary<int, int>();
         // Map from environment item subtypes to their models
-        protected static readonly Dictionary<MyStringId, int> m_subtypeToModel = new Dictionary<MyStringId, int>();
+        protected static readonly Dictionary<MyStringHash, int> m_subtypeToModels = new Dictionary<MyStringHash, int>(MyStringHash.Comparer);
 
         // Sectors.
-        protected readonly Dictionary<Vector3I, MyEnvironmentSector> m_sectors = new Dictionary<Vector3I, MyEnvironmentSector>();
+        protected readonly Dictionary<Vector3I, MyEnvironmentSector> m_sectors = new Dictionary<Vector3I, MyEnvironmentSector>(Vector3I.Comparer);
         public Dictionary<Vector3I, MyEnvironmentSector> Sectors { get { return m_sectors; } }
 
         protected List<HkdShapeInstanceInfo> m_childrenTmp = new List<HkdShapeInstanceInfo>();
         HashSet<Vector3I> m_updatedSectorsTmp = new HashSet<Vector3I>();
         List<HkdBreakableBodyInfo> m_tmpBodyInfos = new List<HkdBreakableBodyInfo>();
-        protected static List<HkRigidBody> m_tmpResults = new List<HkRigidBody>();
+        protected static List<HkBodyCollision> m_tmpResults = new List<HkBodyCollision>();
+        protected static List<MyEnvironmentSector> m_tmpSectors = new List<MyEnvironmentSector>();
 
         private MyEnvironmentItemsDefinition m_definition;
         public MyEnvironmentItemsDefinition Definition { get { return m_definition; } }
 
-        public event Action<int> ItemRemoved;
+        public event Action<MyEnvironmentItems, ItemInfo> ItemAdded;
+        public event Action<MyEnvironmentItems, ItemInfo> ItemRemoved;
+        public event Action<MyEnvironmentItems, ItemInfo> ItemModified;
+
+        private List<AddItemData> m_batchedAddItems = new List<AddItemData>();
+        private List<ModifyItemData> m_batchedModifyItems = new List<ModifyItemData>();
+        private List<RemoveItemData> m_batchedRemoveItems = new List<RemoveItemData>();
+
+        private float m_batchTime = 0;
+        private const float BATCH_DEFAULT_TIME = 10; // s
+        public bool IsBatching { get { return m_batchTime > 0; } }
+        public float BatchTime { get { return m_batchTime; } }
+
+        public event Action<MyEnvironmentItems> BatchEnded;
+
+        static MyEnvironmentItems()
+        {
+            var items = MyDefinitionManager.Static.GetEnvironmentItemDefinitions();
+            foreach (var item in items)
+            {
+                CheckModelConsistency(item);
+            }
+        }
 
         public MyEnvironmentItems()
         {
@@ -108,14 +151,15 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             Init(null, null, null, null);
 
             BoundingBoxD aabbWorld = BoundingBoxD.CreateInvalid();
-            Dictionary<MyStringId, HkShape> subtypeIdToShape = new Dictionary<MyStringId, HkShape>();
+            Dictionary<MyStringHash, HkShape> subtypeIdToShape = new Dictionary<MyStringHash, HkShape>(MyStringHash.Comparer);
             HkStaticCompoundShape sectorRootShape = new HkStaticCompoundShape(HkReferencePolicy.None);
             var builder = (MyObjectBuilder_EnvironmentItems)objectBuilder;
 
             MyDefinitionId defId = new MyDefinitionId(builder.TypeId, builder.SubtypeId);
+            CellsOffset = builder.CellsOffset;
 
             // Compatibility
-            if (builder.SubtypeId == MyStringId.NullOrEmpty)
+            if (builder.SubtypeId == MyStringHash.NullOrEmpty)
             {
                 if (objectBuilder is MyObjectBuilder_Bushes)
                 {
@@ -141,7 +185,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 foreach (var item in builder.Items)
                 {
-                    MyStringId itemSubtype = MyStringId.GetOrCompute(item.SubtypeName);
+                    var itemSubtype = MyStringHash.GetOrCompute(item.SubtypeName);
                     Debug.Assert(m_definition.ContainsItemDefinition(itemSubtype));
                     if (!m_definition.ContainsItemDefinition(itemSubtype))
                     {
@@ -149,17 +193,18 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     }
 
                     MatrixD worldMatrix = item.PositionAndOrientation.GetMatrix();
-                    AddItem(m_definition.GetItemDefinition(itemSubtype), ref worldMatrix, ref aabbWorld, sectorRootShape, subtypeIdToShape);
+                    AddItem(m_definition.GetItemDefinition(itemSubtype), ref worldMatrix, ref aabbWorld);
                 }
             }
 
-            PrepareItems(sectorRootShape, ref aabbWorld);
+            PrepareItemsPhysics(sectorRootShape, ref aabbWorld,subtypeIdToShape);
+            PrepareItemsGraphics();
 
             foreach (var pair in subtypeIdToShape)
             {
                 pair.Value.RemoveReference();
             }
-
+            sectorRootShape.Base.RemoveReference();
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -167,6 +212,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         {
             var builder = (MyObjectBuilder_EnvironmentItems)base.GetObjectBuilder(copy);
             builder.SubtypeName = this.Definition.Id.SubtypeName;
+
+            if (IsBatching)
+                EndBatch(true);
 
             int numEnabled = 0;
             foreach (var itemsData in m_itemsData)
@@ -188,6 +236,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 insertIndex++;
             }
 
+            builder.CellsOffset = CellsOffset;
+
             return builder;
         }
 
@@ -208,13 +258,13 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         /// <summary>
         /// Spawn environment item with the definition subtype on world position.
         /// </summary>
-        public static bool SpawnItem(MyEnvironmentItemsSpawnData spawnData, MyEnvironmentItemDefinition itemDefinition, Vector3D position, Vector3D up)
+        public static bool SpawnItem(MyEnvironmentItemsSpawnData spawnData, MyEnvironmentItemDefinition itemDefinition, Vector3D position, Vector3D up, bool silentOverlaps = true)
         {
             if (!MyFakes.ENABLE_ENVIRONMENT_ITEMS)
                 return true;
 
             Debug.Assert(spawnData != null && spawnData.EnvironmentItems != null);
-            Debug.Assert(itemDefinition != null);
+            //Debug.Assert(itemDefinition != null);
             if (spawnData == null || spawnData.EnvironmentItems == null || itemDefinition == null)
             {
                 return false;
@@ -223,29 +273,76 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             Vector3D forward = MyUtils.GetRandomPerpendicularVector(ref up);
             MatrixD worldMatrix = MatrixD.CreateWorld(position, forward, up);
 
-            return spawnData.EnvironmentItems.AddItem(itemDefinition, ref worldMatrix, ref spawnData.AabbWorld, spawnData.SectorRootShape, spawnData.SubtypeToShapes);
+
+            return spawnData.EnvironmentItems.AddItem(itemDefinition, ref worldMatrix, ref spawnData.AabbWorld, silentOverlaps);
         }
 
         /// <summary>
         /// Ends spawning - finishes preparetion of items data.
         /// </summary>
-        public static void EndSpawn(MyEnvironmentItemsSpawnData spawnData)
+        public static void EndSpawn(MyEnvironmentItemsSpawnData spawnData,bool updateGraphics = true,bool updatePhysics = true)
         {
-            spawnData.EnvironmentItems.PrepareItems(spawnData.SectorRootShape, ref spawnData.AabbWorld);
-
-            foreach (var pair in spawnData.SubtypeToShapes)
+            if (updatePhysics)
             {
-                pair.Value.RemoveReference();
+                ProfilerShort.Begin("prepare physics");
+                spawnData.EnvironmentItems.PrepareItemsPhysics(spawnData);
+                spawnData.SubtypeToShapes.Clear();
+                ProfilerShort.End();
+
+                ProfilerShort.Begin("remove reference");
+                foreach (var pair in spawnData.SubtypeToShapes)
+                {
+                    pair.Value.RemoveReference();
+                }
+                spawnData.SubtypeToShapes.Clear();
+                
+                ProfilerShort.End();
             }
-            spawnData.SubtypeToShapes.Clear();
+
+            if (updateGraphics)
+            {
+                spawnData.EnvironmentItems.PrepareItemsGraphics();
+            }
+           
+            ProfilerShort.Begin("prunning");
+            
+			spawnData.EnvironmentItems.UpdateGamePruningStructure();
+            ProfilerShort.End();
+        }
+
+        public void UnloadGraphics()
+        {
+            foreach (var sector in m_sectors)
+            {
+                sector.Value.UnloadRenderObjects();
+            }
+        }
+
+        public void ClosePhysics(MyEnvironmentItemsSpawnData data)
+        {
+            Physics.Close();
+            Physics = null;
+        }
+
+        public static string GetModelName(MyStringHash itemSubtype)
+        {
+            int modelId = GetModelId(itemSubtype);
+            return MyModel.GetById(modelId);
+        }
+
+        public static int GetModelId(MyStringHash subtypeId)
+        {
+            return m_subtypeToModels[subtypeId];
         }
 
         /// <summary>
         /// Adds environment item to internal collections. Creates render and physics data. 
         /// </summary>
         /// <returns>True if successfully added, otherwise false.</returns>
-        private bool AddItem(MyEnvironmentItemDefinition itemDefinition, ref MatrixD worldMatrix, ref BoundingBoxD aabbWorld,
-            HkStaticCompoundShape sectorRootShape, Dictionary<MyStringId, HkShape> subtypeIdToShape)
+        private bool AddItem(
+            MyEnvironmentItemDefinition itemDefinition, 
+            ref MatrixD worldMatrix, 
+            ref BoundingBoxD aabbWorld, bool silentOverlaps = false)
         {
             if (!MyFakes.ENABLE_ENVIRONMENT_ITEMS)
                 return true;
@@ -257,16 +354,33 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 return false;
             }
 
-            //MyDefinitionId defId = new MyDefinitionId(envItemObjectBuilderType, subtypeId.ToString());
+            if (itemDefinition.Model == null)
+                return false;
 
-            MyModel model = MyModels.GetModelOnlyData(itemDefinition.Model);
+            //MyDefinitionId defId = new MyDefinitionId(envItemObjectBuilderType, subtypeId.ToString());
+            int modelId = MyEnvironmentItems.GetModelId(itemDefinition.Id.SubtypeId);
+            string modelName = MyModel.GetById(modelId);
+
+            MyModel model = MyModels.GetModelOnlyData(modelName);
             if (model == null)
             {
                 //Debug.Fail(String.Format("Environment item model of '{0}' not found, skipping the item...", itemDefinition.Id));
                 return false;
             }
 
+            CheckModelConsistency(itemDefinition);
+
             int localId = worldMatrix.Translation.GetHashCode();
+
+            if (m_itemsData.ContainsKey(localId))
+            {
+                if (!silentOverlaps)
+                {
+                    Debug.Fail("More items on same place! " + worldMatrix.Translation.ToString());
+                    MyLog.Default.WriteLine("WARNING: items are on the same place.");
+                }
+                return false;
+            }
 
             MyEnvironmentItemData data = new MyEnvironmentItemData()
             {
@@ -274,7 +388,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 SubtypeId = itemDefinition.Id.SubtypeId,
                 Transform = new MyTransformD(ref worldMatrix),
                 Enabled = true,
-                SectorInstanceId = -1
+                SectorInstanceId = -1,
+                Model = model,
             };
 
             //Preload split planes
@@ -282,40 +397,35 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
             aabbWorld.Include(model.BoundingBox.Transform(worldMatrix));
 
-            CheckModelConsistency(itemDefinition);
-
             MatrixD transform = data.Transform.TransformMatrix;
+            float sectorSize = MyFakes.ENVIRONMENT_ITEMS_ONE_INSTANCEBUFFER ? 20000 : m_definition.SectorSize;
 
-            Vector3I sectorId = MyEnvironmentSector.GetSectorId(transform.Translation, m_definition.SectorSize);
+            Vector3I sectorId = MyEnvironmentSector.GetSectorId(transform.Translation - CellsOffset, sectorSize);
             MyEnvironmentSector sector;
             if (!m_sectors.TryGetValue(sectorId, out sector))
             {
-                sector = new MyEnvironmentSector(sectorId);
+                sector = new MyEnvironmentSector(sectorId, sectorId * sectorSize + CellsOffset);
                 m_sectors.Add(sectorId, sector);
             }
 
             // Adds instance of the given model. Local matrix specified might be changed internally in renderer.
-            Matrix transformL = (Matrix)transform;
-            data.SectorInstanceId = sector.AddInstance(itemDefinition.Id.SubtypeId, ref transformL, model.BoundingBox, m_instanceFlags, m_definition.MaxViewDistance);
 
-            int physicsShapeInstanceId;
+            MatrixD sectorOffsetInv = MatrixD.CreateTranslation(-sectorId * sectorSize - CellsOffset);
+            Matrix transformL = (Matrix)(data.Transform.TransformMatrix * sectorOffsetInv);
 
-            if (AddPhysicsShape(data.SubtypeId, model, ref transform, sectorId, sectorRootShape, subtypeIdToShape, out physicsShapeInstanceId))
-            {
-                // Map to data index - note that itemData is added after this to its list!
-                m_physicsShapeInstanceIdToLocalId[physicsShapeInstanceId] = localId;
-                m_localIdToPhysicsShapeInstanceId[localId] = physicsShapeInstanceId;
-            }
-
+            data.SectorInstanceId = sector.AddInstance(itemDefinition.Id.SubtypeId, modelId, localId, ref transformL, model.BoundingBox, m_instanceFlags, m_definition.MaxViewDistance);
             data.Transform = new MyTransformD(transform);
+            m_itemsData.Add(localId, data);
 
-            if (m_itemsData.ContainsKey(localId))
+            if (ItemAdded != null)
             {
-                Debug.Fail("More items on same place! " + transform.Translation.ToString());
-            }
-            else
-            {
-                m_itemsData.Add(localId, data);
+                ItemAdded(this,
+                    new ItemInfo()
+                    {
+                        LocalId = localId,
+                        SubtypeId = data.SubtypeId,
+                        Transform = data.Transform,
+                    });
             }
 
             return true;
@@ -323,24 +433,56 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private static void CheckModelConsistency(MyEnvironmentItemDefinition itemDefinition)
         {
-            int modelId = MyModel.GetId(itemDefinition.Model);
             int savedModelId;
-            if (m_subtypeToModel.TryGetValue(itemDefinition.Id.SubtypeId, out savedModelId))
+            if (m_subtypeToModels.TryGetValue(itemDefinition.Id.SubtypeId, out savedModelId))
             {
-                Debug.Assert(modelId == savedModelId, "Environment item subtype id maps to a different model id than it used to!");
+                Debug.Assert(savedModelId == MyModel.GetId(itemDefinition.Model), "Environment item subtype id maps to a different model id than it used to!");
             }
             else
             {
-                m_subtypeToModel.Add(itemDefinition.Id.SubtypeId, modelId);
+                if (itemDefinition.Model != null)
+                    m_subtypeToModels.Add(itemDefinition.Id.SubtypeId, MyModel.GetId(itemDefinition.Model));
             }
+        }
+
+        public void PrepareItemsGraphics()
+        {
+            foreach (var pair in m_sectors)
+            {
+                pair.Value.UpdateRenderInstanceData();
+                pair.Value.UpdateRenderEntitiesData(WorldMatrix);
+            }
+        }
+
+        public void PrepareItemsPhysics(MyEnvironmentItemsSpawnData spawnData)
+        {
+            spawnData.SectorRootShape = new HkStaticCompoundShape(HkReferencePolicy.None);
+            spawnData.EnvironmentItems.PrepareItemsPhysics(spawnData.SectorRootShape, ref spawnData.AabbWorld, spawnData.SubtypeToShapes);
         }
 
         /// <summary>
         /// Prepares data for renderer and physics. Must be called after all items has been added.
         /// </summary>
-        public void PrepareItems(HkStaticCompoundShape sectorRootShape, ref BoundingBoxD aabbWorld)
+      
+        private void PrepareItemsPhysics(HkStaticCompoundShape sectorRootShape, ref BoundingBoxD aabbWorld, Dictionary<MyStringHash, HkShape> subtypeIdToShape)
         {
-            PositionComp.LocalAABB = (BoundingBox)aabbWorld;
+            foreach (var item in m_itemsData)
+            {
+                if (!item.Value.Enabled)
+                    continue;
+
+                int physicsShapeInstanceId;
+                MatrixD transform = item.Value.Transform.TransformMatrix;
+                if (AddPhysicsShape(item.Value.SubtypeId, item.Value.Model, ref transform, sectorRootShape, subtypeIdToShape, out physicsShapeInstanceId))
+                {
+                    // Map to data index - note that itemData is added after this to its list!
+                    m_physicsShapeInstanceIdToLocalId[physicsShapeInstanceId] = item.Value.Id;
+                    m_localIdToPhysicsShapeInstanceId[item.Value.Id] = physicsShapeInstanceId;
+
+                }
+            }
+
+            PositionComp.WorldAABB = aabbWorld;
 
             if (sectorRootShape.InstanceCount > 0)
             {
@@ -356,26 +498,183 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
                 sectorRootShape.Bake();
                 HkMassProperties massProperties = new HkMassProperties();
-                Physics.CreateFromCollisionObject((HkShape)sectorRootShape, Vector3.Zero, WorldMatrix, massProperties);
-                if (Sandbox.Game.MyPerGameSettings.Destruction)
-                {
-                    Physics.ContactPointCallback += Physics_ContactPointCallback;
-                    Physics.RigidBody.ContactPointCallbackEnabled = true;
-                }
-                sectorRootShape.Base.RemoveReference();
+                MatrixD matrix = MatrixD.CreateTranslation(CellsOffset);
+                Physics.CreateFromCollisionObject((HkShape)sectorRootShape, Vector3.Zero, matrix, massProperties);
+
+                Physics.ContactPointCallback += Physics_ContactPointCallback;
+                Physics.RigidBody.ContactPointCallbackEnabled = true;
 
                 Physics.Enabled = true;
+            }           
+        }
+
+        public bool IsValidPosition(Vector3D position)
+        {
+            return !m_itemsData.ContainsKey(position.GetHashCode());
+        }
+
+        public void BeginBatch(bool sync)
+        {
+            Debug.Assert(!IsBatching);
+            m_batchTime = BATCH_DEFAULT_TIME;
+            if (sync)
+                MySyncEnvironmentItems.SendBeginBatchAddMessage(EntityId);
+        }
+
+        public void BatchAddItem(Vector3D position, MyStringHash subtypeId, bool sync)
+        {
+            Debug.Assert(IsBatching);
+            Debug.Assert(m_definition.ContainsItemDefinition(subtypeId));
+            if (!m_definition.ContainsItemDefinition(subtypeId)) return;
+
+            m_batchedAddItems.Add(new AddItemData() { Position = position, SubtypeId = subtypeId });
+
+            if (sync)
+                MySyncEnvironmentItems.SendBatchAddItemMessage(EntityId, position, subtypeId);
+        }
+
+        public void BatchModifyItem(int localId, MyStringHash subtypeId, bool sync)
+        {
+            Debug.Assert(IsBatching);
+            Debug.Assert(m_itemsData.ContainsKey(localId));
+            if (!m_itemsData.ContainsKey(localId)) return;
+
+            m_batchedModifyItems.Add(new ModifyItemData() { LocalId = localId, SubtypeId = subtypeId });
+
+            if (sync)
+                MySyncEnvironmentItems.SendBatchModifyItemMessage(EntityId, localId, subtypeId);
+        }
+
+        public void BatchRemoveItem(int localId, bool sync)
+        {
+            Debug.Assert(IsBatching);
+            Debug.Assert(m_itemsData.ContainsKey(localId));
+            if (!m_itemsData.ContainsKey(localId)) return;
+
+            m_batchedRemoveItems.Add(new RemoveItemData() { LocalId = localId });
+
+            if (sync)
+                MySyncEnvironmentItems.SendBatchRemoveItemMessage(EntityId, localId);
+        }
+
+        public void EndBatch(bool sync)
+        {
+            m_batchTime = 0;
+
+            if (m_batchedAddItems.Count > 0 || m_batchedModifyItems.Count > 0 || m_batchedRemoveItems.Count > 0)
+                ProcessBatch();
+
+            m_batchedAddItems.Clear();
+            m_batchedModifyItems.Clear();
+            m_batchedRemoveItems.Clear();
+
+            if (sync)
+                MySyncEnvironmentItems.SendEndBatchAddMessage(EntityId);
+        }
+
+        private void ProcessBatch()
+        {
+            foreach (var removedItem in m_batchedRemoveItems)
+                RemoveItem(removedItem.LocalId, false, false);
+
+            foreach (var modifyModel in m_batchedModifyItems)
+                ModifyItemModel(modifyModel.LocalId, modifyModel.SubtypeId, false, false);
+
+            if (Physics != null)
+            {
+                Physics.ContactPointCallback -= Physics_ContactPointCallback;
+                Physics.Close();
+                Physics = null;
             }
 
-            foreach (var pair in m_sectors)
+            BoundingBoxD aabbWorld = BoundingBoxD.CreateInvalid();
+            Dictionary<MyStringHash, HkShape> subtypeIdToShape = new Dictionary<MyStringHash, HkShape>(MyStringHash.Comparer);
+            HkStaticCompoundShape sectorRootShape = new HkStaticCompoundShape(HkReferencePolicy.None);
+
+            m_physicsShapeInstanceIdToLocalId.Clear();
+            m_localIdToPhysicsShapeInstanceId.Clear();
+
+            foreach (var item in m_itemsData)
             {
-                pair.Value.UpdateRenderInstanceData();
+                if (!item.Value.Enabled)
+                    continue;
+                int modelId = m_subtypeToModels[item.Value.SubtypeId];
+                MyModel model = MyModels.GetModelOnlyData(MyModel.GetById(modelId));
+                var matrix = item.Value.Transform.TransformMatrix;
+                aabbWorld.Include(model.BoundingBox.Transform(matrix));
             }
 
-            foreach (var pair in m_sectors)
+            foreach (var item in m_batchedAddItems)
             {
-                pair.Value.UpdateRenderEntitiesData(WorldMatrix, m_subtypeToModel);
+                var matrix = MatrixD.CreateWorld(item.Position, Vector3D.Forward, Vector3D.Up);
+                var definition = m_definition.GetItemDefinition(item.SubtypeId);
+                AddItem(definition, ref matrix, ref aabbWorld);
             }
+
+            PrepareItemsPhysics(sectorRootShape, ref aabbWorld,subtypeIdToShape);
+            PrepareItemsGraphics();
+
+            foreach (var pair in subtypeIdToShape)
+            {
+                pair.Value.RemoveReference();
+            }
+
+            subtypeIdToShape.Clear();
+        }
+
+        public bool ModifyItemModel(int itemInstanceId, MyStringHash newSubtypeId, bool updateSector, bool sync)
+        {
+            MyEnvironmentItemData data;
+            if (!m_itemsData.TryGetValue(itemInstanceId, out data))
+            {
+                Debug.Assert(false, "Item instance not found.");
+                return false;
+            }
+
+            int modelId = MyEnvironmentItems.GetModelId(data.SubtypeId);
+            int newModelId = MyEnvironmentItems.GetModelId(newSubtypeId);
+            if (data.Enabled)
+            {
+                Matrix matrix = data.Transform.TransformMatrix;
+
+                var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation - CellsOffset, Definition.SectorSize);
+                MyModel modelData = MyModels.GetModelOnlyData(MyModel.GetById(modelId));
+                var sector = Sectors[sectorId];
+
+                Matrix invOffset = Matrix.Invert(sector.SectorMatrix);
+                matrix = matrix * invOffset;
+
+                sector.DisableInstance(data.SectorInstanceId, modelId);
+                int newSectorInstanceId = sector.AddInstance(newSubtypeId, newModelId, itemInstanceId, ref matrix, modelData.BoundingBox, m_instanceFlags, m_definition.MaxViewDistance);
+
+                data.SubtypeId = newSubtypeId;
+                data.SectorInstanceId = newSectorInstanceId;
+                m_itemsData[itemInstanceId] = data;
+
+                if (updateSector)
+                {
+                    sector.UpdateRenderInstanceData();
+                    sector.UpdateRenderEntitiesData(WorldMatrix);
+                }
+
+                if (ItemModified != null)
+                {
+                    ItemModified(this,
+                        new ItemInfo()
+                        {
+                            LocalId = data.Id,
+                            SubtypeId = data.SubtypeId,
+                            Transform = data.Transform
+                        });
+                }
+
+                if (sync)
+                {
+                    MySyncEnvironmentItems.SendModifyModelMessage(EntityId, itemInstanceId, newSubtypeId);
+                }
+            }
+
+            return true;
         }
 
 		public bool TryGetItemInfoById(int itemId, out ItemInfo result)
@@ -393,7 +692,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 			return false;
 		}
 
-        public void GetItemsInRadius(Vector3D position, float radius, List<ItemInfo> result)
+        public void GetPhysicalItemsInRadius(Vector3D position, float radius, List<ItemInfo> result)
         {
             double radiusSq = radius * radius;
             if (this.Physics != null && this.Physics.RigidBody != null)
@@ -420,6 +719,63 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     }
 
                     it.Next();
+                }
+            }
+        }
+
+        public void GetAllItemsInRadius(Vector3D point, float radius, List<ItemInfo> output)
+        {
+            GetSectorsInRadius(point, radius, m_tmpSectors);
+            foreach (var sector in m_tmpSectors)
+            {
+                sector.GetItemsInRadius(point, radius, output);
+            }
+            m_tmpSectors.Clear();
+        }
+
+        public void GetItemsInSector(Vector3I sectorId, List<ItemInfo> output)
+        {
+            if (!m_sectors.ContainsKey(sectorId))
+                return;
+
+            m_sectors[sectorId].GetItems(output);
+        }
+
+        public int GetItemsCount(MyStringHash id)
+        {
+            int counter = 0;
+            foreach (var item in m_itemsData)
+            {
+                if (item.Value.SubtypeId == id)
+                    ++counter;
+            }
+            return counter;
+        }
+
+        public void GetSectorsInRadius(Vector3D position, float radius, List<MyEnvironmentSector> sectors)
+        {
+            foreach (var sector in m_sectors)
+            {
+                if (sector.Value.IsValid)
+                {
+                    var sectorBox = sector.Value.SectorWorldBox;
+                    sectorBox.Inflate(radius);
+                    if (sectorBox.Contains(position) == ContainmentType.Contains)
+                        sectors.Add(sector.Value);
+                }
+            }
+        }
+
+        public void GetSectorIdsInRadius(Vector3D position, float radius, List<Vector3I> sectorIds)
+        {
+            foreach (var sector in m_sectors)
+            {
+                if (sector.Value.IsValid)
+                {
+                    var sectorBox = sector.Value.SectorWorldBox;
+                    sectorBox.Inflate(radius);
+                    if (sectorBox.Contains(position) == ContainmentType.Contains)
+                        sectorIds.Add(sector.Key);
                 }
             }
         }
@@ -466,19 +822,23 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             m_updatedSectorsTmp.Clear();
         }
 
-        public bool RemoveItem(int itemInstanceId, bool sync)
+        public bool RemoveItem(int itemInstanceId, bool sync, bool immediateUpdate = true)
         {
             int physicsInstanceId;
 
             if (m_localIdToPhysicsShapeInstanceId.TryGetValue(itemInstanceId, out physicsInstanceId))
             {
-                return RemoveItem(itemInstanceId, physicsInstanceId, sync);
+                return RemoveItem(itemInstanceId, physicsInstanceId, sync, immediateUpdate);
+            }
+            else if (m_itemsData.ContainsKey(itemInstanceId))
+            {
+                return RemoveNonPhysicalItem(itemInstanceId, sync, immediateUpdate);
             }
 
             return false;
         }
 
-        public bool RemoveItem(int itemInstanceId, int physicsInstanceId, bool sync)
+        protected bool RemoveItem(int itemInstanceId, int physicsInstanceId, bool sync, bool immediateUpdate)
         {
             Debug.Assert(sync == false || Sync.IsServer, "Synchronizing env. item removal from the client is forbidden!");
             Debug.Assert(m_physicsShapeInstanceIdToLocalId.ContainsKey(physicsInstanceId), "Could not find env. item shape!");
@@ -487,6 +847,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             m_physicsShapeInstanceIdToLocalId.Remove(physicsInstanceId);
             m_localIdToPhysicsShapeInstanceId.Remove(itemInstanceId);
 
+            if (!m_itemsData.ContainsKey(itemInstanceId)) return false;
+            
             MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
             itemData.Enabled = false;
             m_itemsData[itemInstanceId] = itemData;
@@ -496,25 +858,80 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             shape.EnableShapeKey(shapeKey, false);
 
             Matrix matrix = itemData.Transform.TransformMatrix;
-            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation, Definition.SectorSize);
-            var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, itemData.SubtypeId);
+            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation - m_cellsOffset, Definition.SectorSize);
+            var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, GetModelId(itemData.SubtypeId));
             Debug.Assert(disabled, "Env. item instance render not disabled");
-            Sectors[sectorId].UpdateRenderInstanceData();
+
+            if (immediateUpdate)
+                Sectors[sectorId].UpdateRenderInstanceData();
 
             OnRemoveItem(itemInstanceId, ref matrix, itemData.SubtypeId);
 
             if (sync)
             {
-                MySyncDestructions.RemoveEnvironmentItem(EntityId, itemInstanceId);
+                MySyncEnvironmentItems.RemoveEnvironmentItem(EntityId, itemInstanceId);
+            }
+            return true;
+        }
+
+        protected bool RemoveNonPhysicalItem(int itemInstanceId, bool sync, bool immediateUpdate)
+        {
+            Debug.Assert(sync == false || Sync.IsServer, "Synchronizing env. item removal from the client is forbidden!");
+            Debug.Assert(m_itemsData.ContainsKey(itemInstanceId), "Could not find env. item shape!");
+
+            MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
+            itemData.Enabled = false;
+            m_itemsData[itemInstanceId] = itemData;
+
+            Matrix matrix = itemData.Transform.TransformMatrix;
+            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation, Definition.SectorSize);
+            var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, GetModelId(itemData.SubtypeId));
+            Debug.Assert(disabled, "Env. item instance render not disabled");
+
+            if (immediateUpdate)
+                Sectors[sectorId].UpdateRenderInstanceData();
+
+            OnRemoveItem(itemInstanceId, ref matrix, itemData.SubtypeId);
+
+            if (sync)
+            {
+                MySyncEnvironmentItems.RemoveEnvironmentItem(EntityId, itemInstanceId);
             }
 
             return true;
         }
 
-        protected virtual void OnRemoveItem(int localId, ref Matrix matrix, MyStringId myStringId)
+        public void RemoveItemsOfSubtype(HashSet<MyStringHash> subtypes)
+        {
+            BeginBatch(true);
+
+            List<int> keys = new List<int>(m_itemsData.Keys);
+            foreach (var key in keys)
+            {
+                var itemData = m_itemsData[key];
+                if (!itemData.Enabled)
+                    continue;
+                if (subtypes.Contains(itemData.SubtypeId))
+                {
+                    BatchRemoveItem(key, true);
+                }
+            }
+
+            EndBatch(true);
+        }
+
+        protected virtual void OnRemoveItem(int localId, ref Matrix matrix, MyStringHash myStringId)
         {
             if (ItemRemoved != null)
-                ItemRemoved(localId);
+            {
+                ItemRemoved(this,
+                    new ItemInfo()
+                    {
+                        LocalId = localId,
+                        SubtypeId = myStringId,
+                        Transform = new MyTransformD(matrix),
+                    });
+            }
         }
 
         private bool DisableRenderInstanceIfInRadius(Vector3D center, double radiusSq, int itemInstanceId, bool hasPhysics = false)
@@ -535,7 +952,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (!hasPhysics || itemRemoved)
                 {
                     Vector3I sectorId = MyEnvironmentSector.GetSectorId(translation, m_definition.SectorSize);
-                    bool disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, itemData.SubtypeId);
+                    bool disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, GetModelId(itemData.SubtypeId));
                     Debug.Assert(disabled, "Env. item render not disabled");
 
                     if (disabled)
@@ -551,14 +968,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         }
 
         /// Default implementation does nothing. If you want env. items to react to damage, subclass this
-        public virtual void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyDamageType type = MyDamageType.Unknown) { }
+        public virtual void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyStringHash type) { }
 
         void Physics_ContactPointCallback(ref MyPhysics.MyContactPointEvent e)
         {
             var vel = Math.Abs(e.ContactPointEvent.SeparatingVelocity);
             var other = e.ContactPointEvent.GetOtherEntity(this);
 
-            if (other == null || other.Physics == null) return;
+            if (other == null || other.Physics == null || other is MyFloatingObject) return;
+
+            // On objects held in manipulation tool, Havok returns high velocities, after this contact is fired by contraint solver..
+            // Therefore we disable damage from objects connected by constraint to character
+            if (MyManipulationTool.IsEntityManipulated(other as MyEntity))
+            {
+                return;
+            }            
 
             float otherMass = MyDestructionHelper.MassFromHavok(other.Physics.Mass);
 
@@ -568,9 +992,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             float impactEnergy = vel * vel * otherMass;
 
             // If environment item is hit by a gun, nothing happens here. If you want a weapon damage to env. items, call DoDamage there
-            if (impactEnergy > 350000 && !(other is IMyHandheldGunObject<MyDeviceBase>))
+            if (impactEnergy > 200000 && !(other is IMyHandheldGunObject<MyDeviceBase>))
             {
-                int bodyId = e.ContactPointEvent.Base.BodyA.GetEntity() == this ? 0 : 1;
+                int bodyId = e.ContactPointEvent.Base.BodyA.GetEntity(0) == this ? 0 : 1;
                 var shapeKey = e.ContactPointEvent.GetShapeKey(bodyId);
                 var position = Physics.ClusterToWorld(e.ContactPointEvent.ContactPoint.Position);
                 var sectorId = MyEnvironmentSector.GetSectorId(position, m_definition.SectorSize);
@@ -579,7 +1003,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 uint childKey;
                 if (shapeKey == uint.MaxValue) //jn: TODO find out why this happens, there is ticket for it https://app.asana.com/0/9887996365574/26645443970236
                 {
-                    ProfilerShort.End();
                     return;
                 }
                 shape.DecomposeShapeKey(shapeKey, out physicsInstanceId, out childKey);
@@ -587,7 +1010,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 int itemInstanceId;
                 if (m_physicsShapeInstanceIdToLocalId.TryGetValue(physicsInstanceId, out itemInstanceId))
                 {
-                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);
+                    DoDamage(100.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal, MyStringHash.NullOrEmpty);               
                 }
             }
         }
@@ -603,7 +1026,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 Physics.HavokWorld.GetPenetrationsShape(b.Body.BreakableShape.GetShape(), ref t, ref o, m_tmpResults, MyPhysics.DefaultCollisionLayer);
                 foreach (var res in m_tmpResults)
                 {
-                    if (res.GetEntity() is MyVoxelMap)
+                    if (res.GetCollisionEntity() is MyVoxelMap)
                     {
                         b.Body.GetRigidBody().Quality = HkCollidableQualityType.Fixed;
                         break;
@@ -620,8 +1043,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         /// Adds item physics shape to rootShape and returns instance id of added shape instance.
         /// </summary>
         /// <returns>true if ite physics shape has been added, otherwise false.</returns>
-        private bool AddPhysicsShape(MyStringId subtypeId, MyModel model, ref MatrixD worldMatrix, Vector3I sectorId, HkStaticCompoundShape sectorRootShape,
-            Dictionary<MyStringId, HkShape> subtypeIdToShape, out int physicsShapeInstanceId)
+        private bool AddPhysicsShape(MyStringHash subtypeId, MyModel model, ref MatrixD worldMatrix, HkStaticCompoundShape sectorRootShape,
+            Dictionary<MyStringHash, HkShape> subtypeIdToShape, out int physicsShapeInstanceId)
         {
             physicsShapeInstanceId = 0;
 
@@ -648,9 +1071,17 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 subtypeIdToShape[subtypeId] = physicsShape;
             }
 
-            physicsShapeInstanceId = sectorRootShape.AddInstance(physicsShape, worldMatrix);
-            Debug.Assert(physicsShapeInstanceId >= 0 && physicsShapeInstanceId < int.MaxValue, "Shape key space overflow");
-            return true;
+            if (physicsShape.ReferenceCount != 0)
+            {
+                Matrix localMatrix = worldMatrix * MatrixD.CreateTranslation(-CellsOffset);
+                physicsShapeInstanceId = sectorRootShape.AddInstance(physicsShape, localMatrix);
+                Debug.Assert(physicsShapeInstanceId >= 0 && physicsShapeInstanceId < int.MaxValue, "Shape key space overflow");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void GetItems(ref Vector3D point, List<Vector3D> output)
@@ -659,7 +1090,40 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             MyEnvironmentSector sector = null;
             if (m_sectors.TryGetValue(sectorId, out sector))
             {
-                sector.GetItems(WorldMatrix, output);
+                sector.GetItems(output);
+            }
+        }
+
+        public void GetItemsInRadius(ref Vector3D point, float radius, List<Vector3D> output)
+        {
+            Vector3I sectorId = MyEnvironmentSector.GetSectorId(point, m_definition.SectorSize);
+            MyEnvironmentSector sector = null;
+            if (m_sectors.TryGetValue(sectorId, out sector))
+            {
+                sector.GetItemsInRadius(point, radius, output);
+            }
+        }
+
+        public bool HasItem(int localId)
+        {
+            return m_itemsData.ContainsKey(localId) && m_itemsData[localId].Enabled;
+        }
+
+        public void GetAllItems(List<ItemInfo> output)
+        {
+            foreach (var sector in m_sectors)
+            {
+                sector.Value.GetItems(output);
+            }
+        }
+
+        public void GetItemsInSector(ref Vector3D point, List<ItemInfo> output)
+        {
+            Vector3I sectorId = MyEnvironmentSector.GetSectorId(point, m_definition.SectorSize);
+            MyEnvironmentSector sector = null;
+            if (m_sectors.TryGetValue(sectorId, out sector))
+            {
+                sector.GetItems(output);
             }
         }
 
@@ -675,6 +1139,22 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             return null;
         }
 
+        public MyEnvironmentSector GetSector(ref Vector3I sectorId)
+        {
+            MyEnvironmentSector sector = null;
+            if (m_sectors.TryGetValue(sectorId, out sector))
+            {
+                return sector;
+            }
+
+            return null;
+        }
+
+        public Vector3I GetSectorId(ref Vector3D worldPosition)
+        {
+            return MyEnvironmentSector.GetSectorId(worldPosition, m_definition.SectorSize);
+        }
+
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
@@ -682,6 +1162,19 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_ENVIRONMENT_ITEMS)
             {
                 DebugDraw();
+            }
+
+            if (Sync.IsServer && IsBatching)
+            {
+                m_batchTime -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                if (m_batchTime <= 0)
+                {
+                    EndBatch(true);
+                }
+
+                var handler = BatchEnded;
+                if (handler != null)
+                    BatchEnded(this);
             }
         }
 
@@ -705,6 +1198,16 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 return -1;
 
             return itemInstanceId;
+        }
+
+        public bool IsItemEnabled(int localId)
+        {
+            return m_itemsData[localId].Enabled;
+        }
+
+        public MyStringHash GetItemSubtype(int localId)
+        {
+            return m_itemsData[localId].SubtypeId;
         }
 
         public MyEnvironmentItemDefinition GetItemDefinition(int itemInstanceId)
@@ -737,6 +1240,20 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             return true;
         }
 
+        Vector3D m_cellsOffset;
+        public Vector3D CellsOffset
+        {
+            set
+            {
+                m_cellsOffset = value;
+                PositionComp.SetPosition(m_cellsOffset);
+            }
+            get
+            {
+                return m_cellsOffset;
+            }
+        }
+
         class MyEnviromentItemsDebugDraw : MyDebugRenderComponentBase
         {
             private MyEnvironmentItems m_items;
@@ -744,12 +1261,19 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 m_items = items;
             }
+
             public override bool DebugDraw()
             {
                 foreach (var sec in m_items.Sectors)
                 {
                     sec.Value.DebugDraw(sec.Key, m_items.m_definition.SectorSize);
+                    if (sec.Value.IsValid)
+                    {
+                        var box = sec.Value.SectorBox;
+                        MyRenderProxy.DebugDrawText3D(box.Center + sec.Value.SectorMatrix.Translation , m_items.Definition.Id.SubtypeName + " Sector: " + sec.Key, Color.SaddleBrown, 1.0f, true);
+                    }
                 }
+
                 return true;
             }
 

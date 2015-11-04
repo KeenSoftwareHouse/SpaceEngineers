@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyBatteryBlock : IMyFunctionalBlock, IMyPowerProducer
+    public interface IMyBatteryBlock : IMyFunctionalBlock
     {
         bool HasCapacityRemaining { get; }
 

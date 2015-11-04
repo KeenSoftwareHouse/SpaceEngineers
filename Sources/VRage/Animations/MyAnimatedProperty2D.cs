@@ -39,7 +39,7 @@ namespace VRage.Animations
         { }
 
         public MyAnimatedProperty2D(string name, MyAnimatedProperty<V>.InterpolatorDelegate interpolator)
-            : base(name, null)
+            : base(name, false, null)
         {
             m_interpolator2 = interpolator;
         }
@@ -136,6 +136,7 @@ namespace VRage.Animations
                 animatedTargetProp.AddKey(key);
             }
         }
+
     }
 
     #endregion
@@ -155,7 +156,7 @@ namespace VRage.Animations
 
         public override void DeserializeValue(XmlReader reader, out object value)
         {
-            MyAnimatedPropertyFloat prop = new MyAnimatedPropertyFloat(this.Name, m_interpolator2);
+            MyAnimatedPropertyFloat prop = new MyAnimatedPropertyFloat(this.Name, false, m_interpolator2);
             prop.Deserialize(reader);
             value = prop;
         }
@@ -275,7 +276,7 @@ namespace VRage.Animations
 
         public override void DeserializeValue(XmlReader reader, out object value)
         {
-            MyAnimatedPropertyVector3 prop = new MyAnimatedPropertyVector3(this.Name, m_interpolator2);
+            MyAnimatedPropertyVector3 prop = new MyAnimatedPropertyVector3(this.Name, false, m_interpolator2);
             prop.Deserialize(reader);
             value = prop;
         }

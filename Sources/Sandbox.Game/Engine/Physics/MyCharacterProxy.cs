@@ -44,6 +44,8 @@ namespace Sandbox.Engine.Physics
         int m_airFrameCounter = 0;
         float m_mass = 0;
 
+        float m_maxImpulse;
+
         //static
         HkCharacterProxy CharacterProxy;
         HkSimpleShapePhantom CharacterPhantom;
@@ -95,17 +97,18 @@ namespace Sandbox.Engine.Physics
         public MyCharacterProxy(bool isDynamic, bool isCapsule, float characterWidth, float characterHeight,
             float crouchHeight, float ladderHeight, float headSize, float headHeight,
             Vector3 position, Vector3 up, Vector3 forward,
-            float mass, MyPhysicsBody body, bool isOnlyVertical, float maxSlope, HkRagdoll ragDoll = null)
+            float mass, MyPhysicsBody body, bool isOnlyVertical, float maxSlope, float maxImpulse, HkRagdoll ragDoll = null)
         {
             m_isDynamic = isDynamic;
             m_physicsBody = body;
-            m_mass =  mass;  
+            m_mass =  mass;
+            m_maxImpulse = maxImpulse;
 
             if (isCapsule)
             {
                 m_characterShape = CreateCharacterShape(characterHeight, characterWidth, characterHeight + headHeight, headSize, 0, 0);
                 m_characterCollisionShape = CreateCharacterShape(characterHeight * 0.9f, characterWidth * 0.9f, characterHeight * 0.9f + headHeight, headSize * 0.9f, 0, 0);
-                m_crouchShape = CreateCharacterShape(characterHeight, characterWidth, characterHeight + headHeight, headSize, 0.0f, 0.4f);
+                m_crouchShape = CreateCharacterShape(characterHeight, characterWidth, characterHeight + headHeight, headSize, 0.0f, 1.0f);
 
                 if (!m_isDynamic)
                     CharacterPhantom = new HkSimpleShapePhantom(m_characterShape, MyPhysics.CharacterCollisionLayer);
@@ -219,8 +222,12 @@ namespace Sandbox.Engine.Physics
             }
             if (CharacterRigidBody != null)
             {
-                world.AddCharacterRigidBody(CharacterRigidBody);                
-            }           
+                world.AddCharacterRigidBody(CharacterRigidBody);
+                if (!float.IsInfinity(m_maxImpulse))
+                {
+                    world.BreakOffPartsUtil.MarkEntityBreakable(CharacterRigidBody.GetRigidBody(), m_maxImpulse);
+                }
+            }
         }
 
         public void Deactivate(HkWorld world)
@@ -488,6 +495,8 @@ namespace Sandbox.Engine.Physics
         }
 
         public bool Supported { get; private set; }
+
+        public Vector3 SupportNormal { get; private set; }
         public Vector3 GroundVelocity { get; private set; }
 
         #endregion
@@ -512,6 +521,7 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody.StepSimulation(stepSizeInSeconds);
                 CharacterRigidBody.Elevate = Elevate;
                 Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
                 GroundVelocity = CharacterRigidBody.GroundVelocity;
             }           
         }
@@ -557,7 +567,7 @@ namespace Sandbox.Engine.Physics
 
         public void SetShapeForCrouch(HkWorld world, bool enable)
         {
-            if (CharacterRigidBody != null)
+            if (CharacterRigidBody != null && world != null)
             {
                 world.Lock();
 
@@ -573,42 +583,7 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        public void SetMoveShapeForCrouch(bool enable)
-        {
-            //if (CharacterRigidBody != null)
-            //{
-            //    MyPhysics.HavokWorld.Lock();
 
-            //    if (enable)
-            //        CharacterRigidBody.SetMoveShapeForCrouch();
-            //    else
-            //        CharacterRigidBody.SetDefaultShape();
-
-            //    if (m_physicsBody.IsInWorld)
-            //        MyPhysics.HavokWorld.ReintegrateCharacter(CharacterRigidBody);
-
-            //    MyPhysics.HavokWorld.Unlock();
-
-            //}
-        }
-
-        public void SetDiagonalMoveShapeForCrouch(bool enable)
-        {
-            //if (CharacterRigidBody != null)
-            //{
-            //    MyPhysics.HavokWorld.Lock();
-
-            //    if (enable)
-            //        CharacterRigidBody.SetDiagonalMoveShapeForCrouch();
-            //    else
-            //        CharacterRigidBody.SetDefaultShape();
-
-            //    if (m_physicsBody.IsInWorld)
-            //        MyPhysics.HavokWorld.ReintegrateCharacter(CharacterRigidBody);
-
-            //    MyPhysics.HavokWorld.Unlock();
-            //}
-        }
 
         //
         // Summary:
@@ -631,41 +606,7 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody.ApplyAngularImpulse(impulse);
             }
         }
-
-        public void CreateSkeleton(List<Matrix> transforms, List<int> parentIndices, List<string> boneNames) 
-        {
-            //CharacterIK.CreateSkeleton(transforms, parentIndices, boneNames);
-        }
-
-        public void UpdatePose(List<Quaternion> rotations, List<Vector3> translations)
-        {
-            //CharacterIK.UpdatePose(rotations, translations);
-        }
-
-        //public void SimulatePose(
-        //    bool leftHandIK, bool rightHandIK, bool feetIK, bool lookAt,
-        //    Matrix reachTargetLeft, Matrix reachTargetRight,
-        //    Vector3 lookAtTarget,
-        //    Matrix worldTransform, out float leftFootError, out float rightFootError)
-        //{
-        //    CharacterIK.SimulatePose(
-        //        leftHandIK, rightHandIK, lookAt, feetIK,
-        //        reachTargetLeft, reachTargetRight,
-        //        lookAtTarget,
-        //        worldTransform,
-        //        out leftFootError, out rightFootError);
-        //}
-
-        public void GetPoseModelSpace(List<Matrix> transforms)
-        {
-            //CharacterIK.GetPoseModelSpace(transforms);
-        }
-
-        public void GetPoseLocalSpace(List<Matrix> transforms)
-        {
-            //CharacterIK.GetPoseLocalSpace(transforms);
-        }
-
+      
         public bool ImmediateSetWorldTransform
         {
             get;
@@ -678,26 +619,6 @@ namespace Sandbox.Engine.Physics
             {
                 CharacterRigidBody.SetRigidBodyTransform(m);
             }
-        }
-
-        public void SetShapeForMove(bool enable)
-        {
-            //if (CharacterRigidBody != null)
-            //{
-            //    MyPhysics.HavokWorld.Lock();
-
-            //    if (enable)
-            //        CharacterRigidBody.SetShapeForMove();
-            //    else
-            //        CharacterRigidBody.SetDefaultShape();
-
-            //    if (m_physicsBody.IsInWorld)
-            //        MyPhysics.HavokWorld.ReintegrateCharacter(CharacterRigidBody);
-
-            //    MyPhysics.HavokWorld.Unlock();
-
-                
-            //}
         }
 
         public HkShape GetShape()

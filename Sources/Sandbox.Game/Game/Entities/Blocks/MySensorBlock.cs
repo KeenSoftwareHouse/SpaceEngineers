@@ -1,11 +1,8 @@
 ﻿using Havok;
-using ProtoBuf;
 using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
@@ -14,50 +11,19 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-
+using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Utils;
-using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    [ProtoContract]
-    struct ToolbarItem : IEqualityComparer<ToolbarItem>
-    {
-        [ProtoMember]
-        public long EntityID;
-        [ProtoMember]
-        public string GroupName;
-        [ProtoMember]
-        public string Action;
-
-        public bool Equals(ToolbarItem x, ToolbarItem y)
-        {
-            if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                return false;
-            return true;
-        }
-
-        public int GetHashCode(ToolbarItem obj)
-        {
-            unchecked
-            {
-                int result = obj.EntityID.GetHashCode();
-                result = (result * 397) ^ obj.GroupName.GetHashCode();
-                result = (result * 397) ^ obj.Action.GetHashCode();
-                return result;
-            }
-        }
-    }
-
     [Flags]
     public enum MySensorFilterFlags : ushort
     {
@@ -76,7 +42,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 
     [MyCubeBlockType(typeof(MyObjectBuilder_SensorBlock))]
-    class MySensorBlock : MyFunctionalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
+    class MySensorBlock : MyFunctionalBlock, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
     {
         private new MySensorBlockDefinition BlockDefinition
         {
@@ -86,6 +52,8 @@ namespace Sandbox.Game.Entities.Blocks
         private Color m_gizmoColor = new Vector4(0.1f, 0, 0, 0.1f);
         private const float m_maxGizmoDrawDistance = 200.0f;
         private BoundingBox m_gizmoBoundingBox = new BoundingBox();
+
+        private bool m_playProximitySound = true;
 
         private bool m_active = false;
         public bool IsActive
@@ -112,7 +80,8 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         private List<ToolbarItem> m_items;
-        static private List<MyEntity> m_potentialPenetrations = new List<MyEntity>();
+        static private readonly List<MyEntity> m_potentialPenetrations = new List<MyEntity>();
+        static private readonly List<MyVoxelBase> m_potentialVoxelPenetrations = new List<MyVoxelBase>();
 
         public MyEntity LastDetectedEntity
         {
@@ -162,6 +131,18 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get;
             set;
+        }
+
+        public bool PlayProximitySound
+        {
+            get
+            {
+                return m_playProximitySound;
+            }
+            set
+            {                
+                m_playProximitySound = value;                
+            }
         }
 
         public bool DetectPlayers
@@ -348,6 +329,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldWidthMin.Setter = (x, v) =>
             {
                 var fieldMin = x.FieldMin;
+                if (fieldMin.X == -v)
+                    return;
                 fieldMin.X = -v;
                 x.FieldMin = fieldMin;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMinRequest(ref fieldMin);
@@ -363,6 +346,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldWidthMax.Setter = (x, v) =>
             {
                 var fieldMax = x.FieldMax;
+                if (fieldMax.X == v)
+                    return;
                 fieldMax.X = v;
                 x.FieldMax = fieldMax;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMaxRequest(ref fieldMax);
@@ -379,6 +364,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldHeightMin.Setter = (x, v) =>
             {
                 var fieldMin = x.FieldMin;
+                if (fieldMin.Y == -v)
+                    return;
                 fieldMin.Y = -v;
                 x.FieldMin = fieldMin;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMinRequest(ref fieldMin);
@@ -394,6 +381,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldHeightMax.Setter = (x, v) =>
             {
                 var fieldMax = x.FieldMax;
+                if (fieldMax.Y == v)
+                    return;
                 fieldMax.Y = v;
                 x.FieldMax = fieldMax;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMaxRequest(ref fieldMax);
@@ -409,6 +398,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldDepthMax.Setter = (x, v) =>
             {
                 var fieldMax = x.FieldMax;
+                if (fieldMax.Z == v)
+                    return;
                 fieldMax.Z = v;
                 x.FieldMax = fieldMax;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMaxRequest(ref fieldMax);
@@ -424,6 +415,8 @@ namespace Sandbox.Game.Entities.Blocks
             fieldDepthMin.Setter = (x, v) =>
             {
                 var fieldMin = x.FieldMin;
+                if (fieldMin.Z == -v)
+                    return;
                 fieldMin.Z = -v;
                 x.FieldMin = fieldMin;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorMinRequest(ref fieldMin);
@@ -434,6 +427,15 @@ namespace Sandbox.Game.Entities.Blocks
 
             var separatorFilters = new MyTerminalControlSeparator<MySensorBlock>();
             MyTerminalControlFactory.AddControl(separatorFilters);
+
+            var detectPlayProximitySoundSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Audible Proximity Alert", MySpaceTexts.BlockPropertyTitle_SensorPlaySound, MySpaceTexts.BlockPropertyTitle_SensorPlaySound);
+            detectPlayProximitySoundSwitch.Getter = (x) => x.PlayProximitySound;
+            detectPlayProximitySoundSwitch.Setter = (x, v) =>
+            {
+                x.PlayProximitySound = v;
+                (x.SyncObject as MySyncSensorBlock).SendChangeSensorPlaySoundRequest(x.PlayProximitySound);
+            };                   
+            MyTerminalControlFactory.AddControl(detectPlayProximitySoundSwitch);
 
             var detectPlayersSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Players", MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers, MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers);
             detectPlayersSwitch.Getter = (x) => x.DetectPlayers;
@@ -549,12 +551,6 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(detectEnemySwitch);
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
-        }
-
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
@@ -573,6 +569,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-MaxRange), -Vector3.One);
             m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(MaxRange));
 
+            PlayProximitySound = builder.PlaySound;
             DetectPlayers = builder.DetectPlayers;
             DetectFloatingObjects = builder.DetectFloatingObjects;
             DetectSmallShips = builder.DetectSmallShips;
@@ -593,7 +590,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (item == null)
                     continue;
                 m_items.RemoveAt(i);
-                m_items.Insert(i, GetToolbarItem(item));
+                m_items.Insert(i, ToolbarItem.FromItem(item));
             }
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
@@ -601,14 +598,15 @@ namespace Sandbox.Game.Entities.Blocks
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup, 
                 BlockDefinition.RequiredPowerInput,
                 this.CalculateRequiredPowerInput);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
-            PowerReceiver.Update();
+	        ResourceSink = sinkComp;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.RequiredInputChanged += Receiver_RequiredInputChanged;
+			ResourceSink.Update();
 
             m_fieldShape = GetHkShape();
 
@@ -623,12 +621,12 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnAddedToScene(source);
             UpdateEmissivity();
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         public override void OnBuildSuccess(long builtBy)
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnBuildSuccess(builtBy);
         }
 
@@ -646,7 +644,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void UpdateEmissivity()
         {
-            if (!IsWorking || !PowerReceiver.IsPowered)
+			if (!IsWorking || !ResourceSink.IsPowered)
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
                 return;
@@ -670,7 +668,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
         }
@@ -686,20 +684,20 @@ namespace Sandbox.Game.Entities.Blocks
         protected void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
-            PowerReceiver.Update();
+			ResourceSink.Update();
 
             UpdateText();
             UpdateEmissivity();
         }
 
-        protected void Receiver_RequiredInputChanged(MyPowerReceiver receiver, float oldRequirement, float newRequirement)
+        protected void Receiver_RequiredInputChanged(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver, float oldRequirement, float newRequirement)
         {
             UpdateText();
         }
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -710,10 +708,10 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
 
@@ -723,6 +721,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.FieldMin = FieldMin;
             ob.FieldMax = FieldMax;
 
+            ob.PlaySound = PlayProximitySound;
             ob.DetectPlayers = DetectPlayers;
             ob.DetectFloatingObjects = DetectFloatingObjects;
             ob.DetectSmallShips = DetectSmallShips;
@@ -743,7 +742,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             var oldItem = m_items[index.ItemIndex];
             if ((tItem.EntityID == 0 && oldItem.EntityID == 0 || (tItem.EntityID != 0 && oldItem.EntityID != 0 && tItem.Equals(oldItem))))
                 return;
@@ -768,32 +767,12 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
-        }
-
         private void OnFirstEnter()
         {
             UpdateEmissivity();
             Toolbar.UpdateItem(0);
             if (Sync.IsServer)
-                Toolbar.ActivateItemAtSlot(0);
+                Toolbar.ActivateItemAtSlot(0, false, PlayProximitySound);
         }
 
         private void OnLastLeave()
@@ -801,7 +780,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
             Toolbar.UpdateItem(1);
             if (Sync.IsServer)
-                Toolbar.ActivateItemAtSlot(1);
+                Toolbar.ActivateItemAtSlot(1, false, PlayProximitySound);
         }
 
         public bool ShouldDetectRelation(MyRelationsBetweenPlayerAndBlock relation)
@@ -811,6 +790,7 @@ namespace Sandbox.Game.Entities.Blocks
                 case MyRelationsBetweenPlayerAndBlock.Owner:
                     return DetectOwner;
                     break;
+                case MyRelationsBetweenPlayerAndBlock.NoOwnership:
                 case MyRelationsBetweenPlayerAndBlock.FactionShare:
                     return DetectFriendly;
                     break;
@@ -873,17 +853,55 @@ namespace Sandbox.Game.Entities.Blocks
                 if (grid != null && grid.GridSizeEnum == MyCubeSize.Large && grid.IsStatic)
                     return ShouldDetectGrid(grid);
             if (DetectAsteroids)
-                if (entity is MyVoxelMap)
+                if (entity is MyVoxelBase)
                     return true;
 
             return false;
+        }
+
+        bool GetPropertiesFromEntity(MyEntity entity,ref Vector3D position1, out Quaternion rotation2, out Vector3 posDiff, out HkShape? shape2)
+        {
+            rotation2 = new Quaternion();
+            posDiff = Vector3.Zero;
+            shape2 = null;
+            if (entity.Physics == null || !entity.Physics.Enabled)
+            {
+                return false;
+            }
+
+            if (entity.Physics.RigidBody != null)
+            {
+                shape2 = entity.Physics.RigidBody.GetShape();
+
+                var worldMatrix = entity.WorldMatrix;
+                rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
+                posDiff = entity.PositionComp.GetPosition() - position1;
+                if (entity is MyVoxelBase)
+                {
+                    var voxel = entity as MyVoxelBase;
+                    posDiff -= voxel.Size / 2;
+                }
+            }
+            else if (entity.Physics.CharacterProxy != null)
+            {
+                shape2 = entity.Physics.CharacterProxy.GetShape();
+                var worldMatrix = entity.WorldMatrix;
+                rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
+                posDiff = entity.PositionComp.GetPosition() - position1;
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
 
-            if (!Sync.IsServer || !IsWorking || !PowerReceiver.IsPowered)
+			if (!Sync.IsServer || !IsWorking || !ResourceSink.IsPowered)
                 return;
 
             var rotation1 = Quaternion.CreateFromForwardUp(WorldMatrix.Forward, WorldMatrix.Up);
@@ -895,14 +913,17 @@ namespace Sandbox.Game.Entities.Blocks
                 m_recreateField = false;
                 m_fieldShape.RemoveReference();
                 m_fieldShape = GetHkShape();
-                PowerReceiver.Update();
+				ResourceSink.Update();
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             var boundingBox = new BoundingBoxD(m_fieldMin, m_fieldMax).Translate(PositionComp.LocalVolume.Center).Transform(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
 
             m_potentialPenetrations.Clear();
-            MyGamePruningStructure.GetAllSensableEntitiesInBox<MyEntity>(ref boundingBox, m_potentialPenetrations);
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref boundingBox, m_potentialPenetrations);
+
+            m_potentialVoxelPenetrations.Clear();
+            MyGamePruningStructure.GetAllVoxelMapsInBox(ref boundingBox, m_potentialVoxelPenetrations);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sensor Physics");
             LastDetectedEntity = null;
@@ -911,45 +932,42 @@ namespace Sandbox.Game.Entities.Blocks
                 bool empty = true;
                 foreach (var entity in m_potentialPenetrations)
                 {
+                    if (entity is MyVoxelBase)
+                    {
+                        continue;
+                    }
                     if (ShouldDetect(entity))
                     {
-                        if (entity.Physics == null || !entity.Physics.Enabled)
-                            continue;
-
                         Quaternion rotation2;
                         Vector3 posDiff;
                         HkShape? shape2;
-
-                        if (entity.Physics.RigidBody != null)
+                        if (GetPropertiesFromEntity(entity, ref position1,out rotation2,out posDiff,out shape2))
                         {
-                            shape2 = entity.Physics.RigidBody.GetShape();
-
-                            var worldMatrix = entity.WorldMatrix;
-                            rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
-                            posDiff = entity.PositionComp.GetPosition() - position1;
-                            if (entity is MyVoxelMap)
+                            if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
                             {
-                                var voxel = entity as MyVoxelMap;
-                                posDiff -= voxel.Storage.Size / 2;
+                                LastDetectedEntity = entity;
+                                empty = false;
+                                break;
                             }
                         }
-                        else if (entity.Physics.CharacterProxy != null)
-                        {
-                            shape2 = entity.Physics.CharacterProxy.GetShape();
-                            var worldMatrix = entity.WorldMatrix;
-                            rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
-                            posDiff = entity.PositionComp.GetPosition() - position1;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                    }
+                }
 
-                        if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
+                foreach (var entity in m_potentialVoxelPenetrations)
+                {
+                    if (ShouldDetect(entity))
+                    {
+                        Quaternion rotation2;
+                        Vector3 posDiff;
+                        HkShape? shape2;
+                        if (GetPropertiesFromEntity(entity, ref position1, out rotation2, out posDiff, out shape2))
                         {
-                            LastDetectedEntity = entity;
-                            empty = false;
-                            break;
+                            if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
+                            {
+                                LastDetectedEntity = entity;
+                                empty = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -963,50 +981,48 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 foreach (var entity in m_potentialPenetrations)
                 {
+                    if (entity is MyVoxelBase)
+                    {
+                        continue;
+                    }
                     if (ShouldDetect(entity))
                     {
-                        if (entity.Physics == null || !entity.Physics.Enabled)
-                            continue;
-
                         Quaternion rotation2;
                         Vector3 posDiff;
                         HkShape? shape2;
-
-                        if (entity.Physics.RigidBody != null)
+                        if (GetPropertiesFromEntity(entity, ref position1, out rotation2, out posDiff, out shape2))
                         {
-                            shape2 = entity.Physics.RigidBody.GetShape();
-
-                            var worldMatrix = entity.WorldMatrix;
-                            rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
-                            posDiff = entity.PositionComp.GetPosition() - position1;
-                            if (entity is MyVoxelMap)
+                            if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
                             {
-                                var voxel = entity as MyVoxelMap;
-                                posDiff -= voxel.Storage.Size / 2;
+                                LastDetectedEntity = entity;
+                                IsActive = true;
+                                break;
                             }
                         }
-                        else if (entity.Physics.CharacterProxy != null)
-                        {
-                            shape2 = entity.Physics.CharacterProxy.GetShape();
-                            var worldMatrix = entity.WorldMatrix;
-                            rotation2 = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
-                            posDiff = entity.PositionComp.GetPosition() - position1;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                    }
+                }
 
-                        if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
+                foreach (var entity in m_potentialVoxelPenetrations)
+                {
+                    if (ShouldDetect(entity))
+                    {
+                        Quaternion rotation2;
+                        Vector3 posDiff;
+                        HkShape? shape2;
+                        if (GetPropertiesFromEntity(entity, ref position1, out rotation2, out posDiff, out shape2))
                         {
-                            LastDetectedEntity = entity;
-                            IsActive = true;
-                            break;
+                            if (entity.Physics.HavokWorld.IsPenetratingShapeShape(m_fieldShape, ref Vector3.Zero, ref rotation1, shape2.Value, ref posDiff, ref rotation2))
+                            {
+                                LastDetectedEntity = entity;
+                                IsActive = true;
+                                break;
+                            }
                         }
                     }
                 }
             }
             m_potentialPenetrations.Clear();
+            m_potentialVoxelPenetrations.Clear();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -1065,6 +1081,7 @@ namespace Sandbox.Game.Entities.Blocks
         float ModAPI.Ingame.IMySensorBlock.BottomExtend { get { return -m_fieldMin.Y; } }
         float ModAPI.Ingame.IMySensorBlock.FrontExtend { get { return -m_fieldMin.Z; } }
         float ModAPI.Ingame.IMySensorBlock.BackExtend { get { return m_fieldMax.Z; } }
+        bool ModAPI.Ingame.IMySensorBlock.PlayProximitySound { get { return PlayProximitySound; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectPlayers { get { return DetectPlayers; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectFloatingObjects { get { return DetectFloatingObjects; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectSmallShips { get { return DetectSmallShips; } }

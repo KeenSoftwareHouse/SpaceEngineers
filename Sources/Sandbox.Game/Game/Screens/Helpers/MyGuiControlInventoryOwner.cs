@@ -274,7 +274,7 @@ namespace Sandbox.Game.Screens.Helpers
             AttachOwner(owner);
         }
 
-        private void inventory_OnContentsChanged(MyInventory obj)
+        private void inventory_OnContentsChanged(MyInventoryBase obj)
         {
             RefreshInventoryContents();
             if (InventoryContentsChanged != null)
@@ -334,7 +334,10 @@ namespace Sandbox.Game.Screens.Helpers
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
                 var inventory = m_inventoryOwner.GetInventory(i);
-                inventory.UserData = null;
+                if (inventory.UserData == this)
+                {
+                    inventory.UserData = null;
+                }
                 inventory.ContentsChanged -= inventory_OnContentsChanged;
             }
 
@@ -351,7 +354,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_inventoryOwner = null;
         }
 
-        public static void FormatItemAmount(MyInventoryItem item, StringBuilder text)
+        public static void FormatItemAmount(MyPhysicalInventoryItem item, StringBuilder text)
         {
             try
             {
@@ -380,12 +383,12 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     Debug.Assert(item.Amount == 1, "There should only be one gun in a single slot. This is safe to ignore.");
                 }
-                else if (typeId == typeof(MyObjectBuilder_OxygenContainerObject))
+                else if (typeId == typeof(MyObjectBuilder_GasContainerObject) || typeId == typeof(MyObjectBuilder_OxygenContainerObject))
                 {
                     Debug.Assert(item.Amount == 1, "There should only be one oxygen bottle in a single slot. This is safe to ignore.");
 
-                    var oxygenContainer = item.Content as MyObjectBuilder_OxygenContainerObject;
-                    text.Append((oxygenContainer.OxygenLevel * 100f).ToString("F0") + "%");
+                    var oxygenContainer = item.Content as MyObjectBuilder_GasContainerObject;
+					text.Append((oxygenContainer.GasLevel * 100f).ToString("F0") + "%");
                 }
                 else
                 {
@@ -402,7 +405,7 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
-        public static MyGuiControlGrid.Item CreateInventoryGridItem(MyInventoryItem item)
+        public static MyGuiControlGrid.Item CreateInventoryGridItem(MyPhysicalInventoryItem item)
         {
             var definition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
 
@@ -428,6 +431,25 @@ namespace Sandbox.Game.Screens.Helpers
             if (definition.IconSymbol.HasValue)
                 gridItem.AddText(MyTexts.Get(definition.IconSymbol.Value), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             return gridItem;
+        }
+
+        public void RefreshOwnerInventory()
+        {
+            for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
+            {
+                var inventory = m_inventoryOwner.GetInventory(i);
+                inventory.UserData = this;
+                inventory.ContentsChanged += inventory_OnContentsChanged;
+            }
+        }
+
+        public void RemoveInventoryEvents()
+        {
+            for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
+            {
+                var inventory = m_inventoryOwner.GetInventory(i);
+                inventory.ContentsChanged -= inventory_OnContentsChanged;
+            }
         }
     }
 }

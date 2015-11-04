@@ -57,9 +57,11 @@ Texture2D<float> SpotlightShadowmap : register( t14 );
 
 Texture2D<float> ShadowsMainView : register( MERGE(t,SHADOW_SLOT) );
 
-void spotlightVs(float4 vertexPos : POSITION, out float4 svPos : SV_Position)
+void proxyVs(float4 vertexPos : POSITION, out float4 svPos : SV_Position)
 {
-	svPos = mul(unpack_position_and_scale(vertexPos), Spotlight.worldViewProj);
+	float4 pos = unpack_position_and_scale(vertexPos);
+	pos.xyz *= 2;
+	svPos = mul(pos, Spotlight.worldViewProj);
 }
 
 static const float3 PCF_SHADOW_SAMPLES[] = {
@@ -73,9 +75,17 @@ static const float3 PCF_SHADOW_SAMPLES[] = {
 };
 static const float PCF_SAMPLES_NUM = 7;
 
-void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Target0)
+void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Target0
+#ifdef SAMPLE_FREQ_PASS
+	, uint sample_index : SV_SampleIndex
+#endif
+	)
 {
+#if !defined(MS_SAMPLE_COUNT) || defined(PIXEL_FREQ_PASS)
 	SurfaceInterface surface = read_gbuffer(svPos.xy);
+#else
+	SurfaceInterface surface = read_gbuffer(svPos.xy, sample_index);
+#endif
 
 	float3 L = Spotlight.position - surface.position;
 	float distance = length(L);
@@ -97,7 +107,7 @@ void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Targe
 	float nl = saturate(dot(L, N));
 
 	float falloff = lerp((ld - Spotlight.apertureCos) / (1 - Spotlight.apertureCos), 1.0f, 0);
-	float attenuation = pow(saturate(1-distance/Spotlight.range), 2);	
+	float attenuation = pow(saturate(1-distance/Spotlight.range), 4);	
 
 	float3 mask = ReflectorMask.Sample(TextureSampler, smPos.xy);
 
@@ -113,7 +123,7 @@ void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Targe
 	}
 
 	float3 light_factor = shadow * falloff * attenuation * Spotlight.color * mask;
-	output =  light_factor * calculate_light(surface, L);
+	output = light_factor * calculate_light(surface, L);
 }
 
 void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceID, out float3 output : SV_Target0
@@ -147,7 +157,7 @@ void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceI
 
 	[loop]
 	for(uint i = 0; i < numLights; i++) {
-		uint index = TileIndices[ tileIndex * MAX_TILE_LIGHTS + i];
+		uint index = TileIndices[frame_.tiles_num + tileIndex * MAX_TILE_LIGHTS + i];
 		PointLightData light = LightList[index];
 
 		float3 L = light.positionView - input.positionView;
@@ -179,7 +189,14 @@ void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceI
 	}
 
 	output = acc;
-	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights / 256);
+	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights / 4);
+	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights);
+}
+
+
+float3 GetSunColor(float3 L, float3 V, float3 color, float sizeMult)
+{
+	return (saturate(color + 0.5f) + float3(0.5f, 0.35f, 0.0f)) * pow(saturate(dot(L, -V)), 4000.0f) * sizeMult;
 }
 
 void directional_environment(PostprocessVertex vertex, out float3 output : SV_Target0
@@ -188,28 +205,69 @@ void directional_environment(PostprocessVertex vertex, out float3 output : SV_Ta
 #endif
 	)
 {
-
 #if !defined(MS_SAMPLE_COUNT) || defined(PIXEL_FREQ_PASS)
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
-	float shadow = ShadowsMainView[vertex.position.xy].x;
 #else
 	SurfaceInterface input = read_gbuffer(vertex.position.xy, sample_index);
-	float shadow = calculate_shadow_fast(input.position, input.stencil);
 #endif
 
-	if(depth_not_background(input.native_depth)) {
-		float ao = input.ao;
+	
+	float shadow = 1;
+	float ao = input.ao;
+	if (input.id == 2)
+	{	
+#ifdef CASCADES_NUM
+		shadow = calculate_shadow_fast(input.position, input.stencil);
+#endif
+	}
+	else
+	{
+#if !defined(MS_SAMPLE_COUNT) || defined(PIXEL_FREQ_PASS)
+		shadow = ShadowsMainView[vertex.position.xy].x;
+#else
+		shadow = calculate_shadow_fast(input.position, input.stencil);
+#endif
+	}
 
+	float shadowMultiplier = frame_.shadowFadeout*(1.0f - frame_.skyboxBrightness);
+	shadow = shadow * (1 - shadowMultiplier) + shadowMultiplier;
+
+	if(depth_not_background(input.native_depth)) 
+	{
 		float3 shaded = 0;
 
 		shaded += input.base_color * input.emissive;
-		shaded += main_directional_light(input) * shadow * sqrt(input.ao);
-		shaded += ambient_specular(input.f0, input.gloss, input.N, input.V) * input.ao;
-		shaded += ambient_diffuse(input.f0, input.gloss, input.N, input.V) * input.albedo * input.ao; // albedo has ao for "dirt"
+		shaded += main_directional_light(input) * shadow * sqrt(ao);
+		shaded += ambient_specular(input.f0, input.gloss, input.N, input.V) * ao;
+		shaded += ambient_diffuse(input.f0, input.gloss, input.N, input.V) * input.albedo * ao; // albedo has ao for "dirt"
 
 		output = add_fog(shaded, input.depth, -input.V, get_camera_position());
 	}
-	else {
-		output = add_fog(SkyboxColor(-input.V), input.depth, -input.V, get_camera_position());
+	else 	
+	{
+		float3 v = mul(float4(-input.V, 0.0f), frame_.background_orientation).xyz;
+		// This is because DX9 code does the same (see MyBackgroundCube.cs)
+		v.z *= -1;
+		output = SkyboxColor(v) * frame_.skyboxBrightness;
+
+		output += GetSunColor(-frame_.directionalLightVec, input.V, frame_.directionalLightColor, 5);
 	}
+
+	// Sphere inner;
+	// inner.position = float3(150, 0, 0) - frame_.world_offset.xyz;
+	// inner.radius = 40;
+
+	// Ray r;
+	// r.origin = 0;
+	// r.dir = -input.V;
+	// float t0, t1;
+	// intersectionRaySphere(r, inner, t0, t1);
+	// float3 L = -frame_.directionalLightVec;
+
+	// if(t0 >= 0) {
+	// 	float3 N = normalize( r.dir * t0 - inner.position );
+	// 	output = dot(N, L) * 0.5;
+	// }
+
+	//output = volume(input.depth, input.V, -frame_.directionalLightVec, output);
 }

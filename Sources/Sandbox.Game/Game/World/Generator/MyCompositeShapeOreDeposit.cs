@@ -4,72 +4,59 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using VRage.Library.Utils;
 using VRage.Noise;
 using VRageMath;
+using VRage;
+using VRage.Voxels;
+using System.IO.MemoryMappedFiles;
+using System.IO;
+using Sandbox.Engine.Utils;
+using SharpDX.Toolkit.Graphics;
+using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
+using Sandbox.Game.GameSystems;
+using System.Diagnostics;
+using Sandbox.Common.ObjectBuilders.Definitions;
+
 
 namespace Sandbox.Game.World.Generator
 {
     class MyCompositeShapeOreDeposit
     {
         public readonly MyCsgShapeBase Shape;
-        readonly MyVoxelMaterialDefinition m_material;
+        protected readonly MyVoxelMaterialDefinition m_material;
+
+        virtual public void DebugDraw(ref Vector3D translation, ref Color materialColor)
+        {
+            Shape.DebugDraw(ref translation, materialColor);
+            VRageRender.MyRenderProxy.DebugDrawText3D(Shape.Center() + translation, m_material.Id.SubtypeName, Color.White, 1f, false);
+        }
 
         public MyCompositeShapeOreDeposit(MyCsgShapeBase shape, MyVoxelMaterialDefinition material)
         {
+            System.Diagnostics.Debug.Assert(material != null, "Shape must have material");
             Shape = shape;
             m_material = material;
         }
 
-        public virtual MyVoxelMaterialDefinition GetMaterialForPosition(ref Vector3 pos,float lodSize)
+        public virtual MyVoxelMaterialDefinition GetMaterialForPosition(ref Vector3 pos, float lodSize)
         {
             return m_material;
         }
-    }
 
-    class MyCompositeLayeredOreDeposit : MyCompositeShapeOreDeposit
-    {
-        IMyModule m_noise = null;
-        MyMaterialLayer[] m_materialLayers = null;
-
-        public MyCompositeLayeredOreDeposit(MyCsgShapeBase shape, MyMaterialLayer[] materialLayers,IMyModule noise) :
-            base(shape, null)
+        public virtual void ReadMaterialRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod, float lodVoxelSizeHalf)
         {
-            m_materialLayers = materialLayers;
-            m_noise = noise;
+            target.BlockFillMaterial(writeOffset, writeOffset + (maxInLod - minInLod), m_material.Index);
         }
 
-        public override MyVoxelMaterialDefinition GetMaterialForPosition(ref Vector3 pos, float lodSize)
+        public virtual bool SpawnsFlora()
         {
-           Vector3 localPosition = pos - Shape.Center();
-            float lenghtToCenter = localPosition.Length();
-            float angleToPole = Vector3.Dot(localPosition / lenghtToCenter,Vector3.Up);
-
-            int nearestMaterial = -1;
-            float minDistance = float.MaxValue;
-            float noiseValue = (float)(0.5*m_noise.GetValue(pos.X, pos.Y, pos.Z)+0.5);
-  
-
-            for (int i = 0; i < m_materialLayers.Length; ++i)
-            {
-                float heightStartDistance = m_materialLayers[i].HeightStartDeviation * noiseValue;
-                float angleStartDistance = m_materialLayers[i].AngleStartDeviation *noiseValue;
-
-                float heightEndDistance = m_materialLayers[i].HeightEndDeviation * noiseValue;
-                float angleEndDistance = m_materialLayers[i].AngleEndDeviation * noiseValue;
-
-                if (lenghtToCenter >= (m_materialLayers[i].StartHeight - lodSize - heightStartDistance) && (m_materialLayers[i].EndHeight + lodSize+heightEndDistance) >= lenghtToCenter &&
-                    angleToPole > m_materialLayers[i].StartAngle - angleStartDistance && m_materialLayers[i].EndAngle + angleEndDistance > angleToPole)
-                {
-                    float distanceTolayer = Math.Abs(lenghtToCenter - m_materialLayers[i].StartHeight + heightStartDistance);
-                    if (minDistance > distanceTolayer)
-                    {
-                        minDistance = distanceTolayer;
-                        nearestMaterial = i;
-                    }
-                    
-                }
-            }
-            return nearestMaterial == -1 ? null : m_materialLayers[nearestMaterial].MaterialDefinition;
+            return m_material.SpawnsFlora;
         }
+
+
+        public virtual bool ProvidesOcclusionHint { get { return false; } }
     }
+
 }

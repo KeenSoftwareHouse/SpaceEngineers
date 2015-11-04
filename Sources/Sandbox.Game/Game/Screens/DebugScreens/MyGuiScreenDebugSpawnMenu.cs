@@ -1,7 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -20,7 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-
+using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
@@ -28,6 +27,7 @@ using VRage.Voxels;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {
@@ -68,8 +68,6 @@ namespace Sandbox.Game.Gui
             public long EntityId;
         }
 
-        const float MIN_DEVIATION = 0.003f;
-        const float MAX_DEVIATION = 0.5f;
 
         private static readonly Vector2 SCREEN_SIZE = new Vector2(0.40f, 1.2f);
         private static readonly float HIDDEN_PART_RIGHT = 0.04f;
@@ -87,53 +85,13 @@ namespace Sandbox.Game.Gui
         private static SpawnAsteroidMsg m_lastAsteroidMsg;
 
         private static bool m_asteroid_showPredefinedOrProcedural = true;
-        private static bool m_asteroid_showPlanet = false;
         private static float m_procAsteroidSizeValue = 64.0f;
-        private static float m_planetDeviationScaleValue = 0.003f;
-        private static float m_planetHillRatioValue = 3.0f;
-        private static float m_planetCanyonRatioValue = 1.0f;
 
         private static String m_procAsteroidSeedValue = "12345";
         private MyGuiControlSlider m_procAsteroidSize;
         private MyGuiControlTextbox m_procAsteroidSeed;
-        private MyGuiControlSlider m_normalNoiseFrequency;
-        private MyGuiControlSlider m_procAsteroidDeviationScale;
-
-        private MyGuiControlCombobox m_oreCombobox;
-        private MyGuiControlLabel m_oreComboboxLabel;    
-        private MyGuiControlCombobox m_layerCombobox;
-        private MyGuiControlSlider m_materialLayerDeviationNoise;
-        private static String m_materialLayerDeviationSeedValue = "12345";
-        private MyGuiControlTextbox m_materialLayerDeviationSeed;
-
-        private MyGuiControlSlider m_materialLayerStart;
-        private MyGuiControlSlider m_materialLayerEnd;
-        private MyGuiControlSlider m_materialLayerStartHeigthDeviation;
-        private MyGuiControlSlider m_materialLayerEndHeigthDeviation;
-        private MyGuiControlSlider m_materialLayerAngleStart;
-        private MyGuiControlSlider m_materialLayerAngleEnd;
-        private MyGuiControlSlider m_materialLayerAngleStartDeviation;
-        private MyGuiControlSlider m_materialLayerAngleEndDeviation;
-
-        private MyGuiControlSlider m_planetStructureRatio;
-        private MyGuiControlSlider m_planetHillTreshold;
-        private MyGuiControlSlider m_planetHillBlendTreshold;
-        private MyGuiControlSlider m_planetHillSizeRatio;
-        private MyGuiControlSlider m_planetHillFrequency;
-        private MyGuiControlSlider m_planetHillNumNoises;
-
-        private MyGuiControlSlider m_planetCanyonTreshold;
-        private MyGuiControlSlider m_planetCanyonBlendTreshold;
-        private MyGuiControlSlider m_planetCanyonSizeRatio;
-        private MyGuiControlSlider m_planetCanyonFrequency;
-        private MyGuiControlSlider m_planetCanyonNumNoises;
-
-        private MyGuiControlCheckbox m_planetAtmosphere;
-
 
         private MyVoxelBase m_currentVoxel = null;
-
-        private List<MyMaterialLayer> m_materialLayers = new List<MyMaterialLayer>();
 
         public override string GetFriendlyName()
         {
@@ -205,12 +163,6 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
-            if (m_asteroid_showPlanet)
-            {
-                CreatePlanetMenu();
-                return;
-            }
-
             Vector2 cbOffset = new Vector2(-0.05f, 0.0f);
             Vector2 controlPadding = new Vector2(0.02f, 0.02f); // X: Left & Right, Y: Bottom & Top
 
@@ -238,11 +190,9 @@ namespace Sandbox.Game.Gui
                 var combo = AddCombo();
                 combo.AddItem(1, MySpaceTexts.ScreenDebugSpawnMenu_PredefinedAsteroids);
                 combo.AddItem(2, MySpaceTexts.ScreenDebugSpawnMenu_ProceduralAsteroids);
-                // DA: Remove from MySpaceTexts and just hardcode until release. Leave a todo so you don't forget about it before release of planets.
-                combo.AddItem(3, MySpaceTexts.ScreenDebugSpawnMenu_Planets);
 
-                combo.SelectItemByKey(m_asteroid_showPlanet ? 3 : m_asteroid_showPredefinedOrProcedural ? 1 : 2);
-                combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; m_asteroid_showPlanet = combo.GetSelectedKey() == 3; RecreateControls(false); };
+                combo.SelectItemByKey( m_asteroid_showPredefinedOrProcedural ? 1 : 2);
+                combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; RecreateControls(false); };
             }
 
             if (MyFakes.ENABLE_SPAWN_MENU_ASTEROIDS && m_asteroid_showPredefinedOrProcedural)
@@ -252,7 +202,7 @@ namespace Sandbox.Game.Gui
                 {
                     foreach (var definition in MyDefinitionManager.Static.GetVoxelMapStorageDefinitions())
                     {
-                        m_asteroidCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId);
+                        m_asteroidCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId.ToString());
                     }
                     m_asteroidCombobox.ItemSelected += OnAsteroidCombobox_ItemSelected;
                     m_asteroidCombobox.SortItemsByValueText();
@@ -332,7 +282,7 @@ namespace Sandbox.Game.Gui
                     if (!definition.Public)
                         continue;
                     var physicalItemDef = definition as MyPhysicalItemDefinition;
-                    if (physicalItemDef == null)
+                    if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                         continue;
 
                     int key = m_physicalItemDefinitions.Count;
@@ -377,41 +327,6 @@ namespace Sandbox.Game.Gui
             slider.MinValue = minValue;
         }
 
-        private void OnPlanetDeviationChanged(MyGuiControlSlider slider)
-        {
-            float value = DenormalizeLog(slider.Value, MIN_DEVIATION, MAX_DEVIATION);
-
-            float min = -m_procAsteroidSize.Value * value * m_planetCanyonRatioValue/2.0f;
-            float max = m_procAsteroidSize.Value * value * m_planetHillRatioValue / 2.0f; 
-
-            UpdateLayerSlider(m_materialLayerStart,min,max);
-            UpdateLayerSlider(m_materialLayerEnd,min,max);          
-        }
-
-        private void OnPlanetSizeChanged(MyGuiControlSlider slider)
-        {
-            float min = -m_planetDeviationScaleValue * slider.Value * m_planetCanyonRatioValue / 2.0f;
-            float max = m_planetDeviationScaleValue * slider.Value * m_planetHillRatioValue / 2.0f;
-            UpdateLayerSlider(m_materialLayerStart,min,max);
-            UpdateLayerSlider(m_materialLayerEnd,min,max);
-        }
-
-        private void OnPlanetHillRatioChanged(MyGuiControlSlider slider)
-        {
-            float min = -m_planetDeviationScaleValue * m_procAsteroidSize.Value * m_planetCanyonRatioValue / 2.0f;
-            float max = m_planetDeviationScaleValue * m_procAsteroidSize.Value * slider.Value / 2.0f;    
-            UpdateLayerSlider(m_materialLayerStart,min,max);
-            UpdateLayerSlider(m_materialLayerEnd, min,max);
-        }
-
-        private void OnPlanetCanyonRatioChanged(MyGuiControlSlider slider)
-        {
-            float min = -m_planetDeviationScaleValue * m_procAsteroidSize.Value * slider.Value / 2.0f;
-            float max = m_planetDeviationScaleValue * m_procAsteroidSize.Value * m_planetHillRatioValue / 2.0f;
-            UpdateLayerSlider(m_materialLayerStart, min, max);
-            UpdateLayerSlider(m_materialLayerEnd, min, max);
-        }
-
         private void OnAmountTextChanged(MyGuiControlTextbox textbox)
         {
             m_errorLabel.Visible = false;
@@ -431,52 +346,10 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void OnLayerCombobox_ItemSelected()
-        {
-            m_oreCombobox.Visible = true;
-            m_oreComboboxLabel.Visible = true;
-
-            m_materialLayerEnd.Visible = true;
-            m_materialLayerStart.Visible = true;
-
-
-            int currentLayer = m_layerCombobox.GetSelectedIndex();
-            float temp = m_materialLayers[currentLayer].EndHeight;
-            m_materialLayerStart.Value = m_materialLayers[currentLayer].StartHeight;
-            m_materialLayerEnd.Value = temp;
-            m_materialLayerStartHeigthDeviation.Value = m_materialLayers[currentLayer].HeightStartDeviation;
-            m_materialLayerEndHeigthDeviation.Value = m_materialLayers[currentLayer].HeightEndDeviation;
-
-            temp = m_materialLayers[currentLayer].EndAngle;
-            m_materialLayerAngleStart.Value = m_materialLayers[currentLayer].StartAngle;
-            m_materialLayerAngleEnd.Value = temp;
-            m_materialLayerAngleStartDeviation.Value = m_materialLayers[currentLayer].AngleStartDeviation;
-            m_materialLayerAngleEndDeviation.Value = m_materialLayers[currentLayer].AngleEndDeviation;
-
-            int id = -1;
-            foreach (var definition in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-            {
-                if (definition.Id.SubtypeName == m_materialLayers[currentLayer].MaterialName)
-                {
-                    id = (int)definition.Id.SubtypeId;
-                }
-            }
-            if (id != -1)
-            {
-                m_oreCombobox.SelectItemByKey(id);
-            }
-        }
-
         private void OnAsteroidCombobox_ItemSelected()
         {
             m_lastSelectedAsteroidIndex = m_asteroidCombobox.GetSelectedIndex();
             m_selectedCoreVoxelFile = m_asteroidCombobox.GetSelectedValue().ToString();
-        }
-
-        private void OnOreCombobox_ItemSelected()
-        {
-            int currentLayer = m_layerCombobox.GetSelectedIndex();
-            m_materialLayers[currentLayer].MaterialName = m_oreCombobox.GetSelectedValue().ToString();
         }
 
         private void OnPhysicalObjectCombobox_ItemSelected()
@@ -490,14 +363,14 @@ namespace Sandbox.Game.Gui
 
             MyFixedPoint amount = (MyFixedPoint)(float)m_amount;
 
-            var builder = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(itemId);
+            var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
 
-            if (builder is MyObjectBuilder_PhysicalGunObject || builder is Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_OxygenContainerObject)
+            if (builder is MyObjectBuilder_PhysicalGunObject || builder is MyObjectBuilder_OxygenContainerObject || builder is MyObjectBuilder_GasContainerObject)
                 amount = 1;
 
-            var obj = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
+            var obj = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
             obj.PositionAndOrientation = MyPositionAndOrientation.Default;
-            obj.Item = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+            obj.Item = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
             obj.Item.Amount = amount;
             obj.Item.Content = builder;
 
@@ -560,43 +433,9 @@ namespace Sandbox.Game.Gui
             CloseScreenNow();
         }
 
-        private void OnCreateLayer(MyGuiControlButton obj)
-        {
-            m_materialLayers.Add(new MyMaterialLayer());
-
-            m_layerCombobox.AddItem(m_materialLayers.Count, MyStringId.GetOrCompute("layer" + m_materialLayers.Count.ToString()));
-
-            m_layerCombobox.SelectItemByIndex(m_materialLayers.Count - 1);
-        }
-
-        private void OnRemoveLayer(MyGuiControlButton obj)
-        {
-            int selectedIndex = m_layerCombobox.GetSelectedIndex();
-            if (selectedIndex >= 0 && selectedIndex < m_materialLayers.Count)
-            {
-                m_materialLayers.RemoveAt(selectedIndex);
-                m_layerCombobox.ClearItems();
-
-                for (int i = 0; i < m_materialLayers.Count; ++i)
-                {
-                    m_layerCombobox.AddItem(i, MyStringId.GetOrCompute("layer" + i.ToString()));
-                }
-            }
-        }
-
         private void OnSpawnProceduralAsteroid(MyGuiControlButton obj)
         {
             int seed = GetProceduralAsteroidSeed(m_procAsteroidSeed);
-            if (m_asteroid_showPlanet)
-            {
-                MyCsgShapePlanetShapeAttributes planetShapeAttributes;
-                MyCsgShapePlanetHillAttributes hillAttributes;
-                MyCsgShapePlanetHillAttributes canyonAttributes;
-                GetPlanetAttributes(out planetShapeAttributes, out hillAttributes, out canyonAttributes);
-
-                SpawnPlanet(ref planetShapeAttributes, ref hillAttributes, ref canyonAttributes, m_materialLayers);
-            }
-            else
             {
                 SpawnProceduralAsteroid(seed, m_procAsteroidSize.Value);
             }
@@ -648,21 +487,9 @@ namespace Sandbox.Game.Gui
             return null;
         }
 
-        public static MyStorageBase CreatePlanetStorage(
-            ref MyCsgShapePlanetShapeAttributes shapeAttributes,
-            ref MyCsgShapePlanetHillAttributes hillAttributes,
-            ref MyCsgShapePlanetHillAttributes canyonAttributes,
-            MyMaterialLayer[] materialLayers)
-        {
-            //return new MyOctreeStorage(
-            //    MyCompositeShapeProvider.CreatePlanetShape(0, ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLayers),
-            //    FindBestOctreeSize(shapeAttributes.Radius));
-            return null;
-        }
-
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius, float deviationScale)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         public static MyObjectBuilder_VoxelMap CreateAsteroidObjectBuilder(string storageName)
@@ -702,7 +529,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)
@@ -723,11 +550,6 @@ namespace Sandbox.Game.Gui
             };
 
             MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
-        }
-
-        private void SpawnPlanet(ref MyCsgShapePlanetShapeAttributes planetShapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, List<MyMaterialLayer> layers, Vector3D? pos = null)
-        {
-          
         }
 
         private static String MakeStorageName(String storageNameBase)
@@ -759,119 +581,6 @@ namespace Sandbox.Game.Gui
             return storageName;
         }
 
-        private static Vector3I FindBestOctreeSize(float radius)
-        {
-            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-            while (nodeRadius < radius)
-                nodeRadius *= 2;
-            //nodeRadius *= 2;
-            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
-        }
-
-        private void CreatePlanetMenu()
-        {
-            m_currentVoxel = null;
-            MyGuiControlList list = new MyGuiControlList(size: new Vector2(SCREEN_SIZE.X,1.0f));
-
-            Vector2 controlPadding = new Vector2(0.02f, 0.02f); // X: Left & Right, Y: Bottom & Top
-
-            float textScale = 0.8f;
-            float usableWidth = SCREEN_SIZE.X - HIDDEN_PART_RIGHT - controlPadding.X * 2;
-
-            m_currentPosition = Vector2.Zero;/* -m_size.Value / 2.0f;
-            m_currentPosition += controlPadding;*/
-            m_scale = textScale;
-
-            var label = AddLabel(MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_SelectAsteroidType), Vector4.One, m_scale);
-            Controls.Remove(label);
-            list.Controls.Add(label);
-
-            var combo = AddCombo();
-            combo.AddItem(1, MySpaceTexts.ScreenDebugSpawnMenu_PredefinedAsteroids);
-            combo.AddItem(2, MySpaceTexts.ScreenDebugSpawnMenu_ProceduralAsteroids);
-            combo.AddItem(3, MySpaceTexts.ScreenDebugSpawnMenu_Planets);
-
-            combo.SelectItemByKey(m_asteroid_showPlanet ? 3 : m_asteroid_showPredefinedOrProcedural ? 1 : 2);
-            combo.ItemSelected += () => { m_asteroid_showPredefinedOrProcedural = combo.GetSelectedKey() == 1; m_asteroid_showPlanet = combo.GetSelectedKey() == 3; RecreateControls(false); };
-
-            Controls.Remove(combo);
-            list.Controls.Add(combo);
-
-            CreatePlanetControls(list, usableWidth);
-
-            AddSeparator(list);
-
-            CreatePlanetHillControlls(list, usableWidth);
-
-            AddSeparator(list);
-
-            CreatePlanetCanyonControlls(list, usableWidth);
-
-            AddSeparator(list);
-
-            CreateLayersControls(list, usableWidth);
-
-            AddSeparator(list);
-  
-            var button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_SpawnAsteroid, OnSpawnProceduralAsteroid); 
-            Controls.Remove(button);
-            list.Controls.Add(button);
-
-            button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_PickPlanet, PickPlanet);
-            Controls.Remove(button);
-            list.Controls.Add(button);
-
-            button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_UpdatePlanet, UpatePlanet);
-            Controls.Remove(button);
-            list.Controls.Add(button);
-            Controls.Add(list);
-        }
-
-        private void CreatePlanetControls(MyGuiControlList list, float usableWidth)
-        {
-            var labelDeviation = CreateSliderWithDescription(list, usableWidth, 0f, 1f, "Planet deviation scale", ref m_procAsteroidDeviationScale);
-               
-            m_procAsteroidDeviationScale.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                float value = DenormalizeLog(s.Value, MIN_DEVIATION, MAX_DEVIATION);
-                labelDeviation.Text = MyValueFormatter.GetFormatedFloat(value * 100.0f, 3) + "%";
-                m_planetDeviationScaleValue = value;
-            };
-            m_procAsteroidDeviationScale.Value = NormalizeLog(0.003f, MIN_DEVIATION, MAX_DEVIATION);
-            labelDeviation.Text = MyValueFormatter.GetFormatedFloat(0.003f * 100.0f, 3) + "%";
-            m_procAsteroidDeviationScale.ValueChanged += OnPlanetDeviationChanged;
-
-            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 50000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
-
-            m_procAsteroidSize.ValueChanged += (MyGuiControlSlider s) => { asteroidSizeLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m"; m_procAsteroidSizeValue = s.Value; };
-            m_procAsteroidSize.Value = 8000.1f;
-            m_procAsteroidSize.ValueChanged += OnPlanetSizeChanged;
-
-            var labelNoise = CreateSliderWithDescription(list, usableWidth, 0.1f, 5f, "Planet structures ratio", ref m_planetStructureRatio);
-            m_planetStructureRatio.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelNoise.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_planetStructureRatio.Value = 1f;
-
-            var labelNormalNoise = CreateSliderWithDescription(list, usableWidth, 0.1f, 10f, "Planet normal noise ratio", ref m_normalNoiseFrequency);
-            m_normalNoiseFrequency.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelNormalNoise.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_normalNoiseFrequency.Value = 1f;
-
-            m_procAsteroidSeed = CreateSeedButton(list, m_procAsteroidSeedValue, usableWidth);
-        
-            var label = AddLabel("Atmosphere", Color.White.ToVector4(), m_scale);
-            Controls.Remove(label);
-            list.Controls.Add(label);
-
-            m_planetAtmosphere = new MyGuiControlCheckbox(m_currentPosition);
-            m_planetAtmosphere.IsChecked = true;
-            list.Controls.Add(m_planetAtmosphere);
-        }
-
         private MyGuiControlTextbox CreateSeedButton(MyGuiControlList list, string seedValue, float usableWidth)
         {
             var label = AddLabel(MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSeed), Color.White.ToVector4(), m_scale);
@@ -897,237 +606,6 @@ namespace Sandbox.Game.Gui
             separator.AddHorizontal(Vector2.Zero, 1);
 
             list.Controls.Add(separator);
-        }
-
-        private void CreateLayersControls(MyGuiControlList list, float usableWidth)
-        {
-            var button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_CreateLayer, OnCreateLayer);
-            Controls.Remove(button);
-            list.Controls.Add(button);
-
-            button = CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugSpawnMenu_RemoveLayer, OnRemoveLayer);
-            Controls.Remove(button);
-            list.Controls.Add(button);
-
-            m_materialLayerDeviationSeed = CreateSeedButton(list, m_materialLayerDeviationSeedValue, usableWidth);
-
-            var layerNoiseLabel = CreateSliderWithDescription(list, usableWidth, 10f, 200.0f, "Layer deviation noise frequency", ref m_materialLayerDeviationNoise);
-            m_materialLayerDeviationNoise.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerNoiseLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-
-            m_layerCombobox = AddCombo();
-            m_layerCombobox.ItemSelected += OnLayerCombobox_ItemSelected;
-            Controls.Remove(m_layerCombobox);
-            list.Controls.Add(m_layerCombobox);
-
-            m_oreComboboxLabel = AddLabel("Layer ore", Vector4.One, m_scale);
-            Controls.Remove(m_oreComboboxLabel);
-            list.Controls.Add(m_oreComboboxLabel);
-            m_oreComboboxLabel.Visible = false;
-
-            m_oreCombobox = AddCombo();
-            {
-                foreach (var definition in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-                {
-                    m_oreCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId);
-                }
-                m_oreCombobox.ItemSelected += OnOreCombobox_ItemSelected;
-                m_oreCombobox.SortItemsByValueText();
-            }
-            m_oreCombobox.Visible = false;
-            list.Controls.Add(m_oreCombobox);
-
-
-            var layerStartLabel = CreateSliderWithDescription(list, usableWidth, -m_procAsteroidSizeValue * m_planetDeviationScaleValue, m_procAsteroidSizeValue * m_planetDeviationScaleValue, "Layer start", ref m_materialLayerStart);
-            m_materialLayerStart.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerStartLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m";
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].StartHeight = s.Value;
-                }
-
-                if (s.Value > m_materialLayerEnd.Value)
-                {
-                    m_materialLayerEnd.Value = s.Value;
-                }
-            };
-
-            var layerStartHeigthDeviationLabel = CreateSliderWithDescription(list, usableWidth, 0, 100.0f, "Layer start height deviation", ref m_materialLayerStartHeigthDeviation);
-            m_materialLayerStartHeigthDeviation.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerStartHeigthDeviationLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m";
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].HeightStartDeviation = s.Value;
-                }
-            };
-
-            var layerEndLabel = CreateSliderWithDescription(list, usableWidth, -m_procAsteroidSizeValue * m_planetDeviationScaleValue, m_procAsteroidSizeValue * m_planetDeviationScaleValue, "Layer end", ref m_materialLayerEnd);   
-            m_materialLayerEnd.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerEndLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m";
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].EndHeight = s.Value;
-                }
-                if (s.Value < m_materialLayerStart.Value)
-                {
-                    m_materialLayerStart.Value = s.Value;
-                }
-            };
-
-            var layerHeigthDeviationLabel = CreateSliderWithDescription(list, usableWidth,0, 100.0f, "Layer end height deviation", ref m_materialLayerEndHeigthDeviation);
-            m_materialLayerEndHeigthDeviation.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerHeigthDeviationLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m";
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].HeightEndDeviation = s.Value;
-                }
-            };
-
-            var layerAngleStartLabel = CreateSliderWithDescription(list, usableWidth, -1, 1, "Layer angle start", ref m_materialLayerAngleStart);
-            m_materialLayerAngleStart.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerAngleStartLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].StartAngle = s.Value;
-                }
-
-                if (s.Value > m_materialLayerAngleEnd.Value)
-                {
-                    m_materialLayerAngleEnd.Value = s.Value;
-                }
-            };
-
-            var layerStartAngleDeviationLabel = CreateSliderWithDescription(list, usableWidth, 0, 1.0f, "Layer start angle deviation", ref m_materialLayerAngleStartDeviation);
-            m_materialLayerAngleStartDeviation.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerStartAngleDeviationLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].AngleStartDeviation = s.Value;
-                }
-            };
-
-            var layerAngleEndLabel = CreateSliderWithDescription(list, usableWidth, -1, 1, "Layer angle end", ref m_materialLayerAngleEnd);
-            m_materialLayerAngleEnd.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerAngleEndLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].EndAngle = s.Value;
-                }
-                if (s.Value < m_materialLayerAngleStart.Value)
-                {
-                    m_materialLayerAngleStart.Value = s.Value;
-                }
-            };
-
-            var layerAngleDeviationLabel = CreateSliderWithDescription(list, usableWidth, 0, 1.0f, "Layer end angle deviation", ref m_materialLayerAngleEndDeviation);
-            m_materialLayerAngleEndDeviation.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                layerAngleDeviationLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                int currentLayer = m_layerCombobox.GetSelectedIndex();
-                if (currentLayer >= 0 && currentLayer < m_materialLayers.Count)
-                {
-                    m_materialLayers[currentLayer].AngleEndDeviation = s.Value;
-                }
-            };
-
-        }
-
-        private void CreatePlanetHillControlls(MyGuiControlList list, float usableWidth)
-        {
-            var labelHillTreshold = CreateSliderWithDescription(list, usableWidth, 0f, 2f, "Planet hill treshold", ref m_planetHillTreshold);
-            m_planetHillTreshold.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillTreshold.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-            };
-            m_planetHillTreshold.Value = 0.5f;
-
-            var labelHillBlendTreshold = CreateSliderWithDescription(list, usableWidth, 0f, 1f, "Planet hill blend size", ref m_planetHillBlendTreshold);
-            m_planetHillBlendTreshold.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillBlendTreshold.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_planetHillBlendTreshold.Value = 0.4f;
-
-            var labelHillSizeRatio = CreateSliderWithDescription(list, usableWidth, 1f, 5f, "Planet hill size ratio", ref m_planetHillSizeRatio);
-            m_planetHillSizeRatio.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillSizeRatio.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                m_planetHillRatioValue = s.Value;
-            };
-            m_planetHillSizeRatio.Value = m_planetHillRatioValue;
-            m_planetHillSizeRatio.ValueChanged += OnPlanetHillRatioChanged;
-
-            var labelHillFrequency = CreateSliderWithDescription(list, usableWidth, 0.1f, 4f, "Planet hill frequency", ref m_planetHillFrequency);
-            m_planetHillFrequency.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillFrequency.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_planetHillFrequency.Value = 2f;
-
-            var labelHillNumNoises = CreateSliderWithDescription(list, usableWidth, 1f, 4f, "Planet hill num noises", ref m_planetHillNumNoises);
-            m_planetHillNumNoises.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                int value = (int)Math.Ceiling(s.Value);
-                labelHillNumNoises.Text = value.ToString();
-            };
-            m_planetHillNumNoises.Value = 2f;
-        }
-
-        private void CreatePlanetCanyonControlls(MyGuiControlList list, float usableWidth)
-        {          
-            var labelHillTreshold = CreateSliderWithDescription(list, usableWidth, -1.345f, -0.5f, "Planet canyon treshold", ref m_planetCanyonTreshold);
-            m_planetCanyonTreshold.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillTreshold.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-            };
-            m_planetCanyonTreshold.Value = -0.8f;
-
-            var labelHillBlendTreshold = CreateSliderWithDescription(list, usableWidth, 0f, 1f, "Planet canyon blend size", ref m_planetCanyonBlendTreshold);
-            m_planetCanyonBlendTreshold.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillBlendTreshold.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_planetCanyonBlendTreshold.Value = 0.1f;
-
-            var labelHillSizeRatio = CreateSliderWithDescription(list, usableWidth, 1.0f, 5.0f, "Planet canyon size ratio", ref m_planetCanyonSizeRatio);
-            m_planetCanyonSizeRatio.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillSizeRatio.Text = MyValueFormatter.GetFormatedFloat(s.Value, 3);
-                m_planetCanyonRatioValue = s.Value;
-            };
-            m_planetCanyonSizeRatio.Value = m_planetCanyonRatioValue;
-            m_planetCanyonSizeRatio.ValueChanged += OnPlanetCanyonRatioChanged;
-
-            var labelHillFrequency = CreateSliderWithDescription(list, usableWidth, 0.1f, 3f, "Planet canyon frequency", ref m_planetCanyonFrequency);
-            m_planetCanyonFrequency.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                labelHillFrequency.Text = MyValueFormatter.GetFormatedFloat(s.Value, 2);
-            };
-            m_planetCanyonFrequency.Value = 0.11f;
-
-            var labelCanoynNumNoises = CreateSliderWithDescription(list, usableWidth, 1f, 2f, "Planet canyon num noises", ref m_planetCanyonNumNoises);
-            m_planetCanyonNumNoises.ValueChanged += (MyGuiControlSlider s) =>
-            {
-                int value = (int)Math.Ceiling(s.Value);
-                labelCanoynNumNoises.Text = value.ToString();
-            };
-            m_planetCanyonNumNoises.Value = 0.9f;
         }
 
         private MyGuiControlLabel CreateSliderWithDescription(MyGuiControlList list, float usableWidth,float min,float max, string description,ref MyGuiControlSlider slider)
@@ -1159,59 +637,7 @@ namespace Sandbox.Game.Gui
 
             slider.DebugScale = m_sliderDebugScale;
             slider.ColorMask = Color.White.ToVector4();
-            slider.Size = new Vector2(usableWidth, m_procAsteroidDeviationScale.Size.Y);
             list.Controls.Add(slider);
         }
-
-        private void PickPlanet(MyGuiControlButton obj)
-        {
-           
-        }
-
-        private void UpatePlanet(MyGuiControlButton obj)
-        {
-            if (m_currentVoxel == null)
-            {
-                return;
-            }
-
-            MyCsgShapePlanetShapeAttributes planetShapeAttributes;
-            MyCsgShapePlanetHillAttributes hillAttributes;
-            MyCsgShapePlanetHillAttributes canyonAttributes;
-            GetPlanetAttributes(out planetShapeAttributes, out hillAttributes,out canyonAttributes);
-
-            SpawnPlanet(ref planetShapeAttributes, ref hillAttributes, ref canyonAttributes, m_materialLayers, m_currentVoxel.PositionLeftBottomCorner);
-            m_currentVoxel.Close();
-
-            PickPlanet(null);
-        }
-
-        private void GetPlanetAttributes(out MyCsgShapePlanetShapeAttributes planetShapeAttributes, out MyCsgShapePlanetHillAttributes hillAttributes, out MyCsgShapePlanetHillAttributes canyonAttributes)
-        {
-            int seed = GetProceduralAsteroidSeed(m_procAsteroidSeed);
-            planetShapeAttributes = new MyCsgShapePlanetShapeAttributes();
-            planetShapeAttributes.DeviationScale = m_planetDeviationScaleValue;
-            planetShapeAttributes.Radius = m_procAsteroidSize.Value;
-            planetShapeAttributes.Seed = seed;
-            planetShapeAttributes.LayerDeviationSeed = GetProceduralAsteroidSeed(m_materialLayerDeviationSeed);
-            planetShapeAttributes.NoiseFrequency = m_planetStructureRatio.Value;
-            planetShapeAttributes.NormalNoiseFrequency = m_normalNoiseFrequency.Value;
-            planetShapeAttributes.LayerDeviationNoiseFreqeuncy = m_materialLayerDeviationNoise.Value;
-
-            hillAttributes = new MyCsgShapePlanetHillAttributes();
-            hillAttributes.SizeRatio = m_planetHillSizeRatio.Value;
-            hillAttributes.Treshold = m_planetHillTreshold.Value;
-            hillAttributes.BlendTreshold = m_planetHillBlendTreshold.Value;
-            hillAttributes.Frequency = m_planetHillFrequency.Value;
-            hillAttributes.NumNoises = (int)Math.Ceiling(m_planetHillNumNoises.Value);
-
-            canyonAttributes = new MyCsgShapePlanetHillAttributes();
-            canyonAttributes.SizeRatio = m_planetCanyonSizeRatio.Value;
-            canyonAttributes.Treshold = m_planetCanyonTreshold.Value;
-            canyonAttributes.BlendTreshold =  m_planetCanyonBlendTreshold.Value;
-            canyonAttributes.Frequency = m_planetCanyonFrequency.Value;
-            canyonAttributes.NumNoises = (int)Math.Ceiling(m_planetCanyonNumNoises.Value);
-        }
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,11 +16,13 @@ namespace Sandbox.Game.Gui
     {
         public struct ComponentInfo
         {
+            public MyDefinitionId DefinitionId;
             public string Icon;
             public String ComponentName;
             public int MountedCount;
             public int StockpileCount;
             public int TotalCount;
+			public int AvailableAmount;
 
             public int InstalledCount
             {

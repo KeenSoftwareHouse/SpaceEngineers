@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using System;
 using System.Text;
+using VRage.Input;
 using VRage.Utils;
 using VRageMath;
 
@@ -28,6 +29,7 @@ namespace Sandbox.Graphics.GUI
         MyGuiControlLabel m_GLabel;
         MyGuiControlLabel m_BLabel;
         Vector2 m_minSize;
+        MyStringId m_caption;
 
         bool m_canChangeColor = true;
         bool m_placeSlidersVertically;
@@ -38,6 +40,7 @@ namespace Sandbox.Graphics.GUI
             Vector2 position,
             Color color,
             Color defaultColor,
+            MyStringId dialogAmountCaption,
             bool placeSlidersVertically = false,
             MyFontEnum font = MyFontEnum.Blue)
             : base(position: position,
@@ -48,6 +51,7 @@ namespace Sandbox.Graphics.GUI
             m_placeSlidersVertically = placeSlidersVertically;
             m_textLabel = MakeLabel(textScale, font);
             m_textLabel.Text = text.ToString();
+            m_caption = dialogAmountCaption;
 
             m_RSlider = MakeSlider(font, defaultColor.R);
             m_GSlider = MakeSlider(font, defaultColor.G);
@@ -109,7 +113,7 @@ namespace Sandbox.Graphics.GUI
 
         MyGuiControlSlider MakeSlider(MyFontEnum font, byte defaultVal)
         {
-            return new MyGuiControlSlider(
+            MyGuiControlSlider slider=new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: 121f/MyGuiConstants.GUI_OPTIMAL_SIZE.X,
                 minValue: 0,
@@ -118,6 +122,25 @@ namespace Sandbox.Graphics.GUI
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 labelFont: font,
                 defaultValue: (int)defaultVal);
+            slider.SliderClicked = OnSliderClicked;
+            return slider;
+        }
+
+        private bool OnSliderClicked(MyGuiControlSlider who)
+        {
+            if (MyInput.Static.IsAnyCtrlKeyPressed())
+            {
+                float min = 0;
+                float max = 255;
+                float val = who.Value;
+
+                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, m_caption, parseAsInteger: true, defaultAmount: val);
+                dialog.OnConfirmed += (v) => { who.Value = v; };
+                MyScreenManager.AddScreen(dialog);
+                return true;
+            }
+            return false;
+
         }
 
         MyGuiControlLabel MakeLabel(float scale, MyFontEnum font)
@@ -130,7 +153,7 @@ namespace Sandbox.Graphics.GUI
                 font: font);
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var position = GetPositionAbsoluteTopRight();
             var size = new Vector2(m_BSlider.Size.X, m_textLabel.Size.Y);
@@ -140,7 +163,7 @@ namespace Sandbox.Graphics.GUI
                 size,
                 ApplyColorMaskModifiers(m_color.ToVector4(), true, transitionAlpha),
                 MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             position.X -= size.X;
             MyGuiManager.DrawBorders(position, size, Color.White, BorderSize);

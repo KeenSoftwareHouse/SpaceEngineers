@@ -19,6 +19,23 @@ namespace VRageMath
             return new Vector3(hue, saturation, value);
         }
 
+
+        /// <summary>
+        /// Use this for HSV in DX11 Renderer, X = Hue 0..1, Y = Saturation -1..1, Z = Value -1..1
+        /// </summary>
+        public static Vector3 ColorToHSVDX11(this Color rgb)
+        {
+            System.Drawing.Color color = System.Drawing.Color.FromArgb(rgb.R, rgb.G, rgb.B);
+
+            int max = Math.Max(color.R, Math.Max(color.G, color.B));
+            int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+            float hue = color.GetHue() / 360f;
+            float saturation = (max == 0) ? -1f : 1f - (2f * min / max);
+            float value = -1f + 2f * max / 255f;
+            return new Vector3(hue, saturation, value);
+        }
+
         private static Vector3 Hue(float H)
         {
             float R = Math.Abs(H * 6 - 3) - 1;

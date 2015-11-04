@@ -33,9 +33,6 @@ namespace VRage.Import
 
         MESH_INSTANCED_GENERIC, //Classic instancing
         MESH_INSTANCED_GENERIC_MASKED,
-
-        ATMOSPHERE,
-        PLANET_SURFACE,
     }
 
     public static class PositionPacker
@@ -130,6 +127,10 @@ namespace VRage.Import
                 bRes = m_MaterialDesc.Read(reader, version);
 
                 bRes &= Enum.TryParse(m_MaterialDesc.Technique, out Technique);
+                if (m_MaterialDesc.Technique == "FOLIAGE")
+                {
+                    Technique = MyMeshDrawTechnique.ALPHA_MASKED;
+                }
             }
             else
             {

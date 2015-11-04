@@ -9,11 +9,10 @@ using Sandbox.Game.Entities.Interfaces;
 using VRage;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics;
-using VRage;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridReflectorLightSystem
+    public class MyGridReflectorLightSystem
     {
         HashSet<MyReflectorLight> m_reflectors;
 

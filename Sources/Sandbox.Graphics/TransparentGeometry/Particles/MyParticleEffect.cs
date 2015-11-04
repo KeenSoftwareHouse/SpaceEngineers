@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Xml;
 using VRage.Utils;
@@ -52,22 +53,20 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
 
         public bool AutoDelete;
-        public bool Enabled;
         public bool EnableLods;
         public float UserEmitterScale;
         public float UserBirthMultiplier;
         public float UserRadiusMultiplier;
         public float UserScale;
+		public Vector3D UserAxisScale;
         public Vector4 UserColorMultiplier;
         public bool UserDraw;
 
-        public bool IsInFrustum { get; private set; }
         public bool CalculateDeltaMatrix;
         public bool Near;
         public Matrix DeltaMatrix;
         //public LastFrameVisibilityEnum WasVisibleLastFrame = LastFrameVisibilityEnum.AlwaysVisible;
         public uint RenderCounter = 0;
-        public bool LowRes;
         public Vector3 Velocity;
         
         #endregion
@@ -97,6 +96,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             UserBirthMultiplier = 1.0f;
             UserRadiusMultiplier = 1.0f;
             UserScale = 1.0f;
+			UserAxisScale = Vector3.One;
             UserColorMultiplier = Vector4.One;
             UserDraw = false;
             LowRes = false;
@@ -354,6 +354,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         #region Properties
 
+        public float Preload { get { return m_preload; } set { m_preload = value; } }
+
+        public bool Enabled { get; set; }
+
+        public bool LowRes { get; set; }
+
+        public int ID { get { return m_particleID; } set { m_particleID = value; } }
+
+        public float Length { get { return GetLength(); } set { SetLength(value); } }
+
+        [Browsable(false)]
+        public bool IsInFrustum { get; private set; }
+
         public float GetElapsedTime()
         {
             return m_elapsedTime;
@@ -397,8 +410,9 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public bool HasShownSomething()
         {
             return m_hasShownSomething;
-        } 
+        }
 
+        [Browsable(false)]
         public MatrixD WorldMatrix
         {
             get { return m_worldMatrix; }
@@ -433,11 +447,13 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             }
         }
 
+        [Browsable(false)]
         public float Distance
         {
             get { return m_distance; }
         }
 
+        [Browsable(false)]
         public object Tag { get; set; }
 
         #endregion
@@ -485,6 +501,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             return m_generations;
         }
 
+        [Browsable(false)]
         public bool IsStopped
         {
             get { return m_isStopped; }
@@ -626,6 +643,19 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         }
 
         #endregion
+
+        public bool IsValid()
+        {
+            foreach (var generation in m_generations)
+            {
+                if (!generation.IsValid())
+                {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
     }
 
 

@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
@@ -7,14 +6,14 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Sandbox.Game.EntityComponents;
+using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    public abstract class MyAirtightDoorGeneric : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
+    public abstract class MyAirtightDoorGeneric : MyFunctionalBlock, ModAPI.IMyDoor
     {
 
         private MySoundPair m_sound;
@@ -32,15 +31,9 @@ namespace Sandbox.Game.Entities.Blocks
 
         private static readonly float EPSILON = 0.000000001f;
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public MyAirtightDoorGeneric()
@@ -109,7 +102,7 @@ namespace Sandbox.Game.Entities.Blocks
         
         internal bool DoChangeOpenClose(bool value)
         {
-            if (!Enabled || !PowerReceiver.IsPowered)
+			if (!Enabled || !ResourceSink.IsPowered)
                 return false;//inoperative
             if (m_open != value)
             {
@@ -127,7 +120,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_currSpeed = m_openingSpeed;
             else
                 m_currSpeed = -m_openingSpeed;
-            PowerReceiver.Update();
+			ResourceSink.Update();
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds-1;//-1 because we need to have doors already moving at time of DoorStateChanged
@@ -144,13 +137,13 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
         public override void OnBuildSuccess(long builtBy)
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnBuildSuccess(builtBy);
         }
 
@@ -166,20 +159,21 @@ namespace Sandbox.Game.Entities.Blocks
             m_sound = new MySoundPair(BlockDefinition.Sound);
             m_subpartMovementDistance = BlockDefinition.SubpartMovementDistance;
 
-            PowerReceiver = new MyPowerReceiver(MyConsumerGroupEnum.Doors,
-                false,
+			ResourceSink = new MyResourceSinkComponent();
+            ResourceSink.Init(
+				MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
                 BlockDefinition.PowerConsumptionMoving,
-                () => UpdatePowerInput());
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
+                UpdatePowerInput);
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.Update();
 
-            if (!Enabled || !PowerReceiver.IsPowered)
+			if (!Enabled || !ResourceSink.IsPowered)
                 UpdateDoorPosition();
 
             OnStateChange();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -223,7 +217,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
                 m_currSpeed = 0;
-                PowerReceiver.Update();
+				ResourceSink.Update();
                 RaisePropertiesChanged();
                 if (!m_open)
                 {   //finished closing - they are airtight now
@@ -232,7 +226,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 m_stateChange = false;
             }
-            if (Enabled && PowerReceiver.IsPowered && m_currSpeed != 0)
+			if (Enabled && ResourceSink.IsPowered && m_currSpeed != 0)
             {
                 StartSound(m_sound);
             }
@@ -258,7 +252,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void UpdateCurrentOpening()
         {
-            if (Enabled && PowerReceiver.IsPowered)
+			if (Enabled && ResourceSink.IsPowered)
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
                 float deltaPos = m_currSpeed * timeDelta;
@@ -288,7 +282,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         public event Action<bool> DoorStateChanged;

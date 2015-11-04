@@ -15,33 +15,38 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyVoxelPathfinding
     {
-        public struct CellId
+        public struct CellId: IEquatable<CellId>
         {
-            public MyVoxelMap VoxelMap;
+            public MyVoxelBase VoxelMap;
             public Vector3I Pos;
 
             public override bool Equals(object obj)
             {
+                Debug.Assert(false, "Equals on struct does allocation!");
                 if (ReferenceEquals(null, obj)) return false;
                 if (obj.GetType() != typeof(CellId)) return false;
 
-                CellId other = (CellId)obj;
-                return VoxelMap == other.VoxelMap && Pos == other.Pos;
+                return this.Equals((CellId)obj);
             }
 
             public override int GetHashCode()
             {
                 return VoxelMap.GetHashCode() * 1610612741 + Pos.GetHashCode();
             }
+
+            public bool Equals(CellId other)
+            {
+                return VoxelMap == other.VoxelMap && Pos == other.Pos;
+            }
         }
 
         private int m_updateCtr;
         private const int UPDATE_PERIOD = 5;
 
-        private Dictionary<MyVoxelMap, MyVoxelNavigationMesh> m_navigationMeshes;
+        private Dictionary<MyVoxelBase, MyVoxelNavigationMesh> m_navigationMeshes;
 
         private List<Vector3D> m_tmpUpdatePositions;
-        private List<MyVoxelMap> m_tmpVoxelMaps;
+        private List<MyVoxelBase> m_tmpVoxelMaps;
         private List<MyVoxelNavigationMesh> m_tmpNavmeshes;
 
         private MyNavmeshCoordinator m_coordinator;
@@ -52,9 +57,9 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             MyEntities.OnEntityAdd += MyEntities_OnEntityAdd;
 
-            m_navigationMeshes = new Dictionary<MyVoxelMap, MyVoxelNavigationMesh>();
+            m_navigationMeshes = new Dictionary<MyVoxelBase, MyVoxelNavigationMesh>();
             m_tmpUpdatePositions = new List<Vector3D>(8);
-            m_tmpVoxelMaps = new List<MyVoxelMap>();
+            m_tmpVoxelMaps = new List<MyVoxelBase>();
             m_tmpNavmeshes = new List<MyVoxelNavigationMesh>();
             m_coordinator = coordinator;
             coordinator.SetVoxelPathfinding(this);
@@ -62,14 +67,14 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private void MyEntities_OnEntityAdd(MyEntity entity)
         {
-            var voxelMap = entity as MyVoxelMap;
+            var voxelMap = entity as MyVoxelBase;
             if (voxelMap == null) return;
 
             m_navigationMeshes.Add(voxelMap, new MyVoxelNavigationMesh(voxelMap, m_coordinator, MyAIComponent.Static.Pathfinding.NextTimestampFunction));
             RegisterVoxelMapEvents(voxelMap);
         }
 
-        private void RegisterVoxelMapEvents(MyVoxelMap voxelMap)
+        private void RegisterVoxelMapEvents(MyVoxelBase voxelMap)
         {
             voxelMap.OnClose += voxelMap_OnClose;
         }

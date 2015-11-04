@@ -4142,7 +4142,7 @@
                       <ProjectilesCount>50</ProjectilesCount>
                     </PhysicalContent>
                     <ItemId>8</ItemId>
-                    <AmountDecimal>20</AmountDecimal>
+                    <AmountDecimal>40</AmountDecimal>
                   </MyObjectBuilder_InventoryItem>
                   <MyObjectBuilder_InventoryItem>
                     <Amount>40</Amount>

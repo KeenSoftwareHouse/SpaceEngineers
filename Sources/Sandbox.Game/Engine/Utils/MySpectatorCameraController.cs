@@ -15,6 +15,10 @@ namespace Sandbox.Engine.Utils
     {
         public static MySpectatorCameraController Static;
 
+        private double m_yaw;
+        private double m_pitch;
+        private double m_roll;
+
         public MySpectatorCameraController()
         {
             Static = this;
@@ -86,10 +90,11 @@ namespace Sandbox.Engine.Utils
                             rollIndicator = MyInput.Static.GetDeveloperRoll();
                         }
 
+                        float rollAmount = 0;
                         if (rollIndicator != 0)
                         {
                             Vector3D r, u;
-                            float rollAmount = rollIndicator * m_speedModeAngular * 0.1f;
+                            rollAmount = rollIndicator * m_speedModeAngular * 0.1f;
                             rollAmount = MathHelper.Clamp(rollAmount, -0.02f, 0.02f);
                             MyUtils.VectorPlaneRotation(m_orientation.Up, m_orientation.Right, out u, out r, rollAmount);
                             m_orientation.Right = r;
@@ -142,22 +147,41 @@ namespace Sandbox.Engine.Utils
                         }
                         else
                         {
-                            if (rotationIndicator.X != 0)
-                            {
-                                Vector3D u, f;
-                                MyUtils.VectorPlaneRotation(m_orientation.Up, m_orientation.Forward, out u, out f, rotationIndicator.X * amountOfRotation);
-                                m_orientation.Up = u;
-                                m_orientation.Forward = f;
-                            }
+                            if (!MyFakes.ENABLE_SPECTATOR_ROLL_MOVEMENT)
+                            {   
+                                // TODO: compute from current orientation matrix yaw/pitch/roll
 
-                            if (rotationIndicator.Y != 0)
-                            {
-                                Vector3D r, f;
-                                MyUtils.VectorPlaneRotation(m_orientation.Right, m_orientation.Forward, out r, out f, -rotationIndicator.Y * amountOfRotation);
+                                rotationIndicator.Rotate(m_roll);
 
-                                m_orientation.Right = r;
-                                m_orientation.Forward = f;
+                                m_yaw -= rotationIndicator.Y * amountOfRotation;
+                                m_pitch -= rotationIndicator.X * amountOfRotation;
+                                m_roll -= rollAmount;                                                               
+
+                                MathHelper.LimitRadians2PI(ref m_yaw);
+                                m_pitch = MathHelper.Clamp(m_pitch, -Math.PI * 0.5f, Math.PI * 0.5f);
+                                MathHelper.LimitRadians2PI(ref m_roll);                               
+
+                                m_orientation = MatrixD.CreateFromYawPitchRoll(m_yaw, m_pitch, m_roll);                                
                             }
+                            else
+                            {
+                                if (rotationIndicator.Y != 0)
+                                {
+                                    Vector3D r, f;
+                                    MyUtils.VectorPlaneRotation(m_orientation.Right, m_orientation.Forward, out r, out f, -rotationIndicator.Y * amountOfRotation);
+
+                                    m_orientation.Right = r;
+                                    m_orientation.Forward = f;
+                                }
+
+                                if (rotationIndicator.X != 0)
+                                {
+                                    Vector3D u, f;
+                                    MyUtils.VectorPlaneRotation(m_orientation.Up, m_orientation.Forward, out u, out f, rotationIndicator.X * amountOfRotation);
+                                    m_orientation.Up = u;
+                                    m_orientation.Forward = f;
+                                }
+                            }                                                
 
                             float afterburner = (MyInput.Static.IsAnyShiftKeyPressed() ? 1.0f : 0.35f) * (MyInput.Static.IsAnyCtrlKeyPressed() ? 0.3f : 1);
                             moveIndicator *= afterburner * SpeedModeLinear;

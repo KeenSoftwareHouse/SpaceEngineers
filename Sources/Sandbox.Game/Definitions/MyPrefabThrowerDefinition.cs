@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using System;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using VRage.Library.Utils;
+using VRage.Audio;
+using VRage.Utils;
 
 
 namespace Sandbox.Definitions
@@ -14,7 +15,7 @@ namespace Sandbox.Definitions
         public float MinSpeed;
         public float PushTime;
         public string PrefabToThrow;
-        public MyStringId ThrowSound;
+        public MyCueId ThrowSound;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -28,7 +29,7 @@ namespace Sandbox.Definitions
             MinSpeed = ob.MinSpeed;
             PushTime = ob.PushTime;
             PrefabToThrow = ob.PrefabToThrow;
-            ThrowSound = MyStringId.GetOrCompute(ob.ThrowSound);
+            ThrowSound = new MyCueId(MyStringHash.GetOrCompute(ob.ThrowSound));
         }
     }
 }

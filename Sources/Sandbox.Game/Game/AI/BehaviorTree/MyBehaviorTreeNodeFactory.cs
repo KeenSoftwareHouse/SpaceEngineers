@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {
@@ -39,6 +40,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             m_objectFactory.RegisterFromAssembly(Assembly.GetAssembly(typeof(MyBehaviorTreeNode)));
 
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+            m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
         }
 
@@ -46,11 +48,6 @@ namespace Sandbox.Game.AI.BehaviorTree
         {
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
             return obj;
-        }
-
-        public static MyObjectBuilder_BehaviorTreeNode CreateObjectBuilder(MyBehaviorTreeNode cubeBlock)
-        {
-            return m_objectFactory.CreateObjectBuilder<MyObjectBuilder_BehaviorTreeNode>(cubeBlock);
         }
 
         public static Type GetProducedType(MyObjectBuilderType objectBuilderType)

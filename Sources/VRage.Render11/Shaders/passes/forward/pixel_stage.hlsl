@@ -12,6 +12,11 @@ struct PixelStageInput
 #include <Surface.h>
 #include <LightingModel.h>
 
+#define CUSTOM_CASCADE_SLOT
+Texture2DArray<float> CSM : register( MERGE(t,60) );
+
+#include <csm.h>
+
 // csm
 // point lights
 
@@ -42,19 +47,23 @@ SurfaceInterface surfaceFromMaterial(MaterialOutputInterface mat, float3 positio
 	return surface;
 }
 
+#ifdef CASCADES_NUM
 float4 shade_forward(SurfaceInterface surface, float3 position) {
 	float4 shaded = 0;
 
-	shaded.xyz = main_directional_light(surface);
-	shaded.xyz += 0.1f * surface.albedo;
+	float shadow = calculate_shadow_fast_aprox(position);
+	shaded.xyz = main_directional_light(surface) * shadow;
+	
+	shaded.xyz = max(shaded.xyz, frame_.forwardPassAmbient * surface.albedo);
 	shaded.w = 1;
 	return shaded;
 }
+#endif
 
 void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 
 	PixelInterface pixel;
-	pixel.screen_position = input.position.xy;
+	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 	init_ps_interface(pixel);
 	pixel.position_ws = input.worldPosition;
@@ -69,5 +78,11 @@ void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 		discard;
 
 	SurfaceInterface surface = surfaceFromMaterial(material_output, input.worldPosition);
-	shaded = shade_forward(surface, 0);
+
+	float4 csProjInMainScreen = mul(float4(input.worldPosition, 1), frame_.view_projection_matrix);
+	csProjInMainScreen /= csProjInMainScreen.w;
+
+	surface.native_depth = csProjInMainScreen.z;
+	surface.depth = linearize_depth(surface.native_depth, frame_.projection_matrix);
+	shaded = shade_forward(surface, input.worldPosition);
 }

@@ -17,6 +17,8 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics;
 using Sandbox.Game.Components;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 #endregion
 
@@ -56,7 +58,7 @@ namespace Sandbox.Game.Weapons
             Render.SkipIfTooSmall = false;
             Render.NeedsDraw = true;
 
-            this.InitSpherePhysics(MyMaterialType.METAL, Model, 1, 1, 1, 0, Engine.Physics.RigidBodyFlag.RBF_DEFAULT);
+            this.InitSpherePhysics(MyMaterialType.METAL, Model, 1, 1, 1, 0, RigidBodyFlag.RBF_DEFAULT);
 
             Physics.Enabled = true;
         }

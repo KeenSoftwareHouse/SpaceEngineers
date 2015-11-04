@@ -139,6 +139,7 @@ namespace Sandbox.Game.Gui
 
         public void PopulateList(string searchString)
         {
+            var selected = m_tableIns.SelectedRow==null?null:m_tableIns.SelectedRow.UserData;
             ClearList();
             if (MySession.Static.Gpss.ExistsForPlayer(MySession.LocalPlayerId))
                 foreach (var item in MySession.Static.Gpss[MySession.LocalPlayerId])
@@ -161,9 +162,19 @@ namespace Sandbox.Game.Gui
                     {
                         AddToList(item.Value);
                     }
-                    FillRight();
                 }
             m_tableIns.SortByColumn(0, MyGuiControlTable.SortStateEnum.Ascending);
+            enableEditBoxes(false);
+            if (selected!=null)
+                for (int i = 0; i < m_tableIns.RowsCount; i++)
+                    if (selected == m_tableIns.GetRow(i).UserData)
+                    {
+                        m_tableIns.SelectedRowIndex = i;
+                        enableEditBoxes(true);
+                        break;
+                    }
+            m_tableIns.ScrollToSelection();
+            FillRight();
         }
 
         public static readonly Color ITEM_SHOWN_COLOR = Color.CornflowerBlue;
@@ -259,19 +270,36 @@ namespace Sandbox.Game.Gui
 
         public void OnNameChanged(MyGuiControlTextbox sender)
         {
-            m_needsSyncName = true;
-            //":" is not valid:
-            if (IsNameOk(sender.Text))
+            if (m_tableIns.SelectedRow != null)
             {
-                m_nameOk = true;
-                sender.ColorMask = Vector4.One;
+                m_needsSyncName = true;
+                //":" is not valid:
+                if (IsNameOk(sender.Text))
+                {
+                    m_nameOk = true;
+                    sender.ColorMask = Vector4.One;
+                    //propagate new name into table and re-sort:
+                    Sandbox.Graphics.GUI.MyGuiControlTable.Row selected = m_tableIns.SelectedRow;
+                    Sandbox.Graphics.GUI.MyGuiControlTable.Cell cell = selected.GetCell(0);
+                    if (cell != null)
+                        cell.Text.Clear().Append(sender.Text);
+                    m_tableIns.SortByColumn(0, MyGuiControlTable.SortStateEnum.Ascending);
+                    //select same entry:
+                    for (int i = 0; i < m_tableIns.RowsCount; i++)
+                        if (selected == m_tableIns.GetRow(i))
+                        {
+                            m_tableIns.SelectedRowIndex = i;
+                            break;
+                        }
+                    m_tableIns.ScrollToSelection();
+                }
+                else
+                {
+                    m_nameOk = false;
+                    sender.ColorMask = Color.Red.ToVector4();
+                }
+                updateWarningLabel();
             }
-            else
-            {
-                m_nameOk = false;
-                sender.ColorMask = Color.Red.ToVector4();
-            }
-            updateWarningLabel();
         }
         public bool IsNameOk(string str)
         {

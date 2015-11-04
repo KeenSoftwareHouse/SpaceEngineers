@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Data.Audio
 {
@@ -20,6 +20,6 @@ namespace VRage.Data.Audio
 
         public bool IsHudCue { get { return StringComparer.InvariantCultureIgnoreCase.Equals(Category.ToString(), "hud"); } }
 
-        public MyStringId SubtypeId;
+        public MyStringHash SubtypeId;
     }
 }

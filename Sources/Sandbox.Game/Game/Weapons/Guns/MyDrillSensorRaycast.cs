@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Havok;
+using Sandbox.Engine.Physics;
+using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Havok;
-using Sandbox.Engine.Physics;
 using VRageMath;
 using VRageRender;
-using Sandbox.Game.Entities;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -34,6 +32,61 @@ namespace Sandbox.Game.Weapons.Guns
             Center = (m_origin + FrontPoint) * 0.5f;
         }
 
+		public static bool GetShapeCenter(HkShape shape, uint shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
+		{
+			bool shapeSet = true;
+
+			switch (shape.ShapeType)
+			{
+				case HkShapeType.List:
+					var listShape = (HkListShape)shape;
+					shape = listShape.GetChildByIndex((int)shapeKey);
+					break;
+				case HkShapeType.Mopp:
+					var moppShape = (HkMoppBvTreeShape)shape;
+					shape = moppShape.ShapeCollection.GetShape(shapeKey, null);
+					break;
+				case HkShapeType.Box:
+					var boxShape = (HkBoxShape)shape;
+					shape = boxShape;
+					break;
+				case HkShapeType.ConvexTranslate:
+					var convexTranslateShape = (HkConvexShape)shape;
+					shape = convexTranslateShape;
+					break;
+				case HkShapeType.ConvexTransform:
+					var convexTransformShape = (HkConvexTransformShape)shape;
+					shape = convexTransformShape;
+					break;
+			/*	case HkShapeType.BvTree:
+					var bvTreeShape = (HkBvTreeShape)shape;
+					var iterator = bvTreeShape.Base.GetContainer();
+					while (iterator.CurrentValue.IsContainer() && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTranslate && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTransform)
+						iterator.Next();
+					if (iterator.IsValid)
+						shape = iterator.CurrentValue;
+					else
+						shapeSet = false;
+					break;*/
+
+				default:
+					shapeSet = false;
+					break;
+			}
+
+			if (shapeSet)
+			{
+				Vector4 min4, max4;
+				shape.GetLocalAABB(0.05f, out min4, out max4);
+				Vector3 worldMin = Vector3.Transform(new Vector3(min4), grid.PositionComp.WorldMatrix);
+				Vector3 worldMax = Vector3.Transform(new Vector3(max4), grid.PositionComp.WorldMatrix);
+				var worldAABB = new BoundingBoxD(worldMin, worldMax);
+
+				shapeCenter = worldAABB.Center;
+			}
+			return shapeSet;
+		}
+
         protected override void ReadEntitiesInRange()
         {
             m_entitiesInRange.Clear();
@@ -43,30 +96,48 @@ namespace Sandbox.Game.Weapons.Guns
             DetectionInfo value = new DetectionInfo();
             foreach (var hit in m_hits)
             {
-                if (hit.HkHitInfo.Body == null) continue;
-                var entity = hit.HkHitInfo.Body.GetEntity();
+				var hitInfo = hit.HkHitInfo;
+				if (hitInfo.Body == null) continue;
+				var entity = hitInfo.GetHitEntity();
+
                 if (entity == null) continue;
                 var rootEntity = entity.GetTopMostParent();
                 if (!IgnoredEntities.Contains(rootEntity))
                 {
-                    Vector3D fixedDetectionPoint = hit.Position;
-                    if (rootEntity is MyCubeGrid)
+                    Vector3D detectionPoint = hit.Position;
+					
+					MyCubeGrid grid = rootEntity as MyCubeGrid;
+                    if (grid != null)
                     {
-                        MyCubeGrid grid = rootEntity as MyCubeGrid;
-                        if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
-                            fixedDetectionPoint += hit.HkHitInfo.Normal * -0.08f;
-                        else
-                            fixedDetectionPoint += hit.HkHitInfo.Normal * -0.02f;
+                        var shape = hitInfo.Body.GetShape();
+                        int shapeIdx = 0;
+                        if(grid.Physics.IsWelded || grid.Physics.WeldInfo.Children.Count != 0)
+                        {
+                            if (shape.IsContainer())
+                            {
+                                shape = shape.GetContainer().GetShape(hitInfo.GetShapeKey(0));
+                                shapeIdx = 1;
+                            }
+                        }
+                        if (!GetShapeCenter(shape, hitInfo.GetShapeKey(shapeIdx), grid, ref detectionPoint))
+                        {
+                            if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
+                                detectionPoint += hit.HkHitInfo.Normal * -0.08f;
+                            else
+                                detectionPoint += hit.HkHitInfo.Normal * -0.02f;
+                        }
                     }
                     
                     if (m_entitiesInRange.TryGetValue(rootEntity.EntityId, out value))
                     {
-                        if (Vector3.DistanceSquared(value.DetectionPoint, m_origin) > Vector3.DistanceSquared(fixedDetectionPoint, m_origin))
-                            m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, fixedDetectionPoint);
+						var oldDistance = Vector3.DistanceSquared(value.DetectionPoint, m_origin);
+						var newDistance = Vector3.DistanceSquared(detectionPoint, m_origin);
+						if (oldDistance > newDistance)
+							m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, detectionPoint);
                     }
                     else
                     {
-                        m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, fixedDetectionPoint);
+                        m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, detectionPoint);
                     }
                 }
             }
@@ -81,15 +152,16 @@ namespace Sandbox.Game.Weapons.Guns
                     var rootEntity = segment.Element.GetTopMostParent();
                     if (!IgnoredEntities.Contains(rootEntity))
                     {
-                        if (!(segment.Element is MyCubeBlock)) continue;
+                        MyCubeBlock block = segment.Element as MyCubeBlock;
+                        if (block == null) continue;
 
                         Vector3D point = new Vector3D();
 
-                        MyCubeBlock block = segment.Element as MyCubeBlock;
                         if (block.SlimBlock.HasPhysics == false)
                         {
-                            Vector3D localOrigin = Vector3D.Transform(m_origin, block.PositionComp.WorldMatrixNormalizedInv);
-                            Vector3D localFront = Vector3D.Transform(FrontPoint, block.PositionComp.WorldMatrixNormalizedInv);
+                            MatrixD blockWorldMatrixNormalizedInv = block.PositionComp.WorldMatrixNormalizedInv;
+                            Vector3D localOrigin = Vector3D.Transform(m_origin, ref blockWorldMatrixNormalizedInv);
+                            Vector3D localFront = Vector3D.Transform(FrontPoint, ref blockWorldMatrixNormalizedInv);
                             Ray ray = new Ray(localOrigin, Vector3.Normalize(localFront - localOrigin));
                             //MyRenderProxy.DebugDrawAABB(block.WorldAABB, Color.Red.ToVector3(), 1.0f, 1.0f, false);
                             float? dist = ray.Intersects(block.PositionComp.LocalAABB);

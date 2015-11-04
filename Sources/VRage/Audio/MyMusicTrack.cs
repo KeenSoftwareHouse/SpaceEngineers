@@ -1,4 +1,4 @@
-﻿using VRage.Library.Utils;
+﻿using VRage.Utils;
 
 namespace VRage.Data.Audio
 {

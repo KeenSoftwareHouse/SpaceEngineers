@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
-using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Pathfinding

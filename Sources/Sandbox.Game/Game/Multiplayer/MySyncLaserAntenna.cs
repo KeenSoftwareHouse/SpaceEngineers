@@ -84,7 +84,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ChangeModeMsg>(ChangeModeRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeModeMsg>(ChangeModeSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             //MySyncLayer.RegisterMessage<ChangeLaserAntennaMode>(ChangeModeFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-            MySyncLayer.RegisterMessage<CoordinatesPasted>(PasteCoordinatesSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<CoordinatesPasted>(PasteCoordinatesSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
             MySyncLayer.RegisterMessage<ConnectToMsg>(ConnectToRecRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ConnectToMsg>(ConnectToRecSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);

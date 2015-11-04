@@ -12,11 +12,12 @@ using VRageMath;
 using Sandbox.Game.AI;
 using ProtoBuf;
 using SteamSDK;
+using VRage;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncShipController : MySyncControllableEntity
+    public class MySyncShipController : MySyncControllableEntity
     {
         [MessageIdAttribute(2480, P2PMessageEnum.Reliable)]
         protected struct UpdatePilotRelativeEntryMsg : IEntityMessage
@@ -76,14 +77,25 @@ namespace Sandbox.Game.Multiplayer
             public BoolBlit SetMainCockpit;
         }
 
+		[MessageIdAttribute(2493, P2PMessageEnum.Reliable)]
+		protected struct SetHorizonIndicatorMsg : IEntityMessage
+		{
+			public long EntityId;
+			public long GetEntityId() { return EntityId; }
+
+			public BoolBlit IndicatorState;
+		}
+
         static MySyncShipController()
         {
             MySyncLayer.RegisterEntityMessage<MySyncShipController, UpdatePilotRelativeEntryMsg>(UpdatePilotRelativeEntrySuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterEntityMessage<MySyncShipController, UpdateDampenersMsg>(UpdateDampenersSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, UpdateDampenersMsg>(UpdateDampenersSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncShipController, AttachAutopilotMsg>(OnAutopilotAttached, MyMessagePermissions.FromServer);
-            MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlThrustersMsg>(OnSetControlThrusters, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlWheelsMsg>(OnSetControlWheels, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncShipController, SetMainCockpitMsg>(OnSetMainCockpit, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlThrustersMsg>(OnSetControlThrusters, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlWheelsMsg>(OnSetControlWheels, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, SetMainCockpitMsg>(OnSetMainCockpit, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
+			MySyncLayer.RegisterEntityMessage<MySyncShipController, SetHorizonIndicatorMsg>(OnChangeHorizonIndicator, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+			MySyncLayer.RegisterEntityMessage<MySyncShipController, SetHorizonIndicatorMsg>(OnChangeHorizonIndicator, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         private MyShipController m_shipController;
@@ -122,7 +134,7 @@ namespace Sandbox.Game.Multiplayer
             UpdateDampenersMsg msg;
             msg.EntityId = m_shipController.EntityId;
             msg.DampenersEnabled = dampenersEnabled;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         private void RaiseDampenersUpdated(bool dampenersEnabled)
@@ -134,10 +146,15 @@ namespace Sandbox.Game.Multiplayer
         static void UpdateDampenersSuccess(MySyncShipController sync, ref UpdateDampenersMsg msg, MyNetworkClient sender)
         {
             sync.RaiseDampenersUpdated(msg.DampenersEnabled);
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         public void SendAutopilotAttached(MyObjectBuilder_AutopilotBase autopilot)
         {
+            Debug.Assert(Sync.IsServer, "Sending autopilot attach message on other computer than server!");
             AttachAutopilotMsg msg;
             msg.EntityId = m_shipController.EntityId;
             msg.Autopilot = autopilot;
@@ -150,7 +167,7 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(cockpit != null, "Trying to assing autopilot to something else than cockpit!");
             if (cockpit != null)
             {
-                (syncObject.m_shipController as MyCockpit).AttachAutopilot(MyAutopilotFactory.CreateAutopilot(message.Autopilot));
+                (syncObject.m_shipController as MyCockpit).AttachAutopilot(MyAutopilotFactory.CreateAutopilot(message.Autopilot), updateSync: false);
             }
         }
 
@@ -159,12 +176,16 @@ namespace Sandbox.Game.Multiplayer
             var msg = new ControlThrustersMsg();
             msg.EntityId = m_shipController.EntityId;
             msg.ControlThrusters = v;
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         private static void OnSetControlThrusters(MySyncShipController sync, ref ControlThrustersMsg msg, MyNetworkClient sender)
         {
             sync.m_shipController.ControlThrusters = msg.ControlThrusters;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         internal void SetControlWheels(bool v)
@@ -172,12 +193,16 @@ namespace Sandbox.Game.Multiplayer
             var msg = new ControlWheelsMsg();
             msg.EntityId = m_shipController.EntityId;
             msg.ControlWheels = v;
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg);
         }
 
         private static void OnSetControlWheels(MySyncShipController sync, ref ControlWheelsMsg msg, MyNetworkClient sender)
         {
             sync.m_shipController.ControlWheels = msg.ControlWheels;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
 
         public void SendSetMainCockpit(bool isMainCockpit)
@@ -185,12 +210,38 @@ namespace Sandbox.Game.Multiplayer
             SetMainCockpitMsg msg;
             msg.EntityId = m_shipController.EntityId;
             msg.SetMainCockpit = isMainCockpit;
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         private static void OnSetMainCockpit(MySyncShipController sync, ref SetMainCockpitMsg msg, MyNetworkClient sender)
         {
             sync.m_shipController.IsMainCockpit = msg.SetMainCockpit;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
         }
+
+		public void SendHorizonIndicatorChanged(bool newState)
+		{
+			SetHorizonIndicatorMsg msg;
+			msg.EntityId = m_shipController.EntityId;
+			msg.IndicatorState = newState;
+
+			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+		}
+
+		private static void OnChangeHorizonIndicator(MySyncShipController sync, ref SetHorizonIndicatorMsg msg, MyNetworkClient sender)
+		{
+			if (sync.m_shipController == null)
+				return;
+
+			sync.m_shipController.HorizonIndicatorEnabled = msg.IndicatorState;
+
+			if(Sync.IsServer)
+				MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+
+		}
+
     }
 }

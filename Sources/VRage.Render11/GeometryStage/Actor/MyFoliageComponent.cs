@@ -70,7 +70,7 @@ namespace VRageRender
 
     class MyFoliageComponent : MyActorComponent
     {
-        const float AllocationFactor = 1.5f;
+        const float AllocationFactor = 3f;
 
         Dictionary<int, MyFoliageStream> m_streams;        
 
@@ -120,7 +120,7 @@ namespace VRageRender
 
         void PrepareStream(int materialId, int triangles, int voxelLod)
         {
-            float voxelSizeFactor = (float)Math.Pow(2, voxelLod * 2) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+			float voxelSizeFactor = (float)Math.Pow(2, Math.Max(2 - voxelLod, 1) * 2) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
 
             int predictedAllocation = (int)(triangles * AllocationFactor * voxelSizeFactor *
                 MyVoxelMaterials1.Table[materialId].FoliageDensity);
@@ -137,22 +137,38 @@ namespace VRageRender
         {
             var mesh = m_owner.GetRenderable().GetModel();
 
-
-            bool voxelMeshNotReady = m_owner.m_visible == false || MyMeshes.GetVoxelInfo(mesh).Lod > 4;
+            int voxelLod = MyMeshes.GetVoxelInfo(mesh).Lod;
+            bool voxelMeshNotReady = m_owner.m_visible == false || voxelLod > 4;
             bool alreadyFilled = m_streams != null;
+
             if (voxelMeshNotReady || alreadyFilled) return;
+
+            var lodMesh = MyMeshes.GetLodMesh(mesh, 0);
+
+            // only stream stones for lod0
+            if (voxelLod > 0)
+            {
+                for (int i = 0; i < lodMesh.Info.PartsNum; i++)
+                {
+                    var triple = MyMeshes.GetVoxelPart(mesh, i).Info.MaterialTriple;
+                    if (triple.I0 != -1 && MyVoxelMaterials1.Table[triple.I0].HasFoliage && MyVoxelMaterials1.Table[triple.I0].FoliageType == 1)
+                        return;
+                    if (triple.I1 != -1 && MyVoxelMaterials1.Table[triple.I1].HasFoliage && MyVoxelMaterials1.Table[triple.I1].FoliageType == 1)
+                        return;
+                    if (triple.I2 != -1 && MyVoxelMaterials1.Table[triple.I2].HasFoliage && MyVoxelMaterials1.Table[triple.I2].FoliageType == 1)
+                        return;
+                }
+            }
 
             m_streams = new Dictionary<int, MyFoliageStream>();
 
             // cleanup
-            foreach(var kv in m_streams)
+            foreach (var kv in m_streams)
             {
                 kv.Value.ResetAllocationSize();
             }
 
-            var lodMesh = MyMeshes.GetLodMesh(mesh, 0);
             // analyze 
-            var voxelLod = MyMeshes.GetVoxelInfo(mesh).Lod;
             for (int i = 0; i < lodMesh.Info.PartsNum; i++ )
             {
                 var partInfo = MyMeshes.GetVoxelPart(mesh, i).Info;
@@ -218,6 +234,13 @@ namespace VRageRender
             //var bundle = MyShaderBundleFactory.Get(renderable.GetMesh().LODs[0].m_meshInfo.VertexLayout, MyVoxelMesh.MULTI_MATERIAL_TAG,
             //    "foliage_streaming", renderable.m_vsFlags | MyShaderUnifiedFlags.NONE);
 
+            //var scaleMat = Matrix.CreateScale(renderable.m_voxelScale);
+            //proxy.ObjectData.LocalMatrix = scaleMat;
+
+            //var worldMat = proxy.WorldMatrix;
+            //worldMat.Translation -= MyEnvironment.CameraPosition;
+            //proxy.ObjectData.LocalMatrix = worldMat;
+
             implementation.RecordCommands(proxy, m_streams[materialId], materialId,
                 bundle.VS, bundle.IL,
                 vertexMaterialIndex, indexCount, startIndex, baseVertex);
@@ -229,6 +252,12 @@ namespace VRageRender
                 return;
             var renderable = m_owner.GetRenderable();
             var proxy = renderable.m_lods[0].RenderableProxies[0];
+
+            var invScaleMat = MatrixD.CreateScale(1.0f / renderable.m_voxelScale);
+
+            var worldMat = proxy.WorldMatrix;
+            worldMat.Translation -= MyEnvironment.CameraPosition;
+            proxy.ObjectData.LocalMatrix = invScaleMat * worldMat;
 
             foreach(var kv in m_streams)
             {
@@ -295,15 +324,24 @@ namespace VRageRender
             VertexShader vertexShader, InputLayout inputLayout,            
             int materialIndex, int indexCount, int startIndex, int baseVertex)
         {
+            //var worldMatrix = proxy.WorldMatrix;
+            //worldMatrix.Translation = Vector3D.Zero;
+            //MyObjectData objectData = proxy.ObjectData;
+            //objectData.LocalMatrix = Matrix.Identity;
+
+            var worldMat = proxy.WorldMatrix;
+            //worldMat.Translation -= MyEnvironment.CameraPosition;
+
             MyObjectData objectData = proxy.ObjectData;
+            objectData.LocalMatrix = worldMat;
 
             MyMapping mapping;
-            mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
+            mapping = MyMapping.MapDiscard(RC.Context, proxy.ObjectBuffer);
             void* ptr = &objectData;
             mapping.stream.Write(new IntPtr(ptr), 0, sizeof(MyObjectData));
             mapping.Unmap();
 
-            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.objectBuffer);
+            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
 
             BindProxyGeometry(proxy);
 
@@ -323,7 +361,7 @@ namespace VRageRender
             RC.SetCB(MyCommon.FOLIAGE_SLOT, MyCommon.FoliageConstants);
 
             mapping = MyMapping.MapDiscard(Context, MyCommon.FoliageConstants);
-            mapping.stream.Write(MyVoxelMaterials1.Table[voxelMatId].FoliageDensity);
+            mapping.stream.Write(MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.GrassDensityFactor);
             mapping.stream.Write((uint)materialIndex);
             mapping.stream.Write((uint)voxelMatId);
             mapping.Unmap();
@@ -336,14 +374,16 @@ namespace VRageRender
     {
         static InputLayoutId m_inputLayout;
         static VertexShaderId m_VS;
-        static GeometryShaderId m_GS;
-        static PixelShaderId m_PS;
+        static GeometryShaderId[] m_GS = new GeometryShaderId[2];
+        static PixelShaderId[] m_PS = new PixelShaderId[2];
 
         internal static void Init()
         {
             m_VS = MyShaders.CreateVs("foliage2.hlsl", "vs");
-            m_GS = MyShaders.CreateGs("foliage2.hlsl", "gs");
-            m_PS = MyShaders.CreatePs("foliage2.hlsl", "ps");
+            m_GS[0] = MyShaders.CreateGs("foliage2.hlsl", "gs");
+            m_PS[0] = MyShaders.CreatePs("foliage2.hlsl", "ps");
+            m_GS[1] = MyShaders.CreateGs("foliage2.hlsl", "gs", MyShaderHelpers.FormatMacros("ROCK_FOLIAGE"));
+            m_PS[1] = MyShaders.CreatePs("foliage2.hlsl", "ps", MyShaderHelpers.FormatMacros("ROCK_FOLIAGE"));
             m_inputLayout = MyShaders.CreateIL(m_VS.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.CUSTOM_UNORM4_0));
         }
 
@@ -365,8 +405,6 @@ namespace VRageRender
             RC.SetRS(MyRender11.m_nocullRasterizerState);
 
             RC.SetVS(m_VS);
-            RC.SetGS(m_GS);
-            RC.SetPS(m_PS);
             RC.SetIL(m_inputLayout);
 
             RC.BindGBufferForWrite(MyGBuffer.Main);
@@ -388,19 +426,31 @@ namespace VRageRender
 
         internal unsafe void RecordCommands(MyRenderableProxy proxy, VertexBufferId stream, int voxelMatId)
         {
-            var worldMatrix = Matrix.CreateTranslation(-MyEnvironment.CameraPosition);
             MyObjectData objectData = proxy.ObjectData;
-            objectData.LocalMatrix = worldMatrix;
+
+            var foliageType = MyVoxelMaterials1.Table[voxelMatId].FoliageType;
 
             MyMapping mapping;
-            mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
+            mapping = MyMapping.MapDiscard(RC.Context, proxy.ObjectBuffer);
             void* ptr = &objectData;
             mapping.stream.Write(new IntPtr(ptr), 0, sizeof(MyObjectData));
             mapping.Unmap();
 
-            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.objectBuffer);
+            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
 
-            RC.BindRawSRV(0, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true)));
+            RC.SetGS(m_GS[foliageType]);
+            RC.SetPS(m_PS[foliageType]);
+
+            if (MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray != null)
+            {
+                RC.BindRawSRV(0, MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray.ShaderView);
+                RC.BindRawSRV(1, MyVoxelMaterials1.Table[voxelMatId].FoliageNormalTextureArray.ShaderView);
+            }
+            else
+            {
+                RC.BindRawSRV(0, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true)));
+                RC.BindRawSRV(1, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyTextureEnum.NORMALMAP_GLOSS, true)));
+            }
 
             RC.SetVB(0, stream.Buffer, stream.Stride);
             Context.DrawAuto();
@@ -419,13 +469,14 @@ namespace VRageRender
             m_instance.PerFrame();
             m_instance.Begin();
 
-            var viewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
-            foreach(var f in MyComponentFactory<MyFoliageComponent>.GetAll())
+            var viewFrustum = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
+			var foliageComponents = MyComponentFactory<MyFoliageComponent>.GetAll();
+            foreach(var foliageComponent in foliageComponents)
             {
-                if (f.m_owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance()
-                    && viewFrustum.Contains(f.m_owner.Aabb) != VRageMath.ContainmentType.Disjoint)
+				if (foliageComponent.m_owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance()
+					&& viewFrustum.Contains(foliageComponent.m_owner.Aabb) != VRageMath.ContainmentType.Disjoint)
                 {
-                    f.Render(m_instance);
+					foliageComponent.Render(m_instance);
                 }
             }
 

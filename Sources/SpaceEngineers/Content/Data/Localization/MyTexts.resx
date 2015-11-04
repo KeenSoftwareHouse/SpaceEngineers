@@ -1637,7 +1637,7 @@ See log for details.</value>
     <value>Every point mass in the universe attracts every other point mass with a force that is directly proportional to the product of their masses and inversely proportional to the square of the distance between them.</value>
   </data>
   <data name="HudInfoGravity" xml:space="preserve">
-    <value>Gravity:</value>
+    <value>Actual Gravity:</value>
   </data>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>No gravity</value>
@@ -1760,7 +1760,7 @@ If the game doesn't run smoothly, decrease your screen resolution.</value>
     <value>Easy Start 2</value>
   </data>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
-    <value>Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).</value>
+    <value>Do you want to start by playing tutorial maps?</value>
   </data>
   <data name="Loaded" xml:space="preserve">
     <value>Loaded</value>
@@ -2042,7 +2042,7 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Using {0}</value>
   </data>
   <data name="HudInfoControllingStation" xml:space="preserve">
-    <value>Controlling station</value>
+    <value>Controlling Station</value>
   </data>
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Dampeners:</value>
@@ -2598,6 +2598,18 @@ World size: {1}</value>
   <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
     <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
   </data>
+  <data name="ScreenOptionsGame_UIOpacity" xml:space="preserve">
+    <value>UI opacity</value>
+  </data>
+  <data name="ToolTipGameOptionsUIOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIBkOpacity" xml:space="preserve">
+    <value>UI background opacity</value>
+  </data>
+  <data name="ToolTipGameOptionsUIBkOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs background.</value>
+  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
   </data>
@@ -3147,7 +3159,7 @@ Refinery speed {2}x</value>
     <value>Health is low.</value>
   </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
-    <value>Meteor shower inbound.</value>
+    <value>Meteor storm inbound.</value>
   </data>
   <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
     <value>Conveyor Tube</value>
@@ -3875,6 +3887,43 @@ Respawn?</value>
   <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
     <value>Power</value>
   </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_MaxSteerAngle" xml:space="preserve">
+    <value>The maximum angle that the wheel will turn when steering</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_MaxSteerAngle" xml:space="preserve">
+    <value>Steering Angle</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SteerSpeed" xml:space="preserve">
+    <value>The wheel turn speed.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SteerSpeed" xml:space="preserve">
+    <value>Steering Speed</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SteerReturnSpeed" xml:space="preserve">
+    <value>The wheel's return speed from turning.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SteerReturnSpeed" xml:space="preserve">
+    <value>Steer Return Speed</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_InvertSteer" xml:space="preserve">
+    <value>Invert the steering direction.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_InvertSteer" xml:space="preserve">
+    <value>Invert Steering</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SuspensionTravel" xml:space="preserve">
+    <value>Limits the suspension's travel height.
+Setting to 0% will effectively lock the suspension.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SuspensionTravel" xml:space="preserve">
+    <value>Suspension Travel</value>
+  </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Centered Window</value>
   </data>
@@ -4204,7 +4253,7 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
     <value>Hud Warnings</value>
   </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
-    <value>{0} identity was added</value>
+    <value>Identity {0} was added</value>
   </data>
   <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
     <value>This world can not be loaded. It has been created in newer version of the game.</value>
@@ -4843,6 +4892,12 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="KeepProjectionTooltip" xml:space="preserve">
     <value>Keep projection after building is complete. Useful for automated building, but can degrade performance.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
   </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
     <value>Remove</value>
@@ -5928,6 +5983,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
     <value>Show hidden blocks</value>
   </data>
+  <data name="Terminal_ShowInToolbarConfig" xml:space="preserve">
+    <value>Show block in toolbar config</value>
+  </data>
   <data name="NotificationBottleRefill" xml:space="preserve">
     <value>Oxygen refilled from bottles.</value>
   </data>
@@ -5943,8 +6001,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
+  <data name="buttonEdit" xml:space="preserve">
+    <value>Edit</value>
   </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
@@ -5996,6 +6054,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
     <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="Terminal_ShowInToolbarConfigToolTip" xml:space="preserve">
+    <value>Show/hide current block in toolbar config</value>
   </data>
   <data name="NotificationHelmetOff" xml:space="preserve">
     <value>Helmet Off</value>
@@ -6100,7 +6161,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Reach GPS position</value>
   </data>
   <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
-    <value>Leave GPS position</value>
+    <value>Leave game area</value>
   </data>
   <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
     <value>Reach GPS position</value>
@@ -6142,7 +6203,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Jetpack</value>
   </data>
   <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
-    <value>Landing gear / connector</value>
+    <value>Landing gears</value>
   </data>
   <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
     <value>Reactors</value>
@@ -6249,11 +6310,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
     <value>Press {0} to enter build mode</value>
   </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
+  <data name="DialogTextJoiningBattle" xml:space="preserve">
+    <value>Joining battle</value>
   </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
+  <data name="DialogTextJoinBattleFailed" xml:space="preserve">
+    <value>Joining battle failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6261,7 +6322,865 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
     <value>Press {0} to leave cryo chamber</value>
   </data>
+  <data name="ScreenDebugSpawnMenu_SpawnFlora" xml:space="preserve">
+    <value>Spawn flora</value>
+  </data>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="DisplayName_Item_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
+  <data name="IconSymbol_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
+  <data name="Notification_CockpitIsDamaged" xml:space="preserve">
+    <value>Cockpit is damaged</value>
+  </data>
+  <data name="LaserAntennaOutsideLimits" xml:space="preserve">
+    <value>Target outside movement range</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableFlora" xml:space="preserve">
+    <value>
+Enables flora for planets</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value>Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.</value>
+  </data>
+  <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
+    <value>Density of flora elements on planets</value>
+  </data>
+  <data name="WorldSettings_EnableFlora" xml:space="preserve">
+    <value>Enable Flora</value>
+  </data>
+  <data name="WorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value>Station voxel support</value>
+  </data>
+  <data name="WorldSettings_FloraDensity" xml:space="preserve">
+    <value>Flora Density</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
+    <value>Tonemapping</value>
+  </data>
+  <data name="WorldSettings_DisableRespawnShips" xml:space="preserve">
+    <value>Disable respawn ships</value>
+  </data>
+  <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
+    <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
+    <value>Audible Proximity Alert</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishScenario" xml:space="preserve">
+    <value>PUBLISH SCENARIO</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateScenario" xml:space="preserve">
+    <value>UPDATE SCENARIO</value>
+  </data>
+  <data name="MessageBoxCaptionScenarioPublished" xml:space="preserve">
+    <value>SCENARIO PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionScenarioPublishFailed" xml:space="preserve">
+    <value>PUBLISH FAILED</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishScenario" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected scenario on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateScenario" xml:space="preserve">
+    <value>Are you sure you want to upload and overwrite selected scenario on Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxTextScenarioPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="MessageBoxTextScenarioPublishFailed" xml:space="preserve">
+    <value>Failed to publish on Steam Workshop</value>
+  </data>
+  <data name="ToolTipWorldSettings_ScenarioEditMode" xml:space="preserve">
+    <value>Allows additional ingame options for creating scenario.
+Also displays your saved game in scenario start screen.</value>
+  </data>
+  <data name="WorldSettings_ScenarioEditMode" xml:space="preserve">
+    <value>Scenario edit mode</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPossible" xml:space="preserve">
+    <value>No respawn point is available! 
+Try the refresh button for any available Medical rooms.
+If there is no chance of accessing a medical room, the game is over and you can leave the game.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable/disable spawning of planets in world</value>
+  </data>
+  <data name="WorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable planets</value>
+  </data>
+  <data name="MessageBoxTextWorkshopDownloadFailed" xml:space="preserve">
+    <value>Download failed, please try again later.</value>
+  </data>
+  <data name="GuiTriggerCaptionLives" xml:space="preserve">
+    <value>Limited lives</value>
+  </data>
+  <data name="GuiTriggersLives" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="MedicalRoom_ownershipAssignmentLabel" xml:space="preserve">
+    <value>Ownership Assignment</value>
+  </data>
+  <data name="MedicalRoom_ownershipAssignmentTooltip" xml:space="preserve">
+    <value>Medical room's owner will be set to anyone who spawns in it as long as former ownership is set to nobody.</value>
+  </data>
+  <data name="TerminalScenarioSettingsLabel" xml:space="preserve">
+    <value>Scenario settings:</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionSpawn" xml:space="preserve">
+    <value>Spawn projection</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_BlocksPerProjection" xml:space="preserve">
+    <value>Number of blocks</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_BlocksPerProjection_Tooltip" xml:space="preserve">
+    <value>The maximum number of blocks a projection can have when building instantly</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_InstantBuilding" xml:space="preserve">
+    <value>Instant building</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_InstantBuilding_Tooltip" xml:space="preserve">
+    <value>Enable the projector to build the blueprint instantly, even in survival</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_NumberOfProjections" xml:space="preserve">
+    <value>Number of projections</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
+    <value>The maximum number of projections this projector can build instantly</value>
+  </data>
+  <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
+    <value>Lives:</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks" xml:space="preserve">
+    <value>Destructible blocks</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks_Tooltip" xml:space="preserve">
+    <value>Toogles destructible blocks only for this grid. If destructible blocks are disabled in world settings, this is ignored. Only available in scenarios.</value>
+  </data>
+  <data name="GuiScenarioCannotJoin" xml:space="preserve">
+    <value>Scenario is already running, cannot join game.</value>
+  </data>
+  <data name="GuiScenarioCannotJoinCaption" xml:space="preserve">
+    <value>CANNOT JOIN</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunning" xml:space="preserve">
+    <value>Players can join when game is already running</value>
+  </data>
+  <data name="WorldSettings_EnableSunRotation" xml:space="preserve">
+    <value>Enable sun rotation</value>
+  </data>
+  <data name="SunRotationPeriod" xml:space="preserve">
+    <value>Day duration</value>
+  </data>
+  <data name="GuiTriggerCaptionAllOthersLost" xml:space="preserve">
+    <value>All others lost</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunningShort" xml:space="preserve">
+    <value>Players can join running game</value>
+  </data>
+  <data name="GuiTriggerCaptionTimeLimit" xml:space="preserve">
+    <value>Scenario time limit</value>
+  </data>
+  <data name="GuiTriggerTimeLimit" xml:space="preserve">
+    <value>Limit (in minutes)</value>
+  </data>
+  <data name="HudScenarioInfoTimeLeft" xml:space="preserve">
+    <value>Time left:</value>
+  </data>
+  <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Extreme" xml:space="preserve">
+    <value>Extreme</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableJetpack" xml:space="preserve">
+    <value>If this is turned off, characters won't be able to use jetpacks at all.</value>
+  </data>
+  <data name="ToolTipWorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>If this is turned off, characters won't spawn with any tools in their inventory.</value>
+  </data>
+  <data name="WorldSettings_EnableJetpack" xml:space="preserve">
+    <value>Enable jetpack</value>
+  </data>
+  <data name="WorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>Spawn with tools</value>
+  </data>
+  <data name="BlockPropertiesTooltip_Projector_GetOwnership" xml:space="preserve">
+    <value>All blocks from the spawned ship will have the same ownership settings as this projector.</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
+    <value>Ownership from projector</value>
+  </data>
+  <data name="GuiTriggerBlockDestroyed_ColumnName" xml:space="preserve">
+    <value>Block name</value>
+  </data>
+  <data name="GuiTriggerCaptionBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerPasteBlocks" xml:space="preserve">
+    <value>Add blocks</value>
+  </data>
+  <data name="MyGuiScreenTriggerBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerBlockDestroyedSingleMessage" xml:space="preserve">
+    <value>Message after each block is destroyed</value>
+  </data>
+  <data name="GuiTriggerDeleteBlocks" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="GuiTriggerPasteBlocksTooltip" xml:space="preserve">
+    <value>Adds blocks copied through button at the end of block terminal screen.</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIds" xml:space="preserve">
+    <value>Copy block IDs</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIdsTooltip" xml:space="preserve">
+    <value>You can then paste them into "Block destroyed" trigger</value>
+  </data>
+  <data name="GuiTriggerNoSpawnTimeLimit" xml:space="preserve">
+    <value>Time limit (sec):</value>
+  </data>
+  <data name="GuiTriggerCaptionNoSpawn" xml:space="preserve">
+    <value>Spawn screen time limit</value>
+  </data>
+  <data name="MyGuiScreenTriggerNoSpawn" xml:space="preserve">
+    <value>No spawn place</value>
+  </data>
+  <data name="Description_Scenario_2Planets" xml:space="preserve">
+    <value>2 habitable planets near each other</value>
+  </data>
+  <data name="Description_Scenario_Planet" xml:space="preserve">
+    <value>World with one habitable planet </value>
+  </data>
+  <data name="DisplayName_Scenario_2Planets" xml:space="preserve">
+    <value>2 planets</value>
+  </data>
+  <data name="DisplayName_Scenario_Planet" xml:space="preserve">
+    <value>Habitable planet</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPlace" xml:space="preserve">
+    <value>No respawn point is available! 
+Try the refresh button for any available Medical rooms.
+If there is no chance of accessing a medical room, the game will be over in {0:00}:{1:00}.</value>
+  </data>
+  <data name="ScreenCaptionWorldGeneratorSettings" xml:space="preserve">
+    <value>World generator settings</value>
+  </data>
+  <data name="WorldSettings_MoonSizeMax" xml:space="preserve">
+    <value>Maximum size of moons</value>
+  </data>
+  <data name="WorldSettings_MoonSizeMin" xml:space="preserve">
+    <value>Minimum size of moons</value>
+  </data>
+  <data name="WorldSettings_PlanetSizeMax" xml:space="preserve">
+    <value>Maximum size of planets</value>
+  </data>
+  <data name="WorldSettings_PlanetSizeMin" xml:space="preserve">
+    <value>Minimum size of planets</value>
+  </data>
+  <data name="WorldSettings_WorldGenerator" xml:space="preserve">
+    <value>World generator</value>
+  </data>
+  <data name="GuiScenarioDescription" xml:space="preserve">
+    <value>Scenario description</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPlaceHeader" xml:space="preserve">
+    <value>You must spawn in:  {0:00}:{1:00}</value>
+  </data>
+  <data name="ScenarioProgressLoseConditions" xml:space="preserve">
+    <value>Lose conditions</value>
+  </data>
+  <data name="ScenarioProgressOthersLost" xml:space="preserve">
+    <value>All others lost. Players pending:</value>
+  </data>
+  <data name="ScenarioProgressWinConditions" xml:space="preserve">
+    <value>Win conditions</value>
+  </data>
+  <data name="GuiTriggerNextMission" xml:space="preserve">
+    <value>Next mission</value>
+  </data>
+  <data name="GuiTriggerWwwLink" xml:space="preserve">
+    <value>WWW link (opens in steam overlay)</value>
+  </data>
+  <data name="ScenarioProgressDestroyBlocks" xml:space="preserve">
+    <value>Destroy blocks:</value>
+  </data>
+  <data name="ScenarioProgressLimitedLives" xml:space="preserve">
+    <value>Limited lives: {0} left</value>
+  </data>
+  <data name="ScenarioProgressNoSpawn" xml:space="preserve">
+    <value>Spend more than {0} seconds in respawn screen.</value>
+  </data>
+  <data name="ScenarioProgressPositionLeft" xml:space="preserve">
+    <value>Leave sphere [{0:0},{1:0},{2:0}], radius {3:0} meters</value>
+  </data>
+  <data name="ScenarioProgressPositionReached" xml:space="preserve">
+    <value>Get closer than {3:0} meters to [{0:0},{1:0},{2:0}]</value>
+  </data>
+  <data name="ScenarioProgressSomeoneWon" xml:space="preserve">
+    <value>Somebody else wins the scenario. Possible winners:</value>
+  </data>
+  <data name="ScenarioProgressTimeLimit" xml:space="preserve">
+    <value>Scenario time limit {0} minutes</value>
+  </data>
+  <data name="AddNpcToFaction" xml:space="preserve">
+    <value>Add NPC</value>
+  </data>
+  <data name="AddNpcToFactionHelp" xml:space="preserve">
+    <value>Adds new NPC identity to this faction - faction will not cease to exist when last player leaves.
+Available in scenario edit mode only.</value>
+  </data>
+  <data name="GuiLabelVideoOnStart" xml:space="preserve">
+    <value>Video on start:</value>
+  </data>
+  <data name="BlockActionTitle_Jump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
+  <data name="BlockPropertyTitle_DestinationGPS" xml:space="preserve">
+    <value>Destination GPS coordinates:</value>
+  </data>
+  <data name="BlockPropertyTitle_JumpDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="DisplayName_Block_JumpDrive" xml:space="preserve">
+    <value>Jump Drive</value>
+  </data>
+  <data name="BlockActionTooltip_SelectedJumpTarget" xml:space="preserve">
+    <value>To execute the jump, assign the "Jump" command to the toolbar of a cockpit</value>
+  </data>
+  <data name="NotificationJumpWarmupTime" xml:space="preserve">
+    <value>Ship will jump in {0} seconds.</value>
+  </data>
+  <data name="GuiTriggerNextMissionTooltip" xml:space="preserve">
+    <value>You can put a scenario name here (must already exist on local computer to be loaded) 
+or workshop ID number (user does *not* have to have it subscribed in that case).
+Workshop ID can be seen in the URL link of scenario in question on steam workshop web.</value>
+  </data>
+  <data name="MessageBoxTextScenarioNotFound" xml:space="preserve">
+    <value>Next scenario was not found and cannot be loaded.
+Both {0} and {1} does not exist or contain invalid data.
+Please contact scenario author to fix it.</value>
+  </data>
+  <data name="NotificationNextScenarioWillLoad" xml:space="preserve">
+    <value>Prepare for next scenario ...</value>
+  </data>
+  <data name="MedicalRoom_factionAssignmentLabel" xml:space="preserve">
+    <value>Assign player to faction</value>
+  </data>
+  <data name="MedicalRoom_factionAssignmentTooltip" xml:space="preserve">
+    <value>Respawned player will be assigned to this medical room's faction.</value>
+  </data>
+  <data name="NotificationJumpAborted" xml:space="preserve">
+    <value>Jump was aborted!</value>
+  </data>
+  <data name="NotificationJumpDriveNotFullyCharged" xml:space="preserve">
+    <value>Jump drive is only {0} charged!</value>
+  </data>
+  <data name="ToolTipWorldSettings_StartInRespawnScreen" xml:space="preserve">
+    <value>When played as scenario: player will start in respawn screen with new identity, all ownership will be lost.</value>
+  </data>
+  <data name="WorldSettings_StartInRespawnScreen" xml:space="preserve">
+    <value>Start in respawn screen</value>
+  </data>
+  <data name="WwwLinkNotAllowed" xml:space="preserve">
+    <value>This link is not allowed and will not open.
+Allowed sites: steamcommunity, youtube, KSH forum.</value>
+  </data>
+  <data name="ControlMenuItemLabel_ScenarioBriefing" xml:space="preserve">
+    <value>Show scenario briefing</value>
+  </data>
+  <data name="ControlMenuItemLabel_Connectors" xml:space="preserve">
+    <value>Connectors</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowBuildScreen" xml:space="preserve">
+    <value>Show build screen</value>
+  </data>
+  <data name="NotificationJoystickColorFormat" xml:space="preserve">
+    <value>Press {0} to apply color, access control menu to change color</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableVoxelDestruction" xml:space="preserve">
+    <value>Enables voxel destrucion in world.</value>
+  </data>
+  <data name="WorldSettings_EnableVoxelDestruction" xml:space="preserve">
+    <value>Enable voxel destruction</value>
+  </data>
+  <data name="ScreenCaptionTutorials" xml:space="preserve">
+    <value>Tutorials</value>
+  </data>
+  <data name="TrainingLevel" xml:space="preserve">
+    <value>Training Level</value>
+  </data>
+  <data name="TrainingLevel_Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="TrainingLevel_Basic" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="TrainingLevel_Intermediate" xml:space="preserve">
+    <value>Intermediate</value>
+  </data>
+  <data name="MessageBoxCaptionTutorial" xml:space="preserve">
+    <value>Tutorial</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutori" xml:space="preserve">
+    <value />
+  </data>
+  <data name="HudInfoState" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="MessageBoxCaptionVideo" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="MessageBoxTextWatchVideo" xml:space="preserve">
+    <value>Would you like to watch video before tutorial starts?</value>
+  </data>
+  <data name="HudInfoGravityArtificial" xml:space="preserve">
+    <value>Artif. Gravity:</value>
+  </data>
+  <data name="HudInfoGravityNatural" xml:space="preserve">
+    <value>Planet Gravity:</value>
+  </data>
+  <data name="HudInfoOxygen" xml:space="preserve">
+    <value>Oxygen: </value>
+  </data>
+  <data name="Description_Scenario_BigSmall" xml:space="preserve">
+    <value>One 120 km planet and one 50 km planet</value>
+  </data>
+  <data name="DisplayName_Scenario_BigSmall" xml:space="preserve">
+    <value>Big and small planet</value>
+  </data>
+  <data name="NotificationCannotJumpFromGravity" xml:space="preserve">
+    <value>Jump drives cannot be used in natural gravity.</value>
+  </data>
+  <data name="DisplayName_Scenario_ScaleTest" xml:space="preserve">
+    <value>Scale test</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_HorizonIndicator" xml:space="preserve">
+    <value>Show horizon and altitude</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere1" xml:space="preserve">
+    <value>Debug spheres 1</value>
+  </data>
+  <data name="NotificationCannotJumpIntoGravity" xml:space="preserve">
+    <value>Jump drives cannot be used to jump into natural gravity field.</value>
+  </data>
+  <data name="Description_Scenario_StarSystem" xml:space="preserve">
+    <value>Small star system with 3 planets and 3 moons.</value>
+  </data>
+  <data name="DisplayName_Scenario_StarSystem" xml:space="preserve">
+    <value>StarSystem</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere2" xml:space="preserve">
+    <value>Debug spheres 2 (no metal)</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere3" xml:space="preserve">
+    <value>Debug spheres 3 (fixed gloss)</value>
+  </data>
+  <data name="TerminalTab_Info_GridMass" xml:space="preserve">
+    <value>Grid mass:</value>
+  </data>
+  <data name="WorldSettings_GrassDensity" xml:space="preserve">
+    <value>Grass density</value>
+  </data>
+  <data name="Description_Scenario_TestStarSystem" xml:space="preserve">
+    <value>Testing Star System to show Planet generation possibilities - all available planets and moons</value>
+  </data>
+  <data name="DisplayName_Scenario_TestStarSystem" xml:space="preserve">
+    <value>Test Star System</value>
+  </data>
+  <data name="Description_Scenario_StarSystemAligned" xml:space="preserve">
+    <value>Planets and their moons aligned next to each other.</value>
+  </data>
+  <data name="DisplayName_Scenario_StarSystemAligned" xml:space="preserve">
+    <value>Star System Aligned</value>
+  </data>
+  <data name="Notification_NoControlNotMain" xml:space="preserve">
+    <value>This is not main cockpit!</value>
+  </data>
+  <data name="MessageBoxTextGuideQuestion" xml:space="preserve">
+    <value>Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTank" xml:space="preserve">
+    <value>Hydrogen Tank</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTankSmall" xml:space="preserve">
+    <value>Hydrogen Tank Small</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_HydrogenBottles" xml:space="preserve">
+    <value>Hydrogen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottle" xml:space="preserve">
+    <value>Hydrogen Bottle</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottles" xml:space="preserve">
+    <value>Hydrogen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_CollisionAvoidance" xml:space="preserve">
+    <value>Collision avoidance</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableDrones" xml:space="preserve">
+    <value>Random NPC pirate ship will be generated from time to time.
+These ships are enemies and will try to attack you with their drones.</value>
+  </data>
+  <data name="WorldSettings_EnableDrones" xml:space="preserve">
+    <value>Enable drones</value>
+  </data>
+  <data name="ToolTipWorldSettings_CargoShipsEnabled" xml:space="preserve">
+    <value>Random NPC cargo ships can be encountered.</value>
+  </data>
+  <data name="ToolTipWorldSettings_ClientCanSave" xml:space="preserve">
+    <value>Client can save network game. If unchecked then only server can save.</value>
+  </data>
+  <data name="ToolTipWorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Camera can be switched to 3rd person view, looking on your astronaut from behind.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableEncounters" xml:space="preserve">
+    <value>Random NPC ships will fly through world from time to time.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableIngameScripts" xml:space="preserve">
+    <value>If disabled, scripts will not be run in game. Scripts are used in programmable block
+and can also be used by some mods to create advanced logic and effects.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableSunRotation" xml:space="preserve">
+    <value>Sun moves around to create day and night.</value>
+  </data>
+  <data name="DisplayName_Item_Hydrogen" xml:space="preserve">
+    <value>Hydrogen</value>
+  </data>
+  <data name="TerminalControlPanel_RunCodeDefault" xml:space="preserve">
+    <value>Run with default argument</value>
+  </data>
+  <data name="NotificationIncompleteGrid" xml:space="preserve">
+    <value>You can place only completely constructed and undamaged blocks in the inventory</value>
+  </data>
+  <data name="DisplayName_Block_LargeAtmoThrust" xml:space="preserve">
+    <value>Large Atmospheric Thruster</value>
+  </data>
+  <data name="DisplayName_Block_SmallAtmoThrust" xml:space="preserve">
+    <value>Small Atmospheric Thruster</value>
+  </data>
+  <data name="NotificationShipEnergyCritical" xml:space="preserve">
+    <value>Warning: Ship fuel is critically low. Life support failure imminent.</value>
+  </data>
+  <data name="NotificationShipEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Ship fuel is critically low.</value>
+  </data>
+  <data name="NotificationShipEnergyLow" xml:space="preserve">
+    <value>Warning: Ship fuel is low. Life support systems may fail.</value>
+  </data>
+  <data name="NotificationShipEnergyLowNoDamage" xml:space="preserve">
+    <value>Warning: Ship fuel is low.</value>
+  </data>
+  <data name="DisplayName_Block_LargeHydrogenThrust" xml:space="preserve">
+    <value>Large Hydrogen Thruster</value>
+  </data>
+  <data name="DisplayName_Block_SmallHydrogenThrust" xml:space="preserve">
+    <value>Small Hydrogen Thruster</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SuspensionSpeed" xml:space="preserve">
+    <value>Wheels will not be propeled over this speed</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SuspensionSpeed" xml:space="preserve">
+    <value>Speed limit</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_InvertPropulsion" xml:space="preserve">
+    <value>Invert Propulsion</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_InvertPropulsion" xml:space="preserve">
+    <value>Invert the propulsion direction.</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttached" xml:space="preserve">
+    <value>Attached</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttachingAny" xml:space="preserve">
+    <value>Looking for any rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttachingSpecific" xml:space="preserve">
+    <value>Looking for specific rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorDetached" xml:space="preserve">
+    <value>Detached</value>
+  </data>
+  <data name="DisplayName_Item_Superconductor" xml:space="preserve">
+    <value>Superconductor Conduits</value>
+  </data>
+  <data name="BlockPropertyDescription_Connector_Strength" xml:space="preserve">
+    <value>Connector strength when aligning ship (yellow color), smaller strength of two connectors is used</value>
+  </data>
+  <data name="BlockPropertyTitle_Connector_Strength" xml:space="preserve">
+    <value>Strength</value>
+  </data>
+  <data name="BlockPropertyTitle_Discharge" xml:space="preserve">
+    <value>Discharge</value>
+  </data>
+  <data name="ToolTipBatteryBlock_Discharge" xml:space="preserve">
+    <value>Discharge the battery</value>
+  </data>
+  <data name="ScreenPlayers_Muted" xml:space="preserve">
+    <value>Muted</value>
+  </data>
+  <data name="NotificationGasBottleRefill" xml:space="preserve">
+    <value>Gas refilled from bottles.</value>
+  </data>
+  <data name="DisplayName_Block_AirtightSlideDoor" xml:space="preserve">
+    <value>Sliding Door</value>
+  </data>
+  <data name="VoiceChatVolume" xml:space="preserve">
+    <value>Voice chat volume</value>
+  </data>
+  <data name="DisplayName_Faction_SpaceSpiders" xml:space="preserve">
+    <value>Space spiders</value>
+  </data>
+  <data name="ScreenGraphicsOptions_VoxelQuality" xml:space="preserve">
+    <value>Voxel quality</value>
+  </data>
+  <data name="DisplayName_AstronautBackpack" xml:space="preserve">
+    <value>Backpack</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_RemainingTime" xml:space="preserve">
+    <value>Time remaining</value>
+  </data>
+  <data name="JoinGame_Lobby" xml:space="preserve">
+    <value>Lobby</value>
+  </data>
+  <data name="JoinGame_Waiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="MultiplayerErrorSessionEnded" xml:space="preserve">
+    <value>The game session has ended. Feel free to join another one.</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackBite" xml:space="preserve">
+    <value>Bite attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackLegs" xml:space="preserve">
+    <value>Leg attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackStinger" xml:space="preserve">
+    <value>Stinger attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderBurrow" xml:space="preserve">
+    <value>Burrow</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderDeburrow" xml:space="preserve">
+    <value>Deburrow</value>
   </data>
 </root>

@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Audio
 {
     class MyEffectBank
     {
-        private Dictionary<MyStringId, MyAudioEffect> m_effects = new Dictionary<MyStringId, MyAudioEffect>();
+        private Dictionary<MyStringHash, MyAudioEffect> m_effects = new Dictionary<MyStringHash, MyAudioEffect>(MyStringHash.Comparer);
         private List<MyEffectInstance> m_activeEffects = new List<MyEffectInstance>();
         XAudio2 m_engine;
         public MyEffectBank(ListReader<MyAudioEffect> effects, XAudio2 engine)
@@ -22,7 +22,7 @@ namespace VRage.Audio
             m_engine = engine;
         }
 
-        public MyEffectInstance CreateEffect(IMySourceVoice input, MyStringId effect, MySourceVoice[] cues = null, float? duration = null)
+        public MyEffectInstance CreateEffect(IMySourceVoice input, MyStringHash effect, MySourceVoice[] cues = null, float? duration = null)
         {
             if(!m_effects.ContainsKey(effect))
             {

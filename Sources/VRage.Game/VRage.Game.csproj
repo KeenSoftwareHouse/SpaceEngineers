@@ -1,0 +1,577 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VRage.Game</RootNamespace>
+    <AssemblyName>VRage.Game</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Components\IMyComponentAggregate.cs" />
+    <Compile Include="Components\MyComponentBase.cs" />
+    <Compile Include="Components\MyComponentContainer.cs" />
+    <Compile Include="Components\MyComponentFactory.cs" />
+    <Compile Include="Components\MyComponentTypeFactory.cs" />
+    <Compile Include="Components\MyEntityComponentContainer.cs" />
+    <Compile Include="Components\MyEntityComponentBase.cs" />
+    <Compile Include="Components\MyDebugRenderComponentBase.cs" />
+    <Compile Include="Components\MyHierarchyComponentBase.cs" />
+    <Compile Include="Components\MyPhysicsComponentBase.cs" />
+    <Compile Include="Components\MyPositionComponentBase.cs" />
+    <Compile Include="Components\MyRenderComponentBase.cs" />
+    <Compile Include="Components\MyResourceSinkComponentBase.cs" />
+    <Compile Include="Components\MyResourceSourceComponentBase.cs" />
+    <Compile Include="Components\MySyncComponentBase.cs" />
+    <Compile Include="Components\MyUseObjectsComponentBase.cs" />
+    <Compile Include="Entity\MyEntityIdentifier.cs" />
+    <Compile Include="Entity\UseObject\IMyUseObject.cs" />
+    <Compile Include="Entity\UseObject\MyUseObjectFactory.cs" />
+    <Compile Include="ModAPI\IMyEntity.cs" />
+    <Compile Include="ModAPI\IMyRemapHelper.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorControlBaseNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeActionNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeControlNodeMemory.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeDecoratorNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeNodeMemory.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeSelectorNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorTreeSequenceNode.cs" />
+    <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BotMemory.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryBool.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryFloat.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryInt.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryLong.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryString.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryTarget.cs" />
+    <Compile Include="ObjectBuilders\AI\Blackboard\MyBBMemoryValue.cs" />
+    <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_AgentBot.cs" />
+    <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_BarbarianBot.cs" />
+    <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_Bot.cs" />
+    <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_HumanoidBot.cs" />
+    <Compile Include="ObjectBuilders\AI\Events\MyObjectBuilder_BarbarianWaveEvent.cs" />
+    <Compile Include="ObjectBuilders\AI\MyAIBehaviorData.cs" />
+    <Compile Include="ObjectBuilders\AI\MyObjectBuilder_AiTarget.cs" />
+    <Compile Include="ObjectBuilders\Audio\MyAudioDefinition.cs" />
+    <Compile Include="ObjectBuilders\Audio\MyCurveDefinition.cs" />
+    <Compile Include="ObjectBuilders\Audio\MyObjectBuilder_AudioDefinition.cs" />
+    <Compile Include="ObjectBuilders\Audio\MyObjectBuilder_CurveDefinition.cs" />
+    <Compile Include="ObjectBuilders\Audio\MyObjectBuilder_EffectDefinition.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_CogWheelsBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_FireLightBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_LimitedRotorBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_LockableDrum.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_LockBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_MechanicalTransferBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_RopeHookBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_RotorBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_SwitchBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_TorsionSpringBlock.cs" />
+    <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_WheelBlock.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventory.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventoryAggregate.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterSoundComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterStatComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentBase.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentContainer.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityStatComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_FractureComponentCubeBlock.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_FractureComponentBase.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryAggregate.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryBase.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_RespawnComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_UseObjectsComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_AIComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BarbarianComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BattleSystemComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_FloraComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_PirateAntennas.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ScriptManager.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TimerComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_WeatherComponent.cs" />
+    <Compile Include="ObjectBuilders\Conveyors\SerializableLineSectionInformation.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AiCommandBehaviorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AiCommandDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AreaMarkerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BehaviorTreeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BlockNavigationDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_ToolbarItemAiCommand.cs" />
+    <Compile Include="ObjectBuilders\Definitions\BlueprintClassEntry.cs" />
+    <Compile Include="ObjectBuilders\Definitions\BlueprintItem.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyBlockPosition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyDefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyDefinitionId.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyDefinitionTypeAttribute.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyModContext.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AdvancedDoorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AgentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AirtightDoorGenericDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AirtightHangarDoorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AirVentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AmmoDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AmmoMagazineDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AnimalBotDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AnimationDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DestructionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PirateAntennaDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AssemblerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BatteryBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BattleDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BeaconDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlueprintClassDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlueprintDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BotDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ButtonPanelDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CameraBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CargoContainerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CharacterDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CockpitDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelsBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentSubstitutionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompositeBlueprintDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompoundBlockTemplateDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Configuration.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ConsumableItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ContainerTypeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ControllerSchemaDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ConveyorSorterDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CrossbowItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CryoChamberDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CubeBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CuttingDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebrisDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere3Definition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere2Definition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DebugSphere1Definition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DecalDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Definitions.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DoorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Dx11VoxelMaterialDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EdgesDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EntityStatDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentItemsDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ExtendedPistonBaseDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Faction.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FireLightBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FracturedBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasContainerObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasProperties.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GlobalEventDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorSphereDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GyroDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_HandItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_HumanoidBotDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_InventoryDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LandingGearDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LargeTurretBaseDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LaserAntennaDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LCDTextureDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LightingBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LockableDrumDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LockBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MaterialPropertiesDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalSourceBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalSubBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalTransferBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MedicalRoomDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MergeBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MissileAmmoDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MissileLauncherDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MotorAdvancedStatorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MotorStatorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MotorSuspensionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MultiBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OreDetectorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenFarmDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenGeneratorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasTankDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenTankDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalMaterialDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalModelDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PistonBaseDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PoweredCargoContainerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PowerProducerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabThrowerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProductionBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProgrammableBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProjectileAmmoDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ProjectorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RadioAntennaDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ReactorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RefineryDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ReflectorBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RemoteControlDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RespawnShipDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RopeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinitions.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScriptedGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SensorBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipBlueprintDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipControllerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipDrillDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SolarPanelDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SoundBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SoundCategoryDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpaceBallDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpawnGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_StatsDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SwitchBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TextPanelDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ThrustDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TimerBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ToolItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TorsionSpringBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TransparentMaterialDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerAllOthersLost.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerBlockDestroyed.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerLives.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerNoSpawn.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionLeft.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerSomeoneWon.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerTimeLimit.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_UpgradeModuleDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VirtualMassDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelHandDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelMapStorageDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelMaterialDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WarheadDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_JumpDriveDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WeaponBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WeaponDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WeaponItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\EnvironmentItemClassEntry.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlBase.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlButton.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlCheckbox.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlCombobox.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlCompositePanel.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlGrid.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlLabel.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlList.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlListbox.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlMultilineEditableLabel.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlMultilineLabel.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlOnOffSwitch.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlPanel.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlParent.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlProgressBar.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlRadioButton.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControls.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlSeparatorList.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlTabControl.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlTabPage.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlTextbox.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiCubeBlockCategories.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiScreen.cs" />
+    <Compile Include="ObjectBuilders\MyCharacterName.cs" />
+    <Compile Include="ObjectBuilders\MyComponentBlockEntry.cs" />
+    <Compile Include="ObjectBuilders\MyGroupedIds.cs" />
+    <Compile Include="ObjectBuilders\MyMappedId.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AdvancedDoor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightDoorGeneric.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightHangarDoor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AirVent.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AmmoMagazine.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AngleGrinder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_BattleAreaMarker.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AreaMarker.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Assembler.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutomaticRifle.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotClipboard.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotWaypoint.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Battery.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_BatteryBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Beacon.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_BlockGroup.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_BlockItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ButtonPanel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CameraBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CargoContainer.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Character.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ChatHistory.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Checkpoint.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Client.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Cockpit.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Collector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Component.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CompoundCubeBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConstructionStockpile.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConsumableItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ControlPanel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Conveyor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorConnector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorLine.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorPacket.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorSorter.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorTurretBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Crossbow.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CryoChamber.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CubeBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CubeGrid.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CubePlacer.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere3.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere2.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DebugSphere1.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Decoy.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItems.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_DeviceBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Door.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Drill.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Encounters.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStat.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogicGrassland.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentItems.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FactionCollection.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FloatingObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FloraElementDefinition.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FunctionalBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GasTank.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GlobalEventBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GlobalEvents.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Gps.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGenerator.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGeneratorSphere.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GunBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Gyro.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_HandDrill.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_HandTool.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_HandTorch.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Identity.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Ingot.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_InteriorLight.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_InteriorTurret.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Inventory.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_InventoryItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Ladder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LandingGear.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LargeGatlingTurret.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LargeMissileTurret.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LaserAntenna.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LastLoadedTimes.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LastSession.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LightingBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Magnifier.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ManipulationTool.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MedicalRoom.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MedievalSessionSettings.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MergeBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Meteor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Missile.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MissionTriggers.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ModInfo.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorAdvancedRotor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorAdvancedStator.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorRotor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorStator.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MotorSuspension.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStatRegenEffect.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogic.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogicSpace.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MyProgrammableBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectbuilder_Ore.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_OreDetector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_OxygenGenerator.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_OxygenTank.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_OyxgenFarm.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Passage.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_PhysicalGunObject.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_PhysicalObject.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_PistonBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_PistonTop.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Player.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ProductionBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Projector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_RadioAntenna.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Reactor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_RealWheel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Refinery.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ReflectorLight.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_RemoteControl.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Rope.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Scenarios.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Sector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SensorBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SessionComponentMission.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SessionSettings.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShipConnector.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShipController.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShipGrinder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShipToolBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShipWelder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SignalLight.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SimpleAutopilot.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SmallGatlingGun.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SmallMissileLauncher.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SmallMissileLauncherReload.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SolarPanel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SoundBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SpaceBall.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_StockpileItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TerminalBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TextPanel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Thrust.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TimerBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Toolbar.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemActionParameter.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAnimation.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemBot.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemCubeBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemEmpty.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemPrefabThrower.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemRope.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemTerminal.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemTerminalBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemTerminalGroup.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemVoxelHand.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemWeapon.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterial.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterials.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Tree.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Trees.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_TurretBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_UpgradeModule.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_UserControllableGun.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_VirtualMass.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Warhead.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_JumpDrive.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Welder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Wheel.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_World.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ResourceDistributionGroup.cs" />
+    <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
+    <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_TreesMedium.cs" />
+    <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_VoxelMap.cs" />
+    <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
+    <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
+    <Compile Include="ObjectBuilder\DynamicObjectBuilderAttribute.cs" />
+    <Compile Include="ObjectBuilder\MyAbstractXmlSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderDynamicSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
+    <Compile Include="ObjectBuilder\MyObjectFactory.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilder_Base.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilder_EntityBase.cs" />
+    <Compile Include="ObjectBuilder\SerializableDefinitionId.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Systems\MyGroupScriptBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Character\" />
+    <Folder Include="Grid\" />
+    <Folder Include="Inventory\" />
+    <Folder Include="VoxelMap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage\VRage.csproj">
+      <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
+      <Name>VRage</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.  -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild" DependsOnTargets="AssignTargetPaths;Compile;ResolveKeySource" Inputs="$(MSBuildAllProjects);@(IntermediateAssembly)" Outputs="$(OutputPath)$(_SGenDllName)">
+    <!-- Delete the file because I can't figure out how to force the SGen task. -->
+    <SGen BuildAssemblyName="$(TargetFileName)" BuildAssemblyPath="$(OutputPath)" References="@(ReferencePath)" ShouldGenerateSerializer="true" UseProxyTypes="false" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" ToolPath="$(TargetFrameworkSDKToolsDirectory)" Platform="AnyCPU">
+      <Output TaskParameter="SerializationAssembly" ItemName="SerializationAssembly" />
+    </SGen>
+  </Target>
+</Project>

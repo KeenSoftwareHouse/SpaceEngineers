@@ -1,44 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Havok;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Weapons.Guns;
 
 using VRageMath;
-using Sandbox.Graphics.GUI;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Debugging;
-using System.Reflection;
-using Sandbox.Common;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
-using VRageRender;
 using Sandbox.Game.Gui;
-using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Utils;
 using Sandbox.ModAPI;
 using Sandbox.Game.World;
 using Sandbox.Game.Localization;
 using VRage;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Drill))]
-    class MyShipDrill : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipDrill
+    class MyShipDrill : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipDrill
     {
         public readonly static MyDrillBase.Sounds m_sounds;
 
@@ -58,10 +47,13 @@ namespace Sandbox.Game.Weapons
         private MyDrillBase m_drillBase;
         private int m_drillFrameCountdown = MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_FRAMES;
         private bool m_wantsToDrill;
+        private bool WantsToDrill { get { return m_wantsToDrill; } set { m_wantsToDrill = value; WantstoDrillChanged(); } }
+
         private bool m_wantsToCollect;
 
         private MyCharacter m_owner;
         private bool m_useConveyorSystem;
+		public bool IsDeconstructor { get { return false; } }
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
         static MyShipDrill()
@@ -81,24 +73,6 @@ namespace Sandbox.Game.Weapons
         }
 
         public MyCharacter Owner { get { return m_owner; } }
-
-        protected override bool CheckIsWorking()
-        {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
-        protected override void OnEnabledChanged()
-        {
-            PowerReceiver.Update();
-
-            base.OnEnabledChanged();
-        }
 
         public float BackkickForcePerSecond
         {
@@ -167,46 +141,63 @@ namespace Sandbox.Game.Weapons
             m_drillBase.OutputInventory = m_inventory;
             m_drillBase.IgnoredEntities.Add(this);
             m_drillBase.OnWorldPositionChanged(WorldMatrix);
-            m_wantsToDrill = false;
             m_wantsToCollect = false;
             AddDebugRenderComponent(new Components.MyDebugRenderCompomentDrawDrillBase(m_drillBase));
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Defense,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                def.ResourceSinkGroup,
                 ComputeMaxRequiredPower(),
                 ComputeRequiredPower);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
+	        ResourceSink = sinkComp;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.Update();
 
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
             var obDrill = (MyObjectBuilder_Drill)builder;
             m_inventory.Init(obDrill.Inventory);
+
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             m_useConveyorSystem = obDrill.UseConveyorSystem;
 
             UpdateDetailedInfo();
+
+            m_wantsToDrill = obDrill.Enabled;
+            IsWorkingChanged += OnIsWorkingChanged;
+        }
+
+        protected override bool CheckIsWorking()
+        {
+            return ResourceSink.IsPowered && base.CheckIsWorking();
+        }
+
+        protected override void OnEnabledChanged()
+        {
+            WantsToDrill = Enabled;
+
+            base.OnEnabledChanged();
+        }
+
+        void OnIsWorkingChanged(MyCubeBlock obj)
+        {
+            ResourceSink.Update();
         }
 
         void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
-            if ((Enabled || m_wantsToDrill) && IsFunctional && PowerReceiver.IsPowered)
-            {
-                // starts the animation
-                m_drillBase.Drill(collectOre: false, performCutout: false);
-                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
-            }
-            else
-            {
-                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
-                SetupDrillFrameCountdown();
-                m_drillBase.StopDrill();
-            }
+            WantstoDrillChanged();
         }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         private void SetupDrillFrameCountdown()
         {
@@ -218,7 +209,23 @@ namespace Sandbox.Game.Weapons
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
+        }
+
+        void WantstoDrillChanged()
+        {
+            if ((Enabled || WantsToDrill) && IsFunctional && ResourceSink!=null && ResourceSink.IsPowered)
+            {
+                // starts the animation
+                m_drillBase.Drill(collectOre: false, performCutout: false);
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+            }
+            else
+            {
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
+                SetupDrillFrameCountdown();
+                m_drillBase.StopDrill();
+            }
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -266,7 +273,7 @@ namespace Sandbox.Game.Weapons
         {
             base.UpdateBeforeSimulation10();
 
-            Debug.Assert(m_wantsToDrill || Enabled);
+            Debug.Assert(WantsToDrill || Enabled);
 
             if (Parent == null || Parent.Physics == null)
                 return;
@@ -290,12 +297,12 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateAfterSimulation()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             base.UpdateAfterSimulation();
 
             m_drillBase.UpdateAfterSimulation();
 
-            if (m_wantsToDrill || m_drillBase.AnimationMaxSpeedRatio > 0f)
+            if (WantsToDrill || m_drillBase.AnimationMaxSpeedRatio > 0f)
             {
                 if (MySession.Static.EnableToolShake && MyFakes.ENABLE_TOOL_SHAKE)
                 {
@@ -320,7 +327,7 @@ namespace Sandbox.Game.Weapons
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.AppendFormat("\n");
 
             RaisePropertiesChanged();
@@ -354,21 +361,21 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction && action != MyShootActionEnum.SecondaryAction) return;
 
-            m_wantsToDrill = true;
+            WantsToDrill = true;
             m_wantsToCollect = action == MyShootActionEnum.PrimaryAction;
             ShakeAmount = 2.5f;
 
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         public void EndShoot(MyShootActionEnum action)
         {
-            m_wantsToDrill = false;
-            PowerReceiver.Update();
+            WantsToDrill = false;
+            ResourceSink.Update();
         }
 
         public void OnControlAcquired(MyCharacter owner)
@@ -395,6 +402,24 @@ namespace Sandbox.Game.Weapons
             Debug.Assert(index == 0);
             return m_inventory;
         }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged -= Inventory_ContentsChanged;
+            }
+
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
+        }
+
 
         bool ModAPI.Interfaces.IMyInventoryOwner.UseConveyorSystem
         {
@@ -449,7 +474,7 @@ namespace Sandbox.Game.Weapons
 
         private float ComputeRequiredPower()
         {
-            return (IsFunctional && (Enabled || m_wantsToDrill)) ? PowerReceiver.MaxRequiredInput : 0f;
+            return (IsFunctional && (Enabled || WantsToDrill)) ? ResourceSink.MaxRequiredInput : 0f;
         }
 
         String IMyInventoryOwner.DisplayNameText
@@ -554,10 +579,10 @@ namespace Sandbox.Game.Weapons
                     m_powerConsumptionMultiplier = 0.01f;
                 }
 
-                if (PowerReceiver != null)
+                if (ResourceSink != null)
                 {
-                    PowerReceiver.MaxRequiredInput = ComputeMaxRequiredPower();
-                    PowerReceiver.Update();
+                    ResourceSink.MaxRequiredInput = ComputeMaxRequiredPower() * m_powerConsumptionMultiplier;
+                    ResourceSink.Update();
 
                     UpdateDetailedInfo();
                 }

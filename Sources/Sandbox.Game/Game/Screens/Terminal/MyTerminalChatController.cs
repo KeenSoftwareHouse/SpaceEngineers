@@ -299,7 +299,7 @@ namespace Sandbox.Game.Gui
         }
         #endregion
 
-        void Players_PlayersChanged(bool added, ulong steamId)
+        void Players_PlayersChanged(bool added, MyPlayer.PlayerId playerId)
         {
             if (!m_closed)
             {

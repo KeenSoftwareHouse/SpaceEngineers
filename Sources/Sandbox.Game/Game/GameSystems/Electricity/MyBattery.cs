@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-
-using VRage.Trace;
-using VRageMath;
 using VRage.Utils;
+using VRage.ObjectBuilders;
+using VRageMath;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    class MyBattery : IMyPowerProducer, IMyPowerConsumer
+    public class MyBattery
     {
         internal class Friend
         {
@@ -26,200 +24,142 @@ namespace Sandbox.Game.GameSystems.Electricity
             }
         }
 
-        private int m_lastUpdateTime;
-        private bool m_canProduce;
-        private MyCharacter m_owner;
-        private MySyncBattery SyncObject;
+		private int m_lastUpdateTime;
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
+        private MyEntity m_lastParent = null;
 
-        #region IMyPowerProducer
-        MyProducerGroupEnum IMyPowerProducer.Group
-        {
-            get { return MyProducerGroupEnum.Battery; }
-        }
+        public const float EnergyCriticalThreshold = 0.10f;
+        public const float EnergyLowThreshold = 0.25f;
 
-        public float MaxPowerOutput
-        {
-            get { return MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT; }
-        }
+        public bool IsEnergyCritical { get { return (ResourceSource.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < EnergyCriticalThreshold; } }
+        public bool IsEnergyLow { get { return (ResourceSource.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < EnergyLowThreshold; } }
 
-        private float m_currentPowerOutput;
-        public float CurrentPowerOutput
-        {
-            get { return m_currentPowerOutput; }
-            set
-            {
-                MyDebug.AssertDebug(value <= MaxPowerOutput && value >= 0.0f, "Battery power output out of bounds.");
-                m_currentPowerOutput = value;
-            }
-        }
+        private readonly MyCharacter m_owner;
+		public MyCharacter Owner { get { return m_owner; } }
 
-        /// <summary>
-        /// Controls energy production from battery. Note that this property only
-        /// changes power production and does not affect ability to recharge 
-        /// battery (power consumption) as this is property from IMyPowerProducer.
-        /// </summary>
-        public bool Enabled
-        {
-            get { return m_producerEnabled; }
-            set
-            {
-                if (m_producerEnabled != value)
-                {
-                    m_producerEnabled = value;
-                    if (m_producerEnabled)
-                        m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                    else
-                        CurrentPowerOutput = 0.0f;
+        internal readonly MySyncBattery SyncObject;
 
-                    if (MaxPowerOutputChanged != null)
-                        MaxPowerOutputChanged(this);
-                }
-            }
-        }
-        private bool m_producerEnabled;
+        public MyResourceSinkComponent ResourceSink { get; private set; }
+	    public MyResourceSourceComponent ResourceSource { get; private set; }
 
-        public event Action<IMyPowerProducer> MaxPowerOutputChanged;
+		private readonly MyStringHash m_resourceSinkGroup = MyStringHash.GetOrCompute("Charging");
+	    private readonly MyStringHash m_resourceSourceGroup = MyStringHash.GetOrCompute("Battery");	
 
-        private bool m_hasRemainingCapacity;
-        public bool HasCapacityRemaining
-        {
-            get { return m_hasRemainingCapacity; }
-            private set
-            {
-                if (m_hasRemainingCapacity != value)
-                {
-                    m_hasRemainingCapacity = value;
-                    if (HasCapacityRemainingChanged != null)
-                        HasCapacityRemainingChanged(this);
-                }
-            }
-        }
-
-        public event Action<IMyPowerProducer> HasCapacityRemainingChanged;
-
-        private float m_remainingCapacity;
-        public float RemainingCapacity
-        {
-            get { return m_remainingCapacity; }
-            private set
-            {
-                m_remainingCapacity = value;
-                PowerReceiver.Update();
-            }
-        }
-        #endregion
-
-        public bool OwnedByLocalPlayer
-        {
-            get;
-            set;
-        }
-
-        public bool IsEnergyCritical
-        {
-            get { return (RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < 0.05f; }
-        }
-
-        public bool IsEnergyLow
-        {
-            get { return (RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < 0.2f; }
-        }
+        public bool OwnedByLocalPlayer { get; set; }
 
         public MyBattery(MyCharacter owner)
         {
             m_owner = owner;
             SyncObject = new MySyncBattery(this);
-            m_remainingCapacity = MyEnergyConstants.BATTERY_MAX_CAPACITY;
-            (this as IMyPowerProducer).Enabled = true;
-            CurrentPowerOutput = 0.0f;
+			ResourceSink = new MyResourceSinkComponent();
+			ResourceSource = new MyResourceSourceComponent();
         }
 
-        public void Init(MyObjectBuilder_Battery builder)
+        public void Init(MyObjectBuilder_Battery builder, List<MyResourceSinkInfo> additionalSinks = null, List<MyResourceSourceInfo> additionalSources = null)
         {
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Charging,
-                true,
-                MyEnergyConstants.BATTERY_MAX_POWER_INPUT,
-                () => (RemainingCapacity < MyEnergyConstants.BATTERY_MAX_CAPACITY) ? MyEnergyConstants.BATTERY_MAX_POWER_INPUT : 0f);
-            PowerReceiver.Update();
-
-            if (builder != null)
+            var defaultSinkInfo = new MyResourceSinkInfo
             {
-                (this as IMyPowerProducer).Enabled = builder.ProducerEnabled;
-                if (MySession.Static.SurvivalMode)
-                    RemainingCapacity = MathHelper.Clamp(builder.CurrentCapacity, 0f, MyEnergyConstants.BATTERY_MAX_CAPACITY);
+                MaxRequiredInput = MyEnergyConstants.BATTERY_MAX_POWER_INPUT,
+                ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
+                RequiredInputFunc = () => (ResourceSource.RemainingCapacity < MyEnergyConstants.BATTERY_MAX_CAPACITY) ? MyEnergyConstants.BATTERY_MAX_POWER_INPUT : 0f,
+            };
+
+            if (additionalSinks != null)
+            {
+				additionalSinks.Insert(0, defaultSinkInfo);
+                ResourceSink.Init(m_resourceSinkGroup, additionalSinks);
             }
-            RefreshHasRemainingCapacity();
-        }
+            else
+            {
+                ResourceSink.Init(m_resourceSinkGroup, defaultSinkInfo);
+            }
 
-        public MyObjectBuilder_Battery GetObjectBuilder()
-        {
-            MyObjectBuilder_Battery builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
-            builder.ProducerEnabled = (this as IMyPowerProducer).Enabled;
-            builder.CurrentCapacity = RemainingCapacity;
-            return builder;
-        }
+            ResourceSink.TemporaryConnectedEntity = m_owner;
 
-        public void UpdateOnServer()
-        {
-            if (!Sync.IsServer)
+            var defaultSourceInfo = new MyResourceSourceInfo
+            {
+                ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
+                DefinedOutput = MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT, // TODO: Load max output from definitions
+                ProductionToCapacityMultiplier = 60*60
+            };
+
+            if (additionalSources != null)
+            {
+                additionalSources.Insert(0, defaultSourceInfo);
+                ResourceSource.Init(m_resourceSourceGroup, additionalSources);
+            }
+            else
+                ResourceSource.Init(m_resourceSourceGroup, defaultSourceInfo);
+
+            ResourceSource.TemporaryConnectedEntity = m_owner;
+	        m_lastUpdateTime = MySession.Static.GameplayFrameCounter;
+			
+            if (builder == null)
+            {
+                ResourceSource.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, true);
+                ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, MyEnergyConstants.BATTERY_MAX_CAPACITY);
+			    ResourceSink.Update();
                 return;
-
-            RefreshHasRemainingCapacity();
-            if (HasCapacityRemaining || PowerReceiver.RequiredInput > 0.0f)
-            {
-                int timePassed = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime;
-                m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                float consumptionPerMillisecond = CurrentPowerOutput / (60 * 60 * 1000);
-                float rechargePerMillisecond = (MyFakes.ENABLE_BATTERY_SELF_RECHARGE ? PowerReceiver.MaxRequiredInput : PowerReceiver.CurrentInput) / (60 * 60 * 1000);
-                float consumedEnergy = (MySession.Static.CreativeMode) ? 0 : timePassed * consumptionPerMillisecond;
-                float rechargedEnergy = timePassed * rechargePerMillisecond;
-                float newCapacity = RemainingCapacity;
-                newCapacity -= consumedEnergy;
-                newCapacity += rechargedEnergy;
-                RemainingCapacity = MathHelper.Clamp(newCapacity, 0f, MyEnergyConstants.BATTERY_MAX_CAPACITY);
             }
 
-            RefreshHasRemainingCapacity();
-            //Moved to HudWarnings
-            SyncObject.SendCapacitySync(m_owner, RemainingCapacity);
-
-            if (false)
-            {
-                MyTrace.Watch("MyBattery.RequiredPowerInput", PowerReceiver.RequiredInput);
-                MyTrace.Watch("MyBattery.CurrentPowerOutput", this.CurrentPowerOutput);
-                MyTrace.Watch("MyBattery.CurrentPowerInput", PowerReceiver.CurrentInput);
-                MyTrace.Watch("MyBattery.CurrentCapacity", this.RemainingCapacity);
-            }
+            ResourceSource.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, builder.ProducerEnabled);
+			if (MySession.Static.SurvivalMode)
+				ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, MathHelper.Clamp(builder.CurrentCapacity, 0f, MyEnergyConstants.BATTERY_MAX_CAPACITY));
+            else
+                ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, MyEnergyConstants.BATTERY_MAX_CAPACITY);
+                
+            ResourceSink.Update();
         }
 
-        private void RefreshHasRemainingCapacity()
-        {
-            HasCapacityRemaining = RemainingCapacity > 0.0f;
-        }
+		public MyObjectBuilder_Battery GetObjectBuilder()
+		{
+			MyObjectBuilder_Battery builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
+			builder.ProducerEnabled = ResourceSource.Enabled;
+			builder.CurrentCapacity = ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId);
+			return builder;
+		}
 
-        private void SyncCapacitySuccess(float remainingCapacity)
-        {
-            RemainingCapacity = remainingCapacity;
-            RefreshHasRemainingCapacity();
-        }
-        public bool HasPlayerAccess(long playerId)
-        {
-            return true;
-        }
+		public void UpdateOnServer()
+		{
+			if (!Sync.IsServer)
+				return;
 
-        /// <summary>
-        /// This should be only used for debug
-        /// </summary>
+		    MyEntity newParent = m_owner.Parent;
+		    if (m_lastParent != newParent) // Need to rethink batteries
+		    {
+		        ResourceSink.Update();
+
+		        m_lastParent = newParent;
+		    }
+
+		    if (ResourceSource.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId) || ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId) > 0.0f)
+			{
+                float secondsSinceLastUpdate = (MySession.Static.GameplayFrameCounter - m_lastUpdateTime)*MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_lastUpdateTime = MySession.Static.GameplayFrameCounter;
+                var productionToCapacity = ResourceSource.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId);
+                float consumptionPerSecond = ResourceSource.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId) / productionToCapacity;
+                float rechargePerSecond = (MyFakes.ENABLE_BATTERY_SELF_RECHARGE ? ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId) : ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) / productionToCapacity);
+                float consumedEnergy = (MySession.Static.CreativeMode) ? 0 : secondsSinceLastUpdate * consumptionPerSecond;
+                float rechargedEnergy = secondsSinceLastUpdate * rechargePerSecond;
+			    float energyTransfer = rechargedEnergy - consumedEnergy;
+			    float newCapacity = ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId) + energyTransfer;
+				ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, MathHelper.Clamp(newCapacity, 0f, MyEnergyConstants.BATTERY_MAX_CAPACITY));
+			}
+
+			if (!ResourceSource.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId))
+                ResourceSink.Update();
+           
+            SyncObject.SendCapacitySync(Owner, ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId));
+		}
+
+		internal void SyncCapacitySuccess(float remainingCapacity)
+		{
+			ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, remainingCapacity);
+		}
+
         public void DebugDepleteBattery()
         {
-            RemainingCapacity = 0f;
+            ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, 0f);
         }
     }
 }

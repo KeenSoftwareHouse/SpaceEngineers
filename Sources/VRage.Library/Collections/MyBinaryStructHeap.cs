@@ -13,6 +13,11 @@ namespace VRage.Collections
         {
             public K Key { get; internal set; }
             public V Value { get; internal set; }
+
+            public override string ToString()
+            {
+                return Key.ToString() + ": " + Value.ToString();
+            }
         }
 
         private HeapItem[] m_array;

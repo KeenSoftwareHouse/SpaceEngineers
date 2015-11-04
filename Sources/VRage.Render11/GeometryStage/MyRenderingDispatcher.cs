@@ -103,9 +103,12 @@ namespace VRageRender
                 ConsumeWork(w, accumulator);
             }
 
+            m_workList.Clear();
+
             MyRender11.GetRenderProfiler().EndProfilingBlock();
         }
 
+        [Obsolete("Replaced by Dispatch_LoopPassThenObject")]
         internal static void Dispatch_LoopObjectThenPass(List<MyRenderingPass> queues, MyCullQuery cullingResults, Queue<CommandList> accumulator)
         {
             MyRender11.GetRenderProfiler().StartProfilingBlock("PrepareWork");
@@ -116,7 +119,7 @@ namespace VRageRender
 
             for (int i = 0; i < cullingResults.Size; i++)
             {
-                var list = cullingResults.FrustumQuery[i].List;
+                var list = cullingResults.FrustumQueries[i].List;
 
                 for (int j = 0; j < list.Count; j++)
                 {
@@ -131,13 +134,13 @@ namespace VRageRender
                             index = m_indirection.Count;
                             m_indirection[proxy] = index;
 
-                            m_renderList[index].sortKey = sortKey;
-                            m_renderList[index].renderProxy = proxy;
+                            m_renderList[index].SortKey = sortKey;
+                            m_renderList[index].RenderProxy = proxy;
                             m_renderList[index].ProcessingMask = new BitVector32();
                         }
 
                         // merge results
-                        m_renderList[index].ProcessingMask = new BitVector32(cullingResults.FrustumQuery[i].Bitmask | m_renderList[index].ProcessingMask.Data);
+                        m_renderList[index].ProcessingMask = new BitVector32(cullingResults.FrustumQueries[i].Bitmask | m_renderList[index].ProcessingMask.Data);
                     }
                 }
             }
@@ -230,7 +233,6 @@ namespace VRageRender
 
             List<List<MyRenderCullResultFlat>> passElements = new List<List<MyRenderCullResultFlat>>();
             List<MyRenderableProxy_2[]> passElements2 = new List<MyRenderableProxy_2[]>();
-            
 
             foreach (var q in queues)
             {
@@ -251,26 +253,14 @@ namespace VRageRender
 
                 for (int j = 0; j < queues.Count; j++)
                 {
-                    if ((queues[j].ProcessingMask & cullingResults.FrustumQuery[i].Bitmask) > 0)
+                    if ((queues[j].ProcessingMask & cullingResults.FrustumQueries[i].Bitmask) > 0)
                     {
                         affectedQueueIds.Add(j);
                     }
                 }
 
-                //if (cullingResults.FrustumQuery[i].Type == MyFrustumEnum.MainFrustum)
-                //{
-                //    foreach (var e in cullingResults.FrustumQuery[i].List)
-                //    {
-                //        if (e.Proxies[0].Parent.m_owner.ID == 1417)
-                //        {
-                //            okAfterCull = true;
-                //            break;
-                //        }
-                //    }
-                //}
-
                 // proxy 
-                var list = cullingResults.FrustumQuery[i].List;
+                var list = cullingResults.FrustumQueries[i].List;
                 for (int j = 0; j < list.Count; j++)
                 {
                     for (int k = 0; k < list[j].Proxies.Length; k++)
@@ -281,8 +271,8 @@ namespace VRageRender
                         for (int l = 0; l < affectedQueueIds.Count; l++)
                         {
                             var item = new MyRenderCullResultFlat();
-                            item.renderProxy = proxy;
-                            item.sortKey = sortKey;
+                            item.RenderProxy = proxy;
+                            item.SortKey = sortKey;
 
                             passElements[affectedQueueIds[l]].Add(item);
                         }
@@ -290,7 +280,7 @@ namespace VRageRender
                 }
 
                 // proxy 2
-                var list2 = cullingResults.FrustumQuery[i].List2;
+                var list2 = cullingResults.FrustumQueries[i].List2;
                 
                 // flatten and sort
                 List<UInt64> flattenedKeys = new List<ulong>();
@@ -331,23 +321,6 @@ namespace VRageRender
             {
                 list.Sort(MyCullResultsComparer.Instance);
             }
-
-            //var okAfterSort = false;
-
-            //for (int i = 0; i < queues.Count; i++ )
-            //{
-            //    if (queues[i] as MyGBufferPass != null)
-            //    {
-            //        foreach (var e in passElements[i])
-            //        {
-            //            if (e.renderProxy.Parent.m_owner.ID == 1417)
-            //            {
-            //                okAfterSort = true;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //}
 
             int jobsNum = GetRenderingThreadsNum();
 
@@ -428,31 +401,9 @@ namespace VRageRender
                 }
             }
 
-            //bool okInWorklist = false;
-            //foreach(var wl in m_workList)
-            //{
-            //    var impl = wl as MyRenderingWork_LoopPassThenObject;
-                
-
-            //    foreach(var sub in impl.m_subworks)
-            //    {
-            //        if((sub.Pass as MyGBufferPass) != null && sub.Renderables != null)
-            //        {
-            //            foreach(var r in sub.Renderables)
-            //            {
-            //                if(r.renderProxy.Parent.m_owner.ID == 1417)
-            //                {
-            //                    okInWorklist = true;
-            //                    break;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            MyRender11.GetRenderProfiler().EndProfilingBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
 
+            MyRender11.GetRenderProfiler().EndProfilingBlock();
 
             ScheduleAndWait(accumulator);
         }

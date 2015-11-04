@@ -66,11 +66,19 @@ namespace Sandbox.Engine.Voxels
             if ((m_outerRadius + lodVoxelSize) < distance)
                 return 1f;
 
+            return SignedDistanceInternal(lodVoxelSize, macroModulator, detailModulator, ref localPosition, distance);
+        }
+
+        private float SignedDistanceInternal(float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator, ref Vector3 localPosition, float distance)
+        {
             float halfDeviationRatio;
             if (m_enableModulation)
             {
                 Debug.Assert(m_deviationFrequency != 0f);
-                float normalizer = m_deviationFrequency * m_radius / distance;
+                float distScale = 0f;
+                if (distance != 0f)
+                    distScale = 1f / distance;
+                float normalizer = m_deviationFrequency * m_radius * distScale;
                 var tmp = localPosition * normalizer;
                 halfDeviationRatio = (float)macroModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
             }
@@ -89,6 +97,15 @@ namespace Sandbox.Engine.Voxels
             }
 
             return signedDistance / lodVoxelSize;
+        }
+
+        internal override float SignedDistanceUnchecked(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator)
+        {
+            Vector3 localPosition = position - m_translation;
+
+            float distance = localPosition.Length();
+
+            return SignedDistanceInternal(lodVoxelSize, macroModulator, detailModulator, ref localPosition, distance);
         }
 
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)

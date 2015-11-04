@@ -1,8 +1,6 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -16,7 +14,12 @@ namespace Sandbox.Definitions
         public string Model;
         public MyStringId? IconSymbol;
         public float Volume; // in m3
-        public MyStringId PhysicalMaterial;
+        public MyStringHash PhysicalMaterial;
+        public bool CanSpawnFromScreen;
+        public bool RotateOnSpawnX = false;
+        public bool RotateOnSpawnY = false;
+        public bool RotateOnSpawnZ = false;
+        public int Health;
 
         public bool HasIntegralAmounts
         {
@@ -41,7 +44,12 @@ namespace Sandbox.Definitions
                 this.IconSymbol = null;
             else
                 this.IconSymbol = MyStringId.GetOrCompute(ob.IconSymbol);
-            PhysicalMaterial = MyStringId.GetOrCompute(ob.PhysicalMaterial);
+            PhysicalMaterial = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
+            CanSpawnFromScreen = ob.CanSpawnFromScreen;
+            RotateOnSpawnX = ob.RotateOnSpawnX;
+            RotateOnSpawnY = ob.RotateOnSpawnY;
+            RotateOnSpawnZ = ob.RotateOnSpawnZ;
+            Health = ob.Health;
         }
     }
 }

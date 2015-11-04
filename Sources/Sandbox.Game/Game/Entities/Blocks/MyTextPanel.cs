@@ -1,32 +1,29 @@
-﻿
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-
+using Sandbox.Game.EntityComponents;
 using VRage;
-using Sandbox.Engine.Utils;
 using VRageMath;
 using VRage.Utils;
+using VRage.Game.Entity.UseObject;
+using VRage.ModAPI;
+using VRage.Library.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TextPanel))]
-    partial class MyTextPanel : MyFunctionalBlock, IMyPowerConsumer
+    partial class MyTextPanel : MyFunctionalBlock
     {
         private const int NUM_DECIMALS = 1;
         public const double MAX_DRAW_DISTANCE = 100.0;
@@ -299,12 +296,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            protected set;
-        }
-
         internal new MyRenderComponentTextPanel Render
         {
             get { return (MyRenderComponentTextPanel)base.Render; }
@@ -354,13 +345,16 @@ namespace Sandbox.Game.Entities.Blocks
                 PrivateDescription.Clear();
                 SyncObject.SendChangeDescriptionMessage(PrivateDescription, false);
             }
-            PowerReceiver.Update();
+            ResourceSink.Update();
             if (IsFunctional && IsWorking)
             {
                 if (ShowTextOnScreen && IsInRange() == false)
                 {
-                    m_isOutofRange = true;
-                    ReleaseRenderTexture();
+                    if (!m_isOutofRange)
+                    {
+                        m_isOutofRange = true;
+                        ReleaseRenderTexture();
+                    }
                     return;
                 }
 
@@ -513,12 +507,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             if (IsFunctional)
             {
                 if (ShowTextOnScreen == false)
@@ -536,6 +530,12 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
             }
+        }
+
+        public override void OnAddedToScene(object source)
+        {
+            base.OnAddedToScene(source);
+            ComponentStack_IsFunctionalChanged();//after merging grids...
         }
 
         static MyTextPanel()
@@ -570,6 +570,7 @@ namespace Sandbox.Game.Entities.Blocks
             comboAccess.Getter = (x) => (long)x.AccessFlag;
             comboAccess.Setter = (x, y) => x.SyncObject.SendChangeAccessFlagMessage((byte)y);
             comboAccess.Enabled = (x) => x.OwnerId != 0;
+            comboAccess.SetSerializerRange(0, (int)TextPanelAccessFlag.READ_AND_WRITE_ALL);
             MyTerminalControlFactory.AddControl(comboAccess);
             MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyTextPanel>());
 
@@ -692,14 +693,14 @@ namespace Sandbox.Game.Entities.Blocks
                 RaisePropertiesChanged();
             }
 
-            PowerReceiver = new MyPowerReceiver(
-             MyConsumerGroupEnum.Utility,
-             false,
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+             BlockDefinition.ResourceSinkGroup,
              BlockDefinition.RequiredPowerInput,
-             () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+			 () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
+			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
@@ -807,11 +808,12 @@ namespace Sandbox.Game.Entities.Blocks
             return new MySyncTextPanel(this);
         }
 
-        public void Use(UseActionEnum actionEnum, MyCharacter user)
+        public void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             if (m_isOpen)
                 return;
 
+            var user = entity as MyCharacter;
             var relation = GetUserRelationToOwner(user.ControllerInfo.Controller.Player.Identity.IdentityId);
 
             if (OwnerId == 0)
@@ -830,6 +832,7 @@ namespace Sandbox.Game.Entities.Blocks
 						else
 							OnEnemyUse(actionEnum, user);
                         break;
+                    case Common.MyRelationsBetweenPlayerAndBlock.NoOwnership:
                     case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)
                             OnOwnerUse(actionEnum, user);
@@ -963,10 +966,10 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
 
@@ -1037,6 +1040,28 @@ namespace Sandbox.Game.Entities.Blocks
                 m_forceUpdateText = false;
                 m_previousTextureID = null;
             }
+        }
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+			if (ResourceSink != null)
+                if (CheckIsWorking() == false)
+                {
+                    if (ShowTextOnScreen)
+                    {
+                        Render.ReleaseRenderTexture();
+                    }
+                    Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
+                }
+                else
+                {
+                    if (ShowTextOnScreen == false)
+                    {
+                        Render.ChangeTexture(GetPathForID(DEFAULT_ONLINE_TEXTURE));
+                    }
+                    m_previousTextureID = null;
+                    m_forceUpdateText = ShowTextOnScreen;
+                }
         }
     }
 }

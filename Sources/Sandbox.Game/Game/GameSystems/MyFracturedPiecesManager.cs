@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Common;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.World;
 using VRage;
-using Sandbox.Engine.Physics;
 using Havok;
 using System.Diagnostics;
 using System;
@@ -13,6 +13,7 @@ using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -37,6 +38,8 @@ namespace Sandbox.Game.GameSystems
 
         HashSet<long> m_dbgCreated = new HashSet<long>();
         HashSet<long> m_dbgRemoved = new HashSet<long>();
+
+        List<HkBodyCollision> m_rigidList = new List<HkBodyCollision>();
 
         public override bool IsRequiredByGame
         {
@@ -67,6 +70,7 @@ namespace Sandbox.Game.GameSystems
 
             var fp = new MyFracturedPiece();
             fp.Physics = new MyPhysicsBody(fp, RigidBodyFlag.RBF_DEBRIS);
+            fp.Physics.CanUpdateAccelerations = true;
             ProfilerShort.End();
             return fp;
         }
@@ -107,8 +111,8 @@ namespace Sandbox.Game.GameSystems
 
         void RigidBody_Deactivated(HkEntity entity)
         {
-            Debug.Assert(entity.GetEntity() is MyFracturedPiece);
-            var fp = entity.GetEntity() as MyFracturedPiece;
+            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
+            var fp = entity.GetEntity(0) as MyFracturedPiece;
             if (fp == null || m_blendingPieces.Contains(fp))
                 return;
             m_inactivePieces.Add(fp);
@@ -116,8 +120,8 @@ namespace Sandbox.Game.GameSystems
 
         void RigidBody_Activated(HkEntity entity)
         {
-            Debug.Assert(entity.GetEntity() is MyFracturedPiece);
-            var fp = entity.GetEntity() as MyFracturedPiece;
+            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
+            var fp = entity.GetEntity(0) as MyFracturedPiece;
             if (fp == null || m_blendingPieces.Contains(fp))
                 return;
             m_inactivePieces.Remove(fp);
@@ -338,23 +342,55 @@ namespace Sandbox.Game.GameSystems
             return fp;
         }
 
-		public List<MyFracturedPiece> GetFracturesInSphere(ref BoundingSphereD searchSphere)
+		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
 		{
-			var fracturesInRadius = new List<MyFracturedPiece>();
 			var activeFractures = m_piecesTimesOfDeath.Keys;
 
-			double radiusSq = searchSphere.Radius * searchSphere.Radius;
-			foreach(var fracture in activeFractures)
+			HkShape shape = new HkSphereShape((float)searchSphere.Radius);
+			try
 			{
-				double distanceSq = Vector3D.DistanceSquared(searchSphere.Center, fracture.PositionComp.GetPosition());
-				if(distanceSq < radiusSq)
+				MyPhysics.GetPenetrationsShape(shape, ref searchSphere.Center, ref Quaternion.Identity, m_rigidList, MyPhysics.NotCollideWithStaticLayer);
+			
+				foreach(var rigidBody in m_rigidList)
 				{
-					fracturesInRadius.Add(fracture);
+					var fracture = rigidBody.GetCollisionEntity() as MyFracturedPiece;
+					if (fracture != null)
+						output.Add(fracture);
 				}
 			}
-			
-			return fracturesInRadius;
+			finally
+			{
+				m_rigidList.Clear();
+				shape.RemoveReference();
+			}
 		}
+
+        public void GetFracturesInBox(ref BoundingBoxD searchBox, List<MyFracturedPiece> output)
+        {
+            var activeFractures = m_piecesTimesOfDeath.Keys;
+
+            Debug.Assert(m_rigidList.Count == 0);
+            m_rigidList.Clear();
+
+            HkShape shape = new HkBoxShape(searchBox.HalfExtents);
+            try
+            {
+                var center = searchBox.Center;
+                MyPhysics.GetPenetrationsShape(shape, ref center, ref Quaternion.Identity, m_rigidList, MyPhysics.NotCollideWithStaticLayer);
+
+                foreach (var rigidBody in m_rigidList)
+                {
+                    var fracture = rigidBody.GetCollisionEntity() as MyFracturedPiece;
+                    if (fracture != null && m_piecesTimesOfDeath.ContainsKey(fracture))
+                        output.Add(fracture);
+                }
+            }
+            finally
+            {
+                m_rigidList.Clear();
+                shape.RemoveReference();
+            }
+        }
 
 		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)
 		{
@@ -484,6 +520,21 @@ namespace Sandbox.Game.GameSystems
                 {
                     Debug.Assert(false, "Shouldnt get here");
                 }
+            }
+        }
+
+        public void RemoveFracturesInBox(ref BoundingBoxD box, float blendTimeSeconds)
+        {
+            Debug.Assert(Sync.IsServer);
+            if (!Sync.IsServer)
+                return;
+
+            List<MyFracturedPiece> fracturesInBox = new List<MyFracturedPiece>();
+            GetFracturesInBox(ref box, fracturesInBox);
+
+            foreach (var fracture in fracturesInBox)
+            {
+                RemoveFracturePiece(fracture, blendTimeSeconds);
             }
         }
 

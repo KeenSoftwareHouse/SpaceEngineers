@@ -19,7 +19,7 @@ namespace Sandbox.Game.AI.Pathfinding
 {
     public class MyVoxelNavigationMesh : MyNavigationMesh
     {
-        private MyVoxelMap m_voxelMap;
+        private MyVoxelBase m_voxelMap;
         private Vector3 m_cellSize;
 
         // Cells that are fully processed and present in the mesh
@@ -83,7 +83,7 @@ namespace Sandbox.Game.AI.Pathfinding
             }
         }
 
-        public MyVoxelNavigationMesh(MyVoxelMap voxelMap, MyNavmeshCoordinator coordinator, Func<long> timestampFunction)
+        public MyVoxelNavigationMesh(MyVoxelBase voxelMap, MyNavmeshCoordinator coordinator, Func<long> timestampFunction)
             : base(coordinator.Links, 16, timestampFunction)
         {
             m_voxelMap = voxelMap;
@@ -218,10 +218,13 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             MyCellCoord coord = new MyCellCoord(NAVMESH_LOD, cellPos);
 
-            var geometry = m_voxelMap.Storage.Geometry;
+            var generatedMesh = MyPrecalcComponent.IsoMesher.Precalc(new MyIsoMesherArgs()
+            {
+                Storage = m_voxelMap.Storage,
+                GeometryCell = coord,
+            });
 
-            MyVoxelGeometry.CellData data = geometry.GetCell(ref coord);
-            if (data == null)
+            if (generatedMesh == null)
             {
                 m_processedCells.Add(ref cellPos);
                 m_higherLevelHelper.AddExplored(ref cellPos);
@@ -238,7 +241,7 @@ namespace Sandbox.Game.AI.Pathfinding
             MyTrace.Send(TraceWindow.Ai, "Adding cell " + cellPos);
 
             m_connectionHelper.ClearCell();
-            m_vertexMapping.Init(data.VoxelVerticesCount);
+            m_vertexMapping.Init(generatedMesh.VerticesCount);
 
             // Prepare list of possibly intersecting cube grids for voxel-grid navmesh intersection testing
             Vector3D bbMin = m_voxelMap.PositionLeftBottomCorner + (m_cellSize * (new Vector3D(-0.125) + cellPos));
@@ -252,19 +255,20 @@ namespace Sandbox.Game.AI.Pathfinding
 
             // This is needed for correct edge classification - to tell, whether the edges are inner or outer edges of the cell
             ProfilerShort.Begin("Triangle preprocessing");
-            for (int i = 0; i < data.VoxelTrianglesCount; i++)
+            for (int i = 0; i < generatedMesh.TrianglesCount; i++)
             {
-                short a = data.VoxelTriangles[i].VertexIndex0;
-                short b = data.VoxelTriangles[i].VertexIndex1;
-                short c = data.VoxelTriangles[i].VertexIndex2;
+                ushort a = generatedMesh.Triangles[i].VertexIndex0;
+                ushort b = generatedMesh.Triangles[i].VertexIndex1;
+                ushort c = generatedMesh.Triangles[i].VertexIndex2;
 
                 Vector3 aPos, bPos, cPos;
                 Vector3 vert;
-                data.GetUnpackedPosition(a, out vert);
+
+                generatedMesh.GetUnpackedPosition(a, out vert);
                 aPos = vert - centerDisplacement;
-                data.GetUnpackedPosition(b, out vert);
+                generatedMesh.GetUnpackedPosition(b, out vert);
                 bPos = vert - centerDisplacement;
-                data.GetUnpackedPosition(c, out vert);
+                generatedMesh.GetUnpackedPosition(c, out vert);
                 cPos = vert - centerDisplacement;
 
                 bool invalidTriangle = false;
@@ -300,27 +304,27 @@ namespace Sandbox.Game.AI.Pathfinding
             m_higherLevelHelper.OpenNewCell(coord);
 
             ProfilerShort.Begin("Adding triangles");
-            for (int i = 0; i < data.VoxelTrianglesCount; i++)
+            for (int i = 0; i < generatedMesh.TrianglesCount; i++)
             {
-                short a = data.VoxelTriangles[i].VertexIndex0;
-                short b = data.VoxelTriangles[i].VertexIndex1;
-                short c = data.VoxelTriangles[i].VertexIndex2;
-                short setA = (short)m_vertexMapping.Find(a);
-                short setB = (short)m_vertexMapping.Find(b);
-                short setC = (short)m_vertexMapping.Find(c);
+                ushort a = generatedMesh.Triangles[i].VertexIndex0;
+                ushort b = generatedMesh.Triangles[i].VertexIndex1;
+                ushort c = generatedMesh.Triangles[i].VertexIndex2;
+                ushort setA = (ushort)m_vertexMapping.Find(a);
+                ushort setB = (ushort)m_vertexMapping.Find(b);
+                ushort setC = (ushort)m_vertexMapping.Find(c);
 
                 if (setA == setB || setB == setC || setA == setC) continue;
 
                 Vector3 aPos, bPos, cPos;
                 Vector3 vert;
-                data.GetUnpackedPosition(setA, out vert);
+                generatedMesh.GetUnpackedPosition(a, out vert);
                 aPos = vert - centerDisplacement;
-                data.GetUnpackedPosition(setB, out vert);
+                generatedMesh.GetUnpackedPosition(b, out vert);
                 bPos = vert - centerDisplacement;
-                data.GetUnpackedPosition(setC, out vert);
+                generatedMesh.GetUnpackedPosition(c, out vert);
                 cPos = vert - centerDisplacement;
 
-                if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
+                if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
                 {
                     Vector3 normal = (cPos - aPos).Cross(bPos - aPos);
                     normal.Normalize();

@@ -1,24 +1,26 @@
-﻿
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
+using Sandbox.ModAPI;
+using Sandbox.Common;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("terminal")]
-    class MyUseObjectTerminal : IMyUseObject
+    public class MyUseObjectTerminal : IMyUseObject
     {
         public readonly MyCubeBlock Block;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectTerminal(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectTerminal(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
-            Block = owner;
+            Block = owner as MyCubeBlock;
             LocalMatrix = dummyData.Matrix;
         }
 
@@ -55,10 +57,11 @@ namespace Sandbox.Game.Entities.Cube
             get { return UseActionEnum.OpenTerminal | UseActionEnum.OpenInventory; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (relation != Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
+            if (!relation.IsFriendly())
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {
@@ -99,5 +102,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -12,8 +12,9 @@ namespace Sandbox.Game.Entities
     {
         private float m_radiusSq;
         private float m_radius;
+		public float Radius { get { return m_radius; } }
 
-        public MySpherePlaceArea(float radius, MyStringId areaType)
+        public MySpherePlaceArea(float radius, MyStringHash areaType)
             : base(areaType)
         {
             m_radius = radius;
@@ -31,13 +32,13 @@ namespace Sandbox.Game.Entities
 
         public Vector3D GetPosition()
         {
-            if (Entity.PositionComp == null)
+            if (Container.Entity.PositionComp == null)
             {
                 Debug.Assert(false, "Position component was null on entity with place area!");
                 return Vector3D.Zero;
             }
 
-            return Entity.PositionComp.GetPosition();
+            return Container.Entity.PositionComp.GetPosition();
         }
 
 		public override double DistanceSqToPoint(Vector3D point)

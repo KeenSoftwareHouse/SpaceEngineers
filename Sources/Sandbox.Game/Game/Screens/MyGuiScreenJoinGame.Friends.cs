@@ -101,8 +101,12 @@ namespace Sandbox.Game.Gui
         void OnFriendsServerListResponded(int server)
         {
             GameServerItem serverItem = SteamAPI.Instance.GetFriendsServerDetails(server);
-            AddServerItem(serverItem, false);
-            m_friendsPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Friends).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            AddServerItem(serverItem, 
+                delegate() 
+                {
+                    m_friendsPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Friends).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                },
+                isFiltered: false);
         }
 
         void OnFriendsServersCompleteResponse(MatchMakingServerResponseEnum response)

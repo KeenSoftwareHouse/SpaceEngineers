@@ -29,7 +29,11 @@ namespace VRageMath
         /// <summary>
         /// Represents the value of pi times two.
         /// </summary>
-        public const float TwoPi = 6.283185f;
+        public const float TwoPi = 6.28318530718f;
+        /// <summary>
+        /// Represents the value of pi times two.
+        /// </summary>
+        public const float FourPi = 12.5663706144f;
         /// <summary>
         /// Represents the value of pi divided by two.
         /// </summary>
@@ -266,8 +270,19 @@ namespace VRageMath
             return angle;
         }
 
-
         public static int GetNearestBiggerPowerOfTwo(int v)
+        {
+            --v;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            ++v;
+            return v;
+        }
+
+        public static uint GetNearestBiggerPowerOfTwo(uint v)
         {
             --v;
             v |= v >> 1;
@@ -411,6 +426,35 @@ namespace VRageMath
             return n < 0.0 ? (int)n - 1 : (int)n;
         }
 
+        private static readonly int[] lof2floor_lut = new int[]
+        {
+             0,  9,  1, 10, 13, 21,  2, 29,
+            11, 14, 16, 18, 22, 25,  3, 30,
+             8, 12, 20, 28, 15, 17, 24,  7,
+            19, 27, 23,  6, 26,  5,  4, 31
+        };
+
+        /**
+         * Fast integer Floor(Log2(value)).
+         * 
+         * Uses a DeBruijn-like method to find quickly the MSB.
+         * 
+         * Algorithm:
+         * https://en.wikipedia.org/wiki/De_Bruijn_sequence#Uses
+         * 
+         * This implementation:
+         * http://stackoverflow.com/a/11398748
+         */
+        public static int Log2Floor(int value)
+        {
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            return lof2floor_lut[(uint)(value * 0x07C4ACDD) >> 27];
+        }
+
         public static int Log2(int n)
         {
             int r = 0;
@@ -421,6 +465,24 @@ namespace VRageMath
             return r;
         }
 
+        public static int Log2(uint n)
+        {
+            int r = 0;
+
+            while ((n >>= 1) > 0)
+                ++r;
+
+            return r;
+        }
+
+        /// <summary>
+        /// Returns 2^n
+        /// </summary>
+        public static int Pow2(int n)
+        {
+            return 1 << n;
+        }
+
         public static double CubicInterp(double p0, double p1, double p2, double p3, double t)
         {
             double P  = (p3 - p2) - (p0 - p1);
@@ -429,5 +491,71 @@ namespace VRageMath
 
             return P*t2*t + Q*t2 + (p2 - p0)*t + p1;
         }
+
+        /// <summary>
+        /// Returns angle in range 0..2*PI
+        /// </summary>
+        /// <param name="angle">in radians</param>
+        public static void LimitRadians2PI(ref double angle)
+        {
+            if (angle > TwoPi)
+            {            
+                angle = angle % TwoPi;
+            }
+            else if (angle < 0)
+            {
+                angle = angle % TwoPi + TwoPi;
+            }
+        }
+
+        /// <summary>
+        /// Returns angle in range 0..2*PI
+        /// </summary>
+        /// <param name="angle">in radians</param>
+        public static void LimitRadians(ref float angle)
+        {
+            if (angle > TwoPi)
+            {
+                angle = angle % TwoPi;
+            }
+            else if (angle < 0)
+            {
+                angle = angle % TwoPi + TwoPi;
+            }
+        }
+
+        /// <summary>
+        /// Returns angle in range -PI..PI
+        /// </summary>
+        /// <param name="angle">radians</param>
+        public static void LimitRadiansPI(ref double angle)
+        {
+            if (angle > Pi)
+            {
+                angle = angle % Pi - Pi;
+            }
+            else if (angle < -Pi)
+            {
+                angle = angle % Pi + Pi;
+            }
+        }
+
+        /// <summary>
+        /// Returns angle in range -PI..PI
+        /// </summary>
+        /// <param name="angle">radians</param>
+        public static void LimitRadiansPI(ref float angle)
+        {
+            if (angle > Pi)
+            {
+                angle = angle % Pi - Pi;
+            }
+            else if (angle < Pi)
+            {
+                angle = angle % Pi + Pi;
+            }
+        }
+
+        
     }
 }

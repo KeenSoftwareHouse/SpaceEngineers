@@ -24,6 +24,7 @@ using Color = VRageMath.Color;
 using SharpDX.D3DCompiler;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.Import;
 
 namespace VRageRender
 {
@@ -38,10 +39,13 @@ namespace VRageRender
         internal MyStringId Extensions_Texture;
         internal MyStringId Alphamask_Texture;
         internal string Technique;
+        internal MyFacingEnum Facing;
+        internal Vector2 WindScaleAndFreq;
+
 
         internal static void RequestResources(ref MyMeshMaterialInfo info)
         {
-            MyTextures.GetTexture(info.ColorMetal_Texture, info.ContentPath, MyTextureEnum.COLOR_METAL);
+            MyTextures.GetTexture(info.ColorMetal_Texture, info.ContentPath, MyTextureEnum.COLOR_METAL, false, info.Facing == MyFacingEnum.Impostor);
             MyTextures.GetTexture(info.NormalGloss_Texture, info.ContentPath, MyTextureEnum.NORMALMAP_GLOSS);
             MyTextures.GetTexture(info.Extensions_Texture, info.ContentPath, MyTextureEnum.EXTENSIONS);
             MyTextures.GetTexture(info.Alphamask_Texture, info.ContentPath, MyTextureEnum.ALPHAMASK);

@@ -16,14 +16,18 @@ namespace Sandbox.Definitions
         }
 
         public string AnimationModel;
+        public string AnimationModelFPS;
+
         public int ClipIndex;
-        public MyBonesArea InfluenceArea;
+        public string InfluenceArea;
         public bool AllowInCockpit;
         public bool AllowWithWeapon;
         public bool Loop;
         public string[] SupportedSkeletons;
         public AnimationStatus Status = AnimationStatus.Unchecked;
         public MyDefinitionId LeftHandItem;
+
+        public AnimationSet[] AnimationSets = null;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -33,6 +37,8 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(ob != null);
 
             this.AnimationModel = ob.AnimationModel;
+            this.AnimationModelFPS = ob.AnimationModelFPS;
+
             this.ClipIndex = ob.ClipIndex;
             this.InfluenceArea = ob.InfluenceArea;
             this.AllowInCockpit = ob.AllowInCockpit;
@@ -44,6 +50,8 @@ namespace Sandbox.Definitions
             {
                 this.LeftHandItem = ob.LeftHandItem;
             }
+
+            this.AnimationSets = ob.AnimationSets;
         }
     }
 }

@@ -19,6 +19,7 @@ namespace VRageRender
         public int BackBufferHeight;
         public int RefreshRate; // Used only in Fullscreen
         public bool VSync;
+        public bool DebugDrawOnly;
 
         public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync)
         {
@@ -28,6 +29,8 @@ namespace VRageRender
             this.BackBufferHeight = height;
             this.RefreshRate = refreshRate;
             this.VSync = vsync;
+
+            DebugDrawOnly = false;
         }
 
         bool IEquatable<MyRenderDeviceSettings>.Equals(MyRenderDeviceSettings other)
@@ -138,17 +141,10 @@ namespace VRageRender
             }
         }
 
-        public bool EnablePerVertexVoxelAmbient = true;
-        public bool ShowCascadeSplits = false;
-
-        //blinkg moving asteroids
-        public bool ShadowInterleaving = false;
-
-        public bool[] FreezeCascade = new bool[4];
-        public bool FreezeCascade0 { get { return FreezeCascade[0]; } set { FreezeCascade[0] = value; } }
-        public bool FreezeCascade1 { get { return FreezeCascade[1]; } set { FreezeCascade[1] = value; } }
-        public bool FreezeCascade2 { get { return FreezeCascade[2]; } set { FreezeCascade[2] = value; } }
-        public bool FreezeCascade3 { get { return FreezeCascade[3]; } set { FreezeCascade[3] = value; } }
+        public static bool EnableVoxelAo = true;
+        public static float VoxelAoMin = 0.600f;
+        public static float VoxelAoMax = 1.000f;
+        public static float VoxelAoOffset = 0.210f;
 
         public bool Wireframe = false;
         public bool EnableStencilOptimization = true;
@@ -166,7 +162,7 @@ namespace VRageRender
         public bool EnableSpotShadows = true;
 
         public bool VisualizeOverdraw = false;
-        
+       
         // Render interpolation time, lower time equals less smooth but more responsive
         // This value should be from interval (0, 2x update interval), good value is "update interval" + "upper usual update time"
         public float InterpolationLagMs = 22;
@@ -184,11 +180,11 @@ namespace VRageRender
         public bool DisplayAO = false;
         public bool DisplayEmissive = false;
         public bool DisplayEdgeMask = false;
+        public bool DisplayNDotL = false;
 
         public bool DisplayAmbientDiffuse = false;
         public bool DisplayAmbientSpecular = false;
-        public bool NightMode = false;
-
+        
         public bool DisplayIDs = false;
         public bool DisplayAabbs = false;
         public bool DrawOnlyMergedMeshes = false;
@@ -206,12 +202,31 @@ namespace VRageRender
         public float GrassGeometryScalingNearDistance = 100f;
         public float GrassGeometryScalingFarDistance = 400f;
         public float GrassGeometryDistanceScalingFactor = 4f;
+		public float GrassDensityFactor = 1.0f;
+
+        // Shadows
+		public float FarShadowDistanceOverride = -1.0f;	
+		public double LongShadowFactor = -1.0;          
+		public float ShadowFadeoutMultiplier = 0.0f;    // 1 - [Shadow opacity]
 
         public bool DisplayShadowsWithDebug = false;
-        public float CascadesSplit0 = 15.0f;
-        public float CascadesSplit1 = 45.0f;
-        public float CascadesSplit2 = 250.0f;
-        public float CascadesSplit3 = 1000.0f;
+        public bool ShadowInterleaving = false;         // Blinking moving asteroids
+
+        // Shadow cascades
+        public int ShadowCascadeCount = 4;
+        public bool ShowShadowCascadeSplits = false;
+        public bool UpdateCascadesEveryFrame = true;
+        public float ShadowCascadeMaxDistance = 1000.0f;
+        public float ShadowCascadeMaxDistanceMultiplierMedium = 2f;
+        public float ShadowCascadeMaxDistanceMultiplierHigh = 3.5f;
+		public float ShadowCascadeSpreadFactor = 0.5f;
+		public float ShadowCascadeZOffset = 400;
+        public bool[] ShadowCascadeFrozen;
+        public float[] ShadowCascadeSmallSkipThresholds;
+        /*public float Cascade0SmallSkipThreshold = 0;
+        public float Cascade1SmallSkipThreshold = 730.0f;
+        public float Cascade2SmallSkipThreshold = 730.0f;
+        public float Cascade3SmallSkipThreshold = 8000.0f;*/
 
         public bool EnableParallelRendering = true;
         public bool ForceImmediateContext = false;
@@ -219,12 +234,6 @@ namespace VRageRender
         public float RenderBatchSize = 100;
         public bool LoopObjectThenPass = false;
         public bool RenderThreadAsWorker = true;
-
-        public bool UpdateCascadesEveryFrame = true;
-        public float Cascade0SmallSkip = 0;
-        public float Cascade1SmallSkip = 730.0f;
-        public float Cascade2SmallSkip = 730.0f;
-        public float Cascade3SmallSkip = 8000.0f;
 
         public bool EnableTonemapping = true;
         public bool DispalyHdrDebug = false;
@@ -258,8 +267,12 @@ namespace VRageRender
         public bool EnableFoliageDebug = false;
         public bool FreezeFoliageViewer = false;
 
+        public static bool PerInstanceLods = false;
+
         internal void Synchronize(MyRenderSettings settings)
         {
+			CheckArrays(settings);
+
             EnableHWOcclusionQueries = settings.EnableHWOcclusionQueries;
 
             SkipLOD_NEAR = settings.SkipLOD_NEAR;
@@ -288,16 +301,22 @@ namespace VRageRender
 
             EnableEnvironmentMapAmbient = settings.EnableEnvironmentMapAmbient;
             EnableEnvironmentMapReflection = settings.EnableEnvironmentMapReflection;
-            EnablePerVertexVoxelAmbient = settings.EnablePerVertexVoxelAmbient;
-            ShowCascadeSplits = settings.ShowCascadeSplits;
 
-            //blinkg moving asteroids
+            ShowShadowCascadeSplits = settings.ShowShadowCascadeSplits;
             ShadowInterleaving = settings.ShadowInterleaving;
+            UpdateCascadesEveryFrame = settings.UpdateCascadesEveryFrame;
+			ShadowCascadeMaxDistanceMultiplierMedium = settings.ShadowCascadeMaxDistanceMultiplierMedium;
+			ShadowCascadeMaxDistanceMultiplierHigh = settings.ShadowCascadeMaxDistanceMultiplierHigh;
+			ShadowCascadeZOffset = settings.ShadowCascadeZOffset;
+			ShadowCascadeSpreadFactor = settings.ShadowCascadeSpreadFactor;
+			ShadowFadeoutMultiplier = settings.ShadowFadeoutMultiplier;
+			ShadowCascadeMaxDistance = settings.ShadowCascadeMaxDistance;
 
-            FreezeCascade[0] = settings.FreezeCascade[0];
-            FreezeCascade[1] = settings.FreezeCascade[1];
-            FreezeCascade[2] = settings.FreezeCascade[2];
-            FreezeCascade[3] = settings.FreezeCascade[3];
+			//for (int index = 0; index < settings.ShadowCascadeCount; ++index)
+			//{
+			//	ShadowCascadeFrozen[index] = settings.ShadowCascadeFrozen[index];
+			//	ShadowCascadeSmallSkipThresholds[index] = settings.ShadowCascadeSmallSkipThresholds[index];
+			//}
 
             Wireframe = settings.Wireframe;
             EnableStencilOptimization = settings.EnableStencilOptimization;
@@ -334,7 +353,6 @@ namespace VRageRender
 
             DisplayAmbientDiffuse = settings.DisplayAmbientDiffuse;
             DisplayAmbientSpecular = settings.DisplayAmbientSpecular;
-            NightMode = settings.NightMode;
             DisplayIDs = settings.DisplayIDs;
             DisplayAabbs = settings.DisplayAabbs;
             DrawOnlyMergedMeshes = settings.DrawOnlyMergedMeshes;
@@ -351,17 +369,13 @@ namespace VRageRender
             GrassGeometryScalingNearDistance = settings.GrassGeometryScalingNearDistance;
             GrassGeometryScalingFarDistance = settings.GrassGeometryScalingFarDistance;
             GrassGeometryDistanceScalingFactor = settings.GrassGeometryDistanceScalingFactor;
+			GrassDensityFactor = settings.GrassDensityFactor;
 
             WindStrength = settings.WindStrength;
             WindAzimuth = settings.WindAzimuth;
 
             DisplayShadowsWithDebug = settings.DisplayShadowsWithDebug;
-
-            UpdateCascadesEveryFrame = settings.UpdateCascadesEveryFrame;
-            CascadesSplit0 = settings.CascadesSplit0;
-            CascadesSplit1 = settings.CascadesSplit1;
-            CascadesSplit2 = settings.CascadesSplit2;
-            CascadesSplit3 = settings.CascadesSplit3;
+            DisplayNDotL = settings.DisplayNDotL;
 
             EnableParallelRendering = settings.EnableParallelRendering;
             ForceImmediateContext = settings.ForceImmediateContext;
@@ -369,11 +383,6 @@ namespace VRageRender
             AmortizeBatchWork = settings.AmortizeBatchWork;
             LoopObjectThenPass = settings.LoopObjectThenPass;
             RenderThreadAsWorker = settings.RenderThreadAsWorker;
-
-            Cascade0SmallSkip = settings.Cascade0SmallSkip;
-            Cascade1SmallSkip = settings.Cascade1SmallSkip;
-            Cascade2SmallSkip = settings.Cascade2SmallSkip;
-            Cascade3SmallSkip = settings.Cascade3SmallSkip;
 
             EnableTonemapping = settings.EnableTonemapping;
             DispalyHdrDebug = settings.DispalyHdrDebug;
@@ -405,6 +414,38 @@ namespace VRageRender
             FreezeFoliageViewer = settings.FreezeFoliageViewer;
         }
 
+		private void CheckArrays(MyRenderSettings settings)
+		{
+			CheckArrays();
+			if (ShadowCascadeFrozen.Length < settings.ShadowCascadeFrozen.Length)
+				ShadowCascadeFrozen = new bool[settings.ShadowCascadeFrozen.Length];
+            if (ShadowCascadeSmallSkipThresholds == null || (settings.ShadowCascadeSmallSkipThresholds != null && ShadowCascadeSmallSkipThresholds.Length < settings.ShadowCascadeSmallSkipThresholds.Length))
+				ShadowCascadeSmallSkipThresholds = new float[settings.ShadowCascadeSmallSkipThresholds.Length];
+		}
+
+		private void CheckArrays()
+		{
+			if (ShadowCascadeFrozen == null)
+				ShadowCascadeFrozen = new bool[ShadowCascadeCount];
+			if (ShadowCascadeSmallSkipThresholds == null)
+            {
+				ShadowCascadeSmallSkipThresholds = new float[ShadowCascadeCount];
+
+                if (ShadowCascadeCount == 4)
+                {
+                    //NOTE(AF) This is a quick fix until shadows are implemented properly
+                    ShadowCascadeSmallSkipThresholds[0] = 1000.0f;
+                    ShadowCascadeSmallSkipThresholds[1] = 5000.0f;
+                    ShadowCascadeSmallSkipThresholds[2] = 200.0f;
+                    ShadowCascadeSmallSkipThresholds[3] = 1000.0f;
+                }
+            }
+		}
+
+		public MyRenderSettings()
+		{
+			CheckArrays();
+		}
         internal bool IsDirty()
         {
             // Temporary method so merge works ok
@@ -430,6 +471,7 @@ namespace VRageRender
     public enum MyShadowsQuality
     {
         LOW,
+		MEDIUM,
         HIGH
     }
 
@@ -470,10 +512,18 @@ namespace VRageRender
     /// </summary>
     public struct MyRenderSettings1 : IEquatable<MyRenderSettings1>
     {
+        // Common
+        public bool InterpolationEnabled;
+        public float GrassDensityFactor;
+
+        // DX9
+        public MyRenderQualityEnum Dx9Quality;
+
+        //Dx11; All new renderers should be designed with these in mind.
         public MyAntialiasingMode AntialiasingMode;
         public MyShadowsQuality ShadowQuality;
         public bool MultithreadingEnabled;
-        public bool InterpolationEnabled;
+        public bool TonemappingEnabled;
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
@@ -485,10 +535,14 @@ namespace VRageRender
 
         public bool Equals(ref MyRenderSettings1 other)
         {
-            return AntialiasingMode == other.AntialiasingMode &&
+            return
+                InterpolationEnabled == other.InterpolationEnabled &&
+                GrassDensityFactor == other.GrassDensityFactor &&
+                Dx9Quality == other.Dx9Quality &&
+                AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
                 MultithreadingEnabled == other.MultithreadingEnabled &&
-                InterpolationEnabled == other.InterpolationEnabled &&
+                TonemappingEnabled == other.TonemappingEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&
                 FoliageDetails == other.FoliageDetails;

@@ -21,10 +21,18 @@ namespace VRage.Collections
             m_cacheEntries = new CacheEntry[cacheSize];
             m_entryLookup = new Dictionary<TKey, int>(cacheSize, m_comparer);
 
-            Reset();
+            ResetInternal();
         }
 
         public void Reset()
+        {
+            if (m_entryLookup.Count > 0)
+            {
+                ResetInternal();
+            }
+        }
+
+        void ResetInternal()
         {
             CacheEntry defaultEntry;
             defaultEntry.Data = default(TValue);

@@ -12,15 +12,18 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Multiplayer;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.Cube;
 
 namespace Sandbox.Game.Entities
 {
-    class MyComponentStack
+    public class MyComponentStack
     {
         public struct GroupInfo
         {
             public int MountedCount;
             public int TotalCount;
+			public int AvailableCount;
 
             /// <summary>
             /// Integrity of group, increases when mounting more components
@@ -35,7 +38,7 @@ namespace Sandbox.Game.Entities
         /// Component that has integrity beyond this threshold is considered unmounted.
         /// The integrity of the whole stack will never fall beyond this level (unless the stack is fully dismounted)
         /// </summary>
-        public const float MOUNT_THRESHOLD = 0.001f;
+        public const float MOUNT_THRESHOLD = 1.0f/(float)ushort.MaxValue;
 
         #region Fields
         readonly MyCubeBlockDefinition m_blockDefinition;
@@ -69,6 +72,15 @@ namespace Sandbox.Game.Entities
         public float Integrity
         {
             get { return m_integrity; }
+            private set
+            {
+                if (m_integrity != value)
+                {
+                    bool oldFunctional = IsFunctional;
+                    m_integrity = value;
+                    CheckFunctionalState(oldFunctional);
+                }
+            }
         }
 
         public float IntegrityRatio
@@ -89,7 +101,21 @@ namespace Sandbox.Game.Entities
         public float BuildIntegrity
         {
             get { return m_buildIntegrity; }
+            private set
+            {
+                if (m_buildIntegrity != value)
+                {
+                    bool oldFunctional = IsFunctional;
+                    m_buildIntegrity = value;
+                    CheckFunctionalState(oldFunctional);
+                }
+            }
         }
+
+		public static float NewBlockIntegrity
+		{
+			get { return (MySession.Static.SurvivalMode ? MOUNT_THRESHOLD : 1.0f); }
+		}
 
         /// <summary>
         /// Component stack is functional when critical part is not destroyed (integrity > 0).
@@ -119,34 +145,30 @@ namespace Sandbox.Game.Entities
         {
             m_blockDefinition = BlockDefinition;
 
-            bool oldIsFunctional = IsFunctional;
-
             float maxIntegrity = BlockDefinition.MaxIntegrity;
-            m_buildIntegrity = maxIntegrity * buildPercent;
-            m_integrity = maxIntegrity * integrityPercent;
+            BuildIntegrity = maxIntegrity * buildPercent;
+            Integrity = maxIntegrity * integrityPercent;
 
             UpdateIndices();
 
             // Fix top component integrity in case it was incorrectly loaded
-            if (m_integrity != 0.0f)
+            if (Integrity != 0.0f)
             {
                 float topIntegrity = GetTopComponentIntegrity();
                 if (topIntegrity < MOUNT_THRESHOLD)
                 {
-                    m_integrity += MOUNT_THRESHOLD - topIntegrity;
+                    Integrity += MOUNT_THRESHOLD - topIntegrity;
                 }
                 if (topIntegrity > BlockDefinition.Components[m_topGroupIndex].Definition.MaxIntegrity)
                 {
-                    m_integrity -= topIntegrity - BlockDefinition.Components[m_topGroupIndex].Definition.MaxIntegrity;
+                    Integrity -= topIntegrity - BlockDefinition.Components[m_topGroupIndex].Definition.MaxIntegrity;
                 }
             }
-
-            CheckFunctionalState(oldIsFunctional);
         }
 
         private float GetTopComponentIntegrity()
         {
-            float remainingIntegrity = m_integrity;
+            float remainingIntegrity = Integrity;
             var components = m_blockDefinition.Components;
             for (int i = 0; i < m_topGroupIndex; ++i)
             {
@@ -172,7 +194,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private void UpdateIndices()
         {
-            float integrity = m_integrity;
+            float integrity = Integrity;
             MyCubeBlockDefinition blockDef = m_blockDefinition;
 
             int topGroupIndex = 0;
@@ -225,20 +247,17 @@ namespace Sandbox.Game.Entities
 
         public void UpdateBuildIntegrityUp()
         {
-            bool oldFunctionalState = false;
-            oldFunctionalState = IsFunctional;
-            m_buildIntegrity = m_integrity;
-            CheckFunctionalState(oldFunctionalState);
+            if (BuildIntegrity < Integrity)
+			{
+                BuildIntegrity = Integrity;
+			}
         }
 
         public void UpdateBuildIntegrityDown(float ratio)
         {
-            if (m_buildIntegrity > m_integrity * ratio)
+            if (BuildIntegrity > Integrity * ratio)
             {
-                bool oldFuntionalState = false;
-                oldFuntionalState = IsFunctional;
-                m_buildIntegrity = m_integrity * ratio;
-                CheckFunctionalState(oldFuntionalState);
+                BuildIntegrity = Integrity * ratio;
             }
         }
 
@@ -301,26 +320,22 @@ namespace Sandbox.Game.Entities
         // TODO: Until Martin rewrites component saving
         public void DestroyCompletely()
         {
-            bool oldFunctionalState = IsFunctional;
-            m_buildIntegrity = 0.0f;
-            m_integrity = 0.0f;
+            BuildIntegrity = 0.0f;
+            Integrity = 0.0f;
             UpdateIndices();
-            CheckFunctionalState(oldFunctionalState);
         }
 
         private bool CheckOrMountFirstComponent(MyConstructionStockpile stockpile = null)
         {
-            if (m_integrity > MOUNT_THRESHOLD / 2)
+            if (Integrity > MOUNT_THRESHOLD / 2)
             {
                 return true;
             }
             var firstComponent = m_blockDefinition.Components[0].Definition;
             if (stockpile == null || stockpile.RemoveItems(1, firstComponent.Id))
             {
-                bool oldFunctionalState = IsFunctional;
-                m_integrity = MOUNT_THRESHOLD;
+                Integrity = MOUNT_THRESHOLD;
                 UpdateBuildIntegrityUp();
-                CheckFunctionalState(oldFunctionalState);
                 return true;
             }
             return false;
@@ -364,7 +379,7 @@ namespace Sandbox.Game.Entities
                 }
         }
 
-        public static void GetMountedComponents(Dictionary<MyDefinitionId, int> addToDictionary, MyObjectBuilder_CubeBlock block)
+        public static void GetMountedComponents(MyComponentList addToList, MyObjectBuilder_CubeBlock block)
         {
             int topGroup = 0;
             int topComponent = 0;
@@ -392,16 +407,13 @@ namespace Sandbox.Game.Entities
                 mountCount++;
 
             MyDefinitionId componentId;
-            int count = 0;
             for (int group = 0; group < topGroup; ++group)
             {
-                componentId = blockDef.Components[group].Definition.Id;
-                count = addToDictionary.GetValueOrDefault(componentId, 0);
-                addToDictionary[componentId] = count + blockDef.Components[group].Count;
+                MyCubeBlockDefinition.Component component = blockDef.Components[group];
+                addToList.AddMaterial(component.Definition.Id, component.Count, component.Count, addToDisplayList: false);
             }
             componentId = blockDef.Components[topGroup].Definition.Id;
-            count = addToDictionary.GetValueOrDefault(componentId, 0);
-            addToDictionary[componentId] = count + mountCount;
+            addToList.AddMaterial(componentId, mountCount, mountCount, addToDisplayList: false);
         }
 
         public void IncreaseMountLevel(float mountAmount, MyConstructionStockpile stockpile = null)
@@ -412,7 +424,7 @@ namespace Sandbox.Game.Entities
 
         private void IncreaseMountLevelInternal(float mountAmount, MyConstructionStockpile stockpile = null)
         {
-            Debug.Assert(m_buildIntegrity >= m_integrity, "Integrity of component stack is larger than build integrity");
+            Debug.Assert(BuildIntegrity >= Integrity, "Integrity of component stack is larger than build integrity");
 
             if (!CheckOrMountFirstComponent(stockpile))
             {
@@ -429,12 +441,12 @@ namespace Sandbox.Game.Entities
 
                 if (mountAmount < toBuild)
                 {
-                    m_integrity += mountAmount;
+                    Integrity += mountAmount;
                     UpdateBuildIntegrityUp();
                     break;
                 }
 
-                m_integrity += toBuild + MOUNT_THRESHOLD;
+                Integrity += toBuild + MOUNT_THRESHOLD;
                 mountAmount -= toBuild + MOUNT_THRESHOLD;
 
                 ++compIndex;
@@ -446,7 +458,7 @@ namespace Sandbox.Game.Entities
                 // Fully built
                 if (groupIndex == m_blockDefinition.Components.Length)
                 {
-                    m_integrity = MaxIntegrity;
+                    Integrity = MaxIntegrity;
                     UpdateBuildIntegrityUp();
                     break;
                 }
@@ -454,7 +466,7 @@ namespace Sandbox.Game.Entities
                 var nextComponent = m_blockDefinition.Components[groupIndex].Definition;
                 if (stockpile != null && !stockpile.RemoveItems(1, nextComponent.Id))
                 {
-                    m_integrity -= MOUNT_THRESHOLD;
+                    Integrity -= MOUNT_THRESHOLD;
                     UpdateBuildIntegrityUp();
                     break;
                 }
@@ -478,11 +490,9 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(!IsFullyDismounted, "Dismounting a fully dismounted block. Either it was not razed or it was not created correctly.");
 
-            float buildIntegrityRatio = m_buildIntegrity / m_integrity; // Save the original build integrity ratio
+            float buildIntegrityRatio = BuildIntegrity / Integrity; // Save the original build integrity ratio
 
-            bool oldFunctionalState = IsFunctional;
             UnmountInternal(unmountAmount, outputStockpile);
-            CheckFunctionalState(oldFunctionalState);
 
             // Following function calls CheckFunctionalState itself
             UpdateBuildIntegrityDown(buildIntegrityRatio);
@@ -496,10 +506,13 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(!IsDestroyed, "Applying damage to an already destroyed stack. Block should have been removed.");
 
-            bool oldWorkingState = IsFunctional;
             UnmountInternal(damage, outputStockpile, true);
-            CheckFunctionalState(oldWorkingState);
         }
+
+		private float GetDeconstructionEfficiency(int groupIndex, bool damageItems)
+		{
+			return (damageItems ? 1 : m_blockDefinition.Components[groupIndex].Definition.DeconstructionEfficiency);
+		}
 
         private void UnmountInternal(float unmountAmount, MyConstructionStockpile outputStockpile = null, bool damageItems = false)
         {
@@ -513,9 +526,9 @@ namespace Sandbox.Game.Entities
             // Continue removing components, until the to be removed component's health is larger than unmountAmount
             MyObjectBuilder_Component componentBuilder = null;
             var scrapBuilder = MyFloatingObject.ScrapBuilder;
-            while (unmountAmount >= topIntegrity)
+			while (unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems) >= topIntegrity)
             {
-                m_integrity -= topIntegrity;
+                Integrity -= topIntegrity;
                 unmountAmount -= topIntegrity;
 
                 // In creative mode, the outputInventory should normally be null.
@@ -525,7 +538,7 @@ namespace Sandbox.Game.Entities
                     bool doDamage = damageItems && MyFakes.ENABLE_DAMAGED_COMPONENTS;
                     if (!damageItems || (doDamage && MyRandom.Instance.NextFloat() <= m_blockDefinition.Components[groupIndex].Definition.DropProbability))
                     {
-                        componentBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
+                        componentBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
                         componentBuilder.SubtypeName = m_blockDefinition.Components[groupIndex].Definition.Id.SubtypeName;
                         if (doDamage)
                         {
@@ -551,7 +564,7 @@ namespace Sandbox.Game.Entities
                     if (groupIndex < 0)
                     {
                         SetTopIndex(0, 0);
-                        m_integrity = 0.0f;
+                        Integrity = 0.0f;
                         return;
                     }
                     else
@@ -566,26 +579,24 @@ namespace Sandbox.Game.Entities
             }
 
             // Damage the remaining component
-            m_integrity -= unmountAmount;
-            topIntegrity -= unmountAmount;
+			Integrity -= unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems);
+			topIntegrity -= unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems);
 
             if (topIntegrity < MOUNT_THRESHOLD)
             {
-                m_integrity += MOUNT_THRESHOLD - topIntegrity;
+                Integrity += MOUNT_THRESHOLD - topIntegrity;
                 topIntegrity = MOUNT_THRESHOLD;
             }
 
-            Debug.Assert(m_integrity >= MOUNT_THRESHOLD, "Integrity inconsistent after a dismount of component stack");
+            Debug.Assert(Integrity >= MOUNT_THRESHOLD, "Integrity inconsistent after a dismount of component stack");
         }
 
         internal void SetIntegrity(float buildIntegrity, float integrity)
         {
             Debug.Assert(buildIntegrity >= integrity);
-            bool oldWorkingState = IsFunctional;
-            m_integrity = integrity;
-            m_buildIntegrity = buildIntegrity;
+            Integrity = integrity;
+            BuildIntegrity = buildIntegrity;
             UpdateIndices();
-            CheckFunctionalState(oldWorkingState);
         }
 
         public int GroupCount
@@ -604,6 +615,7 @@ namespace Sandbox.Game.Entities
                 Component = component.Definition,
                 TotalCount = component.Count,
                 MountedCount = 0,
+				AvailableCount = 0,
                 Integrity = 0.0f,
                 MaxIntegrity = component.Count * component.Definition.MaxIntegrity,
             };

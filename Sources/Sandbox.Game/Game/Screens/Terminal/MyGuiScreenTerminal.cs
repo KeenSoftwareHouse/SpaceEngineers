@@ -11,7 +11,9 @@ using Sandbox.Game.Screens.Terminal;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
+using System.Diagnostics;
 using System.Text;
+using Sandbox.Engine.Networking;
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -20,18 +22,19 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    enum MyTerminalPageEnum
+    public enum MyTerminalPageEnum
     {
+        None =-2,
         Properties = -1,
         Inventory = 0,
         ControlPanel = 1,
         Production = 2,
         Info = 3,
         Factions = 4,
-        Gps = 6
+        Gps = 6,
     }
 
-    partial class MyGuiScreenTerminal : MyGuiScreenBase
+    public partial class MyGuiScreenTerminal : MyGuiScreenBase
     {
         public static event ScreenHandler ClosedCallback
         {
@@ -101,7 +104,7 @@ namespace Sandbox.Game.Gui
         private MyGuiScreenTerminal() :
             base(position: new Vector2(0.5f, 0.5f),
                  backgroundColor: MyGuiConstants.SCREEN_BACKGROUND_COLOR,
-                 size: new Vector2(0.99f, 0.9f))
+                 size: new Vector2(0.99f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkOpacity, guiTransition: MySandboxGame.Config.UIOpacity)
         {
             EnabledBackgroundFade = true;
             m_closeHandler = OnInteractedClose;
@@ -889,6 +892,7 @@ namespace Sandbox.Game.Gui
             var acceptJoin = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 2f * btnSpacing)) { Name = "buttonAcceptJoin" };
             var demote = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 3f * btnSpacing)) { Name = "buttonDemote" };
             //var acceptPeace = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,    position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 2f * btnSpacing)) { Name = "buttonAcceptPeace" };
+            var addNpcToFaction = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 4f * btnSpacing)) { Name = "buttonAddNpc" };
 
             page.Controls.Add(factionComposite);
             page.Controls.Add(factionNamePanel);
@@ -909,6 +913,7 @@ namespace Sandbox.Game.Gui
             page.Controls.Add(kickBtn);
             page.Controls.Add(demote);
             page.Controls.Add(acceptJoin);
+            page.Controls.Add(addNpcToFaction);
         }
 
         private void CreateChatPageControls(MyGuiControlTabPage chatPage)
@@ -1129,6 +1134,16 @@ namespace Sandbox.Game.Gui
                 infoPage.Controls.Add(nameTextBox);
                 infoPage.Controls.Add(renameButton);
             }
+
+            var setDestructibleBlocksLabel = new MyGuiControlLabel(new Vector2(0.15f, 0.28f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks));
+            setDestructibleBlocksLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
+            setDestructibleBlocksLabel.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
+            infoPage.Controls.Add(setDestructibleBlocksLabel);
+
+            var setDestructibleBlocksBtn = new MyGuiControlCheckbox(new Vector2(0.45f, setDestructibleBlocksLabel.Position.Y), toolTip: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks_Tooltip));
+            setDestructibleBlocksBtn.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
+            setDestructibleBlocksBtn.Name = "SetDestructibleBlocks";
+            infoPage.Controls.Add(setDestructibleBlocksBtn);
         }
 
 		private static bool OnAntennaSliderClicked(MyGuiControlSlider arg)
@@ -1747,6 +1762,8 @@ namespace Sandbox.Game.Gui
             MyGuiScreenGamePlay.ActiveGameplayScreen = null;
             m_interactedEntity = null;
 
+            MyAnalyticsHelper.ReportActivityEnd(m_instance.m_user, "show_terminal");
+
             if (MyFakes.ENABLE_GPS)
                 m_controllerGps.Close();
             m_controllerControlPanel.Close();
@@ -1808,7 +1825,7 @@ namespace Sandbox.Game.Gui
                 }
                 else
                 {
-                    m_terminalTabs.SelectedPage = (int)MyTerminalPageEnum.Inventory;
+					SwitchToInventory();
                 }
             }
             if (!textboxHasFocus && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.PAUSE_GAME))
@@ -1860,13 +1877,13 @@ namespace Sandbox.Game.Gui
         #region Static
         private static MyGuiScreenTerminal m_instance;
 
-        internal static void Show(MyTerminalPageEnum page, MyCharacter user, MyEntity interactedEntity)
+        public static void Show(MyTerminalPageEnum page, MyCharacter user, MyEntity interactedEntity)
         {
             if (!MyPerGameSettings.TerminalEnabled)
                 return;
 
             bool showProperties = MyInput.Static.IsAnyShiftKeyPressed();
-            System.Diagnostics.Debug.Assert(m_instance == null);
+            Debug.Assert(m_instance == null);
 
             m_instance = new MyGuiScreenTerminal();
             m_instance.m_user = user;
@@ -1883,6 +1900,9 @@ namespace Sandbox.Game.Gui
 
             MyGuiSandbox.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_instance);
             m_screenOpen = true;
+
+            string target = interactedEntity != null ? interactedEntity.GetType().Name : "";
+            MyAnalyticsHelper.ReportActivityStart(user, "show_terminal", target, "gui", string.Empty);
         }
 
         internal static void Hide()
@@ -1988,6 +2008,15 @@ namespace Sandbox.Game.Gui
             m_terminalTabs.Visible = true;
             m_propertiesTableParent.Visible = m_terminalTabs.SelectedPage == (int) MyTerminalPageEnum.Properties;
             m_terminalNotConnected.Visible = false;
+        }
+
+        public static MyTerminalPageEnum GetCurrentScreen()
+        {
+            if(IsOpen)
+            {
+                return (MyTerminalPageEnum)m_instance.m_terminalTabs.SelectedPage;
+            }
+            return MyTerminalPageEnum.None;
         }
 
         #endregion

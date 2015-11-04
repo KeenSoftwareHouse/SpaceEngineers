@@ -8,8 +8,8 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Common;
 using Sandbox.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
@@ -39,7 +39,7 @@ namespace Sandbox.Game.World
 
         public static void SetDefaults()
         {
-            SunProperties = MySunProperties.Default;
+            SunProperties = new MySunProperties(MySunProperties.Default);
             FogProperties = MyFogProperties.Default;
             ImpostorProperties = new VRageRender.MyImpostorProperties[1];
             ParticleDustProperties = new MyParticleDustProperties();
@@ -67,7 +67,7 @@ namespace Sandbox.Game.World
             BackgroundOrientation    = Quaternion.CreateFromYawPitchRoll(o.Yaw, o.Pitch, o.Roll);
             DistanceToSun            = environment.DistanceToSun;
 
-            SunProperties = environment.SunProperties;
+            SunProperties = new MySunProperties(environment.SunProperties);
             FogProperties = environment.FogProperties;
 
             if (environmentBuilder != null)
@@ -75,6 +75,8 @@ namespace Sandbox.Game.World
                 Vector3 sunDirection;
                 Vector3.CreateFromAzimuthAndElevation(environmentBuilder.SunAzimuth, environmentBuilder.SunElevation, out sunDirection);
 
+                SunProperties.BaseSunDirectionNormalized = sunDirection;
+                
                 SunProperties.SunDirectionNormalized = sunDirection;
                 SunProperties.SunIntensity = environmentBuilder.SunIntensity;
 
@@ -95,7 +97,7 @@ namespace Sandbox.Game.World
             var objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_EnvironmentSettings>();
 
             float azimuth, elevation;
-            Vector3.GetAzimuthAndElevation(SunProperties.SunDirectionNormalized, out azimuth, out elevation);
+            Vector3.GetAzimuthAndElevation(SunProperties.BaseSunDirectionNormalized, out azimuth, out elevation);
             objectBuilder.SunAzimuth = azimuth;
             objectBuilder.SunElevation = elevation;
             objectBuilder.SunIntensity = SunProperties.SunIntensity;

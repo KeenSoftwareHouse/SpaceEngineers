@@ -99,23 +99,25 @@ namespace VRageRender
         internal static ComputeShaderId m_preparePointLights;
 
         static VertexShaderId SpotlightProxyVs;
-        static PixelShaderId SpotlightPs;
+        static PixelShaderId SpotlightPs_Pixel;
+        static PixelShaderId SpotlightPs_Sample;
         static InputLayoutId SpotlightProxyIL;
 
         internal static unsafe void Init()
         {
             //MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
 
-            DirectionalEnvironmentLight_Pixel = MyShaders.CreatePs("light.hlsl", "directional_environment");
-            DirectionalEnvironmentLight_Sample = MyShaders.CreatePs("light.hlsl", "directional_environment", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()));
+			DirectionalEnvironmentLight_Pixel = MyShaders.CreatePs("light.hlsl", "directional_environment", MyRender11.ShaderCascadesNumberHeader());
+			DirectionalEnvironmentLight_Sample = MyShaders.CreatePs("light.hlsl", "directional_environment", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
 
-            PointlightsTiled_Pixel = MyShaders.CreatePs("light.hlsl", "pointlights_tiled");
-            PointlightsTiled_Sample = MyShaders.CreatePs("light.hlsl", "pointlights_tiled", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()));
+            PointlightsTiled_Pixel = MyShaders.CreatePs("light.hlsl", "pointlights_tiled", MyRender11.ShaderCascadesNumberHeader());
+            PointlightsTiled_Sample = MyShaders.CreatePs("light.hlsl", "pointlights_tiled", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
 
             m_preparePointLights = MyShaders.CreateCs("prepare_lights.hlsl", "prepare_lights", MyShaderHelpers.FormatMacros("NUMTHREADS " + TILE_SIZE));
 
-            SpotlightProxyVs = MyShaders.CreateVs("light.hlsl", "spotlightVs");
-            SpotlightPs = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy");
+			SpotlightProxyVs = MyShaders.CreateVs("light.hlsl", "proxyVs");
+            SpotlightPs_Pixel = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy", MyRender11.ShaderCascadesNumberHeader());
+            SpotlightPs_Sample = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
             SpotlightProxyIL = MyShaders.CreateIL(SpotlightProxyVs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION_PACKED));
 
             var stride = sizeof(MyPointlightConstants);
@@ -193,7 +195,9 @@ namespace VRageRender
             Color color = new Color(.95f * sunColorMultiplier, .65f * sunColorMultiplier, .35f * sunColorMultiplier, 1);
 
             color = color * 5;
-            MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
+
+            //if (MyEnvironment.SunBillboardEnabled)
+            //    MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
         }
 
         internal static void DrawGlare(LightId light)
@@ -206,7 +210,7 @@ namespace VRageRender
                 return;
             }
             var desc = MyLights.Glares[light];
-            
+
             switch(desc.Type)
             {
                 case MyGlareTypeEnum.Distant:
@@ -271,13 +275,16 @@ namespace VRageRender
         internal static void DrawDistantGlare(LightId light, ref MyGlareDesc glare, float distance)
         {
             //float alpha = m_occlusionRatio * intensity;
-            float alpha = glare.Intensity;
+
+            float alpha = glare.Intensity * (glare.QuerySize / 7.5f);
 
             if (alpha < MyMathConstants.EPSILON)
                 return;
 
             const int minGlareRadius = 5;
             const int maxGlareRadius = 150;
+
+            //glare.QuerySize
 
             // parent range
             float radius = MathHelper.Clamp(glare.Range * distance / 100.0f, minGlareRadius, maxGlareRadius);
@@ -310,7 +317,7 @@ namespace VRageRender
             var activePointlights = 0;
 
             MyLights.Update();
-            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustum, VisiblePointlights);
+            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, VisiblePointlights);
 
             if (VisiblePointlights.Count > MyRender11Constants.MAX_POINT_LIGHTS)
             {
@@ -371,9 +378,8 @@ namespace VRageRender
 
             RC.SetVS(SpotlightProxyVs);
             RC.SetIL(SpotlightProxyIL);
-            RC.SetPS(SpotlightPs);
 
-            RC.SetRS(MyRender11.m_nocullRasterizerState);
+            RC.SetRS(MyRender11.m_invTriRasterizerState);
 
             var cb = MyCommon.GetObjectCB(sizeof(SpotlightConstants));
             RC.SetCB(1, cb);
@@ -381,6 +387,7 @@ namespace VRageRender
 
             int index = 0;
             int casterIndex = 0;
+
             foreach(var id in VisibleSpotlights)
             {
                 var mapping = MyMapping.MapDiscard(cb);
@@ -389,14 +396,32 @@ namespace VRageRender
 
                 RC.Context.PixelShader.SetShaderResource(13, MyTextures.GetView(MyLights.Spotlights[id.Index].ReflectorTexture));
 
-                if(id.CastsShadows)
+                if(id.CastsShadowsThisFrame)
                 {
                     RC.Context.PixelShader.SetShaderResource(14, MyShadows.ShadowmapsPool[casterIndex].ShaderView);
                     casterIndex++;
                 }
-                
+
+                RC.SetPS(SpotlightPs_Pixel);
+                if (MyRender11.MultisamplingEnabled)
+                {
+                    RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
+                }
                 RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
+
+                if (MyRender11.MultisamplingEnabled)
+                {
+                    RC.SetPS(SpotlightPs_Sample);
+                    RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
+                    RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
+                }
+                
                 index++;
+            }
+
+            if (MyRender11.MultisamplingEnabled)
+            {
+                RC.SetDS(MyDepthStencilState.DefaultDepthState);
             }
 
             RC.SetRS(null);
@@ -418,7 +443,6 @@ namespace VRageRender
             MyGpuProfiler.IC_BeginBlock("Apply point lights");
             RenderPointlightsTiled();
             MyGpuProfiler.IC_EndBlock();
-
 
             MyGpuProfiler.IC_BeginBlock("Apply spotlights");
             RenderSpotlights();
@@ -469,17 +493,15 @@ namespace VRageRender
             //context.VertexShader.Set(MyCommon.FullscreenShader.VertexShader);
             RC.SetPS(DirectionalEnvironmentLight_Pixel);
             RC.SetCB(1, m_sunlightConstants);
-            RC.SetCB(2, MyShadows.m_csmConstants);
+            RC.SetCB(4, MyShadows.m_csmConstants);
             RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
             RC.Context.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
 
-            var z = Vector4.Transform(new Vector4(0.5f, 0.5f, -MyEnvironment.FarClipping, 1), MyEnvironment.Projection);
-
-
             RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
-            //RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT, MyGeometryRenderer.m_envProbe.cubemapPrefiltered.ShaderView);
+            
+            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
+                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyGeometryRenderer.m_envProbe.cubemapPrefiltered.ShaderView);
             RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
             RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
 

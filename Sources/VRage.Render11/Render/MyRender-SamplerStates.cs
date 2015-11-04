@@ -15,6 +15,7 @@ namespace VRageRender
         internal static SamplerId m_textureSamplerState;
         internal static SamplerId m_shadowmapSamplerState;
         internal static SamplerId m_alphamaskSamplerState;
+        internal static SamplerId m_alphamaskarraySamplerState;
 
         internal static SamplerState[] StandardSamplers 
         { 
@@ -24,16 +25,17 @@ namespace VRageRender
                     MyPipelineStates.GetSampler(m_pointSamplerState), 
                     MyPipelineStates.GetSampler(m_linearSamplerState), 
                     MyPipelineStates.GetSampler(m_textureSamplerState), 
-                    MyPipelineStates.GetSampler(m_alphamaskSamplerState) }; 
+                    MyPipelineStates.GetSampler(m_alphamaskSamplerState),
+                    MyPipelineStates.GetSampler(m_alphamaskarraySamplerState) }; 
             } 
         }
 
-        internal static void UpdateTextureSampler()
+        internal static void UpdateTextureSampler(SamplerId samplerState, TextureAddressMode addressMode)
         {
             SamplerStateDescription description = new SamplerStateDescription();
-            description.AddressU = TextureAddressMode.Wrap;
-            description.AddressV = TextureAddressMode.Wrap;
-            description.AddressW = TextureAddressMode.Wrap;
+            description.AddressU = addressMode;
+            description.AddressV = addressMode;
+            description.AddressW = addressMode;
             description.MaximumLod = System.Single.MaxValue;
 
             if(MyRender11.RenderSettings.AnisotropicFiltering == MyTextureAnisoFiltering.NONE)
@@ -64,7 +66,7 @@ namespace VRageRender
                 }
             }
 
-            MyPipelineStates.ChangeSamplerState(m_textureSamplerState, description);
+            MyPipelineStates.ChangeSamplerState(samplerState, description);
         }
 
         private static void InitilizeSamplerStates()
@@ -105,7 +107,10 @@ namespace VRageRender
             m_shadowmapSamplerState = MyPipelineStates.CreateSamplerState(description);
 
             m_textureSamplerState = MyPipelineStates.CreateSamplerState(description);
-            UpdateTextureSampler();
+            m_alphamaskarraySamplerState = MyPipelineStates.CreateSamplerState(description);
+
+            UpdateTextureSampler(m_textureSamplerState, TextureAddressMode.Wrap);
+            UpdateTextureSampler(m_alphamaskarraySamplerState, TextureAddressMode.Clamp);
         }
     }
 }

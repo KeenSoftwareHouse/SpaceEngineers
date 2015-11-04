@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers", "SpaceEngineers.csproj", "{5CD034C8-A242-4BD6-94F4-F20C655A69E8}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VRage", "VRage", "{776E066A-DE02-4627-B6BE-25F0287682E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox.Game", "..\Sandbox.Game\Sandbox.Game.csproj", "{F77D0A49-F0A1-4E8A-80C8-CBE1842BF2D4}"
@@ -10,8 +12,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Math", "..\VRage.Math\VRage.Math.csproj", "{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Render", "..\VRage.Render\VRage.Render.csproj", "{1713E6CD-808A-4A44-9532-04771499BB01}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers", "SpaceEngineers.csproj", "{5CD034C8-A242-4BD6-94F4-F20C655A69E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox.Common", "..\Sandbox.Common\Sandbox.Common.csproj", "{2C96F0AB-7962-4B73-A075-B0E0B09F6195}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Network", "..\VRage.Network\VRage.Network.csproj", "{76080059-9756-4065-BCE8-373E7150A8F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.Game", "..\SpaceEngineers.Game\SpaceEngineers.Game.csproj", "{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Game", "..\VRage.Game\VRage.Game.csproj", "{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -199,6 +201,18 @@ Global
 		{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}.Release|x64.Build.0 = Release|x64
 		{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}.Release|x86.ActiveCfg = Release|x86
 		{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}.Release|x86.Build.0 = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x64.ActiveCfg = Debug|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x64.Build.0 = Debug|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x86.ActiveCfg = Debug|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x86.Build.0 = Debug|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x64.ActiveCfg = Release|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x64.Build.0 = Release|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x86.ActiveCfg = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x86.Build.0 = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x64.ActiveCfg = Release|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x64.Build.0 = Release|x64
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x86.ActiveCfg = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -215,6 +229,7 @@ Global
 		{F77D0A49-F011-4E8A-80C8-CBE1842BF2D4} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 		{F77D0A49-F0A1-4E8A-80C8-CBF1842BF2D4} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 		{76080059-9756-4065-BCE8-373E7150A8F7} = {776E066A-DE02-4627-B6BE-25F0287682E2}
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = ..

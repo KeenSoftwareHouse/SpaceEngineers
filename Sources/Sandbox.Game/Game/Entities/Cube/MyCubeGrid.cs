@@ -1,52 +1,45 @@
 ﻿#region Using
 
+using Havok;
+using ProtoBuf;
+using Sandbox.Common;
+using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.StructuralIntegrity;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Models;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
-using Sandbox.Game.World;
+using System.Runtime.InteropServices;
+using System.Text;
 using VRage;
-using VRage;
-using VRage.Import;
+using VRage.Collections;
+using VRage.Components;
+using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.Network;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
-using Sandbox.Game.GameSystems.Conveyors;
-using System.Text;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using Sandbox.Graphics;
-using Sandbox.Game.GUI;
-using System.Runtime.InteropServices;
-using Sandbox.Game.Screens.Helpers;
-
-using Sandbox.Game.Entities.Character;
-using System.Reflection;
-using VRage.Plugins;
-
-using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Common.ObjectBuilders.Serializer;
-using Sandbox.Common.Components;
-using Sandbox.Game.Components;
-using VRage.Collections;
-using Sandbox.ModAPI.Interfaces;
-using Sandbox.Game.Localization;
-using Havok;
-using VRage.Library.Utils;
+using Sandbox.Game.EntityComponents;
+using VRage.Game.ObjectBuilders.ComponentSystem;
+using Sandbox.Game.Replicables;
 
 #endregion
 
@@ -58,7 +51,7 @@ namespace Sandbox.Game.Entities
     /// Blocks (turret, thrusts...) are rendered as child entities
     /// </summary>
     [MyEntityType(typeof(MyObjectBuilder_CubeGrid))]
-    public partial class MyCubeGrid : MyEntity, IMyGridConnectivityTest
+    public partial class MyCubeGrid : MyEntity, IMyGridConnectivityTest, IMyEventProxy
     {
         private static readonly float MAX_TRASH_DISTANCE_M = 50000.0f;
 
@@ -131,42 +124,50 @@ namespace Sandbox.Game.Entities
         private List<MyCubeGrid> m_tmpGrids = new List<MyCubeGrid>();
         public HashSet<MyCubeBlock> BlocksForDraw { get { return m_blocksForDraw; } }
         private bool m_disconnectsDirty;
+        private bool m_blocksForDamageApplicationDirty;
         private HashSet<MySlimBlock> m_blocksForDamageApplication = new HashSet<MySlimBlock>();
-        internal MyStructuralIntegrity StructuralIntegrity
-        {
-            get;
-            private set;
-        }
+        internal MyStructuralIntegrity StructuralIntegrity { get; private set; }
 
         private HashSet<Vector3UByte> m_tmpBuildFailList = new HashSet<Vector3UByte>();
         private List<Vector3UByte> m_tmpBuildOffsets = new List<Vector3UByte>();
         private List<MySlimBlock> m_tmpBuildSuccessBlocks = new List<MySlimBlock>();
 
-        private static List<MyCockpit> m_tmpOccupiedCockpits = new List<MyCockpit>();
+        static List<Vector3I> m_tmpBlockPositions = new List<Vector3I>();
+        static List<MySlimBlock> m_tmpBlockListReceive = new List<MySlimBlock>();
 
-        internal List<IMyBlockAdditionalModelGenerator> AdditionalModelGenerators { get { return Render.AdditionalModelGenerators; } }
+        public bool IsSplit { get; set; }
+
+        [ThreadStatic]
+        private static List<MyCockpit> m_tmpOccupiedCockpitsPerThread;
+        [ThreadStatic]
+        private static List<MyObjectBuilder_BlockGroup> m_tmpBlockGroupsPerThread;
+
+        private static List<MyCockpit> m_tmpOccupiedCockpits { get { return MyUtils.Init(ref m_tmpOccupiedCockpitsPerThread); } }
+        private static List<MyObjectBuilder_BlockGroup> m_tmpBlockGroups { get { return MyUtils.Init(ref m_tmpBlockGroupsPerThread); } }
+
+        public List<IMyBlockAdditionalModelGenerator> AdditionalModelGenerators { get { return Render.AdditionalModelGenerators; } }
 
         internal MyGridSkeleton Skeleton;
         public readonly BlockTypeCounter BlockCounter = new BlockTypeCounter();
 
-        internal MyCubeGridSystems GridSystems { get; private set; }
+        public MyCubeGridSystems GridSystems { get; private set; }
 
-        public Dictionary<Type, int> BlocksCounters = new Dictionary<Type, int>();
+        public Dictionary<MyObjectBuilderType, int> BlocksCounters = new Dictionary<MyObjectBuilderType, int>();
 
         internal new MySyncGrid SyncObject
         {
             get { return (MySyncGrid)base.SyncObject; }
         }
 
-        static private Vector3[] m_gizmoCorners = new Vector3[8];
-        static private MyBillboardViewProjection m_viewProjection = new MyBillboardViewProjection();
-
         private const float m_gizmoMaxDistanceFromCamera = 100.0f;
         private const float m_gizmoDrawLineScale = 0.002f;
 
         public bool IsStatic { get { return StaticGrids.Contains(this); } }
         public float GridSize { get; private set; }
-
+        /// <summary>
+        /// Reciprocal of gridsize
+        /// </summary>
+        public float GridSizeR { get; private set; }
         public Vector3I Min { get { return m_min; } }
         public Vector3I Max { get { return m_max; } }
 
@@ -177,11 +178,41 @@ namespace Sandbox.Game.Entities
         public bool YSymmetryOdd = false;
         public bool ZSymmetryOdd = false;
 
+        private bool m_destructibleBlocks;
+
+        // Used for UI & Sync
+        public bool DestructibleBlocks
+        {
+            get
+            {
+                return m_destructibleBlocks;
+            }
+            set
+            {
+                m_destructibleBlocks = value;
+            }
+        }
+
+        // Used to determine if blocks are destructible
+        public bool BlocksDestructionEnabled
+        {
+            get
+            {
+                if (MySession.Static.Settings.DestructibleBlocks)
+                {
+                    return m_destructibleBlocks;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         internal List<MyBlockGroup> BlockGroups = new List<MyBlockGroup>();
-        private static List<MyObjectBuilder_BlockGroup> m_tmpBlockGroups = new List<MyObjectBuilder_BlockGroup>();
         internal MyCubeGridOwnershipManager m_ownershipManager;
 
-        internal Sandbox.Game.Entities.Blocks.MyProjector Projector;
+        public Sandbox.Game.Entities.Blocks.MyProjector Projector;
 
         /// <summary>
         /// players that have at least one block in cube grid
@@ -212,6 +243,7 @@ namespace Sandbox.Game.Entities
             {
                 m_gridSizeEnum = value;
                 GridSize = MyDefinitionManager.Static.GetCubeSize(value);
+                GridSizeR = 1 / GridSize;
             }
         }
 
@@ -221,6 +253,8 @@ namespace Sandbox.Game.Entities
 
         public event Action<MySlimBlock> OnBlockAdded;
         public event Action<MySlimBlock> OnBlockRemoved;
+        public event Action<MySlimBlock> OnBlockIntegrityChanged;
+
         //Called when ownership recalculation is actually done
         public event Action<MyCubeGrid> OnBlockOwnershipChanged;
         public event Action<MyCubeGrid, MyCubeGrid> OnGridSplit;
@@ -228,7 +262,7 @@ namespace Sandbox.Game.Entities
         internal event Action<MyGridLogicalGroupData> AddedToLogicalGroup;
         internal event Action RemovedFromLogicalGroup;
 
-        internal event Action<int> OnHavokSystemIDChanged;
+        internal event Action<int> OnHavokSystemIDChanged;//jn: not nice
 
         public static int GridCounter
         {
@@ -248,38 +282,9 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        /// <summary>
-        /// Returns total blocks count in the grid including blocks in compound block.
-        /// RKTODO - change to int member
-        /// </summary>
-        public int TotalBlocksCount
-        {
-            get
-            {
-                if (MyFakes.ENABLE_COMPOUND_BLOCKS)
-                {
-                    int count = 0;
-                    foreach (var block in m_cubeBlocks)
-                    {
-                        MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-                        if (compoundBlock != null)
-                            count += compoundBlock.GetBlocksCount();
-                        else
-                            count += 1;
-                    }
-
-                    return count;
-                }
-                else
-                {
-                    return m_cubeBlocks.Count;
-                }
-            }
-        }
-
         private bool m_smallToLargeConnectionsInitialized = false;
         private bool m_enableSmallToLargeConnections = true;
-        internal bool EnableSmallToLargeConnections { get { return m_enableSmallToLargeConnections;  } }
+        internal bool EnableSmallToLargeConnections { get { return m_enableSmallToLargeConnections; } }
 
         // Flag if SI should check connectivity of the grid
         internal bool TestDynamic = false;
@@ -289,6 +294,11 @@ namespace Sandbox.Game.Entities
             get { return (MyRenderComponentCubeGrid)base.Render; }
             set { base.Render = value; }
         }
+
+        // Flag if the world matrix has been changed this frame (flag cleared in UpdateAfterSimulation)
+        private bool m_worldPositionChanged;
+        // Flag the grid has any model generators (for performance reasons)
+        private bool m_hasAdditionalModelGenerators;
 
         public MyTerminalBlock MainCockpit = null;
 
@@ -314,12 +324,17 @@ namespace Sandbox.Game.Entities
             Render.NeedsDraw = true;
 
             PositionComp = new MyCubeGridPosition();
+
+            Hierarchy.QueryAABBImpl = QueryAABB;
+            Hierarchy.QuerySphereImpl = QuerySphere;
+            Hierarchy.QueryLineImpl = QueryLine;
         }
 
         private MyCubeGrid(MyCubeSize gridSize)
         {
             GridSizeEnum = gridSize;
             GridSize = MyDefinitionManager.Static.GetCubeSize(gridSize);
+            GridSizeR = 1 / GridSize;
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME; //because of debug draw
 
             Skeleton = new MyGridSkeleton();
@@ -418,6 +433,7 @@ namespace Sandbox.Game.Entities
             Init(null, null, null, null, null);
 
             var builder = (MyObjectBuilder_CubeGrid)objectBuilder;
+            m_destructibleBlocks = builder.DestructibleBlocks;
 
             if (MyFakes.ASSERT_NON_PUBLIC_BLOCKS)
                 AssertNonPublicBlocks(builder);
@@ -426,6 +442,7 @@ namespace Sandbox.Game.Entities
                 RemoveNonPublicBlocks(builder);
 
             Render.CreateAdditionalModelGenerators(builder != null ? builder.GridSizeEnum : MyCubeSize.Large);
+            m_hasAdditionalModelGenerators = AdditionalModelGenerators.Count > 0;
 
             CreateSystems();
 
@@ -446,6 +463,7 @@ namespace Sandbox.Game.Entities
                 foreach (var cubeBlock in builder.CubeBlocks)
                 {
                     Debug.Assert(cubeBlock.IntegrityPercent > 0.0f, "Block is in inconsistent state in grid initialization");
+                    int index = 0;
                     var block = AddBlock(cubeBlock, false);
                     Debug.Assert(block != null, "Block was not added");
 
@@ -493,6 +511,8 @@ namespace Sandbox.Game.Entities
                     Physics.AngularVelocity = builder.AngularVelocity;
                     if (!IsStatic)
                         Physics.Shape.BlocksConnectedToWorld.Clear();
+                    if (MyPerGameSettings.InventoryMass)
+                        m_inventoryMassDirty = true;
                 }
 
                 XSymmetryPlane = builder.XMirroxPlane;
@@ -531,11 +551,12 @@ namespace Sandbox.Game.Entities
                 cockpit.GiveControlToPilot();
             }
             m_tmpOccupiedCockpits.Clear();
+            UpdateDirty();
         }
 
         private static MyCubeGrid CreateForSplit(MyCubeGrid originalGrid, long newEntityId)
         {
-            var builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
+            var builder = MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
             builder.EntityId = newEntityId;
             builder.GridSizeEnum = originalGrid.GridSizeEnum;
             builder.IsStatic = originalGrid.IsStatic;
@@ -550,7 +571,7 @@ namespace Sandbox.Game.Entities
             newGrid.InitInternal(builder, rebuildGrid: false);
             return newGrid;
         }
-        
+
         // RemoveSplit and CreateSplit should behave the same for the old grid. They only differ in the fact that
         // CreateSplit creates a new grid from the removed blocks, whereas the first method only removes the blocks
         // from the old grid (this is used for splits without physics - e.g. interior lights)
@@ -567,7 +588,10 @@ namespace Sandbox.Game.Entities
                 if (block.FatBlock != null)
                     originalGrid.Hierarchy.RemoveChild(block.FatBlock);
 
+                bool oldEnabled = originalGrid.EnableGenerators(false, true);
                 originalGrid.RemoveBlockInternal(block, close: true, markDirtyDisconnects: false);
+                originalGrid.EnableGenerators(oldEnabled, true);
+
                 originalGrid.Physics.AddDirtyBlock(block);
             }
             ProfilerShort.End();
@@ -598,12 +622,17 @@ namespace Sandbox.Game.Entities
             MyEntities.Add(newGrid);
             MyCubeGrid.MoveBlocks(originalGrid, newGrid, blocks, 0, blocks.Count);
             newGrid.RebuildGrid();
+            if (!newGrid.IsStatic)
+            {
+                newGrid.SetInventoryMassDirty();
+                newGrid.Physics.UpdateMass();
+            }
 
-            if (originalGrid.IsStatic && MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC)
+            if (originalGrid.IsStatic && MySession.Static.EnableStationVoxelSupport)
             {
                 newGrid.TestDynamic = true;
                 originalGrid.TestDynamic = true;
-              
+
             }
 
             newGrid.Physics.AngularVelocity = originalGrid.Physics.AngularVelocity;
@@ -611,6 +640,11 @@ namespace Sandbox.Game.Entities
 
             // CH: TODO: (Optimization) recalculate the original grid only when all splits are done. This will have to be synced by extra message
             originalGrid.Physics.UpdateShape();
+            if (!originalGrid.IsStatic)
+            {
+                originalGrid.SetInventoryMassDirty();
+                originalGrid.Physics.UpdateMass();
+            }
             Vector3 velocityAtNewCOM = Vector3.Cross(originalGrid.Physics.AngularVelocity, originalGrid.Physics.CenterOfMassWorld - oldCenterOfMass);
             originalGrid.Physics.LinearVelocity = originalGrid.Physics.LinearVelocity + velocityAtNewCOM;
 
@@ -624,9 +658,36 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(Sync.IsServer);
                 if (!Sync.IsServer) return;
 
-                originalGrid.SyncObject.AnnounceCreateSplit(blocks, newGrid.EntityId);
+                m_tmpBlockPositions.Clear();
+                foreach (var block in blocks)
+                {
+                    m_tmpBlockPositions.Add(block.Position);
+                }
+
+                MyMultiplayer.RaiseEvent(originalGrid, x => x.CreateSplit_Implementation, m_tmpBlockPositions, newGrid.EntityId);
                 return;
             }
+        }
+
+        [Event, Reliable,Broadcast]
+        public void CreateSplit_Implementation(List<Vector3I> blocks, long newEntityId)
+        {
+            m_tmpBlockListReceive.Clear();
+            foreach (var position in blocks)
+            {
+                var block = GetCubeBlock(position);
+                Debug.Assert(block != null, "Block was null when trying to create a grid split. Desync?");
+                if (block == null)
+                {
+                    MySandboxGame.Log.WriteLine("Block was null when trying to create a grid split. Desync?");
+                    continue;
+                }
+
+                m_tmpBlockListReceive.Add(block);
+            }
+
+            MyCubeGrid.CreateSplit(this, m_tmpBlockListReceive, sync: false, newEntityId: newEntityId);
+            m_tmpBlockListReceive.Clear();
         }
 
         /// <summary>
@@ -663,7 +724,7 @@ namespace Sandbox.Game.Entities
                 {
                     ProfilerShort.Begin("Update new grid shape");
                     newGrid.RebuildGrid();
-                    if (originalGrid.IsStatic && MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC)
+                    if (originalGrid.IsStatic && MySession.Static.EnableStationVoxelSupport)
                     {
                         newGrid.TestDynamic = true;
                         originalGrid.TestDynamic = true;
@@ -695,20 +756,53 @@ namespace Sandbox.Game.Entities
                     }
                     ProfilerShort.End();
                 }
+
+                if (sync)
+                {
+                    Debug.Assert(Sync.IsServer);
+                    if (!Sync.IsServer) return;
+
+                    m_tmpBlockPositions.Clear();
+                    foreach (var block in splitBlocks)
+                    {
+                        m_tmpBlockPositions.Add(block.Position);
+                    }
+
+                    MyMultiplayer.RaiseEvent(originalGrid, x => x.CreateSplits_Implementation, m_tmpBlockPositions, groups);
+
+                    foreach (var newGrid in originalGrid.m_tmpGrids)
+                    {
+                        newGrid.IsSplit = true;
+                        MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(newGrid), MyExternalReplicable.FindByObject(originalGrid));
+                        newGrid.IsSplit = false;
+                    }
+                }
             }
             finally
             {
                 originalGrid.m_tmpGrids.Clear();
             }
+        }
 
-            if (sync)
+        [Event, Reliable, Broadcast, RefreshReplicable]
+        public void CreateSplits_Implementation(List<Vector3I> blocks, List<MyDisconnectHelper.Group> groups)
+        {
+            m_tmpBlockListReceive.Clear();
+            foreach (var position in blocks)
             {
-                Debug.Assert(Sync.IsServer);
-                if (!Sync.IsServer) return;
+                var block = GetCubeBlock(position);
+                Debug.Assert(block != null, "Block was null when trying to create a grid split. Desync?");
+                if (block == null)
+                {
+                    MySandboxGame.Log.WriteLine("Block was null when trying to create a grid split. Desync?");
+                    continue;
+                }
 
-                originalGrid.SyncObject.AnnounceCreateSplits(splitBlocks, groups);
-
+                m_tmpBlockListReceive.Add(block);
             }
+
+            MyCubeGrid.CreateSplits(this, m_tmpBlockListReceive, groups, false);
+            m_tmpBlockListReceive.Clear();
         }
 
         private static void CreateSplitForGroup(MyCubeGrid originalGrid, List<MySlimBlock> splitBlocks, ref MyDisconnectHelper.Group group)
@@ -738,11 +832,50 @@ namespace Sandbox.Game.Entities
 
             Debug.Assert(Sync.IsServer || !(group.IsValid && group.EntityId == 0), "Invalid split entity id");
 
-            if (group.BlockCount == 1 && splitBlocks[group.FirstBlockIndex] != null && splitBlocks[group.FirstBlockIndex].FatBlock is MyFracturedBlock)
+            if (group.BlockCount == 1 && splitBlocks[group.FirstBlockIndex] != null)
             {
-                group.IsValid = false;
-                if(Sync.IsServer)
-                    MyDestructionHelper.CreateFracturePiece(splitBlocks[group.FirstBlockIndex].FatBlock as MyFracturedBlock, true);
+                var firstBlock = splitBlocks[group.FirstBlockIndex];
+                if (firstBlock.FatBlock is MyFracturedBlock)
+                {
+                    group.IsValid = false;
+                    if (Sync.IsServer)
+                        MyDestructionHelper.CreateFracturePiece(firstBlock.FatBlock as MyFracturedBlock, true);
+                }
+                else if (firstBlock.FatBlock != null && firstBlock.FatBlock.Components.Has<MyFractureComponentBase>())
+                {
+                    group.IsValid = false;
+                    if (Sync.IsServer)
+                    {
+                        var component = firstBlock.GetFractureComponent();
+                        if (component != null)
+                            MyDestructionHelper.CreateFracturePiece(component, true);
+                    }
+                }
+                else if (firstBlock.FatBlock is MyCompoundCubeBlock)
+                {
+                    var compound = firstBlock.FatBlock as MyCompoundCubeBlock;
+                    bool allFractureComponent = true;
+                    foreach (var blockInCompound in compound.GetBlocks())
+                    {
+                        allFractureComponent &= blockInCompound.FatBlock.Components.Has<MyFractureComponentBase>();
+                        if (!allFractureComponent)
+                            break;
+                    }
+
+                    if (allFractureComponent)
+                    {
+                        group.IsValid = false;
+                        if (Sync.IsServer)
+                        {
+                            foreach (var blockInCompound in compound.GetBlocks())
+                            {
+                                var component = blockInCompound.GetFractureComponent();
+                                if (component != null)
+                                    MyDestructionHelper.CreateFracturePiece(component, true);
+                            }
+                        }
+                    }
+                }
             }
 
             if (group.IsValid)
@@ -843,6 +976,7 @@ namespace Sandbox.Game.Entities
             }
 
             ob.DisplayName = DisplayName;
+            ob.DestructibleBlocks = DestructibleBlocks;
 
             GridSystems.GetObjectBuilder(ob);
         }
@@ -888,24 +1022,22 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("Lazy updates");
             DoLazyUpdates();
-            ProfilerShort.End();
 
             if (MyFakes.ENABLE_GRID_SYSTEM_UPDATE)
             {
-                ProfilerShort.Begin("Grid systems");
+                ProfilerShort.BeginNextBlock("Grid systems");
                 GridSystems.UpdateBeforeSimulation();
-                ProfilerShort.End();
             }
 
-            ProfilerShort.Begin("Base update");
+            ProfilerShort.BeginNextBlock("Base update");
             base.UpdateBeforeSimulation();
-            ProfilerShort.End();
 
-            ProfilerShort.Begin("Thrash removal");
+            ProfilerShort.BeginNextBlock("Thrash removal");
             if (Sync.IsServer && IsTrash())
             {
                 SyncObject.SendCloseRequest();
             }
+            ProfilerShort.BeginNextBlock("Update Shape");
 
             if (Physics != null)
             {
@@ -917,11 +1049,10 @@ namespace Sandbox.Game.Entities
 
         protected static float GetLineWidthForGizmo(IMyGizmoDrawableObject block, BoundingBox box)
         {
-            box.GetCorners(m_gizmoCorners);
             //we don't want to gizmo line be smaller in distance, so we need to adjust line width according to distance from camera
             float minDistance = m_gizmoMaxDistanceFromCamera;
 
-            foreach (var corner in m_gizmoCorners)
+            foreach (var corner in box.Corners)
             {
                 minDistance = (float)Math.Min(minDistance, Math.Abs(World.MySector.MainCamera.GetDistanceWithFOV(Vector3.Transform(block.GetPositionInGrid() + corner, block.GetWorldMatrix()))));
             }
@@ -991,21 +1122,23 @@ namespace Sandbox.Game.Entities
 
                     if (drawObject.EnableLongDrawDistance() && MyFakes.ENABLE_LONG_DISTANCE_GIZMO_DRAWING)
                     {
-                        m_viewProjection.CameraPosition = MySector.MainCamera.Position;
-                        m_viewProjection.View = MySector.MainCamera.ViewMatrix;
-                        m_viewProjection.Viewport = MySector.MainCamera.Viewport;
-                        m_viewProjection.DepthRead = true;
+                        MyBillboardViewProjection viewProjection;
+                        viewProjection.CameraPosition = MySector.MainCamera.Position;
+                        viewProjection.View = MySector.MainCamera.ViewMatrix;
+                        viewProjection.ViewAtZero = default(Matrix);
+                        viewProjection.Viewport = MySector.MainCamera.Viewport;
+                        viewProjection.DepthRead = true;
 
 
-                        float aspectRatio = m_viewProjection.Viewport.Width / m_viewProjection.Viewport.Height;
-                        m_viewProjection.Projection = Matrix.CreatePerspectiveFieldOfView(MySector.MainCamera.FieldOfView, aspectRatio, 1, 100);
-                        m_viewProjection.Projection.M33 = -1;
-                        m_viewProjection.Projection.M34 = -1;
-                        m_viewProjection.Projection.M43 = 0;
-                        m_viewProjection.Projection.M44 = 0;
+                        float aspectRatio = viewProjection.Viewport.Width / viewProjection.Viewport.Height;
+                        viewProjection.Projection = Matrix.CreatePerspectiveFieldOfView(MySector.MainCamera.FieldOfView, aspectRatio, 1, 100);
+                        viewProjection.Projection.M33 = -1;
+                        viewProjection.Projection.M34 = -1;
+                        viewProjection.Projection.M43 = 0;
+                        viewProjection.Projection.M44 = 0;
 
                         projectionId = 10;
-                        VRageRender.MyRenderProxy.AddBillboardViewProjection(projectionId, m_viewProjection);
+                        VRageRender.MyRenderProxy.AddBillboardViewProjection(projectionId, viewProjection);
 
                         Graphics.MySimpleObjectDraw.DrawTransparentSphere(ref worldMatrix, radius, ref gizmoColor, Graphics.MySimpleObjectRasterizer.SolidAndWireframe, 20, null, null, thickness, projectionId);
                     }
@@ -1039,32 +1172,92 @@ namespace Sandbox.Game.Entities
             m_inventoryMassDirty = true;
         }
 
+        public int GetCurrentMass(MyCharacter pilot = null)
+        {
+            int currentMass = 0;
+            foreach (var cubeGrid in MyCubeGridGroups.Static.Physical.GetGroup(this).Nodes)
+            {
+                if (cubeGrid.NodeData.Physics == null)
+                    continue;
+                var massProperties = cubeGrid.NodeData.Physics.Shape.MassProperties;
+                if (IsStatic || !massProperties.HasValue)
+                    continue;
+
+                float totalMass = (int)massProperties.Value.Mass;
+                float baseMass = (int)cubeGrid.NodeData.Physics.Shape.BaseMassProperties.Value.Mass;
+                float inventoryMass = totalMass - baseMass;
+                currentMass += (int)(baseMass + inventoryMass * MySession.Static.Settings.InventorySizeMultiplier - (MySession.Static.Settings.InventorySizeMultiplier - 1) * (pilot != null ? pilot.BaseMass : 0.0f));
+            }
+            return currentMass;
+        }
+
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
 
-            foreach (var generator in AdditionalModelGenerators)
-                generator.UpdateAfterSimulation();
+            //welding mass props debug
+            //if(MySession.ControlledEntity.Entity.GetTopMostParent() == this)
+            //{
+            //    MyRenderProxy.DebugDrawText2D(new Vector2(300, 300), Physics.RigidBody.InverseInertiaTensor.Scale.ToString(), Color.White, 0.75f);
+            //    MyRenderProxy.DebugDrawText2D(new Vector2(300, 330), Physics.RigidBody.InertiaTensor.Scale.ToString(), Color.White, 0.75f);
+            //    MyRenderProxy.DebugDrawText2D(new Vector2(300, 360), Physics.RigidBody.Mass.ToString(), Color.White, 0.75f);
+            //    var pos = new Vector2(300, 380);
+            //    MyRenderProxy.DebugDrawText2D(pos, Physics.WeldInfo.MassElement.Properties.InertiaTensor.Scale.ToString(), Color.White, 0.75f);
+            //    pos.Y += 20;
+            //    foreach(var child in Physics.WeldInfo.Children)
+            //    {
+            //        MyRenderProxy.DebugDrawText2D(pos, child.WeldInfo.MassElement.Properties.InertiaTensor.Scale.ToString(), Color.White, 0.75f);
+            //        pos.Y += 20;
+            //    }
+            //}
+
+            if (m_hasAdditionalModelGenerators)
+            {
+                foreach (var generator in AdditionalModelGenerators)
+                    generator.UpdateAfterSimulation();
+            }
 
             SyncObject.SendRemovedBlocks();
+            SyncObject.SendRemovedBlocksWithIds();
 
             if (!CanHavePhysics())
             {
+                m_worldPositionChanged = false;
                 Close();
                 return;
             }
 
             if (Sync.IsServer)
             {
+                if (MyFakes.ENABLE_FRACTURE_COMPONENT)
+                {
+                    if (Physics != null)
+                    {
+                        if (Physics.GetFractureBlockComponents().Count > 0)
+                        {
+                        foreach (var info in Physics.GetFractureBlockComponents())
+                        {
+                            CreateFractureBlockComponent(info);
+                        }
+
+                        Physics.ClearFractureBlockComponents();
+                    }
+
+                        Physics.CheckLastDestroyedBlockFracturePieces();
+                }
+                }
+                else
+                {
                 if (Physics != null && Physics.GetFracturedBlocks().Count > 0)
                 {
-                    EnableGenerators(false);
+                        bool oldEnabled = EnableGenerators(false);
                     foreach (var info in Physics.GetFracturedBlocks())
                     {
                         CreateFracturedBlock(info);
                     }
-                    EnableGenerators(true);
+                        EnableGenerators(oldEnabled);
                 }
+            }
             }
 
             StepStructuralIntegrity();
@@ -1080,18 +1273,12 @@ namespace Sandbox.Game.Entities
 
             DoLazyUpdates();
 
-            if (Physics != null)
+            if (Physics != null && Physics.Enabled)
             {
                 if (m_inventoryMassDirty)
                 {
                     m_inventoryMassDirty = false;
-                    Physics.Shape.UpdateMassFromInventories(m_cubeBlocks, Physics);
-                }
-
-                if (IsStatic == false)
-                {
-                    Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-                    Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+                    Physics.Shape.UpdateMassFromInventories(m_cubeBlocks, Physics);	// TODO: MK: Store inventory blocks in cubegrid and only check those
                 }
 
                 if (Physics.RigidBody2 != null)
@@ -1107,6 +1294,45 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            m_worldPositionChanged = false;
+        }
+
+        private void CreateFractureBlockComponent(MyFractureComponentBase.Info info)
+        {
+            if (info.Entity.MarkedForClose)
+                return;
+
+            MyFractureComponentCubeBlock fractureComponent = new MyFractureComponentCubeBlock();
+            info.Entity.Components.Add<MyFractureComponentBase>(fractureComponent);
+            fractureComponent.SetShape(info.Shape, info.Compound);
+
+            if (Sync.IsServer)
+            {
+                MyCubeBlock cubeBlock = info.Entity as MyCubeBlock;
+                if (cubeBlock != null)
+                {
+                    MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(cubeBlock.SlimBlock);
+
+                    var existingSlimBlock = cubeBlock.CubeGrid.GetCubeBlock(cubeBlock.Position);
+                    MyCompoundCubeBlock compoundBlock = existingSlimBlock != null ? existingSlimBlock.FatBlock as MyCompoundCubeBlock : null;
+                    if (compoundBlock != null)
+                    {
+                        ushort? compoundId = compoundBlock.GetBlockId(cubeBlock.SlimBlock);
+                        if (compoundId != null)
+                        {
+                            var builder = (MyObjectBuilder_FractureComponentBase)fractureComponent.Serialize();
+                            MySyncDestructions.CreateFractureComponent(cubeBlock.CubeGrid.EntityId, cubeBlock.Position, compoundId.Value, builder);
+                        }
+                    }
+                    else
+                    {
+                        var builder = (MyObjectBuilder_FractureComponentBase)fractureComponent.Serialize();
+                        MySyncDestructions.CreateFractureComponent(cubeBlock.CubeGrid.EntityId, cubeBlock.Position, 0xFFFF, builder);
+                    }
+
+                    cubeBlock.SlimBlock.ApplyDestructionDamage();
+                }
+            }
         }
 
         private void StepStructuralIntegrity()
@@ -1242,6 +1468,7 @@ namespace Sandbox.Game.Entities
                 StaticGrids.Remove(this);
 
             SyncObject.SendRemovedBlocks();
+            SyncObject.SendRemovedBlocksWithIds();
 
             m_cubes.Clear();
 
@@ -1368,8 +1595,8 @@ namespace Sandbox.Game.Entities
                 Vector3 min = box.Min;
                 Vector3 max = box.Max;
 
-                Vector3I start = new Vector3I((int)Math.Round(min.X / GridSize), (int)Math.Round(min.Y / GridSize), (int)Math.Round(min.Z / GridSize));
-                Vector3I end = new Vector3I((int)Math.Round(max.X / GridSize), (int)Math.Round(max.Y / GridSize), (int)Math.Round(max.Z / GridSize));
+                Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
+                Vector3I end = new Vector3I((int)Math.Round(max.X * GridSizeR), (int)Math.Round(max.Y * GridSizeR), (int)Math.Round(max.Z * GridSizeR));
 
                 Vector3I startIt = Vector3I.Min(start, end);
                 Vector3I endIt = Vector3I.Max(start, end);
@@ -1480,8 +1707,11 @@ namespace Sandbox.Game.Entities
             result.BlockBuilt += BuildBlockSuccess;
             result.AfterBlockBuilt += AfterBuildBlockSuccess;
 
-            // TODO: Better get rid of this
-            result.UpdatesOnlyOnServer = false;
+            result.BlocksWithIdRemovedWithGenerator += BlocksWithIdRemovedWithGenerator;
+            result.BlocksWithIdRemovedWithoutGenerator += BlocksWithIdRemovedWithoutGenerator;
+            result.BlocksDestroyedWithId += BlocksDestroyedWithId;
+
+            result.FractureComponentRepaired += FractureComponentRepaired;
             return result;
         }
 
@@ -1489,11 +1719,17 @@ namespace Sandbox.Game.Entities
 
         public bool IsTrash()
         {
-            // Too far-away grids are removed no matter what (if the world is limited)
-            Vector3D pos = Physics != null ? Physics.CenterOfMassWorld : WorldMatrix.Translation;
-            if (!MyEntities.IsInsideWorld(pos)) return true;
+            Vector3D pos = Vector3D.Zero;
+            if (m_worldPositionChanged)
+            {
+                // Too far-away grids are removed no matter what (if the world is limited)
+                pos = Physics != null ? Physics.CenterOfMassWorld : WorldMatrix.Translation;
+                if (!MyEntities.IsInsideWorld(pos))
+                    return true;
+            }
 
-            if (!MySession.Static.Settings.RemoveTrash || !MyFakes.ENABLE_TRASH_REMOVAL) return false;
+            if (!MyFakes.ENABLE_TRASH_REMOVAL || !MySession.Static.Settings.RemoveTrash)
+                return false;
 
             // Grids with enough cubes are not trash
             if (m_cubeBlocks.Count > 8)
@@ -1511,9 +1747,13 @@ namespace Sandbox.Game.Entities
                 return false;
 
             // Grids with medbays are not trash
+            // CH: TODO: Ideally, this would somehow call SE-specific code to remove reference to medbays
             int medbayNum;
-            if (BlocksCounters.TryGetValue(typeof(MyMedicalRoom), out medbayNum) && medbayNum > 0)
+            if (BlocksCounters.TryGetValue(typeof(MyObjectBuilder_MedicalRoom), out medbayNum) && medbayNum > 0)
                 return false;
+
+            if (!m_worldPositionChanged)
+                pos = Physics.CenterOfMassWorld;
 
             // Other grids are trash when they are far enough
             float sphereRadius = this.PositionComp.LocalAABB.HalfExtents.AbsMax();
@@ -1565,17 +1805,11 @@ namespace Sandbox.Game.Entities
 
         public bool CanAddCubes(Vector3I min, Vector3I max)
         {
-            Vector3I current;
-            for (current.X = min.X; current.X <= max.X; current.X++)
+            Vector3I current = min;
+            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
             {
-                for (current.Y = min.Y; current.Y <= max.Y; current.Y++)
-                {
-                    for (current.Z = min.Z; current.Z <= max.Z; current.Z++)
-                    {
-                        if (m_cubes.ContainsKey(current))
-                            return false;
-                    }
-                }
+                if (m_cubes.ContainsKey(current))
+                    return false;
             }
             return true;
         }
@@ -1584,19 +1818,12 @@ namespace Sandbox.Game.Entities
         {
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && definition != null)
             {
-                Vector3I current;
-                for (current.X = min.X; current.X <= max.X; current.X++)
+                Vector3I current = min;
+                for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
                 {
-                    for (current.Y = min.Y; current.Y <= max.Y; current.Y++)
-                    {
-                        for (current.Z = min.Z; current.Z <= max.Z; current.Z++)
-                        {
-                            if (!CanAddCube(current, orientation, definition))
-                                return false;
-                        }
-                    }
+                    if (!CanAddCube(current, orientation, definition))
+                        return false;
                 }
-
                 return true;
             }
 
@@ -1707,38 +1934,26 @@ namespace Sandbox.Game.Entities
 
         public void SetBlockDirty(MySlimBlock cubeBlock)
         {
-            Vector3I temp = new Vector3I();
-            for (temp.X = cubeBlock.Min.X; temp.X <= cubeBlock.Max.X; temp.X++)
+            Vector3I cube = cubeBlock.Min;
+            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out cube))
             {
-                for (temp.Y = cubeBlock.Min.Y; temp.Y <= cubeBlock.Max.Y; temp.Y++)
-                {
-                    for (temp.Z = cubeBlock.Min.Z; temp.Z <= cubeBlock.Max.Z; temp.Z++)
-                    {
-                        m_dirtyRegion.AddCube(temp);
-                    }
-                }
+                m_dirtyRegion.AddCube(cube);
             }
         }
 
         public void DebugDrawRange(Vector3I min, Vector3I max)
         {
-            Vector3I currentMin;
-            for (currentMin.X = min.X; currentMin.X <= max.X; currentMin.X++)
+            Vector3I currentMin = min;
+            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out currentMin))
             {
-                for (currentMin.Y = min.Y; currentMin.Y <= max.Y; currentMin.Y++)
-                {
-                    for (currentMin.Z = min.Z; currentMin.Z <= max.Z; currentMin.Z++)
-                    {
-                        var currentMax = currentMin + 1;
+                var currentMax = currentMin + 1;
 
-                        var obb = new MyOrientedBoundingBoxD(
-                            currentMin * GridSize,
-                            new Vector3(0.5f * GridSize),
-                            Quaternion.Identity);
-                        obb.Transform(WorldMatrix);
-                        VRageRender.MyRenderProxy.DebugDrawOBB(obb, Color.White, 0.5f, true, false);
-                    }
-                }
+                var obb = new MyOrientedBoundingBoxD(
+                    currentMin * GridSize,
+                    new Vector3(0.5f * GridSize),
+                    Quaternion.Identity);
+                obb.Transform(WorldMatrix);
+                VRageRender.MyRenderProxy.DebugDrawOBB(obb, Color.White, 0.5f, true, false);
             }
         }
 
@@ -1808,7 +2023,7 @@ namespace Sandbox.Game.Entities
             // Upgrading manually as ChangeType causes stack overflow in protobuf-net.
             if (block is MyObjectBuilder_Ladder)
             {
-                var passage = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Passage>(block.SubtypeName);
+                var passage = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Passage>(block.SubtypeName);
 
                 passage.BlockOrientation = block.BlockOrientation;
                 passage.BuildPercent = block.BuildPercent;
@@ -1864,7 +2079,9 @@ namespace Sandbox.Game.Entities
         private bool CanAddBlock(MyBlockLocation location)
         {
             var blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(location.BlockDefinition);
-            if (!MyCubeGrid.CheckConnectivity(this, blockDefinition, ref location.Orientation, ref location.CenterPos)) return false;
+            var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+            if (!MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref location.Orientation, ref location.CenterPos))
+                return false;
 
             Vector3I min = location.Min, max;
             MyBlockOrientation ori = new MyBlockOrientation(ref location.Orientation);
@@ -1891,14 +2108,21 @@ namespace Sandbox.Game.Entities
                     return null;
                 }
 
-                try
+                if (MyFakes.THROW_LOADING_ERRORS)
                 {
                     return AddCubeBlock(objectBuilder, testMerge, blockDefinition);
                 }
-                catch (Exception e)
+                else
                 {
-                    MyLog.Default.WriteLine("ERROR while adding cube " + blockDefinition.DisplayNameText.ToString() + ": " + e.ToString());
-                    return null;
+                    try
+                    {
+                        return AddCubeBlock(objectBuilder, testMerge, blockDefinition);
+                    }
+                    catch (Exception e)
+                    {
+                        MyLog.Default.WriteLine("ERROR while adding cube " + blockDefinition.DisplayNameText.ToString() + ": " + e.ToString());
+                        return null;
+                    }
                 }
             }
             finally
@@ -1934,11 +2158,13 @@ namespace Sandbox.Game.Entities
 
                 if (cubeBlock.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Add(cubeBlock.FatBlock);
-                if (cubeBlock.FatBlock.GetType() != typeof(MyCubeBlock))
+
+                MyObjectBuilderType blockType = cubeBlock.BlockDefinition.Id.TypeId;
+                if (blockType != typeof(MyObjectBuilder_CubeBlock))
                 {
-                    if (!BlocksCounters.ContainsKey(cubeBlock.FatBlock.GetType()))
-                        BlocksCounters.Add(cubeBlock.FatBlock.GetType(), 0);
-                    BlocksCounters[cubeBlock.FatBlock.GetType()]++;
+                    if (!BlocksCounters.ContainsKey(blockType))
+                        BlocksCounters.Add(blockType, 0);
+                    BlocksCounters[blockType]++;
                 }
             }
 
@@ -1960,14 +2186,11 @@ namespace Sandbox.Game.Entities
             Vector3I.TransformNormal(ref center, ref rotationMatrix, out rotatedCenter);
 
             bool blockAddSuccessfull = true;
-            Vector3I temp = new Vector3I();
-            for (temp.X = cubeBlock.Min.X; temp.X <= cubeBlock.Max.X; temp.X++)
-                for (temp.Y = cubeBlock.Min.Y; temp.Y <= cubeBlock.Max.Y; temp.Y++)
-                    for (temp.Z = cubeBlock.Min.Z; temp.Z <= cubeBlock.Max.Z; temp.Z++)
-                    {
-                        Vector3I intPos = temp;
-                        blockAddSuccessfull &= AddCube(cubeBlock, ref intPos, rotationMatrix, blockDefinition);
-                    }
+            Vector3I temp = cubeBlock.Min;
+            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out temp))
+            {
+                blockAddSuccessfull &= AddCube(cubeBlock, ref temp, rotationMatrix, blockDefinition);
+            }
 
             Debug.Assert(blockAddSuccessfull, "Cannot add cube block!");
 
@@ -1979,24 +2202,19 @@ namespace Sandbox.Game.Entities
             float boneErrorSquared = MyGridSkeleton.GetMaxBoneError(GridSize);
             boneErrorSquared *= boneErrorSquared;
 
-            for (int i = 0; i <= Skeleton.BoneDensity; i++)
+            Vector3I boneMax = (cubeBlock.Min + Vector3I.One) * Skeleton.BoneDensity;
+            Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity;
+            for (var it = new Vector3I.RangeIterator(ref bonePos, ref boneMax); it.IsValid(); it.GetNext(out bonePos))
             {
-                for (int j = 0; j <= Skeleton.BoneDensity; j++)
-                {
-                    for (int k = 0; k <= Skeleton.BoneDensity; k++)
-                    {
-                        Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity + new Vector3I(i, j, k);
-                        Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
+                Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
 
-                        if (boneOffset.LengthSquared() < boneErrorSquared)
-                        {
-                            Skeleton.Bones.Remove(bonePos);
-                        }
-                        else
-                        {
-                            Skeleton.Bones[bonePos] = boneOffset;
-                        }
-                    }
+                if (boneOffset.LengthSquared() < boneErrorSquared)
+                {
+                    Skeleton.Bones.Remove(bonePos);
+                }
+                else
+                {
+                    Skeleton.Bones[bonePos] = boneOffset;
                 }
             }
 
@@ -2035,21 +2253,6 @@ namespace Sandbox.Game.Entities
             return cubeBlock;
         }
 
-        /// <summary>
-        /// Builds single block
-        /// </summary>
-        internal MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, MyBlockLocation location, MyInventory inventory)
-        {
-            if (MyCubeGrid.CheckConnectivity(this, blockDefinition, ref location.Orientation, ref location.CenterPos))
-            {
-                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, location.Orientation, location.Owner, location.EntityId, inventory);
-                if (block != null)
-                    block.PlayConstructionSound(MyIntegrityChangeEnum.ConstructionBegin);
-                return block;
-            }
-            return null;
-        }
-
         public MySlimBlock BuildGeneratedBlock(MyBlockLocation location, Vector3 colorMaskHsv)
         {
             MyDefinitionId blockDefinitionId = location.BlockDefinition;
@@ -2057,9 +2260,9 @@ namespace Sandbox.Game.Entities
             return BuildBlock(blockDefinition, colorMaskHsv, location.Min, location.Orientation, location.Owner, location.EntityId, null);
         }
 
-        public void BuildBlock(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder)
+        public void BuildBlock(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
-            SyncObject.BuildBlock(colorMaskHsv, location, blockObjectBuilder);
+            SyncObject.BuildBlock(colorMaskHsv, location, blockObjectBuilder, builderEntityId);
         }
 
         /// <summary>
@@ -2073,9 +2276,9 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Builds many same blocks, used when building lines or planes.
         /// </summary>
-        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations)
+        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, long builderEntityId)
         {
-            SyncObject.BuildBlocks(colorMaskHsv, locations);
+            SyncObject.BuildBlocks(colorMaskHsv, locations, builderEntityId);
         }
 
         /// <summary>
@@ -2100,43 +2303,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-
-        //private static void OnPlaceBlockInternal(MySyncGrid sync, ref PlaceBlockMsg msg, MyPlayer sender, bool server)
-        //{
-        //    MyCharacter builder = sender.Controller.ControlledEntity.Entity as MyCharacter;
-        //    if (buidler == null)
-        //    {
-        //        Debug.Fail("Received incorrect place block message. Character entity does not exist.");
-        //        return;
-        //    }
-        //    MyDefinitionBase definition = new MyDefinitionBase();
-        //    MyDefinitionManager.Static.TryGetDefinition(msg.BlockLocation.BlockDefinition, out definition);
-        //    MyCubeBlockDefinition blockDefinition = definition as MyCubeBlockDefinition;
-
-        //    Debug.Assert(blockDefinition != null, "Received incorrect place block message. Could not find block definition.");
-        //    if (blockDefinition == null) return;
-
-        //    MyInventory inventory = builder.GetInventory();
-        //    if (server && !inventory.ContainItems(1m, blockDefinition.Components[0].Definition.Id))
-        //    {
-        //        Debug.Assert(false, "Character does not have enough components to build the block");
-        //        return;
-        //    }
-
-        //    var block = sync.Entity.BuildBlock(blockDefinition, ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.BlockLocation, inventory);
-        //    Debug.Assert(block != null, "Could not build a new block.");
-        //    if (block == null) return;
-
-        //    m_tmpBuildList.Clear();
-        //    m_tmpBuildList.Add(msg.BlockLocation);
-
-        //    //First send blocks build, then call OnBuildSuccess because it can already send messages for that block i.e. Attach for motors
-        //    if (server)
-        //        Sync.Layer.SendMessageToAll(msg, MyTransportMessageEnum.Success);
-
-        //    var handler = sync.AfterBlocksBuilt;
-        //    if (handler != null) handler(m_tmpBuildList);
-        //}
         private void BuildBlocksAreaSuccess(ref MyCubeGrid.MyBlockBuildArea area, int entityIdSeed, HashSet<Vector3UByte> failList, long ownerId)
         {
             try
@@ -2261,7 +2427,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BuildBlocksSuccess(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, HashSet<MyBlockLocation> resultBlocks)
+        private void BuildBlocksSuccess(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, HashSet<MyBlockLocation> resultBlocks, MyEntity builder)
         {
             bool cubeProcessed = true;
             Debug.Assert(MySession.Static.CreativeMode || locations.Count <= 1, "Trying to build multiple blocks in survival.");
@@ -2284,17 +2450,22 @@ namespace Sandbox.Game.Entities
                         return;
                     }
 
-                    MyBlockOrientation ori = new MyBlockOrientation(ref orientation);
-                    if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) && MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
+                    var ori = new MyBlockOrientation(ref orientation);
+                    var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+                    // If we are on the server, we perform various checks. Clients on the other hand just build the blocks
+                    if (!Sync.IsServer ||
+                            (
+                                CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) &&
+                                MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref orientation, ref center)
+                            )
+                        )
                     {
-                        var inv = GetBuilderInventory(location.BuilderEntityId);
-                        var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, inv);
+                        var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, builder);
 
                         if (block != null)
                         {
                             var resultLocation = location;
                             resultBlocks.Add(resultLocation);
-                            block.PlayConstructionSound(MyIntegrityChangeEnum.ConstructionBegin);
                         }
                         cubeProcessed = true;
                         locations.Remove(location);
@@ -2304,7 +2475,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BuildBlockSuccess(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyBlockLocation? resultBlock)
+        private void BuildBlockSuccess(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyBlockLocation? resultBlock, MyEntity builder)
         {
             var orientation = location.Orientation;
             var center = location.CenterPos;
@@ -2318,10 +2489,12 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            if (MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
+            MyBlockOrientation ori = new MyBlockOrientation(ref location.Orientation);
+            var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+            if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition)
+                && MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref orientation, ref center))
             {
-                var inv = GetBuilderInventory(location.BuilderEntityId);
-                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, inv, objectBuilder);
+                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, builder, objectBuilder);
 
                 if (block != null)
                 {
@@ -2333,31 +2506,6 @@ namespace Sandbox.Game.Entities
                     resultBlock = null;
                 }
             }
-        }
-
-        private static MyInventory GetBuilderInventory(long builderId)
-        {
-            if (MySession.Static.CreativeMode)
-                return null;
-
-            MyEntity builderEntity;
-            MyEntities.TryGetEntityById(builderId, out builderEntity);
-
-            Debug.Assert(builderEntity != null, "Entity that wasnt on server is trying to build.");
-            if (builderEntity == null) return null;
-
-            var character = builderEntity as MyCharacter;
-            if (character != null)
-            {
-                return character.GetInventory();
-            }
-            var shipWelder = builderEntity as MyShipWelder;
-            if (shipWelder != null)
-            {
-                return shipWelder.GetInventory(0);
-            }
-            Debug.Fail("Only characters and ship welders can build blocks!");
-            return null;
         }
 
         private void AfterBuildBlocksSuccess(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks)
@@ -2414,28 +2562,145 @@ namespace Sandbox.Game.Entities
 
             Vector3UByte offset;
 
-            for (offset.X = 0; offset.X <= size.X; offset.X++)
-                for (offset.Y = 0; offset.Y <= size.Y; offset.Y++)
-                    for (offset.Z = 0; offset.Z <= size.Z; offset.Z++)
-                    {
-                        if (!resultFailList.Contains(offset))
+            if (MyFakes.ENABLE_MULTIBLOCKS)
+            {
+                List<MySlimBlock> slimBlocks = new List<MySlimBlock>(); ;
+
+                for (offset.X = 0; offset.X <= size.X; offset.X++)
+                    for (offset.Y = 0; offset.Y <= size.Y; offset.Y++)
+                        for (offset.Z = 0; offset.Z <= size.Z; offset.Z++)
                         {
-                            var loc = pos + (Vector3I)offset;
-
-                            var block = GetCubeBlock(loc);
-                            if (block != null)
+                            if (!resultFailList.Contains(offset))
                             {
-                                min = Vector3I.Min(min, block.Min);
-                                max = Vector3I.Max(max, block.Max);
+                                var loc = pos + (Vector3I)offset;
 
-                                RemoveBlockInternal(block, close: true);
-                                if (block.FatBlock != null)
-                                    block.FatBlock.OnRemovedByCubeBuilder();
+                                var block = GetCubeBlock(loc);
+                                if (block != null)
+                                {
+                                    MyCompoundCubeBlock compound = block.FatBlock as MyCompoundCubeBlock;
+                                    if (compound != null)
+                                    {
+                                        slimBlocks.Clear();
+
+                                        foreach (var blockInCompound in compound.GetBlocks(slimBlocks))
+                                        {
+                                            if (blockInCompound.IsMultiBlockPart)
+                                            {
+                                                m_tmpBlocksInMultiBlock.Clear();
+
+                                                MyCubeGrid.GetBlocksInMultiBlock(blockInCompound.CubeGrid, blockInCompound.Position, blockInCompound.MultiBlockDefinition,
+                                                    blockInCompound.MultiBlockId, m_tmpBlocksInMultiBlock);
+
+                                                RemoveMultiBlocks(ref min, ref max, m_tmpBlocksInMultiBlock);
+
+                                                m_tmpBlocksInMultiBlock.Clear();
+                                            }
+                                            else
+                                            {
+                                                ushort? compoundId = compound.GetBlockId(blockInCompound);
+                                                if (compoundId != null)
+                                                    RemoveBlockInCompound(blockInCompound.Position, compoundId.Value, ref min, ref max);
+                                            }
+                                        }
+
+                                        slimBlocks.Clear();
+                                    }
+                                    else
+                                    {
+                                        if (block.IsMultiBlockPart)
+                                        {
+                                            m_tmpBlocksInMultiBlock.Clear();
+
+                                            MyCubeGrid.GetBlocksInMultiBlock(block.CubeGrid, block.Position, block.MultiBlockDefinition, block.MultiBlockId, m_tmpBlocksInMultiBlock);
+
+                                            RemoveMultiBlocks(ref min, ref max, m_tmpBlocksInMultiBlock);
+
+                                            m_tmpBlocksInMultiBlock.Clear();
+                                        }
+                                        else
+                                        {
+                                            MyFracturedBlock fracturedBlock = block.FatBlock as MyFracturedBlock;
+                                            if (fracturedBlock != null && fracturedBlock.MultiBlocks != null && fracturedBlock.MultiBlocks.Count > 0)
+                                            {
+                                                foreach (var mbpart in fracturedBlock.MultiBlocks)
+                                                {
+                                                    if (mbpart != null)
+                                                    {
+                                                        m_tmpBlocksInMultiBlock.Clear();
+
+                                                        MyMultiBlockDefinition mbDef = MyDefinitionManager.Static.TryGetMultiBlockDefinition(mbpart.MultiBlockDefinition);
+                                                        Debug.Assert(mbDef != null);
+                                                        if (mbDef != null)
+                                                        {
+                                                            MyCubeGrid.GetBlocksInMultiBlock(fracturedBlock.CubeGrid, fracturedBlock.Position, mbDef, mbpart.MultiBlockId, m_tmpBlocksInMultiBlock);
+
+                                                            RemoveMultiBlocks(ref min, ref max, m_tmpBlocksInMultiBlock);
+                                                        }
+
+                                                        m_tmpBlocksInMultiBlock.Clear();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                min = Vector3I.Min(min, block.Min);
+                                                max = Vector3I.Max(max, block.Max);
+
+                                                RemoveBlockInternal(block, close: true);
+                                                if (block.FatBlock != null)
+                                                    block.FatBlock.OnRemovedByCubeBuilder();
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
+            }
+            else
+            {
+                for (offset.X = 0; offset.X <= size.X; offset.X++)
+                    for (offset.Y = 0; offset.Y <= size.Y; offset.Y++)
+                        for (offset.Z = 0; offset.Z <= size.Z; offset.Z++)
+                        {
+                            if (!resultFailList.Contains(offset))
+                            {
+                                var loc = pos + (Vector3I)offset;
+
+                                var block = GetCubeBlock(loc);
+                                if (block != null)
+                                {
+                                    min = Vector3I.Min(min, block.Min);
+                                    max = Vector3I.Max(max, block.Max);
+
+                                    RemoveBlockInternal(block, close: true);
+                                    if (block.FatBlock != null)
+                                        block.FatBlock.OnRemovedByCubeBuilder();
+                                }
+                            }
+                        }
+            }
 
             Physics.AddDirtyArea(min, max);
+        }
+
+        private void RemoveMultiBlocks(ref Vector3I min, ref Vector3I max, HashSet<Tuple<MySlimBlock, ushort?>> tmpBlocksInMultiBlock)
+        {
+            foreach (var blockInMultiBlock in tmpBlocksInMultiBlock)
+            {
+                if (blockInMultiBlock.Item2 != null)
+                {
+                    RemoveBlockInCompound(blockInMultiBlock.Item1.Position, blockInMultiBlock.Item2.Value, ref min, ref max);
+                }
+                else
+                {
+                    min = Vector3I.Min(min, blockInMultiBlock.Item1.Min);
+                    max = Vector3I.Max(max, blockInMultiBlock.Item1.Max);
+
+                    RemoveBlockInternal(blockInMultiBlock.Item1, close: true);
+                    if (blockInMultiBlock.Item1.FatBlock != null)
+                        blockInMultiBlock.Item1.FatBlock.OnRemovedByCubeBuilder();
+                }
+            }
         }
 
         public void RazeBlock(Vector3I position)
@@ -2473,6 +2738,8 @@ namespace Sandbox.Game.Entities
             }
 
             Physics.AddDirtyArea(min, max);
+            if (this.IsStatic && MySession.Static.EnableStationVoxelSupport)
+                TestDynamic = true;
         }
 
         public void RazeGeneratedBlocks(List<Vector3I> locations)
@@ -2509,44 +2776,50 @@ namespace Sandbox.Game.Entities
 
             foreach (var tuple in locationsAndIds)
             {
-                var block = GetCubeBlock(tuple.Item1);
-                if (block != null && block.FatBlock is MyCompoundCubeBlock)
-                {
-                    MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-
-                    // Remove block in compound block
-                    MySlimBlock blockToRemove = compoundBlock.GetBlock(tuple.Item2);
-                    if (blockToRemove != null)
-                    {
-                        if (compoundBlock.Remove(blockToRemove))
-                        {
-                            removedBlocks.Add(tuple);
-
-                            min = Vector3I.Min(min, block.Min);
-                            max = Vector3I.Max(max, block.Max);
-
-                            if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                            {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
-                            }
-
-                            if (OnBlockRemoved != null)
-                                OnBlockRemoved(blockToRemove);
-                        }
-                    }
-
-                    // Remove compound if empty
-                    if (compoundBlock.GetBlocksCount() == 0)
-                    {
-                        RemoveBlockInternal(block, close: true);
-                        if (block.FatBlock != null)
-                            block.FatBlock.OnRemovedByCubeBuilder();
-                    }
-                }
+                RemoveBlockInCompound(tuple.Item1, tuple.Item2, ref min, ref max, removedBlocks);
             }
 
             m_dirtyRegion.AddCubeRegion(min, max);
             Physics.AddDirtyArea(min, max);
+        }
+
+        private void RemoveBlockInCompound(Vector3I position, ushort compoundBlockId, ref Vector3I min, ref Vector3I max, List<Tuple<Vector3I, ushort>> removedBlocks = null)
+        {
+            var block = GetCubeBlock(position);
+            if (block != null && block.FatBlock is MyCompoundCubeBlock)
+            {
+                MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+
+                // Remove block in compound block
+                MySlimBlock blockToRemove = compoundBlock.GetBlock(compoundBlockId);
+                if (blockToRemove != null)
+                {
+                    if (compoundBlock.Remove(blockToRemove))
+                    {
+                        if (removedBlocks != null)
+                            removedBlocks.Add(new Tuple<Vector3I, ushort>(position, compoundBlockId));
+
+                        min = Vector3I.Min(min, block.Min);
+                        max = Vector3I.Max(max, block.Max);
+
+                        if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
+                        {
+                            MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
+                        }
+
+                        if (OnBlockRemoved != null)
+                            OnBlockRemoved(blockToRemove);
+                    }
+                }
+
+                // Remove compound if empty
+                if (compoundBlock.GetBlocksCount() == 0)
+                {
+                    RemoveBlockInternal(block, close: true);
+                    if (block.FatBlock != null)
+                        block.FatBlock.OnRemovedByCubeBuilder();
+                }
+            }
         }
 
         public void RazeGeneratedBlocksInCompoundBlock(List<Tuple<Vector3I, ushort>> locationsAndIds)
@@ -2572,7 +2845,7 @@ namespace Sandbox.Game.Entities
 
                             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                             {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
+                                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
                             }
 
                             if (OnBlockRemoved != null)
@@ -2592,6 +2865,45 @@ namespace Sandbox.Game.Entities
 
             m_dirtyRegion.AddCubeRegion(min, max);
             Physics.AddDirtyArea(min, max);
+        }
+
+        public void RazeGeneratedBlocks(List<MySlimBlock> generatedBlocks)
+        {
+            ProfilerShort.Begin("MyCubeGrid.RazeGeneratedBlocks");
+            m_tmpRazeList.Clear();
+            m_tmpLocations.Clear();
+
+            foreach (var generatedBlock in generatedBlocks)
+            {
+                Debug.Assert(generatedBlock.BlockDefinition.IsGeneratedBlock);
+                var parentBlock = GetCubeBlock(generatedBlock.Position);
+
+                if (parentBlock != null)
+                {
+                    if (parentBlock.FatBlock is MyCompoundCubeBlock)
+                    {
+                        MyCompoundCubeBlock cb = parentBlock.FatBlock as MyCompoundCubeBlock;
+                        ushort? blockId = cb.GetBlockId(generatedBlock);
+                        Debug.Assert(blockId != null);
+                        if (blockId != null)
+                            m_tmpRazeList.Add(new Tuple<Vector3I, ushort>(generatedBlock.Position, blockId.Value));
+                    }
+                    else
+                    {
+                        m_tmpLocations.Add(generatedBlock.Position);
+                    }
+                }
+            }
+
+            if (m_tmpLocations.Count > 0)
+                RazeGeneratedBlocks(m_tmpLocations);
+
+            if (m_tmpRazeList.Count > 0)
+                RazeGeneratedBlocksInCompoundBlock(m_tmpRazeList);
+
+            m_tmpRazeList.Clear();
+            m_tmpLocations.Clear();
+            ProfilerShort.End();
         }
 
         public void ColorBlocks(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound)
@@ -2628,27 +2940,30 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Builds block without checking connectivity
         /// </summary>
-        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, MyInventory inventory, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
+        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, MyEntity builderEntity, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
         {
             ProfilerShort.Begin("BuildBlock");
+
+            MyBlockOrientation blockOrientation = new MyBlockOrientation(ref orientation);
             if (blockObjectBuilder == null)
             {
-                blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(blockDefinition, min, new MyBlockOrientation(ref orientation), entityId, owner, fullyBuilt: inventory == null || MySession.Static.SimpleSurvival);
+                blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(blockDefinition, min, blockOrientation, entityId, owner, fullyBuilt: builderEntity == null || !MySession.Static.SurvivalMode);
                 blockObjectBuilder.ColorMaskHSV = colorMaskHsv;
             }
             else
             {
-                if (inventory != null && !MySession.Static.SimpleSurvival)
-                {
-                    blockObjectBuilder.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
-                    blockObjectBuilder.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
-                }
-
                 blockObjectBuilder.Min = min;
                 blockObjectBuilder.Orientation = orientation;
             }
+            MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDefinition, builderEntity, blockObjectBuilder);
 
             MySlimBlock block = null;
+
+            if (Sync.IsServer)
+            {
+                Vector3I position = MySlimBlock.ComputePositionInGrid(new MatrixI(blockOrientation), blockDefinition, min);
+                MyCubeBuilder.BuildComponent.GetBlockPlacementMaterials(blockDefinition, position, blockObjectBuilder.BlockOrientation, this);
+            }
 
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && blockDefinition.CompoundTemplates != null && blockDefinition.CompoundTemplates.Length > 0)
             {
@@ -2674,7 +2989,8 @@ namespace Sandbox.Game.Entities
 
                             m_dirtyRegion.AddCube(min);
 
-                            Physics.AddDirtyBlock(existingSlimBlock);
+                            if (Physics != null)
+                                Physics.AddDirtyBlock(existingSlimBlock);
 
                             if (OnBlockAdded != null)
                                 OnBlockAdded(block);
@@ -2696,27 +3012,39 @@ namespace Sandbox.Game.Entities
             {
                 // We have to use block.CubeGrid instead of this because adding the block could have caused a grid merge
                 block.CubeGrid.BoundsInclude(block);
-                if(updateVolume)
+                if (updateVolume)
                     block.CubeGrid.UpdateGridAABB();
 
-                if (Sync.IsServer && inventory != null)
-                {
-                    inventory.RemoveItemsOfType(1, blockDefinition.Components[0].Definition.Id);
-                }
-
                 if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                    MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                    MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
+
+                if (Sync.IsServer)
+                {
+                    MyCubeBuilder.BuildComponent.AfterBlockBuild(block, builderEntity);
+                }
             }
 
             ProfilerShort.End();
             return block;
         }
 
-        internal bool AddExplosion(Vector3 pos, MyExplosionTypeEnum type, float radius)
+        internal bool AddExplosion(Vector3 pos, MyExplosionTypeEnum type, float radius, bool createParticles, bool createDebris)
         {
             // We don't want explosion on same cube too soon
             if (!m_explosions.AddInstance(TimeSpan.FromMilliseconds(700), pos, GridSize * 2))
                 return false;
+
+            MyExplosionFlags flags = MyExplosionFlags.AFFECT_VOXELS;
+
+            if (createParticles)
+            {
+                flags |= MyExplosionFlags.CREATE_PARTICLE_EFFECT;
+            }
+
+            if (createDebris)
+            {
+                flags |= MyExplosionFlags.CREATE_DEBRIS | MyExplosionFlags.CREATE_DECALS;
+            }
 
             var explosionSphere = new BoundingSphere(pos, radius);
             MyExplosionInfo explosionInfo = new MyExplosionInfo()
@@ -2725,7 +3053,7 @@ namespace Sandbox.Game.Entities
                 Damage = 1,
                 ExplosionSphere = explosionSphere,
                 ExcludedEntity = null,
-                ExplosionFlags = MyExplosionFlags.AFFECT_VOXELS | MyExplosionFlags.CREATE_DEBRIS | MyExplosionFlags.CREATE_DECALS | MyExplosionFlags.CREATE_PARTICLE_EFFECT,
+                ExplosionFlags = flags,
                 ExplosionType = type,
                 LifespanMiliseconds = MyExplosionsConstants.EXPLOSION_LIFESPAN,
                 ParticleScale = Math.Max(GridSizeEnum == MyCubeSize.Large ? 1 : 0.4f, Math.Min(radius / 2, 6)),
@@ -2813,6 +3141,26 @@ namespace Sandbox.Game.Entities
             {
                 Debug.Assert(result.CubeBlock.FatBlock == null || !result.CubeBlock.FatBlock.Closed);
                 return result.CubeBlock;
+            }
+
+            return null;
+        }
+
+        public MySlimBlock GetCubeBlock(Vector3I pos, ushort? compoundId)
+        {
+            if (compoundId == null)
+                return GetCubeBlock(pos);
+
+            MyCube result;
+            if (m_cubes.TryGetValue(pos, out result))
+            {
+                Debug.Assert(result.CubeBlock.FatBlock != null && !result.CubeBlock.FatBlock.Closed);
+
+                MyCompoundCubeBlock compound = result.CubeBlock.FatBlock as MyCompoundCubeBlock;
+                if (compound != null)
+                {
+                    return compound.GetBlock(compoundId.Value);
+                }
             }
 
             return null;
@@ -2908,7 +3256,7 @@ namespace Sandbox.Game.Entities
             return m_cubeBlocks;
         }
 
-        internal MyFatBlockReader<T> GetFatBlocks<T>()
+        public MyFatBlockReader<T> GetFatBlocks<T>()
             where T : MyCubeBlock
         {
             return new MyFatBlockReader<T>(this);
@@ -2919,13 +3267,21 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public bool CanHavePhysics()
         {
-            foreach (var block in m_cubeBlocks)
+            //TODO Temporary performance improvement - HasPhysics should be cached somehow
+            if (MyPerGameSettings.Game == GameEnum.SE_GAME)
             {
-                if (block.HasPhysics)
-                    return true;
-            }
+                foreach (var block in m_cubeBlocks)
+                {
+                    if (block.HasPhysics)
+                        return true;
+                }
 
-            return false;
+                return false;
+            }
+            else
+            {
+                return m_cubeBlocks.Count > 0;
+            }
         }
 
         /// <summary>
@@ -2986,7 +3342,7 @@ namespace Sandbox.Game.Entities
         public void ConvertToDynamic()
         {
             Debug.Assert(IsStatic);
-            if (!IsStatic || Physics == null) return;
+            if (!IsStatic || Physics == null || BlocksCount == 0) return;
 
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
             {
@@ -2994,70 +3350,75 @@ namespace Sandbox.Game.Entities
             }
 
             MyCubeGrid.StaticGrids.Remove(this);
-            Physics.Close();
-            Physics = null;
-
-            Physics = new MyGridPhysics(this);
-            foreach (var block in GetBlocks())
-            {
-                Physics.AddBlock(block);
-                if (block.FatBlock != null)
-                {
-                    if (block.FatBlock is MyLandingGear)
-                    {
-                        (block.FatBlock as MyLandingGear).EnqueueRetryLock();
-                    }
-                    else if (block.FatBlock is MyMotorStator)
-                    {
-                        (block.FatBlock as MyMotorStator).Detach();
-                    }
-                    else if (block.FatBlock is MyMotorRotor)
-                    {
-                        var rotor = (block.FatBlock as MyMotorRotor);
-                        if (rotor.Stator != null)
-                            rotor.Stator.Detach();
-                    }
-                    else if (block.FatBlock is MyShipConnector  && (block.FatBlock as MyShipConnector).InConstraint)
-                    {
-                        (block.FatBlock as MyShipConnector).Detach();
-                    }
-                }
-            }
-
+            SetInventoryMassDirty();
+            Physics.ConvertToDynamic(GridSizeEnum == MyCubeSize.Large);
             RaisePhysicsChanged();
         }
 
-        public void DoDamage(float damage, MyDestructionHelper.HitInfo hitInfo)
+        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null, long attackerId = 0)
         {
+            Debug.Assert(Sync.IsServer);
             Vector3I cubePos;
-            FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) / GridSize);
+            if (localPos.HasValue)
+                FixTargetCube(out cubePos, localPos.Value * GridSizeR);
+            else
+                FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) * GridSizeR);
+
             var cube = GetCubeBlock(cubePos);
+            //Debug.Assert(cube != null, "Cannot find block for damage!");
             if (cube != null)
             {
-                ApplyDestructionDeformation(cube, damage, hitInfo);
+                if (MyFakes.ENABLE_FRACTURE_COMPONENT)
+                {
+                    ushort? compoundId = null;
+                    MyCompoundCubeBlock compound = cube.FatBlock as MyCompoundCubeBlock;
+                    if (compound != null)
+                    {
+                        compoundId = Physics.GetContactCompoundId(cube.Position, hitInfo.Position);
+                        if (compoundId == null)
+                            return;
+
+                        var blockInCompound = compound.GetBlock(compoundId.Value);
+                        if (blockInCompound != null)
+                            cube = blockInCompound;
+                        else
+                            return;
+                    }
+                }
+
+                ApplyDestructionDeformation(cube, damage, hitInfo, attackerId);
             }
         }
 
-        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyDestructionHelper.HitInfo? hitInfo = null)
+        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null, long attackerId = 0)
         {
             if (MyPerGameSettings.Destruction)
             {
                 Debug.Assert(hitInfo.HasValue, "Destruction needs additional info");
-                block.DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
+                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo, attackerId);
             }
             else
             {
                 Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "ApplyDestructionDeformation is supposed to be only server method");
                 SyncObject.EnqueueDestructionDeformationBlock(block.Position);
-                ApplyDestructionDeformationInternal(block, true, damage);
+                ApplyDestructionDeformationInternal(block, true, damage, attackerId);
             }
         }
 
-        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f)
+        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f, long attackerId = 0)
         {
-            if (!MySession.Static.DestructibleBlocks)
+            if (!BlocksDestructionEnabled)
                 return 0;
 
+            // Allow mods to stop deformation
+            if (block.UseDamageSystem)
+            {
+                MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                if (damageInfo.Amount == 0f)
+                    return 0;
+            }
             m_totalBoneDisplacement = 0.0f;
 
             // TODO: Optimization. Cache bone changes (moves) and apply them only at the end
@@ -3113,7 +3474,14 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                (block as IMyDestroyableObject).DoDamage(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, true);
+                float damageAmount = m_totalBoneDisplacement * GridSize * 10.0f * damage;
+
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damageAmount, MyDamageType.Deformation, attackerId);
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                if (damageAmount > 0f)
+                    (block as IMyDestroyableObject).DoDamage(damageInfo.Amount, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }
@@ -3127,8 +3495,43 @@ namespace Sandbox.Game.Entities
             if (!Sync.IsServer)
                 return;
 
-            SyncObject.EnqueueDestroyedBlock(block.Position);
-            RemoveDestroyedBlockInternal(block);
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT)
+            {
+                var existingBlock = GetCubeBlock(block.Position);
+                if (existingBlock == block)
+                {
+                    SyncObject.EnqueueDestroyedBlockWithId(block.Position, null);
+                    RemoveDestroyedBlockInternal(block);
+                    Physics.AddDirtyBlock(block);
+                }
+                else
+                {
+                    var compound = existingBlock.FatBlock as MyCompoundCubeBlock;
+                    if (compound != null)
+                    {
+                        var compoundId = compound.GetBlockId(block);
+                        if (compoundId != null)
+                        {
+                            SyncObject.EnqueueDestroyedBlockWithId(block.Position, compoundId);
+                            RemoveDestroyedBlockInternal(block);
+                            Physics.AddDirtyBlock(block);
+                        }
+                    }
+                }
+
+                // Change fractures in block into pieces
+                var fractureComponent = block.GetFractureComponent();
+                if (fractureComponent != null)
+                {
+                    MyDestructionHelper.CreateFracturePiece(fractureComponent, true);
+                }
+            }
+            else
+            {
+                SyncObject.EnqueueDestroyedBlock(block.Position);
+                RemoveDestroyedBlockInternal(block);
+                Physics.AddDirtyBlock(block);
+            }
 
             if (!CanHavePhysics())
             {
@@ -3140,7 +3543,25 @@ namespace Sandbox.Game.Entities
         {
             ApplyDestructionDeformationInternal(block, false);
             (block as IMyDestroyableObject).OnDestroy();
-            RemoveBlockInternal(block, close: true);
+
+            var existingBlock = GetCubeBlock(block.Position);
+            if (existingBlock == block)
+            {
+                RemoveBlockInternal(block, close: true);
+            }
+            else if (existingBlock != null)
+            {
+                var compound = existingBlock.FatBlock as MyCompoundCubeBlock;
+                if (compound != null)
+                {
+                    var compoundId = compound.GetBlockId(block);
+                    if (compoundId != null)
+                    {
+                        Vector3I min = Vector3I.MaxValue, max = Vector3I.MinValue;
+                        RemoveBlockInCompound(block.Position, compoundId.Value, ref min, ref max);
+                    }
+                }
+            }
         }
 
         private bool ApplyTable(Vector3I cubePos, MyCubeGridDeformationTables.DeformationTable table, ref Vector3I dirtyMin, ref Vector3I dirtyMax, MyRandom random, float maxLinearDeviation, float angleDeviation)
@@ -3184,6 +3605,19 @@ namespace Sandbox.Game.Entities
             BlocksRemoved(blocksToRemove);
         }
 
+        void BlocksWithIdRemovedWithGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
+        {
+            EnableGenerators(true, true);
+
+            BlocksWithIdRemoved(blocksToRemove);
+        }
+
+        void BlocksWithIdRemovedWithoutGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
+        {
+            EnableGenerators(false, true);
+
+            BlocksWithIdRemoved(blocksToRemove);
+        }
 
         /// <summary>
         /// Client only method, not called on server
@@ -3199,6 +3633,38 @@ namespace Sandbox.Game.Entities
                     Physics.AddDirtyBlock(block);
                 }
             }
+
+            if (!CanHavePhysics())
+            {
+                Close();
+                return;
+            }
+        }
+
+        private void BlocksWithIdRemoved(List<MyCubeGrid.BlockPositionId> blocksToRemove)
+        {
+            Vector3I min = Vector3I.MaxValue;
+            Vector3I max = Vector3I.MinValue;
+
+            foreach (var posAndId in blocksToRemove)
+            {
+                if (posAndId.CompoundId > ushort.MaxValue)
+                {
+                    var block = GetCubeBlock(posAndId.Position);
+                    if (block != null)
+                    {
+                        RemoveBlockInternal(block, close: true);
+                        Physics.AddDirtyBlock(block);
+                    }
+                }
+                else
+                {
+                    RemoveBlockInCompound(posAndId.Position, (ushort)posAndId.CompoundId, ref min, ref max);
+                }
+            }
+
+            if (min != Vector3I.MaxValue)
+                Physics.AddDirtyArea(min, max);
 
             if (!CanHavePhysics())
             {
@@ -3226,6 +3692,28 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void BlocksDestroyedWithId(List<MyCubeGrid.BlockPositionId> blocksToRemove)
+        {
+            Vector3I min = Vector3I.MaxValue;
+            Vector3I max = Vector3I.MinValue;
+
+            foreach (var posAndId in blocksToRemove)
+            {
+                ushort? id = posAndId.CompoundId > ushort.MaxValue ? (ushort?)null : (ushort)posAndId.CompoundId;
+                var block = GetCubeBlock(posAndId.Position, id);
+                if (block != null)
+                {
+                    RemoveDestroyedBlockInternal(block);
+                    Physics.AddDirtyBlock(block);
+                }
+            }
+
+            if (!CanHavePhysics())
+            {
+                Close();
+            }
+        }
+
         private void BlocksDeformed(List<Vector3I> blockToDestroy)
         {
             foreach (var pos in blockToDestroy)
@@ -3239,9 +3727,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BlockIntegrityChanged(Vector3I pos, float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
+        private void BlockIntegrityChanged(Vector3I pos, ushort subBlockId, float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
         {
+            MyCompoundCubeBlock compoundBlock = null;
             var block = GetCubeBlock(pos);
+            if (block != null)
+                compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+            if (compoundBlock != null)
+                block = compoundBlock.GetBlock(subBlockId);
             //Debug.Assert(block != null, "Attempting to change integrity of a non-existent block!");
 
             if (block != null)
@@ -3250,14 +3743,39 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BlockStockpileChanged(Vector3I pos, List<MyStockpileItem> items)
+        private void BlockStockpileChanged(Vector3I pos, ushort subBlockId, List<MyStockpileItem> items)
         {
             var block = GetCubeBlock(pos);
+
+            MyCompoundCubeBlock compoundBlock = null;
+            if (block != null)
+                compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+            if (compoundBlock != null)
+                block = compoundBlock.GetBlock(subBlockId);
+
             Debug.Assert(block != null, "Attempting to change stockpile of a non-existent block!");
 
             if (block != null)
             {
                 block.ChangeStockpile(items);
+            }
+        }
+
+        private void FractureComponentRepaired(Vector3I pos, ushort subBlockId, long toolOwner)
+        {
+            Debug.Assert(!Sync.IsServer);
+
+            MyCompoundCubeBlock compoundBlock = null;
+            var block = GetCubeBlock(pos);
+            if (block != null)
+                compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+
+            if (compoundBlock != null)
+                block = compoundBlock.GetBlock(subBlockId);
+
+            if (block != null && block.FatBlock != null)
+            {
+                block.RepairFracturedBlock(toolOwner);
             }
         }
 
@@ -3271,6 +3789,8 @@ namespace Sandbox.Game.Entities
                 Debug.Fail("Block being removed twice");
                 return;
             }
+
+            RenderData.RemoveDecals(block.Position);
 
             ProfilerShort.Begin("Remove terminal block");
             var terminalBlock = block.FatBlock as MyTerminalBlock;
@@ -3304,11 +3824,10 @@ namespace Sandbox.Game.Entities
             RemoveBlockEdges(block);
             ProfilerShort.End();
 
-
             if (block.FatBlock != null)
             {
-                if (BlocksCounters.ContainsKey(block.FatBlock.GetType()))
-                    BlocksCounters[block.FatBlock.GetType()]--;
+                if (BlocksCounters.ContainsKey(block.BlockDefinition.Id.TypeId))
+                    BlocksCounters[block.BlockDefinition.Id.TypeId]--;
                 ProfilerShort.Begin("Unregister");
                 GridSystems.UnregisterFromSystems(block.FatBlock);
                 ProfilerShort.End();
@@ -3330,11 +3849,6 @@ namespace Sandbox.Game.Entities
                 if (block.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Remove(block.FatBlock);
                 ProfilerShort.End();
-            }
-
-            if (MyStructuralIntegrity.Enabled && StructuralIntegrity != null)
-            {
-                StructuralIntegrity.RemoveBlock(block);
             }
 
             ProfilerShort.Begin("Remove Neighbours");
@@ -3360,7 +3874,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
             {
                 ProfilerShort.Begin("CheckRemovedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(block);
+                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -3396,6 +3910,59 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public void RemoveBlockWithId(MySlimBlock block, bool updatePhysics = false)
+        {
+            var cb = GetCubeBlock(block.Min);
+            if (cb == null)
+                return;
+
+            // Prepare block from compound
+            MyCompoundCubeBlock compoundBlock = cb.FatBlock as MyCompoundCubeBlock;
+            ushort? compoundId = null;
+            if (compoundBlock != null)
+            {
+                compoundId = compoundBlock.GetBlockId(block);
+                Debug.Assert(compoundId != null, "Block not found in compound");
+                if (compoundId == null)
+                    return;
+            }
+
+            RemoveBlockWithId(block.Min, compoundId, updatePhysics: updatePhysics);
+        }
+
+        public void RemoveBlockWithId(Vector3I position, ushort? compoundId, bool updatePhysics = false)
+        {
+            // Client cannot remove blocks, only server
+            if (!Sync.IsServer)
+                return;
+
+            var block = GetCubeBlock(position);
+            if (block == null)
+                return;
+
+            SyncObject.EnqueueRemovedBlockWithId(block.Min, compoundId, m_generatorsEnabled);
+            if (compoundId != null)
+            {
+                Vector3I min = Vector3I.Zero, max = Vector3I.Zero;
+                RemoveBlockInCompound(block.Min, compoundId.Value, ref min, ref max);
+            }
+            else
+            {
+                RemoveBlockInternal(block, close: true);
+            }
+
+            if (updatePhysics)
+            {
+                this.Physics.AddDirtyBlock(block);
+            }
+
+            if (!CanHavePhysics())
+            {
+                Close();
+                return;
+            }
+        }
+
         public void UpdateBlockNeighbours(MySlimBlock block)
         {
             if (!m_cubeBlocks.Contains(block))
@@ -3414,7 +3981,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public Vector3 GetClosestCorner(Vector3I gridPos, Vector3 position)
         {
-            return gridPos * GridSize - Vector3.SignNonZero(gridPos * GridSize - position) * GridSize / 2;
+            return gridPos * GridSize - Vector3.SignNonZero(gridPos * GridSize - position) * GridSize * 0.5f;
         }
 
         public void DetectDisconnectsAfterFrame()
@@ -3487,6 +4054,8 @@ namespace Sandbox.Game.Entities
                     {
                         RemoveBlockEdges(block);
                     }
+
+                    block.UpdateMaxDeformation();
                 }
                 if (block != null && block.FatBlock != null)
                 {
@@ -3513,7 +4082,9 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("Rebuild dirty cells");
             Render.RebuildDirtyCells();
-            PositionComp.UpdateWorldVolume();
+            //no changes to volume actually made
+            //if they were it would be marked dirty
+            //PositionComp.UpdateWorldVolume();
             ProfilerShort.End();
         }
 
@@ -3841,28 +4412,31 @@ namespace Sandbox.Game.Entities
             return exists;
         }
 
-        public void GetExistingBones(Vector3I boneMin, Vector3I boneMax, Dictionary<Vector3I, MySlimBlock> resultSet)
+        public void GetExistingBones(Vector3I boneMin, Vector3I boneMax, Dictionary<Vector3I, MySlimBlock> resultSet, MyDamageInformation? damageInfo = null)
         {
             Vector3I cubeMin = Vector3I.Floor((boneMin - Vector3I.One) / (float)Skeleton.BoneDensity);
             Vector3I cubeMax = Vector3I.Ceiling((boneMax - Vector3I.One) / (float)Skeleton.BoneDensity);
-
+            MyDamageInformation info = damageInfo.HasValue ? damageInfo.Value : default(MyDamageInformation);
             resultSet.Clear();
-            Vector3I cube, boneBase, bone;
+            Vector3I cube, boneBase;
+            MyCube cubeInst;
             for (cube.X = cubeMin.X; cube.X <= cubeMax.X; cube.X++)
                 for (cube.Y = cubeMin.Y; cube.Y <= cubeMax.Y; cube.Y++)
                     for (cube.Z = cubeMin.Z; cube.Z <= cubeMax.Z; cube.Z++)
                     {
-                        MyCube cubeInst;
                         if (m_cubes.TryGetValue(cube, out cubeInst) && cubeInst.CubeBlock.UsesDeformation)
                         {
-                            // TODO: Optimize to one cycle (precalculate position)
+                            if (cubeInst.CubeBlock.UseDamageSystem && damageInfo.HasValue)
+                            {
+                                info.Amount = 1;
+                                MyDamageSystem.Static.RaiseBeforeDamageApplied(cubeInst.CubeBlock, ref info);
+                                if (info.Amount == 0)
+                                    continue;
+                            }
+
                             boneBase = cube * Skeleton.BoneDensity;
-                            for (bone.X = 0; bone.X <= Skeleton.BoneDensity; bone.X++)
-                                for (bone.Y = 0; bone.Y <= Skeleton.BoneDensity; bone.Y++)
-                                    for (bone.Z = 0; bone.Z <= Skeleton.BoneDensity; bone.Z++)
-                                    {
-                                        resultSet[boneBase + bone] = cubeInst.CubeBlock;
-                                    }
+                            foreach (var offset in Skeleton.BoneOffsets)
+                                resultSet[boneBase + offset] = cubeInst.CubeBlock;
                         }
                     }
         }
@@ -3897,7 +4471,7 @@ namespace Sandbox.Game.Entities
         /// Merges grids only when both are static
         /// Returns the merged grid (which does not necessarily have to be this grid)
         /// </summary>
-        internal MyCubeGrid DetectMerge(MySlimBlock block, MyCubeGrid ignore = null, List<MyEntity> nearEntities = null)
+        public MyCubeGrid DetectMerge(MySlimBlock block, MyCubeGrid ignore = null, List<MyEntity> nearEntities = null)
         {
             if (!this.IsStatic)
                 return null;
@@ -3932,7 +4506,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            if(clearNearEntities)
+            if (clearNearEntities)
                 nearEntities.Clear(); // We don't want to hold references to objects and keep them alive!
 
             ProfilerShort.End();
@@ -3946,12 +4520,20 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(this.WorldMatrix.Up == Vector3D.Up && this.WorldMatrix.Forward == Vector3D.Forward, "This grid must have identity rotation");
             //Debug.Assert(gridToMerge.WorldMatrix.Up == Vector3D.Up && gridToMerge.WorldMatrix.Forward == Vector3D.Forward, "Grid to merge must have identity rotation");
 
-            gridOffset = Vector3I.Round((gridToMerge.PositionComp.GetPosition() - this.PositionComp.GetPosition()) / GridSize);
+
+            gridOffset = Vector3I.Round((gridToMerge.PositionComp.GetPosition() - this.PositionComp.GetPosition()) * GridSizeR);
+
+            MatrixD otherMatrix = gridToMerge.PositionComp.WorldMatrix.GetOrientation();
+            if (this.PositionComp.WorldMatrix.GetOrientation().EqualsFast(ref otherMatrix) == false)
+            {
+                return false;
+            }
 
             var blockPosInSecondGrid = block.Position - gridOffset;
             Quaternion blockOrientation;
             block.Orientation.GetQuaternion(out blockOrientation);
-            return CheckConnectivity(gridToMerge, block.BlockDefinition, ref blockOrientation, ref blockPosInSecondGrid);
+            var mountPoints = block.BlockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio);
+            return CheckConnectivity(gridToMerge, block.BlockDefinition, mountPoints, ref blockOrientation, ref blockPosInSecondGrid);
         }
 
         public MatrixI CalculateMergeTransform(MyCubeGrid gridToMerge, Vector3I gridOffset)
@@ -4048,13 +4630,6 @@ namespace Sandbox.Game.Entities
             return MergeGridInternal(gridToMerge, ref transform);
         }
 
-        public MyCubeGrid MergeGrid_CopyPaste(MyCubeGrid gridToMerge, MatrixI mergeTransform)
-        {
-            Debug.Assert(Sync.IsServer);
-
-            SyncObject.MergeGrid(gridToMerge, ref mergeTransform);
-            return MergeGridInternal(gridToMerge, ref mergeTransform, false);
-        }
 
         public MyCubeGrid MergeGridInternal(MyCubeGrid gridToMerge, ref MatrixI transform, bool disableBlockGenerators = true)
         {
@@ -4073,7 +4648,6 @@ namespace Sandbox.Game.Entities
                 // We need to update physics immediatelly because of landing gears
                 Physics.UpdateShape();
             }
-
             UpdateDirty();
 
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS)
@@ -4199,6 +4773,7 @@ namespace Sandbox.Game.Entities
         static void MoveBlocksAndClose(MyCubeGrid from, MyCubeGrid to, MatrixI transform, bool disableBlockGenerators = true)
         {
             ProfilerShort.Begin("MoveBlocksAndClose");
+            from.MarkedForClose = true;
 
             if (disableBlockGenerators)
             {
@@ -4259,6 +4834,10 @@ namespace Sandbox.Game.Entities
                 ProfilerShort.End();
             }
             ProfilerShort.End();
+
+            var thrustComp = to.Components.Get<MyEntityThrustComponent>();
+            if(thrustComp != null)
+                to.GridSystems.ResourceDistributor.AddSink(thrustComp.ResourceSink);
 
             ProfilerShort.Begin("CopySkeleton");
             from.Skeleton.CopyTo(to.Skeleton, transform, to);
@@ -4326,7 +4905,7 @@ namespace Sandbox.Game.Entities
                     if (added)
                     {
                         if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                            MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                            MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
 
                         if (OnBlockAdded != null)
                         {
@@ -4361,11 +4940,13 @@ namespace Sandbox.Game.Entities
 
                 if (block.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Add(block.FatBlock);
-                if (block.FatBlock.GetType() != typeof(MyCubeBlock))
+
+                MyObjectBuilderType blockType = block.BlockDefinition.Id.TypeId;
+                if (blockType != typeof(MyObjectBuilder_CubeBlock))
                 {
-                    if (!BlocksCounters.ContainsKey(block.FatBlock.GetType()))
-                        BlocksCounters.Add(block.FatBlock.GetType(), 0);
-                    BlocksCounters[block.FatBlock.GetType()]++;
+                    if (!BlocksCounters.ContainsKey(blockType))
+                        BlocksCounters.Add(blockType, 0);
+                    BlocksCounters[blockType]++;
                 }
                 ProfilerShort.End();
             }
@@ -4404,7 +4985,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && blockAddSuccessfull)
             {
                 ProfilerShort.Begin("CheckAddedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -4496,14 +5077,14 @@ namespace Sandbox.Game.Entities
 
         private void DoLazyUpdates()
         {
-            if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && !m_smallToLargeConnectionsInitialized)
+            if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && !m_smallToLargeConnectionsInitialized && m_enableSmallToLargeConnections)
             {
-                MyCubeGridSmallToLargeConnection.Static.CheckGridSmallToLargeConnect(this);
+                MyCubeGridSmallToLargeConnection.Static.AddGridSmallToLargeConnection(this);
             }
             m_smallToLargeConnectionsInitialized = true;
 
             ProfilerShort.Begin("Send dirty bones");
-            if (BonesToSend.InputCount > 0 && m_bonesSendCounter++ > 10) // Only increment counter when there's something waiting
+            if (!MyPerGameSettings.Destruction && BonesToSend.InputCount > 0 && m_bonesSendCounter++ > 10) // Only increment counter when there's something waiting
             {
                 m_bonesSendCounter = 0;
                 var segments = BonesToSend.FindSegments(MyVoxelSegmentationType.Simple);
@@ -4515,16 +5096,21 @@ namespace Sandbox.Game.Entities
             }
             ProfilerShort.End();
 
-            foreach (var block in m_blocksForDamageApplication)
-                block.ApplyAccumulatedDamage();
-            m_blocksForDamageApplication.Clear();
+            if (m_blocksForDamageApplicationDirty)
+            {
+                foreach (var block in m_blocksForDamageApplication)
+                    block.ApplyAccumulatedDamage();
+                m_blocksForDamageApplication.Clear();
+                m_blocksForDamageApplicationDirty = false;
+            }
 
             if (m_disconnectsDirty)
             {
                 DetectDisconnects();
             }
 
-            Skeleton.RemoveUnusedBones(this);
+            if (!MyPerGameSettings.Destruction)
+                Skeleton.RemoveUnusedBones(this);
 
             if (m_ownershipManager.NeedRecalculateOwners)
             {
@@ -4540,11 +5126,13 @@ namespace Sandbox.Game.Entities
         internal void AddForDamageApplication(MySlimBlock block)
         {
             m_blocksForDamageApplication.Add(block);
+            m_blocksForDamageApplicationDirty = true;
         }
 
         internal void RemoveFromDamageApplication(MySlimBlock block)
         {
             m_blocksForDamageApplication.Remove(block);
+            m_blocksForDamageApplicationDirty = m_blocksForDamageApplication.Count > 0;
         }
 
         #region Ray casting, intersections and overlaps
@@ -4579,10 +5167,10 @@ namespace Sandbox.Game.Entities
                     {
                         int j = 0;
                         if (MySession.ControlledEntity != null)
-                            while (j < m_tmpHitList.Count - 1 && m_tmpHitList[j].HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity)
+                            while (j < m_tmpHitList.Count - 1 && m_tmpHitList[j].HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity)
                                 j++;
 
-                        if (m_tmpHitList[j].HkHitInfo.Body.GetEntity() != this)
+                        if (j > 1 && m_tmpHitList[j].HkHitInfo.GetHitEntity() != this)
                             continue;
                         var bias = new Vector3(GridSize, GridSize, GridSize) / 2;
                         var locPos = Vector3D.Transform(m_tmpHitList[j].Position, MatrixD.Invert(WorldMatrix));
@@ -4599,7 +5187,7 @@ namespace Sandbox.Game.Entities
                             if (cube == null)
                             {
                                 Vector3I nearest;
-                                FixTargetCube(out nearest, locPos / GridSize);
+                                FixTargetCube(out nearest, locPos * GridSizeR);
                                 if (!m_cubes.TryGetValue(nearest, out cube))
                                     continue;
                                 hit = nearest;
@@ -4857,39 +5445,206 @@ namespace Sandbox.Game.Entities
         public void GetBlocksInsideSphere(ref BoundingSphereD sphere, HashSet<MySlimBlock> blocks)
         {
             blocks.Clear();
+            if (PositionComp == null)
+                return;
+            BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
+
+            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            Vector3D min = box.Min;
+            Vector3D max = box.Max;
+            Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
+            Vector3I end = new Vector3I((int)Math.Round(max.X * GridSizeR), (int)Math.Round(max.Y * GridSizeR), (int)Math.Round(max.Z * GridSizeR));
+
+            Vector3I startIt = Vector3I.Min(start, end);
+            Vector3I endIt = Vector3I.Max(start, end);
+
+            var localSphere = new BoundingSphereD(box.Center, sphere.Radius);
+            BoundingBoxD blockBox = new BoundingBoxD();
+
+            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            var pos = it.Current;
+            for (; it.IsValid(); it.GetNext(out pos))
+            {
+                if (m_cubes.ContainsKey(pos))
+                {
+                    var block = m_cubes[pos].CubeBlock;
+                    blockBox.Min = block.Min * GridSize - GridSize * 0.5f;
+                    blockBox.Max = block.Max * GridSize + GridSize * 0.5f;
+                    if (blockBox.Intersects(localSphere))
+                    {
+                        blocks.Add(block);
+                    }
+                }
+            }
+        }
+
+        private void QuerySphere(BoundingSphereD sphere, HashSet<object> blocks)
+                        {
+            if (PositionComp == null)
+                return;
+            if(sphere.Contains(PositionComp.WorldVolume) == ContainmentType.Contains)
+            {
+                foreach (var fb in GetFatBlocks<MyCubeBlock>())
+                {
+                    blocks.Add(fb);
+                    foreach (var child in fb.Hierarchy.Children)
+                        blocks.Add(child.Container.Entity);
+                }
+                return;
+            }
 
             BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
 
             box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
-            Vector3I start = new Vector3I((int)Math.Round(min.X / GridSize), (int)Math.Round(min.Y / GridSize), (int)Math.Round(min.Z / GridSize));
-            Vector3I end = new Vector3I((int)Math.Round(max.X / GridSize), (int)Math.Round(max.Y / GridSize), (int)Math.Round(max.Z / GridSize));
+            Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
+            Vector3I end = new Vector3I((int)Math.Round(max.X * GridSizeR), (int)Math.Round(max.Y * GridSizeR), (int)Math.Round(max.Z * GridSizeR));
+
+            Vector3I startIt = Vector3I.Min(start, end);
+            Vector3I endIt = Vector3I.Max(start, end);
+            startIt = Vector3I.Max(startIt, Min);
+            endIt = Vector3I.Min(endIt, Max);
+            if (startIt.X > endIt.X || startIt.Y > endIt.Y || startIt.Z > endIt.Z)
+                return;
+
+            Vector3 halfGridSize = new Vector3(0.5f);
+            BoundingBox blockBB = new BoundingBox();
+            var localSphere = new BoundingSphere((Vector3)box.Center * GridSizeR, (float)sphere.Radius * GridSizeR);
+            if ((endIt - startIt).Size > m_cubeBlocks.Count)
+                            {
+                foreach(var fb in GetFatBlocks<MyCubeBlock>())
+                {
+                    blockBB.Min = fb.Min - halfGridSize;
+                    blockBB.Max = fb.Max + halfGridSize;
+                    if (localSphere.Intersects(blockBB))
+                    {
+                        blocks.Add(fb);
+                        foreach (var child in fb.Hierarchy.Children)
+                            blocks.Add(child.Container.Entity);
+                }
+                }
+                return;
+                            }
+
+            MyCube block;
+            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            var pos = it.Current;
+            for (; it.IsValid(); it.GetNext(out pos))
+            {
+                if (m_cubes.TryGetValue(pos, out block) && block.CubeBlock.FatBlock != null)
+                {
+                    if (blocks.Contains(block.CubeBlock.FatBlock))
+                        continue;
+                    blockBB.Min = block.CubeBlock.Min - halfGridSize;
+                    blockBB.Max = block.CubeBlock.Max + halfGridSize;
+                    if (localSphere.Intersects(blockBB))
+                    {
+                        blocks.Add(block.CubeBlock.FatBlock);
+                        foreach (var child in block.CubeBlock.FatBlock.Hierarchy.Children)
+                            blocks.Add(child.Container.Entity);
+                    }
+                }
+            }
+        }
+
+        private void QueryLine(LineD line, HashSet<MyLineSegmentOverlapResult<object>> blocks)
+        {
+            MyLineSegmentOverlapResult<object> overlap = new MyLineSegmentOverlapResult<object>();
+            BoundingBoxD bb = new BoundingBoxD();
+            MatrixD invWorld = PositionComp.WorldMatrixNormalizedInv;//MatrixD.Invert(WorldMatrix);
+            Vector3D localStart, localEnd;
+            Vector3D.Transform(ref line.From, ref invWorld, out localStart);
+            Vector3D.Transform(ref line.To, ref invWorld, out localEnd);
+
+            Vector3 halfGridSize = new Vector3(GridSize) * 0.5f;
+            RayD lineLoc = new RayD(localStart, Vector3D.Normalize(localEnd - localStart));
+            MyCube cube;
+            RayCastCells(line.From, line.To, m_cacheRayCastCells);
+            foreach (var pos in m_cacheRayCastCells)
+            {
+                if (m_cubes.TryGetValue(pos, out cube) && cube.CubeBlock.FatBlock != null)
+                {
+                    var block = cube.CubeBlock.FatBlock;
+                    overlap.Element = block;
+                    bb.Min = block.Min * GridSize - halfGridSize;
+                    bb.Max = block.Max * GridSize + halfGridSize;
+                    var intersect = lineLoc.Intersects(bb);
+                    if (!intersect.HasValue)
+                        continue;
+                    overlap.Distance = intersect.Value;
+                    blocks.Add(overlap);
+            }
+        }
+        }
+
+        private void QueryAABB(BoundingBoxD box, HashSet<object> blocks)
+        {
+            if (PositionComp == null)
+                return;
+            if(box.Contains(PositionComp.WorldAABB) == ContainmentType.Contains)
+            {
+                foreach (var fb in GetFatBlocks<MyCubeBlock>())
+                {
+                    blocks.Add(fb);
+                    foreach (var child in fb.Hierarchy.Children)
+                       blocks.Add(child.Container.Entity);
+                }
+                return;
+            }
+            var obb = MyOrientedBoundingBoxD.Create(box, PositionComp.WorldMatrixNormalizedInv);
+            obb.Center *= GridSizeR;
+            obb.HalfExtent *= GridSizeR;
+            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            Vector3D min = box.Min;
+            Vector3D max = box.Max;
+            Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
+            Vector3I end = new Vector3I((int)Math.Round(max.X * GridSizeR), (int)Math.Round(max.Y * GridSizeR), (int)Math.Round(max.Z * GridSizeR));
 
             Vector3I startIt = Vector3I.Min(start, end);
             Vector3I endIt = Vector3I.Max(start, end);
 
-            var localSphere = new BoundingSphereD(box.Center, sphere.Radius);
+            startIt = Vector3I.Max(startIt, Min);
+            endIt = Vector3I.Min(endIt, Max);
+            if (startIt.X > endIt.X || startIt.Y > endIt.Y || startIt.Z > endIt.Z)
+                return;
+            Vector3 halfGridSize = new Vector3(0.5f);
+            BoundingBoxD blockBB = new BoundingBoxD();
 
-            for (int i = startIt.X; i <= endIt.X; i++)
+            if ((endIt - startIt).Size > m_cubeBlocks.Count)
             {
-                for (int j = startIt.Y; j <= endIt.Y; j++)
+                foreach (var fb in GetFatBlocks<MyCubeBlock>())
                 {
-                    for (int k = startIt.Z; k <= endIt.Z; k++)
+                    blockBB.Min = fb.Min - halfGridSize;
+                    blockBB.Max = fb.Max + halfGridSize;
+                    if (obb.Intersects(ref blockBB))
                     {
-                        if (m_cubes.ContainsKey(new Vector3I(i, j, k)))
-                        {
-                            var block = m_cubes[new Vector3I(i, j, k)].CubeBlock;
-
-                            BoundingBoxD blockBox = new BoundingBoxD(block.Min * GridSize - GridSize / 2, block.Max * GridSize + GridSize / 2);
-                            if (blockBox.Intersects(localSphere))
-                            {
-                                blocks.Add(block);
-                            }
-                        }
-                    }
+                        blocks.Add(fb);
+                        foreach (var child in fb.Hierarchy.Children)
+                            blocks.Add(child.Container.Entity);
                 }
+                }
+                return;
             }
+
+            MyCube block;
+            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            var pos = it.Current;
+            for (; it.IsValid(); it.GetNext(out pos))
+                if (m_cubes.TryGetValue(pos, out block) && block.CubeBlock.FatBlock != null)
+                {
+                    var fatBlock = block.CubeBlock.FatBlock;
+                    if (blocks.Contains(fatBlock))
+                        continue;
+                    blockBB.Min = block.CubeBlock.Min - halfGridSize;
+                    blockBB.Max = block.CubeBlock.Max + halfGridSize;
+                    if (obb.Intersects(ref blockBB))
+                    {
+                        blocks.Add(fatBlock);
+                        foreach (var child in fatBlock.Hierarchy.Children)
+                            blocks.Add(child.Container.Entity);
+                }
+        }
         }
 
         /// <summary>
@@ -4927,8 +5682,8 @@ namespace Sandbox.Game.Entities
             Vector3D center;
             Vector3D.Transform(ref sphere3.Center, ref invWorldGrid, out center);
 
-            Vector3I start = new Vector3I((int)Math.Round(min.X / GridSize), (int)Math.Round(min.Y / GridSize), (int)Math.Round(min.Z / GridSize));
-            Vector3I end = new Vector3I((int)Math.Round(max.X / GridSize), (int)Math.Round(max.Y / GridSize), (int)Math.Round(max.Z / GridSize));
+            Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
+            Vector3I end = new Vector3I((int)Math.Round(max.X * GridSizeR), (int)Math.Round(max.Y * GridSizeR), (int)Math.Round(max.Z * GridSizeR));
 
             Vector3I startIt = Vector3I.Min(start, end);
             Vector3I endIt = Vector3I.Max(start, end);
@@ -5100,7 +5855,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public void RayCastCells(Vector3D worldStart, Vector3D worldEnd, List<Vector3I> outHitPositions, Vector3I? gridSizeInflate = null, bool havokWorld = false)
         {
-            MatrixD invWorld = MatrixD.Invert(WorldMatrix);
+            MatrixD invWorld = PositionComp.WorldMatrixNormalizedInv;//MatrixD.Invert(WorldMatrix);
             Vector3D localStart, localEnd;
             Vector3D.Transform(ref worldStart, ref invWorld, out localStart);
             Vector3D.Transform(ref worldEnd, ref invWorld, out localEnd);
@@ -5138,7 +5893,7 @@ namespace Sandbox.Game.Entities
             localStart += offset;
             localEnd += offset;
 
-            var min = - Vector3I.One;
+            var min = -Vector3I.One;
             var max = Vector3I.One;
             if (gridSizeInflate.HasValue)
             {
@@ -5217,10 +5972,7 @@ namespace Sandbox.Game.Entities
             [ProtoMember]
             public long Owner;
 
-            [ProtoMember]
-            public long BuilderEntityId;
-
-            public MyBlockLocation(MyDefinitionId blockDefinition, Vector3I min, Vector3I max, Vector3I center, Quaternion orientation, long entityId, long owner, long builder)
+            public MyBlockLocation(MyDefinitionId blockDefinition, Vector3I min, Vector3I max, Vector3I center, Quaternion orientation, long entityId, long owner)
             {
                 BlockDefinition = blockDefinition;
                 Min = min;
@@ -5229,9 +5981,19 @@ namespace Sandbox.Game.Entities
                 Orientation = orientation;
                 EntityId = entityId;
                 Owner = owner;
-                BuilderEntityId = builder;
             }
         }
+
+        [ProtoContract]
+        public struct BlockPositionId
+        {
+            [ProtoMember]
+            public Vector3I Position;
+
+            [ProtoMember]
+            public uint CompoundId;
+        }
+
 
         private enum NeighborOffsetIndex
         {
@@ -5268,7 +6030,8 @@ namespace Sandbox.Game.Entities
             Damage,
             ConstructionBegin,
             ConstructionEnd,
-            ConstructionProcess
+            ConstructionProcess,
+            Repair
         }
 
         private struct MyNeighbourCachedBlock
@@ -5374,10 +6137,10 @@ namespace Sandbox.Game.Entities
         {
             MyCubeGrid m_grid;
 
-            public override void OnAddedToContainer(Common.Components.MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_grid = container.Entity as MyCubeGrid;
+                base.OnAddedToContainer();
+                m_grid = Container.Entity as MyCubeGrid;
             }
 
             public override BoundingBox LocalAABBHr
@@ -5401,10 +6164,17 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            protected override void OnWorldPositionChanged(object source)
+            {
+                m_grid.m_worldPositionChanged = true;
+                base.OnWorldPositionChanged(source);
+            }
+
         }
 
         public MyFracturedBlock CreateFracturedBlock(MyObjectBuilder_FracturedBlock fracturedBlockBuilder, Vector3I position)
         {
+            Debug.Assert(!MyFakes.ENABLE_FRACTURE_COMPONENT);
             ProfilerShort.Begin("CreateFractureBlockBuilder");
             var defId = new Definitions.MyDefinitionId(typeof(MyObjectBuilder_FracturedBlock), "FracturedBlockLarge");
             var def = Sandbox.Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(defId);
@@ -5412,13 +6182,14 @@ namespace Sandbox.Game.Entities
             MyCube oldBlock;
             if (m_cubes.TryGetValue(bPos, out oldBlock))
                 RemoveBlockInternal(oldBlock.CubeBlock, close: true);
+            fracturedBlockBuilder.CreatingFracturedBlock = true;
 
             var sb = AddBlock(fracturedBlockBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             System.Diagnostics.Debug.Assert(sb != null, "Error created fractured block!");
             if (sb != null)
             {
                 var fb = sb.FatBlock as MyFracturedBlock;
-              
+
 
                 fb.Render.UpdateRenderObject(true);
                 ProfilerShort.End();
@@ -5432,6 +6203,7 @@ namespace Sandbox.Game.Entities
 
         private MyFracturedBlock CreateFracturedBlock(MyFracturedBlock.Info info)// Havok.HkdBreakableShape shape, Vector3I pos)
         {
+            Debug.Assert(!MyFakes.ENABLE_FRACTURE_COMPONENT);
             ProfilerShort.Begin("CreateFractureBlock");
             var defId = new Definitions.MyDefinitionId(typeof(MyObjectBuilder_FracturedBlock), "FracturedBlockLarge");
             var def = Sandbox.Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(defId);
@@ -5442,6 +6214,7 @@ namespace Sandbox.Game.Entities
 
             var blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(def, bPos, new MyBlockOrientation(ref  Quaternion.Identity), 0, 0, true);
             blockObjectBuilder.ColorMaskHSV = Vector3.Zero;
+            (blockObjectBuilder as MyObjectBuilder_FracturedBlock).CreatingFracturedBlock = true;
 
             var sb = AddBlock(blockObjectBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             if (sb == null)
@@ -5454,6 +6227,8 @@ namespace Sandbox.Game.Entities
             var fb = sb.FatBlock as MyFracturedBlock;
             fb.OriginalBlocks = info.OriginalBlocks;
             fb.Orientations = info.Orientations;
+            Debug.Assert(info.MultiBlocks == null || info.MultiBlocks.Count == fb.OriginalBlocks.Count);
+            fb.MultiBlocks = info.MultiBlocks;
 
             ProfilerShort.Begin("SetRenderData");
             fb.SetDataFromHavok(info.Shape, info.Compound);
@@ -5472,13 +6247,14 @@ namespace Sandbox.Game.Entities
         }
 
         bool m_generatorsEnabled = true;
-        public void EnableGenerators(bool enable, bool fromServer = false)
+        public bool EnableGenerators(bool enable, bool fromServer = false)
         {
             System.Diagnostics.Debug.Assert(Sync.IsServer || fromServer, "Cannot change this on client");
 
+            bool oldEnabled = m_generatorsEnabled;
+
             if (Sync.IsServer || fromServer)
             {
-
                 if (m_generatorsEnabled != enable)
                 {
                     AdditionalModelGenerators.ForEach(g => g.EnableGenerator(enable));
@@ -5486,6 +6262,314 @@ namespace Sandbox.Game.Entities
 
                     //if (Sync.IsServer)
                     //    MySyncDestructions.EnableGenerators(this, enable);
+                }
+            }
+
+            return oldEnabled;
+        }
+
+        // Returns generating block (not compound block, but block inside) from generated one. Can return also MyFracturedBlock!
+        public MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock)
+        {
+            if (generatedBlock == null || !generatedBlock.BlockDefinition.IsGeneratedBlock)
+                return null;
+
+            foreach (var generator in AdditionalModelGenerators)
+            {
+                var generatingBlock = generator.GetGeneratingBlock(generatedBlock);
+                if (generatingBlock != null)
+                    return generatingBlock;
+            }
+
+            return null;
+        }
+
+        private static readonly Vector3I[] m_tmpBlockSurroundingOffsets = new Vector3I[]
+        {
+            new Vector3I(0, 0, 0),
+            new Vector3I(1, 0, 0),
+            new Vector3I(-1, 0, 0),
+            new Vector3I(0, 0, 1),
+            new Vector3I(0, 0, -1),
+            new Vector3I(1, 0, 1),
+            new Vector3I(-1, 0, 1),
+            new Vector3I(1, 0, -1),
+            new Vector3I(-1, 0, -1),
+
+            new Vector3I(0, 1, 0),
+            new Vector3I(1, 1, 0),
+            new Vector3I(-1, 1, 0),
+            new Vector3I(0, 1, 1),
+            new Vector3I(0, 1, -1),
+            new Vector3I(1, 1, 1),
+            new Vector3I(-1, 1, 1),
+            new Vector3I(1, 1, -1),
+            new Vector3I(-1, 1, -1),
+
+            new Vector3I(0, -1, 0),
+            new Vector3I(1, -1, 0),
+            new Vector3I(-1, -1, 0),
+            new Vector3I(0, -1, 1),
+            new Vector3I(0, -1, -1),
+            new Vector3I(1, -1, 1),
+            new Vector3I(-1, -1, 1),
+            new Vector3I(1, -1, -1),
+            new Vector3I(-1, -1, -1),
+        };
+
+        /// <summary>
+        /// Returns array of generated blocks from given generating block. 
+        /// </summary>
+        public void GetGeneratedBlocks(MySlimBlock generatingBlock, List<MySlimBlock> outGeneratedBlocks)
+        {
+            ProfilerShort.Begin("MyCubeGrid.GetGeneratedBlocks");
+            Debug.Assert(!(generatingBlock.FatBlock is MyCompoundCubeBlock));
+
+            outGeneratedBlocks.Clear();
+
+            if (generatingBlock == null || (generatingBlock.FatBlock is MyCompoundCubeBlock))
+                return;
+
+            if (generatingBlock.BlockDefinition.IsGeneratedBlock || generatingBlock.BlockDefinition.GeneratedBlockDefinitions == null
+                || generatingBlock.BlockDefinition.GeneratedBlockDefinitions.Length == 0)
+                return;
+
+            foreach (var offset in m_tmpBlockSurroundingOffsets)
+            {
+                var surroundingBlock = generatingBlock.CubeGrid.GetCubeBlock(generatingBlock.Position + offset);
+                if (surroundingBlock == null || surroundingBlock == generatingBlock)
+                    continue;
+
+                if (surroundingBlock.FatBlock is MyCompoundCubeBlock)
+                {
+                    var compoundBlock = surroundingBlock.FatBlock as MyCompoundCubeBlock;
+                    m_tmpSlimBlocks.Clear();
+
+                    foreach (var blockInCompound in compoundBlock.GetBlocks(m_tmpSlimBlocks))
+                    {
+                        if (blockInCompound == generatingBlock || !blockInCompound.BlockDefinition.IsGeneratedBlock)
+                            continue;
+
+                        foreach (var generator in AdditionalModelGenerators)
+                        {
+                            var localGeneratingBlock = generator.GetGeneratingBlock(blockInCompound);
+                            if (generatingBlock != localGeneratingBlock)
+                                continue;
+
+                            outGeneratedBlocks.Add(blockInCompound);
+                        }
+
+                    }
+
+                    m_tmpSlimBlocks.Clear();
+                }
+                else
+                {
+                    if (!surroundingBlock.BlockDefinition.IsGeneratedBlock)
+                        continue;
+
+                    foreach (var generator in AdditionalModelGenerators)
+                    {
+                        var localGeneratingBlock = generator.GetGeneratingBlock(surroundingBlock);
+                        if (generatingBlock != localGeneratingBlock)
+                            continue;
+
+                        outGeneratedBlocks.Add(surroundingBlock);
+                    }
+                }
+            }
+            ProfilerShort.End();
+        }
+
+        public void OnIntegrityChanged(MySlimBlock block)
+        {
+            if (OnBlockIntegrityChanged != null)
+                OnBlockIntegrityChanged(block);
+        }
+
+        public void PasteBlocksToGrid(List<MyObjectBuilder_CubeGrid> gridsToMerge, long inventoryEntityId)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.PasteBlocksToGridServer_Implementation, gridsToMerge, inventoryEntityId);
+        }
+
+        [Event, Reliable, Server]
+        private void PasteBlocksToGridServer_Implementation(List<MyObjectBuilder_CubeGrid> gridsToMerge, long inventoryEntityId)
+        {
+            PasteBlocks(gridsToMerge, true);
+            MyEntity entity;
+            if (MyEntities.TryGetEntityById(inventoryEntityId, out entity) && entity != null)
+            {
+                MyInventoryBase buildInventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(entity);
+                if (buildInventory != null)
+                {
+                    MyGridClipboard.CalculateItemRequirements(gridsToMerge, m_buildComponents);
+                    foreach (var item in m_buildComponents.TotalMaterials)
+                    {
+                        buildInventory.RemoveItemsOfType(item.Value, item.Key);
+                    }
+                }
+            }
+
+            MyMultiplayer.RaiseEvent(this, x => x.PasteBlocksToGridClient_Implementation, gridsToMerge);
+        }
+
+        [Event, Reliable, Broadcast]
+        private void PasteBlocksToGridClient_Implementation(List<MyObjectBuilder_CubeGrid> gridsToMerge)
+        {
+            PasteBlocks(gridsToMerge, false);
+        }
+
+        public void UpdateOxygenAmount(float[] oxygenAmount)
+        {
+            Debug.Assert(Sync.IsServer);
+            Debug.Assert(MySession.Static.Settings.EnableOxygen);
+            MyMultiplayer.RaiseEvent(this, x => x.UpdateOxygenAmount_Implementation, oxygenAmount);
+        }
+
+        // TODO: Make unreliable!
+        [Event, Reliable, Broadcast]
+        private void UpdateOxygenAmount_Implementation(float[] oxygenAmount)
+        {
+            Debug.Assert(MySession.Static.Settings.EnableOxygen);
+            GridSystems.GasSystem.UpdateOxygenAmount(oxygenAmount);
+        }
+
+        private void PasteBlocks(List<MyObjectBuilder_CubeGrid> gridsToMerge, bool remap)
+        {
+            MyCubeGrid firstEntity = null;
+            int i = 0;
+            foreach (var gridbuilder in gridsToMerge)
+            {
+                if (remap)
+                {
+                    MyEntities.RemapObjectBuilder(gridbuilder);
+                }
+                var pastedGrid = MyEntities.CreateFromObjectBuilder(gridbuilder) as MyCubeGrid;
+                if (i == 0)
+                {
+                    firstEntity = pastedGrid;
+                }
+                i++;
+                MyEntities.Add(pastedGrid);
+            }
+
+            MatrixI mergingTransform = CalculateMergeTransform(firstEntity, WorldToGridInteger(firstEntity.PositionComp.GetPosition()));
+            MergeGridInternal(firstEntity, ref mergingTransform, false);
+        }
+
+        public static bool CanPasteGrid()
+        {
+            return MySession.Static.CreativeMode && MySession.Static.EnableCopyPaste;
+        }
+
+        /// <summary>
+        /// Returns biggest grid in physical group by AABB volume
+        /// </summary>
+        public MyCubeGrid GetBiggestGridInGroup()
+        {
+            MyCubeGrid biggestGridInGroup = this;
+            double maxVolume = 0;
+            foreach (var grid in MyCubeGridGroups.Static.Physical.GetGroup(this).Nodes)
+            {
+                var volume = grid.NodeData.PositionComp.WorldAABB.Size.Volume;
+                if (volume > maxVolume)
+                {
+                    maxVolume = volume;
+                    biggestGridInGroup = grid.NodeData;
+                }
+            }
+            return biggestGridInGroup;
+        }
+
+        public void ConvertFracturedBlocksToComponents()
+        {
+            Debug.Assert(Sync.IsServer);
+
+            var fracturedBlocks = new List<MyFracturedBlock>();
+            foreach (var block in m_cubeBlocks) 
+            {
+                MyFracturedBlock fb = block.FatBlock as MyFracturedBlock;
+                if (fb != null)
+                    fracturedBlocks.Add(fb);
+            }
+
+            bool oldEnabled = EnableGenerators(false);
+            foreach (var fb in fracturedBlocks)
+            {
+                var convertedBuilder = fb.ConvertToOriginalBlocksWithFractureComponent();
+
+                RemoveBlockInternal(fb.SlimBlock, true, markDirtyDisconnects: false);
+
+                if (convertedBuilder != null)
+                    AddBlock(convertedBuilder, false); 
+            }
+            EnableGenerators(oldEnabled);
+        }
+
+        public static bool IsGridInCompleteState(MyCubeGrid grid)
+        {
+            foreach (var block in grid.CubeBlocks)
+            {
+                if (!block.IsFullIntegrity || block.BuildLevelRatio != 1.0f)
+                    return false;
+            }
+
+            return true;
+        }
+
+        [Event, Reliable, Server]
+        public static void TryPasteGrid_Implementation(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId)
+        {
+            MyCubeGrid firstEntity = null;
+            int i = 0;
+            MyEntities.RemapObjectBuilderCollection(entities);
+            foreach (var entity in entities)
+            {            
+                MySandboxGame.Log.WriteLine("CreateCompressedMsg: Type: " + entity.GetType().Name.ToString() + "  Name: " + entity.Name + "  EntityID: " + entity.EntityId.ToString("X8"));
+                var pastedGrid = MyEntities.CreateFromObjectBuilder(entity) as MyCubeGrid;
+                if (i == 0)
+                {
+                    i++;
+                    firstEntity = pastedGrid;
+                }
+
+                if (MySession.Static.EnableStationVoxelSupport && pastedGrid.IsStatic)
+                {
+                    pastedGrid.TestDynamic = true;
+                }
+
+                MyEntities.Add(pastedGrid);
+
+                if (!pastedGrid.IsStatic && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+                {
+                    //  pastedGrid.Physics.LinearVelocity = m_objectVelocity;
+                }
+
+                if (!pastedGrid.IsStatic && MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null
+                    && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+                {
+                    pastedGrid.Physics.AngularVelocity = MySession.ControlledEntity.Entity.Physics.AngularVelocity;
+                }
+
+                if (detectDisconnects)
+                {
+                    pastedGrid.DetectDisconnectsAfterFrame();
+                }
+
+                MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(entity.EntityId) + ") InScene(" + ((entity.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
+            }
+
+            MyEntity inventoryOwner;
+            if (MyEntities.TryGetEntityById(inventoryEntityId, out inventoryOwner) && inventoryOwner != null)
+            {
+                MyInventoryBase buildInventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(inventoryOwner);
+                if (buildInventory != null)
+                {
+                    MyGridClipboard.CalculateItemRequirements(entities, m_buildComponents);
+                    foreach (var item in m_buildComponents.TotalMaterials)
+                    {
+                        buildInventory.RemoveItemsOfType(item.Value, item.Key);
+                    }
                 }
             }
         }

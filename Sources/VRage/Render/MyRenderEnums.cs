@@ -22,39 +22,44 @@ namespace VRageRender
         NeedsResolveCastShadow = 1 << 1,
 
         /// <summary>
-        /// Tells if this object is visible from sun. If not, it does not casts shadows
-        /// </summary>
-        CastShadowsResolved = 1 << 2,
-
-        /// <summary>
         /// Casts only one raycast to determine shadow casting
         /// </summary>
-        FastCastShadowResolve = 1 << 3,
+        FastCastShadowResolve = 1 << 2,
+
+        /// <summary>
+        /// Tells if this object should cast shadows
+        /// </summary>
+        CastShadows = 1 << 3,
 
         /// <summary>
         /// Specifies whether draw this entity or not.
         /// </summary>
         Visible = 1 << 4,
 
+		/// <summary>
+		/// Specifies whether this entity should be drawn even when it is outside the set view distance
+		/// </summary>
+		DrawOutsideViewDistance = 1 << 5,
+
         /// <summary>
         /// Specifies whether entity is "near", near entities are cockpit and weapons, these entities are rendered in special way
         /// </summary>
-        Near = 1 << 8,
-
-        /// <summary>
-        /// Tells if this object should cast shadows
-        /// </summary>
-        CastShadows = 1 << 9,
+        Near = 1 << 6,
 
         /// <summary>
         /// Tells if this object should use PlayerHeadMatrix as matrix for draw
         /// </summary>
-        UseCustomDrawMatrix = 1 << 10,
+        UseCustomDrawMatrix = 1 << 7,
 
         /// <summary>
         /// Use local AABB box for shadow LOD
         /// </summary>
-        ShadowLodBox = 1 << 11,
+        ShadowLodBox = 1 << 8,
+
+		/// <summary>
+		/// No culling of back faces
+		/// </summary>
+		NoBackFaceCulling = 1 << 9,
     }
 
 
@@ -70,7 +75,6 @@ namespace VRageRender
         LOD0,     //  Use when cell contains data without LOD, so they are as they are
         LOD1,         //  Use when cell contains LOD-ed data (less detail, ...)
         LOD_NEAR,    // Used for cockpit and weapons
-        LOD_BACKGROUND  //used for planets
     }
 
     /// <summary>

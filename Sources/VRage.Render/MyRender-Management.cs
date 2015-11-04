@@ -447,11 +447,6 @@ namespace VRageRender
                         }
                     }
 
-                    if (renderObject is MyRenderAtmosphere)
-                    {
-                        renderObject.ProxyData = m_atmospherePurunnigStructure.AddProxy(ref aabb, renderObject, 0, rebalance);
-                    }
-                    else
                     {
                         if (mostSuitableCO != null)
                         {
@@ -567,11 +562,6 @@ namespace VRageRender
                     }
                     else
                     {
-                        if (renderObject is MyRenderAtmosphere)
-                        {
-                            m_atmospherePurunnigStructure.RemoveProxy(renderObject.ProxyData);
-                        }
-                        else
                         {
                             m_prunningStructure.RemoveProxy(renderObject.ProxyData);
                         }
@@ -799,7 +789,6 @@ namespace VRageRender
             // }
 
         }
-
 
         public static MyRenderObject GetAnyIntersectionWithLine(MyDynamicAABBTreeD tree, ref VRageMath.LineD line, MyRenderObject ignoreObject0, MyRenderObject ignoreObject, List<MyLineSegmentOverlapResult<MyElement>> elementList)
         {

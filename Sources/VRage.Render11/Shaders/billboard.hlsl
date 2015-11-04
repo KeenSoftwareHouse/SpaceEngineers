@@ -14,7 +14,7 @@ struct BillboardData
 	float _padding1;
 };
 
-cbuffer CustomProjections : register ( b3 )
+cbuffer CustomProjections : register ( b2 )
 {
 	matrix view_projection[32];
 };
@@ -124,13 +124,16 @@ float4 ps(VsOut vertex) : SV_Target0
 		//billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
 		float3 N = normalize(BillboardBuffer[vertex.index].normal);
 		float3 V = normalize(get_camera_position() - vertex.wposition);
-		float3 r = ambient_specular(0.04, 0.95f, N, V);
-		float3 c = lerp(billboard_color.xyz, r, reflective);
+		float3 r = ambient_specular(0.04f, 0.95f, N, V);
+		float3 c = lerp(billboard_color.xyz * billboard_color.w, r, reflective);
 
 		float4 dirt = sample;
 		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
 
-		return float4(cDirt, max(dirt.w, billboard_color.w));	
+		float4 finalR = float4(cDirt, max(dirt.w, billboard_color.w));
+		finalR.w *= 1.65f;
+		finalR.xyz *= finalR.w * 0.25f;
+		return finalR;	
 	}
 
 #endif

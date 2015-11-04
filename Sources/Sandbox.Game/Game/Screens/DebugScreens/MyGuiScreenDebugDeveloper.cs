@@ -57,7 +57,6 @@ namespace Sandbox.Game.Gui
             public List<MyGuiControlBase> ControlList;
         };
 
-
         //Main groups
         static MyDevelopGroup s_debugDrawGroup = new MyDevelopGroup("Debug draw");
         static MyDevelopGroup s_performanceGroup = new MyDevelopGroup("Performance");
@@ -73,6 +72,20 @@ namespace Sandbox.Game.Gui
         static MyDevelopGroup s_activeDevelopGroup;
         static Dictionary<string, MyDevelopGroup> s_developGroups = new Dictionary<string, MyDevelopGroup>();
         static Dictionary<string, SortedDictionary<string, Type>> s_developScreenTypes = new Dictionary<string, SortedDictionary<string, Type>>();
+
+        static bool m_profilerEnabled = false;
+
+        static bool EnableProfiler
+        {
+            get { return VRageRender.Profiler.MyRenderProfiler.ProfilerVisible; }
+            set
+            {
+                if(VRageRender.Profiler.MyRenderProfiler.ProfilerVisible != value)
+                {
+                    VRageRender.MyRenderProxy.RenderProfilerInput(VRageRender.RenderProfilerCommand.Enable, 0);
+                }
+            }
+        }
 
         private static void RegisterScreensFromAssembly(Assembly assembly)
         {
@@ -106,6 +119,7 @@ namespace Sandbox.Game.Gui
         {
             RegisterScreensFromAssembly(Assembly.GetExecutingAssembly());
             RegisterScreensFromAssembly(MyPlugins.GameAssembly);
+            RegisterScreensFromAssembly(MyPlugins.SandboxAssembly);
             RegisterScreensFromAssembly(MyPlugins.UserAssembly);
 
             s_developGroups.Add(s_debugInputGroup.Name, s_debugInputGroup);
@@ -119,7 +133,7 @@ namespace Sandbox.Game.Gui
         /// Initializes a new instance of the <see cref="MyGuiScreenDebugDeveloper"/> class.
         /// </summary>
         public MyGuiScreenDebugDeveloper()
-            : base(new Vector2(.5f, .5f), new Vector2(0.35f, 0.9f), 0.35f * Color.Yellow.ToVector4(), true)
+            : base(new Vector2(.5f, .5f), new Vector2(0.35f, 1.0f), 0.35f * Color.Yellow.ToVector4(), true)
         {
             // This disable drawing of the background image as well:
             m_backgroundColor = null;
@@ -150,12 +164,14 @@ namespace Sandbox.Game.Gui
                 }
             }
 
-            AddCaption("Developer screen", captionTextColor: Color.Yellow.ToVector4());
+            float heightOffset = -0.02f;
+            AddCaption("Developer screen", captionTextColor: Color.Yellow.ToVector4(), captionOffset: new Vector2(0, heightOffset));
 
             m_scale = 0.9f;
             m_closeOnEsc = true;
 
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.03f, 0.1f);
+            m_currentPosition.Y += heightOffset;
 
             // First row of buttons.
             float buttonOffset = 0;
@@ -204,7 +220,7 @@ namespace Sandbox.Game.Gui
                 var position = new Vector2(-0.03f + m_currentPosition.X + buttonOffset, m_currentPosition.Y);
                 developerGroup.GroupControl = new MyGuiControlButton(
                     position: position,
-                    colorMask: new Vector4(1,1,0.5f,1),
+                    colorMask: new Vector4(1, 1, 0.5f, 1),
                     text: new StringBuilder(developerGroup.Name),
                     textScale: MyGuiConstants.DEFAULT_TEXT_SCALE * MyGuiConstants.DEBUG_BUTTON_TEXT_SCALE * m_scale * 1.2f,
                     onButtonClick: OnClickGroup,
@@ -251,9 +267,10 @@ namespace Sandbox.Game.Gui
         {
             //Debug draw
             AddCheckBox("Debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.ENABLE_DEBUG_DRAW), true, s_debugDrawGroup.ControlList);
-            AddCheckBox("Draw physics primitives", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES), true, s_debugDrawGroup.ControlList);
+            AddCheckBox("Draw physics", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_PHYSICS), true, s_debugDrawGroup.ControlList);
             AddCheckBox("Audio debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_AUDIO), true, s_debugDrawGroup.ControlList);
-//            AddCheckBox(new StringBuilder("Flatten primitive hierarchy"), null, MemberHelper.GetMember(() => MyPhysicsBody.DebugDrawFlattenHierarchy), true, s_debugDrawGroup.Item2);
+            AddCheckBox("Profiler", () => EnableProfiler, (v) => EnableProfiler = v, true, s_debugDrawGroup.ControlList);
+            // AddCheckBox(new StringBuilder("Flatten primitive hierarchy"), null, MemberHelper.GetMember(() => MyPhysicsBody.DebugDrawFlattenHierarchy), true, s_debugDrawGroup.Item2);
 
             m_currentPosition.Y += 0.01f;
         }

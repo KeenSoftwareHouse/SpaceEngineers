@@ -1,76 +1,118 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using System.Text;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.World;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using VRageMath;
-using Sandbox.Common;
-using Sandbox.ModAPI.Ingame;
-using VRage;
-using Sandbox.Game.Localization;
-using VRage.Utils;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
+using Sandbox.Game.Localization;
+using Sandbox.Game.World;
+using Sandbox.ModAPI.Ingame;
+using VRage;
+using VRage.Game.ObjectBuilders.Definitions;
+using VRage.ModAPI;
+using VRage.Utils;
+using VRageMath;
+using VRageRender;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenFarm))]
-    class MyOxygenFarm : MyFunctionalBlock, IMyOxygenProducer, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyOxygenFarm
+    class MyOxygenFarm : MyFunctionalBlock, IMyOxygenFarm, IMyGasBlock
     {
-        static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
+        static readonly string[] m_emissiveNames = { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
-        private float m_maxOxygenOutput;
-        private MyOxygenFarmDefinition m_oxygenFarmDefinition;
+        private float m_maxGasOutputFactor;
+        public new MyOxygenFarmDefinition BlockDefinition { get { return base.BlockDefinition as MyOxygenFarmDefinition; } }
 
-        private MySolarGameLogicComponent m_solarComponent;
+        public MySolarGameLogicComponent SolarComponent { get; private set; }
+	    readonly MyDefinitionId m_oxygenGasId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");	// Required for oxygen MyFake checks
 
-        public MySolarGameLogicComponent SolarComponent
+        public bool CanProduce { get { return (MySession.Static.Settings.EnableOxygen || BlockDefinition.ProducedGas != m_oxygenGasId) && Enabled && ResourceSink.IsPowered && IsWorking && IsFunctional; } }
+
+        private MyResourceSourceComponent m_sourceComp;
+        public MyResourceSourceComponent SourceComp
         {
-            get
-            {
-                return m_solarComponent;
-            }
+            get { return m_sourceComp; }
+            set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
         }
 
-        public MyPowerReceiver PowerReceiver
+        public MyOxygenFarm()
         {
-            get;
-            protected set;
+            ResourceSink = new MyResourceSinkComponent();
+            SourceComp = new MyResourceSourceComponent();
         }
 
-        public override void Init(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock objectBuilder, Sandbox.Game.Entities.MyCubeGrid cubeGrid)
+        public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
 
-            m_oxygenFarmDefinition = BlockDefinition as MyOxygenFarmDefinition;
             IsWorkingChanged += OnIsWorkingChanged;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             InitializeConveyorEndpoint();
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Factory,
-                false,
-                m_oxygenFarmDefinition.OperationalPowerConsumption,
-                ComputeRequiredPower);
-            PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
-            PowerReceiver.Update();
+            SourceComp.Init(
+                BlockDefinition.ResourceSourceGroup,
+                new MyResourceSourceInfo
+                {
+                    ResourceTypeId = BlockDefinition.ProducedGas,
+                    DefinedOutput = BlockDefinition.MaxGasOutput,
+                    ProductionToCapacityMultiplier = 1,
+                    IsInfiniteCapacity = true,
+                });
+
+            ResourceSink.Init(
+                BlockDefinition.ResourceSinkGroup,
+                new MyResourceSinkInfo
+                {
+                    ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
+                    MaxRequiredInput = BlockDefinition.OperationalPowerConsumption,
+                    RequiredInputFunc = ComputeRequiredPower,
+                });
+            ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink.Update();
 
             GameLogic = new MySolarGameLogicComponent();
-            m_solarComponent = GameLogic as MySolarGameLogicComponent;
+            SolarComponent = GameLogic as MySolarGameLogicComponent;
 
-            m_solarComponent.Initialize(m_oxygenFarmDefinition.PanelOrientation, m_oxygenFarmDefinition.IsTwoSided, m_oxygenFarmDefinition.PanelOffset, this);
+            SolarComponent.Initialize(BlockDefinition.PanelOrientation, BlockDefinition.IsTwoSided, BlockDefinition.PanelOffset, this);
 
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentSolarPanel(this));
+            AddDebugRenderComponent(new MyDebugRenderComponentSolarPanel(this));
+
+            SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_OnIsFunctionalChanged;
+
+            UpdateVisual();
+            UpdateDisplay();
+        }
+
+        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+        {
+            var builder = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_OxygenFarm;
+
+            return builder;
         }
 
         private float ComputeRequiredPower()
         {
-            return (Enabled && IsFunctional) ? m_oxygenFarmDefinition.OperationalPowerConsumption : 0f;
+            return (Enabled && IsFunctional && IsWorking) ? BlockDefinition.OperationalPowerConsumption : 0f;
+        }
+
+        protected override void OnEnabledChanged()
+        {
+            base.OnEnabledChanged();
+            SourceComp.Enabled = IsWorking;
+            ResourceSink.Update();
+            UpdateEmissivity();
+        }
+
+        private void ComponentStack_OnIsFunctionalChanged()
+        {
+            SourceComp.Enabled = IsWorking;
+            ResourceSink.Update();
+            UpdateEmissivity();
         }
 
         private void PowerReceiver_IsPoweredChanged()
@@ -78,9 +120,14 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateIsWorking();
         }
 
+        void OnIsWorkingChanged(MyCubeBlock obj)
+        {
+            UpdateEmissivity();
+        }
+
         protected override bool CheckIsWorking()
         {
-            return MySession.Static.Settings.EnableOxygen && PowerReceiver.IsPowered && base.CheckIsWorking();
+			return (MySession.Static.Settings.EnableOxygen || BlockDefinition.ProducedGas != m_oxygenGasId) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         private void UpdateDisplay()
@@ -91,13 +138,13 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append("\n");
 
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
 
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_OxygenOutput));
-            DetailedInfo.Append((m_maxOxygenOutput * 100f).ToString("F"));
-            DetailedInfo.Append("%");
-            
+            DetailedInfo.Append((SourceComp.MaxOutputByType(BlockDefinition.ProducedGas)*60).ToString("F"));
+            DetailedInfo.Append(" L/min");
+
             RaisePropertiesChanged();
             UpdateEmissivity();
         }
@@ -110,33 +157,28 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Red, null, null, 1);
+                    MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Red, 1);
                 }
                 return;
             }
-            if (m_maxOxygenOutput > 0)
+            if (m_maxGasOutputFactor > 0)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    if (i < m_maxOxygenOutput * 4)
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Green, null, null, 1);
+                    if (i < m_maxGasOutputFactor * 4)
+                        MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Green, 1);
                     else
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 1);
+                        MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 1);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Black, null, null, 0);
+                MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[0], Color.Black, 0);
                 for (int i = 1; i < 4; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0);
+                    MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0);
                 }
             }
-        }
-
-        void OnIsWorkingChanged(MyCubeBlock obj)
-        {
-            UpdateEmissivity();
         }
 
         public override void UpdateVisual()
@@ -153,71 +195,28 @@ namespace Sandbox.Game.Entities.Blocks
             if (CubeGrid.Physics == null)
                 return;
 
-            float maxOxygenOutput = m_solarComponent.MaxOutput;
+            float maxGasOutputFactor = SourceComp.ProductionEnabledByType(BlockDefinition.ProducedGas) ? SolarComponent.MaxOutput : 0f;
 
-            if (maxOxygenOutput != m_maxOxygenOutput)
+            if (maxGasOutputFactor != m_maxGasOutputFactor)
             {
-                m_maxOxygenOutput = maxOxygenOutput;
+                m_maxGasOutputFactor = maxGasOutputFactor;
+                SourceComp.SetMaxOutputByType(BlockDefinition.ProducedGas, SourceComp.DefinedOutputByType(BlockDefinition.ProducedGas)*m_maxGasOutputFactor);
+                UpdateVisual();
                 UpdateDisplay();
             }
+
+            ResourceSink.Update();
+
         }
 
-        public override void UpdateBeforeSimulation10()
+        bool IMyGasBlock.IsWorking()
         {
-            base.UpdateBeforeSimulation10();
-
-            PowerReceiver.Update();
+			return MySession.Static.Settings.EnableOxygen && ResourceSink.IsPowered && IsWorking && IsFunctional;
         }
-
-        #region Oxygen
-        public override void OnRegisteredToGridSystems()
-        {
-            base.OnRegisteredToGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.RegisterOxygenBlock(this);
-            }
-        }
-
-        public override void OnUnregisteredFromGridSystems()
-        {
-            base.OnUnregisteredFromGridSystems();
-
-            if (CubeGrid.GridSystems.OxygenSystem != null)
-            {
-                CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
-            }
-        }
-
-        float IMyOxygenProducer.ProductionCapacity(float deltaTime)
-        {
-            return m_maxOxygenOutput * m_oxygenFarmDefinition.MaxOxygenOutput;
-        }
-        void IMyOxygenProducer.Produce(float amount)
-        {
-            // Nothing to do
-        }
-        int IMyOxygenProducer.GetPriority()
-        {
-            return 1;
-        }
-
-        bool IMyOxygenBlock.IsWorking()
-        {
-            return MySession.Static.Settings.EnableOxygen && PowerReceiver.IsPowered && IsWorking && IsFunctional;
-        }
-        #endregion
 
         #region Conveyor
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
-        public IMyConveyorEndpoint ConveyorEndpoint
-        {
-            get
-            {
-                return m_conveyorEndpoint;
-            }
-        }
+        public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
         public void InitializeConveyorEndpoint()
         {
             m_conveyorEndpoint = new MyMultilineConveyorEndpoint(this);
@@ -226,12 +225,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         float IMyOxygenFarm.GetOutput()
         {
-            if (!IsWorking)
-            {
-                return 0f;
-            }
-
-            return m_solarComponent.MaxOutput;
+	        return !IsWorking ? 0f : SolarComponent.MaxOutput;
         }
     }
 }

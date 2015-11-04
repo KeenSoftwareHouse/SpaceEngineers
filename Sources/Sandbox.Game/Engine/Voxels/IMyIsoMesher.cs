@@ -3,6 +3,7 @@ using VRage.Voxels;
 using VRage.Native;
 using VRageMath;
 using VRageRender;
+using System.Diagnostics;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -21,6 +22,7 @@ namespace Sandbox.Engine.Voxels
         public readonly List<Vector3> Normals = new List<Vector3>();
         public readonly List<byte> Materials = new List<byte>();
         public readonly List<Vector3I> Cells = new List<Vector3I>();
+        public readonly List<float> Ambient = new List<float>();
 
         public readonly List<MyVoxelTriangle> Triangles = new List<MyVoxelTriangle>();
 
@@ -35,7 +37,11 @@ namespace Sandbox.Engine.Voxels
         }
 
         public Vector3 PositionScale;
-        public Vector3 PositionOffset;
+        public Vector3D PositionOffset;
+
+        // Inclusive start and end of cell coordinates.
+        public Vector3I CellStart;
+        public Vector3 CellEnd;
 
         void IMyIsoMesherOutputBuffer.Reserve(int vertexCount, int triangleCount)
         {
@@ -44,6 +50,7 @@ namespace Sandbox.Engine.Voxels
                 Positions.Capacity = vertexCount;
                 Normals.Capacity = vertexCount;
                 Materials.Capacity = vertexCount;
+                Ambient.Capacity = vertexCount;
                 Cells.Capacity = vertexCount;
             }
 
@@ -55,17 +62,19 @@ namespace Sandbox.Engine.Voxels
         {
             Triangles.Add(new MyVoxelTriangle()
             {
-                VertexIndex0 = (short)v0,
-                VertexIndex1 = (short)v1,
-                VertexIndex2 = (short)v2,
+                VertexIndex0 = (ushort)v0,
+                VertexIndex1 = (ushort)v1,
+                VertexIndex2 = (ushort)v2,
             });
         }
 
-        void IMyIsoMesherOutputBuffer.WriteVertex(ref Vector3I cell, ref Vector3 position, ref Vector3 normal, byte material)
+        void IMyIsoMesherOutputBuffer.WriteVertex(ref Vector3I cell, ref Vector3 position, ref Vector3 normal, byte material, float ambient)
         {
+            Debug.Assert(position.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
             Positions.Add(position);
             Normals.Add(normal);
             Materials.Add(material);
+            Ambient.Add(ambient);
             Cells.Add(cell);
         }
 
@@ -74,6 +83,7 @@ namespace Sandbox.Engine.Voxels
             Positions.Clear();
             Normals.Clear();
             Materials.Clear();
+            Ambient.Clear();
             Cells.Clear();
             Triangles.Clear();
         }
@@ -88,11 +98,13 @@ namespace Sandbox.Engine.Voxels
             vertex.Position = Positions[idx] * PositionScale + PositionOffset;
             vertex.Normal = Normals[idx];
             vertex.Material = Materials[idx];
-            vertex.Ambient = 0f;
+            vertex.Ambient = Ambient[idx];
 
             vertex.PositionMorph = vertex.Position;
             vertex.NormalMorph = vertex.Normal;
             vertex.MaterialMorph = vertex.Material;
+            vertex.AmbientMorph = Ambient[idx];
+            vertex.Cell = Cells[idx];
         }
 
         public static bool IsEmpty(MyIsoMesh self)
@@ -106,6 +118,6 @@ namespace Sandbox.Engine.Voxels
         int InvalidatedRangeInflate { get; }
 
         MyIsoMesh Precalc(MyIsoMesherArgs args);
-        MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I lodVoxelMin, Vector3I lodVoxelMax, bool generateMaterials);
+        MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I lodVoxelMin, Vector3I lodVoxelMax, bool generateMaterials, bool useAmbient);
     }
 }

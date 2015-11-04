@@ -12,6 +12,7 @@ using Sandbox.Definitions;
 using VRage.Utils;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -24,6 +25,7 @@ namespace Sandbox.Game.Multiplayer
             void ISerializer<StockpileChangedMsg>.Serialize(VRage.ByteStream destination, ref StockpileChangedMsg data)
             {
                 BlitSerializer<long>.Default.Serialize(destination, ref data.GridEntityId);
+				BlitSerializer<ushort>.Default.Serialize(destination, ref data.SubBlockId);
                 BlitSerializer<Vector3I>.Default.Serialize(destination, ref data.BlockPosition);
 
                 Debug.Assert(data.Changes.Count() <= 255, "Too many component types in a block stockpile");
@@ -46,6 +48,7 @@ namespace Sandbox.Game.Multiplayer
             void ISerializer<StockpileChangedMsg>.Deserialize(VRage.ByteStream source, out StockpileChangedMsg data)
             {
                 BlitSerializer<long>.Default.Deserialize(source, out data.GridEntityId);
+				BlitSerializer<ushort>.Default.Deserialize(source, out data.SubBlockId);
                 BlitSerializer<Vector3I>.Default.Deserialize(source, out data.BlockPosition);
 
                 byte size = 0;
@@ -57,15 +60,15 @@ namespace Sandbox.Game.Multiplayer
                     MyStockpileItem item = new MyStockpileItem();
                     BlitSerializer<int>.Default.Deserialize(source, out item.Amount);
 
-                    MyStringId subtypeId;
-                    BlitSerializer<MyStringId>.Default.Deserialize(source, out subtypeId);
+                    MyStringHash subtypeId;
+                    BlitSerializer<MyStringHash>.Default.Deserialize(source, out subtypeId);
 
                     byte flags = 0;
                     BlitSerializer<byte>.Default.Deserialize(source, out flags);
 
                     MyRuntimeObjectBuilderId typeId;
                     BlitSerializer<MyRuntimeObjectBuilderId>.Default.Deserialize(source, out typeId);
-                    item.Content = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(
+                    item.Content = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(
                         (MyDefinitionId)new DefinitionIdBlit(typeId, subtypeId));
 
                     item.Content.Flags = (MyItemFlags)flags;

@@ -12,6 +12,7 @@ using VRage;
 using Sandbox.Common.AI;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Engine.AI;
 
 namespace Sandbox.Game.AI
 {
@@ -31,7 +32,11 @@ namespace Sandbox.Game.AI
             }
         }
 
-        private Dictionary<MyStringId, BotActionDesc> m_actions = new Dictionary<MyStringId, BotActionDesc>();
+        private Dictionary<MyStringId, BotActionDesc> m_actions = new Dictionary<MyStringId, BotActionDesc>(MyStringId.Comparer);
+
+        private ActionCollection()
+        {
+        }
 
         public void AddInitAction(string actionName, Action<IMyBot> action)
         {
@@ -68,15 +73,10 @@ namespace Sandbox.Game.AI
             actionDesc.ReturnsRunning = returnsRunning;
             for (int i = 0; i < parameters.Length; i++)
             {
-                var paramAttrs = Attribute.GetCustomAttributes(parameters[i], true);
-                foreach (var paramAttr in paramAttrs)
-                {
-                    if (paramAttr is BTMemParamAttribute)
-                    {
-                        var memParam = paramAttr as BTMemParamAttribute;
-                        actionDesc.ParametersDesc.Add(i, new MyTuple<Type, MyMemoryParameterType>(parameters[i].ParameterType.GetElementType(), memParam.MemoryType));
-                    }
-                }
+                var paramAttr = parameters[i].GetCustomAttribute<BTMemParamAttribute>(true);
+                if (paramAttr == null)
+                    continue;
+                actionDesc.ParametersDesc.Add(i, new MyTuple<Type, MyMemoryParameterType>(parameters[i].ParameterType.GetElementType(), paramAttr.MemoryType));
             }
         }
 
@@ -94,7 +94,6 @@ namespace Sandbox.Game.AI
 
             m_actions[actionId].PostAction = action;
         }
-
 
         private void AddBotActionDesc(MyStringId actionId)
         {
@@ -215,6 +214,56 @@ namespace Sandbox.Game.AI
         public bool ReturnsRunning(MyStringId actionId)
         {
             return m_actions[actionId].ReturnsRunning;
+        }
+
+        public static ActionCollection CreateActionCollection(IMyBot bot)
+        {
+            var actions = new ActionCollection();
+            var methodInfos = bot.BotActions.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
+            foreach (var methodInfo in methodInfos)
+            {
+                ExtractAction(actions, methodInfo);
+            }
+            return actions;
+        }
+
+        //private static ActionCollection CreateStaticActionCollection()
+        //{
+        //    var actions = new ActionCollection();
+        //    var types = MyAIActionsParser.GetAllTypesFromAssemblies();
+
+        //    foreach (var type in types)
+        //    {
+        //        var attr = type.GetCustomAttribute<MyBehaviorDescriptorAttribute>();
+        //        if (!string.IsNullOrEmpty(attr.DescriptorCategory))
+        //            continue;
+        //        var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        //        foreach (var method in methods)
+        //        {
+        //            ExtractAction(actions, method);
+        //        }
+        //    }
+
+        //    return actions;
+        //}
+
+        private static void ExtractAction(ActionCollection actions, MethodInfo methodInfo)
+        {
+            var btActionAttribute = methodInfo.GetCustomAttribute<MyBehaviorTreeActionAttribute>();
+            if (btActionAttribute == null)
+                return;
+            switch (btActionAttribute.ActionType)
+            {
+                case MyBehaviorTreeActionType.INIT:
+                    actions.AddInitAction(btActionAttribute.ActionName, (x) => methodInfo.Invoke(x.BotActions, null));
+                    break;
+                case MyBehaviorTreeActionType.BODY:
+                    actions.AddAction(btActionAttribute.ActionName, methodInfo, btActionAttribute.ReturnsRunning, (x, y) => (MyBehaviorTreeState)methodInfo.Invoke(x.BotActions, y));
+                    break;
+                case MyBehaviorTreeActionType.POST:
+                    actions.AddPostAction(btActionAttribute.ActionName, (x) => methodInfo.Invoke(x.BotActions, null));
+                    break;
+            }
         }
     }
 }

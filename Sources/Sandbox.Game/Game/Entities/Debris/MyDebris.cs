@@ -57,6 +57,9 @@ namespace Sandbox.Game.Entities.Debris
 
         Dictionary<MyModelShapeInfo, HkShape> m_shapes = new Dictionary<MyModelShapeInfo, HkShape>();
 
+        private const int MaxDebrisCount = 100;
+        private int m_debrisCount = 0;
+
         public MyDebris()
         {
             //m_debrisModels = new string[]
@@ -108,6 +111,13 @@ namespace Sandbox.Game.Entities.Debris
 
         HkShape CreateShape(MyModel model, HkShapeType shapeType)
         {
+            if (model.HavokCollisionShapes != null && model.HavokCollisionShapes.Length > 0)
+            {
+                HkShape sh = model.HavokCollisionShapes[0];
+                sh.AddReference();
+                return sh;          
+            }
+
             switch(shapeType)
             {
                 case HkShapeType.Box:
@@ -143,9 +153,15 @@ namespace Sandbox.Game.Entities.Debris
             m_voxelDebrisOffsets = new List<Vector3>(MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_OFFSET_COUNT_3);
             m_desc.LifespanMinInMiliseconds = MyDebrisConstants.EXPLOSION_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS;
             m_desc.LifespanMaxInMiliseconds = MyDebrisConstants.EXPLOSION_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS;
+            m_desc.OnCloseAction = OnDebrisClosed;
 
             GenerateVoxelDebrisPositionOffsets(m_voxelDebrisOffsets);
             Static = this;
+        }
+
+        private void OnDebrisClosed(MyDebrisBase obj)
+        {
+            m_debrisCount--;
         }
 
         protected override void UnloadData()
@@ -385,6 +401,8 @@ namespace Sandbox.Game.Entities.Debris
 
         private MyDebrisVoxel CreateVoxelDebris()
         {
+            if (m_debrisCount > MaxDebrisCount)
+                return null;
             m_desc.ScaleMin = MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_INITIAL_SCALE_MIN;
             m_desc.ScaleMax = MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_INITIAL_SCALE_MAX;
             var newObj = new MyDebrisVoxel();
@@ -396,11 +414,14 @@ namespace Sandbox.Game.Entities.Debris
             }
 
             newObj.Debris.Init(m_desc);
+            m_debrisCount++;
             return newObj;
         }
 
         private MyDebrisBase CreateDebris()
         {
+            if (m_debrisCount > MaxDebrisCount)
+                return null;
             m_desc.ScaleMin = MyDebrisConstants.EXPLOSION_MODEL_DEBRIS_INITIAL_SCALE_MIN;
             m_desc.ScaleMax = MyDebrisConstants.EXPLOSION_MODEL_DEBRIS_INITIAL_SCALE_MAX;
 
@@ -413,6 +434,7 @@ namespace Sandbox.Game.Entities.Debris
             }
 
             newObj.Debris.Init(m_desc);
+            m_debrisCount++;
             return newObj;
         }
 

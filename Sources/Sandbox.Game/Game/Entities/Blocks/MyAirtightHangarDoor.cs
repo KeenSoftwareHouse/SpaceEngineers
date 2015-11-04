@@ -10,6 +10,7 @@ using System.Text;
 using VRageMath;
 
 using Havok;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -86,7 +87,7 @@ namespace Sandbox.Game.Entities.Blocks
                     if ((subpart.ModelCollision.HavokCollisionShapes != null) && (subpart.ModelCollision.HavokCollisionShapes.Length > 0))
                     {
                         var shape = subpart.ModelCollision.HavokCollisionShapes[0];
-                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, Engine.Physics.RigidBodyFlag.RBF_DOUBLED_KINEMATIC | Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, RigidBodyFlag.RBF_DOUBLED_KINEMATIC | RigidBodyFlag.RBF_KINEMATIC);
                         subpart.Physics.IsPhantom = false;
                         Vector3 center = subpart.PositionComp.LocalVolume.Center;
                         subpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
@@ -97,8 +98,25 @@ namespace Sandbox.Game.Entities.Blocks
 
             CubeGrid.OnHavokSystemIDChanged -= CubeGrid_HavokSystemIDChanged;
             CubeGrid.OnHavokSystemIDChanged += CubeGrid_HavokSystemIDChanged;
+            CubeGrid.OnPhysicsChanged -= CubeGrid_OnPhysicsChanged;
+            CubeGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
             if (CubeGrid.Physics!=null)
                 UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
+        }
+
+        void CubeGrid_OnPhysicsChanged(MyEntity obj)
+        {
+            if (m_subparts == null || m_subparts.Count == 0)
+            {
+                return;
+            }
+
+            if (m_subparts[0].Physics == null)
+            {
+                return;
+            }
+            if (obj.Physics != null &&obj.Physics.HavokCollisionSystemID != m_subparts[0].Physics.HavokCollisionSystemID)
+                UpdateHavokCollisionSystemID(obj.Physics.HavokCollisionSystemID);
         }
 
         internal void UpdateHavokCollisionSystemID(int HavokCollisionSystemID)
@@ -111,9 +129,15 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         var info = HkGroupFilter.CalcFilterInfo(MyPhysics.KinematicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
                         subpart.Physics.RigidBody.SetCollisionFilterInfo(info);
-
-                        info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
-                        subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                        if (subpart.Physics.HavokWorld != null)
+                            subpart.Physics.HavokWorld.RefreshCollisionFilterOnEntity(subpart.Physics.RigidBody);
+                        if (subpart.Physics.RigidBody2 != null)
+                        {
+                            info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                            subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                            if (subpart.Physics.HavokWorld != null)
+                                subpart.Physics.HavokWorld.RefreshCollisionFilterOnEntity(subpart.Physics.RigidBody2);
+                        }
 
                         /*if (this.CubeGrid.Physics != null && this.CubeGrid.Physics.HavokWorld != null)
                         {
@@ -127,7 +151,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         public override void OnBuildSuccess(long builtBy) 
         {
-            UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
+            if (CubeGrid.Physics != null)
+            {
+                UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
+            }
             base.OnBuildSuccess(builtBy);
         }
 
@@ -135,7 +162,9 @@ namespace Sandbox.Game.Entities.Blocks
         {
             oldGrid.OnHavokSystemIDChanged -= CubeGrid_HavokSystemIDChanged;
             CubeGrid.OnHavokSystemIDChanged += CubeGrid_HavokSystemIDChanged;
-            if (CubeGrid.Physics!=null)//when splitting blocks or creating new, then this is null and IDs are set from grit activation
+            oldGrid.OnPhysicsChanged -= CubeGrid_OnPhysicsChanged;
+            CubeGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged; 
+            if (CubeGrid.Physics != null)//when splitting blocks or creating new, then this is null and IDs are set from grit activation
                                        //when merging blocks, however, no grid is activated, so IDs must be changed from here
                 UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
             base.OnCubeGridChanged(oldGrid);
@@ -143,7 +172,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         void CubeGrid_HavokSystemIDChanged(int id)
         {
-            UpdateHavokCollisionSystemID(id);
+            if (CubeGrid.Physics != null)
+            {
+                UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
+            }
         }
 
         protected override void Closing()

@@ -11,7 +11,7 @@ using VRage;
 using VRage.Trace;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Compiler;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -20,7 +20,7 @@ namespace Sandbox.Game.Multiplayer
         long GetEntityId();
     }
 
-    static class EntityMessageExtensions
+    public static class EntityMessageExtensions
     {
         public static string GetEntityText(this IEntityMessage msg)
         {
@@ -48,7 +48,7 @@ namespace Sandbox.Game.Multiplayer
     {
         FromServer = 1,
         ToServer = 2,
-        Any = 4,
+        ToSelf = 4,
     }
 
     public partial class MySyncLayer
@@ -61,7 +61,7 @@ namespace Sandbox.Game.Multiplayer
 
         class DefaultProtoSerializer<T>
         {
-            public static readonly ProtoSerializer<T> Default = new ProtoSerializer<T>(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.Serializer);
+            public static readonly ProtoSerializer<T> Default = new ProtoSerializer<T>(MyObjectBuilderSerializer.Serializer);
         }
 
         class Registrator<TMsg> : IRegistrator
@@ -127,7 +127,7 @@ namespace Sandbox.Game.Multiplayer
 
                 MyNetworkClient player;
                 bool playerFound = Layer.Clients.TryGetClient(sender, out player);
-                bool permissionsOk = Layer.CheckPermissions(sender, Permission);
+                bool permissionsOk = MySyncLayer.CheckReceivePermissions(sender, Permission);
 
                 //TODO: This should be ok if client loads the scene, buffers another player messages
                 //and during that time is that player kicked

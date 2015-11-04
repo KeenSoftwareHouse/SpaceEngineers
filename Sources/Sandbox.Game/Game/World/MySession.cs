@@ -3,7 +3,6 @@
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -45,6 +44,10 @@ using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.SessionComponents;
 using System.Collections;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
+using VRage.Network;
 
 #endregion
 
@@ -60,6 +63,7 @@ namespace Sandbox.Game.World
         public DateTime LastLoadTime;
         public ulong? WorkshopId = null;
         public string Briefing;
+        public bool ScenarioEditMode = false;
     }
 
     /// <summary>
@@ -68,7 +72,7 @@ namespace Sandbox.Game.World
     public sealed partial class MySession : IMySession
     {
         [MessageId(2494, P2PMessageEnum.Reliable)]
-        struct ServerSavingMsg 
+        struct ServerSavingMsg
         {
             public BoolBlit SaveStarted;
         }
@@ -90,7 +94,7 @@ namespace Sandbox.Game.World
         public static MySession Static { get; set; }
 
         private List<MySessionComponentBase> m_sessionComponents = new List<MySessionComponentBase>();
-        private Dictionary<int, List<MySessionComponentBase>> m_sessionComponentsForUpdate = new Dictionary<int, List<MySessionComponentBase>>();   
+        private Dictionary<int, List<MySessionComponentBase>> m_sessionComponentsForUpdate = new Dictionary<int, List<MySessionComponentBase>>();
 
         //This is for backwards compatibility (ModAPI)
         public DateTime GameDateTime
@@ -111,17 +115,18 @@ namespace Sandbox.Game.World
         //This is datetime inside game world, it flows differently to realtime
         public DateTime InGameTime { get; set; }
 
-        public string   Name { get; set; }
-        public string   Description { get; set; }
-        public string   Password { get; set; }
-        public ulong?   WorkshopId { get; private set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Password { get; set; }
+        public ulong? WorkshopId { get; private set; }
         public string CurrentPath { get; private set; }
         public string Briefing { get; set; }
+        public string BriefingVideo { get; set; }//WWW link for overlay
 
         public MyObjectBuilder_SessionSettings Settings;
-        public uint AutoSaveInMinutes 
-        { 
-            get 
+        public uint AutoSaveInMinutes
+        {
+            get
             {
                 if (MyFakes.ENABLE_AUTOSAVE)
                 {
@@ -129,7 +134,7 @@ namespace Sandbox.Game.World
                         return Settings.AutoSaveInMinutes;
                 }
                 return 0;
-            } 
+            }
         }
         public bool CreativeMode { get { return Settings.GameMode == MyGameModeEnum.Creative; } }
         public bool SurvivalMode { get { return Settings.GameMode == MyGameModeEnum.Survival; } }
@@ -143,6 +148,7 @@ namespace Sandbox.Game.World
         public bool Enable3RdPersonView { get { return Settings.Enable3rdPersonView; } }
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
+        public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport && MyPerGameSettings.Game == GameEnum.SE_GAME; } }
         public bool ClientCanSave { get { return Settings.ClientCanSave; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
@@ -155,8 +161,14 @@ namespace Sandbox.Game.World
         public float HackSpeedMultiplier { get { return Settings.HackSpeedMultiplier; } }
         public MyOnlineModeEnum OnlineMode { get { return Settings.OnlineMode; } }
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
+        public bool StartInRespawnScreen { get { return Settings.StartInRespawnScreen; } }
+        public bool EnableVoxelDestruction { get { return Settings.EnableVoxelDestruction; } }
 
         public bool Battle { get { return Settings.Battle; } }
+
+        public bool IsScenario { get { return Settings.Scenario; } }
+        public bool LoadedAsMission { get; private set; }
+        public bool PersistentEditMode { get; private set; }
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
@@ -171,7 +183,7 @@ namespace Sandbox.Game.World
         public readonly MyVoxelMaps VoxelMaps = new MyVoxelMaps();
         public readonly MyFactionCollection Factions = new MyFactionCollection();
         internal MyPlayerCollection Players = new MyPlayerCollection();
-        internal MyToolBarCollection Toolbars = new MyToolBarCollection();
+        public readonly MyToolBarCollection Toolbars = new MyToolBarCollection();
         internal MyCameraCollection Cameras = new MyCameraCollection();
         internal MyGpsCollection Gpss = new MyGpsCollection();
 
@@ -241,6 +253,14 @@ namespace Sandbox.Game.World
             }
         }
 
+        public static long LocalCharacterEntityId
+        {
+            get
+            {
+                return LocalCharacter == null ? 0 : LocalCharacter.EntityId;
+            }
+        }
+
         public static long LocalPlayerId
         {
             get
@@ -301,15 +321,30 @@ namespace Sandbox.Game.World
 
         public ulong WorldSizeInBytes = 0; //Approximate
 
+        private int m_gameplayFrameCounter = 0; // Only gets updated when the game is not paused
+        public int GameplayFrameCounter { get { return m_gameplayFrameCounter; } }
+
         const int FRAMES_TO_CONSIDER_READY = 10;
         int m_framesToReady;
         public static bool Ready { get; private set; }
+
+        /// <summary>
+        /// Called after session is created, but before it's loaded.
+        /// MySession.Statis is valid when raising OnLoading.
+        /// </summary>
+        public static event Action OnLoading;
 
         public static event Action OnReady;
 
         public MyEnvironmentHostilityEnum? PreviousEnvironmentHostility { get; set; }
 
         #endregion
+
+        private static void RaiseOnLoading()
+        {
+            var handler = OnLoading;
+            if (handler != null) handler();
+        }
 
         private static void OnServerSaving(ref ServerSavingMsg msg, MyNetworkClient sender)
         {
@@ -338,14 +373,14 @@ namespace Sandbox.Game.World
                                 styleEnum: MyMessageBoxStyleEnum.Info,
                                 buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
                                 messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.SavingPleaseWait)),
-                                callback: 
+                                callback:
                                 delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
                                 {
                                     ServerSavingMsg msg = new ServerSavingMsg();
                                     msg.SaveStarted = false;
                                     OnServerSaving(ref msg, sender);
                                 },
-                                canHideOthers:false);
+                                canHideOthers: false);
             m_currentServerSaveScreen.SkipTransition = true;
             m_currentServerSaveScreen.InstantClose = false;
             MyGuiSandbox.AddScreen(m_currentServerSaveScreen);
@@ -356,8 +391,8 @@ namespace Sandbox.Game.World
         private MySession(MySyncLayer syncLayer, bool registerComponents = true)
         {
             System.Diagnostics.Debug.Assert(syncLayer != null);
-            
-            if(syncLayer == null)
+
+            if (syncLayer == null)
                 MyLog.Default.WriteLine("MySession.MySession() - sync layer is null");
 
             SyncLayer = syncLayer;
@@ -470,9 +505,10 @@ namespace Sandbox.Game.World
             multiplayer.Mods = this.Mods;
             multiplayer.ViewDistance = this.Settings.ViewDistance;
             multiplayer.Battle = this.Battle;
+            multiplayer.Scenario = IsScenario;
 
             if (MySandboxGame.IsDedicated)
-                (multiplayer as MyDedicatedServer).SendGameTagsToSteam();
+                (multiplayer as MyDedicatedServerBase).SendGameTagsToSteam();
 
             MyHud.Chat.RegisterChat(multiplayer);
             MySession.Static.Gpss.RegisterChat(multiplayer);
@@ -489,7 +525,7 @@ namespace Sandbox.Game.World
                 MyMultiplayer.Static.Dispose();
 
                 SyncLayer = null;
-            }            
+            }
         }
 
         #region Components
@@ -520,13 +556,20 @@ namespace Sandbox.Game.World
             {
                 if (Attribute.IsDefined(type, typeof(MySessionComponentDescriptor)))
                 {
-                    var component = (MySessionComponentBase)Activator.CreateInstance(type);
-
-                    System.Diagnostics.Debug.Assert(component != null, "Session component is cannot be created by activator");
-
-                    if (component.IsRequiredByGame)
+                    try
                     {
-                        RegisterComponent(component, component.UpdateOrder, component.Priority);
+                        var component = (MySessionComponentBase)Activator.CreateInstance(type);
+
+                        System.Diagnostics.Debug.Assert(component != null, "Session component is cannot be created by activator");
+
+                        if (component.IsRequiredByGame)
+                        {
+                            RegisterComponent(component, component.UpdateOrder, component.Priority);
+                        }
+                    }
+                    catch(Exception)
+                    {
+                        MySandboxGame.Log.WriteLine("Exception during loading of type : " + type.Name);
                     }
                 }
             }
@@ -574,6 +617,8 @@ namespace Sandbox.Game.World
 
         public void LoadDataComponents(bool registerEvents = true)
         {
+            RaiseOnLoading();
+
             if (registerEvents)
             {
                 if (SyncLayer.AutoRegisterGameEvents)
@@ -683,10 +728,10 @@ namespace Sandbox.Game.World
         {
             for (int i = m_loadOrder.Count - 1; i >= 0; i--)
                 m_loadOrder[i].UnloadDataConditional();
-                //foreach (var component in m_sessionComponents)
-                //{
-                //    component.UnloadDataConditional();
-                //}
+            //foreach (var component in m_sessionComponents)
+            //{
+            //    component.UnloadDataConditional();
+            //}
 
             MySessionComponentMapping.Clear();
 
@@ -695,13 +740,14 @@ namespace Sandbox.Game.World
                 Sync.Players.UnregisterEvents();
                 Sync.Clients.Clear();
                 MyNetworkReader.Clear();
-           }
+            }
 
             Ready = false;
         }
 
         public void BeforeStartComponents()
         {
+            MyAnalyticsHelper.ReportGameplayStart();
             foreach (var component in m_sessionComponents)
             {
                 component.BeforeStart();
@@ -803,7 +849,7 @@ namespace Sandbox.Game.World
         public void Update(MyTimeSpan updateTime)
         {
             CheckUpdate();
-            
+
             ProfilerShort.Begin("Parallel.RunCallbacks");
             ParallelTasks.Parallel.RunCallbacks();
             ProfilerShort.End();
@@ -871,6 +917,7 @@ namespace Sandbox.Game.World
                 if (Sync.MultiplayerActive && !Sync.IsServer)
                     CheckMultiplayerStatus();
 
+                m_gameplayFrameCounter++;
             }
             // In pause, the only thing that needs update in the session is the character and third person spectator.
             // This is a terrible hack and should be done more systematically
@@ -992,7 +1039,7 @@ namespace Sandbox.Game.World
             MySession.Static.Mods = mods;
             MySession.Static.Scenario = generationArgs.Scenario;
             MySession.Static.WorldBoundaries = generationArgs.Scenario.WorldBoundaries;
-            MySession.Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
+            MySession.Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
             string safeName = MyUtils.StripInvalidChars(name);
             MySession.Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
@@ -1010,11 +1057,22 @@ namespace Sandbox.Game.World
 
             MyWorldGenerator.GenerateWorld(generationArgs);
 
+            if (!MySandboxGame.IsDedicated)
+            {
+                var playerId = new Sandbox.Game.World.MyPlayer.PlayerId(MySteam.UserId, 0);
+                MyToolBarCollection.RequestCreateToolbar(playerId);
+            }
+            
             SendSessionStartStats();
             var scenarioName = generationArgs.Scenario.DisplayNameText.ToString();
             MySession.Static.LogSettings(scenarioName, generationArgs.AsteroidAmount);
 
             MySector.InitEnvironmentSettings();
+            if (generationArgs.Scenario.SunDirection.IsValid())
+            {
+                MySector.SunProperties.SunDirectionNormalized = Vector3.Normalize(generationArgs.Scenario.SunDirection);
+                MySector.SunProperties.BaseSunDirectionNormalized = Vector3.Normalize(generationArgs.Scenario.SunDirection);
+            }
 
             //Because blocks fills SubBlocks in this method..
             //TODO: Create LoadPhase2
@@ -1080,8 +1138,16 @@ namespace Sandbox.Game.World
             Static.BeforeStartComponents();
         }
 
+        public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, bool persistentEditMode)
+        {
+            LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, checkpoint.SessionName, checkpoint.Description);
+            Static.PersistentEditMode = persistentEditMode;
+            Static.LoadedAsMission = true;
+        }
+
         public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, string name, string description)
         {
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
             MySession.Static.Name = name;
             MySession.Static.Description = description;
@@ -1094,10 +1160,20 @@ namespace Sandbox.Game.World
         }
 
 
+        public static void LoadBattle(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, MyObjectBuilder_SessionSettings settings)
+        {
+			MyLog.Default.WriteLine("Loading battle session: " + sessionPath);
+
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
+            Load(sessionPath, checkpoint, checkpointSizeInBytes);
+            MySession.Static.Settings = settings;
+            Debug.Assert(MySession.Static.Settings.Battle = true);
+        }
+
         public static void Load(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
         {
             ProfilerShort.Begin("MySession.Load");
-            
+
             MyLog.Default.WriteLineAndConsole("Loading session: " + sessionPath);
 
             //MyAudio.Static.Mute = true;
@@ -1198,16 +1274,14 @@ namespace Sandbox.Game.World
 
             MySession.Static.IsCameraAwaitingEntity = true;
 
-            MySession.Static.LoadDataComponents();
+            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
 
-            multiplayerSession.StartProcessingClientMessages();
+            MySession.Static.LoadDataComponents();
 
             MyLocalCache.ClearLastSessionInfo();
 
-            // Sync clients, players and factions from server
-            MySession.Static.Players.RequestAllIdentities();
-            MySession.Static.Players.RequestAllPlayers();
-            MySession.Static.Factions.RequestAllFactions();
+            //RKTODO: obsolete - will be removed - do not uncomment! 
+            //MySession.Static.Players.RequestAll_Identities_Players_Factions();
 
             // Player must be created for selection in factions.
             if (!MySandboxGame.IsDedicated && LocalHumanPlayer == null)
@@ -1238,8 +1312,6 @@ namespace Sandbox.Game.World
             MySession.Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
             MySession.Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
-            MySession.Static.LoadMembersFromWorld(world, multiplayerSession);
-
             MySession.Static.LoadDataComponents(false);
             MySession.Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
 
@@ -1247,7 +1319,6 @@ namespace Sandbox.Game.World
             long hostObj = world.Checkpoint.ControlledObject;
             world.Checkpoint.ControlledObject = -1;
 
-            MyHud.Chat.RegisterChat(multiplayerSession);
             MySession.Static.Gpss.RegisterChat(multiplayerSession);
 
             MySession.Static.CameraController = MySpectatorCameraController.Static;
@@ -1287,7 +1358,7 @@ namespace Sandbox.Game.World
 
                         c.Close();
                     }
-                     
+
                 }
 
                 foreach (var g in MyEntities.GetEntities().OfType<MyCubeGrid>())
@@ -1364,6 +1435,9 @@ namespace Sandbox.Game.World
 
         private void LoadWorld(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
         {
+            // Backward compatibility:
+            MySandboxGame.Static.SessionCompatHelper.FixSessionObjectBuilders(checkpoint, sector);
+
             //MyAudio.Static.Mute = true
             MyEntities.MemoryLimitAddFailureReset();
 
@@ -1372,6 +1446,7 @@ namespace Sandbox.Game.World
             Name = checkpoint.SessionName;
             Description = checkpoint.Description;
             Briefing = checkpoint.Briefing;
+            BriefingVideo = checkpoint.BriefingVideo;
             WorkshopId = checkpoint.WorkshopId;
             Password = checkpoint.Password;
             PreviousEnvironmentHostility = checkpoint.PreviousEnvironmentHostility;
@@ -1388,28 +1463,27 @@ namespace Sandbox.Game.World
 
             MySector.InitEnvironmentSettings(sector.Environment);
 
-            // ===================== This is a hack to ensure backwards compatibility! Do this properly! =======================
-            FixObsoleteStuff(sector);
-            // =================================================================================================================
-
-            MyRespawnComponent.InitFromCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.InitFromCheckpoint(checkpoint);
 
             MyPlayer.PlayerId savingPlayer = new MyPlayer.PlayerId();
             MyPlayer.PlayerId? savingPlayerNullable = null;
             bool reuseSavingPlayerIdentity = TryFindSavingPlayerId(checkpoint.ControlledEntities, checkpoint.ControlledObject, out savingPlayer);
-            if (reuseSavingPlayerIdentity) savingPlayerNullable = savingPlayer;
+            if (reuseSavingPlayerIdentity && !(IsScenario && Static.OnlineMode != MyOnlineModeEnum.OFFLINE))
+                savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
-            if (Sync.IsServer || !Battle)
+            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
+
             Toolbars.LoadToolbars(checkpoint);
 
             if (!MyEntities.Load(sector.SectorObjects))
             {
                 ShowLoadingError();
             }
+            MySandboxGame.Static.SessionCompatHelper.AfterEntitiesLoad(sector.AppVersion);
 
-            if (checkpoint.Factions != null && (Sync.IsServer || !Battle))
+            if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
             {
                 MySession.Static.Factions.Init(checkpoint.Factions);
             }
@@ -1420,16 +1494,25 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (!Battle)
+            if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME))
             {
-                Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
-                Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
+                if (!(MySession.Static.IsScenario && MySession.Static.Settings.StartInRespawnScreen))
+                {
+                    Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
+                    Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
+                }
             }
             LoadCamera(checkpoint);
 
             //fix: saved in survival with dead player, changed to creative, loaded game, no character with no way to respawn
-            if (CreativeMode && !MySandboxGame.IsDedicated && LocalHumanPlayer != null && LocalHumanPlayer.Character.IsDead)
+            if (CreativeMode && !MySandboxGame.IsDedicated && LocalHumanPlayer != null && LocalHumanPlayer.Character!=null && LocalHumanPlayer.Character.IsDead)
                 MyPlayerCollection.RequestLocalRespawn();
+
+            if(MyMultiplayer.Static != null && !Sync.IsServer)
+            {
+                Sync.Layer.TransportLayer.SendMessage(MyMessageId.CLIENT_READY, null, true, new EndpointId(Sync.ServerId));
+                ((MyReplicationClient)MyMultiplayer.Static.ReplicationLayer).OnLocalClientReady();
+            }
 
             // Create the player if he/she does not exist (on clients and server)
             if (!MySandboxGame.IsDedicated && LocalHumanPlayer == null)
@@ -1452,6 +1535,7 @@ namespace Sandbox.Game.World
                 if (toolbar == null)
                 {
                     MyToolBarCollection.RequestCreateToolbar(playerId);
+                    MyToolbarComponent.InitCharacterToolbar(Scenario.DefaultToolbar);
                 }
                 else
                 {
@@ -1460,11 +1544,11 @@ namespace Sandbox.Game.World
             }
 
             Gpss.LoadGpss(checkpoint);
-            
+
             LoadChatHistory(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                MySessionComponentMission.Static.Load(checkpoint.MissionTriggers);
+                MySessionComponentMissionTriggers.Static.Load(checkpoint.MissionTriggers);
 
             MyEncounterGenerator.Load(sector.Encounters);
             VRageRender.MyRenderProxy.RebuildCullingStructure();
@@ -1472,7 +1556,7 @@ namespace Sandbox.Game.World
             Settings.ResetOwnership = false;
 
             if (MyFinalBuildConstants.IS_OFFICIAL && !CreativeMode)
-                MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES = false;
+                MyDebugDrawSettings.DEBUG_DRAW_PHYSICS = false;
 
             VRageRender.MyRenderProxy.CollectGarbage();
         }
@@ -1531,7 +1615,7 @@ namespace Sandbox.Game.World
 
             MySandboxGame.Log.WriteLine("Checkpoint.CameraAttachedTo: " + checkpoint.CameraEntity);
 
-            Sandbox.ModAPI.IMyEntity cameraEntity = null;
+            IMyEntity cameraEntity = null;
             var cameraControllerToSet = checkpoint.CameraController;
             if (MySession.Static.Enable3RdPersonView == false && cameraControllerToSet == MyCameraControllerEnum.ThirdPersonSpectator)
             {
@@ -1608,49 +1692,6 @@ namespace Sandbox.Game.World
             }
         }
 
-        private static void FixObsoleteStuff(MyObjectBuilder_Sector sector)
-        {
-            if (sector.AppVersion == 0)
-            {
-                HashSet<String> previouslyColored = new HashSet<String>();
-                previouslyColored.Add("LargeBlockArmorBlock");
-                previouslyColored.Add("LargeBlockArmorSlope");
-                previouslyColored.Add("LargeBlockArmorCorner");
-                previouslyColored.Add("LargeBlockArmorCornerInv");
-                previouslyColored.Add("LargeRoundArmor_Slope");
-                previouslyColored.Add("LargeRoundArmor_Corner");
-                previouslyColored.Add("LargeRoundArmor_CornerInv");
-                previouslyColored.Add("LargeHeavyBlockArmorBlock");
-                previouslyColored.Add("LargeHeavyBlockArmorSlope");
-                previouslyColored.Add("LargeHeavyBlockArmorCorner");
-                previouslyColored.Add("LargeHeavyBlockArmorCornerInv");
-                previouslyColored.Add("SmallBlockArmorBlock");
-                previouslyColored.Add("SmallBlockArmorSlope");
-                previouslyColored.Add("SmallBlockArmorCorner");
-                previouslyColored.Add("SmallBlockArmorCornerInv");
-                previouslyColored.Add("SmallHeavyBlockArmorBlock");
-                previouslyColored.Add("SmallHeavyBlockArmorSlope");
-                previouslyColored.Add("SmallHeavyBlockArmorCorner");
-                previouslyColored.Add("SmallHeavyBlockArmorCornerInv");
-                previouslyColored.Add("LargeBlockInteriorWall");
-
-                foreach (var obj in sector.SectorObjects)
-                {
-                    var grid = obj as MyObjectBuilder_CubeGrid;
-                    if (grid == null)
-                        continue;
-
-                    foreach (var block in grid.CubeBlocks)
-                    {
-                        if (block.TypeId != typeof(MyObjectBuilder_CubeBlock) || !previouslyColored.Contains(block.SubtypeName))
-                        {
-                            block.ColorMaskHSV = MyRenderComponentBase.OldGrayToHSV;
-                        }
-                    }
-                }
-            }
-        }
-
         private void LoadCameraControllerSettings(MyObjectBuilder_Checkpoint checkpoint)
         {
             //m_cameraControllerSettings.Clear();
@@ -1687,7 +1728,11 @@ namespace Sandbox.Game.World
             if (settings.HackSpeedMultiplier <= 0.0f) settings.HackSpeedMultiplier = defaultSettings.HackSpeedMultiplier;
             if (!settings.PermanentDeath.HasValue) settings.PermanentDeath = true;
             settings.ViewDistance = MathHelper.Clamp(settings.ViewDistance, 1000, 50000);
-            VRageRender.MyRenderProxy.Settings.NightMode = false;
+            if (MySandboxGame.IsDedicated)
+            {
+                settings.Scenario = false;
+                settings.ScenarioEditMode = false;
+            }
         }
 
         private static void ShowLoadingError()
@@ -1774,7 +1819,7 @@ namespace Sandbox.Game.World
             return MyCameraControllerEnum.Spectator;
         }
 
-        public static void SetCameraController(MyCameraControllerEnum cameraControllerEnum, Sandbox.ModAPI.IMyEntity cameraEntity = null, Vector3D? position = null)
+        public static void SetCameraController(MyCameraControllerEnum cameraControllerEnum, IMyEntity cameraEntity = null, Vector3D? position = null)
         {
             //bool wasUserControlled = MySession.Static.CameraController != null ? MySession.Static.CameraController.AllowObjectControl() : false;
 
@@ -1791,7 +1836,8 @@ namespace Sandbox.Game.World
                 case MyCameraControllerEnum.Entity:
                     System.Diagnostics.Debug.Assert(cameraEntity != null);
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Entity");
-                    MySession.Static.CameraController = (IMyCameraController)cameraEntity;                  
+                    MySession.Static.CameraController = (IMyCameraController)cameraEntity;
+                    MySession.Static.CameraController.IsInFirstPersonView = true;
                     break;
                 case MyCameraControllerEnum.Spectator:
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Spectator");
@@ -1821,14 +1867,9 @@ namespace Sandbox.Game.World
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: ThirdPersonSpectator");
 
                     if (cameraEntity != null)
-                    {
                         MySession.Static.CameraController = (IMyCameraController)cameraEntity;
-                        MySession.Static.CameraController.IsInFirstPersonView = false;            
-                    }
-                    else
-                    {
-                        MySession.Static.CameraController.IsInFirstPersonView = false;
-                    }
+
+                    MySession.Static.CameraController.IsInFirstPersonView = false;
                     break;
 
                 default:
@@ -1843,7 +1884,7 @@ namespace Sandbox.Game.World
             //}
         }
 
-        public static void SetEntityCameraPosition(MyPlayer.PlayerId pid, Sandbox.ModAPI.IMyEntity cameraEntity)
+        public static void SetEntityCameraPosition(MyPlayer.PlayerId pid, IMyEntity cameraEntity)
         {
             if (MySession.LocalHumanPlayer == null || MySession.LocalHumanPlayer.Id != pid)
                 return;
@@ -1916,7 +1957,7 @@ namespace Sandbox.Game.World
             if (success)
                 WorldSizeInBytes = snapshot.SavedSizeInBytes;
 
-           
+
             return success;
         }
 
@@ -1926,7 +1967,7 @@ namespace Sandbox.Game.World
             {
                 ServerSavingMsg msg = new ServerSavingMsg();
                 msg.SaveStarted = true;
-                this.SyncLayer.SendMessageToAll(msg);
+                this.SyncLayer.SendMessageToAll(ref msg);
             }
             snapshot = new MySessionSnapshot();
 
@@ -1975,7 +2016,7 @@ namespace Sandbox.Game.World
             {
                 ServerSavingMsg msg = new ServerSavingMsg();
                 msg.SaveStarted = false;
-                this.SyncLayer.SendMessageToAll(msg);
+                this.SyncLayer.SendMessageToAll(ref msg);
             }
         }
         public string ThumbPath
@@ -1997,14 +2038,14 @@ namespace Sandbox.Game.World
         }
 
 
-        public MyObjectBuilder_World GetWorld()
+        public MyObjectBuilder_World GetWorld(bool includeEntities = true)
         {
             ProfilerShort.Begin("GetWorld");
 
             var ob = new MyObjectBuilder_World()
             {
                 Checkpoint = GetCheckpoint(Name),
-                Sector = GetSector(),
+                Sector = GetSector(includeEntities),
                 VoxelMaps = new VRage.Serialization.SerializableDictionary<string, byte[]>(MySession.Static.GetVoxelMapsArray())
             };
 
@@ -2013,15 +2054,19 @@ namespace Sandbox.Game.World
             return ob;
         }
 
-        public MyObjectBuilder_Sector GetSector()
+        public MyObjectBuilder_Sector GetSector(bool includeEntities = true)
         {
             ProfilerShort.Begin("GetSector");
 
             MyObjectBuilder_Sector sector = null;
 
             {
-                sector = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
-                sector.SectorObjects = MyEntities.Save();
+                sector = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
+                
+                if (includeEntities)
+                {
+                    sector.SectorObjects = MyEntities.Save();
+                }
 
                 sector.SectorEvents = MyGlobalEvents.GetObjectBuilder();
                 sector.Encounters = MyEncounterGenerator.Save();
@@ -2047,24 +2092,28 @@ namespace Sandbox.Game.World
             MatrixD spectatorMatrix = MatrixD.Invert(MySpectatorCameraController.Static.GetViewMatrix());
             MyCameraControllerEnum cameraControllerEnum = GetCameraControllerEnum();
 
-            var checkpoint = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Checkpoint>();
+            var checkpoint = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Checkpoint>();
+            var settings = MyObjectBuilderSerializer.Clone(Settings) as MyObjectBuilder_SessionSettings;
+
+            settings.ScenarioEditMode = settings.ScenarioEditMode || PersistentEditMode;
 
             checkpoint.SessionName = saveName;
             checkpoint.Description = Description;
             checkpoint.Briefing = Briefing;
+            checkpoint.BriefingVideo = BriefingVideo;
             checkpoint.Password = Password;
             checkpoint.LastSaveTime = DateTime.Now;
             checkpoint.WorkshopId = WorkshopId;
             checkpoint.ElapsedGameTime = ElapsedGameTime.Ticks;
             checkpoint.InGameTime = InGameTime;
-            checkpoint.Settings = Settings;
+            checkpoint.Settings = settings;
             checkpoint.Mods = Mods;
             checkpoint.CharacterToolbar = MyToolbarComponent.CharacterToolbar.GetObjectBuilder();
             checkpoint.Scenario = Scenario.Id;
             checkpoint.WorldBoundaries = WorldBoundaries;
             checkpoint.PreviousEnvironmentHostility = PreviousEnvironmentHostility;
 
-          //  checkpoint.PlayerToolbars = Toolbars.GetSerDictionary();
+            //  checkpoint.PlayerToolbars = Toolbars.GetSerDictionary();
 
             Sync.Players.SavePlayers(checkpoint);
             Toolbars.SaveToolbars(checkpoint);
@@ -2072,7 +2121,7 @@ namespace Sandbox.Game.World
             Gpss.SaveGpss(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                checkpoint.MissionTriggers = MySessionComponentMission.Static.GetObjectBuilder();
+                checkpoint.MissionTriggers = MySessionComponentMissionTriggers.Static.GetObjectBuilder();
 
 
             if (MyFakes.SHOW_FACTIONS_GUI)
@@ -2082,7 +2131,7 @@ namespace Sandbox.Game.World
 
             checkpoint.Identities = Sync.Players.SaveIdentities();
             checkpoint.RespawnCooldowns = new List<MyObjectBuilder_Checkpoint.RespawnCooldownItem>();
-            MyRespawnComponent.SaveToCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.SaveToCheckpoint(checkpoint);
             checkpoint.ControlledEntities = Sync.Players.SerializeControlledEntities();
 
             checkpoint.SpectatorPosition = new MyPositionAndOrientation(ref spectatorMatrix);
@@ -2158,10 +2207,10 @@ namespace Sandbox.Game.World
             return VoxelMaps.GetVoxelMapsArray();
         }
 
-        private List<MyObjectBuilder_Client> SaveMembers()
+        internal List<MyObjectBuilder_Client> SaveMembers(bool forceSave = false)
         {
             if (MyMultiplayer.Static == null) return null;
-            if (MyMultiplayer.Static.Members.Count() == 1)
+            if (!forceSave && MyMultiplayer.Static.Members.Count() == 1)
             {
                 using (var en = MyMultiplayer.Static.Members.GetEnumerator())
                 {
@@ -2203,12 +2252,16 @@ namespace Sandbox.Game.World
 
         public void Unload()
         {
+            MyAnalyticsHelper.ReportGameplayEnd();
+
             MySandboxGame.Log.WriteLine("MySession::Unload START");
 
             MySessionSnapshot.WaitForSaving();
 
             MySandboxGame.Log.WriteLine("AutoSaveInMinutes: " + AutoSaveInMinutes);
             MySandboxGame.Log.WriteLine("MySandboxGame.IsDedicated: " + MySandboxGame.IsDedicated);
+            MySandboxGame.Log.WriteLine("IsServer: " + Sync.IsServer);
+
             if ((AutoSaveInMinutes > 0) && MySandboxGame.IsDedicated)
             {
                 MySandboxGame.Log.WriteLineAndConsole("Autosave in unload");

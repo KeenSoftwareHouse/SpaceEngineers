@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 using VRage;
+using Medieval.ObjectBuilders.Definitions;
 
 
 namespace Sandbox.Definitions
@@ -12,12 +13,16 @@ namespace Sandbox.Definitions
     {
         private static byte m_indexCounter;
 
+		public string MaterialTypeName;
         public string MinedOre;
         public float MinedOreRatio;
         public bool CanBeHarvested;
         public bool IsRare;
         public float DamageRatio;
         public int MinVersion;
+        public bool SpawnsInAsteroids;
+        public bool SpawnsFromMeteorites;
+        public bool SpawnsFlora;
 
         public string DiffuseXZ;
         public string NormalXZ;
@@ -25,6 +30,11 @@ namespace Sandbox.Definitions
         public string NormalY;
         public float SpecularPower;
         public float SpecularShininess;
+
+        public byte BiomeValue;
+
+        public int[] SpawnChannels;
+
 
         /// <summary>
         /// Value generated at runtime to ensure correctness. Do not serialize or deserialize.
@@ -56,36 +66,45 @@ namespace Sandbox.Definitions
             var builder = ob as MyObjectBuilder_VoxelMaterialDefinition;
             MyDebug.AssertDebug(builder != null);
 
-            this.MinedOre          = builder.MinedOre;
-            this.MinedOreRatio     = builder.MinedOreRatio;
-            this.CanBeHarvested    = builder.CanBeHarvested;
-            this.IsRare            = builder.IsRare;
-            this.DamageRatio       = builder.DamageRatio;
-            this.DiffuseXZ         = builder.DiffuseXZ;
-            this.DiffuseY          = builder.DiffuseY;
-            this.NormalXZ          = builder.NormalXZ;
-            this.NormalY           = builder.NormalY;
-            this.SpecularPower     = builder.SpecularPower;
-            this.SpecularShininess = builder.SpecularShininess;
-            this.MinVersion        = builder.MinVersion;
+			this.MaterialTypeName		= builder.MaterialTypeName;
+            this.MinedOre               = builder.MinedOre;
+            this.MinedOreRatio          = builder.MinedOreRatio;
+            this.CanBeHarvested         = builder.CanBeHarvested;
+            this.IsRare                 = builder.IsRare;
+            this.SpawnsInAsteroids      = builder.SpawnsInAsteroids;
+            this.SpawnsFromMeteorites   = builder.SpawnsFromMeteorites;
+            this.DamageRatio            = builder.DamageRatio;
+            this.DiffuseXZ              = builder.DiffuseXZ;
+            this.DiffuseY               = builder.DiffuseY;
+            this.NormalXZ               = builder.NormalXZ;
+            this.NormalY                = builder.NormalY;
+            this.SpecularPower          = builder.SpecularPower;
+            this.SpecularShininess      = builder.SpecularShininess;
+            this.MinVersion             = builder.MinVersion;
+            this.SpawnsFlora            = builder.SpawnsFlora;
+            this.BiomeValue = 0;
+            SpawnChannels = builder.SpawnChannels;
         }
-
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {
             MyObjectBuilder_VoxelMaterialDefinition ob = (MyObjectBuilder_VoxelMaterialDefinition)base.GetObjectBuilder();
 
-            ob.MinedOre          = this.MinedOre;
-            ob.MinedOreRatio     = this.MinedOreRatio;
-            ob.CanBeHarvested    = this.CanBeHarvested;
-            ob.IsRare            = this.IsRare;
-            ob.DamageRatio       = this.DamageRatio;
-            ob.DiffuseXZ         = this.DiffuseXZ;
-            ob.DiffuseY          = this.DiffuseY;
-            ob.NormalXZ          = this.NormalXZ;
-            ob.NormalY           = this.NormalY;
-            ob.SpecularPower     = this.SpecularPower;
-            ob.SpecularShininess = this.SpecularShininess;
+			ob.MaterialTypeName			= this.MaterialTypeName;
+            ob.MinedOre                 = this.MinedOre;
+            ob.MinedOreRatio            = this.MinedOreRatio;
+            ob.CanBeHarvested           = this.CanBeHarvested;
+            ob.IsRare                   = this.IsRare;
+            ob.SpawnsInAsteroids        = this.SpawnsInAsteroids;
+            ob.SpawnsFromMeteorites     = this.SpawnsFromMeteorites;
+            ob.DamageRatio              = this.DamageRatio;
+            ob.DiffuseXZ                = this.DiffuseXZ;
+            ob.DiffuseY                 = this.DiffuseY;
+            ob.NormalXZ                 = this.NormalXZ;
+            ob.NormalY                  = this.NormalY;
+            ob.SpecularPower            = this.SpecularPower;
+            ob.SpecularShininess        = this.SpecularShininess;
+            ob.SpawnsFlora              = this.SpawnsFlora;
 
             return ob;
         }

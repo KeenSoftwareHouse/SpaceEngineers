@@ -26,12 +26,10 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-                MemberExpression fieldExpr = Expression.Field(objParm, info.Name);
-                return Expression.Lambda<Func<T, TMember>>(fieldExpr, objParm).Compile();
+                return info.CreateGetter<T, TMember>();
             }
         }
-
+        
         public static Action<T, TMember> CreateSetter<T, TMember>(this Expression<Func<T, TMember>> expression)
         {
             Debug.Assert(expression.Body is MemberExpression, "Expression is not property or field selector");
@@ -49,41 +47,37 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-                ParameterExpression valueParm = Expression.Parameter(info.FieldType, "value");
-                MemberExpression memberExpr = Expression.Field(objParm, info.Name);
-                Expression assignExpr = Expression.Assign(memberExpr, valueParm);
-                return Expression.Lambda<Action<T, TMember>>(assignExpr, objParm, valueParm).Compile();
+                return info.CreateSetter<T, TMember>();
             }
         }
 
-        public static Func<T, TProperty> CreateGetter<T, TProperty>(this PropertyInfo propertyInfo)
-        {
-            var t = typeof(T);
-            var propertyType = typeof(TProperty);
-            ParameterExpression paramExpression = Expression.Parameter(t, "value");
-            Expression getArg = propertyInfo.DeclaringType == t ? (Expression)paramExpression : (Expression)Expression.Convert(paramExpression, propertyInfo.DeclaringType);
-            Expression propertyGetterExpression = Expression.Property(getArg, propertyInfo);
+        //public static Func<T, TProperty> CreateGetter<T, TProperty>(this PropertyInfo propertyInfo)
+        //{
+        //    var t = typeof(T);
+        //    var propertyType = typeof(TProperty);
+        //    ParameterExpression paramExpression = Expression.Parameter(t, "value");
+        //    Expression getArg = propertyInfo.DeclaringType == t ? (Expression)paramExpression : (Expression)Expression.Convert(paramExpression, propertyInfo.DeclaringType);
+        //    Expression propertyGetterExpression = Expression.Property(getArg, propertyInfo);
 
-            if (propertyType != propertyInfo.PropertyType)
-                propertyGetterExpression = Expression.Convert(propertyGetterExpression, propertyType);
+        //    if (propertyType != propertyInfo.PropertyType)
+        //        propertyGetterExpression = Expression.Convert(propertyGetterExpression, propertyType);
 
-            return Expression.Lambda<Func<T, TProperty>>(propertyGetterExpression, paramExpression).Compile();
-        }
+        //    return Expression.Lambda<Func<T, TProperty>>(propertyGetterExpression, paramExpression).Compile();
+        //}
 
-        public static Action<T, TProperty> CreateSetter<T, TProperty>(this PropertyInfo propertyInfo)
-        {
-            var t = typeof(T);
-            var propertyType = typeof(TProperty);
-            ParameterExpression paramExpression = Expression.Parameter(t);
-            ParameterExpression paramExpression2 = Expression.Parameter(propertyType);
+        //public static Action<T, TProperty> CreateSetter<T, TProperty>(this PropertyInfo propertyInfo)
+        //{
+        //    var t = typeof(T);
+        //    var propertyType = typeof(TProperty);
+        //    ParameterExpression paramExpression = Expression.Parameter(t);
+        //    ParameterExpression paramExpression2 = Expression.Parameter(propertyType);
 
-            Expression setInst = propertyInfo.DeclaringType == t ? (Expression)paramExpression : (Expression)Expression.Convert(paramExpression, propertyInfo.DeclaringType);
-            Expression setVal = propertyInfo.PropertyType == propertyType ? (Expression)paramExpression2 : (Expression)Expression.Convert(paramExpression2, propertyInfo.PropertyType);
+        //    Expression setInst = propertyInfo.DeclaringType == t ? (Expression)paramExpression : (Expression)Expression.Convert(paramExpression, propertyInfo.DeclaringType);
+        //    Expression setVal = propertyInfo.PropertyType == propertyType ? (Expression)paramExpression2 : (Expression)Expression.Convert(paramExpression2, propertyInfo.PropertyType);
 
-            MemberExpression propertySetterExpression = Expression.Property(setInst, propertyInfo);
-            return Expression.Lambda<Action<T, TProperty>>(Expression.Assign(propertySetterExpression, setVal), paramExpression, paramExpression2).Compile();
-        }
+        //    MemberExpression propertySetterExpression = Expression.Property(setInst, propertyInfo);
+        //    return Expression.Lambda<Action<T, TProperty>>(Expression.Assign(propertySetterExpression, setVal), paramExpression, paramExpression2).Compile();
+        //}
 
         public static TDelegate StaticCall<TDelegate>(this MethodInfo info)
         {

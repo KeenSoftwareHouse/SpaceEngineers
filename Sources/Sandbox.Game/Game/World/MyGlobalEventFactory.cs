@@ -7,10 +7,11 @@ using System.Diagnostics;
 using System.Reflection;
 using Sandbox.Common;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
-    public delegate void GlobalEventHandler(object sender);
+    public delegate void GlobalEventHandler(MyGlobalEventBase sender);
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     [Obfuscation(Feature = Obfuscator.NoRename, Exclude = true)]
@@ -25,16 +26,24 @@ namespace Sandbox.Game.World
         }
     }
 
+    public class MyEventTypeAttribute : MyFactoryTagAttribute
+    {
+        public MyEventTypeAttribute(Type objectBuilderType, bool mainBuilder = true) : base(objectBuilderType, mainBuilder) { }
+    }
+
     public class MyGlobalEventFactory
     {
         static readonly Dictionary<MyDefinitionId, GlobalEventHandler> m_typesToHandlers;
+        static MyObjectFactory<MyEventTypeAttribute, MyGlobalEventBase> m_globalEventFactory;
 
         static MyGlobalEventFactory()
         {
             m_typesToHandlers = new Dictionary<MyDefinitionId, GlobalEventHandler>();
+            m_globalEventFactory = new MyObjectFactory<MyEventTypeAttribute, MyGlobalEventBase>();
 
             RegisterEventTypesAndHandlers(Assembly.GetAssembly(typeof(MyGlobalEventBase)));
             RegisterEventTypesAndHandlers(MyPlugins.GameAssembly);
+            RegisterEventTypesAndHandlers(MyPlugins.SandboxAssembly);
         }
 
         private static void RegisterEventTypesAndHandlers(Assembly assembly)
@@ -59,6 +68,8 @@ namespace Sandbox.Game.World
                     }
                 }
             }
+
+            m_globalEventFactory.RegisterFromAssembly(assembly);
         }
 
         private static void RegisterHandler(MyDefinitionId eventDefinitionId, GlobalEventHandler handler)
@@ -90,27 +101,47 @@ namespace Sandbox.Game.World
             return globalEvent;
         }
 
+        public static MyGlobalEventBase CreateEvent(MyDefinitionId id)
+        {
+            var eventDefinition = MyDefinitionManager.Static.GetEventDefinition(id);
+
+            MyGlobalEventBase globalEvent = m_globalEventFactory.CreateInstance(id.TypeId);
+            if (globalEvent == null)
+                return globalEvent;
+
+            globalEvent.InitFromDefinition(eventDefinition);
+            return globalEvent;
+        }
+
         /// <summary>
         /// Use for deserialization from a saved game
         /// </summary>
         public static MyGlobalEventBase CreateEvent(MyObjectBuilder_GlobalEventBase ob)
         {
-            if (ob.DefinitionId.TypeId == MyObjectBuilderType.Invalid)
+            MyGlobalEventBase globalEvent = null;
+
+            // Backwards compatibility
+            if (ob.DefinitionId.HasValue)
             {
-                return CreateEventObsolete(ob);
+                if (ob.DefinitionId.Value.TypeId == MyObjectBuilderType.Invalid)
+                {
+                    return CreateEventObsolete(ob);
+                }
+
+                ob.SubtypeName = ob.DefinitionId.Value.SubtypeName;
             }
 
-            var eventDefinition = MyDefinitionManager.Static.GetEventDefinition(ob.DefinitionId);
+            var eventDefinition = MyDefinitionManager.Static.GetEventDefinition(ob.GetId());
             if (eventDefinition == null) return null;
 
-            var globalEvent = new MyGlobalEventBase();
+            globalEvent = CreateEvent(ob.GetId());
             globalEvent.Init(ob);
             return globalEvent;
         }
 
-        public static MyGlobalEventBase CreateEventObsolete(MyObjectBuilder_GlobalEventBase ob)
+        private static MyGlobalEventBase CreateEventObsolete(MyObjectBuilder_GlobalEventBase ob)
         {
-            MyGlobalEventBase globalEvent = CreateEvent<MyGlobalEventBase>(GetEventDefinitionObsolete(ob.EventType));
+            MyGlobalEventBase globalEvent = CreateEvent(GetEventDefinitionObsolete(ob.EventType));
             globalEvent.SetActivationTime(TimeSpan.FromMilliseconds(ob.ActivationTimeMs));
             globalEvent.Enabled = ob.Enabled;
             return globalEvent;
@@ -119,22 +150,22 @@ namespace Sandbox.Game.World
         /// <summary>
         /// Gets the definition id of the event definition that corresponds to the event that used to have the given event type
         /// </summary>
-        public static MyDefinitionId GetEventDefinitionObsolete(MyGlobalEventTypeEnum eventType)
+        private static MyDefinitionId GetEventDefinitionObsolete(MyGlobalEventTypeEnum eventType)
         {
             if (eventType == MyGlobalEventTypeEnum.SpawnNeutralShip ||
                 eventType == MyGlobalEventTypeEnum.SpawnCargoShip)
             {
-                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "SpawnCargoShip");
+                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "SpawnCargoShip");
             }
             if (eventType == MyGlobalEventTypeEnum.MeteorWave)
             {
-                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWave");
+                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWave");
             }
             if (eventType == MyGlobalEventTypeEnum.April2014)
             {
-                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "April2014");
+                return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "April2014");
             }
-            return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition));
+            return new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase));
         }
     }
 }

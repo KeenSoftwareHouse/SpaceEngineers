@@ -30,6 +30,7 @@ namespace VRageRender
     {
         internal MyActor m_parent;
         internal MyMaterialMergeGroup m_mergeGroup;
+        internal bool m_mergable;
 
         internal override void Construct()
         {
@@ -38,6 +39,7 @@ namespace VRageRender
 
             m_parent = null;
             m_mergeGroup = null;
+            m_mergable = false;
         }
 
         internal override void OnMatrixChange()
@@ -50,16 +52,15 @@ namespace VRageRender
             if (m_mergeGroup != null)
             {
                 m_mergeGroup.RemoveEntity(m_owner);
-
                 m_mergeGroup = null;
             }
 
             if (m_parent != null)
             {
-                // well, this if shouldn't be needed, but somehow it is
-                if (m_parent.GetGroupRoot() != null)
-                { 
-                    m_parent.GetGroupRoot().m_children.Remove(m_owner);
+                var root = m_parent.GetGroupRoot();
+                if (root != null)
+                {
+                    root.Remove(this);
                 }
                 m_parent = null;
             }
@@ -140,6 +141,7 @@ namespace VRageRender
 
         internal void RemoveEntity(MyActor actor)
         {
+            m_actors.Remove(actor);
             m_mergeGroup.RemoveEntity(actor.ID);
         }
 
@@ -171,7 +173,7 @@ namespace VRageRender
 
                 DepthShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.DEPTH_ONLY),
                 Shaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
-                ForwardShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
+                ForwardShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
 
                 RenderFlags = MyRenderableProxyFlags.DepthSkipTextures,
 
@@ -211,18 +213,24 @@ namespace VRageRender
         internal int m_btreeProxy;
         internal MyCullProxy_2 m_proxy;
         bool m_dirtyProxy;
+        internal int m_mergablesCounter;
+        bool m_isMerged;
+
+        const int MERGE_THRESHOLD = 4;
 
         internal override void Construct()
         {
             base.Construct();
             Type = MyActorComponentEnum.GroupRoot;
 
-            m_children = null;
+            m_children = new List<MyActor>();
             m_dirtyPosition = false;
             m_dirtyTree = false;
             m_btreeProxy = -1;
             m_dirtyProxy = false;
             m_materialGroups = new Dictionary<int, MyMaterialMergeGroup>();
+            m_mergablesCounter = 0;
+            m_isMerged = false;
 
             m_proxy = MyCullProxy_2.Allocate();
         }
@@ -255,9 +263,94 @@ namespace VRageRender
         internal void PropagateMatrixChange(MyActor child)
         {
             var matrix = child.m_relativeTransform.HasValue
-                        ? child.m_relativeTransform.Value * m_owner.WorldMatrix
+                        ? (MatrixD)child.m_relativeTransform.Value * m_owner.WorldMatrix
                         : m_owner.WorldMatrix;
             child.SetMatrix(ref matrix);
+        }
+
+        internal void TurnIntoMergeInstancing()
+        {
+            foreach(var child in m_children)
+            {
+                Merge(child);
+            }
+
+            m_isMerged = true;
+        }
+
+        internal void TurnIntoSeparateRenderables()
+        {
+            foreach (var child in m_children)
+            {
+                var r = child.GetRenderable();
+
+                var model = r.GetModel();
+                var material = MyMeshes.GetMeshPart(model, 0, 0).Info.Material;
+
+                bool fracture = model.Info.RuntimeGenerated || model.Info.Dynamic;
+
+                if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture)
+                {
+                    if(child.GetGroupLeaf().m_mergeGroup != null)
+                    {
+                        var materialRk = MyMeshMaterials1.Table[material.Index].RepresentationKey;
+                        var mergeGroupForMaterial = m_materialGroups.Get(materialRk);
+                        if (mergeGroupForMaterial == null)
+                        {
+                            continue;
+                        }
+
+                        r.SetStandaloneRendering(true);
+                        child.GetGroupLeaf().m_mergeGroup = null;
+
+                        mergeGroupForMaterial.RemoveEntity(child);
+                    }
+                }
+            }
+
+            m_isMerged = false;
+        }
+
+        internal void Remove(MyGroupLeafComponent leaf)
+        {
+            m_mergablesCounter = leaf.m_mergable ? m_mergablesCounter - 1 : m_mergablesCounter;
+
+            if (m_mergablesCounter < MERGE_THRESHOLD && m_isMerged)
+            {
+                TurnIntoSeparateRenderables();
+            }
+
+            m_children.Remove(leaf.m_owner);
+        }
+
+        internal void Merge(MyActor child)
+        {
+            var r = child.GetRenderable();
+
+            var model = r.GetModel();
+            var material = MyMeshes.GetMeshPart(model, 0, 0).Info.Material;
+
+            bool fracture = model.Info.RuntimeGenerated || model.Info.Dynamic;
+
+            if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture)
+            {
+                var materialRk = MyMeshMaterials1.Table[material.Index].RepresentationKey;
+                var mergeGroupForMaterial = m_materialGroups.Get(materialRk);
+                if (mergeGroupForMaterial == null)
+                {
+                    var proxyIndex = m_materialGroups.Count;
+                    mergeGroupForMaterial = new MyMaterialMergeGroup(MyBigMeshTable.Table, material, proxyIndex);
+                    m_materialGroups[MyMeshMaterials1.Table[material.Index].RepresentationKey] = mergeGroupForMaterial;
+
+                    m_dirtyProxy = true;
+                }
+
+                r.SetStandaloneRendering(false);
+                child.GetGroupLeaf().m_mergeGroup = mergeGroupForMaterial;
+
+                mergeGroupForMaterial.AddEntity(child, model);
+                mergeGroupForMaterial.UpdateEntity(child);
+            }
         }
 
         internal void Add(MyActor child)
@@ -266,13 +359,11 @@ namespace VRageRender
 
             child.GetGroupLeaf().m_parent = m_owner;
 
-            if (m_children == null)
-                m_children = new List<MyActor>();
             m_children.Add(child);
 
             if (child.m_relativeTransform == null)
             {
-                child.m_relativeTransform = child.WorldMatrix * Matrix.Invert(m_owner.WorldMatrix);
+                child.m_relativeTransform = (Matrix)( child.WorldMatrix * MatrixD.Invert(m_owner.WorldMatrix) );
             }
 
             if (!m_owner.m_localAabb.HasValue)
@@ -300,23 +391,37 @@ namespace VRageRender
 
             if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture)
             {
-                var materialRk = MyMeshMaterials1.Table[material.Index].RepresentationKey;
-                var mergeGroupForMaterial = m_materialGroups.Get(materialRk);
-                if (mergeGroupForMaterial == null)
-                {
-                    var proxyIndex = m_materialGroups.Count;
-                    mergeGroupForMaterial = new MyMaterialMergeGroup(MyBigMeshTable.Table, material, proxyIndex);
-                    m_materialGroups[MyMeshMaterials1.Table[material.Index].RepresentationKey] = mergeGroupForMaterial;
-
-                    m_dirtyProxy = true;
-                }
-
-                child.GetRenderable().SetStandaloneRendering(false);
-                child.GetGroupLeaf().m_mergeGroup = mergeGroupForMaterial;
+                child.GetGroupLeaf().m_mergable = true;
 
                 MyBigMeshTable.Table.AddMesh(model);
-                mergeGroupForMaterial.AddEntity(child, model);
-                mergeGroupForMaterial.UpdateEntity(child);
+                m_mergablesCounter++;
+
+                if(!m_isMerged && m_mergablesCounter >= MERGE_THRESHOLD)
+                {
+                    TurnIntoMergeInstancing();
+                }
+                else if(m_isMerged)
+                {
+                    Merge(child);
+                }
+
+                //var materialRk = MyMeshMaterials1.Table[material.Index].RepresentationKey;
+                //var mergeGroupForMaterial = m_materialGroups.Get(materialRk);
+                //if (mergeGroupForMaterial == null)
+                //{
+                //    var proxyIndex = m_materialGroups.Count;
+                //    mergeGroupForMaterial = new MyMaterialMergeGroup(MyBigMeshTable.Table, material, proxyIndex);
+                //    m_materialGroups[MyMeshMaterials1.Table[material.Index].RepresentationKey] = mergeGroupForMaterial;
+
+                //    m_dirtyProxy = true;
+                //}
+
+                //child.GetRenderable().SetStandaloneRendering(false);
+                //child.GetGroupLeaf().m_mergeGroup = mergeGroupForMaterial;
+
+                
+                //mergeGroupForMaterial.AddEntity(child, model);
+                //mergeGroupForMaterial.UpdateEntity(child);
             }
             else
             {
@@ -351,7 +456,7 @@ namespace VRageRender
 
             if (m_dirtyTree)
             {
-                BoundingBox bb = BoundingBox.CreateInvalid();
+                var bb = BoundingBoxD.CreateInvalid();
 
                 foreach (var child in m_children)
                 {

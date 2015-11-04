@@ -9,15 +9,15 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Collections;
-using VRage;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
+using System.Diagnostics;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>
+    class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
         where TBlock : MyTerminalBlock
     {
         public delegate void ListContentDelegate(TBlock block, ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems);
@@ -31,13 +31,15 @@ namespace Sandbox.Game.Gui
         private MyGuiControlListbox m_listbox;
 
         bool m_enableMultiSelect = false;
+        int m_visibleRowsCount = 8;
 
-        public MyTerminalControlListbox(string id, MyStringId title, MyStringId tooltip,bool multiSelect =false)
+        public MyTerminalControlListbox(string id, MyStringId title, MyStringId tooltip, bool multiSelect = false, int visibleRowsCount = 8)
             : base(id)
         {
             Title = title;
             Tooltip = tooltip;
             m_enableMultiSelect = multiSelect;
+            m_visibleRowsCount = visibleRowsCount;
         }
 
         protected override MyGuiControlBase CreateGui()
@@ -46,7 +48,7 @@ namespace Sandbox.Game.Gui
             {
                 VisualStyle = MyGuiControlListboxStyleEnum.Terminal,
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
-                VisibleRowsCount = 8,
+                VisibleRowsCount = m_visibleRowsCount,
                 MultiSelect = m_enableMultiSelect,
             };
             m_listbox.ItemsSelected += OnItemsSelected;
@@ -83,6 +85,11 @@ namespace Sandbox.Game.Gui
                 if (ListContent != null)
                     ListContent(first, m_listbox.Items, m_listbox.SelectedItems);
             }
+        }
+
+        public void Serialize(BitStream stream, MyTerminalBlock block)
+        {
+            //Debug.Fail("List sync not implemented yet");
         }
     }
 }

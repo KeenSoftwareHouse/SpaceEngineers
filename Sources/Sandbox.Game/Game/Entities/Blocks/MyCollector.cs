@@ -1,36 +1,30 @@
 ﻿using Havok;
-using ProtoBuf;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Text;
+using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.Game.Screens.Terminal.Controls;
-using Sandbox.Common.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Collector))]
-    class MyCollector : MyFunctionalBlock, IMyInventoryOwner, IMyPowerConsumer, IMyConveyorEndpointBlock,IMyCollector
+    class MyCollector : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock,IMyCollector
     {
         static MyCollector()
         {
@@ -43,36 +37,33 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+            return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         private MyInventory m_inventory;
         private bool m_useConveyorSystem = true;
         private MyMultilineConveyorEndpoint m_multilineConveyorEndpoint;
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
-            var def = BlockDefinition as MyCargoContainerDefinition;
+            var def = BlockDefinition as MyPoweredCargoContainerDefinition;
             var ob = objectBuilder as MyObjectBuilder_Collector;
             m_inventory = new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend, this);
             m_inventory.Init(ob.Inventory);
             m_inventory.ContentsChanged += Inventory_ContentChangedCallback;
             if (Sync.IsServer && CubeGrid.CreatePhysics)
                 LoadDummies();
-            PowerReceiver = new MyPowerReceiver(
-                group: MyConsumerGroupEnum.Conveyors,
-                isAdaptible: false,
-                maxRequiredInput: MyEnergyConstants.MAX_REQUIRED_POWER_COLLECTOR,
-                requiredInputFunc: () => base.CheckIsWorking() ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.Update();
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute(def.ResourceSinkGroup),
+                MyEnergyConstants.MAX_REQUIRED_POWER_COLLECTOR,
+                () => base.CheckIsWorking() ? ResourceSink.MaxRequiredInput : 0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink,this));
 
             SlimBlock.ComponentStack.IsFunctionalChanged += UpdateReceiver;
             base.EnabledChanged += UpdateReceiver;
@@ -82,12 +73,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         void UpdateReceiver(MyTerminalBlock block)
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         void UpdateReceiver()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -115,13 +106,18 @@ namespace Sandbox.Game.Entities.Blocks
             Debug.Assert(Sync.IsServer, "Connector can take objects only on the server!");
 
             base.UpdateOnceBeforeFrame();
-            MyParticleEffect effect;
-            if (m_entitiesToTake.Count > 0 && MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Collector, out effect))
-                effect.WorldMatrix = MatrixD.CreateWorld(m_entitiesToTake.ElementAt(0).PositionComp.GetPosition(), WorldMatrix.Down, WorldMatrix.Forward);
+            if (m_entitiesToTake.Count > 0)
+            {
+                MyParticleEffect effect;
+                if(MyParticlesManager.TryCreateParticleEffect((int) MyParticleEffectsIDEnum.Smoke_Collector, out effect))
+                    effect.WorldMatrix = MatrixD.CreateWorld(m_entitiesToTake.ElementAt(0).PositionComp.GetPosition(), WorldMatrix.Down, WorldMatrix.Forward);
+
+            }
             foreach (var entity in m_entitiesToTake)
             {
                 var floatingEntity = entity as MyFloatingObject;
                 m_inventory.TakeFloatingObject(entity);
+                m_soundEmitter.PlaySound(m_actionSound);
             }
             //m_entitiesToTake.Clear();
         }
@@ -184,7 +180,7 @@ namespace Sandbox.Game.Entities.Blocks
                     //else
                     {
                         var detectorShape = CreateFieldShape(halfExtents);
-                        Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                        Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                         Physics.IsPhantom = true;
                         Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.CollectorCollisionLayer);
                         Physics.Enabled = true;//IsWorking;
@@ -197,7 +193,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private void Inventory_ContentChangedCallback(MyInventory inventory)
+        private void Inventory_ContentChangedCallback(MyInventoryBase inventory)
         {
             if (!Sync.IsServer)
                 return;
@@ -216,24 +212,30 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            var entity = body.GetEntity();
-            if (m_entitiesToTake.Contains(entity))
-            {
+            VRage.ProfilerShort.Begin("CollectorLeave");
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
                 m_entitiesToTake.Remove(entity as MyFloatingObject);
-            }
+            entities.Clear();
+            VRage.ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             if (!Sync.IsServer)
                 return;
-            var entity = body.GetEntity();
-            if (entity is MyFloatingObject)
+            VRage.ProfilerShort.Begin("CollectorEnter");
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
             {
-                m_entitiesToTake.Add(entity as MyFloatingObject);
-                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                if (entity is MyFloatingObject)
+                {
+                    m_entitiesToTake.Add(entity as MyFloatingObject);
+                    NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                }
             }
-
+            entities.Clear();
+            VRage.ProfilerShort.End();
             //if (!Sync.IsServer)
             //    return;
             //var entity = body.GetEntity();
@@ -248,20 +250,12 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            var entity = GetOtherEntity(ref value);
+            var entity = value.GetOtherEntity(this);
             if (entity is MyFloatingObject)
             {
                 m_entitiesToTake.Add(entity as MyFloatingObject);
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
-        }
-
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-        {
-            if (value.Base.BodyA.GetEntity() == this)
-                return value.Base.BodyB.GetEntity();
-            else
-                return value.Base.BodyA.GetEntity();
         }
 
         private void GetBoxFromMatrix(Matrix m, out Vector3 halfExtents, out Vector3 position, out Quaternion orientation)
@@ -282,6 +276,21 @@ namespace Sandbox.Game.Entities.Blocks
         public MyInventory GetInventory(int index)
         {
             return m_inventory;
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if(m_inventory != null)
+            {
+                m_inventory.ContentsChanged -= Inventory_ContentChangedCallback;
+            }
+
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                m_inventory.ContentsChanged += Inventory_ContentChangedCallback;
+            }
         }
 
         public MyInventoryOwnerTypeEnum InventoryOwnerType

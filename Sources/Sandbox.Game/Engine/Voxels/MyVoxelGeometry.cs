@@ -13,6 +13,7 @@ using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using MyGridIntersection = Sandbox.Engine.Utils.MyGridIntersection;
+using VRage.Components;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -363,11 +364,23 @@ namespace Sandbox.Engine.Voxels
             if (!TryGetMesh(cell, out isEmpty, out mesh))
             {
                 ProfilerShort.Begin("Cell precalc");
-                mesh = MyPrecalcComponent.IsoMesher.Precalc(new MyIsoMesherArgs()
+                if (true)
                 {
-                    Storage = m_storage,
-                    GeometryCell = cell,
-                });
+                    var min = cell.CoordInLod << MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
+                    var max = min + MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
+                    // overlap to neighbor; introduces extra data but it makes logic for raycasts simpler (no need to check neighbor cells)
+                    min -= 1;
+                    max += 2;
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false,false);
+                }
+                else
+                {
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(new MyIsoMesherArgs()
+                    {
+                        Storage = m_storage,
+                        GeometryCell = cell,
+                    });
+                }
                 ProfilerShort.End();
             }
 
@@ -432,6 +445,5 @@ namespace Sandbox.Engine.Voxels
 
             Debug.Assert(IsEmpty(ref cell) == value);
         }
-
     }
 }

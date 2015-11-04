@@ -8,19 +8,18 @@ using System.Linq.Expressions;
 using System.Text;
 using VRage;
 using VRage.Input;
+using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>
+    public class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>
         where TBlock : MyTerminalBlock
     {
         public delegate float FloatFunc(TBlock block, float val);
-        public delegate float GetterDelegate(TBlock block);
-        public delegate void SetterDelegate(TBlock block, float value);
-
+        
         public readonly MyStringId Title;
         public readonly MyStringId Tooltip;
 
@@ -30,8 +29,6 @@ namespace Sandbox.Game.Gui
 
         public bool AmountDialogEnabled = true;
 
-        public GetterDelegate Getter;
-        public SetterDelegate Setter;
         public WriterDelegate Writer;
         public WriterDelegate CompactWriter;
 
@@ -43,15 +40,6 @@ namespace Sandbox.Game.Gui
         // This is not supported as method, because label and tooltip has issues
         //public Writer Title;
         //public Writer Tooltip;
-
-        public Expression<Func<TBlock, float>> Member
-        {
-            set
-            {
-                Getter = new GetterDelegate(value.CreateGetter());
-                Setter = new SetterDelegate(value.CreateSetter());
-            }
-        }
 
         public float? DefaultValue
         {
@@ -65,7 +53,7 @@ namespace Sandbox.Game.Gui
         {
             set
             {
-                Writer = value != null ? new WriterDelegate((block, result) => result.AppendFormat(value, Getter(block))) : null;
+                Writer = value != null ? new WriterDelegate((block, result) => result.AppendFormat(value, GetValue(block))) : null;
             }
         }
 
@@ -79,6 +67,7 @@ namespace Sandbox.Game.Gui
 
             CompactWriter = CompactWriterMethod;
             m_amountConfirmed = AmountSetter;
+            Serializer = delegate(BitStream stream, ref float value) { stream.Serialize(ref value); };
         }
 
         // TODO: separate slider gui to different class
@@ -133,6 +122,8 @@ namespace Sandbox.Game.Gui
             {
                 sb.Remove(index, 1);
             }
+            if (sb[0] == '-' && sb[1] == '0')
+                sb.Remove(0, 1);
         }
 
         public void SetLimits(float min, float max)
@@ -228,7 +219,7 @@ namespace Sandbox.Game.Gui
             {
                 m_slider.ValueChanged = null;
                 m_slider.DefaultValue = DefaultValueGetter != null ? Normalizer(first, DefaultValueGetter(first)) : default(float?);
-                m_slider.Value = Normalizer(first, Getter(first));
+                m_slider.Value = Normalizer(first, GetValue(first));
                 m_slider.ValueChanged = m_valueChanged;
 
                 m_control.SetDetailedInfo(Writer, first);
@@ -245,7 +236,7 @@ namespace Sandbox.Game.Gui
         {
             foreach (var item in TargetBlocks)
             {
-                Setter(item, Denormalizer(item, value));
+                SetValue(item, Denormalizer(item, value));
             }
         }
 
@@ -278,20 +269,20 @@ namespace Sandbox.Game.Gui
 
         void IncreaseAction(TBlock block, float step)
         {
-            float curr = Normalizer(block, Getter(block));
-            Setter(block, Denormalizer(block, MathHelper.Clamp(curr + step, 0, 1)));
+            float curr = Normalizer(block, GetValue(block));
+            SetValue(block, Denormalizer(block, MathHelper.Clamp(curr + step, 0, 1)));
         }
 
         void DecreaseAction(TBlock block, float step)
         {
-            float curr = Normalizer(block, Getter(block));
-            Setter(block, Denormalizer(block, MathHelper.Clamp(curr - step, 0, 1)));
+            float curr = Normalizer(block, GetValue(block));
+            SetValue(block, Denormalizer(block, MathHelper.Clamp(curr - step, 0, 1)));
         }
 
         void ResetAction(TBlock block)
         {
             if (DefaultValueGetter != null)
-                Setter(block, DefaultValueGetter(block));
+                SetValue(block, DefaultValueGetter(block));
         }
 
         void ActionWriter(TBlock block, StringBuilder appendTo)
@@ -314,14 +305,9 @@ namespace Sandbox.Game.Gui
                 SetActions(increase, decrease);
         }
 
-        public override float GetValue(TBlock block)
-        {
-            return Getter(block);
-        }
-
         public override void SetValue(TBlock block, float value)
         {
-            Setter(block, MathHelper.Clamp(value, Denormalizer(block, 0), Denormalizer(block, 1)));
+            base.SetValue(block, MathHelper.Clamp(value, Denormalizer(block, 0), Denormalizer(block, 1)));
         }
 
         public override float GetDefaultValue(TBlock block)

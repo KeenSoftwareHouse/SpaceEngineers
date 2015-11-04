@@ -28,7 +28,7 @@ namespace Sandbox.Game.Gui
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
         private static Vector2 m_editorDescSize = new Vector2(0.94f, 0.73f);
 
-        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\npublic class Program\n{\n IMyGridTerminalSystem GridTerminalSystem; string Storage = \"\"; IMyProgrammableBlock Me; Action<string> Echo; TimeSpan ElapsedTime;\n";
+        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing VRage.Game;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\npublic class Program: MyGridProgram\n{\n";
         const string CODE_WRAPPER_AFTER = "\n}";
         private MyGuiControlButton m_openWorkshopButton;
         private MyGuiControlButton m_checkCodeButton;
@@ -177,26 +177,31 @@ namespace Sandbox.Game.Gui
 
         string FormatError(string error)
         {
-            char[] sepators = new char[] { ':', ')', '(',',' };
-            string[] errorParts = error.Split(sepators);
-            if (errorParts.Length > 2)
+            try
             {
-                int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
-                string description = errorParts[6];
-                for (int i = 7; i < errorParts.Count(); ++i)
+                char[] sepators = new char[] { ':', ')', '(', ',' };
+                string[] errorParts = error.Split(sepators);
+                if (errorParts.Length > 2)
                 {
-                    if (string.IsNullOrWhiteSpace(errorParts[i]))
+                    int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
+                    string description = errorParts[6];
+                    for (int i = 7; i < errorParts.Count(); ++i)
                     {
-                        continue;
+                        if (string.IsNullOrWhiteSpace(errorParts[i]))
+                        {
+                            continue;
+                        }
+                        description += "," + errorParts[i];
                     }
-                    description += "," + errorParts[i];
+                    return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat), line, description);
                 }
-                return String.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorFormat), line, description);
+                else
+                {
+                    return error;
+                }
             }
-            else
-            {
-                return error;
-            }
+            catch (Exception e) { };//unknown error format
+            return error;
         }
 
         public static bool CompileProgram(string program, List<string> errors,ref Assembly assembly)
@@ -204,7 +209,7 @@ namespace Sandbox.Game.Gui
             if (program != null && program.Length > 0)
             {
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
-                if (true == IlCompiler.CompileString("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
+                if (true == IlCompiler.CompileStringIngame("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
                 {
                     return true;
                 }

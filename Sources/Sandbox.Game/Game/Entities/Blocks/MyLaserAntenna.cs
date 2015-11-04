@@ -8,32 +8,26 @@ using System.Text;
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Graphics.GUI;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using VRageMath;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-
-using Sandbox.Game.Components;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using System.Threading;
 using Sandbox.Engine.Physics;
-using VRageRender;
-using Sandbox.Common;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Definitions;
+using Sandbox.Game.EntityComponents;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LaserAntenna))]
-    public partial class MyLaserAntenna : MyFunctionalBlock, IMyPowerConsumer, IMyGizmoDrawableObject, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    public partial class MyLaserAntenna : MyFunctionalBlock, IMyGizmoDrawableObject, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
     {
         protected Color m_gizmoColor = new Vector4(0.1f, 0.1f, 0.0f, 0.1f);
         protected const float m_maxGizmoDrawDistance = 10000.0f;
@@ -82,6 +76,12 @@ namespace Sandbox.Game.Entities.Cube
         float m_needRotation=0;
         float m_needElevation = 0;
 
+        float m_minElevationRadians = 0;                        // This is combined with m_MinElevation during clamping
+        float m_maxElevationRadians = (float)(2.0 * Math.PI);
+        float m_minAzimuthRadians = 0;
+        float m_maxAzimuthRadians = (float)(2.0 * Math.PI);
+        bool m_outsideLimits = false;                           // Rotation/elevation is out of bounds
+
         Vector3D m_targetCoords;//where is or where we think is receiver
 
         float m_maxRange;
@@ -89,6 +89,8 @@ namespace Sandbox.Game.Entities.Cube
 
         bool m_IsPermanent = false;
         bool m_OnlyPermanentExists = false;
+
+        public bool m_needLineOfSight = true;
 
         public Vector3D HeadPos{
             get{
@@ -380,7 +382,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (laser.Key == this.EntityId)
                     continue;
-                if (!(laser.Value.Enabled && laser.Value.IsFunctional && PowerReceiver.SuppliedRatio > 0.99f))
+				if (!(laser.Value.Enabled && laser.Value.IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                     continue;
                 if (!m_receiver.CanIUseIt(laser.Value.m_broadcaster, this.OwnerId)
                     || !laser.Value.m_receiver.CanIUseIt(m_broadcaster, laser.Value.OwnerId))
@@ -423,17 +425,39 @@ namespace Sandbox.Game.Entities.Cube
             m_targetCoords = ob.LastTargetPosition;
 
             m_maxRange = BlockDefinition.MaxRange;
+            m_needLineOfSight = BlockDefinition.RequireLineOfSight;
 
-            InitializationMatrix = (MatrixD)PositionComp.LocalMatrix;
+            if (BlockDefinition != null)
+            {
+                m_minElevationRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MinElevationDegrees));
+                m_maxElevationRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MaxElevationDegrees));
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+                if (m_minElevationRadians > m_maxElevationRadians)
+                {
+                    m_minElevationRadians -= MathHelper.TwoPi;
+                }
+
+                m_minAzimuthRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MinAzimuthDegrees));
+                m_maxAzimuthRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MaxAzimuthDegrees));
+
+                if (m_minAzimuthRadians > m_maxAzimuthRadians)
+                {
+                    m_minAzimuthRadians -= MathHelper.TwoPi;
+                }
+
+                ClampRotationAndElevation();
+            }
+
+            InitializationMatrix = PositionComp.LocalMatrix;
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup, 
                 BlockDefinition.PowerInputLasing,
                 UpdatePowerInput);
-
-            PowerReceiver.IsPoweredChanged += IsPoweredChanged;
-            MySession.OnReady += delegate { OnReadyAction(); };
+	        ResourceSink = sinkComp;
+			ResourceSink.IsPoweredChanged += IsPoweredChanged;
+            MySession.OnReady += OnReadyAction;
             OnClose += delegate { OnClosed(); };
             
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -448,12 +472,64 @@ namespace Sandbox.Game.Entities.Cube
             UpdateEmissivity();
             UpdateMyStateText();
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        protected float NormalizeAngle(int angle)
+        {
+            int retVal = angle % 360;
+            if (retVal == 0 && angle != 0)
+            {
+                return 360;
+            }
+            return retVal;
+        }
+
+        protected void ClampRotationAndElevation()
+        {
+            var newRotation = ClampRotation(m_rotation);
+            var newElevation = ClampElevation(m_elevation);
+
+            if (newRotation != m_rotation || newElevation != m_elevation)
+                m_outsideLimits = true;
+            else
+                m_outsideLimits = false;
+
+            m_rotation = newRotation;
+            m_elevation = newElevation;
+        }
+
+        private float ClampRotation(float value)
+        {
+            if (IsRotationLimited())
+            {
+                value = Math.Min(m_maxAzimuthRadians, Math.Max(m_minAzimuthRadians, value));
+            }
+            return value;
+        }
+
+        private bool IsRotationLimited()
+        {
+            return Math.Abs((m_maxAzimuthRadians - m_minAzimuthRadians) - MathHelper.TwoPi) > 0.01;
+        }
+
+        private float ClampElevation(float value)
+        {
+            if (IsElevationLimited())
+            {
+                value = Math.Min(m_maxElevationRadians, Math.Max(Math.Max(m_minElevationRadians, m_MinElevation), value));
+            }
+            return value;
+        }
+
+        private bool IsElevationLimited()
+        {
+            return Math.Abs((m_maxElevationRadians - Math.Max(m_minElevationRadians, m_MinElevation)) - MathHelper.TwoPi) > 0.01;
         }
 
         public void OnReadyAction()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -483,11 +559,10 @@ namespace Sandbox.Game.Entities.Cube
             return objectBuilder;
         }
         
-        //================================================================================================================================
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-            if (!(Enabled && IsFunctional && PowerReceiver.SuppliedRatio>0.99f))
+			if (!(Enabled && IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                 return;
             if (State != StateEnum.idle)
                 GetRotationAndElevation(m_targetCoords, ref m_needRotation, ref m_needElevation);
@@ -497,14 +572,14 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
-            if (!(Enabled && IsFunctional && PowerReceiver.SuppliedRatio > 0.99f))
+			if (!(Enabled && IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                 return;
             TryUpdateTargetCoords();
         }
         public override void UpdateAfterSimulation100()
         {
             base.UpdateAfterSimulation100();
-            if (!(Enabled && IsFunctional && PowerReceiver.SuppliedRatio > 0.99f))
+			if (!(Enabled && IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                 return;
             m_receiver.UpdateBroadcastersInRange();
             TryUpdateTargetCoords();
@@ -534,7 +609,7 @@ namespace Sandbox.Game.Entities.Cube
                     foreach (var laser in MySession.Static.m_lasers)
                     {
                         MyLaserAntenna other = laser.Value;
-                        if (!(other.Enabled && other.IsFunctional && other.PowerReceiver.SuppliedRatio > 0.99f))
+						if (!(other.Enabled && other.IsFunctional && other.ResourceSink.SuppliedRatio > 0.99f))
                             continue;
                         if (other.m_IsPermanent && PermanentExists)//&&already found one
                             continue;
@@ -609,7 +684,7 @@ namespace Sandbox.Game.Entities.Cube
                     if (target!=null &&
                         (target.State == StateEnum.contact_Rec || target.State == StateEnum.connected || target.State == StateEnum.rot_Rec) &&
                         target.m_targetId == EntityId &&
-                        target.Enabled && target.IsFunctional && target.PowerReceiver.SuppliedRatio > 0.99f &&
+						target.Enabled && target.IsFunctional && target.ResourceSink.SuppliedRatio > 0.99f &&
                         IsInRange(target)
                         )
                     {
@@ -642,7 +717,7 @@ namespace Sandbox.Game.Entities.Cube
                     if (target == null
                         || target.m_targetId != EntityId
                         || target.State != StateEnum.connected
-                        || (!(target.Enabled && target.IsFunctional && target.PowerReceiver.SuppliedRatio > 0.99f))
+						|| (!(target.Enabled && target.IsFunctional && target.ResourceSink.SuppliedRatio > 0.99f))
                         || !target.m_rotationFinished
                         || !IsInRange(target)
                         || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
@@ -672,7 +747,7 @@ namespace Sandbox.Game.Entities.Cube
             var target = GetLaserById((long)m_targetId);
             if (target == null
                         || target.m_targetId != EntityId
-                        || (!(target.Enabled && target.IsFunctional && target.PowerReceiver.SuppliedRatio > 0.99f))
+						|| (!(target.Enabled && target.IsFunctional && target.ResourceSink.SuppliedRatio > 0.99f))
                         || !IsInRange(target)
                         || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
                         || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId)
@@ -699,7 +774,7 @@ namespace Sandbox.Game.Entities.Cube
                 var target = GetLaserById((long)m_targetId);
                 if (target != null)
                 {
-                    if (target.Enabled && target.IsFunctional && PowerReceiver.SuppliedRatio > 0.99f)
+					if (target.Enabled && target.IsFunctional && ResourceSink.SuppliedRatio > 0.99f)
                         if (target.m_targetId != EntityId)
                         {
                             sync.ShiftMode(StateEnum.idle);
@@ -757,7 +832,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (laser.Key == this.EntityId)
                     continue;
-                if (!(laser.Value.Enabled && laser.Value.IsFunctional && laser.Value.PowerReceiver.SuppliedRatio > 0.99f))
+				if (!(laser.Value.Enabled && laser.Value.IsFunctional && laser.Value.ResourceSink.SuppliedRatio > 0.99f))
                     continue;
                 if (laser.Value.m_targetId != EntityId)
                     continue;
@@ -768,16 +843,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
-
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             if (Enabled && State == StateEnum.connected)
                 sync.ShiftMode(StateEnum.rot_Rec);
             m_receiver.UpdateBroadcastersInRange();
@@ -786,12 +854,12 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         void IsPoweredChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateIsWorking();
             if (State == StateEnum.connected && !IsWorking)
                 sync.ShiftMode(StateEnum.rot_Rec);
@@ -803,7 +871,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateText();
             UpdateEmissivity();
         }
@@ -854,27 +922,27 @@ namespace Sandbox.Game.Entities.Cube
 
         private void UpdateEmissivity()
         {
-            if (!InScene || m_base2==null)
+            if (!InScene || m_base2 == null || m_base2.Render == null)
                 return;
             if (!IsWorking)
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(m_base2.Render.RenderObjectIDs[0], 0, null, -1, "Emissive0", null, Color.Red, null, null, 0);
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(m_base2.Render.RenderObjectIDs[0], 0, "Emissive0", Color.Red, 0);
                 return;
             }
             switch (State)
             {
                 case StateEnum.idle:
-                    VRageRender.MyRenderProxy.UpdateModelProperties(m_base2.Render.RenderObjectIDs[0], 0, null, -1, "Emissive0", null, Color.Green, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(m_base2.Render.RenderObjectIDs[0], 0, "Emissive0", Color.Green, 1);
                     break;
                 case StateEnum.rot_GPS:
                 case StateEnum.rot_Rec:
-                    VRageRender.MyRenderProxy.UpdateModelProperties(m_base2.Render.RenderObjectIDs[0], 0, null, -1, "Emissive0", null, Color.Yellow, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(m_base2.Render.RenderObjectIDs[0], 0, "Emissive0", Color.Yellow, 1);
                     break;
                 case StateEnum.connected:
-                    VRageRender.MyRenderProxy.UpdateModelProperties(m_base2.Render.RenderObjectIDs[0], 0, null, -1, "Emissive0", null, Color.SteelBlue, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(m_base2.Render.RenderObjectIDs[0], 0, "Emissive0", Color.SteelBlue, 1);
                     break;
                 default:
-                    VRageRender.MyRenderProxy.UpdateModelProperties(m_base2.Render.RenderObjectIDs[0], 0, null, -1, "Emissive0", null, Color.GreenYellow, null, null, 1);
+                    VRageRender.MyRenderProxy.UpdateColorEmissivity(m_base2.Render.RenderObjectIDs[0], 0, "Emissive0", Color.GreenYellow, 1);
                     return;
             }
         }
@@ -886,13 +954,14 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             DetailedInfo.Append("\n");
             if (!Enabled)
             {
 
             }
             else
+            {
                 switch (State)
                 {
                     case StateEnum.idle:
@@ -922,6 +991,12 @@ namespace Sandbox.Game.Entities.Cube
                         DetailedInfo.Append(m_lastKnownTargetName);
                         break;
                 }
+                if (m_outsideLimits)
+                {
+                    DetailedInfo.Append("\n");
+                    DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.LaserAntennaOutsideLimits));
+                }
+            }
             RaisePropertiesChanged();
         }
         
@@ -972,10 +1047,10 @@ namespace Sandbox.Game.Entities.Cube
                 if (laser!=null)
                 {
                     laser.UpdateVisual();
-                    laser.PowerReceiver.Update();
+					laser.ResourceSink.Update();
                 }
             }
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateVisual();
             UpdateText();
             UpdateEmissivity();
@@ -1019,7 +1094,7 @@ namespace Sandbox.Game.Entities.Cube
                 var other=GetLaserById((long)m_targetId);
                 if (other == null)
                     return false;
-                if (!(other.Enabled && other.IsFunctional && other.PowerReceiver.SuppliedRatio > 0.99f))
+				if (!(other.Enabled && other.IsFunctional && other.ResourceSink.SuppliedRatio > 0.99f))
                     return false;
                 if (other.State == StateEnum.idle)
                     return true;
@@ -1073,7 +1148,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_targetCoords = Vector3D.Zero;
                 m_lastKnownTargetName.Clear().Append("???");
             }
-            PowerReceiver.Update();
+			ResourceSink.Update();
             m_receiver.UpdateBroadcastersInRange();
             UpdateVisuals();
             UpdateText();
@@ -1127,6 +1202,9 @@ namespace Sandbox.Game.Entities.Cube
         }
         protected bool LosTest(Vector3D target)
         {//LOS test from me to half of distance to target, with maximum
+            if (!m_needLineOfSight)
+                return true;
+
             if (Vector3D.DistanceSquared(HeadPos, target) > m_Max_LosDist * m_Max_LosDist * 4)
                 target = HeadPos + Vector3D.Normalize(target - HeadPos) * m_Max_LosDist;
             else
@@ -1136,7 +1214,7 @@ namespace Sandbox.Game.Entities.Cube
             MyPhysics.CastRay(l.From, l.To, m_hits);
             foreach (var hit in m_hits)
             {
-                var ent = hit.HkHitInfo.Body.GetEntity();
+                var ent = hit.HkHitInfo.GetHitEntity();
                 if (ent != CubeGrid)
                 {
                     m_wasVisible = false;
@@ -1159,6 +1237,7 @@ namespace Sandbox.Game.Entities.Cube
         //------------------- rotation
         float m_rotation=0;
         float m_elevation=0;
+
         protected MyEntity m_base1;
         protected MyEntity m_base2;
 
@@ -1180,6 +1259,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_rotation = 0;
             m_elevation = 0;
+            ClampRotationAndElevation();
             m_rotationInterval_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
         public override void OnModelChange()
@@ -1207,6 +1287,8 @@ namespace Sandbox.Game.Entities.Cube
         }
         protected void RotateModels()
         {
+            ClampRotationAndElevation();
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyLargeShipGunBase::RotateModels");
 
             Matrix m = (Matrix)InitializationMatrixWorld;
@@ -1291,8 +1373,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_elevation = needElevation;
             }
-            if (m_elevation < m_MinElevation)
-                m_elevation = m_MinElevation;
+
             m_elevationInterval_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             m_rotationInterval_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 

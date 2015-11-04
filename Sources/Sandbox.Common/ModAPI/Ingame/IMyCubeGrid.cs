@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
     /// Grid interface
     /// </summary>
-    public interface IMyCubeGrid
+    public interface IMyCubeGrid : IMyEntity
     {
         /// <summary>
         /// Grid size in meters

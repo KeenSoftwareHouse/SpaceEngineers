@@ -15,15 +15,19 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using VRageMath;
 using VRageRender;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Library.Utils;
 
 namespace Sandbox.Game.Entities.Cube
 {
     /// <summary>
     ///  Multiblock clipboard for building multiblocks. Can be used for building only (not copy/paste) because it uses definitions not real tile grid/block data.
     /// </summary>
-    class MyMultiBlockClipboard : MyGridClipboard2
+    class MyMultiBlockClipboard : MyGridClipboardAdvanced
     {
         private static List<Vector3> m_tmpCollisionPoints = new List<Vector3>();
+
 
         protected override bool AnyCopiedGridIsStatic
         {
@@ -33,16 +37,27 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        private MyMultiBlockDefinition m_multiBlockDefinition;
+
         public MySlimBlock RemoveBlock;
         public ushort? BlockIdInCompound;
 
         private Vector3I m_addPos;
+
+        public HashSet<Tuple<MySlimBlock, ushort?>> RemoveBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
+        private HashSet<Vector3I> m_tmpBlockPositionsSet = new HashSet<Vector3I>();
 
 
         public MyMultiBlockClipboard(MyPlacementSettings settings, bool calculateVelocity = true) : base(settings, calculateVelocity)
         {
             EnableGridChangeToDynamic = false;
             m_useDynamicPreviews = false;
+        }
+
+        public override void Deactivate()
+        {
+            m_multiBlockDefinition = null;
+            base.Deactivate();
         }
 
         public override void Update()
@@ -94,7 +109,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override bool PasteGrid(MyInventory buildInventory = null, bool deactivate = true) 
+        public override bool PasteGrid(MyInventoryBase buildInventory = null, bool deactivate = true) 
         {
             if ((CopiedGrids.Count > 0) && !IsActive)
             {
@@ -127,52 +142,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private static MyObjectBuilder_CubeGrid ConvertGridBuilderToStatic(MyObjectBuilder_CubeGrid originalGrid, MatrixD worldMatrix)
-        {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
-            gridBuilder.EntityId = originalGrid.EntityId;
-            gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(originalGrid.PositionAndOrientation.Value.Position, Vector3.Forward, Vector3.Up);
-            gridBuilder.GridSizeEnum = originalGrid.GridSizeEnum;
-            gridBuilder.IsStatic = true;
-            gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
-
-            // Blocks in static grid - must be recreated for static grid with different orientation and position
-            foreach (var origBlock in originalGrid.CubeBlocks)
-            {
-                if (origBlock is MyObjectBuilder_CompoundCubeBlock)
-                {
-                    var origBlockCompound = origBlock as MyObjectBuilder_CompoundCubeBlock;
-                    var blockBuilderCompound = ConvertDynamicGridBlockToStatic(ref worldMatrix, origBlock) as MyObjectBuilder_CompoundCubeBlock;
-                    Debug.Assert(blockBuilderCompound != null);
-                    if (blockBuilderCompound == null)
-                        continue;
-
-                    blockBuilderCompound.Blocks = new MyObjectBuilder_CubeBlock[origBlockCompound.Blocks.Length];
-
-                    for (int i = 0; i < origBlockCompound.Blocks.Length; ++i)
-                    {
-                        var origBlockInCompound = origBlockCompound.Blocks[i];
-                        var blockBuilder = ConvertDynamicGridBlockToStatic(ref worldMatrix, origBlockInCompound);
-                        if (blockBuilder == null)
-                            continue;
-
-                        blockBuilderCompound.Blocks[i] = blockBuilder;
-                    }
-                    gridBuilder.CubeBlocks.Add(blockBuilderCompound);
-                }
-                else
-                {
-                    var blockBuilder = ConvertDynamicGridBlockToStatic(ref worldMatrix, origBlock);
-                    if (blockBuilder == null)
-                        continue;
-                    gridBuilder.CubeBlocks.Add(blockBuilder);
-                }
-            }
-
-            return gridBuilder;
-        }
-
-        private bool PasteGridsInDynamicMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInDynamicMode(MyInventoryBase buildInventory, bool deactivate)
         {
             bool result;
             // Remember static grid flag and set it to dynamic
@@ -192,7 +162,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInStaticMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInStaticMode(MyInventoryBase buildInventory, bool deactivate)
         {
             // Paste generates grid from builder and use matrix from preview
             List<MyObjectBuilder_CubeGrid> copiedGridsOrig = new List<MyObjectBuilder_CubeGrid>();
@@ -204,7 +174,7 @@ namespace Sandbox.Game.Entities.Cube
                 copiedGridsOrig.Add(originalCopiedGrid);
                 MatrixD previewGridWorldMatrix = PreviewGrids[0].WorldMatrix;
                 // Convert grid builder to static 
-                var gridBuilder = ConvertGridBuilderToStatic(originalCopiedGrid, previewGridWorldMatrix);
+                var gridBuilder = MyCubeBuilder.ConvertGridBuilderToStatic(originalCopiedGrid, previewGridWorldMatrix);
                 // Set it to copied grids
                 CopiedGrids[0] = gridBuilder;
 
@@ -223,7 +193,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (CopiedGrids[i].IsStatic)
                 {
                     // Convert grid builder to static 
-                    var gridBuilder = ConvertGridBuilderToStatic(originalCopiedGrid, previewGridWorldMatrix);
+                    var gridBuilder = MyCubeBuilder.ConvertGridBuilderToStatic(originalCopiedGrid, previewGridWorldMatrix);
                     // Set it to copied grids
                     CopiedGrids[i] = gridBuilder;
 
@@ -245,36 +215,6 @@ namespace Sandbox.Game.Entities.Cube
 
             return result;
         }
-
-        private static MyObjectBuilder_CubeBlock ConvertDynamicGridBlockToStatic(ref MatrixD worldMatrix, MyObjectBuilder_CubeBlock origBlock)
-        {
-            MyDefinitionId defId = new MyDefinitionId(origBlock.TypeId, origBlock.SubtypeName);
-            MyCubeBlockDefinition blockDefinition;
-            MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDefinition);
-            if (blockDefinition == null)
-                return null;
-
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(defId) as MyObjectBuilder_CubeBlock;
-            blockBuilder.EntityId = origBlock.EntityId;
-            // Orientation quaternion is not setup in origblock
-            MyBlockOrientation orientation = origBlock.BlockOrientation;
-            Quaternion rotationQuat;
-            orientation.GetQuaternion(out rotationQuat);
-            Matrix origRotationMatrix = Matrix.CreateFromQuaternion(rotationQuat);
-            Matrix rotationMatrix = origRotationMatrix * worldMatrix;
-            blockBuilder.Orientation = Quaternion.CreateFromRotationMatrix(rotationMatrix);
-
-            Vector3I origSizeRotated = Vector3I.Abs(Vector3I.Round(Vector3.TransformNormal((Vector3)blockDefinition.Size, origRotationMatrix)));
-            Vector3I origMin = origBlock.Min;
-            Vector3I origMax = origBlock.Min + origSizeRotated - Vector3I.One;
-
-            Vector3I minXForm = Vector3I.Round(Vector3.TransformNormal((Vector3)origMin, worldMatrix));
-            Vector3I maxXForm = Vector3I.Round(Vector3.TransformNormal((Vector3)origMax, worldMatrix));
-
-            blockBuilder.Min = Vector3I.Min(minXForm, maxXForm);
-            return blockBuilder;
-        }
-
 
         protected new void UpdatePastePosition()
         {
@@ -351,7 +291,14 @@ namespace Sandbox.Game.Entities.Cube
             m_addPos = Vector3I.Zero;
             RemoveBlock = null;
             BlockIdInCompound = null;
+            RemoveBlocksInMultiBlock.Clear();
             m_dynamicBuildAllowed = false;
+
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+            {
+                m_visible = false;
+                return;
+            }
 
             if (MyCubeBuilder.Static.DynamicMode)
             {
@@ -373,10 +320,11 @@ namespace Sandbox.Game.Entities.Cube
             if (MyCubeBuilder.Static.HitInfo.HasValue) 
             {
                 float gridSize = MyDefinitionManager.Static.GetCubeSize(CopiedGrids[0].GridSizeEnum);
-                MyCubeGrid hitGrid = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                MyCubeGrid hitGrid = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() as MyCubeGrid;
                 bool placingSmallGridOnLargeStatic = hitGrid != null && hitGrid.IsStatic && hitGrid.GridSizeEnum == MyCubeSize.Large && CopiedGrids[0].GridSizeEnum == MyCubeSize.Small && MyFakes.ENABLE_STATIC_SMALL_GRID_ON_LARGE;
 
-                bool add = MyCubeBuilder.Static.GetAddAndRemovePositions(gridSize, placingSmallGridOnLargeStatic, out m_addPos, out addPosSmallOnLarge, out addDir, out removePos, out RemoveBlock, out BlockIdInCompound);
+                bool add = MyCubeBuilder.Static.GetAddAndRemovePositions(gridSize, placingSmallGridOnLargeStatic, out m_addPos, out addPosSmallOnLarge, out addDir, 
+                    out removePos, out RemoveBlock, out BlockIdInCompound, RemoveBlocksInMultiBlock);
                 if (add) 
                 {
                     if (RemoveBlock != null) 
@@ -393,12 +341,12 @@ namespace Sandbox.Game.Entities.Cube
 
                         m_visible = RemoveBlock != null;
                     }
-                    else if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() is MyVoxelMap)
+                    else if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() is MyVoxelMap)
                     {
                         m_hitPos = MyCubeBuilder.Static.HitInfo.Value.Position;
                         m_closestHitDistSq = (float)(m_hitPos - pasteMatrix.Translation).LengthSquared();
                         m_hitNormal = addDir;
-                        m_hitEntity = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() as MyVoxelMap;
+                        m_hitEntity = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() as MyVoxelMap;
 
                         m_visible = true;
                     }
@@ -429,16 +377,12 @@ namespace Sandbox.Game.Entities.Cube
                 return;
 
             // Fix rotation of the first pasted grid
-            Matrix hitGridRotation = hitGrid.WorldMatrix.GetOrientation();
-            Matrix firstRotation = PreviewGrids[0].WorldMatrix.GetOrientation();
-            Matrix newFirstRotation = Matrix.AlignRotationToAxes(ref firstRotation, ref hitGridRotation);
-            Matrix rotationDelta = Matrix.Invert(firstRotation) * newFirstRotation;
+            Matrix rotationDelta = GetRotationDeltaMatrixToHitGrid(hitGrid);
 
             foreach (var grid in PreviewGrids)
             {
                 Matrix rotation = grid.WorldMatrix.GetOrientation();
                 rotation = rotation * rotationDelta;
-                Matrix rotationInv = Matrix.Invert(rotation);
 
                 Vector3D position = m_pastePosition;
 
@@ -451,7 +395,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (smallOnLargeGrid)
             {
-                Vector3 pasteOffset = TransformLargeGridHitCoordToSmallGrid(m_hitPos, hitGrid.PositionComp.WorldMatrixNormalizedInv, hitGrid.GridSize);
+                Vector3 pasteOffset = MyCubeBuilder.TransformLargeGridHitCoordToSmallGrid(m_hitPos, hitGrid.PositionComp.WorldMatrixNormalizedInv, hitGrid.GridSize);
                 m_pastePosition = hitGrid.GridIntegerToWorld(pasteOffset);
             }
             else
@@ -497,6 +441,16 @@ namespace Sandbox.Game.Entities.Cube
                 MyRenderProxy.DebugDrawLine3D(m_hitPos, m_hitPos + m_hitNormal, Color.Red, Color.Green, false);
         }
 
+        public Matrix GetRotationDeltaMatrixToHitGrid(MyCubeGrid hitGrid)
+        {
+            // Fix rotation of the first pasted grid
+            Matrix hitGridRotation = hitGrid.WorldMatrix.GetOrientation();
+            Matrix firstRotation = PreviewGrids[0].WorldMatrix.GetOrientation();
+            Matrix newFirstRotation = Matrix.AlignRotationToAxes(ref firstRotation, ref hitGridRotation);
+            Matrix rotationDelta = Matrix.Invert(firstRotation) * newFirstRotation;
+            return rotationDelta;
+        }
+
         private bool TestPlacement()
         {
             bool retval = true;
@@ -506,20 +460,25 @@ namespace Sandbox.Game.Entities.Cube
                 var grid = PreviewGrids[i];
                 var settings = m_settings.GetGridPlacementSettings(grid);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.DeveloperSpectatorIsBuilding)
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding)
                 {
+                    if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
+                    {
+                        m_visible = false;
+                        return false;
+                    }
+
                     if (i == 0 && !MyCubeBuilder.Static.DynamicMode)
                     {
                         MatrixD invMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance) 
-                            || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance))
                         {
                             m_visible = false;
                             return false;
                         }
                     }
 
-                    if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
+                    /*if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
                     {
                         foreach (var block in grid.GetBlocks())
                         {
@@ -532,7 +491,7 @@ namespace Sandbox.Game.Entities.Cube
                     if (i == 0 && MySession.Static.SimpleSurvival)
                     {
                         retval = retval && MyCubeBuilder.Static.CanBuildBlockSurvivalTime();
-                    }
+                    }*/
 
                     if (!retval)
                         return false;
@@ -550,6 +509,8 @@ namespace Sandbox.Game.Entities.Cube
                             Vector3 maxLocal = block.Max * PreviewGrids[i].GridSize + Vector3.Half * PreviewGrids[i].GridSize;
                             BoundingBoxD aabbLocal = new BoundingBoxD(minLocal, maxLocal);
                             retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settingsLocal, aabbLocal, true);
+                            if (!retval)
+                                break;
                         }
                     }
                 }
@@ -661,9 +622,21 @@ namespace Sandbox.Game.Entities.Cube
                 //}
             }
 
-            if (RemoveBlock != null)
+            Vector4 red = new Vector4(Color.Red.ToVector3() * 0.8f, 1);
+
+            if (RemoveBlocksInMultiBlock.Count > 0)
             {
-                Vector4 red = new Vector4(Color.Red.ToVector3() * 0.8f, 1);
+                m_tmpBlockPositionsSet.Clear();
+
+                MyCubeBuilder.GetAllBlocksPositions(RemoveBlocksInMultiBlock, m_tmpBlockPositionsSet);
+
+                foreach (var position in m_tmpBlockPositionsSet)
+                    MyCubeBuilder.DrawSemiTransparentBox(position, position, RemoveBlock.CubeGrid, red, lineMaterial: "GizmoDrawLineRed");
+
+                m_tmpBlockPositionsSet.Clear();
+            }
+            else if (RemoveBlock != null)
+            {
                 MyCubeBuilder.DrawSemiTransparentBox(RemoveBlock.CubeGrid, RemoveBlock, red, lineMaterial: "GizmoDrawLineRed");
             }
         }
@@ -678,6 +651,15 @@ namespace Sandbox.Game.Entities.Cube
             if (MySession.Static.SurvivalMode)
                 m_dragDistance = MyCubeBuilder.Static.IntersectionDistance;
         }
+
+        public void SetGridFromBuilder(MyMultiBlockDefinition multiBlockDefinition, MyObjectBuilder_CubeGrid grid, Vector3 dragPointDelta, float dragVectorLength)
+        {
+            Debug.Assert(multiBlockDefinition != null);
+            m_multiBlockDefinition = multiBlockDefinition;
+
+            SetGridFromBuilder(grid, dragPointDelta, dragVectorLength);
+        }
+
 
 
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using VRage.Library.Utils;
 
@@ -377,24 +378,24 @@ namespace Sandbox.Game.World
         }
 
         IMyPlayer IMySession.Player
-        { 
-            get { return LocalHumanPlayer; } 
+        {
+            get { return LocalHumanPlayer; }
         }
 
-        IMyControllableEntity IMySession.ControlledObject 
+        IMyControllableEntity IMySession.ControlledObject
         {
-            get { return ControlledEntity; } 
+            get { return ControlledEntity; }
         }
 
         Common.ObjectBuilders.MyObjectBuilder_SessionSettings IMySession.SessionSettings
         {
-            get { return Settings;}
+            get { return Settings; }
         }
 
 
         IMyFactionCollection IMySession.Factions
         {
-            get { return Factions;}
+            get { return Factions; }
         }
 
         IMyCamera IMySession.Camera
@@ -407,6 +408,11 @@ namespace Sandbox.Game.World
             get { return MySandboxGame.Config; }
         }
 
+        IMyDamageSystem IMySession.DamageSystem
+        {
+            get { return MyDamageSystem.Static; }
+        }
+
         IMyGpsCollection IMySession.GPS
         {
             get { return MySession.Static.Gpss; }
@@ -414,8 +420,14 @@ namespace Sandbox.Game.World
 
         event Action IMySession.OnSessionReady
         {
-            add { MySandboxGame.OnSessionReady += value; }
-            remove { MySandboxGame.OnSessionReady -= value; }
+            add { MySession.OnReady += value; }
+            remove { MySession.OnReady -= value; }
+        }
+
+        event Action IMySession.OnSessionLoading
+        {
+            add { MySession.OnLoading += value; }
+            remove { MySession.OnLoading -= value; }
         }
     }
 }

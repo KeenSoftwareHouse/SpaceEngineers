@@ -9,22 +9,23 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using VRageMath;
 using System.Diagnostics;
-using VRageRender;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Definitions;
-using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using Sandbox.ModAPI.Ingame;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ConveyorSorter))]
-    class MyConveyorSorter : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorSorter
+    class MyConveyorSorter : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyInventoryOwner, IMyConveyorSorter
     {
         public bool IsWhitelist
         {
@@ -42,7 +43,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsAllowed(MyDefinitionId itemId)
         {
-            if (!Enabled || !IsFunctional || !IsWorking || !PowerReceiver.IsPowered)
+			if (!Enabled || !IsFunctional || !IsWorking || !ResourceSink.IsPowered)
                 return false;
 
             return m_inventoryConstraint.Check(itemId);
@@ -58,12 +59,6 @@ namespace Sandbox.Game.Entities
         }
 
         public bool DrainAll
-        {
-            get;
-            private set;
-        }
-
-        public MyPowerReceiver PowerReceiver
         {
             get;
             private set;
@@ -110,6 +105,7 @@ namespace Sandbox.Game.Entities
             blacklistWhitelist.ComboBoxContent = (block) => FillBlWlCombo(block);
             blacklistWhitelist.Getter = (block) => (long)(block.IsWhitelist ? 1 : 0);
             blacklistWhitelist.Setter = (block, val) => block.ChangeBlWl(val == 1);
+            blacklistWhitelist.SetSerializerBit();
             MyTerminalControlFactory.AddControl(blacklistWhitelist);
 
             currentList = new MyTerminalControlListbox<MyConveyorSorter>("CurrentList", MySpaceTexts.BlockPropertyTitle_ConveyorSorterFilterItemsList, MySpaceTexts.Blank, true);
@@ -289,7 +285,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             DetailedInfo.Append("\n");
             RaisePropertiesChanged();
         }
@@ -408,15 +404,19 @@ namespace Sandbox.Game.Entities
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_100TH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Conveyors,
-                false,
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(
+                m_conveyorSorterDefinition.ResourceSinkGroup,
                 BlockDefinition.PowerInput,
                 UpdatePowerInput);
-            PowerReceiver.IsPoweredChanged += IsPoweredChanged;
-            PowerReceiver.Update();
+			sinkComp.IsPoweredChanged += IsPoweredChanged;
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
             UpdateText();
         }
 
@@ -451,14 +451,14 @@ namespace Sandbox.Game.Entities
         }
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateText();
             UpdateEmissivity();
             base.OnEnabledChanged();
         }
         void IsPoweredChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateText();
             UpdateEmissivity();
         }
@@ -474,6 +474,27 @@ namespace Sandbox.Game.Entities
             Debug.Assert(index == 0);
             return m_inventory;
         }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged -= Inventory_ContentsChanged;
+            }
+            m_inventory = inventory;
+
+            if (m_inventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
+        }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         String IMyInventoryOwner.DisplayNameText
         {
@@ -519,7 +540,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            if (!Sync.IsServer || !DrainAll || !Enabled || !IsFunctional || !IsWorking || !PowerReceiver.IsPowered)
+			if (!Sync.IsServer || !DrainAll || !Enabled || !IsFunctional || !IsWorking || !ResourceSink.IsPowered)
                 return;
 
             if (!m_inventory.IsFull)
@@ -531,7 +552,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
-            if (!Sync.IsServer || !DrainAll || !Enabled || !IsFunctional || !IsWorking || !PowerReceiver.IsPowered)
+			if (!Sync.IsServer || !DrainAll || !Enabled || !IsFunctional || !IsWorking || !ResourceSink.IsPowered)
                 return;
 
             m_pushRequestFrameCounter++;
@@ -566,7 +587,7 @@ namespace Sandbox.Game.Entities
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             UpdateText();
             UpdateEmissivity();
         }
@@ -595,7 +616,7 @@ namespace Sandbox.Game.Entities
             if (!InScene)
                 return;
 
-            Color newColor = Enabled && IsFunctional && IsWorking && PowerReceiver.IsPowered ? Color.GreenYellow : Color.DarkRed;
+			Color newColor = Enabled && IsFunctional && IsWorking && ResourceSink.IsPowered ? Color.GreenYellow : Color.DarkRed;
             MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, newColor, Color.White);
         }
     }

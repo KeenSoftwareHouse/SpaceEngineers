@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.EntityComponents.Renders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,17 @@ namespace Sandbox.Game.Entities.Blocks
     {
         public float Friction { get; set; }
 
+		public new MyRenderComponentWheel Render
+		{
+			get { return base.Render as MyRenderComponentWheel; }
+			set { base.Render = value; }
+		}
+
         public MyWheel()
         {
             Friction = 1.5f;
             IsWorkingChanged += MyWheel_IsWorkingChanged;
+			Render = new MyRenderComponentWheel();
         }
 
         void MyWheel_IsWorkingChanged(MyCubeBlock obj)
@@ -27,7 +35,7 @@ namespace Sandbox.Game.Entities.Blocks
                 Stator.UpdateIsWorking();
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             //return;
             var prop = value.Event.ContactProperties;
@@ -35,6 +43,8 @@ namespace Sandbox.Game.Entities.Blocks
             prop.Restitution = 0.5f;
             value.EnableParticles = false;
             value.RubberDeformation = true;
+
+			var otherEntity = value.CollidingEntity;
         }
     }
 }

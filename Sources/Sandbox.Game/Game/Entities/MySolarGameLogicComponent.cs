@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -95,13 +98,13 @@ namespace Sandbox.Game.Entities
             pivot += ((m_currentPivot / 4 - 0.5f) * unit * scale * (m_solarBlock.BlockDefinition.Size.Y / 2f)) * m_solarBlock.WorldMatrix.Up;
             pivot += unit * scale * (m_solarBlock.BlockDefinition.Size.Z / 2f) * Vector3.Transform(m_panelOrientation, rot) * m_panelOffset;
 
-            LineD l = new LineD(pivot + MySector.DirectionToSunNormalized * 1000, pivot + MySector.DirectionToSunNormalized * m_solarBlock.CubeGrid.GridSize / 4); //shadows are drawn only 1000m
+            LineD l = new LineD(pivot + MySector.DirectionToSunNormalized * 100, pivot + MySector.DirectionToSunNormalized * m_solarBlock.CubeGrid.GridSize / 4); //shadows are drawn only 1000m
 
             MyPhysics.CastRay(l.From, l.To, m_hitList);
             m_pivotInSun[m_currentPivot] = true;
             foreach (var hit in m_hitList)
             {
-                var ent = hit.HkHitInfo.Body.GetEntity();
+                var ent = hit.HkHitInfo.GetHitEntity();
                 if (ent != m_solarBlock.CubeGrid)
                 {
                     m_pivotInSun[m_currentPivot] = false;

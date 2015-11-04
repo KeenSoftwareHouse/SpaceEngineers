@@ -14,16 +14,18 @@ using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
+using Sandbox.Definitions;
+using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TimerBlock))]
-    internal class MyTimerBlock : MyFunctionalBlock, IMyPowerConsumer, IMyTimerBlock
+    internal class MyTimerBlock : MyFunctionalBlock, IMyTimerBlock
     {
         [PreloadRequired]
         internal class MySyncTimerBlock : MySyncEntity
@@ -90,34 +92,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
-                if(msg.Item.EntityID != 0)
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if(MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyTimerBlock parent;
-                        if (MyEntities.TryGetEntityById<MyTimerBlock>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);;
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
+                if (msg.Item.EntityID != 0)
+                    item = ToolbarItem.ToItem(msg.Item);
                 sync.m_timer.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
                 if (Sync.IsServer)
@@ -203,7 +179,7 @@ namespace Sandbox.Game.Entities.Blocks
         private int m_countdownMsStart;
         public bool IsCountingDown { get; private set; }
 
-        private static List<MyToolbar> m_openedToolbars;
+        private static readonly List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
 
         static MyTimerBlock()
@@ -272,7 +248,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Stop()
         {
             IsCountingDown = false;
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             UpdateEmissivity();
             DetailedInfo.Clear();
@@ -282,7 +258,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Start()
         {
             IsCountingDown = true;
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = m_countdownMsStart;
         }
 
@@ -290,7 +266,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             (SyncObject as MySyncTimerBlock).SendToolbarItemChanged(tItem, index.ItemIndex);
             
             if (m_shouldSetOtherToolbars)
@@ -310,38 +286,18 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
-        }
-
         protected override void OnStartWorking()
         {
             base.OnStartWorking();
             if(m_countdownMsCurrent != 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
         protected override void OnStopWorking()
         {
             base.OnStopWorking();
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
@@ -361,22 +317,25 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.Init(ob.Toolbar, this);
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
-            if (ob.JustTriggered) NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            if (ob.JustTriggered) NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             m_countdownMsStart = ob.Delay;
             m_countdownMsCurrent = ob.CurrentTime;
             if (m_countdownMsCurrent > 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+	        var timerBlockDefinition = BlockDefinition as MyTimerBlockDefinition;
+
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                timerBlockDefinition.ResourceSinkGroup,
                 0.0000001f,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.Update();
+				() => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+	        ResourceSink = sinkComp;
+			ResourceSink.Update();
 
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
         }
@@ -385,7 +344,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_TimerBlock;
             ob.Toolbar = Toolbar.GetObjectBuilder();
-            ob.JustTriggered = NeedsUpdate.HasFlag(Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
+            ob.JustTriggered = NeedsUpdate.HasFlag(MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
             ob.Delay = m_countdownMsStart;
             ob.CurrentTime = m_countdownMsCurrent;
             return ob;
@@ -432,9 +391,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (m_countdownMsCurrent <= 0)
             {
-                NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
                 m_countdownMsCurrent = 0;
-                NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             DetailedInfo.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyTitle_TimerToTrigger));
             MyValueFormatter.AppendTimeExact(m_countdownMsCurrent / 1000, DetailedInfo);
@@ -443,7 +402,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void StopCountdown()
         {
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             IsCountingDown = false;
             DetailedInfo.Clear();
@@ -460,7 +419,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
@@ -478,7 +437,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
@@ -509,7 +468,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()
@@ -519,7 +478,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         public override void OnAddedToScene(object source)
@@ -542,15 +501,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
         public float TriggerDelay
         {
             get { return Math.Max(m_countdownMsStart, 1000) / 1000; }

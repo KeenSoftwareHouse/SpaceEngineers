@@ -3,6 +3,7 @@
 using Havok;
 using ParallelTasks;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -35,23 +36,19 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-
 using VRage;
 using VRage.Audio;
 using VRage.Collections;
-using VRage;
-using VRage.Audio;
-using VRage.Input;
-using VRage.Plugins;
-using VRage.Utils;
 using VRage.Compiler;
+using VRage.FileSystem;
 using VRage.Input;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Plugins;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRageRender;
-using VRage.Library.Utils;
-using VRage.FileSystem;
 #endregion
 
 [assembly: InternalsVisibleTo("ScriptsUT")]
@@ -89,8 +86,8 @@ namespace Sandbox
         public static bool IsUpdateReady = true;
 
         public static bool IsConsoleVisible = false;
+        public static bool IsReloading = false;
 
-        public static event Action OnSessionReady;
         public static bool FatalErrorDuringInit = false;
         public static VRageGameServices Services { get; private set; }
 
@@ -135,6 +132,8 @@ namespace Sandbox
 
         public MyGameRenderComponent GameRenderComponent;
 
+        public MySessionCompatHelper SessionCompatHelper = null;
+
         public static MyConfig Config;
         public static IMyConfigDedicated ConfigDedicated;
 
@@ -153,6 +152,7 @@ namespace Sandbox
         }
 
         public event EventHandler OnGameLoaded;
+        public event EventHandler OnScreenshotTaken;
 
         #endregion
 
@@ -189,12 +189,6 @@ namespace Sandbox
             ProfilerShort.BeginNextBlock("MyTexts.Init()");
             MyLanguage.Init();
 
-            MySession.OnReady += delegate
-            {
-                if (OnSessionReady != null)
-                    OnSessionReady();
-            };
-
             ProfilerShort.BeginNextBlock("MyDefinitionManager.LoadScenarios");
             MyDefinitionManager.Static.LoadScenarios();
 
@@ -220,7 +214,12 @@ namespace Sandbox
 
                 MyLog.Default.WriteLineAndConsole("Bind IP : " + ep.ToString());
 
-                MyDedicatedServer dedicatedServer = new MyDedicatedServer(ep);
+                MyDedicatedServerBase dedicatedServer = null;
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && MySandboxGame.ConfigDedicated.SessionSettings.Battle)
+                    dedicatedServer = new MyDedicatedServerBattle(ep);
+                else 
+                    dedicatedServer = new MyDedicatedServer(ep);
+
                 MyMultiplayer.Static = dedicatedServer;
 
                 FatalErrorDuringInit = !dedicatedServer.ServerStarted;
@@ -236,8 +235,10 @@ namespace Sandbox
             // Game tags contain game data hash, so they need to be sent after preallocation
             if (IsDedicated && !FatalErrorDuringInit)
             {
-                (MyMultiplayer.Static as MyDedicatedServer).SendGameTagsToSteam();
+                (MyMultiplayer.Static as MyDedicatedServerBase).SendGameTagsToSteam();
             }
+
+            SessionCompatHelper = Activator.CreateInstance(MyPerGameSettings.CompatHelperType) as MySessionCompatHelper;
 
             ProfilerShort.BeginNextBlock("InitMultithreading");
 
@@ -285,8 +286,6 @@ namespace Sandbox
                 ProfilerShort.End();
             }
 
-            Config.Load();
-
             Initialize();
 
             if (disposeSplashScreen != null)
@@ -309,9 +308,7 @@ namespace Sandbox
                 MyLog.Default.WriteLine("Havok Destruction is not availiable in this build. Exiting game.");
                 MySandboxGame.ExitThreadSafe();
                 return;
-            }
-
-            if (OnGameLoaded != null) OnGameLoaded(this, null);
+            }            
 
             if (!customRenderLoop)
             {
@@ -323,6 +320,8 @@ namespace Sandbox
         public void EndLoop()
         {
             MyLog.Default.WriteLineAndConsole("Exiting..");
+            MyAnalyticsHelper.ReportProcessEnd();
+            MyAnalyticsHelper.FlushAndDispose();
             UnloadData_UpdateThread();
         }
 
@@ -402,8 +401,9 @@ namespace Sandbox
             MyGuiGameControlsHelpers.Add(MyControlsSpace.CONTROL_MENU, new MyGuiDescriptor(MySpaceTexts.ControlName_ControlMenu));
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
-            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>();
+            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.BACKWARD, null, MyKeys.S);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.STRAFE_LEFT, null, MyKeys.A);
@@ -455,6 +455,8 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CONTROL_MENU);
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.STATION_ROTATION, null, MyKeys.B);
+
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT1, null, MyKeys.D1);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT2, null, MyKeys.D2);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT3, null, MyKeys.D3);
@@ -474,11 +476,21 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Spectator, MyControlsSpace.SPECTATOR_FREE, null, MyKeys.F8);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Spectator, MyControlsSpace.SPECTATOR_STATIC, null, MyKeys.F9);
 
+
             MyInput.Initialize(IsDedicated
                 ? (IMyInput)new MyNullInput()
                 : (IMyInput)new MyDirectXInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
 
             MySpaceBindingCreator.CreateBinding();
+        }
+
+        private void InitJoystick()
+        {
+            var joysticks = MyInput.Static.EnumerateJoystickNames();
+            if (MyFakes.ENFORCE_CONTROLLER && joysticks.Count > 0)
+            {
+                MyInput.Static.JoystickInstanceName = joysticks[0];
+            }
         }
 
         protected virtual void InitSteamWorkshop()
@@ -504,6 +516,9 @@ namespace Sandbox
                 blueprintCategories: new MySteamWorkshop.Category[]
                 {
                     new MySteamWorkshop.Category { Id = "exploration", LocalizableName = MySpaceTexts.WorkshopTag_Exploration, },
+                },
+                scenarioCategories: new MySteamWorkshop.Category[]
+                {
                 });
         }
 
@@ -522,6 +537,8 @@ namespace Sandbox
         private void ParseArgs(string[] args)
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+            MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+            MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -616,7 +633,12 @@ namespace Sandbox
                         {
                             if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                             {
-                                MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+                                MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
+                                if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                    MySession.LoadBattle(lastSessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                else
+                                    MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+
                                 MySession.Static.StartServer(MyMultiplayer.Static);
                             }
                             else
@@ -647,7 +669,12 @@ namespace Sandbox
                             {
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                                 {
-                                    MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+                                    MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
+                                    if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                        MySession.LoadBattle(sessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                    else
+                                        MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+
                                     MySession.Static.StartServer(MyMultiplayer.Static);
                                     MyModAPIHelper.OnSessionLoaded();
                                 }
@@ -699,6 +726,8 @@ namespace Sandbox
 
                         if (MySteamWorkshop.DownloadWorldModsBlocking(mods))
                         {
+                            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
+
                             MySession.Start(newWorldName, "", "", settings, mods,
                                 new MyWorldGenerator.Args()
                                 {
@@ -784,7 +813,7 @@ namespace Sandbox
             {
                 form.Icon = new System.Drawing.Icon(Path.Combine(MyFileSystem.ExePath, MyPerGameSettings.GameIcon));
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 form.Icon = null;
             }
@@ -856,6 +885,8 @@ namespace Sandbox
             InitSteamWorkshop();
             ProfilerShort.End();
 
+            MyAnalyticsHelper.ReportPlayerId();
+
             // Load data
             LoadData();
 
@@ -914,6 +945,7 @@ namespace Sandbox
             {
                 // May be required to extend this to more assemblies than just current
                 PreloadTypesFrom(MyPlugins.GameAssembly);
+                PreloadTypesFrom(MyPlugins.SandboxAssembly);
                 PreloadTypesFrom(MyPlugins.UserAssembly);
                 ForceStaticCtor(typesToForceStaticCtor);
                 PreloadTypesFrom(typeof(MySandboxGame).Assembly);
@@ -978,11 +1010,13 @@ namespace Sandbox
             if (MyInput.Static != null)
                 MyInput.Static.LoadContent(WindowHandle);
 
+            VRage.Voxels.MyClipmap.CameraFrustumGetter = GetCameraFrustum;
+
             HkBaseSystem.Init(16 * 1024 * 1024, LogWriter);
             WriteHavokCodeToLog();
             Parallel.StartOnEachWorker(() => HkBaseSystem.InitThread(Thread.CurrentThread.Name));
 
-            Sandbox.Engine.Physics.MyPhysicsBody.DebugGeometry = new HkGeometry();
+            Sandbox.Engine.Physics.MyPhysicsDebugDraw.DebugGeometry = new HkGeometry();
 
             Engine.Models.MyModels.LoadData();
 
@@ -1008,6 +1042,7 @@ namespace Sandbox
             MyAudio.Static.VolumeGame = Config.GameVolume;
             MyAudio.Static.VolumeHud = Config.GameVolume;
             MyGuiAudio.HudWarnings = Config.HudWarnings;
+            MyAudio.Static.EnableVoiceChat = Config.EnableVoiceChat;
             Config.MusicVolume = MyAudio.Static.VolumeMusic;
             Config.GameVolume = MyAudio.Static.VolumeGame;
             MyGuiSoundManager.Audio = MyGuiAudio.Static;
@@ -1024,8 +1059,9 @@ namespace Sandbox
                 MySteam.API.Matchmaking.ServerChangeRequest += Matchmaking_ServerChangeRequest;
             }
 
-            ProfilerShort.BeginNextBlock("MyInput.LoadData");
+            ProfilerShort.BeginNextBlock("MyInput.LoadData");        
             MyInput.Static.LoadData(Config.ControlsGeneral, Config.ControlsButtons);
+            InitJoystick();
             ProfilerShort.End();
 
             MySandboxGame.Log.DecreaseIndent();
@@ -1033,6 +1069,13 @@ namespace Sandbox
             ProfilerShort.End();
 
             InitModAPI();
+
+            if (OnGameLoaded != null) OnGameLoaded(this, null);
+        }
+
+        private BoundingFrustumD GetCameraFrustum()
+        {
+            return MySector.MainCamera != null ? MySector.MainCamera.BoundingFrustum : new BoundingFrustumD(MatrixD.Identity);            
         }
 
         protected virtual void LoadGui()
@@ -1086,7 +1129,7 @@ namespace Sandbox
             Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
             IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", getPath("Sandbox.Game.dll"),
                 getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
-                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
             Log.DecreaseIndent();
             if (MyFakes.ENABLE_SCRIPTS_PDB)
                 IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
@@ -1097,19 +1140,26 @@ namespace Sandbox
             // Added by Ondrej
             IlChecker.AllowNamespaceOfTypeCommon(typeof(TerminalActionExtensions));
 
-
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.VRageData.SerializableBlockOrientation));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.ModAPI.Ingame.IMyCubeBlock));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.IMySession));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Interfaces.IMyCameraController));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.ModAPI.IMyEntity));
 
-
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.Definitions.EnvironmentItemsEntry));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.Components.MyComponentBase));
 
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_Base));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionManager));
@@ -1121,19 +1171,20 @@ namespace Sandbox
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Voxels.MyStorageDataCache));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyStringId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
 
-            var serializerType = typeof(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer);
+            var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()
             {
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType)}),
-                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId)}),
+                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(SerializableDefinitionId)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(string)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType), typeof(string)}),
             };
             IlChecker.AllowedOperands.Add(typeof(IMyEntity), new List<MemberInfo>()
             {
                 typeof(IMyEntity).GetMethod("GetPosition"),
+                typeof(IMyEntity).GetProperty("WorldMatrix").GetGetMethod(),
             });
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.IWork), null);
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.Task), null);
@@ -1153,10 +1204,11 @@ namespace Sandbox
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)
         {
             // Test whether player is not already in that lobby
-            if (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId)
+            if (!lobby.IsValid || (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId))
                 return;
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
             MyJoinGameHelper.JoinGame(lobby);
         }
 
@@ -1185,7 +1237,7 @@ namespace Sandbox
 
             UnloadInput();
 
-            MyAudio.Static.UnloadData();
+            MyAudio.UnloadData();
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.UnloadData() - END");
@@ -1205,8 +1257,9 @@ namespace Sandbox
         void UnloadInput()
         {
             // Input
-            if (MyInput.Static != null)
-                MyInput.Static.UnloadData();
+            MyInput.UnloadData();
+
+            MyGuiGameControlsHelpers.Reset();
         }
 
         #endregion
@@ -1272,6 +1325,12 @@ namespace Sandbox
             m_isUserPaused = !m_isUserPaused;
         }
 
+        [Conditional("DEBUG")]
+        public static void AssertUpdateThread()
+        {
+            Debug.Assert(Thread.CurrentThread == Static.UpdateThread);
+        }
+
         private static void UpdatePauseState(int pauseStackCount)
         {
             if (pauseStackCount > 0)
@@ -1329,7 +1388,7 @@ namespace Sandbox
 
             using (Stats.Generic.Measure("Network"))
             {
-                if (MySandboxGame.Services.SteamService != null)
+                if (MySandboxGame.Services != null && MySandboxGame.Services.SteamService != null)
                 {
                     ProfilerShort.Begin("SteamCallback");
                     if (MySteam.API != null)
@@ -1363,6 +1422,21 @@ namespace Sandbox
                     ProfilerShort.Begin("Session input");
                     if (MySession.Static != null)
                         MySession.Static.HandleInput();
+                    ProfilerShort.End();
+                }
+
+                if (MyFakes.CHARACTER_SERVER_SYNC && MySession.Static != null)
+                {
+                    ProfilerShort.Begin("Character server sync");
+                    foreach (var player in Sync.Players.GetOnlinePlayers())
+                    {
+                        if (MySession.ControlledEntity != player.Character)
+                        {
+                            //Values are set inside method from sync object
+                            if (player.Character != null && player.IsRemotePlayer && !player.Character.IsDead)
+                                player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
+                        }
+                    }
                     ProfilerShort.End();
                 }
             }
@@ -1424,27 +1498,19 @@ namespace Sandbox
 
             ProfilerShort.End();
 
-            ProfilerShort.End();
+            ProfilerShort.End();//of "Update"
 
         }
 
         void GetListenerLocation(ref VRageMath.Vector3 position, ref VRageMath.Vector3 up, ref VRageMath.Vector3 forward)
         {
             // NOTICE: up vector is reverted, don't know why, I still have to investigate it
-            if (MySession.LocalHumanPlayer != null && MySession.LocalHumanPlayer.Character != null)
+            if (MySector.MainCamera != null)
             {
-                position = MySession.LocalHumanPlayer.Character.WorldMatrix.Translation;
-                up = -MySession.LocalHumanPlayer.Character.WorldMatrix.Up;
-                forward = MySession.LocalHumanPlayer.Character.WorldMatrix.Forward;
+                position = MySector.MainCamera.Position;
+                up = -MySector.MainCamera.UpVector;
+                forward = MySector.MainCamera.ForwardVector;
             }
-            else
-                if (MySector.MainCamera != null)
-                {
-                    position = MySector.MainCamera.Position;
-                    up = -MySector.MainCamera.UpVector;
-                    forward = MySector.MainCamera.ForwardVector;
-                }
-
             const float epsilon = 0.00001f;
             Debug.Assert(up.Dot(forward) < epsilon && Math.Abs(up.LengthSquared() - 1) < epsilon && Math.Abs(forward.LengthSquared() - 1) < epsilon, "Invalid direction vectors for audio");
         }
@@ -1474,7 +1540,7 @@ namespace Sandbox
                 GameRenderComponent.Dispose();
             }
 
-            Sandbox.Engine.Physics.MyPhysicsBody.DebugGeometry.Dispose();
+            Sandbox.Engine.Physics.MyPhysicsDebugDraw.DebugGeometry.Dispose();
             Parallel.StartOnEachWorker(HkBaseSystem.QuitThread);
             HkBaseSystem.Quit();
         }
@@ -1572,7 +1638,7 @@ namespace Sandbox
                             MyRenderComponentVoxelMap render;
                             if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
                             {
-                                render.OnCellRequest(rMessage.Cell, rMessage.HighPriority);
+                                render.OnCellRequest(rMessage.Cell, rMessage.HighPriority, rMessage.Priority, rMessage.DebugDraw);
                             }
 
                             break;
@@ -1606,6 +1672,11 @@ namespace Sandbox
                                 if (rMessage.Success)
                                     screenshotNotification.SetTextFormatArguments(System.IO.Path.GetFileName(rMessage.Filename));
                                 MyHud.Notifications.Add(screenshotNotification);
+                            }
+
+                            if (MySandboxGame.Static != null && MySandboxGame.Static.OnScreenshotTaken != null)
+                            {
+                                MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
                             }
                             break;
                         }
@@ -1676,6 +1747,14 @@ namespace Sandbox
                         {
                             var rMessage = (VRageRender.MyRenderMessageVideoAdaptersResponse)message;
                             MyVideoSettingsManager.OnVideoAdaptersResponse(rMessage);
+                            // All hardware info is gathered now, send the app start analytics.
+                            var firstTimeRun = Config.FirstTimeRun;
+                            if (firstTimeRun)
+                            {
+                                Config.FirstTimeRun = false;
+                                Config.Save();
+                            }
+                            MyAnalyticsHelper.ReportProcessStart(firstTimeRun);
                             break;
                         }
 
@@ -1717,6 +1796,11 @@ namespace Sandbox
 
             Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10));
             m_windowCreatedEvent.Dispose();
+
+
+            IlChecker.Clear();
+
+            Services = null;
         }
 
         internal static void SignalClipmapsReady()
@@ -1754,6 +1838,17 @@ namespace Sandbox
         {
             IntPtr gameState = new IntPtr(MySession.Static == null ? 0 : 1);
             WinApi.PostMessage(msg.WParam, MyWMCodes.GAME_IS_RUNNING_RESULT, gameState, IntPtr.Zero);
+        }
+
+        public static void ReloadDedicatedServerSession()
+        {
+            if (!IsDedicated)
+                return;
+
+            MyLog.Default.WriteLineAndConsole("Reloading dedicated server");
+
+            IsReloading = true;
+            MySandboxGame.Static.Exit();
         }
     }
 }

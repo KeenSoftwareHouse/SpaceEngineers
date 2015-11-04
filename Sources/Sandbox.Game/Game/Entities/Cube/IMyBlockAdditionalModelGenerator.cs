@@ -36,6 +36,12 @@ namespace Sandbox.Game.Entities.Cube
         void BlockAddedToMergedGrid(MySlimBlock block);
 
         /// <summary>
+        /// Generate blocks for the given generating block (build progress exceeeds some value where generated objects should appear).
+        /// </summary>
+        /// <param name="block"></param>
+        void GenerateBlocks(MySlimBlock generatingBlock);
+
+        /// <summary>
         /// Update generator after simulation. Add/remove generated blocks. Called from grid.
         /// </summary>
         void UpdateAfterSimulation();
@@ -45,5 +51,11 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         void UpdateAfterGridSpawn(MySlimBlock block);
 
+        /// <summary>
+        /// Returns generating block which generated the given one.
+        /// </summary>
+        /// <param name="generatedBlock">Generated block</param>
+        /// <returns>Generating block or null.</returns>
+        MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock);
     }
 }

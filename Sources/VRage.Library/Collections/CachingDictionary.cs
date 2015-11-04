@@ -22,7 +22,10 @@ namespace VRage.Collections
         private static Predicate<K> m_keyEquals = KeyEquals;
         private static Predicate<KeyValuePair<K, V>> m_keyValueEquals = KeyValueEquals;
 
-        public ICollection<K> Keys { get { return m_dictionary.Keys; } }
+        public DictionaryReader<K, V> Reader
+        {
+            get { return m_dictionary; }
+        }
 
         public V this[K key]
         {
@@ -72,6 +75,22 @@ namespace VRage.Collections
         public bool ContainsKey(K key)
         {
             return m_dictionary.ContainsKey(key);
+        }
+
+        public Dictionary<K, V>.KeyCollection Keys
+        {
+            get
+            {
+                return m_dictionary.Keys;
+            }
+        }
+
+        public Dictionary<K, V>.ValueCollection Values
+        {
+            get
+            {
+                return m_dictionary.Values;
+            }
         }
 
         public void Clear()

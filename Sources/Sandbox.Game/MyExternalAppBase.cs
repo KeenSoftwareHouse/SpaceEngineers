@@ -17,7 +17,7 @@ namespace Sandbox.AppCode
 {
     public class MyExternalAppBase : IExternalApp
     {
-        internal static MySandboxGame Static;
+        public static MySandboxGame Static;
 
         static bool m_isEditorActive;
         public static bool IsEditorActive
@@ -52,21 +52,29 @@ namespace Sandbox.AppCode
 
             Initialize(Static);
 
-            LoadDefinitions();
+            
 
             //Sandbox.Definitions.MyDefinitionManager.Static.LoadData(new List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_Checkpoint.ModItem>());
 
             //Static.In
             Static.OnGameLoaded += GameLoaded;
+            Static.OnGameExit += GameExit;
 
             //GameLoaded(this, null);
 
-            Static.Run(customRenderLoop);            
+            Static.Run(customRenderLoop);
+
+            //LoadDefinitions();
 
             if (!customRenderLoop)
             {
                 Dispose();
             }
+        }
+
+        public virtual void GameExit()
+        {
+            
         }
 
         public void Dispose()
@@ -101,7 +109,7 @@ namespace Sandbox.AppCode
         }
 
         public virtual void Initialize(Sandbox.Engine.Platform.Game game)
-        {
+        {            
         }
 
         public virtual void UpdateMainThread()
@@ -128,11 +136,10 @@ namespace Sandbox.AppCode
         {
             MyParticleEffect effect = MyParticlesLibrary.CreateParticleEffect(id);
             return effect;
-}
+        }
 
         public void RemoveParticle(MyParticleEffect effect)
         {
-            effect.Clear();
             MyParticlesLibrary.RemoveParticleEffectInstance(effect);
         }
 
@@ -181,9 +188,16 @@ namespace Sandbox.AppCode
 
         public void LoadParticlesLibrary(string file)
         {
-			// Before Loading Particles Library the definitions need to initialized first!
-            MyDefinitionManager.Static.LoadData(new List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_Checkpoint.ModItem>());
             MyParticlesLibrary.Deserialize(file);
+        }
+
+        public void FlushParticles()
+        {
+            List<int> ids = new List<int>(MyParticlesLibrary.GetParticleEffectsIDs());
+            foreach (var id in ids)
+           {
+               MyParticlesLibrary.RemoveParticleEffect(id);
+           }
         }
 
         public void LoadDefinitions()

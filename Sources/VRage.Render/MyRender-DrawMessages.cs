@@ -6,7 +6,6 @@ using VRageMath;
 using System.Text;
 using System;
 using VRage;
-using VRage;
 using VRage.Utils;
 
 namespace VRageRender
@@ -35,7 +34,6 @@ namespace VRageRender
             if (m_spriteBatch == null)
                 return;
 
-            DrawSpriteStencilEnum currentStencil = DrawSpriteStencilEnum.None;
 
 
             BeginSpriteBatch();

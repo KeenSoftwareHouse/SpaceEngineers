@@ -92,11 +92,6 @@ namespace VRageRender.Shadows
 
         #endregion
 
-        /// <summary>
-        /// Creates the renderer
-        /// </summary>
-        /// <param name="graphicsDevice">The GraphicsDevice to use for rendering</param>
-        /// <param name="contentManager">The MyCustomContentManager to use for loading content</param>
         public MyShadowRenderer(int shadowMapSize, MyRenderTargets renderTarget, MyRenderTargets depthTarget, bool multiThreaded)
         {
             ShadowMapCascadeSize = shadowMapSize;
@@ -149,10 +144,14 @@ namespace VRageRender.Shadows
             m_frameIndex %= NumSplits;
 
             // Need both interleave and skip (interleave is required for occ queries
-            m_skip[0] = m_interleave[0] = MyRender.Settings.FreezeCascade[0];
-            m_skip[1] = m_interleave[1] = MyRender.Settings.FreezeCascade[1] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 != 0); // on frames 0, 2
-            m_skip[2] = m_interleave[2] = MyRender.Settings.FreezeCascade[2] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 == 0); // on frames 1, 3
-            m_skip[3] = m_interleave[3] = MyRender.Settings.FreezeCascade[3] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 == 0); // on frames 1, 3
+
+			for (int cascadeIndex = 0; cascadeIndex < NumSplits; ++cascadeIndex)
+			{
+				m_skip[cascadeIndex] = m_interleave[cascadeIndex] = MyRender.Settings.ShadowCascadeFrozen[cascadeIndex];
+			}
+            m_skip[1] = m_interleave[1] = m_skip[1] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 != 0); // on frames 1, 3
+            m_skip[2] = m_interleave[2] = m_skip[2] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 == 0); // on frames 0, 2
+            m_skip[3] = m_interleave[3] = m_skip[3] || (MyRender.Settings.ShadowInterleaving && m_frameIndex % 2 == 0); // on frames 0, 2
 
             PrepareForDraw();
         }
@@ -445,7 +444,8 @@ namespace VRageRender.Shadows
 
             // Position the shadow-caster camera so that it's looking at the centroid,
             // and backed up in the direction of the sunlight
-            MatrixD viewMatrix = MatrixD.CreateLookAt(MyRenderCamera.Position - (MyRender.Sun.Direction * (float)mainCamera.FarClip), MyRenderCamera.Position, Vector3D.Up);
+            Vector3 viewUp = Math.Abs(Vector3.UnitY.Dot(MyRender.Sun.Direction)) < 0.99f ? Vector3.UnitY : Vector3.UnitX;
+            MatrixD viewMatrix = MatrixD.CreateLookAt(MyRenderCamera.Position - (MyRender.Sun.Direction * (float)mainCamera.FarClip), MyRenderCamera.Position, viewUp);
 
             // Determine the position of the frustum corners in light space
             Vector3D.Transform(m_frustumCornersWS, ref viewMatrix, m_frustumCornersLS);

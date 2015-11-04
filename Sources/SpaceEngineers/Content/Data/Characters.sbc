@@ -2,18 +2,34 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Characters>    
     <Character>
-      <Name>Engineer_suit</Name>
+      <Id>
+        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <SubtypeId>Default_Astronaut</SubtypeId>
+      </Id>
+
+      <Name>Default_Astronaut</Name>
       <Model>Models\Characters\Astronaut\SE_astronaut.mwm</Model>
       <Mass>100</Mass>
-      <MaxHealth>100</MaxHealth>
       <ReflectorTexture>Textures\Lights\reflector.dds</ReflectorTexture>
       <LeftGlare>GlareHeadlight</LeftGlare>
       <RightGlare>GlareHeadlight</RightGlare>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+      <Stats>SpaceCharacterStats</Stats>
 	  
-	  
-		<!-- CHARACTER CONTROL -->
+  	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent InventorySpawnComponent</EnabledComponents>
+
+      <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
+      <InventorySpawnContainerId>
+        <TypeId>EntityBase</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </InventorySpawnContainerId>
+      <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
+      
+      <LootingTime>30</LootingTime>
+
+      <!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>
 
 		<MaxSlope>70</MaxSlope>
@@ -67,37 +83,73 @@
       <NeedsOxygen>false</NeedsOxygen>
       <HelmetVariation>Engineer_suit_no_helmet</HelmetVariation>
 
-      <!-- Jetpack -->
-      <JetpackAvailable>true</JetpackAvailable>
-      <JetpackSlowdown>0.975</JetpackSlowdown>
-      <Thrusts>
-        <Thrust>
-          <ThrustBone>FrontJetpackDummy</ThrustBone>
-          <ThrustColor>
+      <SuitResourceStorage>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <MaxCapacity>125</MaxCapacity>
+          <Throughput>1000</Throughput>
+        </Resource>
+      </SuitResourceStorage>
+
+      <Jetpack>
+        <Thrusts>
+          <Thrust>
+            <ThrustBone>FrontJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+          <Thrust>
+            <ThrustBone>BackJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+        </Thrusts>
+        
+        <ThrustProperties> <!-- Properties applied once to each direction -->
+          <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+          <ForceMagnitude>1600</ForceMagnitude>
+          <SlowdownFactor>3</SlowdownFactor>
+          <MinPowerConsumption>0.000000001</MinPowerConsumption>
+          <MaxPowerConsumption>0.0001</MaxPowerConsumption>
+          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          
+          <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+          <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+          <EffectivenessAtMinInfluence>0.67</EffectivenessAtMinInfluence>
+          <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+          
+          <FuelConverter>
+            <FuelId>
+              <TypeId>GasProperties</TypeId>
+              <SubtypeId>Hydrogen</SubtypeId>
+            </FuelId>
+            <Efficiency>1</Efficiency>
+          </FuelConverter>
+
+          <FlameLengthScale>1.15</FlameLengthScale>
+          <FlameIdleColor>
             <X>0.2745098</X>
             <Y>0.4090196</Y>
             <Z>0.6505882</Z>
             <W>0.75</W>
-          </ThrustColor>
-          <ThrustGlareSize>0.585</ThrustGlareSize>
-          <ThrustMaterial>EngineThrustMiddle</ThrustMaterial>
-          <SideFlameOffset>0.12</SideFlameOffset>
-          <FrontFlameOffset>0.04</FrontFlameOffset>
-        </Thrust>
-        <Thrust>
-          <ThrustBone>BackJetpackDummy</ThrustBone>
-          <ThrustColor>
+          </FlameIdleColor>
+          <FlameFullColor>
             <X>0.2745098</X>
             <Y>0.4090196</Y>
             <Z>0.6505882</Z>
             <W>0.75</W>
-          </ThrustColor>
-          <ThrustGlareSize>0.585</ThrustGlareSize>
-          <ThrustMaterial>EngineThrustMiddle</ThrustMaterial>
-          <SideFlameOffset>0.12</SideFlameOffset>
-          <FrontFlameOffset>0.04</FrontFlameOffset>
-        </Thrust>
-      </Thrusts>
+          </FlameFullColor>
+          <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+          <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+          <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+          <FlameVisibilityDistance>700</FlameVisibilityDistance>
+          <FlameGlareSize>0.779</FlameGlareSize>
+          <FlameGlareQuerySize>3</FlameGlareQuerySize>
+        </ThrustProperties>
+      </Jetpack>
 
       <!-- Bone sets -->
       <BoneSets>
@@ -201,6 +253,17 @@
 			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
 		</BoneSet>
 	  </RagdollBonesMappings>
+
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
 	  
       <!-- for feet IK placement -->
       <FeetIKEnabled>false</FeetIKEnabled>
@@ -269,10 +332,14 @@
     </Character>
 
     <Character>
+      <Id>
+        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <SubtypeId>Engineer_suit_no_helmet</SubtypeId>
+      </Id>
+      
       <Name>Engineer_suit_no_helmet</Name>
       <Model>Models\Characters\Astronaut\SE_astronaut_no_helmet.mwm</Model>
       <Mass>100</Mass>
-      <MaxHealth>100</MaxHealth>
       <ReflectorTexture>Textures\Lights\reflector.dds</ReflectorTexture>
       <LeftGlare>GlareHeadlight</LeftGlare>
       <RightGlare>GlareHeadlight</RightGlare>
@@ -280,6 +347,20 @@
       <RightLightBone></RightLightBone>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+
+	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent InventorySpawnComponent</EnabledComponents>
+      
+      <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
+      <InventorySpawnContainerId>
+        <TypeId>EntityBase</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </InventorySpawnContainerId>
+      <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
+      <LootingTime>30</LootingTime>
+
+
+      <Stats>SpaceCharacterStats</Stats>
 				
 		<!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>
@@ -331,39 +412,76 @@
       <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
       <OxygenCapacity>60</OxygenCapacity>
       <NeedsOxygen>true</NeedsOxygen>
-      <HelmetVariation>Engineer_suit</HelmetVariation>
+      <HelmetVariation>Default_Astronaut</HelmetVariation>
+
+      <SuitResourceStorage>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <MaxCapacity>125</MaxCapacity>
+          <Throughput>1000</Throughput>
+        </Resource>
+      </SuitResourceStorage>
 
       <!-- Jetpack -->
-      <JetpackAvailable>true</JetpackAvailable>
-      <JetpackSlowdown>0.975</JetpackSlowdown>
-      <Thrusts>
-        <Thrust>
-          <ThrustBone>FrontJetpackDummy</ThrustBone>
-          <ThrustColor>
+      <Jetpack>
+        <Thrusts>
+          <Thrust>
+            <ThrustBone>FrontJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+          <Thrust>
+            <ThrustBone>BackJetpackDummy</ThrustBone>
+            <SideFlameOffset>0.12</SideFlameOffset>
+            <FrontFlameOffset>0.04</FrontFlameOffset>
+          </Thrust>
+        </Thrusts>
+        
+        <ThrustProperties> <!-- Properties applied once to each direction -->
+          <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+          <ForceMagnitude>1600</ForceMagnitude>
+          <SlowdownFactor>3</SlowdownFactor>
+          <MinPowerConsumption>0.000000001</MinPowerConsumption>
+          <MaxPowerConsumption>0.0001</MaxPowerConsumption>
+          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          
+          <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+          <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+          <EffectivenessAtMinInfluence>0.67</EffectivenessAtMinInfluence>
+          <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+          
+          <FuelConverter>
+            <FuelId>
+              <TypeId>GasProperties</TypeId>
+              <SubtypeId>Hydrogen</SubtypeId>
+            </FuelId>
+            <Efficiency>1</Efficiency>
+          </FuelConverter>
+
+          <FlameLengthScale>1.15</FlameLengthScale>
+          <FlameIdleColor>
             <X>0.2745098</X>
             <Y>0.4090196</Y>
             <Z>0.6505882</Z>
             <W>0.75</W>
-          </ThrustColor>
-          <ThrustGlareSize>0.585</ThrustGlareSize>
-          <ThrustMaterial>EngineThrustMiddle</ThrustMaterial>
-          <SideFlameOffset>0.12</SideFlameOffset>
-          <FrontFlameOffset>0.04</FrontFlameOffset>
-        </Thrust>
-        <Thrust>
-          <ThrustBone>BackJetpackDummy</ThrustBone>
-          <ThrustColor>
+          </FlameIdleColor>
+          <FlameFullColor>
             <X>0.2745098</X>
             <Y>0.4090196</Y>
             <Z>0.6505882</Z>
             <W>0.75</W>
-          </ThrustColor>
-          <ThrustGlareSize>0.585</ThrustGlareSize>
-          <ThrustMaterial>EngineThrustMiddle</ThrustMaterial>
-          <SideFlameOffset>0.12</SideFlameOffset>
-          <FrontFlameOffset>0.04</FrontFlameOffset>
-        </Thrust>
-      </Thrusts>
+          </FlameFullColor>
+          <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+          <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+          <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+          <FlameVisibilityDistance>700</FlameVisibilityDistance>
+          <FlameGlareSize>0.779</FlameGlareSize>
+          <FlameGlareQuerySize>3</FlameGlareQuerySize>
+        </ThrustProperties>
+      </Jetpack>
 
        <!-- Bone sets -->
       <BoneSets>
@@ -466,8 +584,18 @@
 			<Name>Ragdoll_SE_rig_Oxygentank_bone001</Name>
 			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
 		</BoneSet>
-
 	  </RagdollBonesMappings>
+	  
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
 	  
       <!-- for feet IK placement -->
       <FeetIKEnabled>false</FeetIKEnabled>

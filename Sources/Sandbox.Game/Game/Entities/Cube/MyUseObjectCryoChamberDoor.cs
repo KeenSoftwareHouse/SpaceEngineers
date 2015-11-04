@@ -1,16 +1,13 @@
-﻿using Sandbox.Engine.Utils;
+﻿using System.Diagnostics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -21,7 +18,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyCryoChamber CryoChamber;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectCryoChamberDoor(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectCryoChamberDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             CryoChamber = owner as MyCryoChamber;
             Debug.Assert(CryoChamber != null, "MyUseObjectCryoChamberDoor should only be used with MyCryoChamber blocks!");
@@ -62,8 +59,9 @@ namespace Sandbox.Game.Entities.Cube
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             CryoChamber.RequestUse(actionEnum, user);
         }
 
@@ -86,5 +84,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

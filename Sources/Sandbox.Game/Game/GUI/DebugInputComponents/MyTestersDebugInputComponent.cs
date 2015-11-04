@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using VRage;
 using VRage.Input;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
@@ -58,7 +60,7 @@ namespace Sandbox.Game.Gui
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
                 var physicalItemDef = definition as MyPhysicalItemDefinition;
-                if (physicalItemDef == null)
+                if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                     continue;
 
                 int key = m_physicalItemDefinitions.Count;
@@ -94,8 +96,8 @@ namespace Sandbox.Game.Gui
                 if (!MySession.Static.CreativeMode)
                     amount = MyFixedPoint.Min(inventory.ComputeAmountThatFits(itemId), amount);
 
-                var builder = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(itemId);
-                inventory.AddItems(amount, builder);
+                var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
+                inventory.DebugAddItems(amount, builder);
             }
 
             CloseScreen();
@@ -253,7 +255,7 @@ namespace Sandbox.Game.Gui
 
             var hit = hits.FirstOrDefault();
             if (hit.HkHitInfo.Body == null) return false;
-            Sandbox.ModAPI.IMyEntity entity = hit.HkHitInfo.Body.GetEntity();
+            IMyEntity entity = hit.HkHitInfo.GetHitEntity();
 
             if (!(entity is MyCargoContainer)) return false;
 
@@ -270,7 +272,7 @@ namespace Sandbox.Game.Gui
             {
                 MyFixedPoint amount = 20000;
 
-                var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Iron");
+                var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Iron");
                 MyInventory inventory = invObject.GetInventory(0);
                 amount = inventory.ComputeAmountThatFits(oreBuilder.GetId());
 
@@ -329,12 +331,12 @@ namespace Sandbox.Game.Gui
                     if (componentsOnly && ((MyComponentDefinition)definition).Volume > 0.05f)
                         continue;
 
-                    var component = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(definition.Id.TypeId);
+                    var component = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(definition.Id.TypeId);
                     component.SubtypeName = definition.Id.SubtypeName;
                     if (!AddItems(inventory, component, overrideCheck, 1) && spawnNonfitting)
                     {
                         Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                        MyFloatingObjects.Spawn(new MyInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                        MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
                     }
                 }
 
@@ -344,11 +346,11 @@ namespace Sandbox.Game.Gui
                     MyDefinitionManager.Static.GetOreTypeNames(out ores);
                     foreach (var ore in ores)
                     {
-                        var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(ore);
+                        var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(ore);
                         if (!AddItems(inventory, oreBuilder, overrideCheck, 1) && spawnNonfitting)
                         {
                             Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                            MyFloatingObjects.Spawn(new MyInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                            MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
                         }
                     }
                 }
@@ -358,7 +360,7 @@ namespace Sandbox.Game.Gui
         private MyObjectBuilder_PhysicalGunObject CreateGunContent(string subtypeName)
         {
             var gunDef = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), subtypeName);
-            return (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(gunDef);
+            return (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(gunDef);
         }
     }
 }

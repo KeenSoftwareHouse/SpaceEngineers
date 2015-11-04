@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
@@ -19,14 +13,16 @@ using Sandbox.Game.Gui;
 using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    abstract class MyLightingBlock : MyFunctionalBlock, IMyPowerConsumer, IMyLightingBlock
+    public abstract class MyLightingBlock : MyFunctionalBlock, IMyLightingBlock
     {
         private const int NUM_DECIMALS = 1;
         private float m_blinkIntervalSeconds;
@@ -98,7 +94,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-            return (MyFakes.ENABLE_LIGHT_WITHOUT_POWER || PowerReceiver.IsPowered) && base.CheckIsWorking();
+			return (MyFakes.ENABLE_LIGHT_WITHOUT_POWER || ResourceSink.IsPowered) && base.CheckIsWorking();
         }
 
         public bool IsLargeLight { get; private set; }
@@ -106,12 +102,6 @@ namespace Sandbox.Game.Entities.Blocks
         public MyLight Light
         {
             get { return m_light; }
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
         }
 
         internal new MyRenderComponentLight Render
@@ -123,7 +113,6 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Terminal properties
-
         static MyLightingBlock()
         {
             var lightColor = new MyTerminalControlColor<MyLightingBlock>("Color", MySpaceTexts.BlockPropertyTitle_LightColor);
@@ -196,6 +185,8 @@ namespace Sandbox.Game.Entities.Blocks
                     m_light.SpecularColor = value;
                     m_light.Color = value;
                     m_light.ReflectorColor = value;
+					Render.BulbColor = ComputeBulbColor();
+                    UpdateEmissivity(true);
                     RaisePropertiesChanged();
                 }
             }
@@ -247,7 +238,16 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (m_blinkIntervalSeconds != value)
                 {
-                    m_blinkIntervalSeconds = (float)Math.Round(value, NUM_DECIMALS);
+                    if (value > m_blinkIntervalSeconds)
+                        m_blinkIntervalSeconds = (float)Math.Round(value + 0.04999f, NUM_DECIMALS);
+                    else
+                        m_blinkIntervalSeconds = (float)Math.Round(value - 0.04999f, NUM_DECIMALS);
+                    if (m_blinkIntervalSeconds == 0.0f && Enabled)
+                    {
+                        m_light.ReflectorOn = true;
+                        m_light.GlareOn = true;
+                        m_light.LightOn = true;
+                    }
                     RaisePropertiesChanged();
                 }
             }
@@ -330,17 +330,18 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateIntensity();
             UpdateLightPosition();
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             Render.NeedsDrawFromParent = true;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Utility,
-                false,
+			var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup, 
                 BlockDefinition.RequiredPowerInput,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
-            PowerReceiver.Update();
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+	        ResourceSink = sinkComp;
+			AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
+			ResourceSink.Update();
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
         protected abstract void InitLight(MyLight light, Vector4 color, float radius, float falloff);
@@ -375,9 +376,20 @@ namespace Sandbox.Game.Entities.Blocks
         }
         #endregion
 
+        public override void UpdateOnceBeforeFrame()
+        {
+            base.UpdateOnceBeforeFrame();
+            m_light.ParentID = Render.GetRenderObjectID();
+        }
+
+        //lights wont update at all when further any axis
+        const int MaxLightUpdateDistance = 5000;
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
+
+            if ((MySector.MainCamera.Position - PositionComp.GetPosition()).AbsMax() > MaxLightUpdateDistance)
+                return;
 
             float newLightPower = MathHelper.Clamp(Render.CurrentLightPower + (IsWorking ? 1 : -1) * m_lightTurningOnSpeed, 0, 1);
 
@@ -392,10 +404,10 @@ namespace Sandbox.Game.Entities.Blocks
 
                 UpdateIntensity();
             }
-
             UpdateLightBlink();
             UpdateLightPosition();
             UpdateLightProperties();
+            UpdateEmissivity(false);
         }
 
         private void UpdateIntensity()
@@ -443,9 +455,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        protected virtual void UpdateEmissivity(bool force=false)
+        {
+        }
+
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
             base.OnEnabledChanged();
         }
 
@@ -476,7 +492,8 @@ namespace Sandbox.Game.Entities.Blocks
         protected override void WorldPositionChanged(object source)
         {
             base.WorldPositionChanged(source);
-            m_positionDirty = true;
+            if (m_light != null)
+                m_light.MarkPropertiesDirty();
         }
 
         private void UpdateLightPosition()
@@ -487,7 +504,7 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.Begin("UpdateLightPosition");
 
             var newPos = PositionComp.GetPosition() + Vector3.TransformNormal(m_lightLocalPosition, WorldMatrix);
-
+            
             if (Vector3D.DistanceSquared(m_lightWorldPosition, newPos) > 0.0001)
             {
                 m_lightWorldPosition = newPos;
@@ -500,6 +517,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_light.Position = Vector3D.Transform(m_lightWorldPosition, toLocal);
             m_light.ReflectorDirection = Vector3D.TransformNormal(WorldMatrix.Forward, toLocal);
             m_light.ReflectorUp = Vector3D.TransformNormal(WorldMatrix.Up, toLocal);
+            m_light.MarkPropertiesDirty();
             m_positionDirty = false;
 
             ProfilerShort.End();
@@ -508,12 +526,18 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+            ResourceSink.Update();
         }
 
         private void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
+        }
+
+        public override void OnCubeGridChanged(MyCubeGrid oldGrid)
+        {
+            base.OnCubeGridChanged(oldGrid);
+            m_positionDirty = true;
         }
 
         float IMyLightingBlock.Radius { get { return Radius;} }

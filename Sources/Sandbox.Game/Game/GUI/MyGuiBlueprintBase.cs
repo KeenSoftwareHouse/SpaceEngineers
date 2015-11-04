@@ -22,7 +22,6 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using System.Drawing;
 using Sandbox.Game.World;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using SteamSDK;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -30,9 +29,10 @@ using Sandbox.Engine.Multiplayer;
 using ProtoBuf;
 using System.Diagnostics;
 using VRage.Compression;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Localization;
 #endregion
 
 namespace Sandbox.Game.Gui
@@ -92,14 +92,19 @@ namespace Sandbox.Game.Gui
             public ulong WorkshopId;
             [ProtoMember]
             public string Name;
+            [ProtoMember]
+            public ulong SendToId;
+
         }
 
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
         public static string m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
+        public static string m_defaultBlueprintFolder = Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints");
         public static readonly string m_workshopBlueprintSuffix = ".sbb";
 
         public MyGuiBlueprintScreenBase(Vector2 position, Vector2 size, Vector4 backgroundColor, bool isTopMostScreen) :
             base(position, size, backgroundColor, isTopMostScreen)
+
         {
             m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
             m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
@@ -145,7 +150,7 @@ namespace Sandbox.Game.Gui
             return new MyGuiControlLabel(text: text, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: position, textScale: textScale);
         }
 
-        protected void SavePrefabToFile(MyObjectBuilder_Definitions prefab, string name = null, bool replace = false, MyBlueprintTypeEnum type = MyBlueprintTypeEnum.LOCAL)
+        protected static void SavePrefabToFile(MyObjectBuilder_Definitions prefab, string name = null, bool replace = false, MyBlueprintTypeEnum type = MyBlueprintTypeEnum.LOCAL)
         { 
             if (name == null)
             {
@@ -200,6 +205,75 @@ namespace Sandbox.Game.Gui
                 MySandboxGame.Log.WriteLine(String.Format("Failed to write prefab at file {0}, message: {1}, stack:{2}", filePath, e.Message, e.StackTrace));
             }
         }
+
+        public static void Publish(MyObjectBuilder_Definitions prefab, string blueprintName, Action<ulong> publishCallback = null)
+        {
+            string file = Path.Combine(m_localBlueprintFolder, blueprintName);
+            string title = prefab.ShipBlueprints[0].CubeGrids[0].DisplayName;
+            string description = prefab.ShipBlueprints[0].Description;
+            ulong publishId = prefab.ShipBlueprints[0].WorkshopId;
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                styleEnum: MyMessageBoxStyleEnum.Info,
+                buttonType: MyMessageBoxButtonsType.YES_NO,
+                messageCaption: new StringBuilder("Publish"),
+                messageText: new StringBuilder("Do you want to publish this blueprint?"),
+                callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
+                {
+                    if (val == MyGuiScreenMessageBox.ResultEnum.YES)
+                    {
+                        Action<MyGuiScreenMessageBox.ResultEnum, string[]> onTagsChosen = delegate(MyGuiScreenMessageBox.ResultEnum tagsResult, string[] outTags)
+                        {
+                            if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
+                            {
+                                MySteamWorkshop.PublishBlueprintAsync(file, title, description, publishId, outTags, SteamSDK.PublishedFileVisibility.Public,
+                                    callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)
+                                    {
+                                        if (success)
+                                        {
+                                            if (publishCallback != null)
+                                                publishCallback(publishedFileId);
+
+                                            prefab.ShipBlueprints[0].WorkshopId = publishedFileId;
+                                            SavePrefabToFile(prefab, blueprintName, true);
+                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                styleEnum: MyMessageBoxStyleEnum.Info,
+                                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorldPublished),
+                                                messageCaption: new StringBuilder("BLUEPRINT PUBLISHED"),
+                                                callback: (a) =>
+                                                {
+                                                    MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
+                                                }));
+                                        }
+                                        else
+                                        {
+                                            MyStringId error;
+                                            switch (result)
+                                            {
+                                                case Result.AccessDenied:
+                                                    error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
+                                                    break;
+                                                default:
+                                                    error = MySpaceTexts.MessageBoxTextWorldPublishFailed;
+                                                    break;
+                                            }
+
+                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                messageText: MyTexts.Get(error),
+                                                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublishFailed)));
+                                        }
+                                    });
+                            }
+                        };
+
+                        if (MySteamWorkshop.BlueprintCategories.Length > 0)
+                            MyGuiSandbox.AddScreen(new MyGuiScreenWorkshopTags(MySteamWorkshop.WORKSHOP_BLUEPRINT_TAG, MySteamWorkshop.BlueprintCategories, null, onTagsChosen));
+                        else
+                            onTagsChosen(MyGuiScreenMessageBox.ResultEnum.YES, new string[] { MySteamWorkshop.WORKSHOP_BLUEPRINT_TAG });
+                    }
+                }));
+
+        }
+
         public static MyObjectBuilder_Definitions LoadWorkshopPrefab(string archive, ulong? publishedItemId)
         {
             if (!File.Exists(archive) || publishedItemId == null)
@@ -210,6 +284,9 @@ namespace Sandbox.Game.Gui
                 return null;
 
             var extracted = MyZipArchive.OpenOnFile(archive);
+            if (!extracted.FileExists("bp.sbc"))
+                return null;
+
             var stream = extracted.GetFile("bp.sbc").GetStream();
             
             if (stream == null)

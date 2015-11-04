@@ -2,12 +2,15 @@
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using VRage;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -41,6 +44,9 @@ namespace Sandbox.Game.World
         public Vector3? ColorMask { get; private set; }
 
         public bool IsDead { get; private set; }
+
+        public event Action<MyCharacter, MyCharacter> CharacterChanged;
+
 
         private MyIdentity(string name, MyEntityIdentifier.ID_OBJECT_TYPE identityType, string model = null)
         {
@@ -94,8 +100,15 @@ namespace Sandbox.Game.World
             ColorMask = null;
         }
     
+        public void SetColorMask(Vector3 color) 
+        {
+            ColorMask = color;
+        }
+
         public void ChangeCharacter(MyCharacter character)
         {
+            var oldCharacter = Character;
+
             if (Character != null)
             {
                 Character.SyncObject.CharacterModelSwitched -= character_CharacterModelSwitched;
@@ -104,12 +117,18 @@ namespace Sandbox.Game.World
 
             Character = character;
 
-            character.OnClosing += character_OnClosing;
-            character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
+            if (character != null)
+            {
+                character.OnClosing += character_OnClosing;
+                character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
 
-            SaveModelAndColorFromCharacter();
+                SaveModelAndColorFromCharacter();
 
-            IsDead = character.IsDead;
+                IsDead = character.IsDead;
+            }
+
+            if (CharacterChanged != null)
+                CharacterChanged(oldCharacter, Character);
         }
 
         private void SaveModelAndColorFromCharacter()
@@ -161,5 +180,30 @@ namespace Sandbox.Game.World
                Model = MyDefinitionManager.Static.Characters.First().Model;
             }
         }
+
+        private static List<MySyncGrid.MySingleOwnershipRequest> m_requests = new List<MySyncGrid.MySingleOwnershipRequest>();
+        private static HashSet<IMyEntity> m_entitiesCache = new HashSet<IMyEntity>();
+        public void TransferAllBlocksTo(long newOwnerIdentityId)
+        {
+            MyAPIGateway.Entities.GetEntities(m_entitiesCache, (x) => x is IMyCubeGrid);
+            foreach (var ent in m_entitiesCache)
+            {
+                var grid = ent as MyCubeGrid;
+                foreach (var block in grid.GetFatBlocks<MyTerminalBlock>())
+                    if (block.IDModule != null && block.OwnerId == IdentityId)
+                        m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
+                        {
+                            BlockId = block.EntityId,
+                            Owner = newOwnerIdentityId
+                        });
+            }
+            m_entitiesCache.Clear();
+
+            if (m_requests.Count > 0)
+                MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests,IdentityId);
+            m_requests.Clear();
+
+        }
+        
     }
 }

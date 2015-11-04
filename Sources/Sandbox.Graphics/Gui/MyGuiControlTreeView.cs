@@ -52,7 +52,7 @@ namespace Sandbox.Graphics.GUI
             m_treeView.ClearItems();
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             if (Visible)
             {
@@ -66,7 +66,7 @@ namespace Sandbox.Graphics.GUI
                 ShowToolTip(null);
             }
 
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         public override MyGuiControlBase HandleInput()

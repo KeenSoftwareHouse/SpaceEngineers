@@ -1,4 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders.Gui;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
@@ -19,11 +21,10 @@ namespace Sandbox.Game.Screens
 {
     class MyGuiScreenMissionTriggers : MyGuiScreenBase
     {
-        /*static MyGuiScreenMissionTriggers()
-        {
+        MyGuiControlButton m_okButton, m_cancelButton;//, m_advancedButton;
+        MyGuiControlLabel m_videoLabel;
+        protected MyGuiControlTextbox m_videoTextbox;
 
-        }*/
-        MyGuiControlButton m_okButton, m_cancelButton;
         MyGuiControlCombobox[] m_winCombo = new MyGuiControlCombobox[6];
         MyGuiControlCombobox[] m_loseCombo = new MyGuiControlCombobox[6];
 
@@ -31,6 +32,8 @@ namespace Sandbox.Game.Screens
         MyGuiControlButton[] m_winButton = new MyGuiControlButton[6];
         MyTrigger[] m_loseTrigger = new MyTrigger[6];
         MyGuiControlButton[] m_loseButton = new MyGuiControlButton[6];
+
+        MyGuiScreenAdvancedScenarioSettings m_advanced;
 
         static List<Type> m_triggerTypes;
         static MyGuiScreenMissionTriggers()
@@ -46,7 +49,10 @@ namespace Sandbox.Game.Screens
 
         public static List<Type> GetTriggerTypes()
         {
-            return Assembly.GetCallingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger))).ToList();
+            return Assembly.GetCallingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger)) 
+                                                                          && (MyFakes.ENABLE_NEW_TRIGGERS || (type!=typeof(MyTriggerTimeLimit)
+                                                                                                              && type!=typeof(MyTriggerBlockDestroyed))
+                                                                          )).ToList();
         }
 
         public override void RecreateControls(bool constructor)
@@ -58,12 +64,30 @@ namespace Sandbox.Game.Screens
             AddCaption(MySpaceTexts.MissionScreenCaption);
             var textBackgroundPanel = AddCompositePanel(MyGuiConstants.TEXTURE_RECTANGLE_DARK, new Vector2(0f,0.08f), new Vector2(0.75f, 0.45f), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
-            m_okButton = new MyGuiControlButton(position: new Vector2(0.17f,0.37f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok),
+            m_okButton = new MyGuiControlButton(position: new Vector2(0.17f,0.37f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Refresh),
                 onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(position: new Vector2(0.38f,0.37f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel),
                 onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
+
+            //m_advancedButton = new MyGuiControlButton(position: new Vector2(0.38f, -0.15f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced),
+            //    onButtonClick: OnAdvancedButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            //Controls.Add(m_advancedButton); disabled for now - joining into running game is not finished
+            m_videoLabel = new MyGuiControlLabel(
+                position: new Vector2(-0.375f, -0.18f),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+                text: MyTexts.Get(MySpaceTexts.GuiLabelVideoOnStart).ToString()
+                );
+            m_videoTextbox = new MyGuiControlTextbox(
+                position: m_videoLabel.Position,
+                defaultText: MySession.Static.BriefingVideo,
+                maxLength: 85);
+            Controls.Add(m_videoLabel);
+            Controls.Add(m_videoTextbox);
+            m_videoTextbox.PositionX = m_videoLabel.Position.X + m_videoLabel.Size.X + m_videoTextbox.Size.X / 2 + 0.03f;
+            m_videoTextbox.TextChanged += OnVideoTextboxChanged;
+            OnVideoTextboxChanged(m_videoTextbox);
 
             buttonSize = new Vector2(0.05f,0.05f);
             Vector2 pos = new Vector2(0.15f, -0.05f);
@@ -129,11 +153,11 @@ namespace Sandbox.Game.Screens
             for (int i = 0; i < 6; i++)
             {
                 if (m_winTrigger[i]==null && m_winCombo[i].GetSelectedKey() != -1)
-                    m_winTrigger[i] = CreateNew(m_winCombo[i].GetSelectedIndex());
+                    m_winTrigger[i] = CreateNew(m_winCombo[i].GetSelectedKey());
                 else if (m_winTrigger[i]!=null && m_winCombo[i].GetSelectedKey() == -1)
                     m_winTrigger[i]=null;
                 else if (m_winTrigger[i]!=null && m_winCombo[i].GetSelectedKey() != m_winTrigger[i].GetType().GetHashCode())
-                    m_winTrigger[i] = CreateNew(m_winCombo[i].GetSelectedIndex());
+                    m_winTrigger[i] = CreateNew(m_winCombo[i].GetSelectedKey());
 
                 m_winButton[i].Enabled = m_winCombo[i].GetSelectedKey() != -1;
             }
@@ -143,42 +167,33 @@ namespace Sandbox.Game.Screens
             for (int i = 0; i < 6; i++)
             {
                 if (m_loseTrigger[i] == null && m_loseCombo[i].GetSelectedKey() != -1)
-                    m_loseTrigger[i] = CreateNew(m_loseCombo[i].GetSelectedIndex());
+                    m_loseTrigger[i] = CreateNew(m_loseCombo[i].GetSelectedKey());
                 else if (m_loseTrigger[i] != null && m_loseCombo[i].GetSelectedKey() == -1)
                     m_loseTrigger[i] = null;
                 else if (m_loseTrigger[i] != null && m_loseCombo[i].GetSelectedKey() != m_loseTrigger[i].GetType().GetHashCode())
-                    m_loseTrigger[i] = CreateNew(m_loseCombo[i].GetSelectedIndex());
+                    m_loseTrigger[i] = CreateNew(m_loseCombo[i].GetSelectedKey());
 
                 m_loseButton[i].Enabled = m_loseCombo[i].GetSelectedKey() != -1;
             }
         }
-        private MyTrigger CreateNew(int i)
-        {//ugly, I know. Lack of time.
-            switch (i)
-            {
-                case 1:
-                    return new MyTriggerPositionReached();
-                    break;
-                case 2:
-                    return new MyTriggerPositionLeft();
-                    break;
-                case 3:
-                    return new MyTriggerSomeoneWon();
-                    break;
-                default:
-                    Debug.Fail("incorrect index");
-                    break;
-            }
+        private MyTrigger CreateNew(long hash)
+        {
+            foreach (var ttype in m_triggerTypes)
+                if (ttype.GetHashCode() == hash)
+                    return (MyTrigger)Activator.CreateInstance(ttype);
+            Debug.Fail("unknown trigger");
             return null;
         }
-        static readonly MyPlayer.PlayerId m_defaultId = new MyPlayer.PlayerId(0, 0);
+        
         private void SetDefaultValues()
         {
             //triggers:
             MyMissionTriggers triggers;
-            if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
+            if (!MySessionComponentMissionTriggers.Static.MissionTriggers.TryGetValue(MyMissionTriggers.DefaultPlayerId, out triggers))
             {
-                Debug.Fail("Triggers do not exist");
+                triggers = new MyMissionTriggers();
+                MySessionComponentMissionTriggers.Static.MissionTriggers.Add(MyMissionTriggers.DefaultPlayerId, triggers);
+                //Debug.Fail("Triggers do not exist");
                 return;
             }
             int combo = 0;
@@ -261,18 +276,36 @@ namespace Sandbox.Game.Screens
             //modified values are forgotten
             CloseScreen();
         }
+        private void OnAdvancedButtonClick(object sender)
+        {
+            m_advanced = new MyGuiScreenAdvancedScenarioSettings(this);
+            MyGuiSandbox.AddScreen(m_advanced);
+        }
+
+        public override bool CloseScreen()
+        {
+            m_videoTextbox.TextChanged -= OnVideoTextboxChanged;
+            return base.CloseScreen();
+        }
+
         private void SaveData()
         {
+            MySession.Static.BriefingVideo = m_videoTextbox.Text;
+            //delete everyone else's triggers, they will be copied from defaults as needed
+            foreach (var trg in MySessionComponentMissionTriggers.Static.MissionTriggers)
+                trg.Value.HideNotification();
+            MySessionComponentMissionTriggers.Static.MissionTriggers.Clear();
+            //create defaults:
             MyMissionTriggers triggers;
-            if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
-            {
+            //if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
+            //{
                 //Debug.Fail("Triggers don't exist");
                 //return;
                 triggers = new MyMissionTriggers();
-                MySessionComponentMission.Static.MissionTriggers.Add(m_defaultId, triggers);
-            }
-            triggers.WinTriggers.Clear();
-            triggers.LoseTriggers.Clear();
+                MySessionComponentMissionTriggers.Static.MissionTriggers.Add(MyMissionTriggers.DefaultPlayerId, triggers);
+            //}
+            //triggers.WinTriggers.Clear();
+            //triggers.LoseTriggers.Clear();
             for (int i = 0; i < 6; i++)
             {
                 if (m_winTrigger[i] != null)
@@ -282,7 +315,21 @@ namespace Sandbox.Game.Screens
             }
 
         }
-
+        void OnVideoTextboxChanged(MyGuiControlTextbox source)
+        {
+            if (source.Text.Length==0 || MyGuiSandbox.IsUrlWhitelisted(source.Text))
+            {
+                source.SetToolTip((MyToolTips)null);
+                source.ColorMask = Vector4.One;
+                m_okButton.Enabled = true;
+            }
+            else
+            {
+                source.SetToolTip(MySpaceTexts.WwwLinkNotAllowed);
+                source.ColorMask = Color.Red.ToVector4();
+                m_okButton.Enabled = false;
+            }
+        }
         public override string GetFriendlyName()
         {
             return "MyGuiScreenMissionTriggers";

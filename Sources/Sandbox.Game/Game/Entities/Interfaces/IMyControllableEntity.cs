@@ -1,16 +1,11 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Game.Gui;
+using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using System;
 using System.Diagnostics;
-using VRageMath;
-using Sandbox.Definitions;
-using Sandbox.Common;
-using Sandbox.ModAPI.Interfaces;
-using Sandbox.Engine.Utils;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -43,7 +38,8 @@ namespace Sandbox.Game.Entities
         void UseFinished();
         void Sprint();
 
-        void SwitchToWeapon(MyDefinitionId? weaponDefinition);
+        void SwitchToWeapon(MyDefinitionId weaponDefinition);
+		void SwitchToWeapon(MyToolbarItemWeapon weapon);
         bool CanSwitchToWeapon(MyDefinitionId? weaponDefinition);
         void SwitchAmmoMagazine();
         bool CanSwitchAmmoMagazine();

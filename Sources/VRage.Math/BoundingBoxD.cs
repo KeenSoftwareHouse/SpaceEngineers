@@ -57,6 +57,15 @@ namespace VRageMath
                 return true;
         }
 
+        public static BoundingBoxD operator +(BoundingBoxD a, Vector3D b)
+        {
+            BoundingBoxD c;
+            c.Max = a.Max + b;
+            c.Min = a.Min + b;
+                
+            return c;
+        }
+
         /// <summary>
         /// Gets an array of points that make up the corners of the BoundingBox.
         /// </summary>
@@ -691,6 +700,9 @@ namespace VRageMath
 
         public double Distance(Vector3D point)
         {
+            if (Contains(point) == ContainmentType.Contains)
+                return 0;
+
             var clamp = Vector3D.Clamp(point, Min, Max);
             return Vector3D.Distance(clamp, point);
         }

@@ -15,6 +15,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Debugging;
 using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.GameSystems;
 
 using VRage.Utils;
 using VRage.Trace;
@@ -27,9 +28,11 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
+using Sandbox.Common.ModAPI;
 
 #endregion
 
@@ -41,7 +44,7 @@ namespace Sandbox.Game.Entities.Cube
         const float m_maxExplosionRadius = 30.0f;
         public static float ExplosionImpulse = 30000;
         bool m_isExploded = false;
-        MyDamageType m_damageType = MyDamageType.Deformation;
+        MyStringHash m_damageType = MyDamageType.Deformation;
         public int RemainingMS = 0;
         BoundingSphereD m_explosionShrinkenSphere;
         BoundingSphereD m_explosionFullSphere;
@@ -148,6 +151,8 @@ namespace Sandbox.Game.Entities.Cube
                 StartCountdown();
 
             this.IsWorkingChanged += MyWarhead_IsWorkingChanged;
+
+            UseDamageSystem = true;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -200,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Gray, Color.White);
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             base.ContactPointCallback(ref value);
 
@@ -209,12 +214,12 @@ namespace Sandbox.Game.Entities.Cube
 
             if (System.Math.Abs(value.Event.SeparatingVelocity) > 5 && IsFunctional)
             {
-                if (MySession.Static.DestructibleBlocks)
+                if (CubeGrid.BlocksDestructionEnabled)
                     Explode();
             }
         }
 
-        //public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        //public void DoDamage(float damage, MyStringHash damageType, bool sync)
         //{
         //    if (MarkedToExplode)
         //        return;
@@ -289,7 +294,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Explode()
         {
-            if (m_isExploded || !MySession.Static.WeaponsEnabled)
+            if (m_isExploded || !MySession.Static.WeaponsEnabled || CubeGrid.Physics == null)
                 return;
 
             m_isExploded = true;
@@ -323,7 +328,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 PlayerDamage = 0,
                 //Damage = m_ammoProperties.Damage,
-                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? 15000 : 5000,
+                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? m_warheadDefinition.WarheadExplosionDamage : 5000,
                 ExplosionType = particleID,
                 ExplosionSphere = m_explosionFullSphere,
                 LifespanMiliseconds = MyExplosionsConstants.EXPLOSION_LIFESPAN,
@@ -359,6 +364,8 @@ namespace Sandbox.Game.Entities.Cube
             m_warheadsInsideCount = 0;
             foreach (var entity in m_entitiesInShrinkenSphere)
             {
+                if (entity as MyCubeBlock != null && (entity as MyCubeBlock).CubeGrid.Projector != null)
+                    continue;
                 if (Vector3D.DistanceSquared(PositionComp.GetPosition(), entity.PositionComp.GetPosition()) < warheadBlockRadius * shrink * warheadBlockRadius * shrink)
                 {
                     MyWarhead warhead = entity as MyWarhead;
@@ -445,6 +452,8 @@ namespace Sandbox.Game.Entities.Cube
             MyWarheads.AddWarhead(this);
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         //public float Integrity
         //{
         //    get { return 1; }
@@ -493,8 +502,8 @@ namespace Sandbox.Game.Entities.Cube
                 MySyncLayer.RegisterMessage<SetTimerMsg>(SetTimerSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
                 MySyncLayer.RegisterMessage<CountdownMsg>(CountdownRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<CountdownMsg>(CountdownSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<ArmMsg>(ArmSuccess, MyMessagePermissions.Any);
-                MySyncLayer.RegisterMessage<DetonateMsg>(DetonateRequest, MyMessagePermissions.Any);
+                MySyncLayer.RegisterMessage<ArmMsg>(ArmSuccess, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
+                MySyncLayer.RegisterMessage<DetonateMsg>(DetonateRequest, MyMessagePermissions.ToServer);
             }
 
             public static void SetTimer(MyWarhead warhead, float newTimerValue)
@@ -610,7 +619,7 @@ namespace Sandbox.Game.Entities.Cube
                 msg.EntityId = warhead.EntityId;
                 msg.IsArmed = armed;
 
-                Sync.Layer.SendMessageToAll(ref msg);
+                Sync.Layer.SendMessageToServer(ref msg);
             }
 
             static void ArmSuccess(ref ArmMsg msg, MyNetworkClient sender)
@@ -619,7 +628,13 @@ namespace Sandbox.Game.Entities.Cube
                 MyEntities.TryGetEntityById(msg.EntityId, out entity);
                 var warhead = entity as MyWarhead;
                 if (warhead != null)
+                {
                     warhead.IsArmed = msg.IsArmed;
+                    if(Sync.IsServer)
+                    {
+                        Sync.Layer.SendMessageToAllButOne(ref msg,sender.SteamUserId);
+                    }
+                }
             }
 
             public static void Detonate(MyWarhead warhead)
@@ -650,7 +665,7 @@ namespace Sandbox.Game.Entities.Cube
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (MarkedToExplode || (!MySession.Static.DestructibleBlocks))
                 return;
@@ -660,13 +675,26 @@ namespace Sandbox.Game.Entities.Cube
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
             {
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
+
                 m_damageType = damageType;
-                if (damage > 0)
+
+                if (damageInfo.Amount > 0)
+                {
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
+
                     OnDestroy();
+
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
+                }
             }
             return;
         }
@@ -675,7 +703,12 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return 1; }
         }
-      
+
+        bool IMyDestroyableObject.UseDamageSystem
+        {
+            get { return UseDamageSystem; }
+        }
+
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
         bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
         float IMyWarhead.DetonationTime { get { return DetonationTime; } }

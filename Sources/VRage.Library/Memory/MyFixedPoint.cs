@@ -99,11 +99,15 @@ namespace VRage
 
         public static explicit operator MyFixedPoint(float d)
         {
+            if ((d * Divider + 0.5f) >= (float) long.MaxValue) return MyFixedPoint.MaxValue;
+            if ((d * Divider + 0.5f) <= (float) long.MinValue) return MyFixedPoint.MinValue;
             return new MyFixedPoint((long)(d * Divider + 0.5f));
         }
 
         public static explicit operator MyFixedPoint(double d)
         {
+            if ((d * Divider + 0.5) >= (double) long.MaxValue) return MyFixedPoint.MaxValue;
+            if ((d * Divider + 0.5) <= (double) long.MinValue) return MyFixedPoint.MinValue;
             return new MyFixedPoint((long)(d * Divider + 0.5));
         }
 
@@ -137,6 +141,10 @@ namespace VRage
             return (int)(fp.RawValue / Divider);
         }
 
+        public static bool IsIntegral(MyFixedPoint fp)
+        {
+            return fp.RawValue % Divider == 0;
+        }
 
         public static MyFixedPoint Ceiling(MyFixedPoint a)
         {
@@ -164,6 +172,11 @@ namespace VRage
         {
             a.RawValue = (a.RawValue + Divider / 2) / Divider;
             return a;
+        }
+
+        public static MyFixedPoint operator-(MyFixedPoint a)
+        {
+            return new MyFixedPoint(-a.RawValue);
         }
 
         public static bool operator <(MyFixedPoint a, MyFixedPoint b)

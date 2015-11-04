@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Trace;
 using VRageMath;
@@ -145,21 +146,26 @@ namespace Sandbox.Game.Gui
             if (!m_grid.IsStatic || m_grid.MarkedForClose)
                 convertBtn.Enabled = false;
 
-           
+            var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
+            setDestructibleBlocks.IsChecked = m_grid.DestructibleBlocks;
+            setDestructibleBlocks.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
+            setDestructibleBlocks.Enabled = MySession.Static.Settings.ScenarioEditMode;
+            setDestructibleBlocks.IsCheckedChanged = setDestructibleBlocksBtn_IsCheckedChanged;
 
             int gravityCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyGravityGenerator)))
-                gravityCounter = m_grid.BlocksCounters[typeof(MyGravityGenerator)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_GravityGenerator)))
+                gravityCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_GravityGenerator)];
             int massCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyVirtualMass)))
-                massCounter = m_grid.BlocksCounters[typeof(MyVirtualMass)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_VirtualMass)))
+                massCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_VirtualMass)];
             int lightCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyInteriorLight)))
-                lightCounter = m_grid.BlocksCounters[typeof(MyInteriorLight)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_InteriorLight)))
+                lightCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_InteriorLight)];
             var conveyorCounter = 0;
             foreach (var key in m_grid.BlocksCounters.Keys)
             {
-                if (typeof(IMyConveyorSegmentBlock).IsAssignableFrom(key) || typeof(IMyConveyorEndpointBlock).IsAssignableFrom(key))
+                Type blockType = MyCubeBlockFactory.GetProducedType(key);
+                if (typeof(IMyConveyorSegmentBlock).IsAssignableFrom(blockType) || typeof(IMyConveyorEndpointBlock).IsAssignableFrom(blockType))
                     conveyorCounter += m_grid.BlocksCounters[key];
             }
             int polygonCounter = 0;
@@ -178,21 +184,29 @@ namespace Sandbox.Game.Gui
                 }
             }
 
+	        int thrustCount = 0;
+	        var thrustComp = m_grid.Components.Get<MyEntityThrustComponent>();
+	        if (thrustComp != null)
+		        thrustCount = thrustComp.ThrustCount;
+	        MyGuiControlLabel thrustCountLabel = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Thrusters)).AppendInt32(thrustCount).ToString());
+
             MyGuiControlLabel polygonCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Triangles)).AppendInt32(polygonCounter).ToString());
             polygonCount.SetToolTip(MySpaceTexts.TerminalTab_Info_TrianglesTooltip);
             MyGuiControlLabel cubeCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Blocks)).AppendInt32(m_grid.GetBlocks().Count).ToString());
             cubeCount.SetToolTip(MySpaceTexts.TerminalTab_Info_BlocksTooltip);
             MyGuiControlLabel blockCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_NonArmor)).AppendInt32(m_grid.Hierarchy.Children.Count).ToString());
-            MyGuiControlLabel thrustCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Thrusters)).AppendInt32(m_grid.GridSystems.ThrustSystem.ThrustCount).ToString());
             MyGuiControlLabel lightCount = new MyGuiControlLabel(text: new StringBuilder().Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Lights)).AppendInt32(lightCounter).ToString());
             MyGuiControlLabel reflectorCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Reflectors)).AppendInt32(m_grid.GridSystems.ReflectorLightSystem.ReflectorCount).ToString());
             //MyGuiControlLabel wheelCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Rotors)).AppendInt32(m_grid.WheelSystem.WheelCount));
             MyGuiControlLabel gravityCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_GravGens)).AppendInt32(gravityCounter).ToString());
             MyGuiControlLabel massCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_VirtualMass)).AppendInt32(massCounter).ToString());
             MyGuiControlLabel conveyorCount = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_Conveyors)).AppendInt32(conveyorCounter).ToString());
-            list.InitControls(new MyGuiControlBase[] { cubeCount, blockCount, conveyorCount, thrustCount, lightCount, reflectorCount, gravityCount, massCount, polygonCount });
-
-
+			var mainCockpit = m_grid.MainCockpit as MyShipController;
+			MyCharacter pilot = null;
+			if (mainCockpit != null)
+				pilot = mainCockpit.Pilot;
+			MyGuiControlLabel gridMass = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_GridMass)).AppendInt32(m_grid.GetCurrentMass(pilot)).ToString());
+			list.InitControls(new MyGuiControlBase[] { cubeCount, blockCount, conveyorCount, thrustCountLabel, lightCount, reflectorCount, gravityCount, massCount, polygonCount, gridMass });
         }
 
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship
@@ -220,6 +234,10 @@ namespace Sandbox.Game.Gui
         void pivotBtn_IsCheckedChanged(MyGuiControlCheckbox obj)
         {
             MyCubeGrid.ShowGridPivot = obj.IsChecked;
+        }
+        void setDestructibleBlocksBtn_IsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            m_grid.SyncObject.SetDestructibleBlocks(obj.IsChecked);
         }
 
         void convertBtn_ButtonClicked(MyGuiControlButton obj)

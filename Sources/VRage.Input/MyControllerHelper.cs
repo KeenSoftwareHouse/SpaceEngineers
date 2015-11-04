@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Library.Utils;
+﻿using System.Collections.Generic;
+using VRage.Utils;
 
 namespace VRage.Input
 {
@@ -94,7 +90,7 @@ namespace VRage.Input
 
             public Context()
             {
-                Bindings = new Dictionary<MyStringId, IControl>();
+                Bindings = new Dictionary<MyStringId, IControl>(MyStringId.Comparer);
             }
         }
 
@@ -197,7 +193,7 @@ namespace VRage.Input
         }
 
         private static EmptyControl m_nullControl = new EmptyControl();
-        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>();
+        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>(MyStringId.Comparer);
 
         static MyControllerHelper()
         {
@@ -262,16 +258,16 @@ namespace VRage.Input
                 m_bindings[context][key] = m_nullControl;
         }
 
-        public static bool IsControl(MyStringId context, MyStringId stringId, MyControlStateType type = MyControlStateType.NEW_PRESSED)
+        public static bool IsControl(MyStringId context, MyStringId stringId, MyControlStateType type = MyControlStateType.NEW_PRESSED, bool joystickOnly = false)
         {
             switch (type)
             { // temporary included cuz bindings support only joystick
                 case MyControlStateType.NEW_PRESSED:
-                    return MyInput.Static.IsNewGameControlPressed(stringId) || m_bindings[context][stringId].IsNewPressed();
+                    return (!joystickOnly && MyInput.Static.IsNewGameControlPressed(stringId)) || m_bindings[context][stringId].IsNewPressed();
                 case MyControlStateType.NEW_RELEASED:
-                    return MyInput.Static.IsNewGameControlReleased(stringId) || m_bindings[context][stringId].IsNewReleased();
+                    return (!joystickOnly &&  MyInput.Static.IsNewGameControlReleased(stringId)) || m_bindings[context][stringId].IsNewReleased();
                 case MyControlStateType.PRESSED:
-                    return MyInput.Static.IsGameControlPressed(stringId) || m_bindings[context][stringId].IsPressed();
+                    return (!joystickOnly && MyInput.Static.IsGameControlPressed(stringId)) || m_bindings[context][stringId].IsPressed();
             }
 
             return false;

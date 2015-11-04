@@ -18,7 +18,6 @@ namespace VRageRender
         RenderProfiler,
 
         CreateRenderEntity,
-        CreateRenderEntityAtmosphere,
         AddRuntimeModel,
         PreloadModel,
         PreloadMaterials,
@@ -40,6 +39,7 @@ namespace VRageRender
         RemoveRenderObject,
         UseCustomDrawMatrix,
         UpdateModelProperties,
+        UpdateColorEmissivity,
         UpdateVoxelMaterialsProperties,
         ChangeModel,
         ChangeModelMaterial,
@@ -59,6 +59,7 @@ namespace VRageRender
         ClipmapsReady, // Output
 
         CreateRenderVoxelMaterials,
+        UpdateRenderVoxelMaterials,
         CreateRenderVoxelDebris,
 
         RebuildCullingStructure,
@@ -71,6 +72,7 @@ namespace VRageRender
         ReloadEffects,
         ReloadModels,
         ReloadTextures,
+        ReloadGrass,
 
         UpdatePostprocessSettings,
         UpdateRenderEnvironment,
@@ -97,6 +99,7 @@ namespace VRageRender
         CreateDecal,
         CreateScreenDecal,
         RemoveDecal,
+        RegisterDecalsMaterials,
         HideDecals,
 
         UpdateCockpitGlass,
@@ -157,6 +160,5 @@ namespace VRageRender
         CreatedDeviceSettings, // Output
         SwitchDeviceSettings,
         SwitchRenderSettings,
-        SwitchRenderSettings1,
     }
 }

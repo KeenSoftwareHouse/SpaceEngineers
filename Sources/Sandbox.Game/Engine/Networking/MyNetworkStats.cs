@@ -78,7 +78,7 @@ namespace Sandbox.Engine.Networking
             m_sendStatsCopy.Clear();
         }
 
-        [Conditional(ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         private void WriteStats(List<Tuple<string, NetworkStat>> stats, string name)
         {
             ProfilerShort.Begin(name);

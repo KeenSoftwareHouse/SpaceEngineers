@@ -12,7 +12,7 @@ namespace VRageMath
     /// <summary>
     /// Defines a matrix.
     /// </summary>
-    [Serializable]
+    [ProtoBuf.ProtoContract, Serializable]    
     [StructLayout(LayoutKind.Explicit)]
     public struct Matrix : IEquatable<Matrix>
     {
@@ -34,81 +34,97 @@ namespace VRageMath
         /// Value at row 1 column 1 of the matrix.
         /// </summary>
         [FieldOffset(0)]
+        [ProtoBuf.ProtoMember]
         public float M11;
         /// <summary>
         /// Value at row 1 column 2 of the matrix.
         /// </summary>
         [FieldOffset(4)]
+        [ProtoBuf.ProtoMember]
         public float M12;
         /// <summary>
         /// Value at row 1 column 3 of the matrix.
         /// </summary>
         [FieldOffset(8)]
+        [ProtoBuf.ProtoMember]
         public float M13;
         /// <summary>
         /// Value at row 1 column 4 of the matrix.
         /// </summary>
         [FieldOffset(12)]
+        [ProtoBuf.ProtoMember]
         public float M14;
         /// <summary>
         /// Value at row 2 column 1 of the matrix.
         /// </summary>
         [FieldOffset(16)]
+        [ProtoBuf.ProtoMember]
         public float M21;
         /// <summary>
         /// Value at row 2 column 2 of the matrix.
         /// </summary>
         [FieldOffset(20)]
+        [ProtoBuf.ProtoMember]
         public float M22;
         /// <summary>
         /// Value at row 2 column 3 of the matrix.
         /// </summary>
         [FieldOffset(24)]
+        [ProtoBuf.ProtoMember]
         public float M23;
         /// <summary>
         /// Value at row 2 column 4 of the matrix.
         /// </summary>
         [FieldOffset(28)]
+        [ProtoBuf.ProtoMember]
         public float M24;
         /// <summary>
         /// Value at row 3 column 1 of the matrix.
         /// </summary>
         [FieldOffset(32)]
+        [ProtoBuf.ProtoMember]
         public float M31;
         /// <summary>
         /// Value at row 3 column 2 of the matrix.
         /// </summary>
         [FieldOffset(36)]
+        [ProtoBuf.ProtoMember]
         public float M32;
         /// <summary>
         /// Value at row 3 column 3 of the matrix.
         /// </summary>
         [FieldOffset(40)]
+        [ProtoBuf.ProtoMember]
         public float M33;
         /// <summary>
         /// Value at row 3 column 4 of the matrix.
         /// </summary>
         [FieldOffset(44)]
+        [ProtoBuf.ProtoMember]
         public float M34;
         /// <summary>
         /// Value at row 4 column 1 of the matrix.
         /// </summary>
         [FieldOffset(48)]
+        [ProtoBuf.ProtoMember]
         public float M41;
         /// <summary>
         /// Value at row 4 column 2 of the matrix.
         /// </summary>
         [FieldOffset(52)]
+        [ProtoBuf.ProtoMember]
         public float M42;
         /// <summary>
         /// Value at row 4 column 3 of the matrix.
         /// </summary>
         [FieldOffset(56)]
+        [ProtoBuf.ProtoMember]
         public float M43;
         /// <summary>
         /// Value at row 4 column 4 of the matrix.
         /// </summary>
         [FieldOffset(60)]
+        [ProtoBuf.ProtoMember]
         public float M44;
 
         /// <summary>
@@ -1510,7 +1526,46 @@ namespace VRageMath
             }
         }
 
-        public static Matrix CreatePerspectiveFovInv(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
+        public static Matrix CreatePerspectiveFovRhInfinite(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            //const float EPS = -2.4e-4f;
+
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = -1f;
+            matrix.M34 = -1f;
+            matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+            matrix.M43 = -nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteComplementary(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            //const float EPS = -2.4e-4f;
+
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = -1f;
+            matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+            matrix.M43 = nearPlaneDistance;
+
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
         {
             float num1 = (float)Math.Tan((double)fieldOfView * 0.5);
             float num2 = aspectRatio * num1;
@@ -1524,6 +1579,42 @@ namespace VRageMath
             matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
             matrix.M43 = -1;
             matrix.M44 = 1 / nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = -1f / nearPlaneDistance;
+            matrix.M41 = matrix.M42 = 0.0f;
+            matrix.M43 = -1f;
+            matrix.M44 = 1f / nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteComplementaryInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = 1f / nearPlaneDistance;
+            matrix.M41 = matrix.M42 = 0.0f;
+            matrix.M43 = -1f;
+            matrix.M44 = 0;
             return matrix;
         }
 
@@ -1821,7 +1912,7 @@ namespace VRageMath
             return matrix;
         }
 
-        public static Matrix CreateLookAtInv(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
+        public static Matrix CreateLookAtInverse(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
         {
             Vector3 vector3_1 = Vector3.Normalize(cameraPosition - cameraTarget);
             Vector3 vector3_2 = Vector3.Normalize(Vector3.Cross(cameraUpVector, vector3_1));
@@ -1871,6 +1962,11 @@ namespace VRageMath
             result.M42 = -Vector3.Dot(vector1, cameraPosition);
             result.M43 = -Vector3.Dot(vector3_1, cameraPosition);
             result.M44 = 1f;
+        }
+
+        public static Matrix CreateWorld(Vector3 position)
+        {
+            return Matrix.CreateWorld(position, Vector3.Forward, Vector3.Up);
         }
 
         /// <summary>

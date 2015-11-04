@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Sandbox.Common;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
@@ -11,11 +12,14 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
@@ -34,7 +38,7 @@ namespace Sandbox.Game.Weapons
         private MyEntity m_collidedEntity;
         Vector3D? m_collisionPoint;
         long m_owner;
-        private float m_smokeEffectOffsetMultiplier = 0.4f; 
+        private float m_smokeEffectOffsetMultiplier = 0.4f;
 
         private MyEntity3DSoundEmitter m_soundEmitter;
 
@@ -57,6 +61,7 @@ namespace Sandbox.Game.Weapons
             m_missileAmmoDefinition = weaponProperties.GetCurrentAmmoDefinitionAs<MyMissileAmmoDefinition>();
             Init(weaponProperties, m_missileAmmoDefinition.MissileModelName, false, true, true);
             m_canByAffectedByExplosionForce = false;
+            UseDamageSystem = true;
         }
 
         //  This method realy initiates/starts the missile
@@ -122,6 +127,13 @@ namespace Sandbox.Game.Weapons
                         float radius = m_missileAmmoDefinition.MissileExplosionRadius;
                         BoundingSphereD explosionSphere = new BoundingSphereD(m_collisionPoint.HasValue ? m_collisionPoint.Value : PositionComp.GetPosition(), radius);
 
+                        MyEntity ownerEntity = null;
+                        var ownerId = Sync.Players.TryGetIdentity(m_owner);
+                        if (ownerId != null)
+                            ownerEntity = ownerId.Character;
+                        //MyEntities.TryGetEntityById(m_owner, out ownerEntity);
+                        
+
                         //  Call main explosion starter
                         MyExplosionInfo info = new MyExplosionInfo()
                         {
@@ -134,7 +146,7 @@ namespace Sandbox.Game.Weapons
                             CascadeLevel = CascadedExplosionLevel,
                             HitEntity = m_collidedEntity,
                             ParticleScale = 0.2f,
-                            OwnerEntity = null,
+                            OwnerEntity = ownerEntity,
 
                             Direction = WorldMatrix.Forward,
                             VoxelExplosionCenter = explosionSphere.Center + radius * WorldMatrix.Forward * 0.25f,
@@ -152,7 +164,7 @@ namespace Sandbox.Game.Weapons
                         {
                             if (!m_collidedEntity.Physics.IsStatic)
                             {
-                                m_collidedEntity.Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
+                                m_collidedEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
                                     100 * Physics.LinearVelocity, m_collisionPoint, null);
                             }
                         }
@@ -262,7 +274,7 @@ namespace Sandbox.Game.Weapons
 
         public override void OnContactStart(ref MyPhysics.MyContactPointEvent value)
         {
-             MyEntity collidedEntity = GetOtherEntity(ref value) as MyEntity;
+            MyEntity collidedEntity = value.ContactPointEvent.GetOtherEntity(this) as MyEntity;
 
             if (collidedEntity == null)
                 return;
@@ -299,18 +311,25 @@ namespace Sandbox.Game.Weapons
         {
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
+            {
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseDestroyed(this, new MyDamageInformation(false, damage, damageType, attackerId));
+
                 Explode();
+            }
         }
 
         public float Integrity { get { return 1; } }
+
+        public bool UseDamageSystem { get; private set; }
 
         public long Owner
         {
@@ -322,14 +341,19 @@ namespace Sandbox.Game.Weapons
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity
         {
             get { return Integrity; }
+        }
+
+        bool IMyDestroyableObject.UseDamageSystem
+        {
+            get { return UseDamageSystem; }
         }
     }
 }

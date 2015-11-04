@@ -14,7 +14,7 @@ namespace Sandbox.Game.Multiplayer
     {
         private MyThrust m_block;
 
-        [MessageId(7416, P2PMessageEnum.Reliable)]
+        [MessageId(7414, P2PMessageEnum.Reliable)]
         protected struct ChangeThrustOverrideMsg : IEntityMessage
         {
             public long EntityId;
@@ -25,7 +25,7 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncThruster()
         {
-            MySyncLayer.RegisterMessage<ChangeThrustOverrideMsg>(ChangeThrustOverrideSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeThrustOverrideMsg>(ChangeThrustOverrideSuccess, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MySyncThruster(MyThrust block)
@@ -35,20 +35,28 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendChangeThrustOverrideRequest(float thrustOverride)
         {
+            return;
             var msg = new ChangeThrustOverrideMsg();
             msg.EntityId = m_block.EntityId;
             msg.ThrustOverride = thrustOverride;
-
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void ChangeThrustOverrideSuccess(ref ChangeThrustOverrideMsg msg, MyNetworkClient sender)
         {
+            return;
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             var block = entity as MyThrust;
             if (block != null)
+            {
                 block.SetThrustOverride(msg.ThrustOverride);
+                // Prototype: other clients will get it by StateSync
+                //if (Sync.IsServer)
+                //{
+                //    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                //}
+            }
         }
 
     }

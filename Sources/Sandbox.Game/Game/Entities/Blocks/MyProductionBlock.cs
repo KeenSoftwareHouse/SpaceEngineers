@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
-using Havok;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 
 using VRageMath;
@@ -17,20 +11,20 @@ using Sandbox.Game.World;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Engine.Multiplayer;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System.Reflection;
-using Sandbox.Common;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Conveyors;
 using VRage;
 using SteamSDK;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
     /// <summary>
     /// Common base for Assembler and Refinery blocks
     /// </summary>
-    abstract class MyProductionBlock : MyFunctionalBlock, IMyInventoryOwner, IMyPowerConsumer, IMyConveyorEndpointBlock, Sandbox.ModAPI.Ingame.IMyProductionBlock
+    abstract class MyProductionBlock : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, Sandbox.ModAPI.Ingame.IMyProductionBlock
     {
         #region Sync class
         [PreloadRequired]
@@ -196,7 +190,7 @@ namespace Sandbox.Game.Entities.Cube
                 msg.CurrentProgress = progress;
                 msg.ProductionEntityId = Block.EntityId;
 
-                Sync.Layer.SendMessageToAll(msg, MyTransportMessageEnum.Success);
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
             }
 
             static void OnRemoveQueueItemRequest(ProductionBlockSync sync, ref RemoveQueueItemMsg msg, MyNetworkClient sender)
@@ -204,7 +198,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (!RemoveQueueItemTests(sync, msg)) return;
                 OnRemoveQueueItemInternal(sync, msg);
 
-                Sync.Layer.SendMessageToAll(msg, MyTransportMessageEnum.Success);
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
             }
 
             static void OnRemoveQueueItemSuccess(ProductionBlockSync sync, ref RemoveQueueItemMsg msg, MyNetworkClient sender)
@@ -255,10 +249,10 @@ namespace Sandbox.Game.Entities.Cube
             public uint ItemId;
         }
 
-        #region Fields
+	    #region Fields
 
         protected List<QueueItem> m_queue;
-        private MyProductionBlockDefinition ProductionBlockDefinition
+        protected MyProductionBlockDefinition ProductionBlockDefinition
         {
             get { return (MyProductionBlockDefinition)base.BlockDefinition; }
         }
@@ -295,18 +289,18 @@ namespace Sandbox.Game.Entities.Cube
                 if (m_isProducing != value)
                 {
                     m_isProducing = value;
-                    UpdatePower();
                     if (value)
                         OnStartProducing();
                     else
                         OnStopProducing();
+                    UpdatePower();
                 }
             }
         }
 
         protected virtual void UpdatePower()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         /// <summary>
@@ -319,13 +313,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CheckIsWorking()
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
-        }
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
+			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
         static MyProductionBlock()
@@ -392,14 +380,13 @@ namespace Sandbox.Game.Entities.Cube
 
             base.IsWorkingChanged += CubeBlock_IsWorkingChanged;
 
-            PowerReceiver = new MyPowerReceiver(
-                MyConsumerGroupEnum.Factory,
-                false,
-                ProductionBlockDefinition.OperationalPowerConsumption,
-                ComputeRequiredPower);
-            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
-            PowerReceiver.Update();
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver,this));
+			var sinkComp = new MyResourceSinkComponent();
+			sinkComp.Init(ProductionBlockDefinition.ResourceSinkGroup, ProductionBlockDefinition.OperationalPowerConsumption, ComputeRequiredPower);
+			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+			ResourceSink = sinkComp;
+			ResourceSink.Update();
+
+			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
@@ -456,7 +443,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void ComponentStack_IsFunctionalChanged()
         {
-            PowerReceiver.Update();
+			ResourceSink.Update();
         }
 
         #endregion Init
@@ -791,7 +778,7 @@ namespace Sandbox.Game.Entities.Cube
                 return;
 
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            if (PowerReceiver.IsPowered)
+			if (ResourceSink.IsPowered)
             {
                 UpdateProduction(currentTime - m_lastUpdateTime);
             }
@@ -841,6 +828,20 @@ namespace Sandbox.Game.Entities.Cube
             {
                 case 0: return m_inputInventory;
                 case 1: return m_outputInventory;
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        public void SetInventory(MyInventory inventory, int index)
+        {
+            switch (index)
+            {
+                case 0:  
+                    m_inputInventory = inventory;
+                    break;
+                case 1:  m_outputInventory = inventory;
+                    break;
                 default:
                     throw new InvalidBranchException();
             }
@@ -897,17 +898,17 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void OnEnabledChanged()
         {
-            PowerReceiver.Update();
+            UpdatePower();
             base.OnEnabledChanged();
 
             if (IsWorking && IsProducing)
                 OnStartProducing();
         }
 
-        public MyInventory InputInventory { get { return m_inputInventory; } }
+        public MyInventory InputInventory { get { return m_inputInventory; } protected set { m_inputInventory = value; } }
 
-        public MyInventory OutputInventory { get { return m_outputInventory; } }
-
+        public MyInventory OutputInventory { get { return m_outputInventory; } protected set { m_outputInventory = value; } }
+     
         private float ComputeRequiredPower()
         {
             return (Enabled && IsFunctional) ? (IsProducing) ? GetOperationalPowerConsumption()
@@ -922,7 +923,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private void Receiver_IsPoweredChanged()
         {
-            if (!PowerReceiver.IsPowered)
+			if (!ResourceSink.IsPowered)
                 IsProducing = false;
             UpdateIsWorking();
         }

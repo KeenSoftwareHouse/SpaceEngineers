@@ -1,25 +1,25 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Multiplayer;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.BehaviorTree;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.VoiceChat;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
-using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
-using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    [PreloadRequired]
     public class MyMichalDebugInputComponent : MyDebugComponent
     {
         public static MyMichalDebugInputComponent Static { get; private set; }
@@ -41,7 +41,12 @@ namespace Sandbox.Game.Gui
                 Axes.Add(val);
             }
 
+            AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Enable LMB spawning: " + ENABLE_FLORA_SPAWNING, () => { ENABLE_FLORA_SPAWNING = !ENABLE_FLORA_SPAWNING; return true; });
+            AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "Select flora to spawn. Selected: " + SELECTED_FLORA, SelectNextFloraToSpawn);
+
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Debug draw", DebugDrawFunc);
+
+            AddShortcut(MyKeys.NumPad9, true, false, false, false, OnRecording, ToggleVoiceChat);
 
             if (MyPerGameSettings.Game == GameEnum.SE_GAME)
             {
@@ -55,8 +60,38 @@ namespace Sandbox.Game.Gui
                 AddShortcut(MyKeys.NumPad5, true, false, false, false, () => "Previous head matrix", PreviousHeadMatrix);
                 AddShortcut(MyKeys.NumPad3, true, false, false, false, OnSelectBotForDebugMsg, () => { OnSelectDebugBot = !OnSelectDebugBot; return true; });
                 AddShortcut(MyKeys.NumPad4, true, false, false, false, () => "Remove bot", () => { MyAIComponent.Static.DebugRemoveFirstBot(); return true; });
-                AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
+                AddShortcut(MyKeys.L, true, true, false, false, () => "Add animal bot", SpawnAnimalAroundPlayer);
+                AddShortcut(MyKeys.OemSemicolon, true, true, false, false, () => "Spawn selected bot " + (m_selectBotName != null ? m_selectBotName : "NOT SELECTED"), SpawnBot);
+                AddShortcut(MyKeys.OemMinus, true, true, false, false, () => "Previous bot definition", PreviousBot);
+                AddShortcut(MyKeys.OemPlus, true, true, false, false, () => "Next bot definition", NextBot);
+                AddShortcut(MyKeys.OemQuotes, true, true, false, false, () => "Reload bot definitions", ReloadDefinitions);
+                AddShortcut(MyKeys.OemComma, true, true, false, false, () => "RemoveAllTimbers", RemoveAllTimbers);
+           //     AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
             }
+        }
+
+        private bool SelectNextFloraToSpawn()
+        {
+            var defs = MyDefinitionManager.Static.GetDefinitionsOfType<MyFloraElementDefinition>();
+            SELECTED_FLORA_IDX = (SELECTED_FLORA_IDX + 1) % defs.Count;
+            SELECTED_FLORA = defs.ItemAt(SELECTED_FLORA_IDX);
+            return true;
+        }
+
+        private bool RemoveAllTimbers()
+        {
+            var entities = MyEntities.GetEntities();
+            foreach (var entity in entities)
+            {
+                var cb = entity as MyCubeBlock;
+                if (cb != null && cb.BlockDefinition.Id.SubtypeName == "Timber1")
+                {
+                    cb.Close();
+                }
+
+            }
+
+            return true;
         }
 
         public override string GetName()
@@ -83,7 +118,12 @@ namespace Sandbox.Game.Gui
         private const int HeadMatrixFlag = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3;
         private int CurrentHeadMatrixFlag = 0;
 
+        public bool SPAWN_FLORA_ENTITY = false;
         public bool OnSelectDebugBot = false;
+
+        public bool ENABLE_FLORA_SPAWNING = false;
+        public MyFloraElementDefinition SELECTED_FLORA = null;
+        private int SELECTED_FLORA_IDX = 0;
 
         public override bool HandleInput()
         {
@@ -154,7 +194,7 @@ namespace Sandbox.Game.Gui
 
             //        foreach (var sb in q)
             //        {
-            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
             //            VRageRender.MyRenderProxy.DebugDrawAxis(sb.PositionComp.WorldMatrix, 0.5f, true);
             //        }
 
@@ -200,7 +240,7 @@ namespace Sandbox.Game.Gui
             //            for (int i = 0; i < toList.Count; i++)
             //            {
             //                var body = toList[i];
-            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
 
             //                VRageRender.MyRenderProxy.DebugDrawSphere(body.Position, 1, Color.Red, 1.0f, false);
             //            }
@@ -319,7 +359,6 @@ namespace Sandbox.Game.Gui
 
                 var mousePosition = MyGuiManager.MouseCursorPosition;
                 VRageRender.MyRenderProxy.DebugDrawText2D(initVec, "Mouse coords: " + mousePosition.ToString(), Color.BlueViolet, 0.4f);
-
             }
         }
 
@@ -352,13 +391,13 @@ namespace Sandbox.Game.Gui
             var view = MySession.Static.CameraController.GetViewMatrix();
             var inv = Matrix.Invert(view);
 
-            //MyInventoryItem item = new MyInventoryItem(100, 
-            var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
+            //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
+            var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
 			var scrapBuilder = MyFloatingObject.ScrapBuilder;
 
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
                 var obj = MyFloatingObjects.Spawn(item, inv.Translation + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }
@@ -367,7 +406,7 @@ namespace Sandbox.Game.Gui
             scrapPos.X += 10;
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
                 var obj = MyFloatingObjects.Spawn(item, scrapPos + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }
@@ -394,6 +433,27 @@ namespace Sandbox.Game.Gui
             return string.Format("Auto select bot for debug: {0}", OnSelectDebugBot ? "TRUE" : "FALSE");
         }
 
+        private string OnRecording()
+        {
+            if (MyVoiceChatSessionComponent.Static != null)
+                return string.Format("VoIP recording: {0}", (MyVoiceChatSessionComponent.Static.IsRecording ? "TRUE" : "FALSE"));
+            else
+                return string.Format("VoIP unavailable");
+        }
+
+        private bool ToggleVoiceChat()
+        {
+            if (MyVoiceChatSessionComponent.Static.IsRecording)
+            {
+                MyVoiceChatSessionComponent.Static.StopRecording();
+            }
+            else
+            {
+                MyVoiceChatSessionComponent.Static.StartRecording();
+            }
+            return true;
+        }
+
         private bool NextHeadMatrix()
         {
             CurrentHeadMatrixFlag++;
@@ -415,6 +475,86 @@ namespace Sandbox.Game.Gui
             {
                 HeadMatrix = MySession.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
             }
+            return true;
+        }
+
+        private bool SpawnAnimalAroundPlayer()
+        {
+            if (MySession.LocalCharacter != null)
+            {
+                var position = MySession.LocalCharacter.PositionComp.GetPosition();
+                var definition = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "NormalDeer"));
+
+                MyAIComponent.Static.SpawnNewBot(definition as MyAgentDefinition);
+            }
+
+            return true;
+        }
+
+        private List<MyAgentDefinition> m_agentDefinitions = new List<MyAgentDefinition>();
+        private int? m_selectedDefinition = null;
+        private string m_selectBotName = null;
+
+        private bool ReloadDefinitions()
+        {
+            m_selectedDefinition = null;
+            m_selectBotName = null;
+            m_agentDefinitions.Clear();
+            var definitions = MyDefinitionManager.Static.GetBotDefinitions();
+            foreach (var definition in definitions)
+            {
+                if (definition is MyAgentDefinition)
+                {
+                    m_agentDefinitions.Add(definition as MyAgentDefinition);
+                }
+            }
+            return true;
+        }
+
+        private bool NextBot()
+        {
+            if (m_agentDefinitions.Count == 0)
+                return true;
+            if (m_selectedDefinition == null)
+                m_selectedDefinition = 0;
+            else
+                m_selectedDefinition = (m_selectedDefinition.Value + 1) % m_agentDefinitions.Count;
+            m_selectBotName = m_agentDefinitions[m_selectedDefinition.Value].Id.SubtypeName;
+            return true;
+        }
+
+        private bool PreviousBot()
+        {
+            if (m_agentDefinitions.Count == 0)
+                return true;
+            if (m_selectedDefinition == null)
+                m_selectedDefinition = m_agentDefinitions.Count - 1;
+            else
+            {
+                m_selectedDefinition = (m_selectedDefinition.Value - 1);
+                if (m_selectedDefinition.Value == -1)
+                    m_selectedDefinition = m_agentDefinitions.Count - 1;
+            }
+            m_selectBotName = m_agentDefinitions[m_selectedDefinition.Value].Id.SubtypeName;
+            return true;
+        }
+
+        private bool SpawnBot()
+        {
+            if (MySession.LocalCharacter != null && m_selectedDefinition.HasValue)
+            {
+                var headMatrix = MySession.LocalCharacter.GetHeadMatrix(true);
+                var position = headMatrix.Translation;
+                var definition = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "BarbarianTest"));
+
+                var result = MyPhysics.CastRay(position, position + headMatrix.Forward * 30);
+                if (result.HasValue)
+                {
+                    var botDef = m_agentDefinitions[m_selectedDefinition.Value];
+                    MyAIComponent.Static.SpawnNewBot(botDef, result.Value.Position);
+                }
+            }
+
             return true;
         }
     }

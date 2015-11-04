@@ -687,21 +687,21 @@ namespace Sandbox.Game.Entities.Character
 
             //var hit = MyPhysics.CastRay(castFrom, castTo, out position, out normal, Physics.CharacterProxy.CharacterCollisionFilter, true); 
 
-            LineD castLine = new LineD(castFrom, castTo);
-            var result = MyEntities.GetIntersectionWithLine(ref castLine, characterEntity, characterTool, true, false, true);
+            //LineD castLine = new LineD(castFrom, castTo);
+            //var result = MyEntities.GetIntersectionWithLine(ref castLine, characterEntity, characterTool, true, false, true);
 
-            if (result != null)
-            {
-                hit.Position = result.Value.IntersectionPointInWorldSpace;
-                hit.Normal = result.Value.NormalInWorldSpace;
-                gotHit = true;
-                if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTHITS)
-                {
-                    VRageRender.MyRenderProxy.DebugDrawSphere(hit.Position, 0.02f, Color.Gray, 1, false);
-                    VRageRender.MyRenderProxy.DebugDrawText3D(hit.Position, "Entity Intersection hit", Color.Gray, 1, false);
-                }
+            //if (result != null)
+            //{
+            //    hit.Position = result.Value.IntersectionPointInWorldSpace;
+            //    hit.Normal = result.Value.NormalInWorldSpace;
+            //    gotHit = true;
+            //    if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTHITS)
+            //    {
+            //        VRageRender.MyRenderProxy.DebugDrawSphere(hit.Position, 0.02f, Color.Gray, 1, false);
+            //        VRageRender.MyRenderProxy.DebugDrawText3D(hit.Position, "Entity Intersection hit", Color.Gray, 1, false);
+            //    }
 
-            }
+            //}
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTLINE)
             {
@@ -712,26 +712,26 @@ namespace Sandbox.Game.Entities.Character
             if (MyFakes.ENABLE_FOOT_IK_USE_HAVOK_RAYCAST)
             {
                 // do the ray cast also, because ground may not be flat and we will use this to correct values just using raycast, this takes in consideration convex shape radius and ignores it
-                Vector3D position;
-                Vector3 normal;
+                MyPhysics.HitInfo hitInfo;
                  if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTLINE)
                  {
                      VRageRender.MyRenderProxy.DebugDrawText3D(castFrom, "Raycast line", Color.Green, 1, false);
                      VRageRender.MyRenderProxy.DebugDrawLine3D(castFrom, castTo, Color.Green, Color.Green, false);
                  }
-                 if (MyPhysics.CastRay(castFrom, castTo, out position, out normal, raycastFilterLayer, true))
+                
+                 if (MyPhysics.CastRay(castFrom, castTo, out hitInfo, raycastFilterLayer, true))
                  {
                      gotHit = true;
                      if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTHITS)
                      {
-                         VRageRender.MyRenderProxy.DebugDrawSphere(position, 0.02f, Color.Green, 1, false);
-                         VRageRender.MyRenderProxy.DebugDrawText3D(position, "RayCast hit", Color.Green, 1, false);
+                         VRageRender.MyRenderProxy.DebugDrawSphere(hitInfo.Position, 0.02f, Color.Green, 1, false);
+                         VRageRender.MyRenderProxy.DebugDrawText3D(hitInfo.Position, "RayCast hit", Color.Green, 1, false);
                      }
                      // this is hack, if RayCast returns a hit above the graphics cast, take this one
-                     if (Vector3.Dot(position, up) > Vector3.Dot(hit.Position, up))
+                     if (Vector3.Dot(hitInfo.Position, up) > Vector3.Dot(hit.Position, up))
                      {
-                         hit.Position = position;
-                         hit.Normal = normal;                         
+                         hit.Position = hitInfo.Position;
+                         hit.Normal = hitInfo.HkHitInfo.Normal;                         
                      }
                  }
             }

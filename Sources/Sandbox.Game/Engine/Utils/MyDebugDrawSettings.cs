@@ -19,7 +19,7 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_ENTITY_IDS_ONLY_ROOT = true;
         public static bool DEBUG_DRAW_BLOCK_NAMES = false;
         public static bool DEBUG_DRAW_AUDIO = false;
-        public static bool DEBUG_DRAW_COLLISION_PRIMITIVES = false;
+        public static bool DEBUG_DRAW_PHYSICS = false;
         public static bool DEBUG_DRAW_MOUNT_POINTS = false;
         public static bool DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = false;
         public static bool DEBUG_DRAW_MOUNT_POINTS_AUTOGENERATE = false;
@@ -50,11 +50,12 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_COMPUTED_BONES = false;
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_HIPPOSITIONS = false;
         public static bool DEBUG_DRAW_NEUTRAL_SHIPS = false;
+        public static bool DEBUG_DRAW_DRONES = false;
         public static bool DEBUG_DRAW_DISPLACED_BONES = false;
         public static bool DEBUG_DRAW_CUBE_BLOCK_AABBS = false;
         public static bool DEBUG_DRAW_CHARACTER_MISC = false;
         public static bool DEBUG_DRAW_EVENTS = false;
-        public static bool DEBUG_DRAW_POWER_RECEIVERS = false;
+        public static bool DEBUG_DRAW_RESOURCE_RECEIVERS = false;
         public static bool DEBUG_DRAW_COCKPIT = false;
         public static bool DEBUG_DRAW_CONVEYORS = false;
         public static bool DEBUG_DRAW_CUBES = false;
@@ -94,9 +95,16 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_ENVIRONMENT_ITEMS = false;
         public static bool DEBUG_DRAW_SMALL_TO_LARGE_BLOCK_GROUPS = false;
         public static bool DEBUG_DRAW_ROPES = false;
-        public static bool DEBUG_DRAW_BOTS = false;
         public static bool DEBUG_DRAW_OXYGEN = false;
         public static bool DEBUG_DRAW_ANIMALS = false;
+        public static bool DEBUG_DRAW_VOICE_CHAT = false;
+        public static bool DEBUG_DRAW_FLORA = false;
+        public static bool DEBUG_DRAW_FLORA_SPAWN_INFO = false;
+        public static bool DEBUG_DRAW_FLORA_REGROW_INFO = false;
+        public static bool DEBUG_DRAW_FLORA_BOXES = false;
+        public static bool DEBUG_DRAW_FLORA_SPAWNED_ITEMS = false;
+        public static bool DEBUG_DRAW_ENTITY_COMPONENTS = false;
+        public static bool DEBUG_DRAW_GRIDS_DECAY = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;
@@ -111,8 +119,24 @@ namespace Sandbox.Engine.Utils
         public static bool BREAKABLE_SHAPE_CHILD_COUNT = false;
         public static bool BREAKABLE_SHAPE_CONNECTIONS = false;
 
+        // AI
+        public static bool DEBUG_DRAW_BOTS = false;
+        public static bool DEBUG_DRAW_BOT_AIMING = false;
+        public static bool DEBUG_DRAW_BOT_STEERING = false;
+        public static bool DEBUG_DRAW_BOT_NAVIGATION = false;
+
         public static bool DEBUG_DRAW_SHOW_DAMAGE = false;
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_ORIGINAL_RIG = false;
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_DESIRED = false;
+        public static bool DEBUG_DRAW_BLOCK_INTEGRITY = false;
+        public static bool DEBUG_DRAW_FIXED_BLOCK_QUERIES = false;
+        public static bool DEBUG_DRAW_DRILLS = false;
+
+        public static bool DEBUG_DRAW_PHYSICS_SHAPES = true;
+        public static bool DEBUG_DRAW_INERTIA_TENSORS = false;
+        public static bool DEBUG_DRAW_SORTED_JOBS = false;
+        public static bool DEBUG_DRAW_PHYSICS_FORCES = false;
+        public static bool DEBUG_DRAW_SUSPENSION_POWER = false;
+        public static bool DEBUG_DRAW_CONSTRAINTS = false;
     }
 }

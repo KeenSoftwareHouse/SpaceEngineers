@@ -7,6 +7,7 @@
         <SubtypeId>Square</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -28,6 +29,7 @@
         <SubtypeId>SquareIgnoreDepth</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>true</IgnoreDepth>
@@ -49,6 +51,7 @@
         <SubtypeId>ContainerBorder</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -70,6 +73,7 @@
         <SubtypeId>ContainerBorderSelected</SubtypeId>
       </Id>	
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -91,6 +95,7 @@
         <SubtypeId>DecalGlare</SubtypeId>
       </Id>		
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -112,6 +117,7 @@
         <SubtypeId>EngineThrustMiddle</SubtypeId>
       </Id>			
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -134,6 +140,7 @@
         <SubtypeId>Explosion</SubtypeId>
       </Id>				
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -155,6 +162,7 @@
         <SubtypeId>Explosion_line</SubtypeId>
       </Id>					
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -176,6 +184,7 @@
         <SubtypeId>Explosion_pieces</SubtypeId>
       </Id>						
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -197,12 +206,35 @@
         <SubtypeId>ExplosionSmokeDebrisLine</SubtypeId>
       </Id>							
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>0.55</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
       <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
       <Texture>Textures\Particles\ExplosionSmokeDebrisLine.dds</Texture>
       <UseAtlas>true</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>WarpBubble</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>0.55</AlphaSaturation>
+      <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
+      <Emissivity>0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Warp.dds</Texture>
+      <UseAtlas>false</UseAtlas>
       <UVOffset>
         <X>0</X>
         <Y>0</Y>
@@ -438,6 +470,7 @@
         <SubtypeId>GunSmoke</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -459,6 +492,7 @@
         <SubtypeId>IlluminatingShell</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -568,6 +602,7 @@
         <SubtypeId>MissileGlare</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -589,6 +624,7 @@
         <SubtypeId>MuzzleFlashMachineGunFront</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -611,6 +647,7 @@
         <SubtypeId>MuzzleFlashMachineGunSide</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -632,6 +669,7 @@
         <SubtypeId>particle_flash_a</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -653,6 +691,7 @@
         <SubtypeId>particle_flash_b</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -674,6 +713,7 @@
         <SubtypeId>particle_flash_c</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -695,6 +735,7 @@
         <SubtypeId>particle_glare</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -716,6 +757,7 @@
         <SubtypeId>particle_laser</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -737,6 +779,7 @@
         <SubtypeId>particle_nuclear</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -758,6 +801,7 @@
         <SubtypeId>particle_stone</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -779,6 +823,7 @@
         <SubtypeId>particle_trash_a</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -800,6 +845,7 @@
         <SubtypeId>particle_trash_b</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -821,6 +867,7 @@
         <SubtypeId>ProjectileTrailLine</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -843,6 +890,7 @@
         <SubtypeId>GizmoDrawLine</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -865,6 +913,7 @@
         <SubtypeId>GizmoDrawLineRed</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -887,6 +936,7 @@
         <SubtypeId>ReflectorCone</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -908,6 +958,7 @@
         <SubtypeId>ReflectorConeCharacter</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -929,6 +980,7 @@
         <SubtypeId>ReflectorGlareAlphaBlended</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -952,6 +1004,7 @@
       <AlphaMistingEnable>false</AlphaMistingEnable>
       <AlphaMistingStart>10</AlphaMistingStart>
       <AlphaMistingEnd>80</AlphaMistingEnd>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -974,6 +1027,7 @@
         <SubtypeId>Smoke</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -995,6 +1049,7 @@
         <SubtypeId>Smoke_b</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1016,6 +1071,7 @@
         <SubtypeId>Smoke_c</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1037,6 +1093,7 @@
         <SubtypeId>smoke_field</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1058,6 +1115,7 @@
         <SubtypeId>smoke_field2</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1079,6 +1137,7 @@
         <SubtypeId>Smoke_Ignore_Depth</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>true</IgnoreDepth>
@@ -1100,6 +1159,7 @@
         <SubtypeId>Smoke_lit</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1121,6 +1181,7 @@
         <SubtypeId>Smoke_square</SubtypeId>
       </Id>      
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1142,6 +1203,7 @@
         <SubtypeId>Smoke_square_unlit</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1163,6 +1225,7 @@
         <SubtypeId>Sparks_a</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1184,6 +1247,7 @@
         <SubtypeId>Sparks_b</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1205,12 +1269,59 @@
         <SubtypeId>Stardust</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
-      <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
       <NeedSort>false</NeedSort>
-      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
       <Texture>Textures\Particles\Stardust.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>Firefly</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>1.0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <NeedSort>false</NeedSort>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Firefly.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>Dandelion01</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>0.0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <NeedSort>false</NeedSort>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Dandelion01.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>
         <X>0</X>
@@ -1227,6 +1338,7 @@
         <SubtypeId>SunDisk</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1248,6 +1360,7 @@
         <SubtypeId>Test</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1269,6 +1382,7 @@
       <SubtypeId>Arrow</SubtypeId>
     </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1290,6 +1404,7 @@
       <SubtypeId>ArrowLeft</SubtypeId>
     </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1311,6 +1426,7 @@
         <SubtypeId>ArrowRight</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1332,6 +1448,7 @@
         <SubtypeId>SquareFullColor</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1353,6 +1470,7 @@
         <SubtypeId>ArrowBlue</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1374,6 +1492,7 @@
         <SubtypeId>ArrowRed</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1395,6 +1514,7 @@
         <SubtypeId>ArrowGreen</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1416,6 +1536,7 @@
         <SubtypeId>ArrowLeftBlue</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1437,6 +1558,7 @@
         <SubtypeId>ArrowLeftGreen</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1458,6 +1580,7 @@
         <SubtypeId>ArrowLeftRed</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1479,6 +1602,7 @@
         <SubtypeId>ArrowRightBlue</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1500,6 +1624,7 @@
         <SubtypeId>ArrowRightGreen</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1521,6 +1646,7 @@
         <SubtypeId>ArrowRightRed</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1542,6 +1668,7 @@
         <SubtypeId>RedDot</SubtypeId>
       </Id>    
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1563,6 +1690,7 @@
         <SubtypeId>RedDotIgnoreDepth</SubtypeId>
       </Id>
     <AlphaMistingEnable>false</AlphaMistingEnable>
+    <AlphaSaturation>1</AlphaSaturation>
     <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
     <Emissivity>0</Emissivity>
     <IgnoreDepth>true</IgnoreDepth>
@@ -1584,6 +1712,7 @@
         <SubtypeId>GlassCW</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1613,6 +1742,7 @@
         <SubtypeId>GlassCCW</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1642,6 +1772,7 @@
         <SubtypeId>AsteroidParticle</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1663,6 +1794,7 @@
       <SubtypeId>WeaponLaser</SubtypeId>
     </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
@@ -1684,6 +1816,7 @@
         <SubtypeId>WeaponLaserIgnoreDepth</SubtypeId>
       </Id>
       <AlphaMistingEnable>false</AlphaMistingEnable>
+      <AlphaSaturation>1</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>true</IgnoreDepth>

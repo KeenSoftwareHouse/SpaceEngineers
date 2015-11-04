@@ -24,6 +24,8 @@ namespace Sandbox.Game.Entities.Cube
     using ModelId = System.Int32;
     using VRage.Utils;
     using VRage.Library.Utils;
+    using VRage;
+    using Sandbox.Game.EntityComponents;
 
     /// <summary>
     /// Base class for additional model geometry with common implementation.
@@ -154,6 +156,11 @@ namespace Sandbox.Game.Entities.Cube
             Grid_OnBlockAdded(block);
         }
 
+        public virtual void GenerateBlocks(MySlimBlock generatingBlock)
+        {
+            Grid_OnBlockAdded(generatingBlock);
+        }
+
         public virtual void UpdateAfterSimulation()
         {
             Debug.Assert(MyFakes.ENABLE_GENERATED_BLOCKS);
@@ -227,6 +234,8 @@ namespace Sandbox.Game.Entities.Cube
             m_splitGridInfos.Clear();
         }
 
+        public abstract MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock);
+
         public abstract void OnAddedCube(MySlimBlock cube);
         public abstract void OnRemovedCube(MySlimBlock cube);
 
@@ -275,25 +284,48 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(!(block2.FatBlock is MyCompoundCubeBlock));
             Debug.Assert(block1 != block2);
 
-            foreach (var component1 in block1.BlockDefinition.Components)
-            {
-                if (block2.BlockDefinition.Components.Contains(component1))
-                    return true;
-            }
+            return block1.BlockDefinition.BuildMaterial == block2.BlockDefinition.BuildMaterial;
+        }
 
-            return false;
+        protected bool CanGenerateFromBlock(MySlimBlock cube)
+        {
+            if (cube == null)
+                return false;
+
+            MyCompoundCubeBlock compoundBlock = cube.FatBlock as MyCompoundCubeBlock;
+
+            if (!m_enabled || !cube.CubeGrid.InScene || cube.BlockDefinition.IsGeneratedBlock
+                || (compoundBlock != null && compoundBlock.GetBlocksCount() == 0)
+                || (compoundBlock == null && MySession.Static.SurvivalMode && cube.ComponentStack.BuildRatio < cube.BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
+                || MyFakes.ENABLE_FRACTURE_COMPONENT && cube.FatBlock != null && cube.FatBlock.Components.Has<MyFractureComponentBase>())
+                return false;
+
+            return true;
         }
 
         private void Grid_OnBlockAdded(MySlimBlock cube)
         {
             Debug.Assert(MyFakes.ENABLE_GENERATED_BLOCKS);
 
-            if (!m_enabled || !cube.CubeGrid.InScene || cube.BlockDefinition.IsGeneratedBlock || ((cube.FatBlock is MyCompoundCubeBlock) && ((MyCompoundCubeBlock)cube.FatBlock).GetBlocksCount() == 0))
+            if (!CanGenerateFromBlock(cube))
                 return;
 
             Debug.Assert(cube.CubeGrid == m_grid);
 
-            OnAddedCube(cube);
+            if (cube.FatBlock is MyCompoundCubeBlock)
+            {
+                foreach (var blockInCompound in (cube.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                {
+                    if (CanGenerateFromBlock(blockInCompound))
+                    {
+                        OnAddedCube(blockInCompound);
+                    }
+                }
+            }
+            else
+            {
+                OnAddedCube(cube);
+            }
         }
 
         private void Grid_OnBlockRemoved(MySlimBlock cube)
@@ -456,7 +488,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 loc.Orientation.GetQuaternion(out rotation);
                 MyCubeGrid.MyBlockLocation blockLocation = new MyCubeGrid.MyBlockLocation(
-                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.LocalPlayerId, MySession.LocalCharacter != null ? MySession.LocalCharacter.EntityId : 0);
+                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.LocalPlayerId);
 
                 locations.Add(blockLocation);
             }

@@ -53,10 +53,44 @@ namespace VRageRender
     {
         internal MyRenderInstanceBufferType Type;
         internal VertexLayoutId Layout;
-        internal int Capacity;
+        internal int VisibleCapacity;
+        internal int TotalCapacity;
         internal int Stride;
         internal string DebugName;
         internal byte[] Data;
+        // Culling data
+        // This is needed to be able to rebuild the buffer any time the VisibilityMask is changed
+        internal MyInstanceData[] InstanceData;
+        internal Vector3[] Positions;
+        
+        // Do not modify directly
+        internal bool[] VisibilityMask;
+        internal int NonVisibleInstanceCount;
+
+        internal void SetVisibility(int index, bool value)
+        {
+            if (value != VisibilityMask[index])
+            {
+                VisibilityMask[index] = value;
+                if (value)
+                {
+                    NonVisibleInstanceCount--;
+                }
+                else
+                {
+                    NonVisibleInstanceCount++;
+                }
+            }
+        }
+
+        internal void ResetVisibility()
+        {
+            for (int i = 0; i < TotalCapacity; i++)
+            {
+                VisibilityMask[i] = true;
+            }
+            NonVisibleInstanceCount = 0;
+        }
     }
 
     struct MyInstancingData
@@ -67,12 +101,24 @@ namespace VRageRender
     static class MyInstancing
     {
         static Dictionary<uint, InstancingId> IdIndex = new Dictionary<uint, InstancingId>();
+        static MyActor m_instanceActor;
+
         internal static MyFreelist<MyInstancingInfo> Instancings = new MyFreelist<MyInstancingInfo>(128);
         internal static MyInstancingData[] Data = new MyInstancingData[128];
 
         internal static InstancingId Get(uint GID)
         {
             return IdIndex.Get(GID, InstancingId.NULL);
+        }
+
+        internal static MyActor GetInstanceActor(MyRenderableComponent original)
+        {
+            if (m_instanceActor == null)
+            {
+                m_instanceActor = MyActorFactory.Create();
+                m_instanceActor.AddComponent(MyComponentFactory<MyInstanceLodComponent>.Create());
+            }
+            return m_instanceActor;
         }
 
         internal unsafe static InstancingId Create(uint GID, MyRenderInstanceBufferType type, string debugName)
@@ -124,23 +170,72 @@ namespace VRageRender
             Instancings.Free(id.Index);            
         }
 
+        private static void DisposeInstanceActor()
+        {
+            if (m_instanceActor != null)
+            {
+                if (!m_instanceActor.IsDestroyed)
+                {
+                    MyActorFactory.Destroy(m_instanceActor);
+                }
+                m_instanceActor = null;
+            }
+        }
+
         internal static void OnSessionEnd()
         {
             foreach(var id in IdIndex.ToArray())
             {
                 Remove(id.Key, id.Value);
             }
+
+            DisposeInstanceActor();
         }
 
         internal static unsafe void UpdateGeneric(InstancingId id, List<MyInstanceData> instanceData, int capacity)
         {
             Debug.Assert(id.Info.Type == MyRenderInstanceBufferType.Generic);
 
+            capacity = instanceData.Count;
+
+            if (capacity != Instancings.Data[id.Index].TotalCapacity)
+            {
+                bool[] mask = new bool[capacity];
+                Vector3[] positions = new Vector3[capacity];
+                for (int i = 0; i < capacity; i++)
+                {
+                    mask[i] = true;
+                    positions[i] = new Vector3(instanceData[i].m_row0.ToVector4().W, instanceData[i].m_row1.ToVector4().W, instanceData[i].m_row2.ToVector4().W);
+                }
+                
+                Instancings.Data[id.Index].VisibilityMask = mask;
+                Instancings.Data[id.Index].Positions = positions;
+            }
+
+            Instancings.Data[id.Index].TotalCapacity = capacity;
+            Instancings.Data[id.Index].InstanceData = instanceData.ToArray();
+
+            RebuildGeneric(id);
+        }
+
+        internal static unsafe void RebuildGeneric(InstancingId id)
+        {
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("RebuildGeneric");
+            Debug.Assert(id.Info.Type == MyRenderInstanceBufferType.Generic);
             var info = id.Info;
+
+            int capacity = Instancings.Data[id.Index].InstanceData.Length;
+            for (int i = 0; i < Instancings.Data[id.Index].TotalCapacity; i++)
+            {
+                if (!Instancings.Data[id.Index].VisibilityMask[i])
+                {
+                    capacity--;
+                }
+            }
 
             var byteSize = info.Stride * capacity;
 
-            if(Instancings.Data[id.Index].Data == null)
+            if (Instancings.Data[id.Index].Data == null)
             {
                 Instancings.Data[id.Index].Data = new byte[byteSize];
             }
@@ -148,19 +243,26 @@ namespace VRageRender
             {
                 MyArrayHelpers.Reserve(ref Instancings.Data[id.Index].Data, byteSize);
             }
-            
-            var list = instanceData.ToArray();
 
-            fixed(void *src = list)
+            fixed (void* src = Instancings.Data[id.Index].InstanceData)
             {
                 fixed (void* dst = Instancings.Data[id.Index].Data)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), info.Stride * list.Length);
+                    int currentIndex = 0;
+                    for (int i = 0; i < Instancings.Data[id.Index].TotalCapacity; i++)
+                    {
+                        if (Instancings.Data[id.Index].VisibilityMask[i])
+                        {
+                            SharpDX.Utilities.CopyMemory(new IntPtr(dst) + currentIndex * info.Stride, new IntPtr(src) + i * info.Stride, info.Stride);
+                            currentIndex++;
+                        }
+                    }
                 }
             }
 
-            Instancings.Data[id.Index].Capacity = capacity;
+            Instancings.Data[id.Index].VisibleCapacity = capacity;
             UpdateVertexBuffer(id);
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
         internal static unsafe void UpdateCube(InstancingId id, List<MyCubeInstanceData> instanceData, int capacity)
@@ -203,14 +305,14 @@ namespace VRageRender
             }
             
 
-            Instancings.Data[id.Index].Capacity = capacity;
+            Instancings.Data[id.Index].VisibleCapacity = capacity;
             UpdateVertexBuffer(id);
         }
 
         internal unsafe static void UpdateVertexBuffer(InstancingId id)
         {
             var info = id.Info;
-            if (info.Capacity == 0)
+            if (info.VisibleCapacity == 0)
             { 
                 return;
             }
@@ -219,15 +321,15 @@ namespace VRageRender
             {
                 if(Data[id.Index].VB == VertexBufferId.NULL)
                 {
-                    Data[id.Index].VB = MyHwBuffers.CreateVertexBuffer(info.Capacity, info.Stride, new IntPtr(ptr), info.DebugName);
+                    Data[id.Index].VB = MyHwBuffers.CreateVertexBuffer(info.VisibleCapacity, info.Stride, new IntPtr(ptr), info.DebugName);
                 }
                 else
                 {
                     var vb = Data[id.Index].VB;
-                    MyHwBuffers.ResizeVertexBuffer(vb, info.Capacity);
+                    MyHwBuffers.ResizeVertexBuffer(vb, info.VisibleCapacity);
 
                     DataBox srcBox = new DataBox(new IntPtr(ptr));
-                    ResourceRegion dstRegion = new ResourceRegion(0, 0, 0, info.Stride * info.Capacity, 1, 1);
+                    ResourceRegion dstRegion = new ResourceRegion(0, 0, 0, info.Stride * info.VisibleCapacity, 1, 1);
 
                     MyRender11.ImmediateContext.UpdateSubresource(srcBox, vb.Buffer, 0, dstRegion);
                 }
@@ -241,6 +343,8 @@ namespace VRageRender
                 RemoveResource(id);
                 UpdateVertexBuffer(id);
             }
+
+            DisposeInstanceActor();
         }
     }
 

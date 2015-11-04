@@ -73,18 +73,25 @@
   <ItemGroup>
     <Compile Include="Base27Directions.cs" />
     <Compile Include="Base6Directions.cs" />
+    <Compile Include="BoundingBoxI.cs" />
     <Compile Include="BoundingBox.cs" />
     <Compile Include="BoundingFrustum.cs" />
     <Compile Include="BoundingSphere.cs" />
     <Compile Include="BoundingBoxD.cs" />
     <Compile Include="BoundingSphereD.cs" />
     <Compile Include="BoundingFrustumD.cs" />
+    <Compile Include="BoxCornerEnumerator.cs" />
     <Compile Include="CapsuleD.cs" />
     <Compile Include="CompressedPositionOrientation.cs" />
     <Compile Include="IPhysicsMesh.cs" />
+    <Compile Include="MyCuboid.cs" />
+    <Compile Include="MyMath.cs" />
     <Compile Include="MyTransformD.cs" />
     <Compile Include="QuaternionD.cs" />
+    <Compile Include="SerializationExtensions.cs" />
+    <Compile Include="Spatial\KDTree.cs" />
     <Compile Include="Spatial\MyVector3Grid.cs" />
+    <Compile Include="Vector2B.cs" />
     <Compile Include="Vector4D.cs" />
     <Compile Include="MyOrientedBoundingBoxD.cs" />
     <Compile Include="PlaneD.cs" />

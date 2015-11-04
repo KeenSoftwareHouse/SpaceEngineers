@@ -16,11 +16,11 @@ namespace VRageRender
         static ComputeShaderId m_blur_v;
         const int m_numthreads = 8;
 
-        internal static void Init()
+        internal static new void Init()
         {
-            m_gather = MyShaders.CreateCs("shadows.hlsl", "write_shadow", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads));
-            m_blur_h = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads));
-            m_blur_v = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, "VERTICAL"));
+			m_gather = MyShaders.CreateCs("shadows.hlsl", "write_shadow", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads) + MyRender11.ShaderCascadesNumberHeader());
+			m_blur_h = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, MyRender11.ShaderCascadesNumberDefine()));
+			m_blur_v = MyShaders.CreateCs("shadows.hlsl", "blur", MyShaderHelpers.FormatMacros("NUMTHREADS " + m_numthreads, "VERTICAL", MyRender11.ShaderCascadesNumberDefine()));
         }
 
         internal static void Run()
@@ -35,7 +35,7 @@ namespace VRageRender
                 MyGBuffer.Main.DepthStencil.m_SRV_stencil);
             RC.Context.ComputeShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.ComputeShader.SetConstantBuffer(0, MyCommon.FrameConstants);
-            RC.Context.ComputeShader.SetConstantBuffer(2, MyShadows.m_csmConstants);
+            RC.Context.ComputeShader.SetConstantBuffer(4, MyShadows.m_csmConstants);
             RC.Context.ComputeShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
 
             var kernel = ((Vector2)MyRender11.ViewportResolution + m_numthreads - 1) / m_numthreads;

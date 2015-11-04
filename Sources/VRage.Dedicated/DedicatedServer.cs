@@ -13,7 +13,6 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using VRage.FileSystem;
 using VRage.Plugins;
 using VRage.Service;
@@ -44,6 +43,8 @@ namespace VRage.Dedicated
             if (Environment.UserInteractive)
             {
                 MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+                MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+                MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
                 MyPlugins.RegisterFromArgs(args);
                 MyPlugins.Load();
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -94,8 +95,10 @@ namespace VRage.Dedicated
                 MyPerServerSettings.GameDSName,
                 userDataPath, DedicatedServer.AddDateToLog);
 
-
-            RunInternal();
+            do
+            {
+                RunInternal();
+            } while (MySandboxGame.IsReloading);
 
             MyInitializer.InvokeAfterRun();
         }
@@ -118,7 +121,10 @@ namespace VRage.Dedicated
 
         static void RunInternal()
         {
-            MyFileSystem.InitUserSpecific(null);
+            if (!MySandboxGame.IsReloading)
+                MyFileSystem.InitUserSpecific(null);
+
+            MySandboxGame.IsReloading = false;
 
             VRageRender.MyRenderProxy.Initialize(MySandboxGame.IsDedicated ? (IMyRender)new MyNullRender() : new MyDX9Render());
             VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;
@@ -133,7 +139,7 @@ namespace VRage.Dedicated
 
                 VRageGameServices services = new VRageGameServices(steamService);
 
-                using (MySandboxGame game = new MySandboxGame(services, new string[] { }))
+                using (MySandboxGame game = new MySandboxGame(services, Environment.GetCommandLineArgs().Skip(1).ToArray()))
                 {
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -141,7 +147,7 @@ namespace VRage.Dedicated
                     game.Run();
                 }
 
-                if (MySandboxGame.IsConsoleVisible)
+                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading)
                 {
                     Console.WriteLine("Server stopped, press any key to close this window");
                     Console.ReadKey(false);

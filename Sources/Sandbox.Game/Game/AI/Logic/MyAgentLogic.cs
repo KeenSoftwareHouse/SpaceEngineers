@@ -21,7 +21,14 @@ namespace Sandbox.Game.AI.Logic
         {
             base.Init();
 
-            AiTarget = AgentBot.AgentActions.AiTarget as MyAiTargetBase;
+            AiTarget = AgentBot.AgentActions.AiTargetBase;
+        }
+
+        public override void Cleanup()
+        {
+            base.Cleanup();
+
+            AiTarget.Cleanup();
         }
 
         public virtual void OnCharacterControlAcquired(MyCharacter character)

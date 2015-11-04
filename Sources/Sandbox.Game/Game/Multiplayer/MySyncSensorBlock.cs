@@ -98,21 +98,44 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        [MessageIdAttribute(3146, P2PMessageEnum.Reliable)]
+        protected struct ChangeMySensorPlaySoundMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+
+            public BoolBlit PlaySound;
+            public override string ToString()
+            {
+                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+            }
+        }
+
         static MySyncSensorBlock()
         {
-            MySyncLayer.RegisterMessage<ChangeMySensorMinMsg>(ChangeSensorMinSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ChangeMySensorMaxMsg>(ChangeSensorMaxSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ChangeMySensorFiltersMsg>(ChangeSensorFiltersSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeMySensorMinMsg>(ChangeSensorMinRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeMySensorMinMsg>(ChangeSensorMinSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterMessage<ChangeMySensorMaxMsg>(ChangeSensorMaxRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeMySensorMaxMsg>(ChangeSensorMaxSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            
+            MySyncLayer.RegisterMessage<ChangeMySensorFiltersMsg>(ChangeSensorFiltersRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeMySensorFiltersMsg>(ChangeSensorFiltersSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterMessage<ChangeMySensorActivityMsg>(ChangeSensorIsActiveRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeMySensorActivityMsg>(ChangeSensorIsActiveSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterEntityMessage<MySyncSensorBlock, ChangeMySensorToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
+            MySyncLayer.RegisterMessage<ChangeMySensorPlaySoundMsg>(ChangeSensorPlaySoundRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeMySensorPlaySoundMsg>(ChangeSensorPlaySoundSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterEntityMessage<MySyncSensorBlock, ChangeMySensorToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.FromServer|MyMessagePermissions.ToServer);
         }
 
         public MySyncSensorBlock(MySensorBlock block)
-            :base(block)
+            : base(block)
         {
             m_block = block;
-        }
+        }              
 
         public void SendChangeSensorMinRequest(ref Vector3 fieldMin)
         {
@@ -120,7 +143,19 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.FieldMin = fieldMin;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ChangeSensorMinRequest(ref ChangeMySensorMinMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.FieldMin = msg.FieldMin;
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }       
         }
 
         static void ChangeSensorMinSuccess(ref ChangeMySensorMinMsg msg, MyNetworkClient sender)
@@ -140,7 +175,19 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.FieldMax = fieldMax;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ChangeSensorMaxRequest(ref ChangeMySensorMaxMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.FieldMax = msg.FieldMax;
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId,MyTransportMessageEnum.Success);
+            }
         }
 
         static void ChangeSensorMaxSuccess(ref ChangeMySensorMaxMsg msg, MyNetworkClient sender)
@@ -160,7 +207,19 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.Filters = filters;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ChangeSensorFiltersRequest(ref ChangeMySensorFiltersMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.Filters = msg.Filters;
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }
         }
 
         static void ChangeSensorFiltersSuccess(ref ChangeMySensorFiltersMsg msg, MyNetworkClient sender)
@@ -180,7 +239,19 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.IsActive = IsActive;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ChangeSensorIsActiveRequest(ref ChangeMySensorActivityMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.IsActive = msg.IsActive;
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }
         }
 
         static void ChangeSensorIsActiveSuccess(ref ChangeMySensorActivityMsg msg, MyNetworkClient sender)
@@ -203,7 +274,7 @@ namespace Sandbox.Game.Multiplayer
             msg.Item = item;
             msg.Index = index;
 
-            Sync.Layer.SendMessageToAll(ref msg);
+            Sync.Layer.SendMessageToServer(ref msg);
         }
 
         private static void OnToolbarItemChanged(MySyncSensorBlock sync, ref ChangeMySensorToolbarItemMsg msg, MyNetworkClient sender)
@@ -211,36 +282,45 @@ namespace Sandbox.Game.Multiplayer
             sync.m_syncing = true;
             MyToolbarItem item = null;
             if (msg.Item.EntityID != 0)
-                if (string.IsNullOrEmpty(msg.Item.GroupName))
-                {
-                    MyTerminalBlock block;
-                    if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                    {
-                        var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                        builder.Action = msg.Item.Action;
-                        item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                    }
-                }
-                else
-                {
-                    MySensorBlock parent;
-                    if (MyEntities.TryGetEntityById<MySensorBlock>(msg.Item.EntityID, out parent))
-                    {
-                        var grid = parent.CubeGrid;
-                        var groupName = msg.Item.GroupName;
-                        var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                        if (group != null)
-                        {
-                            var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                            builder.Action = msg.Item.Action;
-                            builder.BlockEntityId = msg.Item.EntityID;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-
-                }
+                item = ToolbarItem.ToItem(msg.Item);
             sync.m_block.Toolbar.SetItemAtIndex(msg.Index, item);
             sync.m_syncing = false;
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+            }
+        }
+
+        public void SendChangeSensorPlaySoundRequest(bool PlaySound)
+        {
+            var msg = new ChangeMySensorPlaySoundMsg();
+            msg.EntityId = m_block.EntityId;
+            msg.PlaySound = PlaySound;
+
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ChangeSensorPlaySoundRequest(ref ChangeMySensorPlaySoundMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.PlayProximitySound = msg.PlaySound;
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }
+        }
+
+        static void ChangeSensorPlaySoundSuccess(ref ChangeMySensorPlaySoundMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.PlayProximitySound = msg.PlaySound;
+            }
         }
     }
 }
