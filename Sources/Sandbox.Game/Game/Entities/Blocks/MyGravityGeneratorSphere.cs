@@ -96,10 +96,10 @@ namespace Sandbox.Game.Entities
                 MyTerminalControlFactory.AddControl(fieldRadius);
 
                 var gravityAcceleration = new MyTerminalControlSlider<MyGravityGeneratorSphere>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-                gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
-                gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
-                gravityAcceleration.Getter = (x) => x.GravityAcceleration;
-                gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(x.m_radius, v);
+                gravityAcceleration.SetLimits(-1, 1);
+                gravityAcceleration.DefaultValue = 1;
+                gravityAcceleration.Getter = (x) => x.GravityAcceleration / MyGravityProviderSystem.G;
+                gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(x.m_radius, v * MyGravityProviderSystem.G);
                 gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
                 gravityAcceleration.EnableActions();
                 MyTerminalControlFactory.AddControl(gravityAcceleration);
@@ -210,7 +210,7 @@ namespace Sandbox.Game.Entities
         }
 
         float IMyGravityGeneratorSphere.Radius { get { return m_radius; } }
-        float IMyGravityGeneratorSphere.Gravity { get { return GravityAcceleration;}}
+        float IMyGravityGeneratorSphere.Gravity { get { return GravityAcceleration / MyGravityProviderSystem.G; } }
     }
 }
 
