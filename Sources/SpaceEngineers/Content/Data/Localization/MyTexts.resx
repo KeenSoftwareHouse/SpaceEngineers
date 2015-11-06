@@ -4380,7 +4380,7 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyDescription_LightBlinkInterval" xml:space="preserve">
     <value>Blinking interval of light (in seconds)</value>
   </data>
-  <data name="BlockPropertyDescription_LightBlinkLenght" xml:space="preserve">
+  <data name="BlockPropertyDescription_LightBlinkLength" xml:space="preserve">
     <value>Length  of blinking as percentage of blink interval</value>
   </data>
   <data name="BlockPropertyDescription_LightBlinkOffset" xml:space="preserve">
@@ -4389,7 +4389,7 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyTitle_LightBlinkInterval" xml:space="preserve">
     <value>Blink Interval</value>
   </data>
-  <data name="BlockPropertyTitle_LightBlinkLenght" xml:space="preserve">
+  <data name="BlockPropertyTitle_LightBlinkLength" xml:space="preserve">
     <value>Blink Length</value>
   </data>
   <data name="BlockPropertyTitle_LightBlinkOffset" xml:space="preserve">

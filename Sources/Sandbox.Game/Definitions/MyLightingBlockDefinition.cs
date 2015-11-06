@@ -11,7 +11,7 @@ namespace Sandbox.Definitions
         public MyBounds LightFalloff;
         public MyBounds LightIntensity;
         public MyBounds BlinkIntervalSeconds;
-        public MyBounds BlinkLenght;
+        public MyBounds BlinkLength;
         public MyBounds BlinkOffset;
 	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
@@ -25,7 +25,7 @@ namespace Sandbox.Definitions
             var ob = (MyObjectBuilder_LightingBlockDefinition)builder;
 
             BlinkIntervalSeconds = ob.LightBlinkIntervalSeconds;
-            BlinkLenght = ob.LightBlinkLenght;
+            BlinkLength = ob.LightBlinkLength;
             BlinkOffset = ob.LightBlinkOffset;
             LightRadius        = ob.LightRadius;
             LightFalloff       = ob.LightFalloff;

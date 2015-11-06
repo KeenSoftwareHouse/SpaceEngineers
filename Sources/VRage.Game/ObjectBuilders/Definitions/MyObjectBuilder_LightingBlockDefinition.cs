@@ -30,7 +30,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public SerializableBounds LightBlinkIntervalSeconds = new SerializableBounds(0.0f, 30.0f, 0);
 
         [ProtoMember]
-        public SerializableBounds LightBlinkLenght = new SerializableBounds(0.0f, 100.0f, 10.0f);
+        public SerializableBounds LightBlinkLength = new SerializableBounds(0.0f, 100.0f, 10.0f);
 
         [ProtoMember]
         public SerializableBounds LightBlinkOffset = new SerializableBounds(0.0f, 100.0f, 0);

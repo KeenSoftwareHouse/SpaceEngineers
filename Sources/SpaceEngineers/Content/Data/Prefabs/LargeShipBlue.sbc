@@ -1300,7 +1300,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_AirVent">
@@ -1459,7 +1459,7 @@
               <Falloff>1</Falloff>
               <Intensity>2</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ReflectorLight">
@@ -1480,7 +1480,7 @@
               <Falloff>1</Falloff>
               <Intensity>2</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
@@ -1562,7 +1562,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -1763,7 +1763,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_OxygenTank">
@@ -1945,7 +1945,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -7734,7 +7734,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -9517,7 +9517,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -10540,7 +10540,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_LandingGear">
@@ -10679,7 +10679,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_AirtightHangarDoor">
@@ -10779,7 +10779,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -10799,7 +10799,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -10819,7 +10819,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -10847,7 +10847,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -10983,7 +10983,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -11740,7 +11740,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -11760,7 +11760,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -11780,7 +11780,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -11808,7 +11808,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_AirtightHangarDoor">
@@ -11908,7 +11908,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
@@ -12125,7 +12125,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -12145,7 +12145,7 @@
               <Falloff>1.3</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
@@ -12447,7 +12447,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -12467,7 +12467,7 @@
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -14304,7 +14304,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -14324,7 +14324,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TextPanel">
@@ -14388,7 +14388,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_AirtightHangarDoor">
@@ -15095,7 +15095,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15115,7 +15115,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15135,7 +15135,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15155,7 +15155,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15175,7 +15175,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15195,7 +15195,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15215,7 +15215,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15235,7 +15235,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15255,7 +15255,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15275,7 +15275,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15295,7 +15295,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15315,7 +15315,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15335,7 +15335,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_InteriorLight">
@@ -15355,7 +15355,7 @@ Open             Close</PublicDescription>
               <Falloff>1</Falloff>
               <Intensity>1.5</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">

@@ -10,7 +10,7 @@ namespace Sandbox.ModAPI.Ingame
         float Radius{ get;}
         float Intensity{get;}
         float BlinkIntervalSeconds{get;}
-        float BlinkLenght{get;}
+        float BlinkLength{get;}
         float BlinkOffset{get;}
     }
 }
