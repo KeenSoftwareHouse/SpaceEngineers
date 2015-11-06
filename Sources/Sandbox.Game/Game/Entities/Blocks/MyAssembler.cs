@@ -1116,9 +1116,112 @@ namespace Sandbox.Game.Entities.Cube
             get { return DisassembleEnabled; }
         }
 
+        #region Queue Management
+
+        class MyAssemblerQueueItem : Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem
+        {
+            int m_amount;
+            string m_typeName, m_subtypeName;
+
+            public MyAssemblerQueueItem(QueueItem qi)
+            {
+                m_amount = (int)qi.Amount;
+                if (qi.Blueprint.Results.IsValidIndex(0))
+                {
+                    m_typeName = qi.Blueprint.Results[0].Id.TypeId.ToString();
+                    m_subtypeName = qi.Blueprint.Results[0].Id.SubtypeName;
+                }
+            }
+            int Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem.Amount
+            {
+                get
+                {
+                    return m_amount;
+                }
+            }
+            string Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem.Type
+            {
+                get
+                {
+                    return m_typeName;
+                }
+            }
+            string Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem.SubtypeName
+            {
+                get
+                {
+                    return m_subtypeName;
+                }
+            }
+
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.AddQueueItem(string itemType, string subtypeName, int amount, int index)
+        {
+            MyObjectBuilderType iType;
+            if (amount < 1 || (index>0 && !m_queue.IsValidIndex(index-1)) || !MyObjectBuilderType.TryParse(itemType, out iType))
+                return false;
+
+            var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(new MyDefinitionId(iType, subtypeName));
+            if (blueprint == null || !CanUseBlueprint(blueprint))
+                return false;
+
+            InsertQueueItemRequest(index, blueprint, (VRage.MyFixedPoint)amount);
+
+            return true;
+        }
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueCount()
+        {
+            return m_queue.Count;
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue()
+        {
+            ClearQueue();
+        }
+
+        Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAt(int index)
+        {
+            if (m_queue.IsValidIndex(index))
+                return new MyAssemblerQueueItem(m_queue[index]);
+            return null;
+        }
+        void Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItemAt(int index)
+        {
+            if (m_queue.IsValidIndex(index))
+                RemoveQueueItemRequest(index);
+        }
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.CountQueueItems(string itemType, string subtypeName)
+        {
+            int count = 0;
+            foreach(QueueItem qi in m_queue)
+            {
+                if (qi.Blueprint.Results.IsValidIndex(0) &&
+                    qi.Blueprint.Results[0].Id.TypeId.ToString() == itemType &&
+                    qi.Blueprint.Results[0].Id.SubtypeName == subtypeName)
+                    count += (int)qi.Amount;
+            }
+            return count;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.MissingItems
+        {
+            get
+            {
+                if (!m_queue.IsValidIndex(0))
+                    return false;
+                return  CheckInventory(m_queue[0].Blueprint) == StateEnum.MissingItems;
+            }
+        }
+
+        #endregion
+
         protected override float GetOperationalPowerConsumption()
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
         }
+
     }
 }
