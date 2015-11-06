@@ -248,13 +248,26 @@ namespace Sandbox.ModAPI
 
         void IMyUtilities.ShowMissionScreen(string screenTitle, string currentObjectivePrefix, string currentObjective, string screenDescription, Action<ResultEnum> callback = null, string okButtonCaption = null)
         {
-            var missionScreen = new MyGuiScreenMission(missionTitle: screenTitle, 
-                currentObjectivePrefix: currentObjectivePrefix, 
-                currentObjective: currentObjective, 
-                description:screenDescription,
+            var missionScreen = new MyGuiScreenMission(missionTitle: screenTitle,
+                currentObjectivePrefix: currentObjectivePrefix,
+                currentObjective: currentObjective,
+                description: screenDescription,
                 resultCallback: callback,
                 okButtonCaption: okButtonCaption);
-            
+
+            MyScreenManager.AddScreen(missionScreen);
+        }
+
+        void IMyUtilities.ShowEditableMissionScreen(string screenTitle, string currentObjectivePrefix, string currentObjective, string screenDescription, Action<ResultEnum, string> callback = null, string okButtonCaption = null)
+        {
+            var missionScreen = new MyGuiScreenMission(missionTitle: screenTitle,
+                currentObjectivePrefix: currentObjectivePrefix,
+                currentObjective: currentObjective,
+                description: screenDescription,
+                textCallback: callback,
+                okButtonCaption: okButtonCaption,
+                editEnabled: true);
+
             MyScreenManager.AddScreen(missionScreen);
         }
 

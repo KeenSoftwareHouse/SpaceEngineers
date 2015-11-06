@@ -51,7 +51,15 @@ namespace Sandbox.Game.Gui
             Action<ResultEnum> resultCallback = null,
             Action saveCodeCallback = null,
             string okButtonCaption = null)
-            : base(missionTitle, currentObjectivePrefix, currentObjective, description, resultCallback, okButtonCaption, m_editorWindowSize, m_editorDescSize,true)
+            : base(missionTitle: missionTitle,
+                currentObjectivePrefix: currentObjectivePrefix,
+                currentObjective: currentObjective,
+                description: description,
+                resultCallback: resultCallback,
+                okButtonCaption: okButtonCaption,
+                windowSize: m_editorWindowSize,
+                descSize: m_editorDescSize,
+                editEnabled: true)
         {
             m_saveCodeCallback = saveCodeCallback;
             CanHideOthers = true;
