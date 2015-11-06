@@ -16,6 +16,7 @@ namespace Sandbox.Definitions
         public float MaxRangeMeters;
         public float RotationSpeed;
         public float ElevationSpeed;
+        public bool CancameraZoom;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -34,6 +35,7 @@ namespace Sandbox.Definitions
             MaxRangeMeters = obLargeTurret.MaxRangeMeters;
             RotationSpeed = obLargeTurret.RotationSpeed;
             ElevationSpeed = obLargeTurret.ElevationSpeed;
+            CancameraZoom = obLargeTurret.CancameraZoom;
         }
     }
 }

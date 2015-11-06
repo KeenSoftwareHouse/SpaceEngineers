@@ -27,6 +27,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public float RotationSpeed = 0.005f;
         [ProtoMember]
-        public float ElevationSpeed = 0.005f; 
+        public float ElevationSpeed = 0.005f;
+        [ProtoMember]
+        public bool CancameraZoom = true;
     }
 }
