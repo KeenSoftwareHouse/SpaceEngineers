@@ -67,7 +67,7 @@ namespace Sandbox.Game
         }
 
         int stackOverflowGuard;
-        const int MAX_PHYSICS_RECURSION_COUNT = 10;
+        const int MAX_PHYSICS_RECURSION_COUNT = 100;
 
         public MyExplosionDamage(HashSet<MySlimBlock> blocksInRadius, BoundingSphereD explosion, float explosionDamage)
         {

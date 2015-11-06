@@ -5693,7 +5693,7 @@ namespace Sandbox.Game.Entities
             var localSphere2 = new BoundingSphereD(center, sphere2.Radius);
             var localSphere3 = new BoundingSphereD(center, sphere3.Radius);
 
-            int cellsToCheck = (endIt.X - startIt.X) * (endIt.Y - startIt.Y) * (endIt.Z - startIt.Z);
+            Int64 cellsToCheck = (Int64)(endIt.X - startIt.X) * (Int64)(endIt.Y - startIt.Y) * (Int64)(endIt.Z - startIt.Z);
             if (cellsToCheck < m_cubes.Count)
             {
                 for (int i = startIt.X; i <= endIt.X; i++)
