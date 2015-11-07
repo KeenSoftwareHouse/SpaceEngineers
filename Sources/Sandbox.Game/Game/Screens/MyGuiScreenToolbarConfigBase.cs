@@ -187,6 +187,7 @@ namespace Sandbox.Game.Gui
 
         protected const string SHIP_GROUPS_NAME = "Groups";
         protected const string CHARACTER_ANIMATIONS_GROUP_NAME = "CharacterAnimations";
+        protected const string WEAPON_GROUP = "_WeaponGroup";
 
 		protected MyStringHash manipulationToolId = MyStringHash.GetOrCompute("ManipulationTool");
 
@@ -446,7 +447,7 @@ namespace Sandbox.Game.Gui
                     RecreateShipCategories(categoriesDefinitions, m_sortedCategories, m_screenCubeGrid);
                     AddShipGroupsIntoCategoryList(m_screenCubeGrid);
                     AddShipBlocksDefinitions(m_screenCubeGrid, isShip, null);
-                    AddShipGunsToCategories(categoriesDefinitions, m_sortedCategories);
+                    AddShipGunsToCategories(categoriesDefinitions, m_sortedCategories, m_screenCubeGrid);
                 }
                 else
                 {
@@ -582,7 +583,7 @@ namespace Sandbox.Game.Gui
             m_categoriesListbox.Add(newItem);
         }
 
-        void AddShipGunsToCategories(Dictionary<string, MyGuiBlockCategoryDefinition> loadedCategories, SortedDictionary<String, MyGuiBlockCategoryDefinition> categories)
+        void AddShipGunsToCategories(Dictionary<string, MyGuiBlockCategoryDefinition> loadedCategories, SortedDictionary<String, MyGuiBlockCategoryDefinition> categories, MyCubeGrid grid)
         {
             if (null == m_shipController)
             {
@@ -600,9 +601,28 @@ namespace Sandbox.Game.Gui
                         MyGuiBlockCategoryDefinition categoryDefinition = null;
                         if (false == categories.TryGetValue(category.Value.Name, out categoryDefinition))
                         {
-                            categories.Add(category.Value.Name, category.Value);
+                            MyGuiBlockCategoryDefinition newtemp = new MyGuiBlockCategoryDefinition();
+                            MyObjectBuilder_GuiBlockCategoryDefinition builder = (MyObjectBuilder_GuiBlockCategoryDefinition)category.Value.GetObjectBuilder();
+                            newtemp.Init(builder, category.Value.Context);
+
+                            var groupArray = grid.GridSystems.TerminalSystem.BlockGroups.ToArray();
+                            Array.Sort(groupArray, MyTerminalComparer.Static);
+                            List<string> groups = new List<string>();
+                            foreach (MyBlockGroup group in groupArray)
+                            {
+                                if (group == null)
+                                {
+                                    continue;
+                                }
+                                groups.Add(group.Name.ToString() + WEAPON_GROUP);
+                            }
+                            if (groups.Count > 0)
+                            {
+                                newtemp.ItemIds.AddRange(groups);
+                            }
+                            categories.Add(category.Value.Name, newtemp);
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -919,12 +939,58 @@ namespace Sandbox.Game.Gui
             } 
         }
 
+
         void AddTools(MyShipController shipController, IMySearchCondition searchCondition)
         {
             var gunsSets = shipController.CubeGrid.GridSystems.WeaponSystem.GetGunSets();
             foreach (KeyValuePair<MyDefinitionId, HashSet<IMyGunObject<MyDeviceBase>>> pair in gunsSets)
             {
                 AddGridGun(shipController, pair.Key, searchCondition);
+            }
+
+
+            //Adds all block groups
+            var groupArray = shipController.CubeGrid.GridSystems.TerminalSystem.BlockGroups.ToArray();
+            Array.Sort(groupArray, MyTerminalComparer.Static);
+            foreach (MyBlockGroup group in groupArray)
+            {
+                if (null != searchCondition && false == searchCondition.MatchesCondition(group.Name.ToString() + WEAPON_GROUP))
+                {
+                    continue;
+                }
+
+                if (group.Blocks.OfType<IMyGunObject<MyDeviceBase>>().Count()==0)
+                {
+                    continue;
+                }
+
+                MyObjectBuilder_ToolbarItemWeaponGroup weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeaponGroup>();
+
+                MyObjectBuilder_ToolbarItemTerminalGroup groupData = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
+
+                weaponData.GroupName = group.Name.ToString();
+                weaponData.DisplayNameText = group.Name.ToString();
+                weaponData.Icon = MyToolbarItemFactory.GetIconForTerminalGroup(group);
+            
+
+                //group is functional iff at least one block is functional
+                bool isGroupFunctional = false;
+                foreach (var block in group.Blocks)
+                {
+                    if (block.IsFunctional)
+                    {
+                        isGroupFunctional = true;
+                        break;
+                    }
+                }
+
+                m_gridBlocks.Add(new MyGuiControlGrid.Item(
+                    icon: MyToolbarItemFactory.GetIconForTerminalGroup(group),
+                    toolTip: group.Name.ToString(),
+                    userData: new GridItemUserData() { ItemData = weaponData },
+                    enabled: isGroupFunctional)
+                );
+              
             }
         }
 
@@ -1338,6 +1404,10 @@ namespace Sandbox.Game.Gui
                 if (eventArgs.DropTo.ItemIndex >= 0 && eventArgs.DropTo.ItemIndex < 9)
                 {
                     var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
+                    if (item==null)
+                    {
+                        return;
+                    }
 
                     //If item is multifunctional, user will have to decide which action will it make
                     if (item is MyToolbarItemActions)

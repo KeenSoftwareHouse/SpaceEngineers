@@ -511,6 +511,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemTerminalGroup.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemVoxelHand.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemWeapon.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemWeaponGroup.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterial.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterials.cs" />

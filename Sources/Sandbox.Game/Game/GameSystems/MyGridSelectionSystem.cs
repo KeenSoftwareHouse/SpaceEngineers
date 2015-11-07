@@ -224,6 +224,18 @@ namespace Sandbox.Game.GameSystems
                         if (gun != null) m_currentGuns.Add(gun);
                     }
                 }
+                else if (gunId.Value.TypeId == typeof(MyObjectBuilder_ToolbarItemWeaponGroup))
+                {
+                    var groupArray = m_shipController.CubeGrid.GridSystems.TerminalSystem.BlockGroups.ToArray();
+                    var findgroup = groupArray.FirstOrDefault(f => f.Name.ToString() == gunId.Value.SubtypeName);
+                    if (findgroup != null)
+                    {
+                        foreach (var gun in findgroup.Blocks.OfType<IMyGunObject<MyDeviceBase>>())
+                        {
+                            m_currentGuns.Add(gun);
+                        }
+                    }
+                }
             }
 
             foreach (var gun in m_currentGuns)
