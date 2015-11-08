@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Environment>
+    <Id>
+        <TypeId>EnvironmentDefinition</TypeId>
+        <SubtypeId>Default</SubtypeId>
+    </Id>
+  <SunDirection x="0.339467347" y="0.709795356" z="-0.617213368" />
+  <EnvironmentTexture>Textures\BackgroundCube\Final\BackgroundCube.dds</EnvironmentTexture>
+  <EnvironmentOrientation Yaw="60.3955536" Pitch="-61.1861954" Roll="90.90578" />
+  <EnableFog>true</EnableFog>
+  <FogNear>100</FogNear>
+  <FogFar>200</FogFar>
+  <FogMultiplier>0.13</FogMultiplier>
+  <FogBacklightMultiplier>1</FogBacklightMultiplier>
+  <FogColor x="1" y="1" z="1" />
+  <FogDensity>0.0005</FogDensity>
+  <SunDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
+  <SunIntensity>0.6</SunIntensity>
+  <SunSpecular x="0.784313738" y="0.784313738" z="0.784313738" />
+  <BackLightDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
+  <BackLightIntensity>1.01</BackLightIntensity>
+  <AdditionalSunDirection>
+    <LightDirection x="4.27" y ="1.11" />
+    <LightDirection x="5.8" y ="2.07" />
+    <LightDirection x="3.73" y ="2.02" />
+  </AdditionalSunDirection>
+  <AmbientColor x="0.141176477" y="0.141176477" z="0.141176477" />
+  <AmbientMultiplier>0.969</AmbientMultiplier>
+  <EnvironmentAmbientIntensity>0.5</EnvironmentAmbientIntensity>
+  <BackgroundColor x="1" y="1" z="1" />
+  <SunMaterial>SunDisk</SunMaterial>
+  <SunSizeMultiplier>200</SunSizeMultiplier>
+  <SmallShipMaxSpeed>100</SmallShipMaxSpeed>
+  <LargeShipMaxSpeed>100</LargeShipMaxSpeed>
+  <SmallShipMaxAngularSpeed>360</SmallShipMaxAngularSpeed>
+  <LargeShipMaxAngularSpeed>180</LargeShipMaxAngularSpeed>
+  <EnvironmentalParticles>
+    <ParticleType>
+      <Id>
+        <TypeId>MyObjectBuilder_EnvironmentalParticleLogicSpace</TypeId>
+        <SubtypeId>SpaceParticles</SubtypeId>
+      </Id>
+      <Material>Stardust</Material>
+      <Color>
+        <X>0.375</X>
+        <Y>0.375</Y>
+        <Z>0.375</Z>
+        <W>0.375</W>
+      </Color>
+      <MaxSpawnDistance>10</MaxSpawnDistance>
+      <DespawnDistance>15</DespawnDistance>
+      <Density>0.0000235</Density>
+      <MaxLifeTime>1500</MaxLifeTime>
+      <MaxParticles>128</MaxParticles>
+    </ParticleType>
+  </EnvironmentalParticles>
+  </Environment>
+</Definitions>

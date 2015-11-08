@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RespawnShips>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RespawnShip</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnShip_Yellow</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>RespawnShip</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>Assembler</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnShip_Assembler</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>540</CooldownSeconds>
+      <Prefab>Respawn Ship 2</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>Drill</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnShip_ShipDrill</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>300</CooldownSeconds>
+      <Prefab>Small Drill Ship</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>EscapePod</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnShip_EscapePod</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>240</CooldownSeconds>
+      <Prefab>Small Escape Pod</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>RefineryAssembler</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_RespawnShip_RefineryAssembler</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>660</CooldownSeconds>
+      <Prefab>Respawn Ship 3</Prefab>
+    </Ship>
+  </RespawnShips>                
+</Definitions>

@@ -1,0 +1,834 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Prefabs>
+    <Prefab>
+      <Id>
+        <TypeId>MyObjectBuilder_PrefabDefinition</TypeId>
+        <SubtypeId>Respawn Ship 3</SubtypeId>
+      </Id>
+      <CubeGrids>
+        <CubeGrid>
+          <EntityId>92583053440549270</EntityId>
+          <PersistentFlags>CastShadows InScene</PersistentFlags>
+          <PositionAndOrientation>
+            <Position x="-31.843837818010797" y="16.427285493023987" z="-55.670223963533545" />
+            <Forward x="0.9684372" y="0.131400213" z="-0.211809888" />
+            <Up x="-0.120079771" y="-0.498708427" z="-0.8584118" />
+            <Orientation>
+              <X>-0.5168345</X>
+              <Y>-0.3563385</Y>
+              <Z>0.6944324</Z>
+              <W>0.351665527</W>
+            </Orientation>
+          </PositionAndOrientation>
+          <EntityDefinitionId xsi:nil="true" />
+          <GridSizeEnum>Large</GridSizeEnum>
+          <CubeBlocks>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="0" y="1" z="3" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>130821534364818664</EntityId>
+              <Min x="-1" y="2" z="1" />
+              <BlockOrientation Forward="Left" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="2" y="2" z="3" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Cockpit">
+              <SubtypeName>LargeBlockCockpitSeat</SubtypeName>
+              <EntityId>143356869011546392</EntityId>
+              <Min x="1" y="3" z="3" />
+              <BlockOrientation Forward="Backward" Up="Up" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShareMode>All</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <UseSingleWeaponMode>false</UseSingleWeaponMode>
+              <Toolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots />
+              </Toolbar>
+              <SelectedGunId xsi:nil="true" />
+              <IsMainCockpit>false</IsMainCockpit>
+              <HorizonIndicatorEnabled>true</HorizonIndicatorEnabled>
+              <PilotRelativeWorld xsi:nil="true" />
+              <PilotGunDefinition xsi:nil="true" />
+              <IsInFirstPersonView>true</IsInFirstPersonView>
+              <OxygenLevel>1</OxygenLevel>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="2" y="3" z="3" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="1" y="2" z="-6" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>100285520698788861</EntityId>
+              <Min x="1" y="1" z="2" />
+              <BlockOrientation Forward="Backward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 2</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
+              <SubtypeName>ConveyorTubeCurved</SubtypeName>
+              <EntityId>130731865546180800</EntityId>
+              <Min x="1" y="2" z="3" />
+              <BlockOrientation Forward="Left" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="3" z="1" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>92634156754032203</EntityId>
+              <Min x="2" y="2" z="1" />
+              <BlockOrientation Forward="Right" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 3</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="2" y="1" z="3" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="3" z="2" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="0" y="1" z="2" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="0" y="1" z="1" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="0" y="1" z="0" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="2" y="1" z="2" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="2" y="1" z="1" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="2" y="1" z="0" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="2" z="0" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="1" z="-5" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>121080214197422446</EntityId>
+              <Min x="0" y="2" z="-6" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 4</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>89776829525551748</EntityId>
+              <Min x="1" y="1" z="1" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 5</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="1" z="0" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="0" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <EntityId>132972806853677815</EntityId>
+              <Min x="0" y="2" z="0" />
+              <IntegrityPercent>0.375</IntegrityPercent>
+              <BuildPercent>0.375</BuildPercent>
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="2" z="0" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="1" z="-4" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="2" z="-6" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>133884137802703313</EntityId>
+              <Min x="0" y="1" z="-6" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 6</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Assembler">
+              <SubtypeName>LargeAssembler</SubtypeName>
+              <EntityId>83088686520365441</EntityId>
+              <Min x="0" y="1" z="-4" />
+              <BlockOrientation Forward="Forward" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <InputInventory>
+                <Items />
+                <nextItemId>0</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+              </InputInventory>
+              <OutputInventory>
+                <Items />
+                <nextItemId>0</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanSend</InventoryFlags>
+              </OutputInventory>
+              <CurrentProgress>0</CurrentProgress>
+              <DisassembleEnabled>false</DisassembleEnabled>
+              <RepeatAssembleEnabled>false</RepeatAssembleEnabled>
+              <RepeatDisassembleEnabled>false</RepeatDisassembleEnabled>
+              <SlaveEnabled>false</SlaveEnabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="1" y="1" z="-5" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="2" z="-2" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="2" z="-3" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="1" z="-3" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="1" y="1" z="-6" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="1" z="-4" />
+              <BlockOrientation Forward="Up" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
+              <SubtypeName>LargeBlockSmallGenerator</SubtypeName>
+              <EntityId>134211356531518362</EntityId>
+              <Min x="0" y="2" z="2" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShareMode>All</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Inventory>
+                <Items>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>5</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                      <SubtypeName>Uranium</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>0</ItemId>
+                    <AmountDecimal>5</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                </Items>
+                <nextItemId>1</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="1" y="1" z="1" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+              </Inventory>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_OxygenGenerator">
+              <SubtypeName />
+              <EntityId>133723490869036567</EntityId>
+              <Min x="1" y="2" z="2" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShareMode>All</ShareMode>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <Inventory>
+                <Items>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>2000</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_Ore">
+                      <SubtypeName>Ice</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>0</ItemId>
+                    <AmountDecimal>2000</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
+                      <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
+                      <OxygenLevel>1</OxygenLevel>
+                    </PhysicalContent>
+                    <ItemId>1</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
+                      <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
+                      <OxygenLevel>1</OxygenLevel>
+                    </PhysicalContent>
+                    <ItemId>2</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_OxygenContainerObject">
+                      <SubtypeName>OxygenBottle</SubtypeName>
+                      <GasLevel>1</GasLevel>
+                      <OxygenLevel>1</OxygenLevel>
+                    </PhysicalContent>
+                    <ItemId>3</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                </Items>
+                <nextItemId>4</nextItemId>
+                <Volume>4</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2" y="2" z="2" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+              </Inventory>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="2" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="1" z="2" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>98996039866117105</EntityId>
+              <Min x="2" y="2" z="-6" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 7</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="2" z="-5" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="2" y="2" z="0" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="2" z="-4" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="2" z="-3" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="1" z="1" />
+              <BlockOrientation Forward="Backward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="1" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>136763905333398414</EntityId>
+              <Min x="1" y="1" z="0" />
+              <IntegrityPercent>0.9</IntegrityPercent>
+              <BuildPercent>0.9</BuildPercent>
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 8</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Refinery">
+              <SubtypeName>LargeRefinery</SubtypeName>
+              <EntityId>81155535845176746</EntityId>
+              <Min x="1" y="1" z="-4" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+              <InputInventory>
+                <Items />
+                <nextItemId>0</nextItemId>
+                <Volume>7.5</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+              </InputInventory>
+              <OutputInventory>
+                <Items />
+                <nextItemId>0</nextItemId>
+                <Volume>7.5</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanSend</InventoryFlags>
+              </OutputInventory>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="1" z="-5" />
+              <BlockOrientation Forward="Up" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Gyro">
+              <SubtypeName>LargeBlockGyro</SubtypeName>
+              <EntityId>78082119496266309</EntityId>
+              <Min x="0" y="2" z="-1" />
+              <BlockOrientation Forward="Right" Up="Up" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CargoContainer">
+              <SubtypeName>LargeBlockSmallContainer</SubtypeName>
+              <EntityId>87671538755297942</EntityId>
+              <Min x="0" y="1" z="-2" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Inventory>
+                <Items>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>40</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_AmmoMagazine">
+                      <SubtypeName>NATO_5p56x45mm</SubtypeName>
+                      <ProjectilesCount>0</ProjectilesCount>
+                    </PhysicalContent>
+                    <ItemId>0</ItemId>
+                    <AmountDecimal>40</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>WelderItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>1</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>HandDrillItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>2</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                  <MyObjectBuilder_InventoryItem>
+                    <Amount>1</Amount>
+                    <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+                      <SubtypeName>AngleGrinderItem</SubtypeName>
+                    </PhysicalContent>
+                    <ItemId>3</ItemId>
+                    <AmountDecimal>1</AmountDecimal>
+                  </MyObjectBuilder_InventoryItem>
+                </Items>
+                <nextItemId>4</nextItemId>
+                <Volume>15.625</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size x="2.5" y="2.5" z="2.5" />
+                <InventoryFlags>CanReceive CanSend</InventoryFlags>
+              </Inventory>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockInteriorWall</SubtypeName>
+              <Min x="0" y="2" z="-4" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="1" z="-1" />
+              <BlockOrientation Forward="Up" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="2" z="-1" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="2" z="-5" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="2" z="-2" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="1" z="-6" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="2" z="-1" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockInteriorWall</SubtypeName>
+              <Min x="0" y="2" z="-3" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="1" z="-1" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="0" y="1" z="-1" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="1" z="-2" />
+              <BlockOrientation Forward="Up" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="1" z="-3" />
+              <BlockOrientation Forward="Up" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="2" z="-4" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="3" y="1" z="-2" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockInteriorWall</SubtypeName>
+              <Min x="0" y="2" z="-2" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="1" y="2" z="-5" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
+              <SubtypeName>LargeBlockSmallThrust</SubtypeName>
+              <EntityId>93379673462407948</EntityId>
+              <Min x="2" y="1" z="-6" />
+              <BlockOrientation Forward="Forward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+              <CustomName>Small Thruster 9</CustomName>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
+              <Enabled>true</Enabled>
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="2" y="3" z="2" />
+              <BlockOrientation Forward="Backward" Up="Down" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="3" y="3" z="0" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="2" y="3" z="1" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="2" y="3" z="0" />
+              <BlockOrientation Forward="Up" Up="Backward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="0" y="3" z="1" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="0" y="2" z="3" />
+              <BlockOrientation Forward="Forward" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="0" y="3" z="3" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="0" y="3" z="2" />
+              <BlockOrientation Forward="Backward" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorBlock</SubtypeName>
+              <Min x="1" y="3" z="2" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorSlope</SubtypeName>
+              <Min x="-1" y="3" z="1" />
+              <BlockOrientation Forward="Down" Up="Left" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="3" z="2" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="2" y="3" z="-1" />
+              <BlockOrientation Forward="Down" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCornerInv</SubtypeName>
+              <Min x="0" y="3" z="0" />
+              <BlockOrientation Forward="Up" Up="Right" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="0" y="3" z="-1" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
+              <SubtypeName>LargeBlockArmorCorner</SubtypeName>
+              <Min x="-1" y="3" z="0" />
+              <BlockOrientation Forward="Down" Up="Forward" />
+              <ColorMaskHSV x="0.122222222" y="0.87" z="0.29" />
+            </MyObjectBuilder_CubeBlock>
+          </CubeBlocks>
+          <Skeleton>
+            <BoneInfo>
+              <BonePosition x="4" y="3" z="3" />
+              <BoneOffset x="134" y="127" z="127" />
+            </BoneInfo>
+            <BoneInfo>
+              <BonePosition x="4" y="4" z="3" />
+              <BoneOffset x="136" y="127" z="127" />
+            </BoneInfo>
+            <BoneInfo>
+              <BonePosition x="4" y="5" z="3" />
+              <BoneOffset x="134" y="127" z="127" />
+            </BoneInfo>
+            <BoneInfo>
+              <BonePosition x="2" y="3" z="3" />
+              <BoneOffset x="126" y="127" z="134" />
+            </BoneInfo>
+            <BoneInfo>
+              <BonePosition x="2" y="4" z="3" />
+              <BoneOffset x="123" y="127" z="134" />
+            </BoneInfo>
+            <BoneInfo>
+              <BonePosition x="2" y="5" z="3" />
+              <BoneOffset x="126" y="127" z="134" />
+            </BoneInfo>
+          </Skeleton>
+          <DampenersEnabled>false</DampenersEnabled>
+          <ConveyorLines>
+            <MyObjectBuilder_ConveyorLine>
+              <StartPosition x="0" y="1" z="-3" />
+              <StartDirection>Backward</StartDirection>
+              <EndPosition x="0" y="1" z="-2" />
+              <EndDirection>Forward</EndDirection>
+              <ConveyorLineType>LARGE_LINE</ConveyorLineType>
+            </MyObjectBuilder_ConveyorLine>
+            <MyObjectBuilder_ConveyorLine>
+              <StartPosition x="1" y="1" z="-4" />
+              <StartDirection>Left</StartDirection>
+              <EndPosition x="0" y="1" z="-4" />
+              <EndDirection>Right</EndDirection>
+              <ConveyorLineType>LARGE_LINE</ConveyorLineType>
+            </MyObjectBuilder_ConveyorLine>
+            <MyObjectBuilder_ConveyorLine>
+              <StartPosition x="1" y="2" z="2" />
+              <StartDirection>Backward</StartDirection>
+              <EndPosition x="1" y="3" z="3" />
+              <EndDirection>Down</EndDirection>
+              <Sections>
+                <Section Direction="Backward" Length="1" />
+                <Section Direction="Up" Length="1" />
+              </Sections>
+              <ConveyorLineType>LARGE_LINE</ConveyorLineType>
+            </MyObjectBuilder_ConveyorLine>
+          </ConveyorLines>
+          <DisplayName>Large Ship 6694</DisplayName>
+          <OxygenAmount>
+            <float>0</float>
+            <float>0</float>
+          </OxygenAmount>
+          <DestructibleBlocks>true</DestructibleBlocks>
+        </CubeGrid>
+      </CubeGrids>
+    </Prefab>
+  </Prefabs>
+</Definitions>
