@@ -159,11 +159,14 @@ namespace Sandbox.ModAPI.Ingame
         float DetailScanRange { get; }
         //
         /// <summary>
-        /// Returns a list of IDs of broadcasting antennas
+        /// Fills a list with IDs of broadcasting antennas
         /// within the reach of this antenna.
         /// </summary>
-        /// <returns>This list might be empty.</returns>
-        List<long> FindNearbyAntennas();
+        /// <param name="antennaIds">
+        /// Appends all found antenna IDs to this list.
+        /// Must not be <code>null</code>.
+        /// </param>
+        void FindNearbyAntennas(ref List<long> antennaIds);
         //
         /// <summary>
         /// Checks whether the specific antenna is within
@@ -267,5 +270,8 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="antennaId">The nearby antenna's ID.</param>
         /// <returns><code>null</code> if out of detail scan range.</returns>
         BoundingBoxD? GetNearbyAntennaWorldAABB(long antennaId);
+        //
+        // TODO Find broadcasted raw material deposits. => MyOreDetectorComponent.Update
+        // TODO Find broadcasting beacons.
 	}
 }

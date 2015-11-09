@@ -161,6 +161,8 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
+            /* Init Nearby Antenna Patch.
+            */ StaticInitNearbyAntennaPatch();
         }
 
         public MyRadioAntenna()
@@ -569,13 +571,12 @@ namespace Sandbox.Game.Entities.Cube
       return null;
     }
     //
-    List<long> IMyRadioAntenna.FindNearbyAntennas() {
+    void IMyRadioAntenna.FindNearbyAntennas(ref List<long> found) {
       Debug.Assert(allExistingAntennas != null);
-      List<long> found = new List<long>();
+      Debug.Assert(found != null);
       foreach(var en in allExistingAntennas) {
         if((en.Key != this.EntityId) && this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
       }
-      return found;
     }
     //
     bool IMyRadioAntenna.IsNearbyAntennaInReach(long antennaId) {
@@ -674,12 +675,14 @@ namespace Sandbox.Game.Entities.Cube
     }
     //
     //
+    private static void StaticInitNearbyAntennaPatch() {
+      Debug.Assert(allExistingAntennas == null);
+      allExistingAntennas = new Dictionary<long,MyRadioAntenna>();
+      // TODO Add data transfer config to GUI?
+    }
     //
     private void InitNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder) {
-      if(allExistingAntennas == null) {
-        // TODO Move this into static constructor?
-        allExistingAntennas = new Dictionary<long,MyRadioAntenna>();
-      }
+      Debug.Assert(allExistingAntennas != null);
       allExistingAntennas.Add(this.EntityId,this);
       this.dataTransferEnabled = builder.DataTransferEnabled;
       this.dataQueue = builder.PendingDataPacks;
