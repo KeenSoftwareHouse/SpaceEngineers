@@ -241,11 +241,8 @@ namespace Sandbox.Game.Entities.Cube
             objectBuilder.BroadcastRadius = m_radioBroadcaster.BroadcastRadius;
             objectBuilder.ShowShipName = this.ShowShipName;
             objectBuilder.EnableBroadcasting = m_radioBroadcaster.WantsToBeEnabled;
-            /* Nearby Antenna Patch
-            */ objectBuilder.EnableBroadcasting = this.dataTransferEnabled;
-            if((this.dataQueue != null) && (this.dataQueue.Count != 0)) {
-              objectBuilder.PendingDataPacks = this.dataQueue;
-            }
+            /* Nearby Antenna Patch//////////////////////////////////////////////////////////////////////////////
+            */ this.SaveNearbyAntennaPatch(objectBuilder);
             return objectBuilder;
         }
 
@@ -685,9 +682,25 @@ namespace Sandbox.Game.Entities.Cube
       Debug.Assert(allExistingAntennas != null);
       allExistingAntennas.Add(this.EntityId,this);
       this.dataTransferEnabled = builder.DataTransferEnabled;
-      this.dataQueue = builder.PendingDataPacks;
-      if(builder.DataTransferEnabled && (builder.PendingDataPacks == null)) {
-        this.dataQueue = new Queue<string>();
+      // If data transfer is enabled, ensure there is a valid queue.
+      if(builder.DataTransferEnabled) {
+        bool hasData = builder.PendingDataPacks != null;
+        int capacity = hasData ? builder.PendingDataPacks.Length : 0;
+        this.dataQueue = new Queue<string>(capacity);
+        // Enqueue old data, if any.
+        if(hasData) {
+          for(int i=0; i<capacity; ++i) {
+            this.dataQueue.Enqueue(builder.PendingDataPacks[i]);
+          }
+        }
+      }
+    }
+    //
+    private void SaveNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder) {
+      builder.EnableBroadcasting = this.dataTransferEnabled;
+      if((this.dataQueue != null) && (this.dataQueue.Count != 0)) {
+        builder.PendingDataPacks = new string[this.dataQueue.Count];
+        this.dataQueue.CopyTo(builder.PendingDataPacks,0);
       }
     }
     //

@@ -22,6 +22,6 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DataTransferEnabled = false;
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
-        public Queue<string> PendingDataPacks = null;
+        public string[] PendingDataPacks = null;
     }
 }
