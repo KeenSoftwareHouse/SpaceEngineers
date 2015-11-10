@@ -14,16 +14,17 @@ namespace Sandbox.ModAPI.Ingame
     /// interface of an antenna on the same ship. How
     /// you get this interface is up to you. By name, by
     /// position,...
-    /// <code>
+    /// <example>
     /// IMyRadioAntenna antenna = ...;
-    /// </code>
+    /// </example>
     /// 
     /// Once you have your antenna interface, you can get
     /// a list of all nearby antennae by ID by calling this
     /// function:
-    /// <code>
-    /// var nearbyAntennaIds = antenna.FindNearbyAntennas();
-    /// </code>
+    /// <example>
+    /// List<long> antennaIds;
+    /// antenna.FindNearbyAntennas(ref antennaIds);
+    /// </example>
     /// You'll get a list of antenna IDs excluding the ID of
     /// the antenna you're currently using. The returned list
     /// might be empty if no antennas are within your radio
@@ -33,37 +34,57 @@ namespace Sandbox.ModAPI.Ingame
     /// in the game. However, you'll only receive actual data
     /// if the antenna of the given ID is within your radio
     /// range.
-    /// <code>
+    /// <example>
     /// // Returns `null` if out of range or `ShowShipName` is disabled.
     /// string otherShipName = antenna.GetNearbyAntennaShipName(42);
-    /// </code>
+    /// </example>
     /// 
     /// An other feature of the nearby antenna patch is the ability to
     /// instantly send or broadcast some data to nearby antennas and
     /// handle those data packs in programmable blocks. However, each
     /// antenna has to enable this feature individually.
-    /// <code>
+    /// <example>
     /// antenna.DataTransferEnabled = true;
-    /// </code>
+    /// </example>
     /// You can then send data to nearby antennas which also have this
     /// feature enabled.
-    /// <code>
+    /// <example>
     /// bool success = antenna.SendToNearbyAntenna(42,"Hello, antenna #42!");
     /// if(!success) {
     ///   antenna.BroadcastToNearbyAntennas("HELP! My bestest buddy #42 is gone!");
     /// }
-    /// </code>
+    /// </example>
     /// Finally, you can read the data packs you received from other
     /// antennas. A data pack is a string which has the sending antenna's
     /// ID appended to the front end. E.g. if antenna #42 sent you a message,
     /// this message will start with the substring ":42;".
-    /// <code>
+    /// <example>
     /// string msg = antenna.GetReceivedData();
     /// if(msg != null && msg.StartsWith(":42;")) {
     ///   antenna.BroadcastToNearbyAntennas("Everything's well again. My buddy is back.");
     /// }
-    /// </code>
+    /// </example>
+    /// Alternatively, you can pass a <code>long</code> parameter to separate
+    /// data and the sender ID automatically. The returned string does not
+    /// contain any ID prefix anymore.
+    /// <example>
+    /// long senderId;
+    /// string msgWithoutPrefix = antenna.GetReceivedData(out senderId);
+    /// </example>
     /// </summary>
+    /// <remarks>
+    /// You may wonder why this patch does not just return some interface of
+    /// nearby ships which can give you all the information directly rather
+    /// than querying it through the current antenna's interface.
+    /// 
+    /// The reason for this is simple: Security and balancing.
+    /// 
+    /// If it'd pass an interface, you can save this interface for later use.
+    /// Once grabbed within your antenna's reach, you could then exchange data
+    /// far beyond any antenna's radius, thus breaking the range balancing.
+    /// Additionally, you can use any of such interfaces to quickly gain control
+    /// over the other ship's whole grid, which is a dead serious security leak.
+    /// </remarks>
     public interface IMyRadioAntenna : IMyFunctionalBlock
     {
         /// <summary>
@@ -81,14 +102,7 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         bool IsBroadcasting { get; }
         
-        /*
-        Nearby Antenna Patch!
-        ---------------------
-        Created by "Evrey".
-
-        Allowes to scan for other antennas by script.
-        */
-        //
+        // TODO Patch if the JSON storage patch will make it into the master branch.
         /// <summary>
         /// Returns the antenna's unique ID.
         /// </summary>
@@ -152,6 +166,23 @@ namespace Sandbox.ModAPI.Ingame
         string GetReceivedData();
         //
         /// <summary>
+        /// Returns one pack of transfered data at a time. If there is no
+        /// data to be read, returns <code>null</code>. In that case,
+        /// <code>antennaId</code> will contain nothing but rubbish. The
+        /// returned data string is not prefixed by an ID substring, as the
+        /// sender's ID will be written into the given <code>antennaId</code>
+        /// parameter.
+        /// </summary>
+        /// <remarks>
+        /// A call to this function removes the returned piece of data
+        /// from the antenna's input queue. Thus, be very careful about
+        /// concurrent access to an antenna.
+        /// </remarks>
+        /// <param name="antennaId">Receives the sender's ID.</param>
+        /// <returns>Some sent data or <code>null</code>.</returns>
+        string GetReceivedData(out long antennaId);
+        //
+        /// <summary>
         /// This antenna's radio range within which further information
         /// about a nearby ship can be gathered, e.g. it's mass.
         /// </summary>
@@ -164,7 +195,7 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <param name="antennaIds">
         /// Appends all found antenna IDs to this list.
-        /// Must not be <code>null</code>.
+        /// Does not check the given list's current contents.
         /// </param>
         void FindNearbyAntennas(ref List<long> antennaIds);
         //
