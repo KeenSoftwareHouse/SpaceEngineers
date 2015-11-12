@@ -128,7 +128,7 @@ namespace VRageRender
 
     public enum MyGraphicsRenderer
     {
-        NULL,
+        NONE,
         DX9,
         DX11
     }

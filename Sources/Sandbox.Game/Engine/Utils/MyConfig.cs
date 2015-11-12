@@ -942,7 +942,7 @@ namespace Sandbox.Engine.Utils
                     else if(renderer.Value == MyStringId.GetOrCompute("DirectX 9"))
                         return MyGraphicsRenderer.DX9;
                 }
-                return MyGraphicsRenderer.NULL;
+                return MyGraphicsRenderer.NONE;
             }
         }
 
