@@ -574,7 +574,7 @@ namespace Sandbox.Game.Entities.Cube
         
         public bool ReceiveData(long senderId, string message)
         {
-            if(this.m_dataTransferEnabled)
+            if(this.m_dataTransferEnabled & this.EntityId != senderId)
             {
                 Debug.Assert(this.m_dataQueue != null);
                 this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(senderId,message));
