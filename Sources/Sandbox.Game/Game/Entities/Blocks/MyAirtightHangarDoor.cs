@@ -183,5 +183,15 @@ namespace Sandbox.Game.Entities.Blocks
             CubeGrid.OnHavokSystemIDChanged -= CubeGrid_HavokSystemIDChanged;
             base.Closing();
         }
+
+        public override float OpenPosition
+        {
+            get { return m_currOpening * m_subparts.Count * m_subpartMovementDistance; }
+        }
+
+        public override float MaxOpenPosition
+        {
+            get { return m_subparts.Count * m_subpartMovementDistance; }
+        }
     }
 }
