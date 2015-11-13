@@ -17,11 +17,17 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ShowShipName;
         [ProtoMember]
         public bool EnableBroadcasting = true;
-        /* Nearby Antenna Patch
-        */ [ProtoMember,DefaultValue(false)]
+        
+        // Nearby Antenna Patch
+        [ProtoMember,DefaultValue(false)]
         public bool DataTransferEnabled = false;
+
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
         public string[] PendingDataPacks = null;
+
+        [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
+        public long[] PendingSenderIds = null;
     }
 }
