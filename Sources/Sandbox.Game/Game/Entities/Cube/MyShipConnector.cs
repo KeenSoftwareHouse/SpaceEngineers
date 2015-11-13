@@ -129,7 +129,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (InConstraint && Connected)
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_Locked));
-            else if (InConstraint)
+            else if (InConstraint && IsWorking)
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_ReadyToLock));
             else
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_Unlocked));
@@ -148,7 +148,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void TryConnect()
         {
-            if (InConstraint && !Connected)
+            if (InConstraint && !Connected && IsWorking)
             {
                 if (Sync.IsServer)
                     Connect();
@@ -575,7 +575,7 @@ namespace Sandbox.Game.Entities.Cube
                             var otherPos = otherConnector.ConstraintPositionWorld();
                             float len = (otherPos - pos).LengthSquared();
 
-                            if (otherConnector.m_connectorMode == Mode.Connector && otherConnector.IsFunctional && (otherPos - pos).LengthSquared() < 0.35f)
+                            if (otherConnector.m_connectorMode == Mode.Connector && otherConnector.IsFunctional && otherConnector.Enabled && (otherPos - pos).LengthSquared() < 0.35f)
                             {
                                 CreateConstraint(otherConnector);
                             }
@@ -594,7 +594,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else if (Sync.IsServer && !IsWorking)
             {
-                if (InConstraint && !Connected)
+                if (InConstraint && !Connected && (!IsFunctional || !Enabled || !m_other.IsWorking))
                 {
                     Detach();
                 }
@@ -716,7 +716,7 @@ namespace Sandbox.Game.Entities.Cube
                 var connector = block.FatBlock as MyShipConnector;
                 if (connector.InConstraint) continue;
                 if (connector == thisConnector) continue;
-                if (!connector.IsWorking) continue;
+                if (!connector.IsFunctional || !connector.Enabled) continue;
                 if (!connector.FriendlyWithBlock(thisConnector)) continue;
 
                 m_tmpBlockSet.Clear();
