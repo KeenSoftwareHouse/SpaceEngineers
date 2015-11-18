@@ -93,7 +93,8 @@ namespace Sandbox.ModAPI.Ingame
         /// Returns true if antena is broadcasting (read-only)
         /// </summary>
         bool IsBroadcasting { get; }
-        
+
+        #region Nearby Antenna Patch
         // TODO Patch if the JSON storage patch will make it into the master branch.
         /// <summary>
         /// Returns the antenna's unique ID.
@@ -106,6 +107,11 @@ namespace Sandbox.ModAPI.Ingame
         /// and which IDs won't make sense there.
         /// </remarks>
         long AntennaId { get; }
+
+        /// <summary>
+        /// Get this antenna's ship's ID.
+        /// </summary>
+        long ShipId { get; }
         
         /// <summary>
         /// Configure whether this antenna is able to send
@@ -181,7 +187,7 @@ namespace Sandbox.ModAPI.Ingame
         float DetailScanRange { get; }
         
         /// <summary>
-        /// Fills a list with IDs of broadcasting antennas
+        /// Fills a list with IDs of antennas
         /// within the reach of this antenna.
         /// 
         /// In a world with many antennas, this method can
@@ -199,6 +205,36 @@ namespace Sandbox.ModAPI.Ingame
         /// </param>
         void FindNearbyAntennas(ref List<long> antennaIds);
         
+        /// <summary>
+        /// Fills a list with IDs of antennas within the
+        /// reach of this antenna.
+        /// 
+        /// This method only picks one antenna per ship,
+        /// which is slower than just getting all the
+        /// nearby antennas.
+        /// </summary>
+        /// <param name="found">
+        /// Appends all found antenna IDs to this list.
+        /// Does not check the given list's current contents,
+        /// which includes checking for double entries or
+        /// multiple antennas from the same ship. Also does
+        /// not discard the list's current contents. If the
+        /// reference is <code>null</code>, assigns a newly
+        /// created list to it.
+        /// </param>
+        /// <remarks>
+        /// If a ship has multiple antennas installed, those
+        /// working and having data transfer enabled will be
+        /// preferred. If there are multiple antennas working
+        /// and having data transfer enabled, any of those
+        /// will be picked randomly. If no antennas fulfill
+        /// these criteria, any antenna will be picked randomly.
+        /// 
+        /// I.e.: If a ship has working data transfering antennas,
+        /// you'll get a data transfering antenna's ID.
+        /// </remarks>
+        void FindDistinctNearbyAntennas(ref List<long> found);
+
         /// <summary>
         /// Checks whether the specific antenna is within
         /// this antenna's radio range.
@@ -227,6 +263,14 @@ namespace Sandbox.ModAPI.Ingame
         /// <returns><code>null</code> if the other antenna is out of reach.</returns>
         float? GetNearbyAntennaRadius(long antennaId);
         
+        /// <summary>
+        /// Get the nearby antenna's ship's ID. Use this to only detect one
+        /// antenna per ship, no matter how many antennas a ship may have.
+        /// </summary>
+        /// <param name="antennaId">The nearby antenna's ID.</param>
+        /// <returns>A unique ship ID or <code>null</code> if out of reach.</returns>
+        long? GetNearbyAntennaShipId(long antennaId);
+
         /// <summary>
         /// Returns the name of the nearby antenna's ship, if showing
         /// the ship's name is enabled.
@@ -305,6 +349,18 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="antennaId">The nearby antenna's ID.</param>
         /// <returns><code>null</code> if out of detail scan range.</returns>
         BoundingBoxD? GetNearbyAntennaWorldAABB(long antennaId);
-        // TODO Find broadcasting beacons.
-	}
+        
+        /// <summary>
+        /// Counts all the blocks on the nearby antenna's ship of
+        /// a specific type. Does not check whether these blocks
+        /// are functional or active. The nearby antenna has to be
+        /// within your detail scan range.
+        /// </summary>
+        /// <typeparam name="T">The block type, e.g. <code>IMyProgrammableBlock</code>.</typeparam>
+        /// <param name="antennaId">The nearby antenna's ID.</param>
+        /// <returns>The number of blocks of the given type or <code>null</code>.</returns>
+        int? CountNearbyBlocksOfType<T>(long antennaId) where T : IMyCubeBlock;
+
+        #endregion // Nearby Antenna Patch
+    }
 }

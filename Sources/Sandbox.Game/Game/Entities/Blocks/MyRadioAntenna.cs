@@ -428,7 +428,10 @@ namespace Sandbox.Game.Entities.Cube
 		{
 			get {  return IsBroadcasting(); }
 		}
-        
+
+        #region Nearby Antenna Patch
+
+        #region static fields
         // Cache all existing antennas. This drastically reduces lookup
         // time, as I do not have to iterate over all existing grids and
         // their blocks, where not all grids have antennas on them and
@@ -436,6 +439,12 @@ namespace Sandbox.Game.Entities.Cube
         //
         // TODO: No concurrent access ever? Use Dictionary<>.
         private static ConcurrentDictionary<long,MyRadioAntenna> allExistingAntennas = null;
+        private static Dictionary<long,long> distinctSearchBuffer = null;
+        #endregion // static fields
+
+        #region instance fields
+        private bool m_dataTransferEnabled = false;
+        private Queue<Antenna2AntennaMessage> m_dataQueue = null;
         
         // I expect that most programs that query multiple pieces of
         // information about nearby antennas sequentially will do so
@@ -447,7 +456,77 @@ namespace Sandbox.Game.Entities.Cube
         private long m_cachedDetailId = -1;
         private MyRadioAntenna m_cachedAntenna = null;
         private MyRadioAntenna m_cachedDetailAntenna = null;
+        #endregion // instance fields
 
+        #region static utility functions
+        private static void StaticInitNearbyAntennaPatch()
+        {
+            Debug.Assert(allExistingAntennas == null);
+            allExistingAntennas = new ConcurrentDictionary<long,MyRadioAntenna>();
+            distinctSearchBuffer = new Dictionary<long,long>();
+        }
+        
+        private static MyCubeGrid MainShipGrid(MyRadioAntenna antenna)
+        {
+            return MyAntennaSystem.GetLogicalGroupRepresentative(antenna.CubeGrid);
+        }
+        #endregion // static utility functions
+
+        #region instance utility functions
+        private void InitNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder)
+        {
+            Debug.Assert(allExistingAntennas != null);
+            bool success = allExistingAntennas.TryAdd(this.EntityId,this);
+            Debug.Assert(success);
+            this.m_dataTransferEnabled = builder.DataTransferEnabled;
+            // If data transfer is enabled, ensure there is a valid queue.
+            if(builder.DataTransferEnabled)
+            {
+                if(builder.PendingDataPacks != null & builder.PendingSenderIds != null)
+                {
+                    // Get the minimum length of both arrays in case of broken data.
+                    int capacity = builder.PendingDataPacks.Length;
+                    if(builder.PendingSenderIds.Length < capacity) { capacity = builder.PendingSenderIds.Length; }
+                    this.m_dataQueue = new Queue<Antenna2AntennaMessage>(capacity);
+                    // Enqueue old data, if any.
+                    for(int i=0; i<capacity; ++i)
+                    {
+                        this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(
+                            builder.PendingSenderIds[i]
+                        ,   builder.PendingDataPacks[i]
+                        ));
+                    }
+                }
+                else { this.m_dataQueue = new Queue<Antenna2AntennaMessage>(); }
+            }
+        }
+        
+        private void SaveNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder)
+        {
+            builder.EnableBroadcasting = this.m_dataTransferEnabled;
+            if((this.m_dataQueue != null) && (this.m_dataQueue.Count != 0))
+            {
+                builder.PendingSenderIds = new long[this.m_dataQueue.Count];
+                builder.PendingDataPacks = new string[this.m_dataQueue.Count];
+                int i=0;
+                foreach(var msg in this.m_dataQueue)
+                {
+                    builder.PendingSenderIds[i] = msg.SenderId;
+                    builder.PendingDataPacks[i] = msg.Message;
+                    ++i;
+                }
+            }
+        }
+        
+        private void RemoveFromAntennaList()
+        {
+            Debug.Assert(allExistingAntennas != null);
+            Debug.Assert(allExistingAntennas.Count > 0);
+            MyRadioAntenna trash;
+            bool success = allExistingAntennas.TryRemove(this.EntityId, out trash);
+            Debug.Assert(success);
+        }
+        
         // Call this or die! D:<
         public override void UpdateBeforeSimulation()
         {
@@ -455,14 +534,7 @@ namespace Sandbox.Game.Entities.Cube
             this.ClearNearbyAntennaCache();
         }
 
-        private void ClearNearbyAntennaCache()
-        {
-            m_cachedId = -1;
-            m_cachedDetailId = -1;
-            m_cachedAntenna = null;
-            m_cachedDetailAntenna = null;
-        }
-        
+        #region antenna search and caching
         private MyRadioAntenna FindAntenna(long antennaId)
         {
             Debug.Assert(allExistingAntennas != null);
@@ -541,15 +613,54 @@ namespace Sandbox.Game.Entities.Cube
             return this.IsAntennaResponseReachable(found) ? found : null;
         }
         
-        long IMyRadioAntenna.AntennaId { get { return this.EntityId; } }
+        private void ClearNearbyAntennaCache()
+        {
+            m_cachedId = -1;
+            m_cachedDetailId = -1;
+            m_cachedAntenna = null;
+            m_cachedDetailAntenna = null;
+        }
+        #endregion // antenna search and caching
         
-        float DetailScanRange { get { return this.GetRadius() * 0.1f; } }
+        public bool ReceiveData(long senderId, string message)
+        {
+            if(this.IsWorking & this.m_dataTransferEnabled & this.EntityId != senderId)
+            {
+                Debug.Assert(this.m_dataQueue != null);
+                this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(senderId,message));
+                return true;
+            }
+            return false;
+        }
+        
+        private string GetReceivedData(out long senderId)
+        {
+            senderId = 0xDEADBEEF;
+            if(this.IsWorking & this.m_dataTransferEnabled)
+            {
+                Debug.Assert(this.m_dataQueue != null);
+                if(this.m_dataQueue.Count != 0)
+                {
+                    var msg  = this.m_dataQueue.Dequeue();
+                    senderId = msg.SenderId;
+                    return msg.Message;
+                }
+            }
+            return null;
+        }
+        #endregion // instance utility functions
 
-        float IMyRadioAntenna.DetailScanRange { get { return this.DetailScanRange; } }
-        
-        private bool m_dataTransferEnabled = false;
-        private Queue<Antenna2AntennaMessage> m_dataQueue = null;
-        
+        #region instance attributes
+        long ShipId
+        {
+            get { return MainShipGrid(this).EntityId; }
+        }
+
+        float DetailScanRange
+        {
+            get { return this.GetRadius() * 0.1f; }
+        }
+
         bool DataTransferEnabled
         {
             get { return m_dataTransferEnabled; }
@@ -565,57 +676,56 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
+        #endregion // instance attributes
 
+        #region interface attributes
+        long IMyRadioAntenna.AntennaId { get { return this.EntityId; } }
+
+        long IMyRadioAntenna.ShipId
+        {
+            get { return MainShipGrid(this).EntityId; }
+        }
+        
+        float IMyRadioAntenna.DetailScanRange
+        {
+            get { return this.DetailScanRange; }
+        }
+        
         bool IMyRadioAntenna.DataTransferEnabled
         {
             get { return this.DataTransferEnabled; }
             set { this.DataTransferEnabled = value; }
         }
-        
-        public bool ReceiveData(long senderId, string message)
-        {
-            if(this.m_dataTransferEnabled & this.EntityId != senderId)
-            {
-                Debug.Assert(this.m_dataQueue != null);
-                this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(senderId,message));
-                return true;
-            }
-            return false;
-        }
-        
+        #endregion // interface attributes
+
+        #region interface functions
         bool IMyRadioAntenna.SendToNearbyAntenna(long antennaId, string message)
         {
-            var target = this.FindAntennaInRange(antennaId);
-            return target == null ? false : target.ReceiveData(this.EntityId, message);
+            if(this.IsWorking & this.m_dataTransferEnabled)
+            {
+              var target = this.FindAntennaInRange(antennaId);
+              if(target != null) { return target.ReceiveData(this.EntityId, message); }
+            }
+            return false;
         }
         
         void IMyRadioAntenna.BroadcastToNearbyAntennas(string message)
         {
             Debug.Assert(allExistingAntennas != null);
-            long id = this.EntityId;
-            foreach(var en in allExistingAntennas)
+            if(this.IsWorking & this.m_dataTransferEnabled)
             {
-                if(this.IsAntennaReachable(en.Value)) { en.Value.ReceiveData(id, message); }
-            }
-        }
-        
-        private string GetReceivedData(out long senderId)
-        {
-            senderId = 0xDEADBEEF;
-            if(this.m_dataTransferEnabled)
-            {
-                Debug.Assert(this.m_dataQueue != null);
-                if(this.m_dataQueue.Count != 0)
+                long id = this.EntityId;
+                foreach(var en in allExistingAntennas)
                 {
-                    var msg  = this.m_dataQueue.Dequeue();
-                    senderId = msg.SenderId;
-                    return msg.Message;
+                    if(this.IsAntennaReachable(en.Value)) { en.Value.ReceiveData(id, message); }
                 }
             }
-            return null;
         }
-        
-        string IMyRadioAntenna.GetReceivedData(out long senderId) { return this.GetReceivedData(out senderId); }
+
+        string IMyRadioAntenna.GetReceivedData(out long senderId)
+        {
+            return this.GetReceivedData(out senderId);
+        }
         
         void IMyRadioAntenna.FindNearbyAntennas(ref List<long> found)
         {
@@ -625,6 +735,30 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if((en.Key != this.EntityId) && this.IsAntennaReachable(en.Value)) { found.Add(en.Key); }
             }
+        }
+
+        void IMyRadioAntenna.FindDistinctNearbyAntennas(ref List<long> found)
+        {
+            Debug.Assert(allExistingAntennas != null);
+            Debug.Assert(distinctSearchBuffer != null);
+            Debug.Assert(distinctSearchBuffer.Count == 0);
+            if(found == null) { found = new List<long>(); }
+            // Select all antennas depending on their ships.
+            foreach(var en in allExistingAntennas)
+            {
+                var antenna = en.Value;
+                long shipId = antenna.ShipId;
+                if(distinctSearchBuffer.ContainsKey(shipId))
+                {
+                    // Only override with working and data transfering antennas.
+                    if(antenna.IsWorking & antenna.DataTransferEnabled) { distinctSearchBuffer[shipId] = en.Key; }
+                }
+                else { distinctSearchBuffer.Add(shipId,en.Key); }
+            }
+            // Get all the found antenna IDs.
+            foreach(long id in distinctSearchBuffer.Values) { found.Add(id); }
+            // Clean up. This is just a cache.
+            distinctSearchBuffer.Clear();
         }
         
         bool IMyRadioAntenna.IsNearbyAntennaInReach(long antennaId)
@@ -644,11 +778,13 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        private static MyCubeGrid MainShipGrid(MyRadioAntenna antenna)
+        long? IMyRadioAntenna.GetNearbyAntennaShipId(long antennaId)
         {
-            return MyAntennaSystem.GetLogicalGroupRepresentative(antenna.CubeGrid);
+            var antenna = this.FindAntennaInRange(antennaId);
+            if(antenna != null) { return antenna.ShipId; }
+            return null;
         }
-        
+
         string IMyRadioAntenna.GetNearbyAntennaShipName(long antennaId)
         {
             var antenna = this.FindAntennaInRange(antennaId);
@@ -721,67 +857,23 @@ namespace Sandbox.Game.Entities.Cube
             if(antenna != null) { return MainShipGrid(antenna).PositionComp.WorldAABB; }
             return null;
         }
-        
-        private static void StaticInitNearbyAntennaPatch()
-        {
-            Debug.Assert(allExistingAntennas == null);
-            allExistingAntennas = new ConcurrentDictionary<long,MyRadioAntenna>();
-        }
-        
-        private void InitNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder)
-        {
-            Debug.Assert(allExistingAntennas != null);
-            bool success = allExistingAntennas.TryAdd(this.EntityId,this);
-            Debug.Assert(success);
-            this.m_dataTransferEnabled = builder.DataTransferEnabled;
-            // If data transfer is enabled, ensure there is a valid queue.
-            if(builder.DataTransferEnabled)
-            {
-                if(builder.PendingDataPacks != null & builder.PendingSenderIds != null)
-                {
-                    // Get the minimum length of both arrays in case of broken data.
-                    int capacity = builder.PendingDataPacks.Length;
-                    if(builder.PendingSenderIds.Length < capacity) { capacity = builder.PendingSenderIds.Length; }
-                    this.m_dataQueue = new Queue<Antenna2AntennaMessage>(capacity);
-                    // Enqueue old data, if any.
-                    for(int i=0; i<capacity; ++i)
-                    {
-                        this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(
-                            builder.PendingSenderIds[i]
-                        ,   builder.PendingDataPacks[i]
-                        ));
-                    }
-                }
-                else { this.m_dataQueue = new Queue<Antenna2AntennaMessage>(); }
-            }
-        }
-        
-        private void SaveNearbyAntennaPatch(MyObjectBuilder_RadioAntenna builder)
-        {
-            builder.EnableBroadcasting = this.m_dataTransferEnabled;
-            if((this.m_dataQueue != null) && (this.m_dataQueue.Count != 0))
-            {
-                builder.PendingSenderIds = new long[this.m_dataQueue.Count];
-                builder.PendingDataPacks = new string[this.m_dataQueue.Count];
-                int i=0;
-                foreach(var msg in this.m_dataQueue)
-                {
-                    builder.PendingSenderIds[i] = msg.SenderId;
-                    builder.PendingDataPacks[i] = msg.Message;
-                    ++i;
-                }
-            }
-        }
-        
-        private void RemoveFromAntennaList()
-        {
-            Debug.Assert(allExistingAntennas != null);
-            Debug.Assert(allExistingAntennas.Count > 0);
-            MyRadioAntenna trash;
-            bool success = allExistingAntennas.TryRemove(this.EntityId, out trash);
-            Debug.Assert(success);
-        }
 
+        int? IMyRadioAntenna.CountNearbyBlocksOfType<T>(long antennaId)
+        {
+            var antenna = this.FindAntennaInDetailRange(antennaId);
+            if(antenna != null)
+            {
+                int count = 0;
+                foreach(var block in MainShipGrid(antenna).GetBlocks())
+                {
+                    if(block is T) { ++count; }
+                }
+                return count;
+            }
+            return null;
+        }
+        #endregion // interface functions
+        #endregion // Nearby Antenna Patch
 
     }
 }
