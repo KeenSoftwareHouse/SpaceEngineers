@@ -528,9 +528,9 @@ namespace Sandbox.Game.Entities.Cube
         }
         
         // Call this or die! D:<
-        public override void UpdateBeforeSimulation()
+        public override void UpdateAfterSimulation()
         {
-            base.UpdateBeforeSimulation();
+            base.UpdateAfterSimulation();
             this.ClearNearbyAntennaCache();
         }
 
@@ -670,9 +670,17 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     this.m_dataTransferEnabled = value;
                     // Create the queue on demand, as most antennas won't make use of this patch.
-                    if(value) { this.m_dataQueue = new Queue<Antenna2AntennaMessage>(); }
+                    // Also set the update method.
+                    if(value) {
+                        this.m_dataQueue = new Queue<Antenna2AntennaMessage>();
+                        this.NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                    }
                     // Allow the queue to be collected if no longer needed.
-                    else { this.m_dataQueue = null; }
+                    // Also: Fast update no longer needed.
+                    else {
+                        this.m_dataQueue = null;
+                        this.NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+                    }
                 }
             }
         }
