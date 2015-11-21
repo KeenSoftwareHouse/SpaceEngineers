@@ -472,7 +472,8 @@ namespace Sandbox.Game.Entities.Cube
         private static Predicate<IMyConveyorEndpoint> m_edgePredicate = EdgeRules;
         private static bool EdgeRules(IMyConveyorEndpoint edge)
         {
-            return m_assemblerForPathfinding.FriendlyWithBlock(edge.CubeBlock);
+            // If a block can't change ownership, then always attempt to pathfind through it for purposes of assembler cooperation
+            return (!edge.CubeBlock.CanChangeOwnership) || (m_assemblerForPathfinding.FriendlyWithBlock(edge.CubeBlock));
         }
 
         private MyAssembler GetMasterAssembler()

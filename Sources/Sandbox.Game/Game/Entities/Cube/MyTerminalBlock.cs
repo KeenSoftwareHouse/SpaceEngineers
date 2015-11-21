@@ -322,6 +322,11 @@ namespace Sandbox.Game.Entities.Cube
             return m_hudParams;
         }
 
+        public override bool CanChangeOwnership
+        {
+            get { return true; }
+        }
+
         protected override void OnOwnershipChanged()
         {
             base.OnOwnershipChanged();
