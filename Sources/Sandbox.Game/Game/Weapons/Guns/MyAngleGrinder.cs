@@ -168,11 +168,37 @@ namespace Sandbox.Game.Weapons
             if (block != null && (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) || block.CubeGrid.BlocksDestructionEnabled))
             {
                 float hackMultiplier = 1.0f;
-                if (block.FatBlock != null && Owner != null && Owner.ControllerInfo.Controller != null && Owner.ControllerInfo.Controller.Player != null)
+                if (Owner != null && Owner.ControllerInfo.Controller != null && Owner.ControllerInfo.Controller.Player != null)
                 {
-                    var relation = block.FatBlock.GetUserRelationToOwner(Owner.ControllerInfo.Controller.Player.Identity.IdentityId);
-                    if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral)
-                        hackMultiplier = MySession.Static.HackSpeedMultiplier;
+                    if (block.FatBlock != null)
+                    {
+                        var relation = block.FatBlock.GetUserRelationToOwner(Owner.ControllerInfo.Controller.Player.Identity.IdentityId);
+                        if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral)
+                            hackMultiplier = MySession.Static.HackSpeedMultiplier;
+                    }
+                    else
+                    {
+                        if (block.CubeGrid.BigOwners.Count != 0)
+                        {
+                            MyIDModule iDModule = new MyIDModule();
+                            //simple and fast Way get ShareMode ,Ergodic is too slow.any one get good idea?
+                            var iDModuleFirst = block.CubeGrid.GetFirstBlockOfType<MyCubeBlock>().IDModule;
+                            if (iDModuleFirst != null)
+                            {
+                                iDModule.ShareMode = iDModuleFirst.ShareMode;
+                            }
+                            else
+                            {
+                                iDModule.ShareMode = MyOwnershipShareModeEnum.Faction;
+                            }
+                            iDModule.Owner = block.CubeGrid.BigOwners[0];
+                            var relation = iDModule.GetUserRelationToOwner(Owner.ControllerInfo.Controller.Player.Identity.IdentityId);
+                            if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral)
+                                hackMultiplier = MySession.Static.HackSpeedMultiplier;
+                           
+                        }
+                  
+                    }
                 }
 
                 float damage = GrinderAmount;
