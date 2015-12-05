@@ -662,9 +662,9 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < ProductionBlockDefinition.OperationalPowerConsumption)
+            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < GetOperationalPowerConsumption())
             {
-                if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, ProductionBlockDefinition.OperationalPowerConsumption))
+                if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, GetOperationalPowerConsumption()))
                 {
                     CurrentState = StateEnum.NotEnoughPower;
                     return;
