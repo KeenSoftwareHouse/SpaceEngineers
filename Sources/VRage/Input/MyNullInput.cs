@@ -111,6 +111,10 @@ namespace VRage.Input
         bool IMyInput.IsNewGamepadKeyDownPressed() { return false; }
         bool IMyInput.IsNewGamepadKeyUpPressed() { return false; }
         void IMyInput.GetActualJoystickState(StringBuilder text) { }
+        bool IMyInput.GetJoystickXInversion() { return false; }
+        bool IMyInput.GetJoystickYInversion() { return false; }
+        void IMyInput.SetJoystickXInversion(bool inverted) { }
+        void IMyInput.SetJoystickYInversion(bool inverted) { }
 
         bool IMyInput.IsAnyMouseOrJoystickPressed() { return false; }
         bool IMyInput.IsAnyNewMouseOrJoystickPressed() { return false; }

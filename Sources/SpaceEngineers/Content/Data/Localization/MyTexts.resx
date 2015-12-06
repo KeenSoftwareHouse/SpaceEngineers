@@ -248,6 +248,12 @@ Remove the original control?</value>
   <data name="JoystickButtonDown" xml:space="preserve">
     <value>JDDown</value>
   </data>
+	<data name="InvertJoystickX" xml:space="preserve">
+    <value>Invert joystick X axis</value>
+  </data>
+	<data name="InvertJoystickY" xml:space="preserve">
+    <value>Invert joystick Y axis</value>
+  </data>
   <data name="JoystickDeadzone" xml:space="preserve">
     <value>Joystick deadzone width</value>
   </data>
