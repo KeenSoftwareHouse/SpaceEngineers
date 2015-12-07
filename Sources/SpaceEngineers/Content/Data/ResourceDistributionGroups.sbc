@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ResourceDistributionGroups>
+    <!-- Sinks -->
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Defense</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>1</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Conveyors</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>20</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Factory</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>30</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Doors</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>40</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Utility</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>50</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Charging</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>60</Priority>
+      <IsAdaptible>true</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Gyro</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>70</Priority>
+      <IsAdaptible>false</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Thrust</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>80</Priority>
+      <IsAdaptible>true</IsAdaptible>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>BatteryBlock</SubtypeId>
+      </Id>
+      <IsSource>false</IsSource>
+      <Priority>90</Priority>
+      <IsAdaptible>true</IsAdaptible>
+    </DistributionGroup>
+
+    <!-- Sources -->
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>SolarPanels</SubtypeId>
+      </Id>
+      <IsSource>true</IsSource>
+      <Priority>1</Priority>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Battery</SubtypeId>
+      </Id>
+      <IsSource>true</IsSource>
+      <Priority>2</Priority>
+    </DistributionGroup>
+
+    <DistributionGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_ResourceDistributionGroup</TypeId>
+        <SubtypeId>Reactors</SubtypeId>
+      </Id>
+      <IsSource>true</IsSource>
+      <Priority>3</Priority>
+    </DistributionGroup>
+
+  </ResourceDistributionGroups>
+
+</Definitions>

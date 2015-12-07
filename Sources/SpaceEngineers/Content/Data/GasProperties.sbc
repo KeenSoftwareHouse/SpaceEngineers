@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <GasProperties>
+    <Gas>
+      <Id>
+        <TypeId>MyObjectBuilder_GasProperties</TypeId>
+        <SubtypeId>Oxygen</SubtypeId>
+      </Id>
+      <EnergyDensity>0</EnergyDensity>
+    </Gas>
+    <Gas>
+      <Id>
+        <TypeId>MyObjectBuilder_GasProperties</TypeId>
+        <SubtypeId>Hydrogen</SubtypeId>
+      </Id>
+      <EnergyDensity>0.001556</EnergyDensity>  <!-- MWh/litres -->
+    </Gas>
+  </GasProperties>
+</Definitions>

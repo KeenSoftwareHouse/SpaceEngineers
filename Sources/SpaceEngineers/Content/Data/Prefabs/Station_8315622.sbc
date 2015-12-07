@@ -1,0 +1,2953 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Prefabs>
+    <Prefab>
+      <Id>
+        <TypeId>PrefabDefinition</TypeId>
+        <SubtypeId>Station_8315622</SubtypeId>
+      </Id>
+      <RespawnShip>false</RespawnShip>			
+      <CubeGrid>
+				<EntityId>-4519098545055612192</EntityId>
+				<PersistentFlags>CastShadows InScene</PersistentFlags>
+				<PositionAndOrientation>
+					<Position x="10" y="-10" z="0" />
+					<Forward x="0" y="0" z="-1" />
+					<Up x="0" y="1" z="0" />
+				</PositionAndOrientation>
+				<GridSizeEnum>Large</GridSizeEnum>
+				<CubeBlocks>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Beacon">
+						<SubtypeName>LargeBlockBeacon</SubtypeName>
+						<EntityId>5488427164638365145</EntityId>
+						<Min x="-12" y="7" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<Enabled>true</Enabled>
+						<CustomName>Platform</CustomName>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="0" y="2" z="8" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-7" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Assembler">
+						<SubtypeName>LargeAssembler</SubtypeName>
+						<EntityId>2410896883439291246</EntityId>
+						<Min x="-12" y="3" z="-5" />
+						<BlockOrientation Forward="Backward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<InputInventory>
+							<Items />
+						</InputInventory>
+						<OutputInventory>
+							<Items />
+						</OutputInventory>
+						<CurrentBlueprint xsi:nil="true" />
+						<CurrentProgress>0</CurrentProgress>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-6" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="3" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="4" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="5" y="2" z="13" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="5" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="6" y="2" z="22" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="6" y="2" z="23" />
+						<BlockOrientation Forward="Forward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="4" y="2" z="12" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="6" y="2" z="15" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Refinery">
+						<SubtypeName>LargeRefinery</SubtypeName>
+						<EntityId>844178466262084069</EntityId>
+						<Min x="-12" y="3" z="4" />
+						<BlockOrientation Forward="Right" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<InputInventory>
+							<Items />
+						</InputInventory>
+						<OutputInventory>
+							<Items />
+						</OutputInventory>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_MedicalRoom">
+						<SubtypeName>LargeMedicalRoom</SubtypeName>
+						<EntityId>-6407126243936230099</EntityId>
+						<Min x="-12" y="3" z="-1" />
+						<BlockOrientation Forward="Right" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="21" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="20" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="16" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="19" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-1" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="18" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="17" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="15" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="14" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="13" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="12" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_GravityGenerator">
+						<SubtypeName />
+						<EntityId>5678085132585023694</EntityId>
+						<Min x="-10" y="3" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<FieldSize x="150" y="150" z="150" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-12" y="2" z="-11" />
+						<BlockOrientation Forward="Backward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="1" y="2" z="9" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-3" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="2" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="3" y="2" z="11" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="0" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="1" y="2" z="11" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="2" y="2" z="10" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-12" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-12" y="2" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-11" y="2" z="2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-9" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="2" z="6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-10" y="2" z="7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-1" y="2" z="7" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
+						<SubtypeName>LargeBlockSmallGenerator</SubtypeName>
+						<EntityId>-4490963470232237892</EntityId>
+						<Min x="-12" y="3" z="2" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<Inventory>
+							<Items>
+								<MyObjectBuilder_InventoryItem>
+									<AmountDecimal>0.4</AmountDecimal>
+									<PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+										<SubtypeName>Uranium</SubtypeName>
+									</PhysicalContent>
+								</MyObjectBuilder_InventoryItem>
+							</Items>
+						</Inventory>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-7" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-8" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-9" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-2" y="2" z="-10" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-2" y="2" z="-11" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="0" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="0" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="0" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-4" y="1" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="0" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="1" z="-5" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-6" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="1" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-7" y="0" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-6" y="0" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-5" y="0" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="-5" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="-4" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="-3" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="-2" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="-1" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="0" z="0" />
+						<BlockOrientation Forward="Up" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-8" y="1" z="1" />
+						<BlockOrientation Forward="Forward" Up="Left" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-7" y="0" z="1" />
+						<BlockOrientation Forward="Up" Up="Backward" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-6" y="0" z="1" />
+						<BlockOrientation Forward="Up" Up="Backward" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-5" y="0" z="1" />
+						<BlockOrientation Forward="Up" Up="Backward" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="1" z="1" />
+						<BlockOrientation Forward="Forward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="0" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="-2" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="-1" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="-5" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="-3" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="0" z="-4" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorSlope</SubtypeName>
+						<Min x="-4" y="1" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorCorner</SubtypeName>
+						<Min x="-4" y="0" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorCorner</SubtypeName>
+						<Min x="-8" y="0" z="-6" />
+						<BlockOrientation Forward="Backward" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorCorner</SubtypeName>
+						<Min x="-8" y="0" z="1" />
+						<BlockOrientation Forward="Up" Up="Backward" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorCorner</SubtypeName>
+						<Min x="-4" y="0" z="1" />
+						<BlockOrientation Forward="Up" Up="Right" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-5" y="1" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Cockpit">
+						<SubtypeName>LargeBlockCockpit</SubtypeName>
+						<EntityId>8134377885407325875</EntityId>
+						<Min x="-3" y="3" z="-4" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-4" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-3" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-7" y="1" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-6" y="1" z="-1" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_LandingGear">
+						<SubtypeName>LargeBlockLandingGear</SubtypeName>
+						<EntityId>7174477991117128231</EntityId>
+						<Min x="-7" y="2" z="-1" />
+						<BlockOrientation Forward="Left" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<IsLocked>false</IsLocked>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_LandingGear">
+						<SubtypeName>LargeBlockLandingGear</SubtypeName>
+						<EntityId>-6859769434178375633</EntityId>
+						<Min x="-7" y="2" z="-2" />
+						<BlockOrientation Forward="Left" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<IsLocked>false</IsLocked>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_LandingGear">
+						<SubtypeName>LargeBlockLandingGear</SubtypeName>
+						<EntityId>-5326946412394333929</EntityId>
+						<Min x="-7" y="2" z="-3" />
+						<BlockOrientation Forward="Left" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<IsLocked>true</IsLocked>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_LandingGear">
+						<SubtypeName>LargeBlockLandingGear</SubtypeName>
+						<EntityId>6222563600010228639</EntityId>
+						<Min x="-7" y="2" z="-4" />
+						<BlockOrientation Forward="Left" Up="Down" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+						<IsLocked>false</IsLocked>
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeSteelCatwalk</SubtypeName>
+						<Min x="-4" y="3" z="-4" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeSteelCatwalk</SubtypeName>
+						<Min x="-4" y="3" z="-3" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeSteelCatwalk</SubtypeName>
+						<Min x="-4" y="3" z="-2" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeSteelCatwalk</SubtypeName>
+						<Min x="-4" y="3" z="-1" />
+						<BlockOrientation Forward="Left" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+					<MyObjectBuilder_CubeBlock>
+						<SubtypeName>LargeBlockArmorBlock</SubtypeName>
+						<Min x="-8" y="2" z="-2" />
+						<BlockOrientation Forward="Forward" Up="Up" />
+						<ColorMaskHSV x="0" y="-1" z="0" />
+					</MyObjectBuilder_CubeBlock>
+				</CubeBlocks>
+				<IsStatic>true</IsStatic>
+				<Skeleton />
+				<LinearVelocity x="0" y="0" z="0" />
+				<AngularVelocity x="0" y="0" z="0" />
+				<XMirroxPlane xsi:nil="true" />
+				<YMirroxPlane xsi:nil="true" />
+				<ZMirroxPlane xsi:nil="true" />
+      </CubeGrid>
+    </Prefab>
+  </Prefabs>
+</Definitions>

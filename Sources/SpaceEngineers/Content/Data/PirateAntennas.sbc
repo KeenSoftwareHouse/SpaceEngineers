@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <PirateAntennas>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingBase</SubtypeId>
+      </Id>
+      <Name>NO TRESPASSERS</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Informant_mk.1</Group>
+	      <Group>Incisor_mk.1</Group>
+	      <Group>Eradicator_mk.1</Group>
+		<Group>Assailant_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>CallForRaid</SubtypeId>
+      </Id>
+      <Name>TARGET LOCATED</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>60000</SpawnTimeMs>
+      <FirstSpawnTimeMs>10000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+	      <Group>Eradicator_mk.1</Group>
+	      <Group>Incisor_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RequestMilitaryAssistance</SubtypeId>
+      </Id>
+      <Name>Hostiles detected - Requesting Backup</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+	      <Group>Incisor_mk.1</Group>
+	      <Group>Eradicator_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RequestAssistance</SubtypeId>
+      </Id>
+      <Name>EMERGENCY - REQUESTING ASSISTANCE</Name>
+      <SpawnDistance>3000</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	      <Group>Assailant_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+    
+      <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingStation</SubtypeId>
+      </Id>
+      <Name>BEWARE OF TRESPASSING</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+	      <Group>Assailant_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingCarrier</SubtypeId>
+      </Id>
+      <Name>Raid in Progress</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>580000</SpawnTimeMs>
+      <FirstSpawnTimeMs>240000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Barb_mk.1</Group>
+        <Group>Weapon Platform Gatling1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>RaidingCarrierHeavyDrone</SubtypeId>
+      </Id>
+      <Name>Heavy Drone Manufacturing Started</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>240000</SpawnTimeMs>
+      <FirstSpawnTimeMs>20000</FirstSpawnTimeMs>
+      <MaxDrones>3</MaxDrones>
+      <SpawnGroups>
+        <Group>Dyad_mk.1</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>IMDCDistressSignal</SubtypeId>
+      </Id>
+      <Name>Emergency IMDC ship under attack</Name>
+      <SpawnDistance>4000</SpawnDistance>
+      <SpawnTimeMs>120000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>IMDC_Vulture_Fighter_Bomber</Group>
+      </SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>IMDCStation</SubtypeId>
+      </Id>
+      <Name>IMDC Station - No Trespassers</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>300000</SpawnTimeMs>
+      <FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>IMDC_Vulture_Fighter_Bomber</Group>
+      </SpawnGroups>
+    </Antenna>
+
+
+  </PirateAntennas>
+</Definitions>

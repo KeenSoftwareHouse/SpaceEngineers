@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnvironmentItems>
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>TreeMedium_4m</SubtypeId>
+      </Id>
+      <Model>Models\Environment\TreesMedium\PineTreeMedium4m.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+	
+	 <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>TreeMedium_6m</SubtypeId>
+      </Id>
+      <Model>Models\Environment\TreesMedium\PineTreeMedium6m.mwm</Model>
+     <PhysicalMaterial>Wood</PhysicalMaterial>
+   </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>TreeMedium_8m</SubtypeId>
+      </Id>
+      <Model>Models\Environment\TreesMedium\PineTreeMedium8m.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+  </EnvironmentItems>
+</Definitions>

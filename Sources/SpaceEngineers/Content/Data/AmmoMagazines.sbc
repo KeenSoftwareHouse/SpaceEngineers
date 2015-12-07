@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AmmoMagazines>
+    <AmmoMagazine>
+      <Id>
+        <TypeId>AmmoMagazine</TypeId>
+        <SubtypeId>NATO_5p56x45mm</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_NATO_5p56x45mm</DisplayName>
+      <Icon>Textures\GUI\Icons\ammo\Rifle_Ammo.dds</Icon>
+      <Size>
+        <X>0.2</X>
+        <Y>0.05</Y>
+        <Z>0.02</Z>
+      </Size>
+      <Mass>0.45</Mass>
+      <Volume>0.2</Volume>
+      <Model>Models\Weapons\Rifle_Ammo.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
+      <Capacity>30</Capacity>
+      <AmmoDefinitionId Subtype="SmallCaliber" />
+    </AmmoMagazine>
+    <AmmoMagazine>
+      <Id>
+        <TypeId>AmmoMagazine</TypeId>
+        <SubtypeId>NATO_25x184mm</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_NATO_25x184mm</DisplayName>
+      <Icon>Textures\GUI\Icons\ammo\Ammo_Box.dds</Icon>
+      <Size>
+        <X>0.25</X>
+        <Y>0.2</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>35</Mass>
+      <Volume>16</Volume>
+      <Model>Models\Weapons\Ammo_Box.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
+      <Capacity>140</Capacity>
+      <AmmoDefinitionId Subtype="LargeCaliber" />
+    </AmmoMagazine>
+    <AmmoMagazine>
+      <Id>
+        <TypeId>AmmoMagazine</TypeId>
+        <SubtypeId>Missile200mm</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Missile200mm</DisplayName>
+      <Icon>Textures\GUI\Icons\ammo\Small_Rocket.dds</Icon>
+      <Size>
+        <X>1.2</X>
+        <Y>0.2</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>45</Mass>
+      <Volume>60</Volume>
+      <Model>Models\Weapons\Projectile_Missile.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
+      <Capacity>1</Capacity>
+      <AmmoDefinitionId Subtype="Missile" />
+    </AmmoMagazine>
+  </AmmoMagazines>
+</Definitions>
