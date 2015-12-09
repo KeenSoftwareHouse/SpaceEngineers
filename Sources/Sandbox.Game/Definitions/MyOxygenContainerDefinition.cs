@@ -1,9 +1,5 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game.ObjectBuilders.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -11,6 +7,7 @@ namespace Sandbox.Definitions
     public class MyOxygenContainerDefinition : MyPhysicalItemDefinition
     {
         public float Capacity;
+	    public MyDefinitionId StoredGasId;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -19,6 +16,14 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_OxygenContainerDefinition;
 
             Capacity = ob.Capacity;
+
+            MyDefinitionId gasId;
+            if (ob.StoredGasId.IsNull())    // Backward compatibility
+                gasId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");
+            else
+                gasId = ob.StoredGasId;
+
+	        StoredGasId = gasId;
         }
     }
 }

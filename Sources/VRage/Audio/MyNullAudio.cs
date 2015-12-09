@@ -44,7 +44,7 @@ namespace VRage.Audio
         int IMyAudio.GetSoundInstancesTotal2D() { return 0; }
         int IMyAudio.GetSoundInstancesTotal3D() { return 0; }
         void IMyAudio.StopUpdatingAll3DCues() { }
-        bool IMyAudio.SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyCueId cueId) { return false; }
+        bool IMyAudio.SourceIsCloseEnoughToPlaySound(Vector3 position, MyCueId cueId, float? customMaxDistance) { return false; }
         object IMyAudio.CalculateDspSettingsDebug(IMy3DSoundEmitter source) { return null; }
         void IMyAudio.WriteDebugInfo(StringBuilder sb) { }
         bool IMyAudio.IsLoopable(MyCueId cueId) { return false; }

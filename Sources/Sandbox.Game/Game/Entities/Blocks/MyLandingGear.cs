@@ -336,7 +336,7 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         var entity = obj.GetCollisionEntity() as MyEntity;
 
-                        if (entity == null)
+                        if (entity == null)// || entity.Parent != null)
                             continue;
 
                         if(entity.Physics.WeldInfo.Children.Count > 0)
@@ -481,17 +481,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void UpdateBeforeSimulation()
         {
-            //if (m_needsToRetryLock)
-            //{
-            //    Vector3 pivot;
-            //    if (FindBody(out pivot) != null)
-            //    {
-            //        ResetLockConstraint(locked: true);
-            //    }
-            //    else
-            //        StartSound(m_offSound);
-            //    m_needsToRetryLock = false;
-            //}
+            RetryLock();
             base.UpdateBeforeSimulation();
         }
 
@@ -500,23 +490,6 @@ namespace Sandbox.Game.Entities.Cube
             // TODO: change to phantom
             base.UpdateAfterSimulation10();
 
-            if (m_needsToRetryLock)
-            {
-                Vector3D pivot;
-                if (FindBody(out pivot) != null)
-                {
-                    ResetLockConstraint(locked: true);
-                }
-                else
-                {
-                    ResetLockConstraint(locked: false);
-                    StartSound(m_unlockSound);
-                }
-                m_needsToRetryLock = false;
-            }
-            else if (LockMode == LandingGearMode.Locked && SafeConstraint == null)
-            {
-            }
 
             if (LockMode != LandingGearMode.Locked)
             {
@@ -543,6 +516,33 @@ namespace Sandbox.Game.Entities.Cube
                 AutoLock = true;
         }
 
+        private int m_retryCounter=0;
+        private void RetryLock()
+        {
+            if (m_needsToRetryLock)
+            {
+                Vector3D pivot;
+                var body = FindBody(out pivot);
+                if (body==null && m_retryCounter < 3)
+                {
+                    m_retryCounter++;//when loading game, subpart which this gear is attached to may not exist yet (depends on UpdateBeforeSim block order)
+                    return;
+                }
+                m_retryCounter = 0;
+                if (body != null)
+                {
+                    if (m_attachedTo == null || m_attachedTo.Physics==null || body.Physics.RigidBody != ((MyPhysicsBody)m_attachedTo.Physics).RigidBody)
+                        ResetLockConstraint(locked: true);
+                }
+                else
+                {
+                    ResetLockConstraint(locked: false);
+                    StartSound(m_unlockSound);
+                }
+                m_needsToRetryLock = false;
+            }
+        }
+
         protected override void Closing()
         {
             Detach();
@@ -563,20 +563,36 @@ namespace Sandbox.Game.Entities.Cube
 
         private void Attach(MyEntity entity, Vector3 gearSpacePivot, Matrix otherBodySpacePivot)
         {
-            var body = entity.Physics.RigidBody;
-            if (MyFakes.WELD_LANDING_GEARS)
-            {
-                MyWeldingGroups.Static.CreateLink(EntityId, entity, CubeGrid);
-                //OnConstraintAdded(GridLinkTypeEnum.LandingGear, entity);
-                LockMode = LandingGearMode.Locked;
-                m_attachedTo = entity;
-                m_attachedTo.OnPhysicsChanged += m_physicsChangedHandler;
-                this.OnPhysicsChanged += m_physicsChangedHandler;
-                return;
-            }
-
             if (CubeGrid.Physics.Enabled)
             {
+                var body = entity.Physics.RigidBody;
+                var handle = StateChanged;
+
+                if (MyFakes.WELD_LANDING_GEARS && CanWeldTo(entity, ref otherBodySpacePivot))
+                {
+                    if (m_attachedTo != null || entity == null)
+                        return;
+
+                    MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, entity);
+                    //OnConstraintAdded(GridLinkTypeEnum.LandingGear, entity);
+                    LockMode = LandingGearMode.Locked;
+                    m_attachedTo = entity;
+                    m_attachedTo.OnPhysicsChanged += m_physicsChangedHandler;
+                    this.OnPhysicsChanged += m_physicsChangedHandler;
+                    if (CanAutoLock)
+                        ResetAutolock();
+
+                    OnConstraintAdded(GridLinkTypeEnum.Physical, entity);
+                    //OnConstraintAdded(GridLinkTypeEnum.NoContactDamage, entity);
+
+                    if (!m_needsToRetryLock)
+                        StartSound(m_lockSound);
+
+                    if (handle != null) handle(true);
+                    return;
+                }
+
+
                 //var entity = body.GetBody().Entity;
                 Debug.Assert(m_attachedTo == null, "Already attached");
                 Debug.Assert(entity != null, "Landing gear is attached to body which has no entity");
@@ -596,7 +612,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 Matrix gearLocalSpacePivot = Matrix.Identity;
                 gearLocalSpacePivot.Translation = gearSpacePivot;
-                
+
                 var fixedData = new HkFixedConstraintData();
                 if (MyFakes.OVERRIDE_LANDING_GEAR_INERTIA)
                 {
@@ -608,7 +624,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 fixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-                fixedData.SetInBodySpace(ref gearLocalSpacePivot, ref otherBodySpacePivot);
+                fixedData.SetInBodySpace(gearLocalSpacePivot, otherBodySpacePivot, CubeGrid.Physics, entity.Physics);
 
                 HkConstraintData data = fixedData;
 
@@ -638,53 +654,59 @@ namespace Sandbox.Game.Entities.Cube
                 OnConstraintAdded(GridLinkTypeEnum.Physical, entity);
                 OnConstraintAdded(GridLinkTypeEnum.NoContactDamage, entity);
 
-                var handle = StateChanged;
                 if (handle != null) handle(true);
             }
         }
 
+        private bool CanWeldTo(MyEntity entity, ref Matrix otherBodySpacePivot)
+        {
+            if (BreakForce < MaxSolverImpulse)
+                return false;
+            var grid = entity as MyCubeGrid;
+            if (grid != null)
+            {
+                Vector3I cube;
+                grid.FixTargetCube(out cube, otherBodySpacePivot.Translation * grid.GridSizeR);
+                var block = grid.GetCubeBlock(cube);
+                if (block != null && block.FatBlock is Sandbox.Game.Entities.Blocks.MyAirtightHangarDoor)
+                    return false;
+            }
+            if (entity.Parent != null || entity is MyVoxelBase)
+                return false;
+            return true;
+        }
+
         private void Detach()
         {
-            if (MyFakes.WELD_LANDING_GEARS)
-            {
-                if (CubeGrid.Physics == null || CubeGrid.Physics.WeldInfo.Parent == null)
-                    return;
-                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid.Physics.WeldInfo.Parent.Entity as MyEntity, CubeGrid);
-                //OnConstraintRemoved(GridLinkTypeEnum.LandingGear, m_attachedTo);
-                if(m_attachedTo != null)
-                    m_attachedTo.OnPhysicsChanged -= m_physicsChangedHandler;
-                this.OnPhysicsChanged -= m_physicsChangedHandler;
-                LockMode = LandingGearMode.Unlocked;
-                m_attachedTo = null;
+            if (CubeGrid.Physics == null || m_attachedTo == null)
                 return;
-            }
-
-            if (m_constraint == null)
-                return;
-
-            this.OnPhysicsChanged -= m_physicsChangedHandler;
-
-            var tmpAttachedEntity = m_attachedTo;
-
             Debug.Assert(m_attachedTo != null, "Attached entity is null");
+            LockMode = LandingGearMode.Unlocked;
+            var attachedTo = m_attachedTo;
             if (m_attachedTo != null)
             {
                 m_attachedTo.OnPhysicsChanged -= m_physicsChangedHandler;
             }
+            this.OnPhysicsChanged -= m_physicsChangedHandler;
+
             m_attachedTo = null;
-
+            if (MyFakes.WELD_LANDING_GEARS && MyWeldingGroups.Static.LinkExists(EntityId, CubeGrid, (MyEntity)m_attachedTo))
+            {
+                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, (MyEntity)attachedTo);
+            }
+            else
+            {
+                if (m_constraint != null)
+                {
+                    CubeGrid.Physics.RemoveConstraint(m_constraint);
+                    m_constraint.Dispose();
+                    m_constraint = null;
+                }
+                OnConstraintRemoved(GridLinkTypeEnum.NoContactDamage, attachedTo);
+            }
+            OnConstraintRemoved(GridLinkTypeEnum.Physical, attachedTo);
             if (!m_needsToRetryLock && !MarkedForClose)
-                StartSound(m_unlockSound);
-
-            CubeGrid.Physics.RemoveConstraint(m_constraint);
-
-            m_constraint.Dispose();
-            m_constraint = null;
-
-            LockMode = LandingGearMode.Unlocked;
-            OnConstraintRemoved(GridLinkTypeEnum.Physical, tmpAttachedEntity);
-            OnConstraintRemoved(GridLinkTypeEnum.NoContactDamage, tmpAttachedEntity);
-
+                StartSound(m_unlockSound); 
             var handle = StateChanged;
             if (handle != null) handle(false);
         }
@@ -717,6 +739,9 @@ namespace Sandbox.Game.Entities.Cube
 
         private void ResetLockConstraint(bool locked)
         {
+            if (CubeGrid.Physics == null)
+                return;
+
             Detach();
 
             if (locked)
@@ -743,6 +768,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 LockMode = LandingGearMode.Unlocked;
             }
+            m_needsToRetryLock = false;
         }
 
         public void RequestLock(bool enable)

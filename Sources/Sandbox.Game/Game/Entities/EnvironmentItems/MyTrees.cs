@@ -146,7 +146,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 //Remove static tree
                 MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
 
-                RemoveItem(itemInstanceId, physicsInstanceId, sync: true);
+                RemoveItem(itemInstanceId, physicsInstanceId, sync: true, immediateUpdate: true);
 
                 //Create fractured tree
                 MyDefinitionId id = new MyDefinitionId(Definition.ItemDefinitionType, itemData.SubtypeId);
@@ -157,14 +157,16 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 }
                 else
                 {
+                    ProfilerShort.Begin("Spawning tree");
                     // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
                     Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
                     MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
                     Vector3D pos = itemData.Transform.Position;
-                    Vector3D gravity = -MyGravityProviderSystem.CalculateGravityInPointForGrid(pos);
+                    Vector3D gravity = -MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
                     gravity.Normalize();
 
                     MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
+                    ProfilerShort.End();
                 }
             }
             

@@ -308,9 +308,7 @@ namespace Sandbox
                 MyLog.Default.WriteLine("Havok Destruction is not availiable in this build. Exiting game.");
                 MySandboxGame.ExitThreadSafe();
                 return;
-            }
-
-            if (OnGameLoaded != null) OnGameLoaded(this, null);
+            }            
 
             if (!customRenderLoop)
             {
@@ -322,6 +320,8 @@ namespace Sandbox
         public void EndLoop()
         {
             MyLog.Default.WriteLineAndConsole("Exiting..");
+            MyAnalyticsHelper.ReportProcessEnd();
+            MyAnalyticsHelper.FlushAndDispose();
             UnloadData_UpdateThread();
         }
 
@@ -633,6 +633,7 @@ namespace Sandbox
                         {
                             if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                             {
+                                MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
                                 if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
                                     MySession.LoadBattle(lastSessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
                                 else
@@ -668,6 +669,7 @@ namespace Sandbox
                             {
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                                 {
+                                    MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
                                     if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
                                         MySession.LoadBattle(sessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
                                     else
@@ -724,6 +726,8 @@ namespace Sandbox
 
                         if (MySteamWorkshop.DownloadWorldModsBlocking(mods))
                         {
+                            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
+
                             MySession.Start(newWorldName, "", "", settings, mods,
                                 new MyWorldGenerator.Args()
                                 {
@@ -881,6 +885,8 @@ namespace Sandbox
             InitSteamWorkshop();
             ProfilerShort.End();
 
+            MyAnalyticsHelper.ReportPlayerId();
+
             // Load data
             LoadData();
 
@@ -1004,6 +1010,8 @@ namespace Sandbox
             if (MyInput.Static != null)
                 MyInput.Static.LoadContent(WindowHandle);
 
+            VRage.Voxels.MyClipmap.CameraFrustumGetter = GetCameraFrustum;
+
             HkBaseSystem.Init(16 * 1024 * 1024, LogWriter);
             WriteHavokCodeToLog();
             Parallel.StartOnEachWorker(() => HkBaseSystem.InitThread(Thread.CurrentThread.Name));
@@ -1061,6 +1069,13 @@ namespace Sandbox
             ProfilerShort.End();
 
             InitModAPI();
+
+            if (OnGameLoaded != null) OnGameLoaded(this, null);
+        }
+
+        private BoundingFrustumD GetCameraFrustum()
+        {
+            return MySector.MainCamera != null ? MySector.MainCamera.BoundingFrustum : new BoundingFrustumD(MatrixD.Identity);            
         }
 
         protected virtual void LoadGui()
@@ -1169,6 +1184,7 @@ namespace Sandbox
             IlChecker.AllowedOperands.Add(typeof(IMyEntity), new List<MemberInfo>()
             {
                 typeof(IMyEntity).GetMethod("GetPosition"),
+                typeof(IMyEntity).GetProperty("WorldMatrix").GetGetMethod(),
             });
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.IWork), null);
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.Task), null);
@@ -1309,6 +1325,12 @@ namespace Sandbox
             m_isUserPaused = !m_isUserPaused;
         }
 
+        [Conditional("DEBUG")]
+        public static void AssertUpdateThread()
+        {
+            Debug.Assert(Thread.CurrentThread == Static.UpdateThread);
+        }
+
         private static void UpdatePauseState(int pauseStackCount)
         {
             if (pauseStackCount > 0)
@@ -1366,7 +1388,7 @@ namespace Sandbox
 
             using (Stats.Generic.Measure("Network"))
             {
-                if (MySandboxGame.Services.SteamService != null)
+                if (MySandboxGame.Services != null && MySandboxGame.Services.SteamService != null)
                 {
                     ProfilerShort.Begin("SteamCallback");
                     if (MySteam.API != null)
@@ -1405,6 +1427,7 @@ namespace Sandbox
 
                 if (MyFakes.CHARACTER_SERVER_SYNC && MySession.Static != null)
                 {
+                    ProfilerShort.Begin("Character server sync");
                     foreach (var player in Sync.Players.GetOnlinePlayers())
                     {
                         if (MySession.ControlledEntity != player.Character)
@@ -1414,6 +1437,7 @@ namespace Sandbox
                                 player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
                         }
                     }
+                    ProfilerShort.End();
                 }
             }
 
@@ -1474,7 +1498,7 @@ namespace Sandbox
 
             ProfilerShort.End();
 
-            ProfilerShort.End();
+            ProfilerShort.End();//of "Update"
 
         }
 
@@ -1614,7 +1638,7 @@ namespace Sandbox
                             MyRenderComponentVoxelMap render;
                             if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
                             {
-                                render.OnCellRequest(rMessage.Cell, rMessage.HighPriority);
+                                render.OnCellRequest(rMessage.Cell, rMessage.HighPriority, rMessage.Priority, rMessage.DebugDraw);
                             }
 
                             break;
@@ -1723,6 +1747,14 @@ namespace Sandbox
                         {
                             var rMessage = (VRageRender.MyRenderMessageVideoAdaptersResponse)message;
                             MyVideoSettingsManager.OnVideoAdaptersResponse(rMessage);
+                            // All hardware info is gathered now, send the app start analytics.
+                            var firstTimeRun = Config.FirstTimeRun;
+                            if (firstTimeRun)
+                            {
+                                Config.FirstTimeRun = false;
+                                Config.Save();
+                            }
+                            MyAnalyticsHelper.ReportProcessStart(firstTimeRun);
                             break;
                         }
 

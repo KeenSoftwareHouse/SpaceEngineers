@@ -6,7 +6,6 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.World;
 using VRage;
-using Sandbox.Engine.Physics;
 using Havok;
 using System.Diagnostics;
 using System;
@@ -346,7 +345,7 @@ namespace Sandbox.Game.GameSystems
 		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
 		{
 			var activeFractures = m_piecesTimesOfDeath.Keys;
-			
+
 			HkShape shape = new HkSphereShape((float)searchSphere.Radius);
 			try
 			{
@@ -365,6 +364,33 @@ namespace Sandbox.Game.GameSystems
 				shape.RemoveReference();
 			}
 		}
+
+        public void GetFracturesInBox(ref BoundingBoxD searchBox, List<MyFracturedPiece> output)
+        {
+            var activeFractures = m_piecesTimesOfDeath.Keys;
+
+            Debug.Assert(m_rigidList.Count == 0);
+            m_rigidList.Clear();
+
+            HkShape shape = new HkBoxShape(searchBox.HalfExtents);
+            try
+            {
+                var center = searchBox.Center;
+                MyPhysics.GetPenetrationsShape(shape, ref center, ref Quaternion.Identity, m_rigidList, MyPhysics.NotCollideWithStaticLayer);
+
+                foreach (var rigidBody in m_rigidList)
+                {
+                    var fracture = rigidBody.GetCollisionEntity() as MyFracturedPiece;
+                    if (fracture != null && m_piecesTimesOfDeath.ContainsKey(fracture))
+                        output.Add(fracture);
+                }
+            }
+            finally
+            {
+                m_rigidList.Clear();
+                shape.RemoveReference();
+            }
+        }
 
 		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)
 		{
@@ -494,6 +520,21 @@ namespace Sandbox.Game.GameSystems
                 {
                     Debug.Assert(false, "Shouldnt get here");
                 }
+            }
+        }
+
+        public void RemoveFracturesInBox(ref BoundingBoxD box, float blendTimeSeconds)
+        {
+            Debug.Assert(Sync.IsServer);
+            if (!Sync.IsServer)
+                return;
+
+            List<MyFracturedPiece> fracturesInBox = new List<MyFracturedPiece>();
+            GetFracturesInBox(ref box, fracturesInBox);
+
+            foreach (var fracture in fracturesInBox)
+            {
+                RemoveFracturePiece(fracture, blendTimeSeconds);
             }
         }
 

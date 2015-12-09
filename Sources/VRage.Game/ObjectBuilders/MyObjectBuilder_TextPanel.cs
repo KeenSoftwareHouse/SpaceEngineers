@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -47,6 +48,7 @@ namespace Sandbox.Common.ObjectBuilders
         public float ChangeInterval = 0.0f;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<string> SelectedImages = null;
 
         [ProtoMember]

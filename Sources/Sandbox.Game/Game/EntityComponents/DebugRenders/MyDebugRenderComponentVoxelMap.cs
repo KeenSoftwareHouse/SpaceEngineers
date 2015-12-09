@@ -43,8 +43,9 @@ namespace Sandbox.Game.Components
                 VRageRender.MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 1f, 0f), Color.Green, Color.Green, true);
                 VRageRender.MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 0f, 1f), Color.Blue, Color.Blue, true);
 
-                VRageRender.MyRenderProxy.DebugDrawAxis(Matrix.Identity, 2f, true);
-                VRageRender.MyRenderProxy.DebugDrawAxis(m_voxelMap.PositionComp.WorldMatrix, 1f, true);
+                VRageRender.MyRenderProxy.DebugDrawAxis(m_voxelMap.PositionComp.WorldMatrix, 2f, false);
+
+                VRageRender.MyRenderProxy.DebugDrawSphere(m_voxelMap.PositionComp.GetPosition(), 1, Color.OrangeRed, 1, false);
             }
 
             m_voxelMap.Storage.DebugDraw(m_voxelMap, MyDebugDrawSettings.DEBUG_DRAW_VOXELS_MODE);
@@ -52,62 +53,62 @@ namespace Sandbox.Game.Components
             {
                 m_voxelMap.Physics.DebugDraw();
             }
-            if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_GEOMETRY_CELL)
-            {
-                LineD worldLine;
-                if (false)
-                {
-                    var entityMatrix = MySession.ControlledEntity.Entity.WorldMatrix;
-                    worldLine = new LineD(entityMatrix.Translation, entityMatrix.Translation + 25f * entityMatrix.Forward);
-                }
-                else
-                {
-                    var camera = MySector.MainCamera;
-                    worldLine = new LineD(camera.Position, camera.Position + 25f * camera.ForwardVector);
-                }
-                MyIntersectionResultLineTriangleEx? result;
-                bool depthRead = true;
-                if (m_voxelMap.GetIntersectionWithLine(ref worldLine, out result))
-                {
-                    var t = result.Value.Triangle.InputTriangle;
-                    MyRenderProxy.DebugDrawTriangle(
-                        t.Vertex0 + minCorner,
-                        t.Vertex1 + minCorner,
-                        t.Vertex2 + minCorner,
-                        Color.Red, true, false);
-                    Vector3I cellCoord, voxelCoord;
-                    var worldPosition = result.Value.IntersectionPointInWorldSpace;
-                    BoundingBoxD voxelAabb;
-                    MyVoxelCoordSystems.WorldPositionToVoxelCoord(minCorner, ref worldPosition, out voxelCoord);
-                    MyVoxelCoordSystems.VoxelCoordToWorldAABB(minCorner, ref voxelCoord, out voxelAabb);
-                    MyRenderProxy.DebugDrawAABB(voxelAabb, Vector3.UnitY, 1f, 1f, true);
-                    MyVoxelCoordSystems.WorldPositionToGeometryCellCoord(minCorner, ref worldPosition, out cellCoord);
-                    MyVoxelCoordSystems.GeometryCellCoordToWorldAABB(minCorner, ref cellCoord, out voxelAabb);
-                    MyRenderProxy.DebugDrawAABB(voxelAabb, Vector3.UnitZ, 1f, 1f, true);
+            //if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_GEOMETRY_CELL)
+            //{
+            //    LineD worldLine;
+            //    if (false)
+            //    {
+            //        var entityMatrix = MySession.ControlledEntity.Entity.WorldMatrix;
+            //        worldLine = new LineD(entityMatrix.Translation, entityMatrix.Translation + 25f * entityMatrix.Forward);
+            //    }
+            //    else
+            //    {
+            //        var camera = MySector.MainCamera;
+            //        worldLine = new LineD(camera.Position, camera.Position + 25f * camera.ForwardVector);
+            //    }
+            //    MyIntersectionResultLineTriangleEx? result;
+            //    bool depthRead = true;
+            //    if (m_voxelMap.GetIntersectionWithLine(ref worldLine, out result))
+            //    {
+            //        var t = result.Value.Triangle.InputTriangle;
+            //        MyRenderProxy.DebugDrawTriangle(
+            //            t.Vertex0 + minCorner,
+            //            t.Vertex1 + minCorner,
+            //            t.Vertex2 + minCorner,
+            //            Color.Red, true, false);
+            //        Vector3I cellCoord, voxelCoord;
+            //        var worldPosition = result.Value.IntersectionPointInWorldSpace;
+            //        BoundingBoxD voxelAabb;
+            //        MyVoxelCoordSystems.WorldPositionToVoxelCoord(minCorner, ref worldPosition, out voxelCoord);
+            //        MyVoxelCoordSystems.VoxelCoordToWorldAABB(minCorner, ref voxelCoord, out voxelAabb);
+            //        MyRenderProxy.DebugDrawAABB(voxelAabb, Vector3.UnitY, 1f, 1f, true);
+            //        MyVoxelCoordSystems.WorldPositionToGeometryCellCoord(minCorner, ref worldPosition, out cellCoord);
+            //        MyVoxelCoordSystems.GeometryCellCoordToWorldAABB(minCorner, ref cellCoord, out voxelAabb);
+            //        MyRenderProxy.DebugDrawAABB(voxelAabb, Vector3.UnitZ, 1f, 1f, true);
 
-                    bool isEmpty;
-                    MyIsoMesh cell;
-                    if (m_voxelMap.Storage.Geometry.TryGetMesh(new MyCellCoord(0, cellCoord), out isEmpty, out cell) && !isEmpty)
-                    {
-                        MyVoxelVertex tmp;
-                        var triangleBatch = MyRenderProxy.PrepareDebugDrawTriangles();
-                        for (int i = 0; i < cell.VerticesCount; ++i)
-                        {
-                            cell.GetUnpackedVertex(i, out tmp);
-                            triangleBatch.AddVertex(tmp.Position);
-                            tmp.Position += minCorner;
-                            MyRenderProxy.DebugDrawLine3D(tmp.Position, tmp.Position + tmp.Normal * MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF, Color.Gray, Color.White, depthRead);
-                        }
-                        for (int i = 0; i < cell.TrianglesCount; ++i)
-                        {
-                            triangleBatch.AddIndex(cell.Triangles[i].VertexIndex2);
-                            triangleBatch.AddIndex(cell.Triangles[i].VertexIndex1);
-                            triangleBatch.AddIndex(cell.Triangles[i].VertexIndex0);
-                        }
-                        MyRenderProxy.DebugDrawTriangles(triangleBatch, Matrix.CreateTranslation(minCorner), Color.CornflowerBlue, depthRead, false);
-                    }
-                }
-            }
+            //        bool isEmpty;
+            //        MyIsoMesh cell;
+            //        if (m_voxelMap.Storage.Geometry.TryGetMesh(new MyCellCoord(0, cellCoord), out isEmpty, out cell) && !isEmpty)
+            //        {
+            //            MyVoxelVertex tmp;
+            //            var triangleBatch = MyRenderProxy.PrepareDebugDrawTriangles();
+            //            for (int i = 0; i < cell.VerticesCount; ++i)
+            //            {
+            //                cell.GetUnpackedVertex(i, out tmp);
+            //                triangleBatch.AddVertex(tmp.Position);
+            //                tmp.Position += minCorner;
+            //                MyRenderProxy.DebugDrawLine3D(tmp.Position, tmp.Position + tmp.Normal * MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF, Color.Gray, Color.White, depthRead);
+            //            }
+            //            for (int i = 0; i < cell.TrianglesCount; ++i)
+            //            {
+            //                triangleBatch.AddIndex(cell.Triangles[i].VertexIndex2);
+            //                triangleBatch.AddIndex(cell.Triangles[i].VertexIndex1);
+            //                triangleBatch.AddIndex(cell.Triangles[i].VertexIndex0);
+            //            }
+            //            MyRenderProxy.DebugDrawTriangles(triangleBatch, Matrix.CreateTranslation(minCorner), Color.CornflowerBlue, depthRead, false);
+            //        }
+            //    }
+            //}
             return true;
         }
     }

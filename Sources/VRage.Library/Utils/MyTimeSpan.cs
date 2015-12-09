@@ -68,6 +68,11 @@ namespace VRage.Library.Utils
             return FromMiliseconds(seconds * 1000);
         }
 
+        public static MyTimeSpan FromMinutes(double minutes)
+        {
+            return FromSeconds(minutes * 60);
+        }
+
         public static MyTimeSpan FromMiliseconds(double miliseconds)
         {
             return new MyTimeSpan((long)(miliseconds * 0.001f * MyGameTimer.Frequency));

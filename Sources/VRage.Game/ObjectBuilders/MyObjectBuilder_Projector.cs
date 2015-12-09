@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -10,6 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_Projector : MyObjectBuilder_FunctionalBlock
     {
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_CubeGrid ProjectedGrid;
         [ProtoMember]
         public Vector3I ProjectionOffset;

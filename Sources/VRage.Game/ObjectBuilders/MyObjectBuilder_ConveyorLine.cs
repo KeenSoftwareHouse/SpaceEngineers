@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using VRageMath;
 using VRage.ObjectBuilders;
 using VRage;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {    
@@ -54,6 +55,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember, DefaultValue(null)]
         [XmlArrayItem("Section")]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<SerializableLineSectionInformation> Sections = null;
         public bool ShouldSerializeSections() { return Sections != null; }
 

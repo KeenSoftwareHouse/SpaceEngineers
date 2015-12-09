@@ -92,6 +92,9 @@ namespace Sandbox.Game.Gui
             public ulong WorkshopId;
             [ProtoMember]
             public string Name;
+            [ProtoMember]
+            public ulong SendToId;
+
         }
 
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");

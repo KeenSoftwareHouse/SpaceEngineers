@@ -22,6 +22,7 @@ using Sandbox.ModAPI;
 using VRage.Library.Utils;
 using System.Linq;
 using VRage.ModAPI;
+using System.Diagnostics;
 
 namespace Sandbox.Game.Gui
 {
@@ -92,6 +93,7 @@ namespace Sandbox.Game.Gui
                 Vector3.Zero,
                 prefabDefinition.Id.SubtypeName,
                 Sandbox.ModAPI.SpawningOptions.None,
+                0,
                 true);
 
             CloseScreen();
@@ -310,6 +312,17 @@ namespace Sandbox.Game.Gui
                     }
                 );
             }
+            else
+            {
+                AddShortcut(MyKeys.I, true, true, false, false, () => "Place an environment item in front of the player", AddEnvironmentItem);
+            }
+        }
+
+        private bool AddEnvironmentItem()
+        {
+            // TODO: implement this.
+            //Debug.Print("Add environmnet item");
+            return true;
         }
 
         private bool AddPrefab()
@@ -1076,7 +1089,7 @@ namespace Sandbox.Game.Gui
 
         private bool AddBot()
         {
-            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "NormalBarbarian")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "SpaceSpider")) as MyAgentDefinition;
             MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
 
             return true;
@@ -1096,7 +1109,7 @@ namespace Sandbox.Game.Gui
 
             if (highestExistingPlayer > 0)
             {
-                var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(Sync.MyId, highestExistingPlayer));
+                var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(Sync.MyId, highestExistingPlayer));
                 Sync.Players.RemovePlayer(player);
             }
 
@@ -1138,8 +1151,7 @@ namespace Sandbox.Game.Gui
             {
                 MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
                 if (bot != null)
-                    bot.Navigation.ResetAiming(true);
-                else break;
+                    bot.Navigation.AimWithMovement();
             }
             return true;
         }
@@ -1148,10 +1160,9 @@ namespace Sandbox.Game.Gui
         {
             for (int j = 1; j < 100; ++j)
             {
-                MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
+                MyAgentBot bot = MyAIComponent.Static.Bots.TryGetBot<MyAgentBot>(j);
                 if (bot != null)
                     bot.Navigation.AimAt(MySession.LocalCharacter);
-                else break;
             }
             return true;
         }
@@ -1261,6 +1272,8 @@ namespace Sandbox.Game.Gui
             base.Draw();
 
             if (!MyDebugDrawSettings.ENABLE_DEBUG_DRAW) return;
+
+            if (MyCubeBuilder.Static == null) return;
 
             var bb = MyCubeBuilder.Static.GetBuildBoundingBox();
             VRageRender.MyRenderProxy.DebugDrawOBB(bb, Color.Red, 0.25f, false, false);

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRage.Utils;
+using VRage.Serialization;
 
 namespace VRage.ObjectBuilders
 {
@@ -35,7 +36,15 @@ namespace VRage.ObjectBuilders
         private MyStringHash m_subtypeId;
         public bool ShouldSerializeSubtypeId() { return false; } // prevent serialization to XML
 
+        [Serialize]
+        private MyStringHash m_serializableSubtypeId
+        {
+            get { return m_subtypeId; }
+            set { m_subtypeId = value; m_subtypeName = value.String; }
+        }
+
         [ProtoMember, DefaultValue(null)]
+        [NoSerialize]
         public string SubtypeName
         {
             get { return m_subtypeName; }

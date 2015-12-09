@@ -233,6 +233,12 @@ float3 triplanar_weights(float3 n)
 {
 	float3 w = (abs(n.xyz) - 0.2) * 7;
 	return w * rcp(dot(w,w));
+
+	//float3 blending = abs(n);
+	//blending = normalize(max(blending, 0.00001)); // Force weights to sum to 1.0
+	//float b = (blending.x + blending.y + blending.z);
+	//blending /= float3(b, b, b);
+	//return blending;
 }
 
 //
@@ -316,5 +322,13 @@ float2 hammersley2d(uint i, uint N)
 {
     return float2(float(i) / float(N), radicalInverse(i));
 }
+
+
+float3 project(float3 projectedOntoVector, float3 projectedVector)
+{
+	float dotProduct = dot(projectedVector, projectedOntoVector);
+	return (dotProduct / length(projectedOntoVector)) * projectedOntoVector;
+}
+
 
 #endif

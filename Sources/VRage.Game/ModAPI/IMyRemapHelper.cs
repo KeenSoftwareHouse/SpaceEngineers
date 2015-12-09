@@ -14,6 +14,11 @@ namespace VRage.ModAPI
         long RemapEntityId(long oldEntityId);
 
         /// <summary>
+        /// Returns a new ID for the given old ID for specific group (multiblockIDs, ...).
+        /// </summary>
+        int RemapGroupId(string group, int oldValue);
+
+        /// <summary>
         /// Clears all the saved mappings from the remap helper and gets it ready for the next remapping operation.
         /// </summary>
         void Clear();

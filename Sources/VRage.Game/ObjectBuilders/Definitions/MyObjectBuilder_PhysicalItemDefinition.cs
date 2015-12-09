@@ -33,5 +33,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(true)]
         public bool CanSpawnFromScreen = true;
+
+        // Adding these members to allow chaning the default orientation of the model on spawn
+        [ProtoMember]
+        public bool RotateOnSpawnX = false;
+
+        [ProtoMember]
+        public bool RotateOnSpawnY = false;
+
+        [ProtoMember]
+        public bool RotateOnSpawnZ = false;
+
+        [ProtoMember]
+        public int Health = 100;
     }
 }

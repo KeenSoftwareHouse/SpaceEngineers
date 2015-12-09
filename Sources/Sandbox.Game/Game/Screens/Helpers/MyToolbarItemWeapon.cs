@@ -102,7 +102,9 @@ namespace Sandbox.Game.Screens.Helpers
                 var currentWeapon = character.CurrentWeapon;
                 if (currentWeapon != null)
                     thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id);
-                if (thisWeaponIsCurrent)
+                if (character.LeftHandItem != null) 
+                    thisWeaponIsCurrent |= Definition == character.LeftHandItem.PhysicalItemDefinition;
+                if (thisWeaponIsCurrent && currentWeapon != null)
                 {
                     var weaponItemDefinition = MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId) as MyWeaponItemDefinition;
                     if (weaponItemDefinition != null && weaponItemDefinition.ShowAmmoCount)

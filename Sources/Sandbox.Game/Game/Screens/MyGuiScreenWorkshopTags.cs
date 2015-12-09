@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.FileSystem;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 

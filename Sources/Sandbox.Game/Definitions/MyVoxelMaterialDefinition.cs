@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 using VRage;
+using Medieval.ObjectBuilders.Definitions;
 
 
 namespace Sandbox.Definitions
@@ -12,6 +13,7 @@ namespace Sandbox.Definitions
     {
         private static byte m_indexCounter;
 
+		public string MaterialTypeName;
         public string MinedOre;
         public float MinedOreRatio;
         public bool CanBeHarvested;
@@ -28,6 +30,10 @@ namespace Sandbox.Definitions
         public string NormalY;
         public float SpecularPower;
         public float SpecularShininess;
+
+        public byte BiomeValue;
+
+        public int[] SpawnChannels;
 
 
         /// <summary>
@@ -60,6 +66,7 @@ namespace Sandbox.Definitions
             var builder = ob as MyObjectBuilder_VoxelMaterialDefinition;
             MyDebug.AssertDebug(builder != null);
 
+			this.MaterialTypeName		= builder.MaterialTypeName;
             this.MinedOre               = builder.MinedOre;
             this.MinedOreRatio          = builder.MinedOreRatio;
             this.CanBeHarvested         = builder.CanBeHarvested;
@@ -75,12 +82,15 @@ namespace Sandbox.Definitions
             this.SpecularShininess      = builder.SpecularShininess;
             this.MinVersion             = builder.MinVersion;
             this.SpawnsFlora            = builder.SpawnsFlora;
+            this.BiomeValue = 0;
+            SpawnChannels = builder.SpawnChannels;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {
             MyObjectBuilder_VoxelMaterialDefinition ob = (MyObjectBuilder_VoxelMaterialDefinition)base.GetObjectBuilder();
 
+			ob.MaterialTypeName			= this.MaterialTypeName;
             ob.MinedOre                 = this.MinedOre;
             ob.MinedOreRatio            = this.MinedOreRatio;
             ob.CanBeHarvested           = this.CanBeHarvested;

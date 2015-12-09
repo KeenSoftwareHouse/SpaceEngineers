@@ -9,15 +9,15 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Collections;
-using VRage;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
+using System.Diagnostics;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>
+    class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
         where TBlock : MyTerminalBlock
     {
         public delegate void ListContentDelegate(TBlock block, ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems);
@@ -85,6 +85,11 @@ namespace Sandbox.Game.Gui
                 if (ListContent != null)
                     ListContent(first, m_listbox.Items, m_listbox.SelectedItems);
             }
+        }
+
+        public void Serialize(BitStream stream, MyTerminalBlock block)
+        {
+            //Debug.Fail("List sync not implemented yet");
         }
     }
 }

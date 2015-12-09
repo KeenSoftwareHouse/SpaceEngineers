@@ -57,7 +57,7 @@ namespace Sandbox.Game.World
             var spawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
             foreach (var spawnGroup in spawnGroups)
             {
-                if (spawnGroup.IsEncounter == false)
+                if (spawnGroup.IsEncounter == false && spawnGroup.IsPirate == false)
                 {
                     m_spawnGroups.Add(spawnGroup);
                 }
@@ -356,9 +356,7 @@ namespace Sandbox.Game.World
 
             ProfilerShort.Begin("Spawn ships");
 
-            //This is not an NPC so that it doesn't show up in assign ownership drop down menu
-            MyIdentity spawnGroupIdentity = Sync.Players.CreateNewIdentity("Neutral NPC");
-            long spawnGroupId = spawnGroupIdentity.IdentityId;
+            long spawnGroupId = MyPirateAntennas.GetPiratesId();
 
             // The ships were collision-free. Now spawn them
             foreach (var shipPrefab in spawnGroup.Prefabs)
@@ -371,6 +369,17 @@ namespace Sandbox.Game.World
                 Vector3D up = Vector3D.CalculatePerpendicularVector(-direction);
 
                 m_tmpGridList.Clear();
+
+                // CH: We don't want a new identity for each ship anymore. We should handle that in a better way...
+                /*if (shipPrefab.ResetOwnership)
+                {
+                    if (spawnGroupId == 0)
+                    {
+                        //This is not an NPC so that it doesn't show up in assign ownership drop down menu
+                        MyIdentity spawnGroupIdentity = Sync.Players.CreateNewIdentity("Neutral NPC");
+                        spawnGroupId = spawnGroupIdentity.IdentityId;
+                    }
+                }*/
 
                 // Deploy ship
                 ProfilerShort.Begin("Spawn cargo ship");
@@ -385,13 +394,12 @@ namespace Sandbox.Game.World
                     spawningOptions: Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
                                      Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      Sandbox.ModAPI.SpawningOptions.DisableDampeners,
+                                     ownerId: shipPrefab.ResetOwnership ? spawnGroupId : 0,
                     updateSync: true);
                 ProfilerShort.End();
 
                 foreach (var grid in m_tmpGridList)
                 {
-                    grid.ChangeGridOwnership(spawnGroupId, MyOwnershipShareModeEnum.None);
-
                     var cockpit = grid.GetFirstBlockOfType<MyCockpit>();
                     if (cockpit != null)
                     {

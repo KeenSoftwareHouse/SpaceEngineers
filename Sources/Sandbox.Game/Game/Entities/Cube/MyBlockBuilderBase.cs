@@ -71,8 +71,8 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
-                    && MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId) && MySession.Static != null && !MySession.Static.Battle;
+                return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.Static != null && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
+                    && MyMultiplayer.Static != null && MySession.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId) && !MySession.Static.Battle;
             }
         }
 
@@ -142,7 +142,7 @@ namespace Sandbox.Game.Entities
             m_invGridWorldMatrix = CurrentGrid != null ? Matrix.Invert(CurrentGrid.WorldMatrix) : Matrix.Identity;
         }
 
-        internal virtual void ChoosePlacementObject()
+        protected internal virtual void ChoosePlacementObject()
         {
             MyCubeGrid grid;
             MyVoxelMap voxelMap;

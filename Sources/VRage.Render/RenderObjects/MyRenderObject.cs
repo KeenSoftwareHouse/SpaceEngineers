@@ -108,18 +108,6 @@ namespace VRageRender
             }
         }
 
-        public bool CastShadowsResolved
-        {
-            get { return (m_renderFlags & RenderFlags.CastShadowsResolved) > 0; }
-            set
-            {
-                if (value)
-                    m_renderFlags |= RenderFlags.CastShadowsResolved;
-                else
-                    m_renderFlags &= ~RenderFlags.CastShadowsResolved;
-            }
-        }
-
         public bool CastShadows
         {
             get { return (m_renderFlags & RenderFlags.CastShadows) > 0; }

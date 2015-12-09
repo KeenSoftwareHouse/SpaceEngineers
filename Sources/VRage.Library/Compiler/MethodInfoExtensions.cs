@@ -43,7 +43,7 @@ namespace System
             return Expression.Lambda<TDelegate>(call, parameterExpressions).Compile();
         }
 
-        private static ParameterExpression[] ExtractParameterExpressionsFrom<TDelegate>()
+        public static ParameterExpression[] ExtractParameterExpressionsFrom<TDelegate>()
         {
             return typeof(TDelegate)
                 .GetMethod("Invoke")

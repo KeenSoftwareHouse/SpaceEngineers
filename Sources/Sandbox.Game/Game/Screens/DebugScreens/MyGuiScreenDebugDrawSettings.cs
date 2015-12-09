@@ -46,7 +46,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Grid groups - physical", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_GROUPS_PHYSICAL));
             AddCheckBox("Grid groups - logical", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_GROUPS_LOGICAL));
             AddCheckBox("GUI screen borders", null, MemberHelper.GetMember(() => MyFakes.DRAW_GUI_SCREEN_BORDERS));
-            AddCheckBox("Draw physics primitives", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES));
+            AddCheckBox("Draw physics", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_PHYSICS));
             AddCheckBox("Triangle physics", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_TRIANGLE_PHYSICS));
             AddCheckBox("Audio debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_AUDIO));
             AddCheckBox("Show invalid triangles", null, MemberHelper.GetMember(() => MyFakes.SHOW_INVALID_TRIANGLES));
@@ -60,7 +60,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("CubeBlock AABBs", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CUBE_BLOCK_AABBS));
             AddCheckBox("Miscellaneous", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_MISCELLANEOUS));
             AddCheckBox("Events", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_EVENTS));
-            AddCheckBox("Power Receivers", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_POWER_RECEIVERS));
+            AddCheckBox("Power Receivers", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_RESOURCE_RECEIVERS));
             AddCheckBox("Cockpit", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_COCKPIT));
             AddCheckBox("Conveyors", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CONVEYORS));
             AddCheckBox("Structural integrity", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_STRUCTURAL_INTEGRITY));

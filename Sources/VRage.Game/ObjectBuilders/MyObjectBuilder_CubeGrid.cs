@@ -7,6 +7,7 @@ using System;
 using VRage.ObjectBuilders;
 using VRage;
 using VRage.ModAPI;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -39,6 +40,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyCubeSize GridSizeEnum;
         [ProtoMember]
+        [DynamicItem(typeof(MyObjectBuilderDynamicSerializer), true)]
         [XmlArrayItem("MyObjectBuilder_CubeBlock", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_CubeBlock>))]
         public List<MyObjectBuilder_CubeBlock> CubeBlocks = new List<MyObjectBuilder_CubeBlock>();
 
@@ -50,22 +52,27 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ShouldSerializeSkeleton() { return Skeleton != null && Skeleton.Count != 0; }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.DefaultZero)]
         public SerializableVector3 LinearVelocity;
         public bool ShouldSerializeLinearVelocity() { return LinearVelocity != new SerializableVector3(0f, 0f, 0f); }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.DefaultZero)]
         public SerializableVector3 AngularVelocity;
         public bool ShouldSerializeAngularVelocity() { return AngularVelocity != new SerializableVector3(0f, 0f, 0f); }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public SerializableVector3I? XMirroxPlane;
         public bool ShouldSerializeXMirroxPlane() { return XMirroxPlane.HasValue; }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public SerializableVector3I? YMirroxPlane;
         public bool ShouldSerializeYMirroxPlane() { return YMirroxPlane.HasValue; }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public SerializableVector3I? ZMirroxPlane;
         public bool ShouldSerializeZMirroxPlane() { return ZMirroxPlane.HasValue; }
 
@@ -82,6 +89,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DampenersEnabled = true;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<MyObjectBuilder_ConveyorLine> ConveyorLines = new List<MyObjectBuilder_ConveyorLine>();
         public bool ShouldSerializeConveyorLines() { return ConveyorLines != null && ConveyorLines.Count != 0; }
 
@@ -93,9 +101,11 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Handbrake = false;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string DisplayName;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public float[] OxygenAmount;
 
         [ProtoMember]
@@ -112,10 +122,12 @@ namespace Sandbox.Common.ObjectBuilders
         }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public Vector3D? JumpDriveDirection;
         public bool ShouldSerializeJumpDriveDirection() { return JumpDriveDirection.HasValue; }
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public long? JumpElapsedTicks;
         public bool ShouldSerializeJumpElapsedTicks() { return JumpElapsedTicks.HasValue; }
 

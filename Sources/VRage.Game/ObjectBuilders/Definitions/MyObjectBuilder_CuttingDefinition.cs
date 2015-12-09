@@ -18,16 +18,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
             [ProtoMember, DefaultValue(1)]
             public int SpawnCount = 1;
+
+            [ProtoMember, DefaultValue(null)]
+            public SerializableDefinitionId? PhysicalItemId;  // If prefab field is null, this is used to spawn product of cutting as floating object
         }
 
         [ProtoMember]
         public SerializableDefinitionId EntityId;
 
         [ProtoMember]
-        public string ScrapWoodBranchesPrefab = null;
+        public SerializableDefinitionId ScrapWoodBranchesId;
 
         [ProtoMember]
-        public string ScrapWoodPrefab = null;
+        public SerializableDefinitionId ScrapWoodId;
 
 		[ProtoMember]
 		public int ScrapWoodAmountMin = 5;

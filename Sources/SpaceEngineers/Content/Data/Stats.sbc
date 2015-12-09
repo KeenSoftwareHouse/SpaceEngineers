@@ -17,8 +17,9 @@
       <Scripts>
         <Script>SpaceStatEffect</Script>
       </Scripts>
-      
+                             
     </StatGroup>
+    
   </StatGroupDefinitions>
 
   <StatDefinitions>

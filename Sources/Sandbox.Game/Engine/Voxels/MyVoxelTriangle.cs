@@ -6,11 +6,11 @@ namespace Sandbox.Engine.Voxels
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MyVoxelTriangle
     {
-        public short VertexIndex0;
-        public short VertexIndex1;
-        public short VertexIndex2;
+        public ushort VertexIndex0;
+        public ushort VertexIndex1;
+        public ushort VertexIndex2;
 
-        public short this[int i]
+        public ushort this[int i]
         {
             get
             {

@@ -16,6 +16,7 @@
       <Mass>0.45</Mass>
       <Volume>0.2</Volume>
       <Model>Models\Weapons\Rifle_Ammo.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
       <Capacity>30</Capacity>
       <AmmoDefinitionId Subtype="SmallCaliber" />
     </AmmoMagazine>
@@ -34,6 +35,7 @@
       <Mass>35</Mass>
       <Volume>16</Volume>
       <Model>Models\Weapons\Ammo_Box.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
       <Capacity>140</Capacity>
       <AmmoDefinitionId Subtype="LargeCaliber" />
     </AmmoMagazine>
@@ -52,6 +54,7 @@
       <Mass>45</Mass>
       <Volume>60</Volume>
       <Model>Models\Weapons\Projectile_Missile.mwm</Model>
+      <PhysicalMaterial>Ammo</PhysicalMaterial>
       <Capacity>1</Capacity>
       <AmmoDefinitionId Subtype="Missile" />
     </AmmoMagazine>

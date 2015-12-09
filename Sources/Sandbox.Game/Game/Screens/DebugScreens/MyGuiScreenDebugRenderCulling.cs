@@ -24,15 +24,7 @@ namespace Sandbox.Game.Gui
             AddShareFocusHint();
 
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.10f);
-
-            m_currentPosition.Y += 0.01f;
-            AddLabel("Shadow cascades small objects", Color.Yellow.ToVector4(), 1.2f);
-
-
-            AddSlider("Cascade 0", 0.0f, 2000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Cascade0SmallSkip));
-            AddSlider("Cascade 1", 0.0f, 2000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Cascade1SmallSkip));
-            AddSlider("Cascade 2", 0.0f, 4000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Cascade2SmallSkip));
-            AddSlider("Cascade 3", 0.0f, 8000.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Cascade3SmallSkip));
+            
 
             //AddSlider("Eye adaptation Tau", 0.0f, 10.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.AdaptationTau));
             //AddSlider("Exposure", -5.0f, 5.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.LuminanceExposure));

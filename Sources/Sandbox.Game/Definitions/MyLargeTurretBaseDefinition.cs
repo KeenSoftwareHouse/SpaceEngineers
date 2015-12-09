@@ -1,10 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Utils;
-
 
 namespace Sandbox.Definitions
 {
@@ -28,6 +23,7 @@ namespace Sandbox.Definitions
 
             var obLargeTurret = builder as MyObjectBuilder_LargeTurretBaseDefinition;
             MyDebug.AssertDebug(obLargeTurret != null, "Initializing turret base definition using wrong object builder!");
+
             OverlayTexture = obLargeTurret.OverlayTexture;
             AiEnabled = obLargeTurret.AiEnabled;
             MinElevationDegrees = obLargeTurret.MinElevationDegrees;

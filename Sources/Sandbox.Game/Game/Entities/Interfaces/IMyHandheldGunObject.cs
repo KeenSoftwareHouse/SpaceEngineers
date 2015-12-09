@@ -1,7 +1,5 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Weapons;
 
 namespace Sandbox.Game.Entities
@@ -12,5 +10,10 @@ namespace Sandbox.Game.Entities
         MyPhysicalItemDefinition PhysicalItemDefinition { get; }
 
         bool IsBlocking { get; }
+    }
+
+    public interface IStoppableAttackingTool
+    {
+        void StopShooting(MyEntity attacker);
     }
 }

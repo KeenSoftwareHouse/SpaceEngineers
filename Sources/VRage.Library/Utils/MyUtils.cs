@@ -48,5 +48,10 @@ namespace VRage.Library.Utils
                 throw new InvalidOperationException("Type '" + typeof(T) + "' is not blittable", e);
             }
         }
+
+        public static int GetDivisionCeil(int num, int div)
+        {
+            return (num - 1) / div + 1;
+        }
     }
 }

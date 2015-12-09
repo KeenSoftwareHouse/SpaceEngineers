@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ProtoBuf;
-using System.Xml.Serialization;
-using System.ComponentModel;
+﻿using ProtoBuf;
 using VRageMath;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using VRage.ObjectBuilders;
 using VRage;
 
@@ -114,6 +106,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public Opening[] OpeningSequence;
+
+	    [ProtoMember]
+	    public string ResourceSinkGroup;
 
         [ProtoMember]
         public float PowerConsumptionIdle;

@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System.ComponentModel;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -18,9 +19,11 @@ namespace Sandbox.Common.ObjectBuilders
         public float Opening = 0f;
         
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string OpenSound;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string CloseSound;
     }
 }

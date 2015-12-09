@@ -61,6 +61,18 @@ namespace Sandbox.Game.Gui
             //MyStringId newGameText = MySpaceTexts.StartDemo;
             int buttonPositionCounter = 0;
 
+            if (MyPerGameSettings.EnableTutorials)
+            {
+                // tutorials
+                var tutorialButton = new MyGuiControlButton(
+                    position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
+                    text: MyTexts.Get(MySpaceTexts.ScreenCaptionTutorials),
+                    //toolTip: MyTexts.GetString(MySpaceTexts.ToolTipNewWorldCustomWorld),
+                    onButtonClick: OnTutorialClick);
+
+                Controls.Add(tutorialButton);
+            }
+
             //  Quickstart
             var quickstartButton = new MyGuiControlButton(
                 position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
@@ -87,18 +99,6 @@ namespace Sandbox.Game.Gui
                     onButtonClick: OnScenarioGameClick);
 
                 Controls.Add(scenarioButton);
-            }
-
-            if (MyPerGameSettings.EnableTutorials)
-            {
-                // tutorials
-                var tutorialButton = new MyGuiControlButton(
-                    position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                    text: MyTexts.Get(MySpaceTexts.ScreenCaptionTutorials),
-                    //toolTip: MyTexts.GetString(MySpaceTexts.ToolTipNewWorldCustomWorld),
-                    onButtonClick: OnTutorialClick);
-
-                Controls.Add(tutorialButton);
             }
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
@@ -140,13 +140,9 @@ namespace Sandbox.Game.Gui
         {
             var settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
             settings.GameMode = MyGameModeEnum.Creative;
-            settings.EnableStationVoxelSupport = MyPerGameSettings.Game == GameEnum.SE_GAME;
             settings.EnableToolShake = true;
-            settings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
-            settings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
             settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
-            settings.CargoShipsEnabled = !settings.EnablePlanets;
             settings.EnableOxygen = true;
             MyWorldGenerator.SetProceduralSettings(-1, settings);
             return settings;
@@ -173,6 +169,7 @@ namespace Sandbox.Game.Gui
                 var settings = (quickstartSettings != null) ? quickstartSettings : CreateBasicQuickStartSettings();
                 var args = (quickstartArgs != null) ? quickstartArgs.Value : CreateBasicQuickstartArgs();
                 var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(0);
+                MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Quickstart);
                 MySession.Start("Created " + DateTime.Now.ToString("yyyy-MM-dd HH:mm"), "", "", settings, mods, args);
             });
 

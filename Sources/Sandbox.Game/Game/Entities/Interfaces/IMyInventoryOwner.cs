@@ -12,7 +12,7 @@ namespace Sandbox.Game
         Conveyor,
     }
 
-    public interface IMyInventoryOwner : Sandbox.ModAPI.Interfaces.IMyInventoryOwner 
+    public interface IMyInventoryOwner : Sandbox.ModAPI.Interfaces.IMyInventoryOwner
     {
         new int InventoryCount { get; }
         String DisplayNameText { get; }
@@ -20,5 +20,6 @@ namespace Sandbox.Game
         MyInventoryOwnerTypeEnum InventoryOwnerType { get; }
         new long EntityId { get; }
         new bool UseConveyorSystem { get; set; }
+        void SetInventory(MyInventory inventory, int index);
     }
 }

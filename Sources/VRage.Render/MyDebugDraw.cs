@@ -83,7 +83,6 @@ namespace VRageRender
             m_modelBoxHiRes = MyRenderModels.GetModel("Models\\Debug\\BoxHiRes.mwm");
             m_modelBoxLowRes = MyRenderModels.GetModel("Models\\Debug\\BoxLowRes.mwm");
 
-            //TODO: temporary replaced because Sphere is unable to load because of some XNA shit
             m_modelSphere = MyRenderModels.GetModel("Models\\Debug\\Sphere_low.mwm");
             //m_modelSphere = MyModels.GetModel("Models2\\Debug\\Sphere");
             m_modelLightSphere = MyRenderModels.GetModel("Models\\Debug\\Sphere_low.mwm");

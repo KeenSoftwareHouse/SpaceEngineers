@@ -65,7 +65,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         {
             Enabled = true;
 
-            if (VRage.MyCompilationSymbols.RenderProfiling)
+            if (VRage.MyCompilationSymbols.PerformanceProfiling)
                 MultithreadedUpdater = false;
 
             if (MultithreadedUpdater)
@@ -77,7 +77,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             // TODO: Par 
             //MyRender.RegisterRenderModule(MyRenderModuleEnum.AnimatedParticlesPrepare, "Animated particles prepare", PrepareForDraw, MyRenderStage.PrepareForDraw, 0, true);
 
-            if (VRage.MyCompilationSymbols.RenderProfiling)
+            if (VRage.MyCompilationSymbols.PerformanceProfiling)
                 MultithreadedPrepareForDraw = false;
 
 
@@ -161,8 +161,8 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             }
 
             m_particleEffectsAll.Remove(effect);
-            if (remove)
-                MyParticlesLibrary.RemoveParticleEffectInstance(effect);
+            //if (remove)
+            MyParticlesLibrary.RemoveParticleEffectInstance(effect);
         }
 
         protected override void UnloadData()

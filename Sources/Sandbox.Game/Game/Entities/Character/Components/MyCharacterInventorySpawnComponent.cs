@@ -1,4 +1,5 @@
 ﻿using Havok;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
@@ -30,11 +31,6 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public override void OnCharacterDead()
         {
-            if (!MyFakes.ENABLE_INVENTORY_SPAWN)
-            {
-                return;
-            }
-
             System.Diagnostics.Debug.Assert(!Character.Definition.EnableSpawnInventoryAsContainer ||  (Character.Definition.EnableSpawnInventoryAsContainer && Character.Definition.InventorySpawnContainerId.HasValue), "Container id is not defined, but is enabled to spawn the inventory into container");
             if (!Sync.IsServer)
             {
@@ -55,16 +51,16 @@ namespace Sandbox.Game.Entities.Character.Components
                         {
                             //TODO: This spawn all MyInventory components, which are currently used with Characters
                             var myInventory = inventoryComponent as MyInventory;
-                            if (myInventory != null)
+                            if (myInventory != null && myInventory.GetItemsCount() > 0)
                             {                                
                                 MyPhysicalItemDefinition bagDefinition;
                                 if (MyDefinitionManager.Static.TryGetDefinition(Character.Definition.InventorySpawnContainerId.Value, out bagDefinition))
                                 {
-                                    var bagEntityId = SpawnInventoryContainer(bagDefinition);
+                                    var bagEntityId = SpawnInventoryContainer(Character.Definition.InventorySpawnContainerId.Value);
                                     if (bagEntityId != null)
                                     {
                                         myInventory.RemoveEntityOnEmpty = true;
-                                        MySyncInventory.SendTransferInventoryMsg(Character.EntityId, bagEntityId, myInventory);
+                                        MySyncInventory.SendTransferInventoryMsg(Character.EntityId, bagEntityId, myInventory, true);
                                     }
                                 }
                                 else
@@ -101,25 +97,29 @@ namespace Sandbox.Game.Entities.Character.Components
             }            
         }
 
-        private long SpawnInventoryContainer(MyPhysicalItemDefinition bagDefinition)
+        private long SpawnInventoryContainer(MyDefinitionId bagDefinition)
         {
             MyEntity builder = Character;
             var worldMatrix = Character.WorldMatrix;
             worldMatrix.Translation += worldMatrix.Up + worldMatrix.Forward;
 
             MyObjectBuilder_EntityBase bagBuilder = new MyObjectBuilder_EntityBase();
-            bagBuilder.Name = bagDefinition.DisplayNameText;
+            
             var position =  new MyPositionAndOrientation(worldMatrix);
             bagBuilder.PositionAndOrientation = position;
             bagBuilder.EntityId = MyEntityIdentifier.AllocateId();
-            bagBuilder.SubtypeName = bagDefinition.Id.SubtypeName;
-
             var entity = MyEntities.CreateAndAddFromDefinition(bagBuilder, bagDefinition);
 
+            entity.Physics.ClearSpeed();
             entity.Physics.ForceActivate();
-            entity.Physics.ApplyImpulse(builder.Physics.LinearVelocity, Vector3.Zero);
+            entity.NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;           
+           
+            MyTimerComponent timerComponent = new MyTimerComponent();
+            timerComponent.SetRemoveEntityTimer(1440);
+            entity.GameLogic = timerComponent;
+           
             
-            MySyncCreate.SendEntityCreated(entity.GetObjectBuilder(), bagDefinition.Id);
+            MySyncCreate.SendEntityCreated(entity.GetObjectBuilder(), bagDefinition);
             
             return entity.EntityId;
         }

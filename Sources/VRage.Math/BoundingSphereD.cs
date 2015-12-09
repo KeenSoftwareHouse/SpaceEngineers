@@ -186,6 +186,7 @@ namespace VRageMath
         public static BoundingSphereD CreateFromPoints(IEnumerable<Vector3D> points)
         {
             IEnumerator<Vector3D> enumerator = points.GetEnumerator();
+            enumerator.MoveNext();
             Vector3D current;
             Vector3D Vector3D_1 = current = enumerator.Current;
             Vector3D Vector3D_2 = current;

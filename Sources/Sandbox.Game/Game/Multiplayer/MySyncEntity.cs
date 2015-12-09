@@ -22,21 +22,25 @@ using VRage.Components;
 using VRage.Library.Utils;
 using Sandbox.Common;
 using VRage.ModAPI;
+using VRage.Library.Collections;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
     public class MySyncEntity : MySyncComponentBase
     {
-        [MessageId(10, P2PMessageEnum.Reliable)]
+        const P2PMessageEnum PositionMessageEnum = MyFakes.UNRELIABLE_POSITION_SYNC ? P2PMessageEnum.Unreliable : P2PMessageEnum.Reliable;
+
+        [MessageId(10, PositionMessageEnum)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         internal struct PositionUpdateMsg : IEntityMessage
         {
-            // 52 B Total
+            // 50.5 B Total
             public long EntityId; // 8 B
 
             public Vector3D Position; // 24 B
-            public HalfVector4 Orientation; // 8 B
+            public Quaternion Orientation; // 6.5 B
 
             public HalfVector3 LinearVelocity; // 6 B
             public HalfVector3 AngularVelocity; // 6 B
@@ -46,52 +50,6 @@ namespace Sandbox.Game.Multiplayer
             public override string ToString()
             {
                 return String.Format("{0}, {1}, Velocity: {2}", this.GetType().Name, this.GetEntityText(), LinearVelocity.ToString());
-            }
-        }
-
-        [MessageId(5741, P2PMessageEnum.Reliable)]
-        internal struct PositionUpdateBatchMsg
-        {
-            public List<PositionUpdateMsg> Positions;
-        }
-
-        class PositionUpdateBatchSerializer : ISerializer<PositionUpdateBatchMsg>
-        {
-            void ISerializer<PositionUpdateBatchMsg>.Serialize(ByteStream destination, ref PositionUpdateBatchMsg data)
-            {
-                destination.Write7BitEncodedInt(data.Positions.Count);
-                for (int i = 0; i < data.Positions.Count; i++)
-                {
-                    var msg = data.Positions[i];
-                    BlitSerializer<PositionUpdateMsg>.Default.Serialize(destination, ref msg);
-                }
-            }
-
-            void ISerializer<PositionUpdateBatchMsg>.Deserialize(ByteStream source, out PositionUpdateBatchMsg data)
-            {
-                data = new PositionUpdateBatchMsg();
-                data.Positions = new List<PositionUpdateMsg>();
-
-                int count = source.Read7BitEncodedInt();
-                for (int i = 0; i < count; i++)
-                {
-                    PositionUpdateMsg msg;
-                    BlitSerializer<PositionUpdateMsg>.Default.Deserialize(source, out msg);
-                    data.Positions.Add(msg);
-                }
-            }
-        }
-
-        [MessageId(11, P2PMessageEnum.Reliable)]
-        protected struct RequestPositionUpdateMsg : IEntityMessage
-        {
-            public long EntityId;
-
-            public long GetEntityId() { return EntityId; }
-
-            public override string ToString()
-            {
-                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
             }
         }
 
@@ -108,172 +66,133 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        class InterpolationHelper
-        {
-            public MatrixD CurrentMatrix;
-            public MatrixD TargetMatrix;
-            public float Time = 1;
-        }
-
-
         static MySyncEntity()
         {
-            MySyncLayer.RegisterMessage<PositionUpdateBatchMsg>(OnPositionBatchUpdate, MyMessagePermissions.Any, MyTransportMessageEnum.Request, new PositionUpdateBatchSerializer());
-            MySyncLayer.RegisterEntityMessage<MySyncEntity, PositionUpdateMsg>(UpdateCallback, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncEntity, RequestPositionUpdateMsg>(RequestUpdateCallback, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncEntity, ClosedMsg>(EntityClosedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterEntityMessage<MySyncEntity, ClosedMsg>(EntityClosedSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
-        private static readonly uint m_sleepTimeForRequest = 60;
+        private static readonly uint m_sleepTimeForRequest = 30;
         public byte DefaultUpdateCount = 4;
-        public byte ConstantMovementUpdateCount = 20;
+        public byte LinearMovementUpdateCount = 20;
 
         protected byte m_updateFrameCount; // Update position once every x frames
+        protected bool m_isLocallyDirty = false;
         protected uint m_lastUpdateFrame = 0;
-        protected MyTimeSpan m_lastUpdateTime;
+        protected uint m_stationaryUpdatesCount = 0;
 
-        private bool m_positionDirty = false;
+        private Vector3D? m_lastServerPosition;
+        private Quaternion? m_lastServerOrientation;
 
         public readonly new MyEntity Entity;
 
-        public override bool UpdatesOnlyOnServer { get; set; }
+        public uint StationaryUpdatesCount
+        {
+            get { return m_stationaryUpdatesCount; }
+        }
 
-        InterpolationHelper m_interpolator = new InterpolationHelper();
+        public virtual bool IsMoving
+        {
+            get
+            {
+                // Never know if somebody is moving entity when physics is null
+                return Entity.Physics == null
+                    || Entity.Physics.LinearVelocity != Vector3.Zero
+                    || Entity.Physics.AngularVelocity != Vector3.Zero;
+            }
+        }
+
+        public virtual bool IsAccelerating
+        {
+            get
+            {
+                // Never know if somebody is moving entity when physics is null
+                const float epsilonSq = 0.05f * 0.05f;
+                return Entity.Physics == null
+                    || Entity.Physics.LinearAcceleration.LengthSquared() > epsilonSq
+                    || Entity.Physics.AngularAcceleration.LengthSquared() > epsilonSq;
+            }
+        }
 
         public MySyncEntity(MyEntity entity)
         {
             Entity = entity;
-            ResetUpdateTimer();
-            UpdatesOnlyOnServer = false;
-            m_updateFrameCount = ConstantMovementUpdateCount;
+            m_lastUpdateFrame = MyMultiplayer.Static != null ? MyMultiplayer.Static.FrameCounter : 0;
+            m_updateFrameCount = LinearMovementUpdateCount;
         }
 
-        public override void UpdatePosition()
+        internal bool ShouldSendPhysicsUpdate()
         {
-            if (Entity.SyncFlag)
-            {
-                if (!IsResponsibleForUpdate)
-                {
-                    RequestPositionUpdate(); // Requests position update from owner, when moving entity is not updated by anyone
+            m_updateFrameCount = IsAccelerating ? DefaultUpdateCount : LinearMovementUpdateCount;
 
-                    m_interpolator.CurrentMatrix = Entity.WorldMatrix;
-                }
-                else
-                {
-                    SendPositionUpdate();
-                }
-            }
+            int updateFrameCount = MyFakes.NEW_POS_UPDATE_TIMING ? (int)Math.Round(m_updateFrameCount * MyPhysics.SimulationRatio) : m_updateFrameCount;
+            return MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= updateFrameCount;
         }
 
-        private void RequestPositionUpdate()
+        internal void SetPhysicsUpdateSent()
+        {
+            if (IsMoving)
+                m_stationaryUpdatesCount = 0;
+            else
+                m_stationaryUpdatesCount++;
+
+            m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
+        }
+
+        public override void MarkPhysicsDirty()
         {
             if (MyMultiplayer.Static == null)
                 return;
-            Debug.Assert(MySandboxGame.Static != null);
-            // This mechanic is here when entity starts moving by actions of local player which are not transfered to server
-            // Local player is now moving entity, but owner does not update it and sending updates. This requests updates.
 
-            bool timeForUpdate;
-            if (MyFakes.NEW_POS_UPDATE_TIMING)
-                timeForUpdate = (MySandboxGame.Static.UpdateTime - m_lastUpdateTime).Seconds > (m_sleepTimeForRequest / MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-            else
-                timeForUpdate = MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= m_sleepTimeForRequest;
-
-            if (timeForUpdate)
-            {
-                // Request owner update
-                var reqMsg = new RequestPositionUpdateMsg();
-                reqMsg.EntityId = Entity.EntityId;
-                if (false)
-                {
-                    MySession.Static.SyncLayer.SendMessageToServer(ref reqMsg);
-                }
-                else
-                {
-                    MySession.Static.SyncLayer.SendMessage(ref reqMsg, GetResponsiblePlayer());
-                }
-                ResetUpdateTimer();
-            }
+            // Client with dirty physics (modified locally) and no physics update from server for 2x 30 frames
+            //if (!Sync.IsServer && !ResponsibleForUpdate(this) && (MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame) >= 120)
+            //{
+            //    if(!m_isLocallyDirty)
+            //    {
+            //        m_isLocallyDirty = true;
+            //        m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
+            //    }
+            //    else
+            //    {
+            //        // Use last position received from server
+            //        if (m_lastServerOrientation.HasValue && m_lastServerPosition.HasValue)
+            //        {
+            //            var m = Matrix.CreateFromQuaternion(m_lastServerOrientation.Value);
+            //            m.Translation = m_lastServerPosition.Value;
+            //            Entity.WorldMatrix = m;
+            //            m_isLocallyDirty = false;
+            //            m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
+            //        }
+            //    }
+            //}
+            MyMultiplayer.Static.MarkPhysicsDirty(this);
         }
 
-        private void SendPositionUpdate()
+        /// <summary>
+        /// Serializes sync entity physics, default implementation serializes position, orientation, linear and angular velocity.
+        /// </summary>
+        public virtual void SerializePhysics(BitStream stream, MyNetworkClient sender, bool highOrientationCompression = false)
         {
-            if(MyMultiplayer.Static == null)
-                return;
-            Debug.Assert(MySandboxGame.Static != null);
-            float epsilonSq = 0.05f * 0.05f;
-            if (m_updateFrameCount == ConstantMovementUpdateCount && (Entity.Physics == null
-                || Entity.Physics.LinearAcceleration.LengthSquared() > epsilonSq
-                || Entity.Physics.AngularAcceleration.LengthSquared() > epsilonSq))
-            {
-                m_updateFrameCount = DefaultUpdateCount;
-            }
-
-            bool timeForUpdate;
-            if (MyFakes.NEW_POS_UPDATE_TIMING)
-                timeForUpdate = (MySandboxGame.Static.UpdateTime - m_lastUpdateTime).Seconds > (m_updateFrameCount / MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+            PositionUpdateMsg msg = stream.Writing ? CreatePositionMsg(Entity) : default(PositionUpdateMsg);
+            stream.Serialize(ref msg.Position); // 24B
+            if (highOrientationCompression)
+                stream.SerializeNormCompressed(ref msg.Orientation); // 29b
             else
-                timeForUpdate = MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= m_updateFrameCount;
-
-            if (timeForUpdate)
+                stream.SerializeNorm(ref msg.Orientation); // 52b
+            stream.Serialize(ref msg.LinearVelocity); // 6B
+            stream.Serialize(ref msg.AngularVelocity); // 6B
+            if (stream.Reading)
             {
-                m_updateFrameCount = ConstantMovementUpdateCount;
-
-                // TODO: abstraction would be nice
-                var syncGrid = this as MySyncGrid;
-                if (syncGrid != null)
-                {
-                    var g = MyCubeGridGroups.Static.Physical.GetGroup(syncGrid.Entity);
-
-                    PositionUpdateBatchMsg msg = new PositionUpdateBatchMsg();
-                    msg.Positions = new List<PositionUpdateMsg>(g.Nodes.Count);
-
-                    foreach (var node in g.Nodes)
-                    {
-                        msg.Positions.Add(CreatePositionMsg(node.NodeData));
-                        node.NodeData.SyncObject.ResetUpdateTimer();
-                        node.NodeData.SyncObject.m_positionDirty = false;
-                    }
-
-                    MySession.Static.SyncLayer.SendMessageToAll(ref msg);
-                }
-                else
-                {
-                    ResetUpdateTimer();
-                    PositionUpdateMsg msg = CreatePositionMsg(Entity);
-                    MySession.Static.SyncLayer.SendMessageToAll(ref msg);
-                }
-                m_positionDirty = false;
-            }
-            else if (MyMultiplayer.Static != null)
-            {
-                MyMultiplayer.Static.RegisterForTick(this);
-                m_positionDirty = true;
+                OnPositionUpdate(ref msg, sender);
             }
         }
 
-        public static void SendPositionUpdates(List<IMyEntity> entities)
-        {
-            PositionUpdateBatchMsg msg = new PositionUpdateBatchMsg();
-            msg.Positions = new List<PositionUpdateMsg>(entities.Count);
-
-            foreach (var entity in entities)
-            {
-                msg.Positions.Add(CreatePositionMsg(entity));
-                ((MySyncEntity)entity.SyncObject).ResetUpdateTimer();
-                ((MySyncEntity)entity.SyncObject).m_positionDirty = false;
-            }
-
-            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
-        }
-
-        private static PositionUpdateMsg CreatePositionMsg(IMyEntity entity)
+        internal static PositionUpdateMsg CreatePositionMsg(IMyEntity entity)
         {
             var m = entity.WorldMatrix;
             PositionUpdateMsg msg = new PositionUpdateMsg();
             msg.EntityId = entity.EntityId;
-            msg.Orientation = new HalfVector4(Quaternion.CreateFromForwardUp(m.Forward, m.Up).ToVector4());
+            msg.Orientation = Quaternion.CreateFromForwardUp(m.Forward, m.Up);
             msg.Position = m.Translation;
             if (entity.Physics != null)
             {
@@ -293,64 +212,22 @@ namespace Sandbox.Game.Multiplayer
             return msg;
         }
 
-        public override void Tick()
-        {
-            if (!Entity.MarkedForClose)
-            {
-                if (m_positionDirty)
-                    SendPositionUpdate();
-
-                //if (m_interpolator.Time < 1)
-                //{
-                //    m_interpolator.Time += 0.1f;
-
-                //    var targetMatrix = m_interpolator.TargetMatrix;
-                //    var targetRotation = Quaternion.CreateFromRotationMatrix(targetMatrix);
-
-                //    var currentMatrix = m_interpolator.CurrentMatrix;
-                //    var currentRotation = Quaternion.CreateFromRotationMatrix(currentMatrix);
-
-                //    var interpolatedRotation = Quaternion.Slerp(currentRotation, targetRotation, m_interpolator.Time);
-                //    var interpolatedMatrix = Matrix.CreateFromQuaternion(interpolatedRotation);
-
-                //    interpolatedMatrix.Translation = currentMatrix.Translation;
-
-                //    Entity.SetWorldMatrix(interpolatedMatrix, this);
-
-                //    Sync.Multiplayer.RegisterForTick(this);
-                //}
-            }
-        }
-
-        private void ResetUpdateTimer()
-        {
-            if (MyMultiplayer.Static != null)
-            {
-                if(MyFakes.NEW_POS_UPDATE_TIMING)
-                    m_lastUpdateTime = MySandboxGame.Static.UpdateTime;
-                m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
-            }
-        }
-
         /// <summary>
         /// For direct calls by inherited classes
         /// </summary>
         protected static bool ResponsibleForUpdate(MySyncEntity entity)
         {
-            return entity.IsResponsibleForUpdate;
+            return entity.ResponsibleForUpdate(Sync.Clients.LocalClient);
         }
 
-        private ulong GetResponsiblePlayer()
+        public ulong GetResponsiblePlayer()
         {
             var controllingPlayer = Sync.Players.GetControllingPlayer(Entity);
-            return controllingPlayer != null && !UpdatesOnlyOnServer ? controllingPlayer.Id.SteamId : Sync.ServerId;
+            return controllingPlayer != null ? controllingPlayer.Id.SteamId : Sync.ServerId;
         }
 
         internal bool ResponsibleForUpdate(MyNetworkClient player)
         {
-            if (UpdatesOnlyOnServer)
-                return player.IsGameServer();
-
             if (Sync.Players == null)
                 return false;
 
@@ -374,51 +251,23 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        private bool IsResponsibleForUpdate
-        {
-            get
-            {
-                return ResponsibleForUpdate(Sync.Clients.LocalClient);
-            }
-        }
-
-        static void OnPositionBatchUpdate(ref PositionUpdateBatchMsg msg, MyNetworkClient sender)
-        {
-            for (int i = 0; i < msg.Positions.Count; i++)
-            {
-                var m = msg.Positions[i];
-
-                MyEntity e;
-                if (MyEntities.TryGetEntityById<MyEntity>(m.EntityId, out e))
-                {
-                    (e.SyncObject as MySyncEntity).OnPositionUpdate(ref m, sender);
-                }
-            }
-        }
-
         internal virtual void OnPositionUpdate(ref PositionUpdateMsg msg, MyNetworkClient sender)
         {
-            Debug.Assert(false == false, "When interpolation enabled, this should not be called");
-            if (!ResponsibleForUpdate(sender))
-            {
-                // This happens when server just accepted state change (e.g. enter cockpit), but some messages about character position will come eventually from client
+            // Validate that client sending position update to server is reponsible for update
+            if (Sync.IsServer && !ResponsibleForUpdate(sender))
                 return;
-            }
 
-            ResetUpdateTimer();
+            if (!Sync.IsServer && ResponsibleForUpdate(Sync.Clients.LocalClient))
+                return;
 
-            var q = Quaternion.FromVector4(msg.Orientation.ToVector4());
+            var q = msg.Orientation;
             var m = Matrix.CreateFromQuaternion(q);
 
-            m_interpolator.TargetMatrix = MatrixD.CreateWorld(msg.Position, m.Forward, m.Up);
-            m_interpolator.CurrentMatrix = Entity.WorldMatrix;
-            m_interpolator.Time = 0;
-
-            MyMultiplayer.Static.RegisterForTick(this);
+            var world = MatrixD.CreateWorld(msg.Position, m.Forward, m.Up);
 
             Debug.Assert(Entity.PositionComp != null, "Entity doesn't not have position component");
             if (Entity.PositionComp != null)
-                Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
+                Entity.PositionComp.SetWorldMatrix(world, this);
 
             if (Entity.Physics != null)
             {
@@ -435,10 +284,23 @@ namespace Sandbox.Game.Multiplayer
 
                 Entity.Physics.UpdateAccelerations();
 
-                if(!Entity.Physics.IsMoving && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld)
+                if (!Entity.Physics.IsMoving && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld)
                 {
                     Entity.Physics.RigidBody.Deactivate();
                 }
+            }
+
+            if (Sync.IsServer)
+            {
+                MarkPhysicsDirty();
+            }
+            else
+            {
+                // Store last update from server
+                m_isLocallyDirty = false;
+                m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
+                m_lastServerPosition = msg.Position;
+                m_lastServerOrientation = msg.Orientation;
             }
         }
 
@@ -448,19 +310,6 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = Entity.EntityId;
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-        }
-
-        static void UpdateCallback(MySyncEntity sync, ref PositionUpdateMsg msg, MyNetworkClient sender)
-        {
-            sync.OnPositionUpdate(ref msg, sender);
-        }
-
-        static void RequestUpdateCallback(MySyncEntity sync, ref RequestPositionUpdateMsg msg, MyNetworkClient sender)
-        {
-            if (false && Sync.IsServer || sync.IsResponsibleForUpdate)
-            {
-                sync.UpdatePosition();
-            }
         }
 
         static void EntityClosedRequest(MySyncEntity sync, ref ClosedMsg msg, MyNetworkClient sender)
@@ -474,6 +323,11 @@ namespace Sandbox.Game.Multiplayer
         {
             if (!sync.Entity.MarkedForClose)
                 sync.Entity.Close();
+        }
+
+        public static void SendPositionUpdates(List<IMyEntity> entities)
+        {
+            throw new NotSupportedException();
         }
     }
 }

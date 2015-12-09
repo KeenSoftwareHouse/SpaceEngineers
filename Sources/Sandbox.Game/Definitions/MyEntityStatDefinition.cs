@@ -21,6 +21,8 @@ namespace Sandbox.Definitions
 
 		public float MaxValue;
 
+	    public float DefaultValue;
+
 		public bool EnabledInCreative;
 
 		public string Name;
@@ -35,6 +37,7 @@ namespace Sandbox.Definitions
 
 			MinValue = objectBuilder.MinValue;
 			MaxValue = objectBuilder.MaxValue;
+		    DefaultValue = objectBuilder.DefaultValue;
 			EnabledInCreative = objectBuilder.EnabledInCreative;
 			Name = objectBuilder.Name;
 
@@ -54,6 +57,7 @@ namespace Sandbox.Definitions
 
 			builder.MinValue = MinValue;
 			builder.MaxValue = MaxValue;
+            builder.DefaultValue = DefaultValue;
 			builder.EnabledInCreative = EnabledInCreative;
 			builder.Name = Name;
 

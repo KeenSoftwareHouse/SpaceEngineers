@@ -2598,17 +2598,17 @@ World size: {1}</value>
   <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
     <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
   </data>
-  <data name="ScreenOptionsGame_UITransparency" xml:space="preserve">
-    <value>UI transparency</value>
+  <data name="ScreenOptionsGame_UIOpacity" xml:space="preserve">
+    <value>UI opacity</value>
   </data>
-  <data name="ToolTipGameOptionsUITransparency" xml:space="preserve">
-    <value>Change transparency of UI dialogs.</value>
+  <data name="ToolTipGameOptionsUIOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs.</value>
   </data>
-  <data name="ScreenOptionsGame_UIBkTransparency" xml:space="preserve">
-    <value>UI background transparency</value>
+  <data name="ScreenOptionsGame_UIBkOpacity" xml:space="preserve">
+    <value>UI background opacity</value>
   </data>
-  <data name="ToolTipGameOptionsUIBkTransparency" xml:space="preserve">
-    <value>Change transparency of UI dialogs background.</value>
+  <data name="ToolTipGameOptionsUIBkOpacity" xml:space="preserve">
+    <value>Change opacity of UI dialogs background.</value>
   </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
@@ -4253,7 +4253,7 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
     <value>Hud Warnings</value>
   </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
-    <value>{0} identity was added</value>
+    <value>Identity {0} was added</value>
   </data>
   <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
     <value>This world can not be loaded. It has been created in newer version of the game.</value>
@@ -6310,11 +6310,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
     <value>Press {0} to enter build mode</value>
   </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
+  <data name="DialogTextJoiningBattle" xml:space="preserve">
+    <value>Joining battle</value>
   </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
+  <data name="DialogTextJoinBattleFailed" xml:space="preserve">
+    <value>Joining battle failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6437,7 +6437,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
-    <value>Shadow map resolution</value>
+    <value>Shadow quality</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
     <value>High</value>
@@ -6543,7 +6543,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
 Enables flora for planets</value>
   </data>
   <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
-    <value />
+    <value>Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.</value>
   </data>
   <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
     <value>Density of flora elements on planets</value>
@@ -6958,5 +6958,229 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
   </data>
   <data name="HudInfoOxygen" xml:space="preserve">
     <value>Oxygen: </value>
+  </data>
+  <data name="Description_Scenario_BigSmall" xml:space="preserve">
+    <value>One 120 km planet and one 50 km planet</value>
+  </data>
+  <data name="DisplayName_Scenario_BigSmall" xml:space="preserve">
+    <value>Big and small planet</value>
+  </data>
+  <data name="NotificationCannotJumpFromGravity" xml:space="preserve">
+    <value>Jump drives cannot be used in natural gravity.</value>
+  </data>
+  <data name="DisplayName_Scenario_ScaleTest" xml:space="preserve">
+    <value>Scale test</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_HorizonIndicator" xml:space="preserve">
+    <value>Show horizon and altitude</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere1" xml:space="preserve">
+    <value>Debug spheres 1</value>
+  </data>
+  <data name="NotificationCannotJumpIntoGravity" xml:space="preserve">
+    <value>Jump drives cannot be used to jump into natural gravity field.</value>
+  </data>
+  <data name="Description_Scenario_StarSystem" xml:space="preserve">
+    <value>Small star system with 3 planets and 3 moons.</value>
+  </data>
+  <data name="DisplayName_Scenario_StarSystem" xml:space="preserve">
+    <value>StarSystem</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere2" xml:space="preserve">
+    <value>Debug spheres 2 (no metal)</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere3" xml:space="preserve">
+    <value>Debug spheres 3 (fixed gloss)</value>
+  </data>
+  <data name="TerminalTab_Info_GridMass" xml:space="preserve">
+    <value>Grid mass:</value>
+  </data>
+  <data name="WorldSettings_GrassDensity" xml:space="preserve">
+    <value>Grass density</value>
+  </data>
+  <data name="Description_Scenario_TestStarSystem" xml:space="preserve">
+    <value>Testing Star System to show Planet generation possibilities - all available planets and moons</value>
+  </data>
+  <data name="DisplayName_Scenario_TestStarSystem" xml:space="preserve">
+    <value>Test Star System</value>
+  </data>
+  <data name="Description_Scenario_StarSystemAligned" xml:space="preserve">
+    <value>Planets and their moons aligned next to each other.</value>
+  </data>
+  <data name="DisplayName_Scenario_StarSystemAligned" xml:space="preserve">
+    <value>Star System Aligned</value>
+  </data>
+  <data name="Notification_NoControlNotMain" xml:space="preserve">
+    <value>This is not main cockpit!</value>
+  </data>
+  <data name="MessageBoxTextGuideQuestion" xml:space="preserve">
+    <value>Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTank" xml:space="preserve">
+    <value>Hydrogen Tank</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTankSmall" xml:space="preserve">
+    <value>Hydrogen Tank Small</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_HydrogenBottles" xml:space="preserve">
+    <value>Hydrogen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottle" xml:space="preserve">
+    <value>Hydrogen Bottle</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottles" xml:space="preserve">
+    <value>Hydrogen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_CollisionAvoidance" xml:space="preserve">
+    <value>Collision avoidance</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableDrones" xml:space="preserve">
+    <value>Random NPC pirate ship will be generated from time to time.
+These ships are enemies and will try to attack you with their drones.</value>
+  </data>
+  <data name="WorldSettings_EnableDrones" xml:space="preserve">
+    <value>Enable drones</value>
+  </data>
+  <data name="ToolTipWorldSettings_CargoShipsEnabled" xml:space="preserve">
+    <value>Random NPC cargo ships can be encountered.</value>
+  </data>
+  <data name="ToolTipWorldSettings_ClientCanSave" xml:space="preserve">
+    <value>Client can save network game. If unchecked then only server can save.</value>
+  </data>
+  <data name="ToolTipWorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Camera can be switched to 3rd person view, looking on your astronaut from behind.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableEncounters" xml:space="preserve">
+    <value>Random NPC ships will fly through world from time to time.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableIngameScripts" xml:space="preserve">
+    <value>If disabled, scripts will not be run in game. Scripts are used in programmable block
+and can also be used by some mods to create advanced logic and effects.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableSunRotation" xml:space="preserve">
+    <value>Sun moves around to create day and night.</value>
+  </data>
+  <data name="DisplayName_Item_Hydrogen" xml:space="preserve">
+    <value>Hydrogen</value>
+  </data>
+  <data name="TerminalControlPanel_RunCodeDefault" xml:space="preserve">
+    <value>Run with default argument</value>
+  </data>
+  <data name="NotificationIncompleteGrid" xml:space="preserve">
+    <value>You can place only completely constructed and undamaged blocks in the inventory</value>
+  </data>
+  <data name="DisplayName_Block_LargeAtmoThrust" xml:space="preserve">
+    <value>Large Atmospheric Thruster</value>
+  </data>
+  <data name="DisplayName_Block_SmallAtmoThrust" xml:space="preserve">
+    <value>Small Atmospheric Thruster</value>
+  </data>
+  <data name="NotificationShipEnergyCritical" xml:space="preserve">
+    <value>Warning: Ship fuel is critically low. Life support failure imminent.</value>
+  </data>
+  <data name="NotificationShipEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Ship fuel is critically low.</value>
+  </data>
+  <data name="NotificationShipEnergyLow" xml:space="preserve">
+    <value>Warning: Ship fuel is low. Life support systems may fail.</value>
+  </data>
+  <data name="NotificationShipEnergyLowNoDamage" xml:space="preserve">
+    <value>Warning: Ship fuel is low.</value>
+  </data>
+  <data name="DisplayName_Block_LargeHydrogenThrust" xml:space="preserve">
+    <value>Large Hydrogen Thruster</value>
+  </data>
+  <data name="DisplayName_Block_SmallHydrogenThrust" xml:space="preserve">
+    <value>Small Hydrogen Thruster</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SuspensionSpeed" xml:space="preserve">
+    <value>Wheels will not be propeled over this speed</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SuspensionSpeed" xml:space="preserve">
+    <value>Speed limit</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_InvertPropulsion" xml:space="preserve">
+    <value>Invert Propulsion</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_InvertPropulsion" xml:space="preserve">
+    <value>Invert the propulsion direction.</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttached" xml:space="preserve">
+    <value>Attached</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttachingAny" xml:space="preserve">
+    <value>Looking for any rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorAttachingSpecific" xml:space="preserve">
+    <value>Looking for specific rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorDetached" xml:space="preserve">
+    <value>Detached</value>
+  </data>
+  <data name="DisplayName_Item_Superconductor" xml:space="preserve">
+    <value>Superconductor Conduits</value>
+  </data>
+  <data name="BlockPropertyDescription_Connector_Strength" xml:space="preserve">
+    <value>Connector strength when aligning ship (yellow color), smaller strength of two connectors is used</value>
+  </data>
+  <data name="BlockPropertyTitle_Connector_Strength" xml:space="preserve">
+    <value>Strength</value>
+  </data>
+  <data name="BlockPropertyTitle_Discharge" xml:space="preserve">
+    <value>Discharge</value>
+  </data>
+  <data name="ToolTipBatteryBlock_Discharge" xml:space="preserve">
+    <value>Discharge the battery</value>
+  </data>
+  <data name="ScreenPlayers_Muted" xml:space="preserve">
+    <value>Muted</value>
+  </data>
+  <data name="NotificationGasBottleRefill" xml:space="preserve">
+    <value>Gas refilled from bottles.</value>
+  </data>
+  <data name="DisplayName_Block_AirtightSlideDoor" xml:space="preserve">
+    <value>Sliding Door</value>
+  </data>
+  <data name="VoiceChatVolume" xml:space="preserve">
+    <value>Voice chat volume</value>
+  </data>
+  <data name="DisplayName_Faction_SpaceSpiders" xml:space="preserve">
+    <value>Space spiders</value>
+  </data>
+  <data name="ScreenGraphicsOptions_VoxelQuality" xml:space="preserve">
+    <value>Voxel quality</value>
+  </data>
+  <data name="DisplayName_AstronautBackpack" xml:space="preserve">
+    <value>Backpack</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_RemainingTime" xml:space="preserve">
+    <value>Time remaining</value>
+  </data>
+  <data name="JoinGame_Lobby" xml:space="preserve">
+    <value>Lobby</value>
+  </data>
+  <data name="JoinGame_Waiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="MultiplayerErrorSessionEnded" xml:space="preserve">
+    <value>The game session has ended. Feel free to join another one.</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackBite" xml:space="preserve">
+    <value>Bite attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackLegs" xml:space="preserve">
+    <value>Leg attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderAttackStinger" xml:space="preserve">
+    <value>Stinger attack</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderBurrow" xml:space="preserve">
+    <value>Burrow</value>
+  </data>
+  <data name="DisplayName_Animation_SpiderDeburrow" xml:space="preserve">
+    <value>Deburrow</value>
   </data>
 </root>

@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
@@ -158,7 +159,9 @@ namespace Sandbox.Game.Gui
 
         protected override void LoadSandboxInternal(Tuple<string, MyWorldInfo> save, bool MP)
         {
+            MyAnalyticsHelper.ReportTutorialStart(save.Item2.SessionName);
             base.LoadSandboxInternal(save, MP);
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Tutorial);
             MyScenarioSystem.LoadMission(save.Item1, MP, MyOnlineModeEnum.OFFLINE, 5);
         }
 

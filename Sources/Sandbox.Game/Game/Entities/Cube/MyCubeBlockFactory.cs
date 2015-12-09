@@ -38,7 +38,12 @@ namespace Sandbox.Game.Entities.Cube
         public static object CreateCubeBlock(MyObjectBuilder_CubeBlock builder)
         {
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
-            MyEntityFactory.AddScriptGameLogic(obj as MyEntity, builder.TypeId, builder.SubtypeName);
+            var entity = obj as MyEntity; // Some are SlimBlocks
+            if (entity != null)
+            {
+                MyEntityFactory.AddScriptGameLogic(entity, builder.TypeId, builder.SubtypeName);
+                MyEntities.RaiseEntityCreated(entity);
+            }
             return obj;
         }
 

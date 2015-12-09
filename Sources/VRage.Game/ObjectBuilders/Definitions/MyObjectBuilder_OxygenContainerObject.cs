@@ -1,11 +1,12 @@
-﻿using ProtoBuf;
+﻿using System;
+using ProtoBuf;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_OxygenContainerObject : MyObjectBuilder_PhysicalObject
+	public class MyObjectBuilder_OxygenContainerObject : MyObjectBuilder_GasContainerObject	// Use GasContainer instead
     {
         /// <summary>
         /// This is not synced automatically

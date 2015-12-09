@@ -10,7 +10,6 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Screens;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.VoiceChat;
@@ -25,11 +24,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
-using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 
 #endregion
@@ -56,6 +54,24 @@ namespace Sandbox.Game.Gui
                 MyCameraControllerEnum cameraControllerEnum = MySession.GetCameraControllerEnum();
                 bool isValidController = (cameraControllerEnum == MyCameraControllerEnum.Entity || cameraControllerEnum == MyCameraControllerEnum.ThirdPersonSpectator);
                 return (!MySession.Static.CameraController.ForceFirstPersonCamera && isValidController);
+            }
+        }
+
+        private static bool SpectatorEnabled
+        {
+            get
+            {
+                if (MySession.Static == null)
+                    return false;
+
+                if (!MySession.Static.SurvivalMode)
+                    return true;
+
+                bool adminSpecEnabled = MyMultiplayer.Static != null && MySession.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId);
+                bool battleSpecEnabled = !MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle || adminSpecEnabled;
+                bool developerSpecEnabled = !MyFinalBuildConstants.IS_OFFICIAL || MyInput.Static.ENABLE_DEVELOPER_KEYS;
+
+                return developerSpecEnabled || (!MyFakes.DISABLE_SPECTATOR_IN_SURVIVAL && battleSpecEnabled) || (MyFakes.DISABLE_SPECTATOR_IN_SURVIVAL && adminSpecEnabled && battleSpecEnabled);
             }
         }
 
@@ -245,7 +261,7 @@ namespace Sandbox.Game.Gui
                 //Set camera to following third person
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_DELTA))
                 {
-                    if (MySession.ControlledEntity != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle || Sync.IsServer))
+                    if (MySession.ControlledEntity != null && SpectatorEnabled)
                     {
                         MySession.SetCameraController(MyCameraControllerEnum.SpectatorDelta);
                     }
@@ -254,7 +270,7 @@ namespace Sandbox.Game.Gui
                 //Set camera to spectator
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_FREE))
                 {
-                    if (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle || Sync.IsServer)
+                    if (SpectatorEnabled)
                     {
                         if (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator)
                         {
@@ -262,6 +278,10 @@ namespace Sandbox.Game.Gui
                         }
                         else if (MyInput.Static.IsAnyShiftKeyPressed())
                         {
+                            if (MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS)
+                            {
+                                MyFakes.ENABLE_SPECTATOR_ROLL_MOVEMENT = !MyFakes.ENABLE_SPECTATOR_ROLL_MOVEMENT;
+                            }
                             MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS = !MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS;
                         }
 
@@ -518,11 +538,11 @@ namespace Sandbox.Game.Gui
                     m_controlMenu.OpenControlMenu(controlledObject);
                 }
             }
-            if (!MyCompilationSymbols.RenderProfiling && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            if (!VRageRender.Profiler.MyRenderProfiler.ProfilerProcessingEnabled && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
             {
                 if (MyGuiScreenChat.Static == null)
                 {
-                    Vector2 chatPos = new Vector2(0.01f, 0.84f);
+                    Vector2 chatPos = new Vector2(0.025f, 0.84f);
                     chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
                     MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
                     MyGuiSandbox.AddScreen(chatScreen);
@@ -666,6 +686,7 @@ namespace Sandbox.Game.Gui
             bool movementAllowedInPause = cce == MyCameraControllerEnum.Spectator;
             bool rotationAllowedInPause = movementAllowedInPause ||
                                           (cce == MyCameraControllerEnum.ThirdPersonSpectator && MyInput.Static.IsAnyAltKeyPressed());
+			bool devScreenFlag = MyScreenManager.GetScreenWithFocus() is MyGuiScreenDebugBase && !MyInput.Static.IsAnyAltKeyPressed();
 
             bool allowRoll = !MySessionComponentVoxelHand.Static.BuildMode;
             bool allowMove = !MySessionComponentVoxelHand.Static.BuildMode && !MyCubeBuilder.Static.IsBuildMode;
@@ -682,12 +703,13 @@ namespace Sandbox.Game.Gui
             {
                 if (MySandboxGame.IsPaused)
                 {
+
                     if (!movementAllowedInPause && !rotationAllowedInPause)
                     {
                         return;
                     }
 
-                    if (!rotationAllowedInPause)
+                    if (!rotationAllowedInPause || devScreenFlag)
                     {
                         rotationIndicator = Vector2.Zero;
                     }
@@ -918,7 +940,7 @@ namespace Sandbox.Game.Gui
                 FogMultiplier = MySector.FogProperties.FogMultiplier,
                 FogBacklightMultiplier = MySector.FogProperties.FogBacklightMultiplier,
                 FogColor = MySector.FogProperties.FogColor,
-                FogDensity = MySector.FogProperties.FogDensity
+                FogDensity = MySector.FogProperties.FogDensity / 100.0f
             };
             VRageRender.MyRenderProxy.UpdateFogSettings(ref fogSettings);
 
@@ -949,9 +971,9 @@ namespace Sandbox.Game.Gui
             );
 
             Vector3 sunDirection = -MySector.SunProperties.SunDirectionNormalized;
-            if (MySession.Static.Settings.EnableSunRotation)
+            if (MySession.Static.Settings.EnableSunRotation && !MyFakes.DEVELOPMENT_PRESET)
             {
-                sunDirection = -MyDefinitionManager.Static.EnvironmentDefinition.SunProperties.SunDirectionNormalized;
+                sunDirection = -MySector.SunProperties.BaseSunDirectionNormalized;
                 float angle = 2.0f * MathHelper.Pi * (float)(MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes);
                 float originalSunCosAngle = Math.Abs(Vector3.Dot(sunDirection, Vector3.Up));
                 Vector3 sunRotationAxis;
@@ -969,6 +991,9 @@ namespace Sandbox.Game.Gui
 
                 MySector.SunProperties.SunDirectionNormalized = -sunDirection;
             }
+
+			MyRenderProxy.Settings.FarShadowDistanceOverride = -1.0f;
+            Vector3D cameraPos = MySector.MainCamera.WorldMatrix.Translation;
 
             VRageRender.MyRenderProxy.UpdateRenderEnvironment(
                 sunDirection,
@@ -994,7 +1019,8 @@ namespace Sandbox.Game.Gui
             MySector.ResetEyeAdaptation = false;
             VRageRender.MyRenderProxy.UpdateEnvironmentMap();
 
-            VRageRender.MyRenderProxy.SwitchProsprocessSettings(MyPostprocessSettingsWrapper.Settings);
+
+            VRageRender.MyRenderProxy.SwitchProsprocessSettings(VRageRender.MyPostprocessSettings.LerpExposure(ref MyPostprocessSettingsWrapper.Settings, ref MyPostprocessSettingsWrapper.Settings, 0));
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Main render");
 

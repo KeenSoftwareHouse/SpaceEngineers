@@ -135,7 +135,7 @@ namespace Sandbox.Game.Weapons
         public bool Update()
         {
             //  Projectile was killed , but still not last time drawn, so we don't need to do update (we are waiting for last draw)
-            if (m_state == MyProjectileStateEnum.KILLED) 
+            if (m_state == MyProjectileStateEnum.KILLED)
                 return true;
             //  Projectile was killed and last time drawn, so we can finally remove it from buffer
             if (m_state == MyProjectileStateEnum.KILLED_AND_DRAWN)
@@ -146,7 +146,7 @@ namespace Sandbox.Game.Weapons
 
             Vector3D position = m_position;
             m_position += m_velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-            
+
             //  Distance timeout
             Vector3 positionDelta = m_position - m_origin;
             if (Vector3.Dot(positionDelta, positionDelta) >= m_maxTrajectory * m_maxTrajectory)
@@ -174,7 +174,19 @@ namespace Sandbox.Game.Weapons
             GetHitEntityAndPosition(line, out entity, out hitPosition, out hitNormal, out headShot);
             if (entity == null || entity == m_ignoreEntity || entity.Physics == null)
                 return true;
+
             ProfilerShort.Begin("Projectile.Update");
+
+            {
+                MyCharacter hitCharacter = entity as MyCharacter;
+                if (hitCharacter != null)
+                {
+                    IStoppableAttackingTool stoppableTool = hitCharacter.CurrentWeapon as IStoppableAttackingTool;
+                    if (stoppableTool != null)
+                        stoppableTool.StopShooting(OwnerEntity);
+                }
+            }
+
             m_position = hitPosition;
 
             bool isProjectileGroupKilled = false;
@@ -183,7 +195,7 @@ namespace Sandbox.Game.Weapons
             {
                 MySurfaceImpactEnum surfaceImpact;
                 MyStringHash materialType;
-                GetSurfaceAndMaterial(entity, out surfaceImpact, out materialType);
+                GetSurfaceAndMaterial(entity, ref  hitPosition, out surfaceImpact, out materialType);
 
                 PlayHitSound(materialType, entity, hitPosition);
                 DoDamage(headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileMassDamage, hitPosition, entity);
@@ -307,12 +319,17 @@ namespace Sandbox.Game.Weapons
                 return result;
         }
 
-        private static void GetSurfaceAndMaterial(IMyEntity entity, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)
+        private static void GetSurfaceAndMaterial(IMyEntity entity, ref Vector3D hitPosition, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)
         {
-            if (entity is MyVoxelMap)
+            var voxelBase = entity as MyVoxelBase;
+            if (voxelBase != null)
             {
                 materialType = MyMaterialType.ROCK;
                 surfaceImpact = MySurfaceImpactEnum.DESTRUCTIBLE;
+
+                var voxelDefinition = voxelBase.GetMaterialAt(ref hitPosition);
+                if(voxelDefinition != null)
+                    materialType = MyStringHash.GetOrCompute(voxelDefinition.MaterialTypeName);
             }
             else if (entity is MyCharacter)
             {
@@ -391,7 +408,12 @@ namespace Sandbox.Game.Weapons
                 else
                     thisType = MyMaterialType.GUNBULLET;
 
-                cueEnum = MyMaterialSoundsHelper.Static.GetCollisionCue(MyMaterialSoundsHelper.CollisionType.Start,thisType, materialType);
+                cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start,thisType, materialType);
+                if (cueEnum.SoundId.IsNull && entity is MyVoxelBase)    // Play rock sounds if we have a voxel material that doesn't have an assigned sound for thisType
+                {
+                    materialType = MyMaterialType.ROCK;
+                    cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, thisType, materialType);
+                }
 
                 if (MySession.Static != null && MySession.Static.Settings.RealisticSound)
                 {

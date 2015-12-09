@@ -19,7 +19,7 @@ namespace VRage
 
         public const float DEFAULT_SPECTATOR_LINEAR_SPEED = 0.1f;
         public const float MIN_SPECTATOR_LINEAR_SPEED = 0.0001f;
-        public const float MAX_SPECTATOR_LINEAR_SPEED = 150.0f;
+        public const float MAX_SPECTATOR_LINEAR_SPEED = 8000.0f;
 
         public const float DEFAULT_SPECTATOR_ANGULAR_SPEED = 1f;
         public const float MIN_SPECTATOR_ANGULAR_SPEED = 0.0001f;

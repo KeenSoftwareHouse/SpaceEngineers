@@ -1,14 +1,13 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using VRage.Utils;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_JumpDriveDefinition))]
     public class MyJumpDriveDefinition : MyCubeBlockDefinition
     {
+	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
         public float PowerNeededForJump;
         public double MaxJumpDistance;
@@ -19,7 +18,9 @@ namespace Sandbox.Definitions
             base.Init(builder);
 
             var jumpDriveBuilder = builder as MyObjectBuilder_JumpDriveDefinition;
+			Debug.Assert(jumpDriveBuilder != null);
 
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(jumpDriveBuilder.ResourceSinkGroup);
             RequiredPowerInput = jumpDriveBuilder.RequiredPowerInput;
             PowerNeededForJump = jumpDriveBuilder.PowerNeededForJump;
             MaxJumpDistance = jumpDriveBuilder.MaxJumpDistance;

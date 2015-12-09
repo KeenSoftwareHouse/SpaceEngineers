@@ -54,6 +54,18 @@
         <AmmoMagazine Subtype="Missile200mm" />
       </AmmoMagazines>
     </Weapon>
+
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>SmallMissileTurret</SubtypeId>
+      </Id>
+      <MissileAmmoData RateOfFire="20" ShootSoundName="WepTurretMissileShot" />
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+    </Weapon>
+
     <Weapon>
       <Id>
         <TypeId>WeaponDefinition</TypeId>
@@ -80,6 +92,20 @@
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>
     </Weapon>
+
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>SmallGatlingTurret</SubtypeId>
+      </Id>
+      <ProjectileAmmoData RateOfFire="300" ShootSoundName="WepTurretGatlingFire" />
+      <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+      <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <AmmoMagazines>
+        <AmmoMagazine Subtype="NATO_25x184mm" />
+      </AmmoMagazines>
+    </Weapon>
+    
     <Weapon>
       <Id>
         <TypeId>WeaponDefinition</TypeId>

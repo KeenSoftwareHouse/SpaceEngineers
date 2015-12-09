@@ -9,8 +9,5 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EnvironmentItemDefinition : MyObjectBuilder_PhysicalModelDefinition
     {
-        [ProtoMember]
-        [XmlArrayItem("Model"), DefaultValue(null)]
-        public string[] SubModels = null;
     }
 }

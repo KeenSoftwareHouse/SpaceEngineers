@@ -105,6 +105,8 @@ namespace VRageRender
 
         internal int[] BonesMapping;
 
+        internal Vector3 CenterOffset;
+
         internal MyMeshMaterialId Material;
     }
 
@@ -554,6 +556,7 @@ namespace VRageRender
                 }
             }
 
+
             bool hasBonesInfo = boneIndices.Length > 0 && boneWeights.Length > 0 && boneIndices.Length == verticesNum && boneWeights.Length == verticesNum;
             var bones = (MyModelBone[]) tagData[MyImporterConstants.TAG_BONES];
 
@@ -680,6 +683,28 @@ namespace VRageRender
 
                     var matId = MyMeshMaterials1.GetMaterialId(materialDesc, contentPath, file);
 
+                    Vector3 centerOffset = Vector3.Zero;
+                    if (materialDesc != null && (materialDesc.Facing == MyFacingEnum.Full || materialDesc.Facing == MyFacingEnum.Impostor))
+                    {
+                        Vector3[] unpackedPos = new Vector3[meshPart.m_indices.Count];
+                        for (int i = 0; i < meshPart.m_indices.Count; i++)
+                        {
+                            HalfVector4 packed = positions[meshPart.m_indices[i]];
+                            Vector3 pos = PositionPacker.UnpackPosition(ref packed);
+                            centerOffset += pos;
+                            unpackedPos[i] = pos;
+                        }
+
+                        centerOffset /= meshPart.m_indices.Count;
+
+                        for (int i = 0; i < meshPart.m_indices.Count; i++)
+                        {
+                            Vector3 pos = unpackedPos[i];
+                            pos -= centerOffset;
+                            positions[meshPart.m_indices[i]] = PositionPacker.PackPosition(ref pos);
+                        }
+                    }
+
                     parts[partIndex] = new MyMeshPartInfo1 
                     {
                         IndexCount = indexCount,
@@ -687,6 +712,8 @@ namespace VRageRender
                         BaseVertex = (int)baseVertex,
                         
                         Material = matId,
+
+                        CenterOffset = centerOffset,
                         
                         BonesMapping = partUsedBonesMap[partIndex]
                     };
@@ -1098,30 +1125,14 @@ namespace VRageRender
 
             return id;
         }
-
-        internal struct MyBufferSegment
-        {
-            internal int vertexOffset;
-            internal int vertexCapacity;
-            internal int indexOffset;
-            internal int indexCapacity;
-
-            internal int indexCount;
-            internal int vertexCount;
-        }
-
-        struct MyVoxelCellUpdate
-        {
-            internal short[] indices;
-            internal MyVertexFormatVoxelSingleData[] vertexData;
-            internal int material0;
-            internal int material1;
-            internal int material2;
-        }
-
+      
         internal static void UpdateVoxelCell(MeshId mesh, List<MyClipmapCellBatch> batches)
         {
-            var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
+            var lodMesh = new MyLodMesh { Mesh = mesh, Lod = 0 };
+
+            Debug.Assert(LodMeshIndex.ContainsKey(lodMesh), "Lod mesh not found!");
+            if (!LodMeshIndex.ContainsKey(lodMesh)) return;
+            var lod = LodMeshIndex[lodMesh];
 
             int vertexCapacity = 0;
             int indexCapacity = 0;
@@ -1134,40 +1145,6 @@ namespace VRageRender
                 indexCapacity += batches[i].Indices.Length;
                 vertexCapacity += batches[i].Vertices.Length;
             }
-
-            //for (int i = 0; i < len; i++)
-            //{
-            //    var ilen = batches[i].Indices.Length;
-            //    var vlen = batches[i].Vertices.Length;
-
-            //    var key = new MyVoxelMaterialTriple(batches[i].Material0, batches[i].Material1, batches[i].Material2);
-
-            //    MyBufferSegment entry = new MyBufferSegment();
-
-            //    entry.indexCapacity = ilen;
-            //    entry.vertexCapacity = vlen;
-            //    entry.indexCount = ilen;
-            //    entry.vertexCount = vlen;
-            //    vbAllocations[key] = entry;
-            //}
-
-            //int voffset = 0;
-            //int ioffset = 0;
-
-            //// allocation
-            //var keys = vbAllocations.Keys.ToList();
-            //foreach (var key in keys)
-            //{
-            //    var val = vbAllocations[key];
-            //    val.indexOffset = ioffset;
-            //    val.vertexOffset = voffset;
-            //    ioffset += val.indexCapacity;
-            //    voffset += val.vertexCapacity;
-            //    vbAllocations[key] = val;
-            //}
-
-            //vertexCapacity = voffset;
-            //indexCapacity = ioffset;
 
             var indices = new ushort[indexCapacity];
             var vertices0 = new MyVertexFormatVoxel[vertexCapacity];
@@ -1204,33 +1181,9 @@ namespace VRageRender
                     vertices0[baseVertex + j] = new MyVertexFormatVoxel();
                     vertices0[baseVertex + j].Position = batchVertices[j].Position;
                     vertices0[baseVertex + j].PositionMorph = batchVertices[j].PositionMorph;
-                    
-                    var mat = batchVertices[j].MaterialAlphaIndex;
-                    switch (mat)
-                    {
-                        case 0:
-                            vertices0[baseVertex + j].Weight0 = 1;
-                            break;
-                        case 1:
-                            vertices0[baseVertex + j].Weight1 = 1;
-                            break;
-                        case 2:
-                            vertices0[baseVertex + j].Weight2 = 1;
-                            break;
-                    }
-                    mat = batchVertices[j].MaterialMorph;
-                    switch (mat)
-                    {
-                        case 0:
-                            vertices0[baseVertex + j].Weight0Morph = 1;
-                            break;
-                        case 1:
-                            vertices0[baseVertex + j].Weight1Morph = 1;
-                            break;
-                        case 2:
-                            vertices0[baseVertex + j].Weight2Morph = 1;
-                            break;
-                    }
+
+                    vertices0[baseVertex + j].m_positionMaterials.W = (ushort)batchVertices[j].PackedPositionAndAmbientMaterial.W;
+                    vertices0[baseVertex + j].m_positionMaterialsMorph.W = (ushort)batchVertices[j].PackedPositionAndAmbientMaterialMorph.W;
 
                     vertices1[baseVertex + j] = new MyVertexFormatNormal(batchVertices[j].PackedNormal, batchVertices[j].PackedNormalMorph);
                 }
@@ -1364,7 +1317,7 @@ namespace VRageRender
                 MyLodMeshInfo lodMesh = new MyLodMeshInfo
                 {
                     FileName = meshFile,
-                    LodDistance = lodDescriptors[i].Distance
+                    LodDistance = lodDescriptors[i].Distance,
                 };
                 
                 MyMeshPartInfo1 [] lodParts;

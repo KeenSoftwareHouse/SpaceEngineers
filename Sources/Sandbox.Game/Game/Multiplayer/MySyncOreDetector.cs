@@ -33,7 +33,7 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncOreDetector()
         {
-            MySyncLayer.RegisterMessage<ChangeOreDetectorMsg>(ChangeOreDetector, MyMessagePermissions.Any);
+            MySyncLayer.RegisterMessage<ChangeOreDetectorMsg>(ChangeOreDetector, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf);
         }
 
         public MySyncOreDetector(MyOreDetector detector)
@@ -49,14 +49,20 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_oreDetector.EntityId;
             msg.BroadcastUsingAntennas = broadcastUsingAntennas;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Request);
+            Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Request);
         }
 
         static void ChangeOreDetector(ref ChangeOreDetectorMsg msg, MyNetworkClient sender)
         {
             MyEntity entity;
             if (MyEntities.TryGetEntityById(msg.EntityId, out entity))
+            {
                 (entity as MyOreDetector).BroadcastUsingAntennas = msg.BroadcastUsingAntennas;
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
+            }
         
         }
 

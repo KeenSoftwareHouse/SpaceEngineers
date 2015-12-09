@@ -37,6 +37,7 @@ using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using VRage.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Character;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities
 {
@@ -130,21 +131,37 @@ namespace Sandbox.Game.Entities
         private static MyRandom m_deformationRng = new MyRandom();
 
         // Caching structures to avoid allocations in functions.
+
         private static readonly List<Vector3I> m_cacheRayCastCells = new List<Vector3I>();
-        private static readonly Dictionary<Vector3I, ConnectivityResult> m_cacheNeighborBlocks = new Dictionary<Vector3I, ConnectivityResult>();
-        private static readonly List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsA = new List<MyCubeBlockDefinition.MountPoint>();
-        private static readonly List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsB = new List<MyCubeBlockDefinition.MountPoint>();
+
+        [ThreadStatic]
+        private static Dictionary<Vector3I, ConnectivityResult> m_cacheNeighborBlocksPerThread;
+        private static Dictionary<Vector3I, ConnectivityResult> m_cacheNeighborBlocks { get { return MyUtils.Init(ref m_cacheNeighborBlocksPerThread); } }
+
+        [ThreadStatic]
+        private static List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsAPerThread;
+        private static List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsA { get { return MyUtils.Init(ref m_cacheMountPointsAPerThread); } }
+
+        [ThreadStatic]
+        private static List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsBPerThread;
+        private static List<MyCubeBlockDefinition.MountPoint> m_cacheMountPointsB { get { return MyUtils.Init(ref m_cacheMountPointsBPerThread); } }
+
+        static private MyComponentList m_buildComponents = new MyComponentList();
+
         private static readonly List<MyPhysics.HitInfo> m_tmpHitList = new List<MyPhysics.HitInfo>();
+
         private static readonly HashSet<Vector3UByte> m_tmpAreaMountpointPass = new HashSet<Vector3UByte>();
         private static AreaConnectivityTest m_areaOverlapTest = new AreaConnectivityTest();
 
         private static readonly List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
+        private static List<MySlimBlock> m_tmpSlimBlocks = new List<MySlimBlock>();
+        private static HashSet<Tuple<MySlimBlock, ushort?>> m_tmpBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
 
         private static readonly Type m_gridSystemsType = ChooseGridSystemsType();
 
         private static List<Tuple<Vector3I, ushort>> m_tmpRazeList = new List<Tuple<Vector3I, ushort>>();
         private static readonly List<Vector3I> m_tmpLocations = new List<Vector3I>();
-        private static HkBoxShape m_lastQueryBox = new HkBoxShape(Vector3.Zero);
+        private static HkBoxShape m_lastQueryBox = new HkBoxShape(Vector3.One);
         private static MatrixD m_lastQueryTransform;
 
 
@@ -446,7 +463,7 @@ namespace Sandbox.Game.Entities
         /// <param name="rotation">Rotation of the cube block within grid.</param>
         /// <param name="position">Position of the cube block within grid.</param>
         /// <returns>True when there is a connectable neighbor connected by a mount point, otherwise false.</returns>
-        internal static bool CheckConnectivity(IMyGridConnectivityTest grid, MyCubeBlockDefinition def, MyCubeBlockDefinition.MountPoint[] mountPoints, ref Quaternion rotation, ref Vector3I position)
+        public static bool CheckConnectivity(IMyGridConnectivityTest grid, MyCubeBlockDefinition def, MyCubeBlockDefinition.MountPoint[] mountPoints, ref Quaternion rotation, ref Vector3I position)
         {
             ProfilerShort.Begin("MyCubeBuilder.CheckMountPoints");
             try
@@ -611,7 +628,7 @@ namespace Sandbox.Game.Entities
         /// <param name="rotation">Rotation of the small cube block.</param>
         /// <param name="addNormal">Grid hit normal.</param>
         /// <returns>True when small block can be connected, otherwise false.</returns>
-        internal static bool CheckConnectivitySmallBlockToLargeGrid(MyCubeGrid grid, MyCubeBlockDefinition def, ref Quaternion rotation, ref Vector3I addNormal)
+        public static bool CheckConnectivitySmallBlockToLargeGrid(MyCubeGrid grid, MyCubeBlockDefinition def, ref Quaternion rotation, ref Vector3I addNormal)
         {
             Debug.Assert(grid.GridSizeEnum == MyCubeSize.Large);
             Debug.Assert(def.CubeSize  == MyCubeSize.Small);
@@ -1517,6 +1534,9 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
             MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            m_lastQueryBox.HalfExtents = halfExtents;
+            m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
+            m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
@@ -1541,7 +1561,7 @@ namespace Sandbox.Game.Entities
 
             m_tmpResultList.Clear();
             BoundingBoxD box = targetGrid.PositionComp.WorldAABB;
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref box, m_tmpResultList);
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref box, m_tmpResultList);
             ProfilerShort.End();
 
             return TestPlacementAreaInternalWithEntities(targetGrid, targetGridIsStatic, ref settings, ref localAabb, ignoredEntity, ref worldMatrix, dynamicBuildMode: dynamicBuildMode);
@@ -1565,6 +1585,9 @@ namespace Sandbox.Game.Entities
 
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
             MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            m_lastQueryBox.HalfExtents = halfExtents;
+            m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
+            m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
@@ -1587,6 +1610,9 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
             MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            m_lastQueryBox.HalfExtents = halfExtents;
+            m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
+            m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
@@ -1937,7 +1963,13 @@ namespace Sandbox.Game.Entities
                 {
                     if(entity != ignoredEntity)
                     {
-                        if(TestQueryIntersection(entity.Physics.GetShape(), entity.WorldMatrix))
+                        //Vector4 min,max;
+                        //entity.Physics.GetShape().GetLocalAABB(0.05f, out min, out max);
+                        //MyOrientedBoundingBoxD obb = new MyOrientedBoundingBoxD(new BoundingBoxD(new Vector3D(min.X, min.Y, min.Z), new Vector3D(max.X, max.Y, max.Z)), entity.WorldMatrix);
+                        //MyRenderProxy.DebugDrawOBB(obb, Color.Green, 0.5f, false, false);
+                        //obb = new MyOrientedBoundingBoxD(new BoundingBoxD(-m_lastQueryBox.HalfExtents, m_lastQueryBox.HalfExtents), m_lastQueryTransform);
+                        //MyRenderProxy.DebugDrawOBB(obb, Color.Red, 0.5f, false, false);
+                        if (TestQueryIntersection(entity.Physics.GetShape(), entity.WorldMatrix))
                         {
                             entityOverlap = true;
                             if(touchingGrid == null)
@@ -2320,46 +2352,85 @@ namespace Sandbox.Game.Entities
             if (MyPerGameSettings.Destruction && block.CubeGrid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
                 return block.CubeGrid.Physics.Shape.BlocksConnectedToWorld.Contains(block.Position);
 
-            var min = (Vector3)block.Min;
-            var max = (Vector3)block.Max;
-            min -= 0.5f;
-            max += 0.5f;
-            var gridSize = block.CubeGrid.GridSize;
-            min *= gridSize;
-            max *= gridSize;
-            BoundingBox localAabb = new BoundingBox(min, max);
+            BoundingBoxD blockWorldAABB;
+            block.GetWorldBoundingBox(out blockWorldAABB);
 
-            var worldMat = block.CubeGrid.WorldMatrix;
+            var voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref blockWorldAABB, null);
+            if (voxelMap == null)
+                return false;
 
-            var worldAabb = (BoundingBoxD)localAabb.Transform(worldMat);
+            var cubeSize = block.CubeGrid.GridSize;
+            BoundingBoxD localAAABB = new BoundingBoxD(cubeSize * ((Vector3D)block.Min - 0.5), cubeSize * ((Vector3D)block.Max + 0.5));
+            var gridWorldMatrix = block.CubeGrid.WorldMatrix;
 
-            List<MyEntity> entities = new List<MyEntity>(); // Fine for test
-            MyGamePruningStructure.GetAllEntitiesInBox(ref worldAabb, entities);
-            MyVoxelBase overlappedVoxelMap = null;
-            foreach (var entity in entities)
+            return voxelMap.IsAnyAabbCornerInside(ref gridWorldMatrix, localAAABB);
+        }
+
+        public static void GetBlocksInMultiBlock(MyCubeGrid grid, Vector3I position, MyMultiBlockDefinition multiBlockDefinition, int multiBlockId, 
+            HashSet<Tuple<MySlimBlock, ushort?>> outMultiBlocks)
+        {
+            Debug.Assert(multiBlockId != 0);
+            if (multiBlockId == 0)
+                return;
+
+            int maxSize = multiBlockDefinition.GetMaxSize();
+
+            Vector3I minPos = position - maxSize;
+            Vector3I maxPos = position + maxSize;
+            GetBlocksInMultiBlock(grid, minPos, maxPos, multiBlockDefinition, multiBlockId, outMultiBlocks);
+        }
+
+        /// <summary>
+        /// Writes multiblocks (compound block and block ID) to outMultiBlocks collection with the same multiblockId.
+        /// </summary>
+        public static void GetBlocksInMultiBlock(MyCubeGrid grid, Vector3I minPosition, Vector3I maxPosition, MyMultiBlockDefinition multiBlockDefinition, int multiBlockId,
+            HashSet<Tuple<MySlimBlock, ushort?>> outMultiBlocks)
+        {
+            Debug.Assert(multiBlockId != 0);
+            if (multiBlockId == 0)
+                return;
+
+            Vector3I cube = minPosition;
+            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref minPosition, ref maxPosition); it.IsValid(); it.GetNext(out cube))
             {
-                var voxelMap = entity as MyVoxelBase;
-                if (voxelMap != null)
+                MySlimBlock slimBlock = grid.GetCubeBlock(cube);
+                if (slimBlock == null)
+                    continue;
+
+                MyCompoundCubeBlock compound = slimBlock.FatBlock as MyCompoundCubeBlock;
+
+                if (compound != null)
                 {
-                    if (voxelMap.DoOverlapSphereTest(localAabb.Size.AbsMax() / 2.0f, worldAabb.Center))
+                    m_tmpSlimBlocks.Clear();
+
+                    foreach (var blockInCompound in compound.GetBlocks(m_tmpSlimBlocks))
                     {
-                        overlappedVoxelMap = voxelMap;
-                        break;
+                        if (blockInCompound.MultiBlockDefinition == multiBlockDefinition && blockInCompound.MultiBlockId == multiBlockId)
+                        {
+                            ushort? blockInCompoundId = compound.GetBlockId(blockInCompound);
+                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, blockInCompoundId));
+                        }
+                    }
+
+                    m_tmpSlimBlocks.Clear();
+                }
+                else
+                {
+                    MyFracturedBlock fracturedBlock = slimBlock.FatBlock as MyFracturedBlock;
+                    if (fracturedBlock != null)
+                    {
+                        if (fracturedBlock.IsMultiBlockPart(multiBlockDefinition.Id, multiBlockId))
+                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, null));
+                    }
+                    else
+                    {
+                        if (slimBlock.MultiBlockDefinition == multiBlockDefinition && slimBlock.MultiBlockId == multiBlockId)
+                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, null));
                     }
                 }
             }
-
-            float penetrationRatio = 0.0f;
-            if (overlappedVoxelMap != null)
-            {
-                float unused;
-                var penetrationAmountNormalized = overlappedVoxelMap.GetVoxelContentInBoundingBox_Obsolete(worldAabb, out unused);
-                var penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
-                penetrationRatio = penetrationVolume / (float)worldAabb.Volume;
-            }
-
-            return penetrationRatio > 0.125f;
         }
+
     }
 
     struct BlockMaterial
@@ -2447,6 +2518,7 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+
     }
 
 }

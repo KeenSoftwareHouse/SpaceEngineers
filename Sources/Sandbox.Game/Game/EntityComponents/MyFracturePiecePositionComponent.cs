@@ -12,7 +12,7 @@ namespace Sandbox.Game.Components
 {
     class MyFracturePiecePositionComponent : MyPositionComponent
     {
-        public override void UpdateWorldVolume()
+        protected override void UpdateWorldVolume()
         {
             m_worldAABB.Min = m_worldMatrix.Translation;// -Vector3.One * m_localVolume.Radius;
             m_worldAABB.Max = m_worldMatrix.Translation;// +Vector3.One * m_localVolume.Radius;
@@ -29,7 +29,7 @@ namespace Sandbox.Game.Components
             return;
         }
 
-        public override void OnWorldPositionChanged(object source)
+        protected override void OnWorldPositionChanged(object source)
         {
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("FP.Volume+InvalidateRender");

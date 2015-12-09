@@ -163,7 +163,7 @@ float4 volumetric_ssao2(PostprocessVertex input) : SV_Target0
 
 	//float vignette = input.position - frame_.resolution;
 
-	float margin = 150.f;
+	float margin = 0.f;
 	float2 vignette_dist = saturate(input.position.xy / margin);
 	vignette_dist = min(vignette_dist, saturate((frame_.resolution - input.position.xy) / margin));
 	float vignette = min(vignette_dist.x, vignette_dist.y);
@@ -197,6 +197,7 @@ float4 volumetric_ssao2(PostprocessVertex input) : SV_Target0
 	ao = (ao - 0.5) * contrast + 0.5;
 	
 	return lerp(ao, 1, 1 - vignette);
+
 
 #endif
 }

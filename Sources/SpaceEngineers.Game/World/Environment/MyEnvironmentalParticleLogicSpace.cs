@@ -7,6 +7,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry;
 using System;
 using System.Collections.Generic;
+using VRage;
 using VRage.Game.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
@@ -17,11 +18,12 @@ namespace SpaceEngineers.Game.World.Environment
 	class MyEnvironmentalParticleLogicSpace : MyEnvironmentalParticleLogic
 	{
 		int m_lastParticleSpawn = 0;
+		float m_particlesLeftToSpawn = 0.0f;
 
 		public MyEntity ControlledEntity { get { return MySession.ControlledEntity as MyEntity; } }
 		public Vector3 ControlledVelocity { get { return ControlledEntity is MyCockpit || ControlledEntity is MyRemoteControl ? ControlledEntity.GetTopMostParent().Physics.LinearVelocity : ControlledEntity.Physics.LinearVelocity; } }
 
-		public bool ShouldDrawParticles { get { return (HasControlledNonZeroVelocity() && !IsInGridAABB() && !IsNearPlanet()); } }
+		public bool ShouldDrawParticles { get { return (HasControlledNonZeroVelocity() && !IsInGridAABB()); } }
 
 		public override void Init(MyObjectBuilder_EnvironmentalParticleLogic builder)
 		{
@@ -36,50 +38,70 @@ namespace SpaceEngineers.Game.World.Environment
 		{
 			base.UpdateBeforeSimulation();
 
-			if (!ShouldDrawParticles)
-				return;
-
-			var distance = ParticleSpawnDistance;
-			var angle = Math.PI/2.0f;
-			var tanFovSq = Math.Tan(angle / 2.0f);
-			var velocityVector = ControlledVelocity;
-			var sweepArea = 4 * distance * distance * tanFovSq;
-			var particlesLeftToSpawn = (0.25f + MyRandom.Instance.NextFloat() * 1.25f) * velocityVector.Length() * sweepArea * ParticleDensity * MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS; // particles/update
-			while (particlesLeftToSpawn-- > 1.0f)
+			ProfilerShort.Begin("SpaceParticles.UpdateBeforeSimulation");
+			try
 			{
+				if (!ShouldDrawParticles)
+					return;
+
+				if (ControlledVelocity.Length() < 10.0f)
+					return;
+
+				var distance = ParticleSpawnDistance;
+				var angle = Math.PI / 2.0f;
+				var tanFovSq = 1.0f;// Math.Tan(angle / 2.0f);
+				var velocityVector = ControlledVelocity - 8.5f * Vector3.Normalize(ControlledVelocity);
+				var sweepArea = 4 * distance * distance * tanFovSq;
+				m_particlesLeftToSpawn += (float)((0.25f + MyRandom.Instance.NextFloat() * 1.25f) * velocityVector.Length() * sweepArea * ParticleDensity * MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS); // particles/update
+				if (m_particlesLeftToSpawn < 1.0f)
+					return;
+
 				var minAngle = angle / 2.0f;
 				var maxAngle = minAngle + angle;
 				var phi = minAngle + MyRandom.Instance.NextFloat() * (maxAngle - minAngle);
 				var theta = minAngle + MyRandom.Instance.NextFloat() * (maxAngle - minAngle);
-				float degree = (float)Math.PI/180.0f;
-				if (Math.Abs(phi - Math.PI / 2.0) < 2.0f * degree && Math.Abs(theta - Math.PI / 2.0) < 2.0f * degree)
+				var restrictedAngleAmount = 6.0f;
+
+				while (m_particlesLeftToSpawn-- >= 1.0f)
 				{
-					phi += (Math.Sign(MyRandom.Instance.NextFloat()) * 2.0f * degree);
-					theta += (Math.Sign(MyRandom.Instance.NextFloat()) * 2.0f * degree);
+					float degree = (float)Math.PI / 180.0f;
+					if (Math.Abs(phi - Math.PI / 2.0) < restrictedAngleAmount * degree && Math.Abs(theta - Math.PI / 2.0) < restrictedAngleAmount * degree)
+					{
+						phi += (Math.Sign(MyRandom.Instance.NextFloat()) * restrictedAngleAmount * degree);
+						theta += (Math.Sign(MyRandom.Instance.NextFloat()) * restrictedAngleAmount * degree);
+					}
+					var sinTheta = (float)Math.Sin(theta);
+					var cosTheta = (float)Math.Cos(theta);
+					var sinPhi = (float)Math.Sin(phi);
+					var cosPhi = (float)Math.Cos(phi);
+
+					var upVector = MySector.MainCamera.UpVector;
+					var forwardVector = Vector3.Normalize(velocityVector);
+					var leftVector = Vector3.Cross(forwardVector, -upVector);
+					Vector3 particlePosition = MySector.MainCamera.Position
+						+ distance * (upVector * cosTheta
+						+ leftVector * sinTheta * cosPhi
+						+ forwardVector * sinTheta * sinPhi);
+
+					Spawn(particlePosition);
+					m_lastParticleSpawn = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 				}
-				var sinTheta = (float)Math.Sin(theta);
-				var cosTheta = (float)Math.Cos(theta);
-				var sinPhi = (float)Math.Sin(phi);
-				var cosPhi = (float)Math.Cos(phi);
-
-				var upVector = MySector.MainCamera.UpVector;
-				var forwardVector = Vector3.Normalize(velocityVector);
-				var leftVector = Vector3.Cross(forwardVector, -upVector);
-				Vector3 particlePosition = MySector.MainCamera.Position
-					+ distance * (upVector * cosTheta
-					+ leftVector * sinTheta * cosPhi
-					+ forwardVector * sinTheta * sinPhi);
-
-				Spawn(particlePosition);
-				m_lastParticleSpawn = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+			}
+			finally
+			{
+				ProfilerShort.End();
 			}
 		}
 
 		public override void UpdateAfterSimulation()
 		{
+			ProfilerShort.Begin("SpaceParticles.UpdateAfterSimulation");
 			if (!ShouldDrawParticles)
+			{
 				DeactivateAll();
-
+				m_particlesLeftToSpawn = 0;
+			}
+			ProfilerShort.End();
 			base.UpdateAfterSimulation();
 		}
 
@@ -94,10 +116,7 @@ namespace SpaceEngineers.Game.World.Environment
 			float thickness = 0.025f;
 			float speed = ControlledVelocity.Length();
 
-			float length = (float)MathHelper.Clamp(speed / 100.0f, 0.0, 1.0);
-
-			if (length < 0.1f)
-				return;
+			float length = (float)MathHelper.Clamp(speed / 50.0f, 0.0, 1.0);
 
 			foreach (var particle in m_activeParticles)
 			{
@@ -110,6 +129,8 @@ namespace SpaceEngineers.Game.World.Environment
 
 		private bool IsInGridAABB()
 		{
+			ProfilerShort.Begin("SpaceParticles.IsInGridAABB");
+			var isInGrid = false;
 			var sphere = new BoundingSphereD(MySector.MainCamera.Position, 0.1f);
 			List<MyEntity> entityList = null;
 			try
@@ -123,7 +144,8 @@ namespace SpaceEngineers.Game.World.Environment
 					if (grid == null || grid.GridSizeEnum == MyCubeSize.Small)
 						continue;
 
-					return true;
+					isInGrid = true;
+					break;
 				}
 			}
 			finally
@@ -132,7 +154,8 @@ namespace SpaceEngineers.Game.World.Environment
 					entityList.Clear();
 			}
 
-			return false;
+			ProfilerShort.End();
+			return isInGrid;
 		}
 
 		private bool HasControlledNonZeroVelocity()
@@ -153,14 +176,6 @@ namespace SpaceEngineers.Game.World.Environment
 				return true;
 
 			return false;
-		}
-
-		private bool IsNearPlanet()
-		{
-			if (ControlledEntity == null)
-				return false;
-
-			return !Vector3.IsZero(MyGravityProviderSystem.CalculateGravityInPointForGrid(ControlledEntity.PositionComp.GetPosition()));
 		}
 	}
 }

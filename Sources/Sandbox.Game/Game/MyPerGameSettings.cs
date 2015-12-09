@@ -1,4 +1,5 @@
-﻿using Sandbox.Engine.Physics;
+﻿using Sandbox.Engine.Networking;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities.Cube;
@@ -116,6 +117,7 @@ namespace Sandbox.Game
         public static bool RestrictSpectatorFlyMode = false;
 
         private static Type m_isoMesherType = typeof(MyDualContouringMesher);
+        //private static Type m_isoMesherType = typeof(MyMarchingCubesMesher);
         public static Type IsoMesherType
         {
             get
@@ -141,8 +143,6 @@ namespace Sandbox.Game
             SprintAcceleration     = 100, //m/ss
             SprintDecceleration    = 20,  //m/ss
         };
-
-        public static float CharacterDefaultLootingCounter = 5 * 60.0f;
 
         public static MyCollisionParticleSettings CollisionParticle = new MyCollisionParticleSettings()
         {
@@ -209,8 +209,12 @@ namespace Sandbox.Game
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
             ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
         };
+
+        // Artificial intelligence
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
+        public static bool EnablePathfinding = false;
+        public static bool NavmeshPresumesDownwardGravity = false;
 
         public static Type ControlMenuInitializerType = null;
         public static Type CompatHelperType = typeof(Sandbox.Game.World.MySessionCompatHelper);
@@ -227,12 +231,13 @@ namespace Sandbox.Game
         public static float NetworkCharacterScale = 1.0f;
         public static int NetworkCharacterCollisionLayer = MyPhysics.CharacterNetworkCollisionLayer;
         public static bool TryConvertGridToDynamicAfterSplit = false;
+        public static bool AnimateOnlyVisibleCharacters = false;
 
         // DAMAGE SETTINGS
         public static float CharacterDamageMinVelocity = 12.0f;    // minimal speed of character to cause damage to itself 3 blocks ~ 16.7 m/s, 2 blocks 13.47 m/s 1 block 9.0 m/s
         public static float CharacterDamageDeadlyDamageVelocity = 16.0f; // speed to cause deadly damage
         public static float CharacterDamageMediumDamageVelocity = 13.0f; // speed to cause mediun damage when character falls
-        public static float CharacterDamageHitObjectMinMass = 200f;    // minimal weight of the object to cause damage when squeezing the character
+        public static float CharacterDamageHitObjectMinMass = 10f;    // minimal weight of the object to cause damage when squeezing the character
         public static float CharacterDamageHitObjectMinVelocity = 8.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
         public static float CharacterDamageHitObjectMediumEnergy = 100; // energy of the colliding object with the character to cause the medium damage
         public static float CharacterDamageHitObjectSmallEnergy = 80;
@@ -249,6 +254,8 @@ namespace Sandbox.Game
         public static float CharacterSqueezeDeadlyDamageMass = 5000;
         
         public static bool CharacterSuicideEnabled = false;
+
+		public static bool NonloopingCharacterFootsteps = false;
 
         public static Func<bool> ConstrainInventory = () => Sandbox.Game.World.MySession.Static.SurvivalMode;
         
@@ -281,5 +288,11 @@ namespace Sandbox.Game
         public static bool VoiceChatEnabled = false;
 
         public static bool EnableJumpDrive = false;
+
+        public static Func<float> GetElapsedMinutes = () => (float)Sandbox.Game.World.MySession.Static.ElapsedGameTime.TotalMinutes;
+
+        public static Engine.Networking.IMyAnalytics AnalyticsTracker = null; // = MyInfinarioAnalytics.Instance;
+        
+        public static bool EnableFloatingObjectsActiveSync = false;
     }
 }

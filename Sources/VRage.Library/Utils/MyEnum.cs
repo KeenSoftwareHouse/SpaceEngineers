@@ -11,9 +11,34 @@ namespace VRage.Library.Utils
         where T : struct, IComparable, IFormattable, IConvertible
     {
         // Intentionaly here as inner struct, when not used, max value is not calculated
-        public struct MaxValue
+        public struct Range
         {
-            public static readonly T Value = FindMaxValue();
+            public static readonly T Min;
+            public static readonly T Max;
+
+            static Range()
+            {
+                var values = MyEnum<T>.Values;
+                var comparer = Comparer<T>.Default;
+
+                if (values.Length > 0)
+                {
+                    Max = values[0];
+                    Min = values[0];
+                    for (int i = 1; i < values.Length; i++)
+                    {
+                        var v = values[i];
+                        if (comparer.Compare(Max, v) < 0)
+                        {
+                            Max = v;
+                        }
+                        if (comparer.Compare(Min, v) > 0)
+                        {
+                            Min = v;
+                        }
+                    }
+                }
+            }
         }
 
         public static string Name { get { return TypeNameHelper<T>.Name; } }
@@ -24,29 +49,6 @@ namespace VRage.Library.Utils
         /// Cached strings to avoid ToString() calls. These values are not readable in obfuscated builds!
         /// </summary>
         private static readonly Dictionary<int, string> m_names = new Dictionary<int, string>();
-
-        static T FindMaxValue()
-        {
-            var values = MyEnum<T>.Values;
-            var comparer = Comparer<T>.Default;
-
-            if (values.Length > 0)
-            {
-                T max = values[0];
-                for (int i = 1; i < values.Length; i++)
-                {
-                    if (comparer.Compare(max, values[i]) < 0)
-                    {
-                        max = values[i];
-                    }
-                }
-                return max;
-            }
-            else
-            {
-                return default(T);
-            }
-        }
 
         public static string GetName(T value)
         {
@@ -62,5 +64,23 @@ namespace VRage.Library.Utils
             return result;
         }
 
+        public static unsafe ulong GetValue(T value)
+        {
+            ulong val = 0;
+            SharpDX.Utilities.Write((IntPtr)(void*)&val, ref value);
+            return val;
+        }
+
+        public static unsafe void SetValue(ref T loc, ulong value)
+        {
+            SharpDX.Utilities.Read((IntPtr)(void*)&value, ref loc);
+        }
+
+        public static unsafe T SetValue(ulong value)
+        {
+            T result = default(T);
+            SharpDX.Utilities.Read((IntPtr)(void*)&value, ref result);
+            return result;
+        }
     }
 }

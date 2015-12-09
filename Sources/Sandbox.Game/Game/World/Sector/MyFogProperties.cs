@@ -6,7 +6,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.World
 {
-    public struct MyFogProperties
+    public class MyFogProperties
     {
         // Fog
         public bool EnableFog;

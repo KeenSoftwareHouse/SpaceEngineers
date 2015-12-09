@@ -87,6 +87,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinGame(GameServerItem server)
         {
+            MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Join);
             if (server.ServerVersion != MyFinalBuildConstants.APP_VERSION)
             {
                 var sb = new StringBuilder();
@@ -118,7 +119,7 @@ namespace Sandbox.Game.Gui
             string gamemode = server.GetGameTagByPrefix("gamemode");
             if (MyFakes.ENABLE_BATTLE_SYSTEM && gamemode == "B")
             {
-                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
+                StringBuilder text = new StringBuilder();// MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
                 MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
                 MyGuiSandbox.AddScreen(progress);
@@ -171,7 +172,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinBattleGame(ulong lobbyId)
         {
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
+            StringBuilder text = new StringBuilder();// MySpaceTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
@@ -188,7 +189,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinScenarioGame(ulong lobbyId)
         {
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
+            StringBuilder text = new StringBuilder();// MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
@@ -443,7 +444,7 @@ namespace Sandbox.Game.Gui
 
             progress.Cancel();
             StringBuilder error = new StringBuilder();
-            error.AppendFormat(MySpaceTexts.DialogTextJoinBattleLobbyFailed, status);
+            //error.AppendFormat(MySpaceTexts.DialogTextJoinBattleLobbyFailed, status);
 
             MyGuiScreenMessageBox mb = MyGuiSandbox.CreateMessageBox(messageText: error, messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
             MyGuiSandbox.AddScreen(mb);

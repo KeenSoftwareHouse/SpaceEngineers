@@ -16,11 +16,14 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Game.Components;
 using Sandbox.Game.Localization;
+using VRage.Network;
+using VRage.Library.Sync;
+using VRage;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TerminalBlock))]
-    public partial class MyTerminalBlock : MyCubeBlock
+    public partial class MyTerminalBlock : MyCubeBlock, IMyEventProxy
     {
         static MyTerminalBlock()
         {
@@ -132,13 +135,25 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> ShowInToolbarConfigChanged;
         public event Action<MyTerminalBlock, StringBuilder> AppendingCustomInfo;
 
+        public event Action<SyncBase> SyncPropertyChanged
+        {
+            add { SyncType.PropertyChanged += value; }
+            remove { SyncType.PropertyChanged -= value; }
+        }
+
+        public SyncType SyncType;
+
         public MyTerminalBlock()
         {
             CustomName = new StringBuilder();
             DetailedInfo = new StringBuilder();
             CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
+
+            SyncType = SyncHelpers.Compose(this);
+            SyncType.PropertyChanged += sync => RaisePropertiesChanged();
         }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
@@ -170,6 +185,11 @@ namespace Sandbox.Game.Entities.Cube
             ob.ShowInTerminal = ShowInTerminal;
             ob.ShowInToolbarConfig = ShowInToolbarConfig;
             return ob;
+        }
+
+        public void NotifyTerminalValueChanged(ITerminalControl control)
+        {
+            // Value in terminal screen was change through GUI
         }
 
         public void RefreshCustomInfo()

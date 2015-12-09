@@ -17,7 +17,6 @@ namespace Sandbox.Game.Gui
     using Sandbox.Game.Screens.Helpers;
     using Sandbox.Graphics;
     using VRage;
-    using VRage;
     using VRage.Audio;
     using VRage.Input;
     using Color = VRageMath.Color;
@@ -129,7 +128,7 @@ namespace Sandbox.Game.Gui
             m_quoteTextControl.BorderEnabled = false;
             m_quoteTextControl.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM;
             m_quoteTextControl.TextBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM;
-            Controls.Add(m_quoteTextControl);
+
             Controls.Add(m_wheel);
             RefreshQuote();
         }
@@ -402,6 +401,7 @@ namespace Sandbox.Game.Gui
                 var controlSize = m_quoteTextControl.Size;
                 var authorTopLeft = controlBottomLeft + new Vector2((controlSize.X - textSize.X) * 0.5f + 0.025f, 0.025f);
                 MyGuiManager.DrawString(font, m_authorWithDash, authorTopLeft, MyGuiSandbox.GetDefaultTextScaleWithLanguage());
+                m_quoteTextControl.Draw(1, 1);
             }
         }
 

@@ -324,21 +324,21 @@ namespace Sandbox.Game.Components
 				var builder = new MyObjectBuilder_EntityStat();
 				builder.SubtypeName = statId.SubtypeName;
 				builder.MaxValue = 1.0f;
-				builder.Value = 1.0f;
+				builder.Value = statDefinition.DefaultValue / statDefinition.MaxValue;
 				AddStat(nameHash, builder);
 			}
 
 			if (Sync.IsServer)	// Only init scripts on server
 			{
+                // MW: remove all scripts because of the broken saves (Medieval character has multiple scripts (peasant's and player's))
+                foreach (var script in m_scripts)
+                {
+                    script.Close();
+                }
+                m_scripts.Clear();
+
 				foreach (var scriptName in definition.Scripts)
 				{
-					MyStatLogic script = null;
-					if ((script = m_scripts.Find((otherScript) => { return otherScript.Name == scriptName; })) != null)
-					{
-						script.Close();
-						m_scripts.Remove(script);	// On load we might've had less stats to consider (moving from creative to survival for example) so replace the old script
-					}
-
 					InitScript(scriptName);
 				}
 			}

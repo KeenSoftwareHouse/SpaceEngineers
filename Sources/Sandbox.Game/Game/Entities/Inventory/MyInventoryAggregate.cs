@@ -22,6 +22,7 @@ namespace Sandbox.Game.Entities.Inventory
         public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnAfterComponentAdd;
         public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnBeforeComponentRemove;
         private List<MyComponentBase> tmp_list = new List<MyComponentBase>();
+        private List<MyPhysicalInventoryItem> m_allItems = new List<MyPhysicalInventoryItem>();
 
         #region Properties
 
@@ -130,7 +131,7 @@ namespace Sandbox.Game.Entities.Inventory
             return (MyFixedPoint) amount;
         }
 
-        public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
+        public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1, bool stack = true)
         {
             var maxAmount = ComputeAmountThatFits(objectBuilder.GetId());
             var restAmount = amount;
@@ -145,7 +146,7 @@ namespace Sandbox.Game.Entities.Inventory
                     }
                     if (availableSpace > 0)
                     {
-                        if (inventory.AddItems(availableSpace, objectBuilder))
+                        if (inventory.AddItems(availableSpace, objectBuilder, index, stack))
                         {
                             restAmount -= availableSpace;
                         }
@@ -296,11 +297,11 @@ namespace Sandbox.Game.Entities.Inventory
 			return false;
         }
 
-        public override bool Add(IMyInventoryItem item, MyFixedPoint amount)
+        public override bool Add(IMyInventoryItem item, MyFixedPoint amount, bool stack = true)
         {
             foreach(MyInventoryBase inventory in m_children.Reader)
 			{
-				if (inventory.ItemsCanBeAdded(amount, item) && inventory.Add(item, amount))
+				if (inventory.ItemsCanBeAdded(amount, item) && inventory.Add(item, amount, stack))
 					return true;
 			}
 			return false;
@@ -314,6 +315,16 @@ namespace Sandbox.Game.Entities.Inventory
 					return true;
 			}
 			return false;
-        }       
+        }
+
+        public override List<MyPhysicalInventoryItem> GetItems()
+        {
+            m_allItems.Clear();
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                m_allItems.AddRange(inventory.GetItems());
+            }
+            return m_allItems;
+        }
     }
 }

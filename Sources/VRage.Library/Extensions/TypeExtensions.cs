@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -45,6 +46,74 @@ namespace VRage
             Exceptions.ThrowIf<ArgumentNullException>(me == null, "Selector must be a member access expression", "selector");
 
             return me.Member;
+        }
+    }
+
+    public static class TypeExtensions
+    {
+        public static bool IsStruct(this Type type)
+        {
+            return type.IsValueType && !type.IsPrimitive && !type.IsEnum && type != typeof(decimal);
+        }
+
+        public static IEnumerable<MemberInfo> GetDataMembers(this Type t, bool fields, bool properties, bool nonPublic, bool inherited, bool @static, bool instance, bool read, bool write)
+        {
+            var flags = BindingFlags.DeclaredOnly | BindingFlags.Public;
+            if (nonPublic) flags |= BindingFlags.NonPublic;
+            if (@static) flags |= BindingFlags.Static;
+            if (instance) flags |= BindingFlags.Instance;
+
+            IEnumerable<MemberInfo> members = t.GetMembers(flags);
+            if (inherited && t.IsClass && t != typeof(object))
+            {
+                var baseClass = t.BaseType;
+                while (baseClass != typeof(object) && baseClass != null)
+                {
+                    members = members.Concat(baseClass.GetMembers(flags));
+                    baseClass = baseClass.BaseType;
+                }
+            }
+
+            return members.Where(s => (fields ? s.MemberType == MemberTypes.Field : false) || (properties ? CheckProperty(s, read, write) : false));
+        }
+
+        static bool CheckProperty(MemberInfo info, bool read, bool write)
+        {
+            var p = info as PropertyInfo;
+            return p != null && (!read || p.CanRead) && (!write || p.CanWrite);
+        }
+
+        public static Type FindGenericBaseTypeArgument(this Type type, Type genericTypeDefinition)
+        {
+            var result = FindGenericBaseTypeArguments(type, genericTypeDefinition);
+            return result.Length > 0 ? result[0] : null;
+        }
+
+        public static Type[] FindGenericBaseTypeArguments(this Type type, Type genericTypeDefinition)
+        {
+            Debug.Assert(genericTypeDefinition.IsGenericTypeDefinition, "genericTypeDefinition must be generic type definition");
+
+            if (type.IsValueType || type.IsInterface)
+                return Type.EmptyTypes;
+
+            while(type != typeof(Object))
+            {
+                if(type.IsGenericType)
+                {
+                    var gen = type.GetGenericTypeDefinition();
+                    if(gen == genericTypeDefinition)
+                    {
+                        return type.GetGenericArguments();
+                    }
+                }
+                type = type.BaseType;
+            }
+            return Type.EmptyTypes;
+        }
+
+        public static bool HasDefaultConstructor(this Type type)
+        {
+            return !type.IsAbstract && type.GetConstructor(Type.EmptyTypes) != null;
         }
     }
 }

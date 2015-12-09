@@ -1,4 +1,6 @@
-﻿using VRageMath;
+﻿using System;
+using VRage.Library.Collections;
+using VRageMath;
 
 namespace VRage.Network
 {
@@ -7,12 +9,13 @@ namespace VRage.Network
     {
         public sealed override void Write(ref Quaternion value, BitStream s)
         {
-            s.WriteNormQuat(value.W, value.X, value.Y, value.Z);
+            s.Serialize(ref value);
         }
 
-        public sealed override bool Read(out Quaternion value, BitStream s)
+        public sealed override void Read(out Quaternion value, BitStream s)
         {
-            return s.ReadNormQuat(out value.W, out value.X, out value.Y, out value.Z);
+            value = default(Quaternion);
+            s.Serialize(ref value);
         }
     }
 }

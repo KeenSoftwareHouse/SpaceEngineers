@@ -144,7 +144,7 @@ namespace Sandbox.Game.Entities
 
                 model = mdef.Model;
                 if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
-                    MyDestructionData.Static.LoadModelDestruction(model, mdef, false, Vector3.One);
+                    MyDestructionData.Static.LoadModelDestruction(model, mdef, Vector3.One);
                 var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 m_children.Add(si);
@@ -156,7 +156,7 @@ namespace Sandbox.Game.Entities
                     {
                         model = progress.File;
                         if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
-                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
                         shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                         si = new HkdShapeInstanceInfo(shape, null, null);
                         m_children.Add(si);

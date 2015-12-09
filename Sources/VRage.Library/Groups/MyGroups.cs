@@ -322,6 +322,7 @@ namespace VRage.Groups
             return groupA.m_members.Count >= groupB.m_members.Count;
         }
 
+        private List<Node> m_tmpList = new List<Node>();
         private void MergeGroups(Group groupA, Group groupB)
         {
             Debug.Assert(groupA != groupB, "Cannot merge group with itself");
@@ -332,17 +333,36 @@ namespace VRage.Groups
                 var tmp = groupA; groupA = groupB; groupB = tmp;
             }
 
-            foreach (var node in groupB.m_members)
+            if(m_tmpList.Capacity < groupB.m_members.Count)
+                m_tmpList.Capacity = groupB.m_members.Count;
+
+            m_tmpList.AddHashset(groupB.m_members);
+
+            foreach(var node in m_tmpList)
             {
                 // Set: Group.Members, Node.Group
                 // Keep: Node.Children (children are still the same)
 
-                // Set group to groupA
-                node.m_group = groupA;
-
+                groupB.m_members.Remove(node);
                 // Add between members of groupA
                 groupA.m_members.Add(node);
+                // Set group to groupA
+                node.m_group = groupA;
             }
+
+            m_tmpList.Clear();
+
+            //foreach (var node in groupB.m_members)
+            //{
+            //    // Set: Group.Members, Node.Group
+            //    // Keep: Node.Children (children are still the same)
+
+            //    // Set group to groupA
+            //    node.m_group = groupA;
+
+            //    // Add between members of groupA
+            //    groupA.m_members.Add(node);
+            //}
 
             // Clear members of groupB
             groupB.m_members.Clear();

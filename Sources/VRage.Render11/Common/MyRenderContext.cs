@@ -334,7 +334,7 @@ namespace VRageRender
             State.Clear();
         }
 
-        bool UpdateVB(int slot, Buffer vb, int stride)
+        internal bool UpdateVB(int slot, Buffer vb, int stride)
         {
             if (State.m_VBs[slot] != vb || State.m_strides[slot] != stride)
             {
@@ -752,7 +752,7 @@ namespace VRageRender
             Context.End(query.m_query);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void BeginProfilingBlock(string tag)
         {
             var q = MyQueryFactory.CreateTimestampQuery();
@@ -769,7 +769,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void EndProfilingBlock()
         {
             var q = MyQueryFactory.CreateTimestampQuery();
@@ -792,12 +792,6 @@ namespace VRageRender
             SetVBs(desc.VB, desc.VertexStrides);
         }
 
-        internal void BindShaders(ref MyShaderBundle desc)
-        {
-            SetIL(desc.InputLayout);
-            SetVS(desc.VS);
-            SetPS(desc.PS);
-        }
 
         internal void BindShaders(MyMaterialShadersBundleId id)
         {

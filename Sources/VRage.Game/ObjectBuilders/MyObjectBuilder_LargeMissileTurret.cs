@@ -11,5 +11,9 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LargeMissileTurret : MyObjectBuilder_ConveyorTurretBase
     {
+        public MyObjectBuilder_LargeMissileTurret()
+        {
+            TargetCharacters = false;
+        }
     }
 }

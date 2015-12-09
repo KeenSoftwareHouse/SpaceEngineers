@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using VRage;
+using VRage.Network;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders

@@ -20,9 +20,9 @@ namespace VRageRender
 
     public class MyRenderMessageDebugDrawCone : IMyRenderMessage
     {
-        public Vector3 Translation;
-        public Vector3 DirectionVector;
-        public Vector3 BaseVector;
+        public Vector3D Translation;
+        public Vector3D DirectionVector;
+        public Vector3D BaseVector;
         public Color Color;
         public bool DepthRead;
 

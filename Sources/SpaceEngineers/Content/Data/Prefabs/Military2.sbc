@@ -5066,10 +5066,11 @@
               <Min x="2" y="-1" z="-3" />
               <BlockOrientation Forward="Forward" Up="Down" />
               <ColorMaskHSV x="0" y="-1" z="0" />
+	      <CustomName>Hostiles detected - Requesting Backup</CustomName>
               <ShareMode>None</ShareMode>
               <ShowOnHUD>false</ShowOnHUD>
               <Enabled>true</Enabled>
-              <BroadcastRadius>10000</BroadcastRadius>
+              <BroadcastRadius>2000</BroadcastRadius>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_RadioAntenna">
               <SubtypeName>LargeBlockRadioAntenna</SubtypeName>
@@ -5079,7 +5080,7 @@
               <ColorMaskHSV x="0" y="-1" z="0" />
               <ShareMode>None</ShareMode>
               <ShowOnHUD>false</ShowOnHUD>
-              <Enabled>true</Enabled>
+              <Enabled>false</Enabled>
               <BroadcastRadius>10000</BroadcastRadius>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">

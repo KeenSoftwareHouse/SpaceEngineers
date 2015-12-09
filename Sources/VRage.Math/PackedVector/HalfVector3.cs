@@ -7,7 +7,7 @@ namespace VRageMath.PackedVector
     /// </summary>
     public struct HalfVector3
     {
-        ushort X, Y, Z;
+        public ushort X, Y, Z;
 
         /// <summary>
         /// Initializes a new instance of the HalfVector3 class.

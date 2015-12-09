@@ -1067,7 +1067,7 @@ namespace Sandbox.Game.GameSystems
 
             var boundingSphere = new BoundingSphereD(to, MAX_DISTANCE);
             var decompressionDirection = Vector3D.Normalize(to - from);
-            MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref boundingSphere, m_entitiesInDepressurizationRange);
+            MyGamePruningStructure.GetAllEntitiesInSphere(ref boundingSphere, m_entitiesInDepressurizationRange);
 
             foreach (var entity in m_entitiesInDepressurizationRange)
             {
@@ -1148,7 +1148,9 @@ namespace Sandbox.Game.GameSystems
                 {
                     if (character != null && character.IsDead == false)
                     {
-                        character.EnableJetpack(true);
+	                    var jetpack = character.JetpackComp;
+						if(jetpack != null)
+							jetpack.TurnOnJetpack(true);
                     }
 
                     forceInfo.Direction.Normalize();

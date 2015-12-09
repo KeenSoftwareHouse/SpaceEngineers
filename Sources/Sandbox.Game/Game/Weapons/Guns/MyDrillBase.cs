@@ -396,7 +396,7 @@ namespace Sandbox.Game.Weapons
             var gridSpacePos = Vector3I.Round(gridLocalPos / grid.GridSize);
             var block = grid.GetCubeBlock(gridSpacePos);
 
-            bool createDebris = false;
+            int createDebris = 0;
             if (!onlyCheck)
             {
                 if (block != null && block is IMyDestroyableObject && block.CubeGrid.BlocksDestructionEnabled)
@@ -407,12 +407,12 @@ namespace Sandbox.Game.Weapons
                 }
             }
 
-            m_target = createDebris ? null : block;
+            m_target = createDebris != 0 ? null : block;
 
             bool success = false;
             if (block != null)
             {
-                if (createDebris)
+                if (createDebris != 0)
                 {
                     BoundingSphereD bsphere = m_cutOut.Sphere;
                     BoundingBoxD aabb = BoundingBoxD.CreateFromSphere(bsphere);
@@ -428,6 +428,8 @@ namespace Sandbox.Game.Weapons
         protected virtual bool TryDrillVoxels(MyVoxelBase voxels, Vector3D hitPosition, bool collectOre, bool onlyCheck)
         {
             const float DISCARDING_MULTIPLIER = 3.0f;
+
+            if (voxels.GetOrePriority() == MyVoxelConstants.PRIORITY_IGNORE_EXTRACTION) return false;
 
             bool somethingDrilled = false;
             var  bsphere = new MyShapeSphere()

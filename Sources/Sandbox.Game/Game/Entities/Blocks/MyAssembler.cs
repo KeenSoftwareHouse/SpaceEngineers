@@ -29,6 +29,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.Entities.Interfaces;
+using Sandbox.Game.EntityComponents;
 using VRage.ObjectBuilders;
 
 #endregion
@@ -398,7 +399,7 @@ namespace Sandbox.Game.Entities.Cube
 
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
-            PowerReceiver.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
+            ResourceSink.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
             UpdateDetailedInfo();
         }
 
@@ -440,7 +441,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(GetOperationalPowerConsumption(), DetailedInfo);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.RequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.RequiredInput, DetailedInfo);
 
 
             DetailedInfo.AppendFormat("\n\n");
@@ -454,7 +455,7 @@ namespace Sandbox.Game.Entities.Cube
             RaisePropertiesChanged();
         }
 
-        void PowerReceiver_RequiredInputChanged(GameSystems.Electricity.MyPowerReceiver receiver, float oldRequirement, float newRequirement)
+        void PowerReceiver_RequiredInputChanged(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver, float oldRequirement, float newRequirement)
         {
             UpdateDetailedInfo();
         }
@@ -661,10 +662,13 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-            if (!PowerReceiver.IsPowered)
+            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < ProductionBlockDefinition.OperationalPowerConsumption)
             {
-                CurrentState = StateEnum.NotEnoughPower;
-                return;
+                if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, ProductionBlockDefinition.OperationalPowerConsumption))
+                {
+                    CurrentState = StateEnum.NotEnoughPower;
+                    return;
+                }
             }
 
             if (!IsWorking)
@@ -837,7 +841,7 @@ namespace Sandbox.Game.Entities.Cube
             if (CurrentState == StateEnum.MissingItems && IsQueueEmpty)
             {
                 CurrentState = (!Enabled) ? StateEnum.Disabled :
-                               (!PowerReceiver.IsPowered) ? StateEnum.NotEnoughPower :
+                               (!ResourceSink.IsPowered) ? StateEnum.NotEnoughPower :
                                (!IsFunctional) ? StateEnum.NotWorking :
                                StateEnum.Ok;
             }

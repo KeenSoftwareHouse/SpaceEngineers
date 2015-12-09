@@ -82,12 +82,12 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncSoundBlock()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, PlaySoundMsg>(OnPlaySound, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, SelectSoundMsg>(OnSelectSound, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, StopSoundMsg>(OnStopSound, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeLoopPeriodMsg>(OnChangeLoopPeriod, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeSoundVolumeMsg>(OnChangeSoundVolume, MyMessagePermissions.Any);
-            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeSoundRangeMsg>(OnChangeSoundRange, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, PlaySoundMsg>(OnPlaySound, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, SelectSoundMsg>(OnSelectSound, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, StopSoundMsg>(OnStopSound, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeLoopPeriodMsg>(OnChangeLoopPeriod, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeSoundVolumeMsg>(OnChangeSoundVolume, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            MySyncLayer.RegisterEntityMessage<MySyncSoundBlock, ChangeSoundRangeMsg>(OnChangeSoundRange, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
         }
 
         public MySyncSoundBlock(MySoundBlock block) : base(block)
@@ -103,42 +103,42 @@ namespace Sandbox.Game.Multiplayer
         {
             sync.Entity.PlaySound();
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         static void OnSelectSound(MySyncSoundBlock sync, ref SelectSoundMsg msg, MyNetworkClient sender)
         {
             sync.Entity.SelectSound(msg.CueId, false);
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         static void OnStopSound(MySyncSoundBlock sync, ref StopSoundMsg msg, MyNetworkClient sender)
         {
             sync.Entity.StopSound();
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         static void OnChangeLoopPeriod(MySyncSoundBlock sync, ref ChangeLoopPeriodMsg msg, MyNetworkClient sender)
         {
             sync.Entity.LoopPeriod = msg.LoopPeriod;
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         static void OnChangeSoundVolume(MySyncSoundBlock sync, ref ChangeSoundVolumeMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Volume = msg.Volume;
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         static void OnChangeSoundRange(MySyncSoundBlock sync, ref ChangeSoundRangeMsg msg, MyNetworkClient sender)
         {
             sync.Entity.Range = msg.Range;
             if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(msg);
+                Sync.Layer.SendMessageToAll(ref msg);
         }
 
         public void SendPlaySoundRequest()

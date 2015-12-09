@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Game.Weapons;
-using VRageMath;
-using Sandbox.Common.Components;
+﻿using Sandbox.Game.Weapons;
+using Sandbox.Game.EntityComponents;
 
 namespace Sandbox.Game.Components
 {
@@ -20,7 +15,10 @@ namespace Sandbox.Game.Components
         public override bool DebugDraw()
         {
             m_gatlingGun.ConveyorEndpoint.DebugDraw();
-            m_gatlingGun.PowerReceiver.DebugDraw(m_gatlingGun.PositionComp.WorldMatrix);
+	        var sinkComp = m_gatlingGun.Components.Get<MyResourceSinkComponent>();
+			if(sinkComp != null)
+				sinkComp.DebugDraw(m_gatlingGun.PositionComp.WorldMatrix);
+
             return true;
         }
     }

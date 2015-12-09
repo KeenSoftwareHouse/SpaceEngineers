@@ -17,8 +17,12 @@
       <Components>
         <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="Construction" Count="10" />
-        <Component Subtype="MetalGrid" Count="5" />
-        <Component Subtype="PowerCell" Count="120" />
+        <Component Subtype="PowerCell" Count="120">
+          <DeconstructId>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Scrap</SubtypeId>
+          </DeconstructId>
+      </Component>
         <Component Subtype="Computer" Count="25" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="SteelPlate" Count="60" />
@@ -32,9 +36,16 @@
       <BlockPairName>BatteryBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
-      <MaxPowerOutput>4</MaxPowerOutput>
-      <RequiredPowerInput>4</RequiredPowerInput>
-      <MaxStoredPower>1</MaxStoredPower>
+
+      <ResourceSourceGroup>Battery</ResourceSourceGroup>
+      <MaxPowerOutput>12</MaxPowerOutput>
+
+      <ResourceSinkGroup>BatteryBlock</ResourceSinkGroup>
+      <RequiredPowerInput>12</RequiredPowerInput>
+      <AdaptibleInput>true</AdaptibleInput>
+      <MaxStoredPower>3</MaxStoredPower>
+      <InitialStoredPowerRatio>0.3</InitialStoredPowerRatio>
+
       <InventorySize>
         <X>1</X>
         <Y>1</Y>
@@ -59,9 +70,13 @@
       <Components>
         <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="2" />
-        <Component Subtype="MetalGrid" Count="2" />
-        <Component Subtype="PowerCell" Count="20" />
-        <Component Subtype="Computer" Count="10" />
+        <Component Subtype="PowerCell" Count="20">
+          <DeconstructId>
+            <TypeId>Ore</TypeId>
+            <SubtypeId>Scrap</SubtypeId>
+          </DeconstructId>
+        </Component>
+        <Component Subtype="Computer" Count="2" />
         <Component Subtype="Construction" Count="3" />
         <Component Subtype="SteelPlate" Count="20" />
       </Components>
@@ -73,9 +88,15 @@
       <BlockPairName>BatteryBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
-      <MaxPowerOutput>1.44</MaxPowerOutput>
-      <RequiredPowerInput>1.44</RequiredPowerInput>
-      <MaxStoredPower>0.36</MaxStoredPower>
+
+      <ResourceSourceGroup>Battery</ResourceSourceGroup>
+      <MaxPowerOutput>4.32</MaxPowerOutput>
+
+      <ResourceSinkGroup>BatteryBlock</ResourceSinkGroup>
+      <RequiredPowerInput>4.32</RequiredPowerInput>
+      <MaxStoredPower>1.08</MaxStoredPower>
+      <InitialStoredPowerRatio>0.3</InitialStoredPowerRatio>
+      
       <InventorySize>
         <X>1</X>
         <Y>1</Y>
@@ -842,6 +863,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="135" />
+        <Component Subtype="MetalGrid" Count="50" />
         <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -1006,6 +1028,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="65" />
+        <Component Subtype="MetalGrid" Count="25" />        
         <Component Subtype="SteelPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -1136,6 +1159,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="20" />
+        <Component Subtype="MetalGrid" Count="10" />
         <Component Subtype="SteelPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -1241,6 +1265,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="110" />
+        <Component Subtype="MetalGrid" Count="50" />
         <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -1936,6 +1961,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -2098,8 +2124,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -2225,8 +2252,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -2323,7 +2351,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -3052,7 +3081,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="135" />
+        <Component Subtype="SteelPlate" Count="115" />
+        <Component Subtype="MetalGrid" Count="50" />        
         <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -3221,7 +3251,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="135" />
+        <Component Subtype="SteelPlate" Count="110" />
+        <Component Subtype="MetalGrid" Count="40" /> 
         <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -3394,6 +3425,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="65" />
+        <Component Subtype="MetalGrid" Count="25" />
         <Component Subtype="SteelPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -3523,7 +3555,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="20" />
+        <Component Subtype="SteelPlate" Count="25" />
+        <Component Subtype="MetalGrid" Count="8" />
         <Component Subtype="SteelPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -4198,7 +4231,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -4366,7 +4400,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -4537,8 +4572,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -4666,8 +4702,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -5165,8 +5202,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="65" />
-        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="SteelPlate" Count="115" />
+        <Component Subtype="MetalGrid" Count="50" />
+        <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -5295,8 +5333,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="20" />
-        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="110" />
+        <Component Subtype="MetalGrid" Count="40" />
+        <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -5400,7 +5439,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="110" />
+        <Component Subtype="SteelPlate" Count="125" />
+        <Component Subtype="MetalGrid" Count="50" />
         <Component Subtype="SteelPlate" Count="15" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -5949,7 +5989,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -6078,7 +6119,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -6182,8 +6224,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="16" />
-        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -7235,6 +7278,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="100" />
+        <Component Subtype="MetalGrid" Count="40" />
         <Component Subtype="SteelPlate" Count="12" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -7402,6 +7446,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="34" />
+        <Component Subtype="MetalGrid" Count="10" />
         <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -7533,6 +7578,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="50" />
+        <Component Subtype="MetalGrid" Count="15" />
         <Component Subtype="SteelPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -7667,6 +7713,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="17" />
+        <Component Subtype="MetalGrid" Count="6" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -7772,6 +7819,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="120" />
+        <Component Subtype="MetalGrid" Count="50" />
         <Component Subtype="SteelPlate" Count="13" />
       </Components>
       <MountPoints>
@@ -7946,6 +7994,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="84" />
+        <Component Subtype="MetalGrid" Count="25" />
         <Component Subtype="SteelPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -9005,6 +9054,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -9171,8 +9221,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -9302,8 +9353,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -9436,8 +9488,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -9542,6 +9595,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -9714,8 +9768,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -10747,6 +10802,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="100" />
+        <Component Subtype="MetalGrid" Count="45" />
         <Component Subtype="SteelPlate" Count="12" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -10913,8 +10969,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="34" />
-        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="SteelPlate" Count="30" />
+        <Component Subtype="MetalGrid" Count="6" />
+        <Component Subtype="SteelPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -11045,6 +11102,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="50" />
+        <Component Subtype="MetalGrid" Count="15" />
         <Component Subtype="SteelPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -11179,6 +11237,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="17" />
+        <Component Subtype="MetalGrid" Count="6" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -11281,6 +11340,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="120" />
+        <Component Subtype="MetalGrid" Count="45" />
         <Component Subtype="SteelPlate" Count="13" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -11440,6 +11500,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="84" />
+        <Component Subtype="MetalGrid" Count="25" />
         <Component Subtype="SteelPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -12448,7 +12509,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -12615,8 +12677,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -12747,8 +12810,9 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
@@ -12881,7 +12945,8 @@
         </Sides>
       </CubeDefinition>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -12984,6 +13049,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -13142,6 +13208,7 @@
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
@@ -13305,7 +13372,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_ProgrammableBlockDefinition">
       <Id>
         <TypeId>MyProgrammableBlock</TypeId>
         <SubtypeId>SmallProgrammableBlock</SubtypeId>
@@ -13339,6 +13406,7 @@
       <MountPoints>
         <MountPoint Side="Front" ExclusionMask="3" PropertiesMask="3" StartX="0" StartY="0" EndX="1" EndY="1" />
       </MountPoints>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -13370,11 +13438,11 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
-    </Definition>
+    </Definition>      
     <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
       <Id>
         <TypeId>LargeGatlingTurret</TypeId>
-        <SubtypeId />
+        <SubtypeId/>
       </Id>
       <DisplayName>DisplayName_Block_GatlingTurret</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\gatling_turret.dds</Icon>
@@ -13387,7 +13455,7 @@
       <Components>
         <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="25" />
-        <Component Subtype="SmallTube" Count="6" />
+        <Component Subtype="MetalGrid" Count="15" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Motor" Count="8" />
         <Component Subtype="Computer" Count="10" />
@@ -13413,6 +13481,7 @@
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <MinElevationDegrees>-180</MinElevationDegrees> 
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13422,6 +13491,63 @@
       <IdleRotation>true</IdleRotation>
       <MaxRangeMeters>800</MaxRangeMeters>
     </Definition>
+    
+        <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
+      <Id>
+        <TypeId>LargeGatlingTurret</TypeId>
+        <SubtypeId>SmallGatlingTurret</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_GatlingTurret</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\gatling_turret.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="5" y="5" z="5" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\GatlingTurret.mwm</Model>
+      <UseModelIntersection>true</UseModelIntersection>
+      <Components>
+        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="Construction" Count="25" />
+        <Component Subtype="MetalGrid" Count="5" />
+        <Component Subtype="LargeTube" Count="1" />
+        <Component Subtype="Motor" Count="4" />
+        <Component Subtype="Computer" Count="10" />
+        <Component Subtype="Construction" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Right" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Left" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Front" StartX="1" StartY="0" EndX="4" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.43" File="Models\Cubes\Small\GatlingTurretConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\GatlingTurretConstruction_2.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>GatlingTurret</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>20</BuildTimeSeconds>
+      <OverlayTexture>Textures\GUI\Screens\turret_overlay.dds</OverlayTexture>
+      <WeaponDefinitionId Subtype="SmallGatlingTurret" />
+      <InventoryMaxVolume>0.084</InventoryMaxVolume>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
+      <MinElevationDegrees>-10</MinElevationDegrees> 
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
+      <RotationSpeed>0.002</RotationSpeed>
+      <ElevationSpeed>0.002 </ElevationSpeed>
+      <IdleRotation>true</IdleRotation>
+      <MaxRangeMeters>600</MaxRangeMeters>
+    </Definition>
+    
     <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
       <Id>
         <TypeId>LargeMissileTurret</TypeId>
@@ -13438,6 +13564,7 @@
       <Components>
         <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="30" />
+        <Component Subtype="MetalGrid" Count="5" />
         <Component Subtype="LargeTube" Count="6" />
         <Component Subtype="Motor" Count="16" />
         <Component Subtype="Computer" Count="12" />
@@ -13463,6 +13590,7 @@
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <MinElevationDegrees>-180</MinElevationDegrees>
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13472,6 +13600,63 @@
       <RotationSpeed>0.002</RotationSpeed>
       <ElevationSpeed>0.002 </ElevationSpeed>
     </Definition>
+
+    <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
+      <Id>
+        <TypeId>LargeMissileTurret</TypeId>
+        <SubtypeId>SmallMissileTurret</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_MissileTurret</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\missile_turret.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="5" y="5" z="5" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\MissileTurret.mwm</Model>
+      <UseModelIntersection>true</UseModelIntersection>
+      <Components>
+        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="MetalGrid" Count="2" />
+        <Component Subtype="LargeTube" Count="2" />
+        <Component Subtype="Motor" Count="8" />
+        <Component Subtype="Computer" Count="12" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="SteelPlate" Count="5" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Right" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Left" StartX="1" StartY="0" EndX="4" EndY="1" />
+        <MountPoint Side="Front" StartX="1" StartY="0" EndX="4" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.43" File="Models\Cubes\Small\MissileTurretConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\MissileTurretConstruction_2.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>MissileTurret</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+      <OverlayTexture>Textures\GUI\Screens\turret_overlay.dds</OverlayTexture>
+      <WeaponDefinitionId Subtype="SmallMissileTurret" />
+      <InventoryMaxVolume>0.12</InventoryMaxVolume>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
+      <MinElevationDegrees>-8</MinElevationDegrees>
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
+      <IdleRotation>true</IdleRotation>
+      <MaxRangeMeters>600</MaxRangeMeters>
+      <RotationSpeed>0.002</RotationSpeed>
+      <ElevationSpeed>0.002 </ElevationSpeed>
+    </Definition>
+    
     <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
       <Id>
         <TypeId>InteriorTurret</TypeId>
@@ -13514,6 +13699,7 @@
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <MinElevationDegrees>-180</MinElevationDegrees>
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13538,10 +13724,9 @@
       <Components>
         <Component Subtype="InteriorPlate" Count="74" />
         <Component Subtype="Construction" Count="20" />
-        <Component Subtype="MetalGrid" Count="18" />
         <Component Subtype="SmallTube" Count="48" />
       </Components>
-      <CriticalComponent Subtype="MetalGrid" Index="0" />
+      <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -13584,7 +13769,6 @@
         <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="InteriorPlate" Count="4" />
         <Component Subtype="Construction" Count="15" />
-        <Component Subtype="MetalGrid" Count="4" />
         <Component Subtype="SmallTube" Count="4" />
         <Component Subtype="Motor" Count="2" />
         <Component Subtype="Display" Count="1" />
@@ -13612,11 +13796,13 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DisassembleRatio>1.5</DisassembleRatio>
+      <ResourceSinkGroup>Doors</ResourceSinkGroup>
       <MaxOpen>1.2</MaxOpen>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
-    <Definition>
+
+    <Definition xsi:type="MyObjectBuilder_RadioAntennaDefinition">
       <Id>
         <TypeId>RadioAntenna</TypeId>
         <SubtypeId>LargeBlockRadioAntenna</SubtypeId>
@@ -13649,12 +13835,13 @@
       </BuildProgressModels>
       <BlockPairName>Antenna</BlockPairName>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_BeaconDefinition">
       <Id>
         <TypeId>Beacon</TypeId>
         <SubtypeId>LargeBlockBeacon</SubtypeId>
@@ -13692,11 +13879,12 @@
       </BuildProgressModels>
       <BlockPairName>Beacon</BlockPairName>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_BeaconDefinition">
       <Id>
         <TypeId>Beacon</TypeId>
         <SubtypeId>SmallBlockBeacon</SubtypeId>
@@ -13723,6 +13911,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -13767,6 +13956,7 @@
       <LightRadius Min="2" Max="10" Default="2.8" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
       <LightIntensity Min="0.5" Max="5" Default="2" />
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.001</RequiredPowerInput>
       <LightGlare>GlareLsLight</LightGlare>
       <ReflectorTexture>Textures\Lights\reflector_large.dds</ReflectorTexture>
@@ -13802,6 +13992,7 @@
       <LightRadius Min="1" Max="10" Default="3.6" />
       <LightFalloff Min="1" Max="3" Default="1.3" />
       <LightIntensity Min="0.5" Max="5" Default="1.5" />
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.00006</RequiredPowerInput>
       <LightGlare>GlareLsInteriorLight</LightGlare>
       <DamageEffectId>214</DamageEffectId>
@@ -13893,10 +14084,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\Stairs.mwm</Model>
       <Components>
-        <Component Subtype="InteriorPlate" Count="50" />
-        <Component Subtype="Construction" Count="20" />
-        <Component Subtype="MetalGrid" Count="52" />
-        <Component Subtype="SmallTube" Count="32" />
+        <Component Subtype="InteriorPlate" Count="40" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="InteriorPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
@@ -13933,10 +14123,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\Ramp.mwm</Model>
       <Components>
-        <Component Subtype="InteriorPlate" Count="50" />
+        <Component Subtype="InteriorPlate" Count="60" />
         <Component Subtype="Construction" Count="16" />
-        <Component Subtype="MetalGrid" Count="24" />
-        <Component Subtype="SmallTube" Count="32" />
+        <Component Subtype="InteriorPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
@@ -13973,11 +14162,10 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SteelCatwalk.mwm</Model>
       <Components>
-        <Component Subtype="Construction" Count="5" />
-        <Component Subtype="MetalGrid" Count="20" />
+        <Component Subtype="InteriorPlate" Count="20" />
+        <Component Subtype="Construction" Count="5" />        
         <Component Subtype="SmallTube" Count="20" />
-        <Component Subtype="MetalGrid" Count="5" />
-        <Component Subtype="InteriorPlate" Count="2" />
+        <Component Subtype="InteriorPlate" Count="7" />
       </Components>
       <CriticalComponent Subtype="SmallTube" Index="0" />
       <MountPoints>
@@ -14011,11 +14199,10 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SteelCatwalk_2Sides.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="20" />
         <Component Subtype="Construction" Count="7" />
-        <Component Subtype="MetalGrid" Count="20" />
         <Component Subtype="SmallTube" Count="25" />
-        <Component Subtype="MetalGrid" Count="10" />
-        <Component Subtype="InteriorPlate" Count="2" />
+        <Component Subtype="InteriorPlate" Count="12" />
       </Components>
       <CriticalComponent Subtype="SmallTube" Index="0" />
       <MountPoints>
@@ -14048,11 +14235,10 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SteelCatwalk_Corner.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="20" />
         <Component Subtype="Construction" Count="7" />
-        <Component Subtype="MetalGrid" Count="20" />
         <Component Subtype="SmallTube" Count="25" />
-        <Component Subtype="MetalGrid" Count="10" />
-        <Component Subtype="InteriorPlate" Count="2" />
+        <Component Subtype="InteriorPlate" Count="12" />
       </Components>
       <CriticalComponent Subtype="SmallTube" Index="0" />
       <MountPoints>
@@ -14087,11 +14273,10 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SteelCatwalk_Plate.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="15" />
         <Component Subtype="Construction" Count="7" />
-        <Component Subtype="MetalGrid" Count="20" />
-        <Component Subtype="SmallTube" Count="25" />
-        <Component Subtype="MetalGrid" Count="10" />
-        <Component Subtype="InteriorPlate" Count="2" />
+        <Component Subtype="SmallTube" Count="17" />
+        <Component Subtype="InteriorPlate" Count="8" />
       </Components>
       <CriticalComponent Subtype="SmallTube" Index="0" />
       <MountPoints>
@@ -14375,12 +14560,11 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\InteriorPillar.mwm</Model>
       <Components>
-        <Component Subtype="InteriorPlate" Count="20" />
-        <Component Subtype="Construction" Count="6" />
-        <Component Subtype="MetalGrid" Count="6" />
+        <Component Subtype="InteriorPlate" Count="25" />
+        <Component Subtype="Construction" Count="10" />
         <Component Subtype="SmallTube" Count="4" />
       </Components>
-      <CriticalComponent Subtype="MetalGrid" Index="0" />
+      <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
         <MountPoint Side="Top" StartX="0.45" StartY="0.45" EndX="0.55" EndY="0.55" />
         <MountPoint Side="Bottom" StartX="0.45" StartY="0.45" EndX="0.55" EndY="0.55" />
@@ -14469,6 +14653,7 @@
       <BlockPairName>Projector</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
@@ -14510,6 +14695,7 @@
       <BlockPairName>Projector</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <Public>true</Public>
       <DamageEffectId>212</DamageEffectId>
@@ -14531,7 +14717,7 @@
         <Component Subtype="SteelPlate" Count="1100" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="LargeTube" Count="20" />
-        <Component Subtype="Motor" Count="12" />
+        <Component Subtype="Motor" Count="16" />
         <Component Subtype="Computer" Count="20" />
         <Component Subtype="SteelPlate" Count="100" />
       </Components>
@@ -14553,11 +14739,12 @@
       <BlockPairName>Refinery</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>70</BuildTimeSeconds>
-      <InventoryMaxVolume>4</InventoryMaxVolume>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <InventoryMaxVolume>7.5</InventoryMaxVolume>
       <InventorySize>
-        <X>2</X>
-        <Y>2</Y>
-        <Z>2</Z>
+        <X>2.5</X>
+        <Y>2.5</Y>
+        <Z>2.5</Z>
       </InventorySize>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>0.56</OperationalPowerConsumption>
@@ -14600,6 +14787,7 @@
       <BlockPairName>Blast Furnace</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -14656,6 +14844,7 @@
       <BlockPairName>Big Arc Furnace</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -14711,8 +14900,9 @@
       <BlockPairName>OxygenGenerator</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <IceToOxygenRatio>3</IceToOxygenRatio>
-      <OxygenProductionPerSecond>500</OxygenProductionPerSecond>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <IceConsumptionPerSecond>167</IceConsumptionPerSecond>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -14721,9 +14911,26 @@
       </InventorySize>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>0.33</OperationalPowerConsumption>
+      <ProducedGases>
+        <GasInfo>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Oxygen</SubtypeId>
+          </Id>
+          <IceToGasRatio>3</IceToGasRatio>
+        </GasInfo>
+        <GasInfo>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <IceToGasRatio>3</IceToGasRatio>
+        </GasInfo>
+      </ProducedGases>
       <BlueprintClasses>
         <Class>Ice</Class>
         <Class>OxygenBottles</Class>
+        <Class>HydrogenBottles</Class>
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -14772,6 +14979,7 @@
       <BlockPairName>BigPreciousFurnace</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>100</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -14836,6 +15044,7 @@
         <Y>2</Y>
         <Z>2</Z>
       </InventorySize>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>1.7</OperationalPowerConsumption>
       <BlueprintClasses>
@@ -14890,6 +15099,7 @@
       <BlockPairName>BigGasCentrifugalRefinery</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -14921,7 +15131,6 @@
       <Components>
         <Component Subtype="SteelPlate" Count="130" />
         <Component Subtype="Construction" Count="40" />
-        <Component Subtype="SmallTube" Count="12" />
         <Component Subtype="Motor" Count="8" />
         <Component Subtype="Display" Count="4" />
         <Component Subtype="Computer" Count="80" />
@@ -14938,6 +15147,7 @@
       <BlockPairName>Assembler</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>80</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>1</InventoryMaxVolume>
       <InventorySize>
         <X>1</X>
@@ -14998,6 +15208,7 @@
         <Z>1</Z>
       </InventorySize>
       <AssemblySpeed>3</AssemblySpeed>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>0.8</OperationalPowerConsumption>
       <BlueprintClasses>
@@ -15047,6 +15258,7 @@
         <Y>1</Y>
         <Z>1</Z>
       </InventorySize>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <AssemblySpeed>6</AssemblySpeed>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>1.2</OperationalPowerConsumption>
@@ -15092,6 +15304,7 @@
       <BlockPairName>ElectronicsAssembler</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>80</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>1</InventoryMaxVolume>
       <InventorySize>
         <X>1</X>
@@ -15142,6 +15355,7 @@
       <BlockPairName>ConstructionComponentsAssembler</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>80</BuildTimeSeconds>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <InventoryMaxVolume>1</InventoryMaxVolume>
       <InventorySize>
         <X>1</X>
@@ -15197,6 +15411,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <MaximumRange>150</MaximumRange>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -15218,7 +15433,7 @@
       <Components>
         <Component Subtype="InteriorPlate" Count="220" />
         <Component Subtype="Construction" Count="80" />
-        <Component Subtype="MetalGrid" Count="80" />
+        <Component Subtype="MetalGrid" Count="60" />
         <Component Subtype="SmallTube" Count="20" />
         <Component Subtype="LargeTube" Count="5" />
         <Component Subtype="Display" Count="10" />
@@ -15239,6 +15454,7 @@
       <BlockPairName>MedicalRoom</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -15278,6 +15494,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.56713</RequiredPowerInput>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -15320,6 +15537,7 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MinRadius>10</MinRadius>
       <MaxRadius>400</MaxRadius>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BasePowerInput>0.7</BasePowerInput>
       <ConsumptionPower>3</ConsumptionPower>
       <DamageEffectId>214</DamageEffectId>
@@ -15338,12 +15556,14 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\JumpDrive.mwm</Model>
       <Components>
-        <Component Subtype="SteelPlate" Count="60" />
+        <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="MetalGrid" Count="50" />
         <Component Subtype="GravityGenerator" Count="20" />
         <Component Subtype="Detector" Count="20" />
-        <Component Subtype="SmallTube" Count="60" />
-        <Component Subtype="Computer" Count="8" />
+        <Component Subtype="PowerCell" Count="120" />
+        <Component Subtype="Superconductor" Count="1000" />
+        <Component Subtype="Computer" Count="300" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="SteelPlate" Count="20" />
       </Components>
@@ -15368,8 +15588,11 @@
       <BuildTimeSeconds>45</BuildTimeSeconds>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
+
+      <ResourceSinkGroup>Charging</ResourceSinkGroup>
       <RequiredPowerInput>32</RequiredPowerInput>
       <PowerNeededForJump>3</PowerNeededForJump>
+      
       <MaxJumpDistance>2000000</MaxJumpDistance>
       <MaxJumpMass>1250000</MaxJumpMass>
   </Definition>
@@ -15396,6 +15619,7 @@
         <Component Subtype="Display" Count="10" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="InteriorPlate" Count="10" />
+        <Component Subtype="BulletproofGlass" Count="60" />        
       </Components>
       <CriticalComponent Subtype="Display" Index="0" />
       <MountPoints>
@@ -15415,6 +15639,7 @@
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>BlockCockpitLrg</PrimarySound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -15508,6 +15733,7 @@
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>BlockCockpitSm</PrimarySound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
     </Definition>
@@ -15530,6 +15756,7 @@
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="MetalGrid" Count="10" />
         <Component Subtype="InteriorPlate" Count="15" />
         <Component Subtype="Display" Count="4" />
         <Component Subtype="Computer" Count="20" />
@@ -15565,6 +15792,7 @@
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
+      <PrimarySound>BlockCockpitSm</PrimarySound>
       <IsPressurized>true</IsPressurized>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
@@ -15733,6 +15961,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <IsPressurized>true</IsPressurized>
       <OxygenCapacity>1</OxygenCapacity>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
       <OutsideSound>ArcBlockCryoOut</OutsideSound>
       <InsideSound>ArcBlockCryoIn</InsideSound>
@@ -15813,6 +16042,7 @@
       <LightRadius Min="1" Max="5" Default="2" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
       <LightIntensity Min="0.5" Max="5" Default="4" />
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <LightGlare>GlareSsLight</LightGlare>
       <ReflectorTexture>Textures\Lights\reflector_small.dds</ReflectorTexture>
@@ -15834,6 +16064,7 @@
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="2" />
+        <Component Subtype="MetalGrid" Count="1" />
         <Component Subtype="LargeTube" Count="4" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -15856,6 +16087,7 @@
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <InventoryMaxVolume>0.24</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -15876,6 +16108,7 @@
       <Components>
         <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="Construction" Count="8" />
+        <Component Subtype="MetalGrid" Count="30" />
         <Component Subtype="LargeTube" Count="25" />
         <Component Subtype="Motor" Count="6" />
         <Component Subtype="Computer" Count="4" />
@@ -15899,6 +16132,7 @@
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <InventoryMaxVolume>1.14</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -15942,6 +16176,7 @@
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <InventoryMaxVolume>0.064</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -15974,6 +16209,7 @@
         <Component Subtype="InteriorPlate" Count="40" />
         <Component Subtype="Construction" Count="24" />
         <Component Subtype="LargeTube" Count="8" />
+        <Component Subtype="MetalGrid" Count="10" />
         <Component Subtype="Motor" Count="4" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="SteelPlate" Count="6" />
@@ -15987,6 +16223,7 @@
       <Center x="0" y="0" z="1" />
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <InventoryMaxVolume>0.24</InventoryMaxVolume>
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -16006,6 +16243,7 @@
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
+        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="SmallTube" Count="3" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -16030,6 +16268,7 @@
       <BuildTimeSeconds>13</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <WeaponDefinitionId Subtype="GatlingGun" />
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <InventoryMaxVolume>0.064</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -16049,8 +16288,7 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="20" />
-        <Component Subtype="Construction" Count="8" />
-        <Component Subtype="SmallTube" Count="8" />
+        <Component Subtype="Construction" Count="30" />
         <Component Subtype="LargeTube" Count="4" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -16071,8 +16309,11 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <SensorRadius>1.1</SensorRadius>
       <SensorOffset>0.8</SensorOffset>
+      
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -16119,8 +16360,11 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <Center x="0" y="0" z="2" />
+      
+      <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <SensorRadius>1.9</SensorRadius>
       <SensorOffset>2.8</SensorOffset>
+      
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -16161,6 +16405,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <MaximumRange>50</MaximumRange>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -16198,6 +16443,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <MaxRange>50</MaxRange>
@@ -16234,12 +16480,13 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <MaxRange>50</MaxRange>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_SoundBlockDefinition">
       <Id>
         <TypeId>SoundBlock</TypeId>
         <SubtypeId>SmallBlockSoundBlock</SubtypeId>
@@ -16266,13 +16513,14 @@
       </BuildProgressModels>
       <BlockPairName>SoundBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_SoundBlockDefinition">
       <Id>
         <TypeId>SoundBlock</TypeId>
         <SubtypeId>LargeBlockSoundBlock</SubtypeId>
@@ -16301,6 +16549,7 @@
       <BlockPairName>SoundBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
@@ -16340,6 +16589,7 @@
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.00002</RequiredPowerInput>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
@@ -16358,6 +16608,7 @@
         <Component Subtype="Construction" Count="8" />
         <Component Subtype="Computer" Count="8" />
         <Component Subtype="Display" Count="6" />
+        <Component Subtype="BulletproofGlass" Count="2" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
@@ -16374,6 +16625,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>5</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
       <TextureAspectRadio>2</TextureAspectRadio>
@@ -16410,10 +16662,11 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
     </Definition>
-    <Definition xsi:type="MyObjectBuilder_OxygenTankDefinition">
+    <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
       <Id>
         <TypeId>OxygenTank</TypeId>
         <SubtypeId>OxygenTankSmall</SubtypeId>
@@ -16456,6 +16709,8 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>13</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <Capacity>50000</Capacity>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
@@ -16464,6 +16719,11 @@
         <Z>2</Z>
       </InventorySize>
       <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
+      <StandbyPowerConsumption>0.000001</StandbyPowerConsumption>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Oxygen</SubtypeId>
+      </StoredGasId>
       <BlueprintClasses>
         <Class>OxygenBottles</Class>
       </BlueprintClasses>
@@ -16508,9 +16768,10 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>13</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
-      <IceToOxygenRatio>3</IceToOxygenRatio>
-      <OxygenProductionPerSecond>250</OxygenProductionPerSecond>
-      <InventoryMaxVolume>4</InventoryMaxVolume>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <IceConsumptionPerSecond>83</IceConsumptionPerSecond>
+      <InventoryMaxVolume>1</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
         <Y>2</Y>
@@ -16518,9 +16779,26 @@
       </InventorySize>
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>0.10</OperationalPowerConsumption>
+      <ProducedGases>
+        <GasInfo>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Oxygen</SubtypeId>
+          </Id>
+          <IceToGasRatio>3</IceToGasRatio>
+        </GasInfo>
+        <GasInfo>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Hydrogen</SubtypeId>
+          </Id>
+          <IceToGasRatio>2</IceToGasRatio>
+        </GasInfo>
+      </ProducedGases>
       <BlueprintClasses>
         <Class>Ice</Class>
         <Class>OxygenBottles</Class>
+        <Class>HydrogenBottles</Class>
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -16561,6 +16839,7 @@
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.00006</RequiredPowerInput>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
@@ -16579,8 +16858,9 @@
         <Component Subtype="Construction" Count="6" />
         <Component Subtype="Computer" Count="6" />
         <Component Subtype="Display" Count="10" />
+        <Component Subtype="BulletproofGlass" Count="6" />
       </Components>
-      <CriticalComponent Subtype="Computer" Index="0" />
+      <CriticalComponent Subttype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Left" StartX="0" StartY="0.1" EndX="0.1" EndY="0.9" />
@@ -16596,6 +16876,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
     </Definition>
@@ -16615,6 +16896,7 @@
         <Component Subtype="Construction" Count="12" />
         <Component Subtype="Computer" Count="12" />
         <Component Subtype="Display" Count="20" />
+        <Component Subtype="BulletproofGlass" Count="12" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
@@ -16632,11 +16914,12 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>5</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
       <TextureAspectRadio>2</TextureAspectRadio>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_RadioAntennaDefinition">
       <Id>
         <TypeId>RadioAntenna</TypeId>
         <SubtypeId>SmallBlockRadioAntenna</SubtypeId>
@@ -16652,8 +16935,10 @@
         <Component Subtype="SmallTube" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Construction" Count="1" />
+        <Component Subtype="RadioCommunication" Count="4" />
+        <Component Subtype="Construction" Count="1" />
       </Components>
-      <CriticalComponent Subtype="Computer" Index="0" />
+      <CriticalComponent Subtype="RadioCommunication" Index="0" />
       <MountPoints>
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
@@ -16669,6 +16954,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -16711,6 +16997,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0003</RequiredPowerInput>
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
@@ -16755,6 +17042,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0003</RequiredPowerInput>
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
@@ -16799,16 +17087,70 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
-      <VentilationCapacityPerSecond>300</VentilationCapacityPerSecond>
-      <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
+
+      <ResourceSourceGroup>Battery</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <OperationalPowerConsumption>0.33</OperationalPowerConsumption>
+      <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
+      <VentilationCapacityPerSecond>300</VentilationCapacityPerSecond>
+      
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <PressurizeSound>ArcBlockAirVentExhale</PressurizeSound>
       <DepressurizeSound>ArcBlockAirVentDepressurize</DepressurizeSound>
       <IdleSound>ArcBlockAirVentIdle</IdleSound>
     </Definition>
-    <Definition xsi:type="MyObjectBuilder_OxygenTankDefinition">
+    <Definition xsi:type="MyObjectBuilder_AirVentDefinition">
+      <Id>
+        <TypeId>AirVent</TypeId>
+        <SubtypeId>SmallAirVent</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_AirVent</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\AirVent.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\OxygenPressurizer.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="50" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="MetalGrid" Count="5" />
+        <Component Subtype="Computer" Count="5" />
+        <Component Subtype="SteelPlate" Count="30" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0" StartY="0.5" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0.5" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.5" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.5" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\OxygenPressurizerConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\OxygenPressurizerConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\OxygenPressurizerConstruction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>AirVent</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>50</BuildTimeSeconds>
+
+      <ResourceSourceGroup>Battery</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <OperationalPowerConsumption>0.33</OperationalPowerConsumption>
+      <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
+      <VentilationCapacityPerSecond>300</VentilationCapacityPerSecond>
+
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <PressurizeSound>ArcBlockAirVentExhale</PressurizeSound>
+      <DepressurizeSound>ArcBlockAirVentDepressurize</DepressurizeSound>
+      <IdleSound>ArcBlockAirVentIdle</IdleSound>
+    </Definition>
+    <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
       <Id>
         <TypeId>OxygenTank</TypeId>
         <SubtypeId />
@@ -16854,7 +17196,10 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
+      <StandbyPowerConsumption>0.000001</StandbyPowerConsumption>
       <Capacity>100000</Capacity>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
@@ -16862,6 +17207,10 @@
         <Y>2</Y>
         <Z>2</Z>
       </InventorySize>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Oxygen</SubtypeId>
+      </StoredGasId>
       <BlueprintClasses>
         <Class>OxygenBottles</Class>
       </BlueprintClasses>
@@ -16869,6 +17218,153 @@
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
+    <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+      <Id>
+        <TypeId>OxygenTank</TypeId>
+        <SubtypeId>LargeHydrogenTank</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_HydrogenTank</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenTank.dds</Icon>
+      <Public>true</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="3" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\HydrogenTank.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="160" />
+        <Component Subtype="LargeTube" Count="80" />
+        <Component Subtype="SmallTube" Count="60" />
+        <Component Subtype="Computer" Count="8" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="SteelPlate" Count="120" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>        
+        <MountPoint Side="Top" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Top" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Top" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="3" />
+        <MountPoint Side="Right" StartX="1" StartY="0" EndX="2" EndY="3" />
+        <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="3" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="3" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenTank_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenTank_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenTank_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>HydrogenTank</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
+      <StandbyPowerConsumption>0.000001</StandbyPowerConsumption>
+      <Capacity>2500000</Capacity>
+      <InventoryMaxVolume>4</InventoryMaxVolume>
+      <InventorySize>
+        <X>2</X>
+        <Y>2</Y>
+        <Z>2</Z>
+      </InventorySize>
+      <Public>false</Public>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Hydrogen</SubtypeId>
+      </StoredGasId>
+      <BlueprintClasses>
+        <Class>HydrogenBottles</Class>
+      </BlueprintClasses>
+      <BuildTimeSeconds>45</BuildTimeSeconds>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+    </Definition>
+    
+    <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+      <Id>
+        <TypeId>OxygenTank</TypeId>
+        <SubtypeId>SmallHydrogenTank</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_HydrogenTankSmall</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenTank.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <Public>true</Public>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="5" y="5" z="5" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\HydrogenTank.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="60" />
+        <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="SmallTube" Count="60" />
+        <Component Subtype="Computer" Count="8" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="SteelPlate" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Top" StartX="1.0" StartY="1.0" EndX="4.0" EndY="4.0" />
+        <MountPoint Side="Top" StartX="2.0" StartY="0.0" EndX="3.0" EndY="1.0" />
+        <MountPoint Side="Top" StartX="2.0" StartY="4.0" EndX="3.0" EndY="5.0" />
+        <MountPoint Side="Top" StartX="0.0" StartY="2.0" EndX="1.0" EndY="3.0" />
+        <MountPoint Side="Top" StartX="4.0" StartY="2.0" EndX="5.0" EndY="3.0" />
+        <MountPoint Side="Bottom" StartX="1.0" StartY="1.0" EndX="4.0" EndY="4.0" />
+        <MountPoint Side="Bottom" StartX="2.0" StartY="0.0" EndX="3.0" EndY="1.0" />
+        <MountPoint Side="Bottom" StartX="2.0" StartY="4.0" EndX="3.0" EndY="5.0" />
+        <MountPoint Side="Bottom" StartX="0.0" StartY="2.0" EndX="1.0" EndY="3.0" />
+        <MountPoint Side="Bottom" StartX="4.0" StartY="2.0" EndX="5.0" EndY="3.0" />
+        <MountPoint Side="Front" StartX="1.0" StartY="2.0" EndX="4.0" EndY="3.0" />
+        <MountPoint Side="Front" StartX="2.0" StartY="0.0" EndX="3.0" EndY="2.0" />
+        <MountPoint Side="Front" StartX="2.0" StartY="3.0" EndX="3.0" EndY="5.0" />
+        <MountPoint Side="Back" StartX="1.0" StartY="2.0" EndX="4.0" EndY="3.0" />
+        <MountPoint Side="Back" StartX="2.0" StartY="0.0" EndX="3.0" EndY="2.0" />
+        <MountPoint Side="Back" StartX="2.0" StartY="3.0" EndX="3.0" EndY="5.0" />
+        <MountPoint Side="Left" StartX="1.0" StartY="2.0" EndX="4.0" EndY="3.0" />
+        <MountPoint Side="Left" StartX="2.0" StartY="0.0" EndX="3.0" EndY="2.0" />
+        <MountPoint Side="Left" StartX="2.0" StartY="3.0" EndX="3.0" EndY="5.0" />
+        <MountPoint Side="Right" StartX="1.0" StartY="2.0" EndX="4.0" EndY="3.0" />
+        <MountPoint Side="Right" StartX="2.0" StartY="0.0" EndX="3.0" EndY="2.0" />
+        <MountPoint Side="Right" StartX="2.0" StartY="3.0" EndX="3.0" EndY="5.0" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\HydrogenTank_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\HydrogenTank_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\HydrogenTank_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>HydrogenTank</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
+          <StandbyPowerConsumption>0.000001</StandbyPowerConsumption>
+      <Capacity>40000</Capacity>
+      <InventoryMaxVolume>4</InventoryMaxVolume>
+      <InventorySize>
+        <X>2</X>
+        <Y>2</Y>
+        <Z>2</Z>
+      </InventorySize>
+      <Public>false</Public>
+      <StoredGasId>
+        <TypeId>GasProperties</TypeId>
+        <SubtypeId>Hydrogen</SubtypeId>
+      </StoredGasId>
+      <BlueprintClasses>
+        <Class>HydrogenBottles</Class>
+      </BlueprintClasses>
+      <BuildTimeSeconds>45</BuildTimeSeconds>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>false</Public>
+    </Definition>
+    
     <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
       <Id>
         <TypeId>UpgradeModule</TypeId>
@@ -17029,8 +17525,8 @@
       <Components>
         <Component Subtype="InteriorPlate" Count="2" />
         <Component Subtype="Construction" Count="1" />
-        <Component Subtype="Computer" Count="2" />
-        <Component Subtype="Motor" Count="2" />
+        <Component Subtype="Computer" Count="1" />
+        <Component Subtype="Motor" Count="1" />
         <Component Subtype="Display" Count="1" />
         <Component Subtype="InteriorPlate" Count="1" />
       </Components>
@@ -17074,7 +17570,7 @@
         <Component Subtype="InteriorPlate" Count="20" />
         <Component Subtype="Construction" Count="10" />
         <Component Subtype="Computer" Count="4" />
-        <Component Subtype="Motor" Count="6" />
+        <Component Subtype="Motor" Count="4" />
         <Component Subtype="Display" Count="1" />
         <Component Subtype="InteriorPlate" Count="10" />
       </Components>
@@ -17089,9 +17585,9 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>14</BuildTimeSeconds>
       <InventorySize>
-        <X>2</X>
-        <Y>2</Y>
-        <Z>2</Z>
+        <X>1.5</X>
+        <Y>1.5</Y>
+        <Z>1.5</Z>
       </InventorySize>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
@@ -17124,9 +17620,9 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <InventorySize>
-        <X>3</X>
-        <Y>3</Y>
-        <Z>3</Z>
+        <X>2.5</X>
+        <Y>2.5</Y>
+        <Z>2.5</Z>
       </InventorySize>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
@@ -17144,8 +17640,9 @@
       <Components>
         <Component Subtype="InteriorPlate" Count="30" />
         <Component Subtype="Construction" Count="35" />
+        <Component Subtype="MetalGrid" Count="4" />
         <Component Subtype="SmallTube" Count="20" />
-        <Component Subtype="Motor" Count="2" />
+        <Component Subtype="Motor" Count="4" />
         <Component Subtype="Display" Count="1" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="Construction" Count="5" />
@@ -17183,6 +17680,7 @@
       <Components>
         <Component Subtype="InteriorPlate" Count="300" />
         <Component Subtype="Construction" Count="60" />
+        <Component Subtype="MetalGrid" Count="24" />
         <Component Subtype="SmallTube" Count="60" />
         <Component Subtype="Motor" Count="20" />
         <Component Subtype="Display" Count="1" />
@@ -17210,9 +17708,9 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
       <InventorySize>
-        <X>5</X>
-        <Y>5</Y>
-        <Z>5</Z>
+        <X>7.5</X>
+        <Y>7.5</Y>
+        <Z>7.5</Z>
       </InventorySize>
     </Definition>
     <!-- End Region Cargo Container-->
@@ -17252,9 +17750,18 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>12</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
       <ForceMagnitude>12000</ForceMagnitude>
-      <MaxPowerConsumption>0.0336</MaxPowerConsumption>
+      <MaxPowerConsumption>0.201</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>5</SlowdownFactor>
+
+      <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>1</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>0.3</EffectivenessAtMaxInfluence>
+      
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameDamage>0.1</FlameDamage>
       <FlameLengthScale>1.15</FlameLengthScale>
@@ -17318,9 +17825,18 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>28</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
       <ForceMagnitude>144000</ForceMagnitude>
-      <MaxPowerConsumption>0.4</MaxPowerConsumption>
+      <MaxPowerConsumption>2.4</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>5</SlowdownFactor>
+
+      <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>1</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>0.3</EffectivenessAtMaxInfluence>
+      
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameDamage>0.2</FlameDamage>
       <FlameLengthScale>1.15</FlameLengthScale>
@@ -17384,9 +17900,18 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
-      <ForceMagnitude>100000</ForceMagnitude>
-      <MaxPowerConsumption>0.56</MaxPowerConsumption>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>288000</ForceMagnitude>
+      <MaxPowerConsumption>3.36</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+
+      <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>1</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>0.3</EffectivenessAtMaxInfluence>
+      
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameLengthScale>1.15</FlameLengthScale>
       <FlameIdleColor>
@@ -17410,7 +17935,7 @@
       <PrimarySound>LrgShipSmJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
-    </Definition>
+    </Definition>        
     <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
       <Id>
         <TypeId>Thrust</TypeId>
@@ -17452,15 +17977,26 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
-      <ForceMagnitude>1200000</ForceMagnitude>
-      <MaxPowerConsumption>6.72</MaxPowerConsumption>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>3600000</ForceMagnitude>
+      <MaxPowerConsumption>33.6</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+
+      <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>1</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>0.3</EffectivenessAtMaxInfluence>
+      
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameLengthScale>1.15</FlameLengthScale>
       <FlameIdleColor>
         <X>0.2745098</X>
-        <Y>0.4090196</Y>o
-        <Z>0.6505882</Z><W>0.75</W></FlameIdleColor>
+        <Y>0.4090196</Y>
+        <Z>0.6505882</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
       <FlameFullColor>
         <X>0.2745098</X>
         <Y>0.4090196</Y>
@@ -17476,7 +18012,314 @@
       <PrimarySound>LrgShipLrgJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
+    </Definition>    
+    <!--HydrogenThrusters-->    
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>LargeBlockLargeHydrogenThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_LargeHydrogenThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterLarge.dds</Icon>largeThrust
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="3" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\HydrogenThrusterLarge.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="100" />
+        <Component Subtype="Construction" Count="150" />
+        <Component Subtype="MetalGrid" Count="250" />
+        <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="SteelPlate" Count="50" />
+      </Components>
+      <CriticalComponent Subtype="LargeTube" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Right" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Left" StartX="2" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Top" StartX="1" StartY="0" EndX="2" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenThrusterLarge_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenThrusterLarge_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenThrusterLarge_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>LargeHydrogenThrust</BlockPairName>
+      <Center x="1" y="1" z="1" />
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>40</BuildTimeSeconds>
+      <FuelConverter>
+        <FuelId>
+          <TypeId>GasProperties</TypeId>
+          <SubtypeId>Hydrogen</SubtypeId>
+        </FuelId>
+        <Efficiency>1</Efficiency>
+      </FuelConverter>
+      <MaxPowerConsumption>10</MaxPowerConsumption>
+      <MinPowerConsumption>0.000000001</MinPowerConsumption>     
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>6000000</ForceMagnitude>
+      <SlowdownFactor>1</SlowdownFactor>
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>1</X>
+        <Y>0.85</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>1</X>
+        <Y>0.75</Y>
+        <Z>0.2</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+      <FlameVisibilityDistance>700</FlameVisibilityDistance>
+      <FlameGlareSize>0.779</FlameGlareSize>
+      <FlameGlareQuerySize>3</FlameGlareQuerySize>
+      <PrimarySound>ArcLrgShipLrgJetHydrogen</PrimarySound>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
     </Definition>
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>LargeBlockSmallHydrogenThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_SmallHydrogenThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterSmall.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\HydrogenThrusterSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="15" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="MetalGrid" Count="40" />
+        <Component Subtype="LargeTube" Count="8" />
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="SteelPlate" Count="10" />
+      </Components>
+      <CriticalComponent Subtype="LargeTube" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenThrusterSmall_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenThrusterSmall_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenThrusterSmall_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>HydrogenThrust</BlockPairName>
+      <Center x="0" y="0" z="0" />
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>900000</ForceMagnitude>
+      <SlowdownFactor>1</SlowdownFactor>
+      <FuelConverter>
+        <FuelId>
+          <TypeId>GasProperties</TypeId>
+          <SubtypeId>Hydrogen</SubtypeId>
+        </FuelId>
+        <Efficiency>1</Efficiency>
+      </FuelConverter>
+      <MaxPowerConsumption>1.7</MaxPowerConsumption>
+      <MinPowerConsumption>0.000000001</MinPowerConsumption>
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>1</X>
+        <Y>0.85</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>1</X>
+        <Y>0.75</Y>
+        <Z>0.2</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustSmall</FlameGlareMaterial>
+      <FlameVisibilityDistance>500</FlameVisibilityDistance>
+      <FlameGlareSize>0.585</FlameGlareSize>
+      <FlameGlareQuerySize>2</FlameGlareQuerySize>
+      <PrimarySound>ArcLrgShipSmJetHydrogen</PrimarySound>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>    
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>SmallBlockLargeHydrogenThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_LargeHydrogenThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterLarge.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="3" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\HydrogenThrusterLarge.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="20" />
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="MetalGrid" Count="22" />
+        <Component Subtype="LargeTube" Count="10" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="SteelPlate" Count="10" />
+      </Components>
+      <CriticalComponent Subtype="LargeTube" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Right" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Left" StartX="2" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Top" StartX="1" StartY="0" EndX="2" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\HydrogenThrusterLarge_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\HydrogenThrusterLarge_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\HydrogenThrusterLarge_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>LargeHydrogenThrust</BlockPairName>
+      <Center x="1" y="1" z="1" />
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>40</BuildTimeSeconds>
+      <FuelConverter>
+        <FuelId>
+          <TypeId>GasProperties</TypeId>
+          <SubtypeId>Hydrogen</SubtypeId>
+        </FuelId>
+        <Efficiency>1</Efficiency>
+      </FuelConverter>
+      <MaxPowerConsumption>0.8</MaxPowerConsumption>
+      <MinPowerConsumption>0.000000001</MinPowerConsumption>     
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>400000</ForceMagnitude>
+      <SlowdownFactor>5</SlowdownFactor>
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>1</X>
+        <Y>0.85</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>1</X>
+        <Y>0.75</Y>
+        <Z>0.2</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
+      <FlameVisibilityDistance>700</FlameVisibilityDistance>
+      <FlameGlareSize>0.779</FlameGlareSize>
+      <FlameGlareQuerySize>3</FlameGlareQuerySize>
+      <PrimarySound>ArcSmShipLrgJetHydrogen</PrimarySound>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+    </Definition>
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>SmallBlockSmallHydrogenThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_SmallHydrogenThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterSmall.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\HydrogenThrusterSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="MetalGrid" Count="4" />
+        <Component Subtype="LargeTube" Count="2" />
+        <Component Subtype="Construction" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
+      </Components>
+      <CriticalComponent Subtype="LargeTube" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\HydrogenThrusterSmall_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\HydrogenThrusterSmall_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\HydrogenThrusterSmall_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>HydrogenThrust</BlockPairName>
+      <Center x="0" y="0" z="0" />
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>82000</ForceMagnitude>
+      <FuelConverter>
+        <FuelId>
+          <TypeId>GasProperties</TypeId>
+          <SubtypeId>Hydrogen</SubtypeId>
+        </FuelId>
+        <Efficiency>1</Efficiency>
+      </FuelConverter>
+      <MaxPowerConsumption>0.17</MaxPowerConsumption>
+      <MinPowerConsumption>0.000000001</MinPowerConsumption>
+      <SlowdownFactor>5</SlowdownFactor>
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>1</X>
+        <Y>0.85</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>1</X>
+        <Y>0.75</Y>
+        <Z>0.2</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustSmall</FlameGlareMaterial>
+      <FlameVisibilityDistance>500</FlameVisibilityDistance>
+      <FlameGlareSize>0.585</FlameGlareSize>
+      <FlameGlareQuerySize>2</FlameGlareQuerySize>
+      <PrimarySound>ArcSmShipSmJetHydrogen</PrimarySound>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>
+    <!--HydrogenThrusters End-->   
     <!-- End Region Thrust-->
     <Definition xsi:type="MyObjectBuilder_CameraBlockDefinition">
       <Id>
@@ -17508,6 +18351,7 @@
       <BlockPairName>Camera</BlockPairName>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.00003</RequiredPowerInput>
       <OverlayTexture>Textures\GUI\Screens\camera_overlay.dds</OverlayTexture>
       <MinFov>0.1</MinFov>
@@ -17546,6 +18390,7 @@
       <BlockPairName>Camera</BlockPairName>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.00003</RequiredPowerInput>
       <OverlayTexture>Textures\GUI\Screens\camera_overlay.dds</OverlayTexture>
       <MinFov>0.1</MinFov>
@@ -17567,10 +18412,11 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\gyroscope.mwm</Model>
       <Components>
-        <Component Subtype="SteelPlate" Count="800" />
+        <Component Subtype="SteelPlate" Count="500" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="LargeTube" Count="4" />
-        <Component Subtype="Motor" Count="2" />
+        <Component Subtype="MetalGrid" Count="50" />
+        <Component Subtype="Motor" Count="4" />
         <Component Subtype="Computer" Count="5" />
         <Component Subtype="SteelPlate" Count="100" />
       </Components>
@@ -17588,8 +18434,11 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
+
+      <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>3.36E+07</ForceMagnitude>
       <RequiredPowerInput>0.00003</RequiredPowerInput>
+      
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
@@ -17626,8 +18475,11 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+
+      <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>448000</ForceMagnitude>
       <RequiredPowerInput>0.0000006</RequiredPowerInput>
+      
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
@@ -17645,10 +18497,11 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\GeneratorSmall.mwm</Model>
       <Components>
-        <Component Subtype="Construction" Count="1" />
-        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="LargeTube" Count="1" />
-        <Component Subtype="Reactor" Count="1" />
+        <Component Subtype="Reactor" Count="3" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="10" />
         <Component Subtype="SteelPlate" Count="2" />
@@ -17671,7 +18524,10 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <MaxPowerOutput>0.1</MaxPowerOutput>
+      
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <MaxPowerOutput>0.5</MaxPowerOutput>
+      
       <InventorySize>
         <X>0.5</X>
         <Y>0.5</Y>
@@ -17702,7 +18558,7 @@
         <Component Subtype="Construction" Count="9" />
         <Component Subtype="MetalGrid" Count="9" />
         <Component Subtype="LargeTube" Count="3" />
-        <Component Subtype="Reactor" Count="50" />
+        <Component Subtype="Reactor" Count="95" />
         <Component Subtype="Motor" Count="5" />
         <Component Subtype="Computer" Count="25" />
         <Component Subtype="SteelPlate" Count="20" />
@@ -17729,7 +18585,10 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>35</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
-      <MaxPowerOutput>3.5</MaxPowerOutput>
+
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <MaxPowerOutput>14.75</MaxPowerOutput>
+      
       <InventorySize>
         <X>1</X>
         <Y>1</Y>
@@ -17784,7 +18643,10 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
-      <MaxPowerOutput>5</MaxPowerOutput>
+
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <MaxPowerOutput>15</MaxPowerOutput>
+      
       <InventorySize>
         <X>1</X>
         <Y>1</Y>
@@ -17815,6 +18677,7 @@
         <Component Subtype="Construction" Count="70" />
         <Component Subtype="MetalGrid" Count="40" />
         <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="Superconductor" Count="100" />
         <Component Subtype="Reactor" Count="2000" />
         <Component Subtype="Motor" Count="20" />
         <Component Subtype="Computer" Count="75" />
@@ -17841,7 +18704,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>100</BuildTimeSeconds>
-      <MaxPowerOutput>100</MaxPowerOutput>
+      <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+      <MaxPowerOutput>300</MaxPowerOutput>
       <InventorySize>
         <X>2</X>
         <Y>2</Y>
@@ -17896,6 +18760,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
       <Public>false</Public>
@@ -17942,6 +18807,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
       <DamageEffectId>212</DamageEffectId>
@@ -18022,6 +18888,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
       <Maximum>2</Maximum>
@@ -18068,6 +18935,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
       <Maximum>2</Maximum>
@@ -18147,8 +19015,10 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
+      <PropulsionForce>4000</PropulsionForce>
       <RotorPart>MotorRotor</RotorPart>
       <RotorDisplacementMin>-0.4</RotorDisplacementMin>
       <RotorDisplacementMax>0.2</RotorDisplacementMax>
@@ -18196,8 +19066,10 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockWheel3x3</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
+      <PropulsionForce>30000</PropulsionForce>
       <RotorPart>RealWheel</RotorPart>
       <!-- The max angle (radians) that steer angle slider can go to. -->
       <MaxSteer>0.8</MaxSteer>
@@ -18247,7 +19119,9 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <PrimarySound>BlockWheel5x5</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
+      <PropulsionForce>50000</PropulsionForce>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
       <MinHeight>-1.5</MinHeight>
@@ -18295,12 +19169,13 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockWheel1x1</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
+      <PropulsionForce>10000</PropulsionForce>
       <RotorPart>RealWheel1x1</RotorPart>
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
-      <PropulsionForce>700</PropulsionForce>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
@@ -18342,10 +19217,11 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <PrimarySound>BlockWheel3x3</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel</RotorPart>
-      <PropulsionForce>200</PropulsionForce>
+      <PropulsionForce>960</PropulsionForce>
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18387,10 +19263,11 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <PrimarySound>BlockWheel5x5</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
-      <PropulsionForce>200</PropulsionForce>
+      <PropulsionForce>2400</PropulsionForce>
       <MinHeight>-0.50</MinHeight>
       <MaxHeight>0.35</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18434,10 +19311,11 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <PrimarySound>BlockWheel1x1</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel1x1</RotorPart>
-      <PropulsionForce>50</PropulsionForce>
+      <PropulsionForce>60</PropulsionForce>
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18514,6 +19392,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <PrimarySound>BlockRotorSmall</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <MaxForceMagnitude>448000</MaxForceMagnitude>
       <RotorPart>MotorRotor</RotorPart>
@@ -18594,6 +19473,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <PrimarySound>BlockRotor</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>MotorAdvancedRotor</RotorPart>
@@ -18671,6 +19551,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <PrimarySound>BlockRotorSmall</PrimarySound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <MaxForceMagnitude>448000</MaxForceMagnitude>
       <RotorPart>MotorAdvancedRotor</RotorPart>
@@ -18750,6 +19631,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>10</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <ButtonCount>4</ButtonCount>
       <ButtonSymbols>
         <string>Textures\GUI\Icons\buttons\OneButton.dds</string>
@@ -18825,6 +19707,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>10</BuildTimeSeconds>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <ButtonCount>1</ButtonCount>
       <UnassignedButtonColor>
         <X>0.34</X>
@@ -18847,7 +19730,7 @@
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <!--End Region Buttons-->
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_TimerBlockDefinition">
       <Id>
         <TypeId>TimerBlock</TypeId>
         <SubtypeId>TimerBlockLarge</SubtypeId>
@@ -18881,11 +19764,12 @@
       </BuildProgressModels>
       <BlockPairName>TimerBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_TimerBlockDefinition">
       <Id>
         <TypeId>TimerBlock</TypeId>
         <SubtypeId>TimerBlockSmall</SubtypeId>
@@ -18911,6 +19795,7 @@
       </BuildProgressModels>
       <BlockPairName>TimerBlock</BlockPairName>
       <EdgeType>Light</EdgeType>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>2</BuildTimeSeconds>
     </Definition>
     <Definition>
@@ -18960,7 +19845,6 @@
       <Model>Models\Cubes\Large\SolarPanel.mwm</Model>
       <Components>
         <Component Subtype="Construction" Count="7" />
-        <Component Subtype="MetalGrid" Count="5" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Computer" Count="2" />
@@ -18986,7 +19870,10 @@
       <BlockPairName>SolarPanel</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
+
+      <ResourceSourceGroup>SolarPanels</ResourceSourceGroup>
       <MaxPowerOutput>0.12</MaxPowerOutput>
+      
       <PanelOrientation>
         <X>0</X>
         <Y>0</Y>
@@ -19011,12 +19898,12 @@
       <Model>Models\Cubes\Small\SolarPanel.mwm</Model>
       <Components>
         <Component Subtype="Construction" Count="1" />
-        <Component Subtype="MetalGrid" Count="2" />
-        <Component Subtype="SmallTube" Count="1" />
-        <Component Subtype="SteelPlate" Count="1" />
+        <Component Subtype="Girder" Count="4" />
+        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="SolarCell" Count="16" />
         <Component Subtype="Construction" Count="1" />
+        <Component Subtype="BulletproofGlass" Count="1" />
       </Components>
       <CriticalComponent Subtype="SolarCell" Index="0" />
       <MountPoints>
@@ -19036,7 +19923,10 @@
       <BlockPairName>SolarPanel</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
+
+      <ResourceSourceGroup>SolarPanels</ResourceSourceGroup>
       <MaxPowerOutput>0.03</MaxPowerOutput>
+      
       <PanelOrientation>
         <X>0</X>
         <Y>0</Y>
@@ -19095,7 +19985,15 @@
       </PanelOrientation>
       <TwoSidedPanel>true</TwoSidedPanel>
       <PanelOffset>0</PanelOffset>
-      <MaxOxygenOutput>0.03</MaxOxygenOutput>
+      <ResourceSinkGroup>Factory</ResourceSinkGroup>
+      <ResourceSourceGroup>SolarPanels</ResourceSourceGroup>
+      <ProducedGas>
+        <Id>
+          <TypeId>GasProperties</TypeId>
+          <SubtypeId>Oxygen</SubtypeId>
+        </Id>
+        <MaxOutputPerSecond>0.03</MaxOutputPerSecond>
+      </ProducedGas>
       <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -19806,11 +20704,11 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\conveyor.mwm</Model>
       <Components>
-        <Component Subtype="InteriorPlate" Count="40" />
-        <Component Subtype="Construction" Count="100" />
-        <Component Subtype="SmallTube" Count="50" />
-        <Component Subtype="Motor" Count="2" />
+        <Component Subtype="InteriorPlate" Count="10" />
         <Component Subtype="Construction" Count="20" />
+        <Component Subtype="SmallTube" Count="20" />
+        <Component Subtype="Motor" Count="6" />
+        <Component Subtype="Construction" Count="10" />
         <Component Subtype="InteriorPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
@@ -19827,7 +20725,7 @@
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
-    <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
+    <Definition xsi:type="MyObjectBuilder_PoweredCargoContainerDefinition">
       <Id>
         <TypeId>Collector</TypeId>
         <SubtypeId>Collector</SubtypeId>
@@ -19857,6 +20755,7 @@
       <BlockPairName>Collector</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
+      <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
       <InventorySize>
         <X>2.5</X>
         <Y>2.5</Y>
@@ -19873,8 +20772,9 @@
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ActionSound>BlockCollect</ActionSound>
     </Definition>
-    <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
+    <Definition  xsi:type="MyObjectBuilder_PoweredCargoContainerDefinition">
       <Id>
         <TypeId>Collector</TypeId>
         <SubtypeId>CollectorSmall</SubtypeId>
@@ -19903,6 +20803,7 @@
       <BlockPairName>Collector</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
+      <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
       <InventorySize>
         <X>1.5</X>
         <Y>1.5</Y>
@@ -19919,6 +20820,7 @@
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ActionSound>BlockCollect</ActionSound>
     </Definition>
     <Definition>
       <Id>
@@ -19960,6 +20862,7 @@
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ActionSound>BlockEject</ActionSound>
     </Definition>
     <Definition>
       <Id>
@@ -20000,6 +20903,7 @@
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ActionSound>BlockEject</ActionSound>
     </Definition>
     <Definition>
       <Id>
@@ -20059,7 +20963,7 @@
         <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="SmallTube" Count="12" />
-        <Component Subtype="Motor" Count="8" />
+        <Component Subtype="Motor" Count="6" />
         <Component Subtype="BulletproofGlass" Count="4" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
@@ -20198,7 +21102,7 @@
         <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="SmallTube" Count="12" />
-        <Component Subtype="Motor" Count="8" />
+        <Component Subtype="Motor" Count="6" />
         <Component Subtype="BulletproofGlass" Count="4" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
@@ -20387,6 +21291,7 @@
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
       <PowerInput>0.00025</PowerInput>
       <InventorySize>
         <X>1</X>
@@ -20427,11 +21332,12 @@
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
       <PowerInput>0.0001</PowerInput>
       <InventorySize>
-        <X>0.5</X>
-        <Y>0.5</Y>
-        <Z>0.5</Z>
+        <X>0.7</X>
+        <Y>0.7</Y>
+        <Z>0.7</Z>
       </InventorySize>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
@@ -20467,6 +21373,7 @@
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
       <PowerInput>0.0001</PowerInput>
       <InventorySize>
         <X>0.4</X>
@@ -20490,9 +21397,10 @@
       <Model>Models\Cubes\Large\VirtualMassBlock.mwm</Model>
       <Components>
         <Component Subtype="SteelPlate" Count="30" />
-        <Component Subtype="GravityGenerator" Count="3" />
+        <Component Subtype="Superconductor" Count="20" />
         <Component Subtype="Construction" Count="30" />
         <Component Subtype="Computer" Count="20" />
+        <Component Subtype="GravityGenerator" Count="9" />
         <Component Subtype="SteelPlate" Count="60" />
       </Components>
       <CriticalComponent Subtype="GravityGenerator" Index="0" />
@@ -20513,6 +21421,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <VirtualMass>50000</VirtualMass>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.6</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -20532,9 +21441,10 @@
       <Model>Models\Cubes\Small\VirtualMassBlock.mwm</Model>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
-        <Component Subtype="GravityGenerator" Count="1" />
+        <Component Subtype="Superconductor" Count="2" />
         <Component Subtype="Construction" Count="2" />
         <Component Subtype="Computer" Count="2" />
+        <Component Subtype="GravityGenerator" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="GravityGenerator" Index="0" />
@@ -20546,6 +21456,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <VirtualMass>2000</VirtualMass>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.025</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -20623,7 +21534,6 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
-        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="SteelPlate" Count="1" />
@@ -20666,8 +21576,7 @@
       <Model>Models\Cubes\Small\WheelSuspension3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="2" />
-        <Component Subtype="MetalGrid" Count="4" />
+        <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="LargeTube" Count="2" />
         <Component Subtype="SteelPlate" Count="2" />
@@ -20710,8 +21619,7 @@
       <Model>Models\Cubes\Small\WheelSuspension5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="MetalGrid" Count="6" />
+        <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="30" />
         <Component Subtype="LargeTube" Count="3" />
         <Component Subtype="SteelPlate" Count="3" />
@@ -20755,7 +21663,6 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="4" />
-        <Component Subtype="MetalGrid" Count="8" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="LargeTube" Count="4" />
         <Component Subtype="SteelPlate" Count="4" />
@@ -20800,7 +21707,6 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
-        <Component Subtype="MetalGrid" Count="30" />
         <Component Subtype="Construction" Count="120" />
         <Component Subtype="LargeTube" Count="15" />
         <Component Subtype="SteelPlate" Count="15" />
@@ -20845,7 +21751,6 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="60" />
-        <Component Subtype="MetalGrid" Count="120" />
         <Component Subtype="Construction" Count="400" />
         <Component Subtype="LargeTube" Count="60" />
         <Component Subtype="SteelPlate" Count="60" />
@@ -21158,7 +22063,6 @@
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="25" />
-        <Component Subtype="SmallTube" Count="4" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Motor" Count="4" />
         <Component Subtype="Computer" Count="2" />
@@ -21250,7 +22154,6 @@
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="25" />
-        <Component Subtype="SmallTube" Count="8" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Motor" Count="2" />
         <Component Subtype="Computer" Count="2" />
@@ -21476,7 +22379,7 @@
       <DisassembleRatio>3</DisassembleRatio>
       <Public>true</Public>
     </Definition>
-    <Definition>
+    <Definition xsi:type="MyObjectBuilder_ProgrammableBlockDefinition">
       <Id>
         <TypeId>MyProgrammableBlock</TypeId>
         <SubtypeId>LargeProgrammableBlock</SubtypeId>
@@ -21505,12 +22408,14 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\ProgrammingBlockConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>ProgrammableBlock</BlockPairName>
+      <MirroringY>Z</MirroringY>      
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <MountPoints>
         <MountPoint Side="Bottom" StartX="0.0" StartY="0" EndX="1.0" EndY="1.0" />
       </MountPoints>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -21799,10 +22704,11 @@
       <Model>Models\Cubes\Large\LaserComBase.mwm</Model>
       <Components>
         <Component Subtype="SteelPlate" Count="40" />
-        <Component Subtype="SmallTube" Count="60" />
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="Motor" Count="16" />
-        <Component Subtype="RadioCommunication" Count="10" />
+        <Component Subtype="Detector" Count="30" />
+        <Component Subtype="RadioCommunication" Count="20" />
+        <Component Subtype="Superconductor" Count="100" />
         <Component Subtype="Computer" Count="50" />
         <Component Subtype="BulletproofGlass" Count="4" />
         <Component Subtype="SteelPlate" Count="10" />
@@ -21826,6 +22732,7 @@
       <MirroringY>Z</MirroringY>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <PowerInputIdle>0.186</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.576</PowerInputLasing>
@@ -21855,6 +22762,7 @@
         <Component Subtype="Construction" Count="10" />
         <Component Subtype="Motor" Count="5" />
         <Component Subtype="RadioCommunication" Count="5" />
+        <Component Subtype="Superconductor" Count="10" />
         <Component Subtype="Computer" Count="30" />
         <Component Subtype="BulletproofGlass" Count="2" />
         <Component Subtype="SteelPlate" Count="4" />
@@ -21878,6 +22786,7 @@
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <PowerInputIdle>0.060</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.18</PowerInputLasing>
@@ -21933,11 +22842,113 @@
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ResourceSinkGroup>Doors</ResourceSinkGroup>
       <PowerConsumptionIdle>0.00001</PowerConsumptionIdle>
       <PowerConsumptionMoving>0.001</PowerConsumptionMoving>
       <OpeningSpeed>0.1</OpeningSpeed>
       <SubpartMovementDistance>2.5</SubpartMovementDistance>
   </Definition>
+    <Definition xsi:type="MyObjectBuilder_DebugSphere1Definition">
+      <Id>
+        <TypeId>DebugSphere1</TypeId>
+        <SubtypeId>DebugSphereLarge</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_DebugSphere1</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\SpaceBall.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="2" y="1" z="2" />
+      <ModelOffset x="0" y="0" z="0" />
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Back" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Front" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Top" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+      </MountPoints>
+      <Model>Models\Debug\RenderDebugSpheres.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="Computer" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="1.00" File="Models\Debug\RenderDebugSpheres.mwm" />
+      </BuildProgressModels>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>10</BuildTimeSeconds>
+      <RequiredPowerInput>0.0</RequiredPowerInput>
+      <Public>false</Public>
+    </Definition>
+
+    <Definition xsi:type="MyObjectBuilder_DebugSphere2Definition">
+      <Id>
+        <TypeId>DebugSphere2</TypeId>
+        <SubtypeId>DebugSphereLarge</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_DebugSphere2</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\SpaceBall.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="2" y="1" z="2" />
+      <ModelOffset x="0" y="0" z="0" />
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Back" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Front" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Top" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+      </MountPoints>
+      <Model>Models\Debug\RenderDebugSpheresMetallic.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="Computer" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="1.00" File="Models\Debug\RenderDebugSpheresMetallic.mwm" />
+      </BuildProgressModels>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>10</BuildTimeSeconds>
+      <RequiredPowerInput>0.0</RequiredPowerInput>
+      <Public>false</Public>
+    </Definition>
+
+    <Definition xsi:type="MyObjectBuilder_DebugSphere3Definition">
+      <Id>
+        <TypeId>DebugSphere3</TypeId>
+        <SubtypeId>DebugSphereLarge</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_DebugSphere3</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\SpaceBall.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="2" y="1" z="2" />
+      <ModelOffset x="0" y="0" z="0" />
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Back" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Front" StartX="0.0" StartY="0.0" EndX="2" EndY="1" />
+        <MountPoint Side="Top" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0.0" StartY="0.0" EndX="2" EndY="2" />
+      </MountPoints>
+      <Model>Models\Debug\RenderDebugSpheresMetalnessDegrees.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="Computer" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="1.00" File="Models\Debug\RenderDebugSpheresMetallic.mwm" />
+      </BuildProgressModels>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>10</BuildTimeSeconds>
+      <RequiredPowerInput>0.0</RequiredPowerInput>
+      <Public>false</Public>
+    </Definition>
 
   </CubeBlocks>
   <BlockPositions>

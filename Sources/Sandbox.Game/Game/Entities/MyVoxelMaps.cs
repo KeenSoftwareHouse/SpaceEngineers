@@ -52,6 +52,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        // This is not thread safe...
         private List<MyVoxelBase> m_tmpVoxelMapsList = new List<MyVoxelBase>();
 
         public MyVoxelBase GetOverlappingWithSphere(ref BoundingSphereD sphere)
@@ -68,6 +69,13 @@ namespace Sandbox.Game.Entities
             }
             m_tmpVoxelMapsList.Clear();
             return ret;
+        }
+
+        public List<MyVoxelBase> GetAllOverlappingWithSphere(ref BoundingSphereD sphere)
+        {
+            List<MyVoxelBase> voxels = new List<MyVoxelBase>();
+            MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, voxels);
+            return voxels;
         }
 
         public void Add(MyVoxelBase voxelMap)

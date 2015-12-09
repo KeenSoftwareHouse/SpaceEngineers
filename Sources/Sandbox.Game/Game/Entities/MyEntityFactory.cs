@@ -24,8 +24,7 @@ namespace Sandbox.Game.Entities
 
         public static MyEntity CreateEntity(MyObjectBuilder_Base builder)
         {
-            MyEntity entity = CreateEntity(builder.TypeId, builder.SubtypeName);
-            return entity;
+            return CreateEntity(builder.TypeId, builder.SubtypeName);
         }
 
         public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null)
@@ -34,6 +33,7 @@ namespace Sandbox.Game.Entities
             MyEntity entity = m_objectFactory.CreateInstance(typeId);
             AddScriptGameLogic(entity, typeId, subTypeName);
             ProfilerShort.End();
+            MyEntities.RaiseEntityCreated(entity);
             return entity;
         }
 
@@ -43,6 +43,7 @@ namespace Sandbox.Game.Entities
             T entity = m_objectFactory.CreateInstance<T>(builder.TypeId);
             AddScriptGameLogic(entity, builder.GetType(), builder.SubtypeName);
             ProfilerShort.End();
+            MyEntities.RaiseEntityCreated(entity);
             return entity;
         }
 

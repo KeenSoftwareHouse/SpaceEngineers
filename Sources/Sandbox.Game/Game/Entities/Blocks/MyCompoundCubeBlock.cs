@@ -21,8 +21,6 @@ namespace Sandbox.Game.Entities
 {
     /// <summary>
     /// Cube block which is composed of several cube blocks together with shared compound template name.
-    /// Compound block is owner of all blocks (so they are not in MyEntities) but is not theirs parent object 
-    /// (instead each block has its position as if it is positioned on a grid directly).
     /// </summary>
     [MyCubeBlockType(typeof(MyObjectBuilder_CompoundCubeBlock))]
     public class MyCompoundCubeBlock : MyCubeBlock
@@ -46,7 +44,7 @@ namespace Sandbox.Game.Entities
         }
 
         // IDentifier of local block ids.
-        public static ushort BLOCK_IN_COMPOUND_LOCAL_ID = 0xF000;
+        private static ushort BLOCK_IN_COMPOUND_LOCAL_ID = 0xF000;
 
         private static readonly string BUILD_TYPE_ANY = "any";
 
@@ -100,6 +98,7 @@ namespace Sandbox.Game.Entities
 
                         cubeBlock.Init(blockBuilder, cubeGrid, objectBlock as MyCubeBlock);
 
+                        cubeBlock.FatBlock.Hierarchy.Parent = Hierarchy;
                         m_blocks.Add(id, cubeBlock);
                     }
 
@@ -117,6 +116,7 @@ namespace Sandbox.Game.Entities
 
                         cubeBlock.Init(blockBuilder, cubeGrid, objectBlock as MyCubeBlock);
 
+                        cubeBlock.FatBlock.Hierarchy.Parent = Hierarchy;
                         ushort id = CreateId(cubeBlock);
                         m_blocks.Add(id, cubeBlock);
                     }
@@ -204,7 +204,7 @@ namespace Sandbox.Game.Entities
                 {
                     GetBlockLocalMatrixFromGridPositionAndOrientation(pair.Value, ref localMatrix);
                     MatrixD worldMatrix = localMatrix * parentWorldMatrix;
-                    pair.Value.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
+                    pair.Value.FatBlock.PositionComp.SetWorldMatrix(worldMatrix, this, true);
                 }
                 else
                 {
@@ -332,9 +332,13 @@ namespace Sandbox.Game.Entities
             MatrixD blockLocalMatrix = MatrixD.Identity;
             GetBlockLocalMatrixFromGridPositionAndOrientation(block, ref blockLocalMatrix);
             MatrixD worldMatrix = blockLocalMatrix * parentWorldMatrix;
-            block.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
+            block.FatBlock.PositionComp.SetWorldMatrix(worldMatrix, this, true);
 
             block.FatBlock.OnAddedToScene(this);
+
+            block.FatBlock.Hierarchy.Parent = Hierarchy;
+
+            CubeGrid.UpdateBlockNeighbours(SlimBlock);
 
             RefreshTemplates();
 
@@ -358,7 +362,16 @@ namespace Sandbox.Game.Entities
             {
                 m_blocks.Remove(blockId);
                 if (removeFromScene)
+                {
                     block.FatBlock.OnRemovedFromScene(this);
+                    block.FatBlock.Close();
+                }
+
+                if (block.FatBlock.Hierarchy.Parent == Hierarchy)
+                    block.FatBlock.Hierarchy.Parent = null;
+
+                CubeGrid.UpdateBlockNeighbours(SlimBlock);
+
                 RefreshTemplates();
                 return true;
             }
@@ -582,6 +595,21 @@ namespace Sandbox.Game.Entities
             return compoundCBBuilder;
         }
 
+        /// <summary>
+        /// Returns compound cube block builder which includes given blocks.
+        /// </summary>
+        public static MyObjectBuilder_CompoundCubeBlock CreateBuilder(List<MyObjectBuilder_CubeBlock> cubeBlockBuilders)
+        {
+            MyObjectBuilder_CompoundCubeBlock compoundCBBuilder
+                = (MyObjectBuilder_CompoundCubeBlock)MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CompoundCubeBlock>(COMPOUND_BLOCK_SUBTYPE_NAME);
+            compoundCBBuilder.EntityId = MyEntityIdentifier.AllocateId();
+            compoundCBBuilder.Min = cubeBlockBuilders[0].Min;
+            compoundCBBuilder.BlockOrientation = new MyBlockOrientation(ref Quaternion.Identity);
+            compoundCBBuilder.ColorMaskHSV = cubeBlockBuilders[0].ColorMaskHSV;
+            compoundCBBuilder.Blocks = cubeBlockBuilders.ToArray();
+            return compoundCBBuilder;
+        }
+
         public static MyCubeBlockDefinition GetCompoundCubeBlockDefinition()
         {
             MyCubeBlockDefinition blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(new MyDefinitionId(typeof(MyObjectBuilder_CompoundCubeBlock), COMPOUND_BLOCK_SUBTYPE_NAME));
@@ -690,7 +718,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var pair in m_blocks)
             {
-                bool isLocal = (pair.Key & BLOCK_IN_COMPOUND_LOCAL_ID) != 0;
+                bool isLocal = (pair.Key & BLOCK_IN_COMPOUND_LOCAL_ID) == BLOCK_IN_COMPOUND_LOCAL_ID;
                 if (isLocal)
                 {
                     ushort id = (ushort)(pair.Key & ~BLOCK_IN_COMPOUND_LOCAL_ID);
@@ -708,7 +736,7 @@ namespace Sandbox.Game.Entities
             else
                 ++m_nextId;
 
-            if (m_localNextId == 0xEFFF)
+            if (m_localNextId == 0x0FFF)
                 m_localNextId = 0;
             else
                 ++m_localNextId;
@@ -726,7 +754,7 @@ namespace Sandbox.Game.Entities
 
                 while (m_blocks.ContainsKey(id))
                 {
-                    if (m_localNextId == 0xEFFF)
+                    if (m_localNextId == 0x0FFF)
                         m_localNextId = 0;
                     else
                         ++m_localNextId;

@@ -34,12 +34,20 @@ namespace Sandbox.Game.Entities
 		public int DeathTime { get { return (Duration >= 0 ? m_birthTime + (int)(m_duration * 1000f) : int.MaxValue); } }
 		public int AliveTime { get { return MySandboxGame.TotalGamePlayTimeInMilliseconds - BirthTime; } }
 
+        private bool m_enabled;
+        public bool Enabled 
+        { 
+            get { return m_enabled; }
+            set { m_enabled = value; }
+        }
+
 		MyEntityStat m_parentStat;
 
 		public MyEntityStatRegenEffect()
 		{
 			m_lastRegenTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 			m_birthTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            Enabled = true;
 		}
 
 		public virtual void Init(MyObjectBuilder_Base objectBuilder, MyEntityStat parentStat)
@@ -60,6 +68,8 @@ namespace Sandbox.Game.Entities
 			m_maxRegenRatio = builder.MaxRegenRatio;
 			m_minRegenRatio = builder.MinRegenRatio;
 			m_duration = builder.Duration - builder.AliveTime;
+
+            ResetRegenTime();
 		}
 
 		public virtual MyObjectBuilder_EntityStatRegenEffect GetObjectBuilder()
@@ -78,17 +88,10 @@ namespace Sandbox.Game.Entities
 
 		public virtual void Closing()
 		{
-			if (!Sync.IsServer || m_interval == 0.0f)
+			if (!Sync.IsServer)
 				return;
 
-			var amountMultiplier = Math.Max(((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastRegenTime) - m_interval * 1000.0f), 0.0f) / (m_interval * 1000.0f);
-			if (amountMultiplier <= 0.0f)
-				return;
-
-			if (m_amount > 0 && m_parentStat.Value < m_parentStat.MaxValue)
-				m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount * amountMultiplier, m_parentStat.MinValue, Math.Max(m_parentStat.MaxValue * m_maxRegenRatio, m_parentStat.MaxValue));
-			else if (m_amount < 0 && m_parentStat.Value > m_parentStat.MinValue)
-				m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount * amountMultiplier, Math.Max(m_parentStat.MaxValue * m_minRegenRatio, m_parentStat.MinValue), m_parentStat.MaxValue);
+            IncreaseByRemainingValue();
 		}
 
 		public virtual void Update()
@@ -97,7 +100,7 @@ namespace Sandbox.Game.Entities
 				return;
 
 			bool durationFlag = m_duration == 0;
-			while(MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastRegenTime >= m_interval * 1000f || durationFlag)
+			while(MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastRegenTime >= 0 || durationFlag)
 			{
 				if (m_amount > 0 && m_parentStat.Value < m_parentStat.MaxValue * m_maxRegenRatio)
 					m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount, m_parentStat.Value, m_parentStat.MaxValue * m_maxRegenRatio);
@@ -121,6 +124,40 @@ namespace Sandbox.Game.Entities
 
 			return Math.Max(ticksLeft, 0);
 		}
+
+        public void SetAmountAndInterval(float amount, float interval, bool increaseByRemaining)
+        {
+            if (amount == Amount && interval == Interval)
+                return;
+            if (increaseByRemaining)
+                IncreaseByRemainingValue();
+            Amount = amount;
+            Interval = interval;
+            ResetRegenTime();
+        }
+
+        public void ResetRegenTime()
+        {
+            m_lastRegenTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + (int)Math.Round(m_interval * 1000.0f);
+        }
+
+        private void IncreaseByRemainingValue()
+        {
+            if (m_interval <= 0)
+                return;
+
+            if (!Enabled)
+                return;
+
+            var amountMultiplier = 1 - (m_lastRegenTime - MySandboxGame.TotalGamePlayTimeInMilliseconds) / (m_interval * 1000.0f);
+            if (amountMultiplier <= 0.0f)
+                return;
+
+            if (m_amount > 0 && m_parentStat.Value < m_parentStat.MaxValue)
+                m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount * amountMultiplier, m_parentStat.MinValue, Math.Max(m_parentStat.MaxValue * m_maxRegenRatio, m_parentStat.MaxValue));
+            else if (m_amount < 0 && m_parentStat.Value > m_parentStat.MinValue)
+                m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount * amountMultiplier, Math.Max(m_parentStat.MaxValue * m_minRegenRatio, m_parentStat.MinValue), m_parentStat.MaxValue);
+        }
 
 		public override string ToString()
 		{

@@ -1289,6 +1289,52 @@
     <TransparentMaterial>
       <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>Firefly</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>1.0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <NeedSort>false</NeedSort>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Firefly.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>Dandelion01</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+      <Emissivity>0.0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <NeedSort>false</NeedSort>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Dandelion01.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
         <SubtypeId>SunDisk</SubtypeId>
       </Id>      
       <AlphaMistingEnable>false</AlphaMistingEnable>

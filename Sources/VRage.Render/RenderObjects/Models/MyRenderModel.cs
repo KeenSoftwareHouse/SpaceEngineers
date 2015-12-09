@@ -776,13 +776,11 @@ namespace VRageRender
 
             switch (m_drawTechnique)
             {
-                case MyMeshDrawTechnique.ATMOSPHERE:
                 case MyMeshDrawTechnique.MESH:
                 case MyMeshDrawTechnique.DECAL:
                 case MyMeshDrawTechnique.HOLO:
                 case MyMeshDrawTechnique.ALPHA_MASKED:
                 case MyMeshDrawTechnique.SKINNED:
-                case MyMeshDrawTechnique.PLANET_SURFACE:
                     {
                         if (m_forLoadingTexCoords0 == null) throw new Exception("Model '" + m_assetName + "' doesn't have texture channel 0 specified, but this shader requires it");
 

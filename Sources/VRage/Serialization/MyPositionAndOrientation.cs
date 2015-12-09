@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using System.Xml.Serialization;
 using ProtoBuf;
+using VRage.Serialization;
 
 namespace VRage
 {
@@ -17,11 +18,25 @@ namespace VRage
         
         [ProtoMember]
         [XmlElement("Forward")]
+        [NoSerialize]
         public SerializableVector3 Forward;     //  Forward vector (for orientation)
         
         [ProtoMember]
         [XmlElement("Up")]
+        [NoSerialize]
         public SerializableVector3 Up;          //  Up vector (for orientation)
+
+        [Serialize(MyPrimitiveFlags.Normalized)]
+        public Quaternion Orientation
+        {
+            get { return Quaternion.CreateFromRotationMatrix(GetMatrix()); }
+            set 
+            {
+                var m = Matrix.CreateFromQuaternion(value);
+                Forward = m.Forward;
+                Up = m.Up;
+            }
+        }
 
         public static readonly MyPositionAndOrientation Default = new MyPositionAndOrientation(Vector3.Zero, Vector3.Forward, Vector3.Up);
 

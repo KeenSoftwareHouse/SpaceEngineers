@@ -13,7 +13,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string Texture;
 
         [ProtoMember]
-        public bool CanBeAffectedByLights;
+        public bool CanBeAffectedByOtherLights;
 
         [ProtoMember]
         public bool AlphaMistingEnable;

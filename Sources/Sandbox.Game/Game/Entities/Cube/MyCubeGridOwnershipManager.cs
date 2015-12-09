@@ -18,7 +18,7 @@ namespace Sandbox.Game.Entities.Cube
         public int MaxBlocks;
         public long gridEntityId;
 
-        public bool NeedRecalculateOwners { get; set; }
+        public bool NeedRecalculateOwners;
 
         private bool IsValidBlock(MyCubeBlock block)
         {

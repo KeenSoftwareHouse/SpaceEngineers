@@ -278,7 +278,7 @@ namespace Sandbox.Game.Gui
             RecreateControls(true);
         }
 
-        [Conditional(ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         private static void AddProfilerControls(HelpPage developerPage)
         {
             developerPage.RightColumn.Add(new ControlWithDescription("Alt + Num0", "Enable/Disable render profiler or leave current child node."));

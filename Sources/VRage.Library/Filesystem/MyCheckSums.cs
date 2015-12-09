@@ -22,14 +22,14 @@ namespace VRage.Common.Utils
                 PublicKeyAsArray = Convert.FromBase64String(m_publicKey);
             }
         }
-        public SerializableDictionary<string, string> Items { get; set; }
+        public SerializableDictionaryHack<string, string> Items { get; set; }
 
         [XmlIgnore]
         public byte[] PublicKeyAsArray { get; private set; }
 
         public MyChecksums()
         {
-            Items = new SerializableDictionary<string, string>();
+            Items = new SerializableDictionaryHack<string, string>();
         }
     }
 }

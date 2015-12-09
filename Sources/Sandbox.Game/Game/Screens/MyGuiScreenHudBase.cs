@@ -7,7 +7,6 @@ using Sandbox.Graphics.GUI;
 using System;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
