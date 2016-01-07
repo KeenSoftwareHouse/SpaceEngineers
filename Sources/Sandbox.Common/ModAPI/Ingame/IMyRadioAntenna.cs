@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using System;
 using System.Collections.Generic;
 using VRageMath;
 
@@ -14,17 +15,17 @@ namespace Sandbox.ModAPI.Ingame
     /// interface of an antenna on the same ship. How
     /// you get this interface is up to you. By name, by
     /// position,...
-    /// <example>
+    /// <code>
     /// var antenna = (IMyRadioAntenna) GridTerminalSystem.GetBlockWithName("steve");
-    /// </example>
+    /// </code>
     /// 
     /// Once you have your antenna interface, you can get
     /// a list of all nearby antennas by ID by calling this
     /// function:
-    /// <example>
+    /// <code>
     /// List<long> antennaIds;
     /// antenna.FindNearbyAntennas(ref antennaIds);
-    /// </example>
+    /// </code>
     /// You'll get a list of antenna IDs excluding the ID of
     /// the antenna you're currently using. The returned list
     /// might be empty if no antennas are within your radio
@@ -34,35 +35,48 @@ namespace Sandbox.ModAPI.Ingame
     /// in the game. However, you'll only receive actual data
     /// if the antenna of the given ID is within your radio
     /// range.
-    /// <example>
+    /// <code>
     /// // Returns `null` if out of range or `ShowShipName` is disabled.
     /// string otherShipName = antenna.GetNearbyAntennaShipName(42);
-    /// </example>
+    /// </code>
     /// 
     /// An other feature of the nearby antenna patch is the ability to
     /// instantly send or broadcast some data to nearby antennas and
     /// handle those data packs in programmable blocks. However, each
     /// antenna has to enable this feature individually.
-    /// <example>
+    /// <code>
     /// antenna.DataTransferEnabled = true;
-    /// </example>
+    /// </code>
     /// You can then send data to nearby antennas which also have this
     /// feature enabled.
-    /// <example>
+    /// <code>
     /// bool success = antenna.SendToNearbyAntenna(42,"Hello, antenna #42!");
     /// if(!success) {
     ///   antenna.BroadcastToNearbyAntennas("HELP! My bestest buddy #42 is gone!");
     /// }
-    /// </example>
+    /// </code>
     /// Finally, you can read the data packs you received from other
     /// antennas. A data pack is actually just a string.
-    /// <example>
+    /// <code>
     /// long senderId;
     /// string msg = antenna.GetReceivedData(out senderId);
     /// if(msg != null) {
     ///   antenna.BroadcastToNearbyAntennas("Everything's well again. My buddy is back.");
     /// }
-    /// </example>
+    /// </code>
+    /// You can also receive the play time at which a message has been sent.
+    /// This way you can easily decide to drop messages that are too old.
+    /// <code>
+    /// long senderId;
+    /// TimeSpan sendPlayTime;
+    /// string msg = antenna.GetReceivedData(out senderId, out sendPlayTime);
+    /// if(msg != null) {
+    ///   var dt = MyAPIGateway.Session.ElapsedPlayTime - sendPlayTime;
+    ///   if(dt > maxAge) {
+    ///     antenna.BroadcastToNearbyAntennas("Sorry, must have slept for too long. Just received old crap!");
+    ///   }
+    /// }
+    /// </code>
     /// </summary>
     /// <remarks>
     /// You may wonder why this patch does not just return some interface of
@@ -101,7 +115,7 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <remarks>
         /// This actually just returns the antenna's
-        /// <code>EntityId</code>, but I think that this
+        /// <c>EntityId</c>, but I think that this
         /// alias gives people a better hint on where
         /// to get the IDs for the patch-functions from
         /// and which IDs won't make sense there.
@@ -117,7 +131,7 @@ namespace Sandbox.ModAPI.Ingame
         /// Configure whether this antenna is able to send
         /// and receive data from or to other antennas.
         /// 
-        /// Default value is <code>false</code>.
+        /// Default value is <c>false</c>.
         /// </summary>
         /// <remarks>
         /// Disabling data transfer discards all pending
@@ -167,8 +181,8 @@ namespace Sandbox.ModAPI.Ingame
         
         /// <summary>
         /// Returns one pack of transfered data at a time. If there is no
-        /// data to be read, returns <code>null</code>. In that case,
-        /// <code>antennaId</code> will contain nothing but rubbish.
+        /// data to be read, returns <c>null</c>. In that case,
+        /// <c>antennaId</c> will contain nothing but rubbish.
         /// </summary>
         /// <remarks>
         /// A call to this function removes the returned piece of data
@@ -176,8 +190,24 @@ namespace Sandbox.ModAPI.Ingame
         /// concurrent access to an antenna.
         /// </remarks>
         /// <param name="antennaId">Receives the sender's ID.</param>
-        /// <returns>Some sent data or <code>null</code>.</returns>
+        /// <returns>Some sent data or <c>null</c>.</returns>
         string GetReceivedData(out long antennaId);
+        
+        /// <summary>
+        /// Returns one pack of transfered data at a time. If there is no
+        /// data to be read, returns <c>null</c>. In that case,
+        /// <c>antennaId</c> and <c>sendPlayTime</c>will contain nothing
+        /// but rubbish.
+        /// </summary>
+        /// <remarks>
+        /// A call to this function removes the returned piece of data
+        /// from the antenna's input queue. Thus, be very careful about
+        /// concurrent access to an antenna.
+        /// </remarks>
+        /// <param name="antennaId">Receives the sender's ID.</param>
+        /// <param name="sendPlayTime">Receives the play time at which the message has been sent.</param>
+        /// <returns>Some sent data or <c>null</c>.</returns>
+        string GetReceivedData(out long antennaId, out TimeSpan sendPlayTime);
         
         /// <summary>
         /// This antenna's radio range within which further information
@@ -200,7 +230,7 @@ namespace Sandbox.ModAPI.Ingame
         /// Appends all found antenna IDs to this list.
         /// Does not check the given list's current contents.
         /// Also does not discard the list's current contents.
-        /// If the reference is <code>null</code>, assigns a
+        /// If the reference is <c>null</c>, assigns a
         /// newly created list to it.
         /// </param>
         void FindNearbyAntennas(ref List<long> antennaIds);
@@ -219,7 +249,7 @@ namespace Sandbox.ModAPI.Ingame
         /// which includes checking for double entries or
         /// multiple antennas from the same ship. Also does
         /// not discard the list's current contents. If the
-        /// reference is <code>null</code>, assigns a newly
+        /// reference is <c>null</c>, assigns a newly
         /// created list to it.
         /// </param>
         /// <remarks>
@@ -240,7 +270,7 @@ namespace Sandbox.ModAPI.Ingame
         /// this antenna's radio range.
         /// </summary>
         /// <param name="antennaId">The ID of the antenna to check.</param>
-        /// <returns><code>true</code> if the nearby antenna is in reach.</returns>
+        /// <returns><c>true</c> if the nearby antenna is in reach.</returns>
         bool IsNearbyAntennaInReach(long antennaId);
         
         /// <summary>
@@ -252,7 +282,7 @@ namespace Sandbox.ModAPI.Ingame
         /// answer.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>true</code> if both antennas are within each other's reach.</returns>
+        /// <returns><c>true</c> if both antennas are within each other's reach.</returns>
         bool IsNearbyAntennaInResponseReach(long antennaId);
         
         /// <summary>
@@ -260,7 +290,7 @@ namespace Sandbox.ModAPI.Ingame
         /// this antenna's radio reach.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if the other antenna is out of reach.</returns>
+        /// <returns><c>null</c> if the other antenna is out of reach.</returns>
         float? GetNearbyAntennaRadius(long antennaId);
         
         /// <summary>
@@ -268,7 +298,7 @@ namespace Sandbox.ModAPI.Ingame
         /// antenna per ship, no matter how many antennas a ship may have.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns>A unique ship ID or <code>null</code> if out of reach.</returns>
+        /// <returns>A unique ship ID or <c>null</c> if out of reach.</returns>
         long? GetNearbyAntennaShipId(long antennaId);
 
         /// <summary>
@@ -276,7 +306,7 @@ namespace Sandbox.ModAPI.Ingame
         /// the ship's name is enabled.
         /// </summary>
         /// <param name="antennaId">The ID of the nearby antenna.</param>
-        /// <returns><code>null</code> if the other antenna is out of reach.</returns>
+        /// <returns><c>null</c> if the other antenna is out of reach.</returns>
         string GetNearbyAntennaShipName(long antennaId);
         
         /// <summary>
@@ -284,7 +314,7 @@ namespace Sandbox.ModAPI.Ingame
         /// is within your antenna's reach.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if the other antenna is unreachable.</returns>
+        /// <returns><c>null</c> if the other antenna is unreachable.</returns>
         Vector3D? GetNearbyAntennaPosition(long antennaId);
         
         /// <summary>
@@ -292,14 +322,14 @@ namespace Sandbox.ModAPI.Ingame
         /// is within your antenna's reach.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns>The nearby antenna's owner's ID or <code>null</code>.</returns>
+        /// <returns>The nearby antenna's owner's ID or <c>null</c>.</returns>
         long? GetNearbyAntennaOwnerId(long antennaId);
         
         /// <summary>
         /// Get the player's relation to the nearby antenna's owner.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if the other antenna is unreachable.</returns>
+        /// <returns><c>null</c> if the other antenna is unreachable.</returns>
         MyRelationsBetweenPlayerAndBlock? GetNearbyAntennaPlayerRelationToOwner(long antennaId);
         
         /// <summary>
@@ -307,7 +337,7 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <param name="antennaId">The ID of the nearby antenna.</param>
         /// <param name="playerId">The ID of the player to check.</param>
-        /// <returns><code>null</code> if the nearby antenna is unreachable.</returns>
+        /// <returns><c>null</c> if the nearby antenna is unreachable.</returns>
         MyRelationsBetweenPlayerAndBlock? GetNearbyAntennaUserRelationToOwner(long antennaId, long playerId);
         
         /// <summary>
@@ -315,7 +345,7 @@ namespace Sandbox.ModAPI.Ingame
         /// this antenna's detail scan range.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if the nearby antenna is out of detail scan range.</returns>
+        /// <returns><c>null</c> if the nearby antenna is out of detail scan range.</returns>
         MyCubeSize? GetNearbyAntennaCubeSize(long antennaId);
         
         /// <summary>
@@ -323,7 +353,7 @@ namespace Sandbox.ModAPI.Ingame
         /// or a ship, if it is within this antenna's detail scan range.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if out of detail scan range.</returns>
+        /// <returns><c>null</c> if out of detail scan range.</returns>
         bool? GetNearbyAntennaIsStatic(long antennaId);
         
         /// <summary>
@@ -331,7 +361,7 @@ namespace Sandbox.ModAPI.Ingame
         /// antenna's detail scan range.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if out of detail scan range.</returns>
+        /// <returns><c>null</c> if out of detail scan range.</returns>
         float? GetNearbyAntennaMass(long antennaId);
         
         /// <summary>
@@ -339,7 +369,7 @@ namespace Sandbox.ModAPI.Ingame
         /// for collision avoidance.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if out of detail scan range.</returns>
+        /// <returns><c>null</c> if out of detail scan range.</returns>
         BoundingSphereD? GetNearbyAntennaWorldVolume(long antennaId);
         
         /// <summary>
@@ -347,7 +377,7 @@ namespace Sandbox.ModAPI.Ingame
         /// for collision avoidance.
         /// </summary>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns><code>null</code> if out of detail scan range.</returns>
+        /// <returns><c>null</c> if out of detail scan range.</returns>
         BoundingBoxD? GetNearbyAntennaWorldAABB(long antennaId);
         
         /// <summary>
@@ -356,9 +386,9 @@ namespace Sandbox.ModAPI.Ingame
         /// are functional or active. The nearby antenna has to be
         /// within your detail scan range.
         /// </summary>
-        /// <typeparam name="T">The block type, e.g. <code>IMyProgrammableBlock</code>.</typeparam>
+        /// <typeparam name="T">The block type, e.g. <c>IMyProgrammableBlock</c>.</typeparam>
         /// <param name="antennaId">The nearby antenna's ID.</param>
-        /// <returns>The number of blocks of the given type or <code>null</code>.</returns>
+        /// <returns>The number of blocks of the given type or <c>null</c>.</returns>
         int? CountNearbyBlocksOfType<T>(long antennaId) where T : IMyCubeBlock;
 
         #endregion // Nearby Antenna Patch

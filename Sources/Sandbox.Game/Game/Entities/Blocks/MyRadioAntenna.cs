@@ -20,6 +20,7 @@ using VRage.Utils;
 using VRage.ModAPI;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common;
+using System;
 
 #endregion
 
@@ -29,11 +30,13 @@ namespace Sandbox.Game.Entities.Cube
     {
         public long SenderId;
         public string Message;
+        public TimeSpan DispatchPlayTime;
 
-        public Antenna2AntennaMessage(long senderId, string message)
+        public Antenna2AntennaMessage(long senderId, string message, TimeSpan dispatchPlayTime)
         {
-            this.SenderId = senderId;
-            this.Message  = message;
+            this.SenderId         = senderId;
+            this.Message          = message;
+            this.DispatchPlayTime = dispatchPlayTime;
         }
     }
 
@@ -484,9 +487,14 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if(builder.PendingDataPacks != null & builder.PendingSenderIds != null)
                 {
-                    // Get the minimum length of both arrays in case of broken data.
+                    // Some preparations to get dispatch times.
+                    // Default -initialised to "right now".
+                    var defaultTime   = Sandbox.ModAPI.MyAPIGateway.Session.ElapsedPlayTime;
+                    bool needsDefault = builder.PendingTimeTicks != null;
+                    // Get the minimum length of all arrays in case of broken data.
                     int capacity = builder.PendingDataPacks.Length;
                     if(builder.PendingSenderIds.Length < capacity) { capacity = builder.PendingSenderIds.Length; }
+                    if(!needsDefault && builder.PendingTimeTicks.Length < capacity) { capacity = builder.PendingTimeTicks.Length; }
                     this.m_dataQueue = new Queue<Antenna2AntennaMessage>(capacity);
                     // Enqueue old data, if any.
                     for(int i=0; i<capacity; ++i)
@@ -494,6 +502,7 @@ namespace Sandbox.Game.Entities.Cube
                         this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(
                             builder.PendingSenderIds[i]
                         ,   builder.PendingDataPacks[i]
+                        ,   needsDefault ? defaultTime : new TimeSpan(builder.PendingTimeTicks[i])
                         ));
                     }
                 }
@@ -508,11 +517,13 @@ namespace Sandbox.Game.Entities.Cube
             {
                 builder.PendingSenderIds = new long[this.m_dataQueue.Count];
                 builder.PendingDataPacks = new string[this.m_dataQueue.Count];
+                builder.PendingTimeTicks = new long[this.m_dataQueue.Count];
                 int i=0;
                 foreach(var msg in this.m_dataQueue)
                 {
                     builder.PendingSenderIds[i] = msg.SenderId;
                     builder.PendingDataPacks[i] = msg.Message;
+                    builder.PendingTimeTicks[i] = msg.DispatchPlayTime.Ticks;
                     ++i;
                 }
             }
@@ -627,7 +638,9 @@ namespace Sandbox.Game.Entities.Cube
             if(this.IsWorking & this.m_dataTransferEnabled & this.EntityId != senderId)
             {
                 Debug.Assert(this.m_dataQueue != null);
-                this.m_dataQueue.Enqueue(new Antenna2AntennaMessage(senderId,message));
+                this.m_dataQueue.Enqueue(
+                    new Antenna2AntennaMessage(senderId,message,Sandbox.ModAPI.MyAPIGateway.Session.ElapsedPlayTime)
+                );
                 return true;
             }
             return false;
@@ -643,6 +656,24 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     var msg  = this.m_dataQueue.Dequeue();
                     senderId = msg.SenderId;
+                    return msg.Message;
+                }
+            }
+            return null;
+        }
+        
+        private string GetReceivedData(out long senderId, out TimeSpan sendPlayTime)
+        {
+            senderId     = 0xDEADBEEF;
+            sendPlayTime = TimeSpan.MaxValue;
+            if(this.IsWorking & this.m_dataTransferEnabled)
+            {
+                Debug.Assert(this.m_dataQueue != null);
+                if(this.m_dataQueue.Count != 0)
+                {
+                    var msg      = this.m_dataQueue.Dequeue();
+                    senderId     = msg.SenderId;
+                    sendPlayTime = msg.DispatchPlayTime;
                     return msg.Message;
                 }
             }
@@ -733,6 +764,11 @@ namespace Sandbox.Game.Entities.Cube
         string IMyRadioAntenna.GetReceivedData(out long senderId)
         {
             return this.GetReceivedData(out senderId);
+        }
+
+        string IMyRadioAntenna.GetReceivedData(out long senderId, out TimeSpan sendPlayTime)
+        {
+            return this.GetReceivedData(out senderId, out sendPlayTime);
         }
         
         void IMyRadioAntenna.FindNearbyAntennas(ref List<long> found)

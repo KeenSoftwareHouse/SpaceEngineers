@@ -29,5 +29,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
         public long[] PendingSenderIds = null;
+
+        [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
+        public long[] PendingTimeTicks = null;
     }
 }
