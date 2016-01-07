@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+﻿
+=======
 ﻿using System.Text;
 using VRage.Utils;
 
@@ -11615,3 +11618,4 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Animation_SpiderDeburrow = MyStringId.GetOrCompute("DisplayName_Animation_SpiderDeburrow");
     }
 }
+>>>>>>> refs/remotes/KeenSoftwareHouse/master
