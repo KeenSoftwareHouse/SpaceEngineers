@@ -709,7 +709,7 @@ Rimuovere il controllo precedente?</value>
     <value>Muro di copertura (metà)</value>
   </data>
   <data name="DisplayName_Item_HandDrill" xml:space="preserve">
-    <value>Trivella manuale</value>
+    <value>Martello pneumatico</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorBlock" xml:space="preserve">
     <value>Blocco armatura pesante</value>
@@ -895,7 +895,7 @@ Rimuovere il controllo precedente?</value>
     <value>Materiali per il progetto</value>
   </data>
   <data name="ProductionQueue" xml:space="preserve">
-    <value>Coda produzione</value>
+    <value>Coda di produzione</value>
   </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reattore</value>
@@ -1678,7 +1678,7 @@ Se il gioco non va liscio, diminuisci la risoluzione.</value>
     <value>Memoria insufficiente per aggiungere un nuovo oggetto</value>
   </data>
   <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>Abbiamo rilevato una scheda grafica migliore di quella attualmente in uno per il gioco. Controlla le tue impostazioni del Pannello Di Controllo NVIDIA/AMD.</value>
+    <value>Abbiamo rilevato una scheda grafica migliore di quella attualmente in uso per il gioco. Controlla le tue impostazioni del Pannello Di Controllo NVIDIA/AMD.</value>
   </data>
   <data name="MessageBoxCaptionWarning" xml:space="preserve">
     <value>ATTENZIONE</value>
@@ -6048,7 +6048,7 @@ Per connettere i laser non elencati puoi connetterti tramite le coordinate</valu
     <value>Generatore di Ossigeno</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
-    <value>Incontri casuali</value>
+    <value>Incontri ostili casuali</value>
   </data>
   <data name="ControlName_BuildMode" xml:space="preserve">
     <value>Modalità costruzione</value>
@@ -6306,7 +6306,7 @@ Per connettere i laser non elencati puoi connetterti tramite le coordinate</valu
     <value>Tappe</value>
   </data>
   <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Set actions to be done when autopilot reaches this waypoint</value>
+    <value>Imposta le azioni da fare quando il pilota automatico raggiunge questo waypoint</value>
   </data>
   <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
     <value>Setup Actions</value>
@@ -6405,55 +6405,55 @@ Per connettere i laser non elencati puoi connetterti tramite le coordinate</valu
     <value>Il cambiamento del renderer richiede il riavvio del gioco.</value>
   </data>
   <data name="StationRotation_Static" xml:space="preserve">
-    <value>Station rotation</value>
+    <value>Rotazione stazione</value>
   </data>
   <data name="StationRotation_Static_Desc" xml:space="preserve">
-    <value>Enables rotation of station block</value>
+    <value>Abilita la rotazione del blocco stazione</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
-    <value>Station rotation mode</value>
+    <value>Modalità di rotazione della Stazione</value>
   </data>
   <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
+    <value>Push-to-talk per la chat vocale</value>
   </data>
   <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
+    <value>Abilità la chat vocale</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
-    <value>Applied changes will be visible after restarting the game</value>
+    <value>I cambiamenti applicati saranno visibili dopo il ravvio del gioco</value>
   </data>
   <data name="GuiScenarioPlayerName" xml:space="preserve">
-    <value>Player name</value>
+    <value>Nome del giocatore</value>
   </data>
   <data name="GuiScenarioPlayerStatus" xml:space="preserve">
-    <value>Status</value>
+    <value>Stato</value>
   </data>
   <data name="GuiScenarioSend" xml:space="preserve">
-    <value>Send</value>
+    <value>Invia</value>
   </data>
   <data name="GuiScenarioStart" xml:space="preserve">
     <value>Start</value>
   </data>
   <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
-    <value>Precision Mode</value>
+    <value>Modalità Precisa</value>
   </data>
   <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
-    <value>Forward Direction</value>
+    <value>Direzione Avanti</value>
   </data>
   <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
-    <value>Copy</value>
+    <value>Copia</value>
   </data>
   <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
-    <value>Paste</value>
+    <value>Incolla</value>
   </data>
   <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
-    <value>Reset waypoint</value>
+    <value>Azzera waypoint</value>
   </data>
   <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
-    <value>Resets current waypoint to first position</value>
+    <value>Azzera il waypoint corrente alla prima posizione</value>
   </data>
   <data name="GuiScenarioTimeout" xml:space="preserve">
-    <value>Connection timeout:</value>
+    <value>Timeout di connesione :</value>
   </data>
   <data name="GuiScenarioTimeout10min" xml:space="preserve">
     <value>10 min</value>
@@ -6465,9 +6465,54 @@ Per connettere i laser non elencati puoi connetterti tramite le coordinate</valu
     <value>5 min</value>
   </data>
   <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
-    <value>Unlimited</value>
+    <value>Illimitato</value>
   </data>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
+  </data>
+  <data name="DisplayName_Block_AirtightSlideDoor" xml:space="preserve">
+    <value>Porta a scorrimento</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTank" xml:space="preserve">
+    <value>Serbatoio d'idrogeno</value>
+  </data>
+  <data name="DisplayName_Block_HydrogenTankSmall" xml:space="preserve">
+    <value>Serbatoio d'idrogeno piccolo</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_HydrogenBottles" xml:space="preserve">
+    <value>Bombole d'ossigeno</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottle" xml:space="preserve">
+    <value>Bombola d'ossigeno</value>
+  </data>
+  <data name="DisplayName_Item_HydrogenBottles" xml:space="preserve">
+    <value>Bombole d'ossigeno</value>
+  </data>
+  <data name="HudInfoGravityNatural" xml:space="preserve">
+    <value>Gravità Planetaria:</value>
+  </data>
+  <data name="HudInfoOxygen" xml:space="preserve">
+    <value>Ossigeno: </value>
+  </data>
+<data name="HudInfoGravityArtificial" xml:space="preserve">
+    <value>Gravità artificiale:</value>
+  </data>
+  <data name="DisplayName_Block_JumpDrive" xml:space="preserve">
+    <value>Jump Drive</value>
+  </data>
+  <data name="NotificationCannotJumpFromGravity" xml:space="preserve">
+    <value>Jump drives non può essere usato in un campo gravitazionale</value>
+  </data>
+  <data name="DisplayName_Scenario_ScaleTest" xml:space="preserve">
+    <value>Scale test</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_HorizonIndicator" xml:space="preserve">
+    <value>Visualizza l'orizzonte e l'altitudine</value>
+  </data>
+  <data name="DisplayName_Block_DebugSphere1" xml:space="preserve">
+    <value>Debug sfera 1</value>
+  </data>
+  <data name="NotificationCannotJumpIntoGravity" xml:space="preserve">
+    <value>Jump drives non può essere usato per saltare in un campo gravitazionale.</value>
   </data>
 </root>
