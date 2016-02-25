@@ -4,10 +4,11 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry;
 using System;
 using System.Collections.Generic;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
@@ -20,10 +21,10 @@ namespace SpaceEngineers.Game.World.Environment
 		int m_lastParticleSpawn = 0;
 		float m_particlesLeftToSpawn = 0.0f;
 
-		public MyEntity ControlledEntity { get { return MySession.ControlledEntity as MyEntity; } }
+		public MyEntity ControlledEntity { get { return MySession.Static.ControlledEntity as MyEntity; } }
 		public Vector3 ControlledVelocity { get { return ControlledEntity is MyCockpit || ControlledEntity is MyRemoteControl ? ControlledEntity.GetTopMostParent().Physics.LinearVelocity : ControlledEntity.Physics.LinearVelocity; } }
 
-		public bool ShouldDrawParticles { get { return (HasControlledNonZeroVelocity() && !IsInGridAABB()); } }
+		public bool ShouldDrawParticles { get { return (HasControlledNonZeroVelocity() && !IsInGridAABB() && !IsNearPlanet()); } }
 
 		public override void Init(MyObjectBuilder_EnvironmentalParticleLogic builder)
 		{
@@ -52,7 +53,7 @@ namespace SpaceEngineers.Game.World.Environment
 				var tanFovSq = 1.0f;// Math.Tan(angle / 2.0f);
 				var velocityVector = ControlledVelocity - 8.5f * Vector3.Normalize(ControlledVelocity);
 				var sweepArea = 4 * distance * distance * tanFovSq;
-				m_particlesLeftToSpawn += (float)((0.25f + MyRandom.Instance.NextFloat() * 1.25f) * velocityVector.Length() * sweepArea * ParticleDensity * MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS); // particles/update
+				m_particlesLeftToSpawn += (float)((0.25f + MyRandom.Instance.NextFloat() * 1.25f) * velocityVector.Length() * sweepArea * ParticleDensity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS); // particles/update
 				if (m_particlesLeftToSpawn < 1.0f)
 					return;
 
@@ -161,7 +162,7 @@ namespace SpaceEngineers.Game.World.Environment
 		private bool HasControlledNonZeroVelocity()
 		{
 			var entity = ControlledEntity;
-			if (entity == null || MySession.IsCameraUserControlledSpectator())
+			if (entity == null || MySession.Static.IsCameraUserControlledSpectator())
 				return false;
 
 			var remoteControl = entity as MyRemoteControl;
@@ -176,6 +177,14 @@ namespace SpaceEngineers.Game.World.Environment
 				return true;
 
 			return false;
+		}
+
+		private bool IsNearPlanet()
+		{
+			if (ControlledEntity == null)
+				return false;
+
+			return !Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(ControlledEntity.PositionComp.GetPosition()));
 		}
 	}
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Havok;
 using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Physics;
@@ -15,7 +15,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRageMath;
 
@@ -24,8 +24,7 @@ namespace Sandbox.Game.EntityComponents
     [MyComponentBuilder(typeof(MyObjectBuilder_FractureComponentCubeBlock))]
     public class MyFractureComponentCubeBlock : MyFractureComponentBase
     {
-        private static readonly List<Tuple<Vector3I, ushort>> m_tmpRazeList = new List<Tuple<Vector3I, ushort>>();
-        private static readonly List<MyObjectBuilder_FractureComponentBase.FracturedShape> m_tmpShapeListInit = new List<MyObjectBuilder_FractureComponentBase.FracturedShape>();
+        private readonly List<MyObjectBuilder_FractureComponentBase.FracturedShape> m_tmpShapeListInit = new List<MyObjectBuilder_FractureComponentBase.FracturedShape>();
 
         public MySlimBlock Block { get; private set; }
 
@@ -36,7 +35,6 @@ namespace Sandbox.Game.EntityComponents
 
         // Remembered builder for later initialization.
         private MyObjectBuilder_ComponentBase m_obFracture;
-
 
         public override MyPhysicalModelDefinition PhysicalModelDefinition
         {
@@ -50,6 +48,10 @@ namespace Sandbox.Game.EntityComponents
             Block = (Entity as MyCubeBlock).SlimBlock;
             Block.FatBlock.CheckConnectionAllowed = true;
 
+            var blockOnPosition = Block.CubeGrid.GetCubeBlock(Block.Position);
+            if (blockOnPosition != null)
+                blockOnPosition.FatBlock.CheckConnectionAllowed = true;
+
             if (m_obFracture != null)
             {
                 Init(m_obFracture);
@@ -61,6 +63,18 @@ namespace Sandbox.Game.EntityComponents
         public override void OnBeforeRemovedFromContainer()
         {
             base.OnBeforeRemovedFromContainer();
+
+            Block.FatBlock.CheckConnectionAllowed = false;
+            var blockOnPosition = Block.CubeGrid.GetCubeBlock(Block.Position);
+            if (blockOnPosition != null && blockOnPosition.FatBlock is MyCompoundCubeBlock)
+            {
+                bool checkConnectionAllowed = false;
+                foreach (var block in (blockOnPosition.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                    checkConnectionAllowed |= block.FatBlock.CheckConnectionAllowed;
+
+                if (!checkConnectionAllowed)
+                    blockOnPosition.FatBlock.CheckConnectionAllowed = false;
+            }
         }
 
         public override MyObjectBuilder_ComponentBase Serialize()
@@ -101,30 +115,17 @@ namespace Sandbox.Game.EntityComponents
                 Block.CubeGrid.Physics.AddDirtyBlock(Block);
         }
 
-        public override void RemoveChildShapes(string[] shapeNames)
+        public override bool RemoveChildShapes(string[] shapeNames)
         {
             base.RemoveChildShapes(shapeNames);
 
             if (!Shape.IsValid() || Shape.GetChildrenCount() == 0)
             {
+                MountPoints.Clear();
                 // Remove block when no children
                 if (Sync.IsServer)
                 {
-                    var existingBlock = Block.CubeGrid.GetCubeBlock(Block.Position);
-                    if (existingBlock != null && !Block.FatBlock.MarkedForClose)
-                    {
-                        ushort? compoundId = null;
-                        var compoundBlock = existingBlock.FatBlock as MyCompoundCubeBlock;
-                        if (compoundBlock != null)
-                        {
-                            compoundId = compoundBlock.GetBlockId(Block);
-                            Debug.Assert(compoundId != null);
-                        }
-
-                        bool oldGeneratorsEnabled = Block.CubeGrid.EnableGenerators(false);
-                        Block.CubeGrid.RemoveBlockWithId(existingBlock.Min, compoundId, true);
-                        Block.CubeGrid.EnableGenerators(oldGeneratorsEnabled);
-                    }
+                    return true;
                 }
                 else
                 {
@@ -132,10 +133,8 @@ namespace Sandbox.Game.EntityComponents
                     Block.FatBlock.Components.Remove<MyFractureComponentBase>();
                 }
             }
-            else
-            {
-                Block.ApplyDestructionDamage(shapeNames.Length);
-            }
+
+            return false;
         }
 
         private void Init(MyObjectBuilder_ComponentBase builder)
@@ -146,8 +145,8 @@ namespace Sandbox.Game.EntityComponents
             if (ob.Shapes.Count == 0)
             {
                 ProfilerShort.End();
-                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed.");
-                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed.");
+                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed. Block definition: " + Block.BlockDefinition.Id.ToString());
+                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed. Block definition: " + Block.BlockDefinition.Id.ToString());
             }
 
             RecreateShape(ob.Shapes);
@@ -191,17 +190,20 @@ namespace Sandbox.Game.EntityComponents
             }
 
             if (shapeList.Count == 0)
+            {
+                ProfilerShort.End();
                 return;
+            }
 
             var removeRefsList = new List<HkdShapeInstanceInfo>();
 
             {
                 var blockDef = Block.BlockDefinition;
                 var model = blockDef.Model;
-                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                     MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
 
-                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                var shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 removeRefsList.Add(si);
                 m_tmpChildren.Add(si);
@@ -213,10 +215,10 @@ namespace Sandbox.Game.EntityComponents
                     {
                         model = progress.File;
 
-                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                        if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                             MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
 
-                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                         si = new HkdShapeInstanceInfo(shape, null, null);
                         removeRefsList.Add(si);
                         m_tmpChildren.Add(si);
@@ -255,8 +257,8 @@ namespace Sandbox.Game.EntityComponents
             {
                 ProfilerShort.End();
                 m_tmpChildren.Clear();
-                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed.");
-                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed.");
+                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed. Block definition: " + Block.BlockDefinition.Id.ToString());
+                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed. Block definition: " + Block.BlockDefinition.Id.ToString());
             }
 
             if (render != null)
@@ -315,18 +317,18 @@ namespace Sandbox.Game.EntityComponents
 
             if (MyFakes.FRACTURED_BLOCK_AABB_MOUNT_POINTS)
             {
-                MountPoints = new List<MyCubeBlockDefinition.MountPoint>();
+                if (MountPoints == null)
+                    MountPoints = new List<MyCubeBlockDefinition.MountPoint>();
+                else
+                    MountPoints.Clear();
 
                 var blockDef = Block.BlockDefinition;
-                Matrix m;
-                Block.Orientation.GetMatrix(out m);
                 var size = new Vector3(blockDef.Size);
                 var bb = new BoundingBox(-size / 2, size / 2);
-                var blockBB = bb.Transform(m);
 
-                var he = blockBB.HalfExtents;
-                blockBB.Min += he;
-                blockBB.Max += he;
+                var he = bb.HalfExtents;
+                bb.Min += he;
+                bb.Max += he;
 
                 Shape.GetChildren(m_tmpChildren);
                 if (m_tmpChildren.Count > 0)
@@ -334,12 +336,12 @@ namespace Sandbox.Game.EntityComponents
                     foreach (var child in m_tmpChildren)
                     {
                         var shape = child.Shape;
-                        shape = AddMountForShape(shape, m, ref blockBB, Block.CubeGrid.GridSize, MountPoints);
+                        shape = AddMountForShape(shape, Matrix.Identity, ref bb, Block.CubeGrid.GridSize, MountPoints);
                     }
                 }
                 else
                 {
-                    AddMountForShape(Shape, m, ref blockBB, Block.CubeGrid.GridSize, MountPoints);
+                    AddMountForShape(Shape, Matrix.Identity, ref bb, Block.CubeGrid.GridSize, MountPoints);
                 }
 
                 m_tmpChildren.Clear();
@@ -351,7 +353,7 @@ namespace Sandbox.Game.EntityComponents
             ProfilerShort.End();
         }
 
-        public static HkdBreakableShape AddMountForShape(HkdBreakableShape shape, Matrix transform, ref BoundingBox blockBB, float gridSize, 
+        public static HkdBreakableShape AddMountForShape(HkdBreakableShape shape, Matrix transform, ref BoundingBox blockBB, float gridSize,
             List<MyCubeBlockDefinition.MountPoint> outMountPoints)
         {
             Vector4 min;
@@ -409,6 +411,24 @@ namespace Sandbox.Game.EntityComponents
                 }
             }
             return shape;
+        }
+
+        public float GetIntegrityRatioFromFracturedPieceCounts()
+        {
+            if (Shape.IsValid() && Block != null)
+            {
+                int totalCount = Block.GetTotalBreakableShapeChildrenCount();
+                Debug.Assert(totalCount > 0);
+                if (totalCount > 0)
+                {
+                    int count = Shape.GetTotalChildrenCount();
+                    Debug.Assert(count <= totalCount);
+                    if (count <= totalCount)
+                        return (float)count / totalCount;
+                }
+            }
+
+            return 0f;
         }
 
         class MyFractureComponentBlockDebugRender : MyDebugRenderComponentBase

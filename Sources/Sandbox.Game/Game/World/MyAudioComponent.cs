@@ -12,6 +12,7 @@ using System.Text;
 using VRage;
 using VRage.Audio;
 using VRage.Collections;
+using VRage.Game.Components;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -53,12 +54,18 @@ namespace Sandbox.Game.World
         {
             MyEntity3DSoundEmitter emitter = null;
             if(!m_singleUseEmitterPool.TryDequeue(out emitter))
+            {
                 if (m_currentEmitters < POOL_CAPACITY)
                 {
                     emitter = new MyEntity3DSoundEmitter(null);
                     emitter.StoppedPlaying += emitter_StoppedPlaying;
                     m_currentEmitters++;
                 }
+            }
+            else
+            {
+                m_currentEmitters++;
+            }
             return emitter;
         }
 
@@ -67,6 +74,7 @@ namespace Sandbox.Game.World
             emitter.Entity = null;
             emitter.SoundId = new MyCueId(MyStringHash.NullOrEmpty);
             m_singleUseEmitterPool.Enqueue(emitter);
+            m_currentEmitters--;
         }
 
         protected override void UnloadData()
@@ -76,20 +84,19 @@ namespace Sandbox.Game.World
             m_currentEmitters = 0;
         }
 
-        static MyStringId m_startCue = MyStringId.GetOrCompute("Start");
-
-        public static void PlayContactSound(long entityId, Vector3D position, MyStringHash materialA, MyStringHash materialB, float volume = 1, Func<bool> canHear = null, Func<bool> shouldPlay2D = null)
+        public static bool PlayContactSound(long entityId, MyStringId strID, Vector3D position, MyStringHash materialA, MyStringHash materialB, float volume = 1, Func<bool> canHear = null, Func<bool> shouldPlay2D = null)
         {
             ProfilerShort.Begin("GetCue");
-            MySoundPair cue = MyMaterialPropertiesHelper.Static.GetCollisionCue(m_startCue, materialA, materialB);
+
+            MySoundPair cue = MyMaterialPropertiesHelper.Static.GetCollisionCue(strID, materialA, materialB);
+
             if (!cue.SoundId.IsNull && MyAudio.Static.SourceIsCloseEnoughToPlaySound(position, cue.SoundId))
             {
-
                 MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
                 if (emitter == null)
                 {
                     ProfilerShort.End();
-                    return;
+                    return false;
                 }
                 ProfilerShort.BeginNextBlock("Emitter lambdas");
                 MyAudioComponent.ContactSoundsPool.TryAdd(entityId, 0);
@@ -122,8 +129,13 @@ namespace Sandbox.Game.World
                         emitter.Sound.SetVolume(volume);
                     }
                 }
+
+                ProfilerShort.End();
+                return true;
             }
+
             ProfilerShort.End();
+            return false;
         }
 
         private static MyStringId m_destructionSound = MyStringId.GetOrCompute("Destruction");
@@ -152,7 +164,9 @@ namespace Sandbox.Game.World
             MyPhysicalMaterialDefinition def = null;
             if (b.FatBlock is MyCompoundCubeBlock)
             {
-                def = (b.FatBlock as MyCompoundCubeBlock).GetBlocks()[0].BlockDefinition.PhysicalMaterial;
+                var compound = b.FatBlock as MyCompoundCubeBlock;
+                if (compound.GetBlocksCount() > 0)
+                    def = compound.GetBlocks()[0].BlockDefinition.PhysicalMaterial;
             }
             else if (b.FatBlock is MyFracturedBlock)
             {

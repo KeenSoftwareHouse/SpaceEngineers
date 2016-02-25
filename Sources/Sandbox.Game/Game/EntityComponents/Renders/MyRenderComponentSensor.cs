@@ -8,7 +8,8 @@ using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
@@ -33,7 +34,7 @@ namespace Sandbox.Game.Components
                 SetHighlight();
 
                 var matrix = Container.Entity.PositionComp.WorldMatrix;
-                if (MySession.ControlledEntity == this)
+                if (MySession.Static.ControlledEntity == this)
                 {
                     Vector4 color = Color.Red.ToVector4();
                     MySimpleObjectDraw.DrawLine(matrix.Translation, matrix.Translation + matrix.Forward * Container.Entity.PositionComp.LocalVolume.Radius * 1.2f, null, ref color, 0.05f);

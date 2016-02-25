@@ -18,13 +18,14 @@ using VRage.Voxels;
 using VRage.Serialization;
 using VRageMath;
 using Sandbox.Game.World.Generator;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.World.Generator
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, 500, typeof(MyObjectBuilder_Encounters))]
     class MyEncounterGenerator : MySessionComponentBase
     {
         private const double m_minDistanceToRecognizeMovement = 100.0; 
@@ -259,7 +260,7 @@ namespace Sandbox.Game.World.Generator
 
             float rnd = m_random.NextFloat(0.0f, m_spawnGroupTotalFrequencies);
             int selectedEncounter = 0;
-            while (selectedEncounter < m_spawnGroupCumulativeFrequencies.Count())
+            while (selectedEncounter < m_spawnGroupCumulativeFrequencies.Count)
             {
                 if (rnd <= m_spawnGroupCumulativeFrequencies[selectedEncounter])
                     break;
@@ -267,8 +268,8 @@ namespace Sandbox.Game.World.Generator
                 ++selectedEncounter;
             }
 
-            if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count())
-                selectedEncounter = m_spawnGroupCumulativeFrequencies.Count() - 1;
+            if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count)
+                selectedEncounter = m_spawnGroupCumulativeFrequencies.Count - 1;
             return selectedEncounter;
         }
 

@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.Components;
 using VRage;
 using VRage.ObjectBuilders;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
@@ -27,13 +24,13 @@ namespace Sandbox.Game.Entities
             return CreateEntity(builder.TypeId, builder.SubtypeName);
         }
 
-        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null)
+        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null, bool autoRaiseCreated = true)
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             MyEntity entity = m_objectFactory.CreateInstance(typeId);
             AddScriptGameLogic(entity, typeId, subTypeName);
             ProfilerShort.End();
-            MyEntities.RaiseEntityCreated(entity);
+            MyEntities.RaiseEntityCreated(entity);            
             return entity;
         }
 
@@ -43,7 +40,7 @@ namespace Sandbox.Game.Entities
             T entity = m_objectFactory.CreateInstance<T>(builder.TypeId);
             AddScriptGameLogic(entity, builder.GetType(), builder.SubtypeName);
             ProfilerShort.End();
-            MyEntities.RaiseEntityCreated(entity);
+            MyEntities.RaiseEntityCreated(entity);           
             return entity;
         }
 
@@ -94,13 +91,4 @@ namespace Sandbox.Game.Entities
             return m_objectFactory.CreateObjectBuilder<MyObjectBuilder_EntityBase>(entity);
         }
     }
-
-    public class MyEntityTypeAttribute : MyFactoryTagAttribute
-    {
-        public MyEntityTypeAttribute(Type objectBuilderType, bool mainBuilder = true)
-            : base(objectBuilderType, mainBuilder)
-        {
-        }
-    }
-
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using VRageMath;
 using VRageRender.Textures;
 
@@ -14,15 +15,7 @@ namespace VRageRender
         public MyRenderQualityEnum RenderQuality;
 
         //LODs
-        public float LodTransitionDistanceNear;
-        public float LodTransitionDistanceFar;
-        public float LodTransitionDistanceBackgroundStart;
-        public float LodTransitionDistanceBackgroundEnd;
         public float[][] LodClipmapRanges;
-
-        // LODs for Environment maps
-        public float EnvironmentLodTransitionDistance;
-        public float EnvironmentLodTransitionDistanceBackground;
 
         //Textures
         public TextureQuality TextureQuality;
@@ -169,27 +162,22 @@ namespace VRageRender
 
         static MyRenderConstants()
         {
-            var massiveClipmapLodRanges = new float[] { 66f, 200f, 550f, 1000f, 1700 };
-            //var massiveClipmapLodRanges = new float[] { 60f, 110f, 410f, 620f,1650f,2330f,3100f, 8240f, 51380f, 59600f, 73000f };
+            var massiveClipmapLodRangesHigh = new float[]   { 66f, 200f, 550f, 1000f, 1700, 3000, 6000, 15000, 40000, 100000, 250000 };
+            var massiveClipmapLodRangesNormal = new float[] { 60f, 180f, 500f, 900f, 1600, 2800, 5500, 14000, 35000, 90000, 220000 };
+            var massiveClipmapLodRangesLow = new float[]    { 55f, 150f, 450f, 800f, 1500, 2600, 4000, 13000, 30000, 80000, 200000 };
+            
+            
 
             m_renderQualityProfiles[(int)MyRenderQualityEnum.NORMAL] = new MyRenderQualityProfile()
             {
                 RenderQuality = MyRenderQualityEnum.NORMAL,
 
                 //LODs
-                LodTransitionDistanceNear = 150,
-                LodTransitionDistanceFar = 200,
-                LodTransitionDistanceBackgroundStart = 1000,
-                LodTransitionDistanceBackgroundEnd = 1100,
                 LodClipmapRanges = new float[][]
-                { // base was 32f * 4f
+                { 
                     new float[] { 100f, 300f, 800f, 2000f, 4500f, 13500f, 30000f, 100000f, },
-                    massiveClipmapLodRanges,
+                    massiveClipmapLodRangesNormal
                 },
-
-                // No need to set, env maps enabled only on high and extreme
-                EnvironmentLodTransitionDistance = 200,
-                EnvironmentLodTransitionDistanceBackground = 300,
 
                 //Textures
                 TextureQuality = TextureQuality.Half,
@@ -255,19 +243,11 @@ namespace VRageRender
                 RenderQuality = MyRenderQualityEnum.LOW,
 
                 //LODs
-                LodTransitionDistanceNear = 60,
-                LodTransitionDistanceFar = 80,
-                LodTransitionDistanceBackgroundStart = 300,
-                LodTransitionDistanceBackgroundEnd = 350,
                 LodClipmapRanges = new float[][]
-                { // base was 32f * 2f
+                { 
                     new float[] { 80f, 240f, 600f, 1600f, 4800f, 14000f, 35000f, 100000f, },
-                    massiveClipmapLodRanges,
+                    massiveClipmapLodRangesLow, 
                 },
-
-                // No need to set, env maps enabled only on high and extreme
-                EnvironmentLodTransitionDistance = 10,
-                EnvironmentLodTransitionDistanceBackground = 20,
 
                 //Textures
                 TextureQuality = TextureQuality.OneFourth,
@@ -331,18 +311,11 @@ namespace VRageRender
                 RenderQuality = MyRenderQualityEnum.HIGH,
 
                 //LODs
-                LodTransitionDistanceNear = 200,
-                LodTransitionDistanceFar = 250,
-                LodTransitionDistanceBackgroundStart = 1800,
-                LodTransitionDistanceBackgroundEnd = 2000,
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 6f
                     new float[] { 120f, 360f, 900f, 2000f, 4500f, 13500f, 30000f, 100000f, },
-                    massiveClipmapLodRanges,
+                    massiveClipmapLodRangesHigh,
                 },
-
-                EnvironmentLodTransitionDistance = 40,
-                EnvironmentLodTransitionDistanceBackground = 80,
 
                 //Textures
                 TextureQuality = TextureQuality.Full,
@@ -406,18 +379,11 @@ namespace VRageRender
                 RenderQuality = MyRenderQualityEnum.EXTREME,
 
                 //LODs
-                LodTransitionDistanceNear = 1000,
-                LodTransitionDistanceFar = 1100,
-                LodTransitionDistanceBackgroundStart = 4200,
-                LodTransitionDistanceBackgroundEnd = 5000,
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 8f
                     new float[] { 140f, 400f, 1000f, 2000f, 4500f, 13500f, 30000f, 100000f, },
-                    massiveClipmapLodRanges,
+                    massiveClipmapLodRangesHigh,
                 },
-
-                EnvironmentLodTransitionDistance = 50,
-                EnvironmentLodTransitionDistanceBackground = 100,
 
                 //Textures
                 TextureQuality = TextureQuality.Full,

@@ -14,6 +14,7 @@ using Sandbox.Common;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
 
@@ -23,20 +24,27 @@ namespace Sandbox.Game.Entities
     class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyBatteryBlock
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
-        private MyBatteryBlockDefinition m_batteryBlockDefinition;
-		public MyBatteryBlockDefinition BatteryBlockDefinition { get { return m_batteryBlockDefinition; } }
+
+		public new MyBatteryBlockDefinition BlockDefinition { get { return base.BlockDefinition as MyBatteryBlockDefinition; } }
         private bool m_hasRemainingCapacity;
         private float m_maxOutput;
         private float m_currentOutput;
         private float m_currentStoredPower;
         private float m_maxStoredPower;
+        private int m_lastUpdateTime;
         private float m_timeRemaining = 0;
-        private bool m_isFull;
+
+        private const int m_productionUpdateInterval = 100;
+
+        private readonly Sync<bool> m_isFull;
+        private readonly Sync<bool> m_onlyRecharge;
+        private readonly Sync<bool> m_onlyDischarge;
+        private readonly Sync<bool> m_semiautoEnabled;
+        private readonly Sync<bool> m_producerEnabled;
+        private readonly Sync<float> m_storedPower;
 
         private Color m_prevEmissiveColor = Color.Black;
         private int m_prevFillCount = -1;
-
-        private new MySyncBatteryBlock SyncObject;
 
 		private MyResourceSourceComponent m_sourceComp;
 		public MyResourceSourceComponent SourceComp
@@ -45,73 +53,147 @@ namespace Sandbox.Game.Entities
 			set { if (Components.Contains(typeof(MyResourceSourceComponent))) Components.Remove<MyResourceSourceComponent>(); Components.Add<MyResourceSourceComponent>(value); m_sourceComp = value; }
 		}
 
+        public float TimeRemaining { get { return m_timeRemaining; } set { m_timeRemaining = value; UpdateText(); } }
+        public bool HasCapacityRemaining { get { return SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId); } }
+        public float MaxStoredPower { get { return m_maxStoredPower; } private set { if (m_maxStoredPower != value) m_maxStoredPower = value; } }
+
+        public float CurrentStoredPower
+        {
+            get { return SourceComp.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId); }
+            set
+            {
+                SourceComp.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, MathHelper.Clamp(value, 0f, MaxStoredPower));
+                UpdateMaxOutputAndEmissivity();
+            }
+        }
+
+        public bool SemiautoEnabled
+        {
+            get { return m_semiautoEnabled; }
+            set
+            {
+                m_semiautoEnabled.Value = value;
+                
+                if(!OnlyRecharge && !OnlyDischarge)
+                {
+                    if (CurrentStoredPower == 0)
+                        OnlyRecharge = true;
+                    else
+                        OnlyDischarge = true;
+                }
+            }
+        }
+
+        public bool OnlyRecharge
+        {
+            get { return m_onlyRecharge.Value; }
+            set
+            {
+                m_onlyRecharge.Value = value;
+                m_producerEnabled.Value = !value;          
+            }
+        }
+
+        public bool OnlyDischarge
+        {
+            get { return m_onlyDischarge.Value; }
+            set
+            {
+                m_onlyDischarge.Value = value;
+            }
+        }
+
         protected override bool CheckIsWorking()
         {
-			return SourceComp.HasCapacityRemaining && base.CheckIsWorking();
+			return Enabled && SourceComp.Enabled && SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
         static MyBatteryBlock()
         {
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
-			recharge.Getter = (x) => !x.SourceComp.ProductionEnabled;
-            recharge.Setter = (x, v) => x.SyncObject.SendProducerEnableChange(!v);
-            recharge.Enabled = (x) => !x.SemiautoEnabled;
+            recharge.Getter = (x) => x.OnlyRecharge;
+            recharge.Setter = (x, v) => x.OnlyRecharge = v;
+            recharge.Enabled = (x) => !x.SemiautoEnabled && !x.OnlyDischarge;
             recharge.EnableAction();
+
+            var discharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Discharge", MySpaceTexts.BlockPropertyTitle_Discharge, MySpaceTexts.ToolTipBatteryBlock_Discharge);
+            discharge.Getter = (x) => x.OnlyDischarge;
+            discharge.Setter = (x, v) => x.OnlyDischarge = v;
+            discharge.Enabled = (x) => !x.SemiautoEnabled && !x.OnlyRecharge;
+            discharge.EnableAction();
 
             var semiAuto = new MyTerminalControlCheckbox<MyBatteryBlock>("SemiAuto", MySpaceTexts.BlockPropertyTitle_Semiauto, MySpaceTexts.ToolTipBatteryBlock_Semiauto);
             semiAuto.Getter = (x) => x.SemiautoEnabled;
-            semiAuto.Setter = (x, v) => x.SyncObject.SendSemiautoEnableChange(v);
+            semiAuto.Setter = (x, v) => x.SemiautoEnabled = v;
             semiAuto.EnableAction();
 
             MyTerminalControlFactory.AddControl(recharge);
+            MyTerminalControlFactory.AddControl(discharge);
             MyTerminalControlFactory.AddControl(semiAuto);
         }
 
-	    public MyBatteryBlock()
-	    {
-			SourceComp = new MyResourceSourceComponent();
-			ResourceSink = new MyResourceSinkComponent();
+        public MyBatteryBlock()
+        {
+            SourceComp = new MyResourceSourceComponent();
+            ResourceSink = new MyResourceSinkComponent();
+            m_semiautoEnabled.ValueChanged += (x) => UpdateMaxOutputAndEmissivity();
+            m_onlyRecharge.ValueChanged += (x) => { if (m_onlyRecharge.Value) m_onlyDischarge.Value = false; UpdateMaxOutputAndEmissivity(); };
+            m_onlyDischarge.ValueChanged += (x) => { if (m_onlyDischarge.Value) m_onlyRecharge.Value = false; UpdateMaxOutputAndEmissivity(); };
+
+            m_producerEnabled.ValueChanged += (x) => ProducerEnadChanged();
+            m_storedPower.ValueChanged += (x) => CapacityChanged();
 	    }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            base.Init(objectBuilder, cubeGrid);
-
-            SyncObject = new MySyncBatteryBlock(this);
-
-            MyDebug.AssertDebug(BlockDefinition.Id.TypeId == typeof(MyObjectBuilder_BatteryBlock));
-            m_batteryBlockDefinition = BlockDefinition as MyBatteryBlockDefinition;
-            MyDebug.AssertDebug(m_batteryBlockDefinition != null);
-
-	        var sourceDataList = new List<MyResourceSourceInfo>
+            var sourceDataList = new List<MyResourceSourceInfo>
 	        {
-		        new MyResourceSourceInfo { ResourceTypeId = MyResourceDistributorComponent.ElectricityId, DefinedOutput = m_batteryBlockDefinition.MaxPowerOutput, ProductionToCapacityMultiplier = 60*60}
+		        new MyResourceSourceInfo { ResourceTypeId = MyResourceDistributorComponent.ElectricityId, DefinedOutput = BlockDefinition.MaxPowerOutput, ProductionToCapacityMultiplier = 60*60}
 	        };
 
-			SourceComp.Init(m_batteryBlockDefinition.ResourceSourceGroup, sourceDataList);
-			SourceComp.HasCapacityRemainingChanged += (id, source) => UpdateIsWorking();
+            SourceComp.Init(BlockDefinition.ResourceSourceGroup, sourceDataList);
+            SourceComp.HasCapacityRemainingChanged += (id, source) => UpdateIsWorking();
+            SourceComp.ProductionEnabledChanged += Source_ProductionEnabledChanged;
 
-            MaxStoredPower = m_batteryBlockDefinition.MaxStoredPower;
+            var batteryBuilder = (MyObjectBuilder_BatteryBlock)objectBuilder;
 
-			ResourceSink.Init(
-            m_batteryBlockDefinition.ResourceSinkGroup, 
-            m_batteryBlockDefinition.RequiredPowerInput,
-			() => (Enabled && IsFunctional && !SourceComp.ProductionEnabled && !m_isFull) ? ResourceSink.MaxRequiredInput : 0.0f);
-			ResourceSink.Update();
+            SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, batteryBuilder.ProducerEnabled);
 
-            var obGenerator = (MyObjectBuilder_BatteryBlock)objectBuilder;
-            CurrentStoredPower = obGenerator.CurrentStoredPower;
-			SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, obGenerator.ProducerEnabled);
-            SemiautoEnabled = obGenerator.SemiautoEnabled;
+            MaxStoredPower = BlockDefinition.MaxStoredPower;
 
+            ResourceSink.Init(
+            BlockDefinition.ResourceSinkGroup,
+            BlockDefinition.RequiredPowerInput,
+            Sink_ComputeRequiredPower);
+
+            base.Init(objectBuilder, cubeGrid);
+
+            ResourceSink.Update();
+
+            MyDebug.AssertDebug(BlockDefinition != null);
+            MyDebug.AssertDebug(BlockDefinition.Id.TypeId == typeof(MyObjectBuilder_BatteryBlock));
+	                
+            if (batteryBuilder.CurrentStoredPower >= 0)
+                CurrentStoredPower = batteryBuilder.CurrentStoredPower;
+            else
+                CurrentStoredPower = BlockDefinition.InitialStoredPowerRatio * BlockDefinition.MaxStoredPower;
+
+            m_storedPower.Value = CurrentStoredPower;
+
+            OnlyRecharge = !batteryBuilder.ProducerEnabled;
+			
+            SemiautoEnabled = batteryBuilder.SemiautoEnabled;
+            OnlyDischarge = batteryBuilder.OnlyDischargeEnabled;
             UpdateMaxOutputAndEmissivity();
 
             UpdateText();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
-            this.IsWorkingChanged += MyBatteryBlock_IsWorkingChanged;
+            IsWorkingChanged += MyBatteryBlock_IsWorkingChanged;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+
+            m_lastUpdateTime = MySession.Static.GameplayFrameCounter;
 
             if (IsWorking)
                 OnStartWorking();
@@ -129,6 +211,7 @@ namespace Sandbox.Game.Entities
             ob.CurrentStoredPower = CurrentStoredPower;
 			ob.ProducerEnabled = SourceComp.ProductionEnabled;
             ob.SemiautoEnabled = SemiautoEnabled;
+            ob.OnlyDischargeEnabled = OnlyDischarge;
             return ob;
         }
 
@@ -140,7 +223,8 @@ namespace Sandbox.Game.Entities
 
         protected override void Closing()
         {
-            m_soundEmitter.StopSound(true);
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
             base.Closing();
         }
 
@@ -150,6 +234,20 @@ namespace Sandbox.Game.Entities
             UpdateEmissivity();
         }
 
+        private float Sink_ComputeRequiredPower()
+        {
+            bool canRecharge = Enabled && IsFunctional && !m_isFull;
+            bool shouldRecharge = OnlyRecharge || !OnlyDischarge;
+            float inputToFillInUpdateInterval = (MaxStoredPower - CurrentStoredPower) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_productionUpdateInterval * SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId);
+            float currentOutput = SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId);
+            return canRecharge && shouldRecharge ? Math.Min(inputToFillInUpdateInterval + currentOutput, ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId)) : 0.0f;
+        }
+
+        private float ComputeMaxPowerOutput()
+        {
+            return CheckIsWorking() && SourceComp.ProductionEnabledByType(MyResourceDistributorComponent.ElectricityId) ? BlockDefinition.MaxPowerOutput : 0f;
+        }   
+        
         private void CalculateOutputTimeRemaining()
         {
 			if (CurrentStoredPower != 0 && SourceComp.CurrentOutput != 0)
@@ -161,7 +259,7 @@ namespace Sandbox.Game.Entities
         private void CalculateInputTimeRemaining()
         {
 			if (ResourceSink.CurrentInput != 0)
-				TimeRemaining = (MaxStoredPower - CurrentStoredPower) / (ResourceSink.CurrentInput / SourceComp.ProductionToCapacityMultiplier);
+				TimeRemaining = (MaxStoredPower - CurrentStoredPower) / (ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) / SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId));
             else
                 TimeRemaining = 0;
         }
@@ -176,31 +274,31 @@ namespace Sandbox.Game.Entities
                 {
                     if (CurrentStoredPower == 0)
                     {
-						SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, false);
-                        SyncObject.SendProducerEnableChange(false);
-                        SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
+                        OnlyRecharge = true;
+                        OnlyDischarge = false;
                     }
-                    if (CurrentStoredPower == MaxStoredPower)
+                    else if (CurrentStoredPower == MaxStoredPower)
                     {
-						SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, true);
-                        SyncObject.SendProducerEnableChange(true);
-                        SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
+                        OnlyRecharge = false;
+                        OnlyDischarge = true;
                     }
                 }
 
-				ResourceSink.Update();
                 UpdateMaxOutputAndEmissivity();
 
-                int timeDelta = 100 * MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
+                float timeDeltaMs = (MySession.Static.GameplayFrameCounter - m_lastUpdateTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 1000f;
+                m_lastUpdateTime = MySession.Static.GameplayFrameCounter;
                 if (!MySession.Static.CreativeMode)
                 {
                     if ((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-						if (!SourceComp.ProductionEnabled)
-							StorePower(timeDelta, ResourceSink.CurrentInput);
+						if (OnlyRecharge)
+							StorePower(timeDeltaMs, ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId));
+                        else if(OnlyDischarge)
+                            ConsumePower(timeDeltaMs, SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId));
                         else
-                            ConsumePower(timeDelta);
+                            TransferPower(timeDeltaMs, ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId), SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId));
                     }
                 }
                 else
@@ -208,23 +306,34 @@ namespace Sandbox.Game.Entities
                     if ((Sync.IsServer && IsFunctional && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-                        if (!SourceComp.ProductionEnabled)
-                            StorePower(timeDelta, (SourceComp.ProductionToCapacityMultiplier*MaxStoredPower)/8f);
+                        if (OnlyRecharge || !OnlyDischarge)
+                        {
+                            float powerToStore = (SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId) * MaxStoredPower) / 8f;
+                            powerToStore *= Enabled && IsFunctional ? 1f : 0f;
+                            StorePower(timeDeltaMs, powerToStore);
+                        }
                         else
                         {
                             UpdateIsWorking();
-                            if (!SourceComp.HasCapacityRemaining)
+                            if (!SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId))
                                 return;
-                            ResourceSink.Update();
                             CalculateOutputTimeRemaining();
                         }
                     }
                 }
+                ResourceSink.Update();
 
-				if (!SourceComp.ProductionEnabled)
+				if (OnlyRecharge)
                     CalculateInputTimeRemaining();
-                else
+                else if (OnlyDischarge)
                     CalculateOutputTimeRemaining();
+                else
+                {
+                    if(ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId) > SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId))
+                        CalculateInputTimeRemaining();
+                    else
+                        CalculateOutputTimeRemaining();
+                }
             }
         }
 
@@ -237,21 +346,22 @@ namespace Sandbox.Game.Entities
 
         private void UpdateMaxOutputAndEmissivity()
         {
-			SourceComp.SetMaxOutput(ComputeMaxPowerOutput());
+            ResourceSink.Update();
+			SourceComp.SetMaxOutputByType(MyResourceDistributorComponent.ElectricityId, (ComputeMaxPowerOutput()));
             UpdateEmissivity();
         }
 
         private void UpdateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BatteryBlock));
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxOutput));
-            MyValueFormatter.AppendWorkInBestUnit(m_batteryBlockDefinition.MaxPowerOutput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(BlockDefinition.MaxPowerOutput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-            MyValueFormatter.AppendWorkInBestUnit(m_batteryBlockDefinition.RequiredPowerInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(BlockDefinition.RequiredPowerInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxStoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(MaxStoredPower, DetailedInfo);
@@ -265,10 +375,17 @@ namespace Sandbox.Game.Entities
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_StoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(CurrentStoredPower, DetailedInfo);
             DetailedInfo.Append("\n");
-			if (!SourceComp.ProductionEnabled)
+            float currentInput = ResourceSink.CurrentInputByType(MyResourceDistributorComponent.ElectricityId);
+            float currentOutput = SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId);
+			if (currentInput > currentOutput)
             {
                 DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RechargedIn));
                 MyValueFormatter.AppendTimeInBestUnit(m_timeRemaining, DetailedInfo);
+            }
+            else if(currentInput == currentOutput)
+            {
+                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_DepletedIn));
+                MyValueFormatter.AppendTimeInBestUnit(float.PositiveInfinity, DetailedInfo);
             }
             else
             {
@@ -278,10 +395,19 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChanged();
         }
 
-        private void StorePower(int timeDelta, float input)
+        private void TransferPower(float timeDeltaMs, float input, float output)
         {
-            float inputPowerPerMillisecond = input / (SourceComp.ProductionToCapacityMultiplier * 1000);
-            float increment = (timeDelta * inputPowerPerMillisecond) * 0.80f;
+            float powerTransfer = input - output;
+            if(powerTransfer < 0)
+                ConsumePower(timeDeltaMs, -powerTransfer);
+            else if(powerTransfer > 0)
+                StorePower(timeDeltaMs, powerTransfer);
+        }
+
+        private void StorePower(float timeDeltaMs, float input)
+        {
+            float inputPowerPerMillisecond = input / (SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId) * 1000);
+            float increment = (timeDeltaMs * inputPowerPerMillisecond) * 0.80f;
 
             if ((CurrentStoredPower + increment) < MaxStoredPower)
             {
@@ -293,28 +419,26 @@ namespace Sandbox.Game.Entities
                 TimeRemaining = 0;
                 if (!m_isFull)
                 {
-                    m_isFull = true;
-                    SyncObject.IsFullChange(m_isFull);
+                    m_isFull.Value = true;
                 }
             }
 
-            SyncObject.CapacityChange(CurrentStoredPower);
+            m_storedPower.Value = CurrentStoredPower;
         }
 
-        private void ConsumePower(int timeDelta)
+        private void ConsumePower(float timeDeltaMs, float output)
         {
-            if (!SourceComp.HasCapacityRemaining)
+            if (!SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId))
                 return;
 
-			float consumptionPerMillisecond = SourceComp.CurrentOutput / (SourceComp.ProductionToCapacityMultiplier * 1000);
-            float consumedPower = timeDelta * consumptionPerMillisecond;
+            float consumptionPerMillisecond = output / (SourceComp.ProductionToCapacityMultiplier * 1000f);
+            float consumedPower = timeDeltaMs * consumptionPerMillisecond;
 
             if (consumedPower == 0)
                 return;
 
             if ((CurrentStoredPower - consumedPower) <= 0)
             {
-				SourceComp.SetMaxOutput(0);
 				SourceComp.SetOutput(0);
                 CurrentStoredPower = 0;
                 TimeRemaining = 0;
@@ -324,11 +448,10 @@ namespace Sandbox.Game.Entities
                 CurrentStoredPower -= consumedPower;
                 if (m_isFull)
                 {
-                    m_isFull = false;
-                    SyncObject.IsFullChange(m_isFull);
+                    m_isFull.Value = false;
                 }
             }
-            SyncObject.CapacityChange(CurrentStoredPower);
+            m_storedPower.Value = CurrentStoredPower;
         }
 
         internal void UpdateEmissivity()
@@ -340,17 +463,12 @@ namespace Sandbox.Game.Entities
             {
                 if (IsWorking)
                 {
-
                     float percentage = (CurrentStoredPower / MaxStoredPower);
 
-                    if (SourceComp.ProductionEnabled)
-                    {
+                    if (!OnlyDischarge)
                         SetEmissive(Color.Green, percentage);
-                    }
                     else
-                    {
                         SetEmissive(Color.SteelBlue, percentage);
-                    }
                 }
                 else
                 {
@@ -392,220 +510,27 @@ namespace Sandbox.Game.Entities
             m_prevFillCount = -1;
         }
 
-        private float ComputeMaxPowerOutput()
-        {
-            return IsWorking && SourceComp.ProductionEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;
-        }
-
-        public float TimeRemaining
-        {
-            get { return m_timeRemaining; }
-            set
-            {
-                m_timeRemaining = value;
-                UpdateText();
-            }
-        }
-
-		public bool HasCapacityRemaining { get { return SourceComp.HasCapacityRemaining; } }
-
-        public float MaxStoredPower
-        {
-            get { return m_maxStoredPower; }
-            private set
-            {
-                if (m_maxStoredPower != value)
-                    m_maxStoredPower = value;
-            }
-        }
-
-        public float CurrentStoredPower
-        {
-            get { return SourceComp.RemainingCapacity; }
-            set
-            {
-                MyDebug.AssertDebug(value <= MaxStoredPower && value >= 0.0f);
-                SourceComp.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, value);
-                UpdateMaxOutputAndEmissivity();
-            }
-        }
-
-        public bool SemiautoEnabled
-        {
-            get { return m_semiautoEnabled; }
-            set
-            {
-                m_semiautoEnabled = value;
-
-                UpdateMaxOutputAndEmissivity();
-				ResourceSink.Update();
-            }
-        }
-        private bool m_semiautoEnabled;
-
         void ComponentStack_IsFunctionalChanged()
         {
+            if(!IsFunctional)
+                CurrentStoredPower = 0;
             UpdateMaxOutputAndEmissivity();
         }
 
-        [PreloadRequired]
-        class MySyncBatteryBlock
+        void ProducerEnadChanged()
         {
-            MyBatteryBlock m_batteryBlock;
+            SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, m_producerEnabled.Value);
+        }
 
-            public MySyncBatteryBlock(MyBatteryBlock batteryBlock)
-            {
-                m_batteryBlock = batteryBlock;
-            }
+        private void Source_ProductionEnabledChanged(MyDefinitionId changedResourceId, MyResourceSourceComponent source)
+        {
+            Enabled = source.Enabled;
+            UpdateIsWorking();
+        }
 
-            static MySyncBatteryBlock()
-            {
-
-                MySyncLayer.RegisterMessage<ProducerEnabledMsg>(OnProducerEnableChange, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<SemiautoEnabledMsg>(OnSemiautoEnableChange, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<CapacityMsg>(CapacityChange, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<IsFullMsg>(IsFullChange, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            }
-
-            [MessageIdAttribute(15870, P2PMessageEnum.Reliable)]
-            protected struct ProducerEnabledMsg : IEntityMessage
-            {
-                public long EntityId;
-
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit ProducerEnabled;
-
-                public override string ToString()
-                {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            static void OnProducerEnableChange(ref ProducerEnabledMsg msg, MyNetworkClient sender)
-            {
-                MyBatteryBlock batteryBlock;
-                if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
-                {
-                    batteryBlock.SourceComp.SetProductionEnabledByType(MyResourceDistributorComponent.ElectricityId, msg.ProducerEnabled);
-                    if (Sync.IsServer)
-                        Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
-
-            public void SendProducerEnableChange(bool producerEnabled)
-            {
-                var msg = new ProducerEnabledMsg();
-                msg.EntityId = m_batteryBlock.EntityId;
-                msg.ProducerEnabled = producerEnabled;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            [MessageIdAttribute(15871, P2PMessageEnum.Reliable)]
-            protected struct SemiautoEnabledMsg : IEntityMessage
-            {
-                public long EntityId;
-
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit SemiautoEnabled;
-
-                public override string ToString()
-                {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            static void OnSemiautoEnableChange(ref SemiautoEnabledMsg msg, MyNetworkClient sender)
-            {
-                MyBatteryBlock batteryBlock;
-                if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
-                {
-                    batteryBlock.SemiautoEnabled = msg.SemiautoEnabled;
-                    if (Sync.IsServer)
-                        Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
-
-            public void SendSemiautoEnableChange(bool semiautoEnabled)
-            {
-                var msg = new SemiautoEnabledMsg();
-                msg.EntityId = m_batteryBlock.EntityId;
-                msg.SemiautoEnabled = semiautoEnabled;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            [MessageIdAttribute(1587, P2PMessageEnum.Reliable)]
-            protected struct CapacityMsg : IEntityMessage
-            {
-                public long EntityId;
-
-                public long GetEntityId() { return EntityId; }
-
-                public float capacity;
-
-                public override string ToString()
-                {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            static void CapacityChange(ref CapacityMsg msg, MyNetworkClient sender)
-            {
-                MyBatteryBlock batteryBlock;
-                if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
-                {
-                    batteryBlock.CurrentStoredPower = msg.capacity;
-                    if (Sync.IsServer)
-                        Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
-
-            public void CapacityChange(float capacity)
-            {
-                var msg = new CapacityMsg();
-                msg.EntityId = m_batteryBlock.EntityId;
-                msg.capacity = capacity;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-        [MessageIdAttribute(1588, P2PMessageEnum.Reliable)]
-            protected struct IsFullMsg : IEntityMessage
-            {
-                public long EntityId;
-
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit isFull;
-
-                public override string ToString()
-                {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            static void IsFullChange(ref IsFullMsg msg, MyNetworkClient sender)
-            {
-                MyBatteryBlock batteryBlock;
-                if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
-                {
-                    batteryBlock.m_isFull = msg.isFull;
-                    if (Sync.IsServer)
-                        Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
-
-            public void IsFullChange(bool isFull)
-            {
-                var msg = new IsFullMsg();
-                msg.EntityId = m_batteryBlock.EntityId;
-                msg.isFull = isFull;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
+        void CapacityChanged()
+        {
+            CurrentStoredPower = m_storedPower.Value;
         }
     }
 }

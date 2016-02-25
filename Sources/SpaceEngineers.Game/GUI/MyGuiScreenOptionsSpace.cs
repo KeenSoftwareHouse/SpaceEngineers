@@ -24,7 +24,7 @@ namespace SpaceEngineers.Game.GUI
         {
             base.RecreateControls(constructor);
 
-            AddCaption(MySpaceTexts.ScreenCaptionOptions);
+            AddCaption(MyCommonTexts.ScreenCaptionOptions);
 
             Vector2 menuPositionOrigin = new Vector2(0.0f, -m_size.Value.Y / 2.0f + 0.146f);
 
@@ -32,7 +32,7 @@ namespace SpaceEngineers.Game.GUI
 
             Controls.Add(new MyGuiControlButton(
                 position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonGame),
+                text: MyTexts.Get(MyCommonTexts.ScreenOptionsButtonGame),
                 onButtonClick: OnGameClick));
 
             if (MyFakes.ENABLE_DX11_RENDERER)
@@ -62,12 +62,12 @@ namespace SpaceEngineers.Game.GUI
 
             Controls.Add(new MyGuiControlButton(
                 position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonAudio),
+                text: MyTexts.Get(MyCommonTexts.ScreenOptionsButtonAudio),
                 onButtonClick: OnAudioClick));
 
             Controls.Add(new MyGuiControlButton(
                 position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonControls),
+                text: MyTexts.Get(MyCommonTexts.ScreenOptionsButtonControls),
                 onButtonClick: OnControlsClick));
 
             CloseButtonEnabled = true;

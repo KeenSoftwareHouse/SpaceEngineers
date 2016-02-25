@@ -395,28 +395,13 @@ namespace VRageMath
             }
         }
 
-        /*  This is just very wrong
-        public Vector3 Scale
-        {
-            get
-            {
-                return new Vector3(M11, M22, M33);
-            }
-            set
-            {
-                M11 = value.X;
-                M22 = value.Y;
-                M33 = value.Z;
-            }
-        } */
-
 
         public Vector3 Scale
         {
             get
             {
-                //return new Vector3(Right.Length(), Up.Length(), Forward.Length());
-                return new Vector3(Col0.Length(), Col1.Length(), Col2.Length());
+                return new Vector3(Right.Length(), Up.Length(), Forward.Length());
+                //return new Vector3(Col0.Length(), Col1.Length(), Col2.Length());
             }
         }
 

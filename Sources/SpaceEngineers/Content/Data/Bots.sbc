@@ -3,7 +3,7 @@
   <Bots>
     <Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
       <Id>
-        <TypeId>BotDefinition</TypeId>
+        <TypeId>MyObjectBuilder_AnimalBot</TypeId>
         <SubtypeId>SpaceSpider</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Bots_Deer</DisplayName>
@@ -14,12 +14,102 @@
       <TargetType>Spider</TargetType>
       <Public>true</Public>
       <AvailableInSurvival>false</AvailableInSurvival>
-      <RemoveAfterDeath>false</RemoveAfterDeath>
+      <RemoveAfterDeath>true</RemoveAfterDeath>
       <InventoryContentGenerated>true</InventoryContentGenerated>
       <InventoryContainerTypeId>
         <TypeId>ContainerTypeDefinition</TypeId>
         <SubtypeId>SpiderLoot</SubtypeId>
       </InventoryContainerTypeId>
+      <FactionTag>SPID</FactionTag>
     </Bot>
+  
+    <Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_AnimalBot</TypeId>
+        <SubtypeId>SpaceSpiderBlack</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Bots_Deer</DisplayName>
+      <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
+      <BotModel>Space_spider_black</BotModel>
+      <BotBehaviorTree Subtype="SpiderBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Spider</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Spider</TargetType>
+      <Public>true</Public>
+      <AvailableInSurvival>false</AvailableInSurvival>
+      <RemoveAfterDeath>true</RemoveAfterDeath>
+      <InventoryContentGenerated>true</InventoryContentGenerated>
+      <InventoryContainerTypeId>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>SpiderLoot</SubtypeId>
+      </InventoryContainerTypeId>
+      <FactionTag>SPID</FactionTag>
+    </Bot>
+    
+    <Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_AnimalBot</TypeId>
+        <SubtypeId>SpaceSpiderBrown</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Bots_Deer</DisplayName>
+      <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
+      <BotModel>Space_spider_brown</BotModel>
+      <BotBehaviorTree Subtype="SpiderBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Spider</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Spider</TargetType>
+      <Public>true</Public>
+      <AvailableInSurvival>false</AvailableInSurvival>
+      <RemoveAfterDeath>true</RemoveAfterDeath>
+      <InventoryContentGenerated>true</InventoryContentGenerated>
+      <InventoryContainerTypeId>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>SpiderLoot</SubtypeId>
+      </InventoryContainerTypeId>
+      <FactionTag>SPID</FactionTag>
+    </Bot>
+    
+    <Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_AnimalBot</TypeId>
+        <SubtypeId>SpaceSpiderGreen</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Bots_Deer</DisplayName>
+      <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
+      <BotModel>Space_spider_green</BotModel>
+      <BotBehaviorTree Subtype="SpiderBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Spider</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Spider</TargetType>
+      <Public>true</Public>
+      <AvailableInSurvival>false</AvailableInSurvival>
+      <RemoveAfterDeath>true</RemoveAfterDeath>
+      <InventoryContentGenerated>true</InventoryContentGenerated>
+      <InventoryContainerTypeId>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>SpiderLoot</SubtypeId>
+      </InventoryContainerTypeId>
+      <FactionTag>SPID</FactionTag>
+    </Bot>
+	
+	<Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_AnimalBot</TypeId>
+        <SubtypeId>Cyberhound</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Bots_Deer</DisplayName>
+      <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
+      <BotModel>Space_cyberhound</BotModel>
+      <BotBehaviorTree Subtype="CyberhoundBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Cyberhound</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Cyberhound</TargetType>
+      <Public>true</Public>
+      <AvailableInSurvival>false</AvailableInSurvival>
+      <RemoveAfterDeath>true</RemoveAfterDeath>
+      <InventoryContentGenerated>true</InventoryContentGenerated>
+      <InventoryContainerTypeId>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>CyberhoundLoot</SubtypeId>
+      </InventoryContainerTypeId>
+      <FactionTag>SPID</FactionTag>
+    </Bot>
+
   </Bots>
 </Definitions>

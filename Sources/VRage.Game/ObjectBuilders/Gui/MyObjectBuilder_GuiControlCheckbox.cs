@@ -1,9 +1,7 @@
 ﻿using ProtoBuf;
-using System;
-using VRageMath;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Gui
+namespace VRage.Game
 {
     public enum MyGuiControlCheckboxStyleEnum
     {
@@ -13,6 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.Gui
         SwitchOnOffRight,
         Repeat,
         Slave,
+        Muted,
     }
 
     [ProtoContract]

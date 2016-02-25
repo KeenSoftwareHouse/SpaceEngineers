@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
 
 namespace Sandbox.Game.World
 {

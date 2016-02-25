@@ -141,8 +141,8 @@ namespace Sandbox.Game.Gui
         {
             var selected = m_tableIns.SelectedRow==null?null:m_tableIns.SelectedRow.UserData;
             ClearList();
-            if (MySession.Static.Gpss.ExistsForPlayer(MySession.LocalPlayerId))
-                foreach (var item in MySession.Static.Gpss[MySession.LocalPlayerId])
+            if (MySession.Static.Gpss.ExistsForPlayer(MySession.Static.LocalPlayerId))
+                foreach (var item in MySession.Static.Gpss[MySession.Static.LocalPlayerId])
                 {
                     if (searchString != null)
                     {
@@ -239,7 +239,7 @@ namespace Sandbox.Game.Gui
             if (sender.SelectedRow != null)
             {
                 ((MyGps)sender.SelectedRow.UserData).ShowOnHud ^= true;
-                MySession.Static.Gpss.ChangeShowOnHud(MySession.LocalPlayerId, ((MyGps)sender.SelectedRow.UserData).Hash, ((MyGps)sender.SelectedRow.UserData).ShowOnHud);
+                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, ((MyGps)sender.SelectedRow.UserData).Hash, ((MyGps)sender.SelectedRow.UserData).ShowOnHud);
             }
         }
 
@@ -315,18 +315,10 @@ namespace Sandbox.Game.Gui
 
         bool IsCoordOk(string str)
         {
-            try
-            {
-                double x = double.Parse(str, System.Globalization.CultureInfo.InvariantCulture);
-                //if (Math.Round(x, 2) != x)
-                //    return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
+            double x;
+            return double.TryParse(str,System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out x);
         }
+
         public void OnXChanged(MyGuiControlTextbox sender)
         {
             m_needsSyncX = true;
@@ -395,12 +387,12 @@ namespace Sandbox.Game.Gui
         {//takes current right side values of name, description and coordinates, compares them against record with previous hash and synces if necessary
             if (m_previousHash != null && (m_needsSyncName || m_needsSyncDesc || m_needsSyncX || m_needsSyncY || m_needsSyncZ))
             {
-                if (MySession.Static.Gpss.ExistsForPlayer(MySession.LocalPlayerId))
+                if (MySession.Static.Gpss.ExistsForPlayer(MySession.Static.LocalPlayerId))
                 {
                     if (IsNameOk(m_panelInsName.Text) && IsCoordOk(m_xCoord.Text) && IsCoordOk(m_yCoord.Text) && IsCoordOk(m_zCoord.Text))
                     {
                         Dictionary<int, MyGps> insList;
-                        insList = MySession.Static.Gpss[MySession.LocalPlayerId];
+                        insList = MySession.Static.Gpss[MySession.Static.LocalPlayerId];
                         MyGps ins;
                         if (insList.TryGetValue((int)m_previousHash, out ins))
                         {
@@ -427,7 +419,7 @@ namespace Sandbox.Game.Gui
                                 ins.Coords.Z = Math.Round(double.Parse(str.ToString(), System.Globalization.CultureInfo.InvariantCulture), 2);
                             }
                             m_syncedGps = ins;
-                            MySession.Static.Gpss.SendModifyGps(MySession.LocalPlayerId, ins);
+                            MySession.Static.Gpss.SendModifyGps(MySession.Static.LocalPlayerId, ins);
                             return true;
                         }
                     }
@@ -446,7 +438,7 @@ namespace Sandbox.Game.Gui
             ins.Coords = new Vector3D(0, 0, 0);
             ins.ShowOnHud = true;
             ins.DiscardAt = null;//finalize
-            MySession.Static.Gpss.SendAddGps(MySession.LocalPlayerId, ref ins);
+            MySession.Static.Gpss.SendAddGps(MySession.Static.LocalPlayerId, ref ins);
             m_searchIns.Text = "";
             enableEditBoxes(false);
         }
@@ -459,13 +451,13 @@ namespace Sandbox.Game.Gui
             MySession.Static.Gpss.GetNameForNewCurrent(m_NameBuilder);
             ins.Name = m_NameBuilder.ToString();
             ins.Description = MyTexts.Get(MySpaceTexts.TerminalTab_GPS_NewFromCurrent_Desc).ToString();
-            ins.Coords = new Vector3D(MySession.LocalHumanPlayer.GetPosition());
+            ins.Coords = new Vector3D(MySession.Static.LocalHumanPlayer.GetPosition());
             ins.Coords.X = Math.Round(ins.Coords.X, 2);
             ins.Coords.Y = Math.Round(ins.Coords.Y, 2);
             ins.Coords.Z = Math.Round(ins.Coords.Z, 2);
             ins.ShowOnHud = true;
             ins.DiscardAt = null;//final
-            MySession.Static.Gpss.SendAddGps(MySession.LocalPlayerId, ref ins);
+            MySession.Static.Gpss.SendAddGps(MySession.Static.LocalPlayerId, ref ins);
             m_searchIns.Text = "";
             enableEditBoxes(false);
         }
@@ -494,7 +486,7 @@ namespace Sandbox.Game.Gui
         }
         private void Delete()
         {
-            MySession.Static.Gpss.SendDelete(MySession.LocalPlayerId, ((MyGps)m_tableIns.SelectedRow.UserData).GetHashCode());
+            MySession.Static.Gpss.SendDelete(MySession.Static.LocalPlayerId, ((MyGps)m_tableIns.SelectedRow.UserData).GetHashCode());
             PopulateList();
             enableEditBoxes(false);
             m_buttonDelete.Enabled = false;
@@ -520,7 +512,7 @@ namespace Sandbox.Game.Gui
         private void OnInsChanged(long id,int hash)
         {
             //screen refresh is only needed when an GPS applies to this player
-            if (id==MySession.LocalPlayerId)
+            if (id==MySession.Static.LocalPlayerId)
             {
                 FillRight();
                 //color/name in table:
@@ -546,7 +538,7 @@ namespace Sandbox.Game.Gui
         private void OnListChanged(long id)
         {
             //screen refresh is only needed when an INS applies to this player
-            if (id==MySession.LocalPlayerId)
+            if (id==MySession.Static.LocalPlayerId)
                 PopulateList();
         }
 
@@ -556,7 +548,7 @@ namespace Sandbox.Game.Gui
                 return;
             ((MyGps)m_tableIns.SelectedRow.UserData).ShowOnHud = sender.IsChecked;//will be updated onSuccess but need to be correct for trySync now
             if (!trySync())
-                MySession.Static.Gpss.ChangeShowOnHud(MySession.LocalPlayerId, ((MyGps)m_tableIns.SelectedRow.UserData).Hash, sender.IsChecked);
+                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, ((MyGps)m_tableIns.SelectedRow.UserData).Hash, sender.IsChecked);
         }
 
         private void FillRight()

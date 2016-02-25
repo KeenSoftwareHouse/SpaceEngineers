@@ -363,6 +363,22 @@ namespace VRageRender
     {
         internal MyViewEnum View;
         internal Format Fmt;
+
+        #region Equals
+        public class MyViewKeyComparerType : IEqualityComparer<MyViewKey>
+        {
+            public bool Equals(MyViewKey left, MyViewKey right)
+            {
+                return left.View == right.View && left.Fmt == right.Fmt;
+            }
+
+            public int GetHashCode(MyViewKey viewKey)
+            {
+                return (int)viewKey.View << 16 + (int)viewKey.Fmt;
+            }
+        }
+        public static readonly MyViewKeyComparerType Comparer = new MyViewKeyComparerType();
+        #endregion
     }
 
     class MySrvView : MyBindableResource, IShaderResourceBindable
@@ -515,7 +531,7 @@ namespace VRageRender
     {
         internal Vector2I m_resolution;
 
-        internal Dictionary<MyViewKey, MyBindableResource> m_views = new Dictionary<MyViewKey, MyBindableResource>();
+        internal Dictionary<MyViewKey, MyBindableResource> m_views = new Dictionary<MyViewKey, MyBindableResource>(MyViewKey.Comparer);
 
         internal MyCustomTexture(int width, int height, BindFlags bindflags,
             Format format)

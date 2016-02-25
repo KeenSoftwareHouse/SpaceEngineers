@@ -17,8 +17,8 @@ namespace Sandbox.ModAPI.Ingame
         float DisassembleRatio { get; }
         String DisplayNameText { get; }
         string GetOwnerFactionTag();
-        Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
-        Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
+        VRage.Game.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
+        VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
         bool IsBeingHacked { get; }
         bool IsFunctional { get; }
         bool IsWorking { get; }

@@ -56,7 +56,7 @@ namespace VRage.Input
             rotationIndicator.Y += MyControllerHelper.IsControlAnalog(cx, MyControlsSpace.ROTATION_RIGHT);
 
             // Fix rotation to be independent from physics step.
-            rotationIndicator *= MyEngineConstants.UPDATE_STEPS_PER_SECOND * ROTATION_INDICATOR_MULTIPLIER;
+            rotationIndicator *= VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND * ROTATION_INDICATOR_MULTIPLIER;
 
             return rotationIndicator;
         }

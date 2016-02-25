@@ -2,7 +2,7 @@
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawSpriteAtlas : IMyRenderMessage
+    public class MyRenderMessageDrawSpriteAtlas : MyRenderMessageBase
     {
         public string Texture;
         public Vector2 Position;
@@ -13,7 +13,7 @@ namespace VRageRender
         public Color Color;
         public Vector2 HalfSize;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawSpriteAtlas; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawSpriteAtlas; } }
     }
 }

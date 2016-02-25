@@ -109,5 +109,13 @@ namespace VRage.Network
             m_sender(item.Stream, item.Recipient);
             return (uint)item.Stream.BytePosition;
         }
+
+        public void Dispose()
+        {
+            foreach (var item in m_cache)
+            {
+                item.Stream.Dispose();
+            }
+        }
     }
 }

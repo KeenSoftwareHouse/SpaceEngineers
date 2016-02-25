@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -18,6 +17,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
 
 namespace Sandbox.Game.GUI
 {

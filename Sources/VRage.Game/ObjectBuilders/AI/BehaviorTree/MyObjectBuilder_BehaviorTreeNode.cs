@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     public enum MyBehaviorTreeState : sbyte
     { // keep order

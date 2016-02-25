@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
-using VRageRender;
-using VRage;
-
-namespace VRage.Components
+﻿namespace VRage.Game.Components
 {
     public abstract class MyDebugRenderComponentBase
     {

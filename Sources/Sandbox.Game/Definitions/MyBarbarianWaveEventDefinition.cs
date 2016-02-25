@@ -1,9 +1,15 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Game.ObjectBuilders.Definitions;
+using VRage.ObjectBuilders;
+using VRage.Game.ObjectBuilders.AI.Bot;
+using Medieval.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -18,7 +24,10 @@ namespace Sandbox.Definitions
             {
                 foreach (var botDef in waveOb.Bots)
                 {
-                    Bots.Add(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), botDef.SubtypeName));
+                    MyObjectBuilderType botType;
+                    if (!MyObjectBuilderType.TryParse(botDef.TypeName, out botType))
+                        botType = typeof(MyObjectBuilder_HumanoidBot);
+                    Bots.Add(new MyDefinitionId(botType, botDef.SubtypeName));
                 }
             }
         }

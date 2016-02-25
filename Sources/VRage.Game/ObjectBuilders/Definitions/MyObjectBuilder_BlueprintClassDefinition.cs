@@ -1,8 +1,9 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 using VRage.Data;
+using System.ComponentModel;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -19,5 +20,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         [ModdableContentFile("dds")]
         public string OutputConstraintIcon;
+
+        [ProtoMember, DefaultValue(null)]
+        public string ProgressBarSoundCue = null;        
     }
 }

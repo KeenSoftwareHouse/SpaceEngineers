@@ -25,7 +25,6 @@ using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -35,8 +34,9 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Audio;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Game.ObjectBuilders;
 using VRage.Input;
@@ -66,8 +66,8 @@ namespace Sandbox.Game.Entities.Character
 
         protected override void DoDetection(bool useHead)
         {
-            if (Character == MySession.ControlledEntity)
-                MyHud.SelectedObjectHighlight.Visible = false;
+            if (Character == MySession.Static.ControlledEntity)
+                MyHud.SelectedObjectHighlight.RemoveHighlight();
 
             var head = Character.GetHeadMatrix(false);
             var headPos = head.Translation - (Vector3D)head.Forward * 0.3; // Move to center of head, we don't want eyes (in front of head)
@@ -78,8 +78,8 @@ namespace Sandbox.Game.Entities.Character
             if (!useHead)
             {
                 //Ondrej version
-                //var cameraMatrix = MySector.MainCamera.WorldMatrix;
-                var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
+                var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                //var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
                 dir = cameraMatrix.Forward;
                 from = MyUtils.LinePlaneIntersection(headPos, (Vector3)dir, cameraMatrix.Translation, (Vector3)dir);
             }
@@ -90,7 +90,7 @@ namespace Sandbox.Game.Entities.Character
                 from = headPos;
             }
 
-            Vector3D to = from + dir * 2.5f;
+            Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
 
             StartPosition = from;
 
@@ -100,6 +100,7 @@ namespace Sandbox.Game.Entities.Character
             ShapeKey = uint.MaxValue;
             HitPosition = Vector3D.Zero;
             HitNormal = Vector3.Zero;
+            HitMaterial = MyStringHash.NullOrEmpty;
             m_hits.Clear();
 
             try
@@ -108,21 +109,38 @@ namespace Sandbox.Game.Entities.Character
 
                 MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
-                int index = 0;
-                while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.GetHitEntity() == Character
-                    || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                if (m_hits.Count > 0)
                 {
-                    index++;
-                }
 
-                if (index < m_hits.Count)
-                {
-                    hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
-                    ShapeKey = m_hits[index].HkHitInfo.GetShapeKey(0);
-                    HitPosition = m_hits[index].Position;
-                    HitNormal = m_hits[index].HkHitInfo.Normal;
-                    HitMaterial = m_hits[index].HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
-                    HitBody = m_hits[index].HkHitInfo.Body;
+                    int index = 0;
+
+                    bool isValidBlock = false;
+                    bool isPhysicalBlock = false;
+
+                    do
+                    {
+                        isValidBlock = m_hits[index].HkHitInfo.Body != null && m_hits[index].HkHitInfo.GetHitEntity() != Character && m_hits[index].HkHitInfo.GetHitEntity() != null && !m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+
+                        isPhysicalBlock = m_hits[index].HkHitInfo.GetHitEntity() != null && m_hits[index].HkHitInfo.GetHitEntity().Physics != null;
+
+                        if (hitEntity == null && isValidBlock)
+                        {
+                            hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
+                            ShapeKey = m_hits[index].HkHitInfo.GetShapeKey(0);
+                        }
+
+                        // Set hit material etc. only for object's that have physical representation in the world, this exclude detectors
+                        if (HitMaterial.Equals(MyStringHash.NullOrEmpty) && isValidBlock && isPhysicalBlock)
+                        {
+                            HitBody = m_hits[index].HkHitInfo.Body;
+                            HitPosition = m_hits[index].Position;
+                            HitNormal = m_hits[index].HkHitInfo.Normal;
+                            HitMaterial = m_hits[index].HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
+                        }
+
+                        index++;
+
+                    } while (index < m_hits.Count && (!isValidBlock || !isPhysicalBlock));
                 }
             }
             finally
@@ -150,10 +168,9 @@ namespace Sandbox.Game.Entities.Character
                 UseObject.OnSelectionLost();
             }
 
-            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, HitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
+            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, HitPosition)) < interactive.InteractiveDistance && Character == MySession.Static.ControlledEntity)
             {
-                MyHud.SelectedObjectHighlight.Visible = true;
-                MyHud.SelectedObjectHighlight.InteractiveObject = interactive;
+                HandleInteractiveObject(interactive);
 
                 UseObject = interactive;
                 hasInteractive = true;

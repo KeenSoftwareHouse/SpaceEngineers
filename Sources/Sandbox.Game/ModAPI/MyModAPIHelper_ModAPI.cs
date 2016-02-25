@@ -16,6 +16,7 @@ namespace Sandbox.ModAPI
     {
         public static void OnSessionLoaded()
         {
+            MySandboxGame.EnableSimSpeedLocking = true;
             MyAPIGateway.Session = MySession.Static;
             MyAPIGateway.Entities = new MyEntitiesHelper_ModAPI();
             MyAPIGateway.Players = Sync.Players;

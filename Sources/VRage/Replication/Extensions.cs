@@ -3,13 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using VRage;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
+using VRage.Network;
 
-namespace VRage.Network
+namespace System
 {
     public static class Extensions
     {
+        [ThreadStatic]
+        static List<IMyStateGroup> m_tmpStateGroupsPerThread;
+
+        static List<IMyStateGroup> m_tmpStateGroups
+        {
+            get
+            {
+                if (m_tmpStateGroupsPerThread == null)
+                    m_tmpStateGroupsPerThread = new List<IMyStateGroup>();
+                return m_tmpStateGroupsPerThread;
+            }
+        }
+
         public static void ResetRead(this BitStream stream, MyPacket packet)
         {
             stream.ResetRead(packet.Data, packet.PayloadOffset, packet.PayloadLength * 8);
@@ -34,16 +49,32 @@ namespace VRage.Network
         {
             stream.WriteVariant((uint)typeId.Value);
         }
-        
-        public static bool IsRelevant(this IMyReplicable obj, MyClientStateBase state)
-        {
-            return obj.GetPriority(state) > 0;
-        }
 
-        public static bool IsRelevant(this IMyReplicable obj, MyClientStateBase state, out float priority)
+        /// <summary>
+        /// Finds state group of specified type.
+        /// Returns null when group of specified type not found.
+        /// </summary>
+        public static T FindStateGroup<T>(this IMyReplicable obj) 
+            where T : class, IMyStateGroup
         {
-            priority = obj.GetPriority(state);
-            return priority > 0;
+            try
+            {
+                if (obj == null)
+                    return null;
+
+                obj.GetStateGroups(m_tmpStateGroups);
+                foreach (var item in m_tmpStateGroups)
+                {
+                    var group = item as T;
+                    if (group != null)
+                        return group;
+                }
+                return null;
+            }
+            finally
+            {
+                m_tmpStateGroups.Clear();
+            }
         }
     }
 }

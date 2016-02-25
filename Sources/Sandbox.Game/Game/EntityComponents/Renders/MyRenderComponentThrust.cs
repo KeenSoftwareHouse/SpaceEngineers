@@ -5,18 +5,16 @@ using System.Text;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Utils;
 using Sandbox.Engine.Utils;
 using VRage;
-using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using Sandbox.Engine.Physics;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Library.Utils;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
@@ -91,22 +89,26 @@ namespace Sandbox.Game.Components
 					if (radius > 0)
 						MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.ThrustColor, flamePosition, GetRenderObjectID(), ref worldToLocal, radius, 0);
 
-					if (m_landingEffectUpdateCounter-- <= 0)
+                    if (m_thrust.ThrustLengthRand > MyMathConstants.EPSILON && m_landingEffectUpdateCounter-- <= 0)
 					{
 						m_landingEffectUpdateCounter = (int)Math.Round(m_landingEffectUpdateInterval * (0.8f + MyRandom.Instance.NextFloat() * 0.4f));
 
 						m_lastHitInfo = MyPhysics.CastRay(flamePosition,
 							flamePosition + flameDirection * m_thrust.ThrustLengthRand * (m_thrust.CubeGrid.GridSizeEnum == MyCubeSize.Large ? 5.0f : 3.0f) * flame.Radius,
-							MyPhysics.ObjectDetectionCollisionLayer);
+                            MyPhysics.CollisionLayers.DefaultCollisionLayer);
 					}
 
-					if (m_landingEffect != null)
+					var voxelBase = m_lastHitInfo.HasValue ? m_lastHitInfo.Value.HkHitInfo.GetHitEntity() as MyVoxelPhysics : null;
+					if (voxelBase == null)
 					{
-						m_landingEffect.Stop(true);
-						m_landingEffect = null;
-						--m_landingEffectCount;
+						if (m_landingEffect != null)
+						{
+							m_landingEffect.Stop(true);
+							m_landingEffect = null;
+							--m_landingEffectCount;
+						}
+						continue;
 					}
-					continue;
 
 					if (m_landingEffect == null && m_landingEffectCount < m_maxNumberLandingEffects && MyParticlesManager.TryCreateParticleEffect(54, out m_landingEffect))
 					{

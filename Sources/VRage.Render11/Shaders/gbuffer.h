@@ -1,3 +1,5 @@
+#include <Lighting/Utils.h>
+
 #ifndef MS_SAMPLE_COUNT
 Texture2D<float>	DepthBuffer	: register( t0 );
 Texture2D<float4>	Gbuffer0	: register( t1 );
@@ -20,7 +22,6 @@ struct PerMaterialPayload {
 };
 
 #include <frame.h>
-#include <brdf.h>
 
 StructuredBuffer<PerMaterialPayload> MaterialsSB : register( MERGE(t,MATERIAL_BUFFER_SLOT) );
 
@@ -39,7 +40,7 @@ bool coverage_all(uint coverage)
 
 #include <Surface.h>
 
-#include <math.h>
+#include <Math/math.h>
 
 SurfaceInterface read_gbuffer(uint2 screencoord, uint sample = 0)
 {
@@ -90,8 +91,8 @@ SurfaceInterface read_gbuffer(uint2 screencoord, uint sample = 0)
 	gbuffer.emissive = gbuffer2.z;
 	gbuffer.stencil = stencil;
 
-	gbuffer.albedo = surface_albedo(gbuffer.base_color, gbuffer.metalness);
-	gbuffer.f0 = surface_f0(gbuffer.base_color, gbuffer.metalness);
+	gbuffer.albedo = SurfaceAlbedo(gbuffer.base_color, gbuffer.metalness);
+	gbuffer.f0 = SurfaceF0(gbuffer.base_color, gbuffer.metalness);
 
 	gbuffer.material_type = MaterialsSB[gbuffer.id].type;
 

@@ -10,9 +10,11 @@
       </Id>
       <Model>Models\Environment\Trees\LeafTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -22,9 +24,11 @@
       </Id>
       <Model>Models\Environment\Trees\LeafTreeMedium.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -34,9 +38,11 @@
       </Id>
       <Model>Models\Environment\Trees\PineTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -46,9 +52,11 @@
       </Id>
       <Model>Models\Environment\Trees\PineTreeMedium.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -58,9 +66,11 @@
       </Id>
       <Model>Models\Environment\Trees\DesertTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -68,13 +78,15 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>DesertTreeMedium</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\DesertTreeMedium.mwm</Model>
+      <Model>Models\Environment\Trees\DesertTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
-    
+
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
@@ -82,9 +94,11 @@
       </Id>
       <Model>Models\Environment\Trees\DesertTreeDead.mwm</Model>
       <BranchesStartHeight>5.302</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>70</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -94,9 +108,11 @@
       </Id>
       <Model>Models\Environment\Trees\DesertTreeDeadMedium.mwm</Model>
       <BranchesStartHeight>5.302</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>70</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -106,9 +122,11 @@
       </Id>
       <Model>Models\Environment\Trees\PineTreeSnow.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
-	  <HitPoints>100</HitPoints>
-	  <CutEffect>ChipOff_Wood</CutEffect>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
+      <HitPoints>100</HitPoints>
+      <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -118,9 +136,11 @@
       </Id>
       <Model>Models\Environment\Trees\PineTreeSnowMedium.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <!--Alien Trees-->
@@ -131,9 +151,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienLeafTreeMedium.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -143,9 +165,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienLeafTree.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>50</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -155,9 +179,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienPineTree.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -167,9 +193,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienPineTreeMedium.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -179,9 +207,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienPineTreeSnow.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -191,9 +221,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienPineTreeSnowMedium.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
 
@@ -204,9 +236,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienDesertTree.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -216,9 +250,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienDesertTreeMedium.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -228,9 +264,11 @@
       </Id>
       <Model>Models\Environment\Trees\AlienDesertTreeDead.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -240,12 +278,14 @@
       </Id>
       <Model>Models\Environment\Trees\AlienDesertTreeDeadMedium.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <PhysicalMaterial>Tree</PhysicalMaterial>
       <HitPoints>100</HitPoints>
       <CutEffect>ChipOff_Wood</CutEffect>
+      <FallSound>ImpTreeFall</FallSound>
+      <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
-    
+
     <!--Alien Trees End-->
-   
+
   </EnvironmentItems>
 </Definitions>

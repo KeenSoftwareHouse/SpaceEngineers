@@ -14,6 +14,7 @@ using VRageMath;
 using System.Globalization;
 using Sandbox.Graphics;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers

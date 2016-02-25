@@ -45,6 +45,9 @@ namespace VRage.Profiler
         public static readonly int MAX_FRAMES = 1024;
         public static readonly int UPDATE_WINDOW = 16; // 16 frames is reserved for update, so we don't need locking
 
+        private static readonly int INITIAL_PROFILER_BLOCK_COUNT = 2000;
+        private static readonly int PROFILER_BLOCK_INCREMENT_STEP = 100;
+
         private const int ROOT_ID = 0;
         private int m_nextId = 1;
         private Dictionary<MyProfilerBlockKey, MyProfilerBlock> m_profilingBlocks = new Dictionary<MyProfilerBlockKey, MyProfilerBlock>(8192, new MyProfilerBlockKeyComparer());
@@ -73,7 +76,6 @@ namespace VRage.Profiler
         public bool AutoCommit = true;
 
         public readonly bool MemoryProfiling;
-        public readonly int GlobalProfilerIndex;
         public readonly Thread OwnerThread;
         public readonly Stopwatch Stopwatch = new Stopwatch();
 
@@ -82,6 +84,7 @@ namespace VRage.Profiler
         //very simple logging - it will create csv files with anything above ^^threshold into c:\keenswh dir
         private static readonly bool ENABLE_PROFILER_LOG = false;
 
+        private List<MyProfilerBlock> blockPool = new List<MyProfilerBlock>(INITIAL_PROFILER_BLOCK_COUNT);
 
         public MyProfilerBlock SelectedRoot
         {
@@ -92,6 +95,11 @@ namespace VRage.Profiler
         public List<MyProfilerBlock> SelectedRootChildren
         {
             get { return m_selectedRoot != null ? m_selectedRoot.Children : m_rootBlocks; }
+        }
+
+        public List<MyProfilerBlock> RootBlocks
+        {
+            get { return m_rootBlocks; }
         }
 
         public int LastFrameIndexDebug
@@ -130,16 +138,20 @@ namespace VRage.Profiler
             return ROOT_ID;
         }
 
-        public MyProfiler(int globalProfilerIndex, bool memoryProfiling, string name, string axisName)
+        public MyProfiler(bool memoryProfiling, string name, string axisName)
         {
-            GlobalProfilerIndex = globalProfilerIndex;
             OwnerThread = Thread.CurrentThread;
             MemoryProfiling = memoryProfiling;
             m_lastFrameIndex = MAX_FRAMES - 1;
             m_customName = name ?? OwnerThread.Name;
             m_axisName = axisName;
             if (ENABLE_PROFILER_LOG)
-                m_logWriter = new StreamWriter(@"c:\keenswh\profiler" + globalProfilerIndex + ".csv");
+                m_logWriter = new StreamWriter(@"c:\keenswh\profiler" + Thread.CurrentThread.ManagedThreadId + "_" + m_customName + ".csv");
+
+            for (int i = 0; i < 2000; i++)
+            {
+                blockPool.Add(new MyProfilerBlock());
+            }
         }
 
         /// <summary>
@@ -228,7 +240,7 @@ namespace VRage.Profiler
             {
                 callCount += profilerBlock.NumCalls;
 
-                profilerBlock.ManagedMemory[writeFrame] = profilerBlock.ManagedDeltaMB;
+                profilerBlock.ManagedMemoryBytes[writeFrame] = profilerBlock.DeltaManagedB;
                 if (MemoryProfiling)
                 {
                     profilerBlock.ProcessMemory[writeFrame] = profilerBlock.ProcessDeltaMB;
@@ -290,12 +302,14 @@ namespace VRage.Profiler
                     for (int i = 0; i < MAX_FRAMES; i++)
                     {
                         block.Value.ProcessMemory[i] = 0;
-                        block.Value.ManagedMemory[i] = 0;
+                        block.Value.ManagedMemoryBytes[i] = 0;
                         block.Value.Miliseconds[i] = 0;
                         block.Value.CustomValues[i] = 0;
                         block.Value.NumCallsArray[i] = 0;
                     }
                 }
+
+                m_lastFrameIndex = MAX_FRAMES - 1;
             }
         }
 
@@ -331,7 +345,16 @@ namespace VRage.Profiler
 
             if (!m_profilingBlocks.TryGetValue(key, out profilingBlock) && !m_blocksToAdd.TryGetValue(key, out profilingBlock))
             {
-                profilingBlock = new MyProfilerBlock(ref key, memberName, m_nextId++, forceOrder);
+                if (blockPool.Count == 0)
+                {
+                    for (int i = 0; i < PROFILER_BLOCK_INCREMENT_STEP; i++)
+                        blockPool.Add(new MyProfilerBlock());
+                }
+
+                profilingBlock = blockPool[0];
+                blockPool.RemoveAt(0);
+
+                profilingBlock.SetBlockData(ref key, m_nextId++, forceOrder);
 
                 if (m_currentProfilingStack.Count > 0)
                 {
@@ -400,6 +423,18 @@ namespace VRage.Profiler
         {
             StartBlock(name, member, line, file);
             EndBlock(member, line, file, customTime, value, timeFormat, valueFormat, callFormat);
+        }
+
+        public StringBuilder Dump()
+        {
+            var sb = new StringBuilder();
+
+            foreach (var block in m_rootBlocks)
+            {
+                block.Dump(sb, m_lastFrameIndex);
+            }
+
+            return sb;
         }
     }
 }

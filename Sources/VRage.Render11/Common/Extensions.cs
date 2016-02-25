@@ -138,16 +138,6 @@ namespace VRageRender
         }
     }
 
-    public static class MyObjectsPoolExtensions
-    {
-        public static T Allocate1<T>(this MyObjectsPool<T> pool) where T : class, new()
-        {
-            T result;
-            pool.AllocateOrCreate(out result);
-            return result;
-        }
-    }
-
     public static class MyArrayHelpers
     {
         public static void Reserve<T>(ref T[] array, int size, int threshold = 1024, float allocScale = 1.5f)
@@ -157,6 +147,14 @@ namespace VRageRender
                 var newSize = size == 0 ? 1 : size;
                 Array.Resize(ref array, newSize < threshold ? newSize * 2 : (int)(newSize * allocScale));
             }
+        }
+
+        public static void InitOrReserve<T>(ref T[] array, int size, int threshold = 1024, float allocScale = 1.5f)
+        {
+            if (array == null)
+                array = new T[size];
+            else
+                Reserve(ref array, size, threshold, allocScale);
         }
     }
 

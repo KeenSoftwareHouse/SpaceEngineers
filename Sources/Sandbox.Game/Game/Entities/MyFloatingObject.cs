@@ -14,7 +14,6 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -30,17 +29,23 @@ using Sandbox.Common.ModAPI;
 using Sandbox.Game.Entities.UseObject;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.Entity.UseObject;
+using System.Diagnostics;
+using VRage.Network;
+using VRage.Game.Entity;
+using VRage.Import;
+using VRage.Library.Sync;
+using VRage.Game;
+using VRage.ModAPI.Ingame;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_FloatingObject))]
-    public class MyFloatingObject : MyEntity, IMyUseObject, IMyUsableEntity, IMyDestroyableObject, IMyFloatingObject
+    public class MyFloatingObject : MyEntity, IMyUseObject, IMyUsableEntity, IMyDestroyableObject, IMyFloatingObject,IMyEventProxy
     {
-        static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
         static MyStringHash m_explosives = MyStringHash.GetOrCompute("Explosives");
 		static public MyObjectBuilder_Ore ScrapBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
@@ -65,13 +70,33 @@ namespace Sandbox.Game.Entities
         
         public long SyncWaitCounter; // counting how many times this object was skipped on sync;
 
+        private MyPhysicalItemDefinition m_itemDefinition = null;
+        private DateTime lastTimeSound = DateTime.MinValue;
+
+        public new MyPhysicsBody Physics
+        {
+            get { return base.Physics as MyPhysicsBody; }
+            set { base.Physics = value; }
+        }
+
+        public Sync<MyFixedPoint> Amount;
+
         public MyFloatingObject()
         {
             WasRemovedFromWorld = false;
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
             m_lastTimePlayedSound = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             Render = new Components.MyRenderComponentFloatingObject();
+
+            SyncType = SyncHelpers.Compose(this);
+
+            Amount.ValueChanged += (x) => { Item.Amount = Amount.Value; UpdateInternalState(); };
         }
+
+        private HkEasePenetrationAction m_easeCollisionForce;
+        private TimeSpan m_timeFromSpawn = new TimeSpan();
+
+        public readonly SyncType SyncType;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -79,7 +104,7 @@ namespace Sandbox.Game.Entities
             if (builder.Item.Amount <= 0)
             {
                 // I can only prevent creation of entity by throwing exception. This might cause crashes when thrown outside of MyEntities.CreateFromObjectBuilder().
-                throw new ArgumentOutOfRangeException("MyPhysicalInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.Content.GetId()));
+                throw new ArgumentOutOfRangeException("MyPhysicalInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.PhysicalContent.GetId()));
             }
             base.Init(objectBuilder);
 
@@ -90,11 +115,27 @@ namespace Sandbox.Game.Entities
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
             UseDamageSystem = true;
+
+            if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(Item.GetDefinitionId(), out m_itemDefinition))
+            {
+                System.Diagnostics.Debug.Fail("Creating floating object, but it's physical item definition wasn't found! - " + Item.ItemId);
+            }
+            m_timeFromSpawn = MySession.Static.ElapsedPlayTime;
         }
 
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
+            // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
+            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(PositionComp.GetPosition());
+            
+            if (m_massChangeForCollisions < 1f)
+            {
+                if ((MySession.Static.ElapsedPlayTime.TotalMilliseconds - m_timeFromSpawn.TotalMilliseconds) >= 2000)
+                {
+                    m_massChangeForCollisions = 1f;
+                }
+            }
         }
 
         public override void OnAddedToScene(object source)
@@ -123,14 +164,17 @@ namespace Sandbox.Game.Entities
             string model = physicalItem.Model;
 
             VoxelMaterial = null;
-            float scale = 1.0f;
+            float scale = this.Item.Scale;
 
             if (Item.Content is MyObjectBuilder_Ore)
             {
-                string oreSubTypeId = physicalItem.Id.SubtypeId.ToString();
+                string oreSubTypeId = physicalItem.Id.SubtypeName;
+                string materialName = (Item.Content as MyObjectBuilder_Ore).GetMaterialName();
+                bool hasMaterialName = (Item.Content as MyObjectBuilder_Ore).HasMaterialName();
+
                 foreach (var mat in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
                 {
-                    if (oreSubTypeId == mat.MinedOre)
+                    if ((hasMaterialName && materialName == mat.Id.SubtypeName) || (hasMaterialName == false && oreSubTypeId == mat.MinedOre))
                     {
                         VoxelMaterial = mat;
                         model = MyDebris.GetRandomDebrisVoxel();
@@ -148,6 +192,7 @@ namespace Sandbox.Game.Entities
                 scale = 0.15f;
 
             FormatDisplayName(m_displayedText, Item);
+            Debug.Assert(model != null, "Floating object model is null");
             Init(m_displayedText, model, null, null, null);
 
             PositionComp.Scale = scale; // Must be set after init
@@ -155,33 +200,53 @@ namespace Sandbox.Game.Entities
 
             var massProperties = new HkMassProperties();
             var mass = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(physicalItem.Mass) : physicalItem.Mass;
+            mass = mass * (float)Item.Amount;
 
-            HkShape shape = GetPhysicsShape(mass * (float)Item.Amount, scale, out massProperties);
+            HkShape shape = GetPhysicsShape(mass, scale, out massProperties);
             var scaleMatrix = Matrix.CreateScale(scale);
 
             if (Physics != null)
                 Physics.Close();
             Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
 
-            if (VoxelMaterial != null)
+            int layer = mass > MyPerGameSettings.MinimumLargeShipCollidableMass ? MyPhysics.CollisionLayers.FloatingObjectCollisionLayer : MyPhysics.CollisionLayers.LightFloatingObjectCollisionLayer;
+
+            if (VoxelMaterial != null || (shape.IsConvex && scale != 1f))
             {
                 HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
-        
-                Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+
+                Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, layer);
                
                 Physics.Enabled = true;
                 transform.Base.RemoveReference();
             }
             else
             {
-                Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+                Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, layer);
                 Physics.Enabled = true;
             }
 
-            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
+            Physics.MaterialType = this.EvaluatePhysicsMaterial(physicalItem.PhysicalMaterial);
             Physics.PlayCollisionCueEnabled = true;
+            Physics.RigidBody.ContactSoundCallbackEnabled = true;
+            m_easeCollisionForce = new HkEasePenetrationAction(Physics.RigidBody, 2f);
+            m_massChangeForCollisions = 0.010f;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+        }
+
+        /// <summary>
+        /// Evaluates what kind of material should be used for this floating object. If material is not defined than returns empty one and throws an assert.
+        /// </summary>
+        /// <param name="originalMaterial">Original material set in this object.</param>
+        /// <returns>Final material.</returns>
+        private MyStringHash EvaluatePhysicsMaterial(MyStringHash originalMaterial)
+        {
+            
+            //Debug.Assert(originalMaterial.String != string.Empty, "No physical material set for this object, please define it in coresponding cbs file");
+
+            return VoxelMaterial != null ? MyMaterialType.ROCK : originalMaterial;
+
         }
 
         public void RefreshDisplayName()
@@ -212,6 +277,10 @@ namespace Sandbox.Game.Entities
         {
             const bool SimpleShape = false;
 
+            Debug.Assert(Model != null, "Invalid floating object model: " + Item.GetDefinitionId());
+            if (Model == null)
+                MyLog.Default.WriteLine("Invalid floating object model: " + Item.GetDefinitionId());
+
             Vector3 halfExtents = (Model.BoundingBox.Max - Model.BoundingBox.Min) / 2;
             HkShapeType shapeType;
 
@@ -230,9 +299,19 @@ namespace Sandbox.Game.Entities
             return MyDebris.Static.GetDebrisShape(Model, SimpleShape ? shapeType : HkShapeType.ConvexVertices);
         }
 
+        IMyEntity IMyUseObject.Owner
+        {
+            get { return this; }
+        }
+
+        MyModelDummy IMyUseObject.Dummy
+        {
+            get { return null; }
+        }
+
         float IMyUseObject.InteractiveDistance
         {
-            get { return 2.0f; }
+            get { return MyConstants.FLOATING_OBJ_INTERACTIVE_DISTANCE; }
         }
 
         MatrixD IMyUseObject.ActivationMatrix
@@ -270,7 +349,9 @@ namespace Sandbox.Game.Entities
             var user = entity as MyCharacter;
             if (!MarkedForClose)
             {
-                MyFixedPoint amount = MyFixedPoint.Min(Item.Amount, user.GetInventory().ComputeAmountThatFits(Item.Content.GetId()));
+                System.Diagnostics.Debug.Assert((user.GetInventory() as MyInventory) != null, "Null or unexpected inventory type returned!");
+
+                MyFixedPoint amount = MyFixedPoint.Min(Item.Amount, (user.GetInventory() as MyInventory).ComputeAmountThatFits(Item.Content.GetId()));
                 if (amount == 0)
                 {
                     if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimePlayedSound > 2500)
@@ -285,9 +366,13 @@ namespace Sandbox.Game.Entities
               
                 if (amount > 0)
                 {
-                    if (MySession.ControlledEntity == user)
-                        MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
-                    user.GetInventory().PickupItem(this, amount);
+                    if (MySession.Static.ControlledEntity == user && (lastTimeSound == DateTime.MinValue || (DateTime.UtcNow - lastTimeSound).TotalMilliseconds > 500))
+                    {
+                        MyGuiAudio.PlaySound(MyGuiSounds.PlayTakeItem);
+                        lastTimeSound = DateTime.UtcNow;
+                    }
+                    System.Diagnostics.Debug.Assert((user.GetInventory() as MyInventory) != null, "Null or unexpected inventory type returned");
+                    (user.GetInventory() as MyInventory).PickupItem(this, amount);
                 }
 
                 MyHud.Notifications.ReloadTexts();
@@ -314,7 +399,7 @@ namespace Sandbox.Game.Entities
             var key = MyInput.Static.GetGameControl(MyControlsSpace.USE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
             return new MyActionDescription()
             {
-                Text = MySpaceTexts.NotificationPickupObject,
+                Text = MyCommonTexts.NotificationPickupObject,
                 FormatParams = new object[] { MyInput.Static.GetGameControl(MyControlsSpace.USE), m_displayedText },
                 IsTextControlHint = false,
                 JoystickFormatParams = new object[] { MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.USE), m_displayedText },
@@ -336,19 +421,19 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
+        public bool DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
-                return;
+                return false;
 
             if (sync)
             {
                 if (!Sync.IsServer)
-                    return;
+                    return false;
                 else
                 {
                     MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
-                    return;
+                    return true;
                 }
             }
 
@@ -379,7 +464,7 @@ namespace Sandbox.Game.Entities
             }
             else
             {
-                m_health -= (10 + 90 * DamageMultiplier) * damageinfo.Amount;
+                m_health -= 10 * damageinfo.Amount;
 
                 if(UseDamageSystem)
                     MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageinfo);
@@ -424,7 +509,7 @@ namespace Sandbox.Game.Entities
                     if (MyFakes.ENABLE_SCRAP && Sync.IsServer)
                     {
                         if (Item.Content.SubtypeId == ScrapBuilder.SubtypeId)
-                            return;
+                            return true;
 
                         var contentDefinitionId = Item.Content.GetId();
                         if (contentDefinitionId.TypeId == typeof(MyObjectBuilder_Component))
@@ -433,6 +518,19 @@ namespace Sandbox.Game.Entities
                             if (MyRandom.Instance.NextFloat() < definition.DropProbability)
                                 MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
+                    }           
+              
+                    if (m_itemDefinition != null && m_itemDefinition.DestroyedPieceId.HasValue && Sync.IsServer)
+                    {
+                        MyPhysicalItemDefinition pieceDefinition;
+                        if (MyDefinitionManager.Static.TryGetPhysicalItemDefinition(m_itemDefinition.DestroyedPieceId.Value, out pieceDefinition))
+                        {
+                            MyFloatingObjects.Spawn(pieceDefinition, WorldMatrix.Translation, WorldMatrix.Forward, WorldMatrix.Up, m_itemDefinition.DestroyedPieces);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.Fail("Trying to spawn piece of the item after being destroyed, but definition wasn't found! - " + m_itemDefinition.DestroyedPieceId.Value);
+                        }
                     }
 
                     if(UseDamageSystem)
@@ -440,21 +538,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            return;
-        }
-
-        private float DamageMultiplier
-        {
-            get
-            {
-                var contentDefinitionId = Item.Content.GetId();
-                if (contentDefinitionId.TypeId == typeof(MyObjectBuilder_Component))
-                {
-                    var definition = MyDefinitionManager.Static.GetComponentDefinition(contentDefinitionId);
-                    return 1 - definition.DropProbability;
-                }
-                return 0.0f;
-            }
+            return true;
         }
 
         public void RemoveUsers(bool local)
@@ -477,9 +561,9 @@ namespace Sandbox.Game.Entities
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        bool IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync, attackerId);
+            return DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity

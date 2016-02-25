@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using VRage.Audio;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 

@@ -8,6 +8,7 @@ using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 #endregion
 
@@ -57,16 +58,16 @@ namespace Sandbox.Game.Gui
 
         public static MyCharacter SpawnCharacter(string model = null)
         {
-            var charObject = MySession.LocalHumanPlayer == null ? null : MySession.LocalHumanPlayer.Identity.Character as MyCharacter;
+            var charObject = MySession.Static.LocalHumanPlayer == null ? null : MySession.Static.LocalHumanPlayer.Identity.Character as MyCharacter;
             Vector3? colorMask = null;
 
-            string name = MySession.LocalHumanPlayer == null ? "" : MySession.LocalHumanPlayer.Identity.DisplayName;
-            string currentModel = MySession.LocalHumanPlayer == null ? MyCharacter.DefaultModel : MySession.LocalHumanPlayer.Identity.Model;
+            string name = MySession.Static.LocalHumanPlayer == null ? "" : MySession.Static.LocalHumanPlayer.Identity.DisplayName;
+            string currentModel = MySession.Static.LocalHumanPlayer == null ? MyCharacter.DefaultModel : MySession.Static.LocalHumanPlayer.Identity.Model;
 
             if (charObject != null)
                 colorMask = charObject.ColorMask;
 
-            var character = MyCharacter.CreateCharacter(MatrixD.CreateTranslation(MySector.MainCamera.Position), Vector3.Zero, name, model == null ? currentModel : model, colorMask, false);
+            var character = MyCharacter.CreateCharacter(MatrixD.CreateTranslation(MySector.MainCamera.Position), Vector3.Zero, name, model == null ? currentModel : model, colorMask, null, false);
             return character;
         }
 
@@ -84,7 +85,7 @@ namespace Sandbox.Game.Gui
                         if (first == null && cockpit.Pilot == null)
                             first = cockpit;
 
-                        if (previous == MySession.ControlledEntity)
+                        if (previous == MySession.Static.ControlledEntity)
                         {
                             if (cockpit.Pilot == null)
                             {
@@ -108,14 +109,14 @@ namespace Sandbox.Game.Gui
 
         private static void UseCockpit(MyCockpit cockpit)
         {
-            if (MySession.LocalHumanPlayer == null) return;
+            if (MySession.Static.LocalHumanPlayer == null) return;
 
             // Leave current cockpit if controlling any
-            if (MySession.ControlledEntity is MyCockpit)
+            if (MySession.Static.ControlledEntity is MyCockpit)
             {
-                MySession.ControlledEntity.Use();
+                MySession.Static.ControlledEntity.Use();
             }
-            cockpit.RequestUse(UseActionEnum.Manipulate, (MyCharacter)MySession.LocalHumanPlayer.Identity.Character);
+            cockpit.RequestUse(UseActionEnum.Manipulate, (MyCharacter)MySession.Static.LocalHumanPlayer.Identity.Character);
             cockpit.RemoveOriginalPilotPosition();
         }
 
@@ -138,6 +139,9 @@ namespace Sandbox.Game.Gui
                     initPos += new Vector2(0, 20);
                 }
             }
+
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+                Text("Character look speed: {0}", MySession.Static.LocalCharacter.RotationSpeed);
         }
     }
 }

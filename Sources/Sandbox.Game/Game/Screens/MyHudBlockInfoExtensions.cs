@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
@@ -18,7 +19,7 @@ namespace Sandbox.Game.Gui
             if (definition.MultiBlock != null)
             {
                 MyDefinitionId defId = new MyDefinitionId(typeof(MyObjectBuilder_MultiBlockDefinition), definition.MultiBlock);
-                MyMultiBlockDefinition multiBlockDef = MyDefinitionManager.Static.GetMultiBlockDefinition(defId);
+                MyMultiBlockDefinition multiBlockDef = MyDefinitionManager.Static.TryGetMultiBlockDefinition(defId);
                 if (multiBlockDef != null)
                 {
                     foreach (var blockPart in multiBlockDef.BlockDefinitions)
@@ -37,7 +38,7 @@ namespace Sandbox.Game.Gui
                 AddComponentsForBlock(blockInfo, definition);
             }
 
-            if (merge) MergeSameComponents(blockInfo, definition);
+            if (merge) MergeSameComponents(blockInfo);
         }
 
         public static void LoadDefinition(this MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition, DictionaryReader<MyDefinitionId, int> materials, bool merge = true)
@@ -68,10 +69,10 @@ namespace Sandbox.Game.Gui
                 blockInfo.Components.Add(info);
             }
 
-            if (merge) MergeSameComponents(blockInfo, definition);
+            if (merge) MergeSameComponents(blockInfo);
         }
 
-        private static void AddComponentsForBlock(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
+        public static void AddComponentsForBlock(this MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
         {
             for (int i = 0; i < definition.Components.Length; ++i)
             {
@@ -97,7 +98,7 @@ namespace Sandbox.Game.Gui
             blockInfo.Components.Clear();
         }
 
-        private static void MergeSameComponents(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
+        public static void MergeSameComponents(this MyHudBlockInfo blockInfo)
         {
             for (int i = blockInfo.Components.Count - 1; i >= 0; i--)
             {
@@ -107,6 +108,8 @@ namespace Sandbox.Game.Gui
                     {
                         var info = blockInfo.Components[j];
                         info.TotalCount += blockInfo.Components[i].TotalCount;
+                        info.MountedCount += blockInfo.Components[i].MountedCount;
+                        info.StockpileCount += blockInfo.Components[i].StockpileCount;
                         blockInfo.Components[j] = info;
                         blockInfo.Components.RemoveAt(i);
                         break;

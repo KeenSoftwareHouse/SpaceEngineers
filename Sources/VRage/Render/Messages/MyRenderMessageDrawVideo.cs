@@ -10,14 +10,14 @@ namespace VRageRender
         AutoFit, // Ensures that video always fills the rectangle. How to fit is determined using video and rectangle aspect ratios.
     }
 
-    public class MyRenderMessageDrawVideo : IMyRenderMessage
+    public class MyRenderMessageDrawVideo : MyRenderMessageBase
     {
         public uint ID;
         public Rectangle Rectangle;
         public Color Color;
         public MyVideoRectangleFitMode FitMode;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawVideo; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawVideo; } }
     }
 }

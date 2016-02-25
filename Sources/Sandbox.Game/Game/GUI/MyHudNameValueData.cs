@@ -9,6 +9,7 @@ using Sandbox.Game.Gui;
 using VRage;
 using VRageMath;
 using Sandbox.Graphics;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.Gui

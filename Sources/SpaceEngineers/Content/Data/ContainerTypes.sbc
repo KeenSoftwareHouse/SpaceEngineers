@@ -4,6 +4,127 @@
     <ContainerType CountMin="1" CountMax="2">
       <Id>
         <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>SpiderLoot</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="4" AmountMax="7">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>        
+        <Item AmountMin="2" AmountMax="8">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="100" AmountMax="438">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="45">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="2" AmountMax="5">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="10" AmountMax="30">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="5" AmountMax="15">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+	<ContainerType CountMin="1" CountMax="2">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
+        <SubtypeId>CyberhoundLoot</SubtypeId>
+      </Id>
+      <Items>
+        <Item AmountMin="4" AmountMax="7">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Ingot</TypeId>
+            <SubtypeId>Magnesium</SubtypeId>
+          </Id>
+        </Item>        
+        <Item AmountMin="4" AmountMax="10">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Motor</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="150" AmountMax="483">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>SteelPlate</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="7" AmountMax="50">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Computer</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="4" AmountMax="7">
+          <Frequency>1.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Display</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="15" AmountMax="40">
+          <Frequency>4.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>Construction</SubtypeId>
+          </Id>
+        </Item>
+        <Item AmountMin="8" AmountMax="20">
+          <Frequency>2.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>LargeTube</SubtypeId>
+          </Id>
+        </Item>
+		    <Item AmountMin="4" AmountMax="6">
+          <Frequency>5.0</Frequency>
+          <Id>
+            <TypeId>Component</TypeId>
+            <SubtypeId>PowerCell</SubtypeId>
+          </Id>
+        </Item>
+      </Items>
+    </ContainerType>
+    <ContainerType CountMin="1" CountMax="2">
+      <Id>
+        <TypeId>ContainerTypeDefinition</TypeId>
         <SubtypeId>CargoLargeMining1A</SubtypeId>
       </Id>
       <Items>

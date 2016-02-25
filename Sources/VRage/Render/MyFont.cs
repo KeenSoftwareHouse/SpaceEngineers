@@ -64,11 +64,11 @@ namespace VRageRender
         /// </summary>
         public MyFont(string fontFilePath, int spacing = 1)
         {
-            MyLog.Default.WriteLine("MyFont.Ctor - START");
-            using (var indent = MyLog.Default.IndentUsing(LoggingOptions.MISC_RENDER_ASSETS))
+            MyRenderProxy.Log.WriteLine("MyFont.Ctor - START");
+            using (var indent = MyRenderProxy.Log.IndentUsing(LoggingOptions.MISC_RENDER_ASSETS))
             {
                 Spacing = spacing;
-                MyLog.Default.WriteLine("Font filename: " + fontFilePath);
+                MyRenderProxy.Log.WriteLine("Font filename: " + fontFilePath);
 
                 path = Path.Combine(MyFileSystem.ContentPath, fontFilePath);
                 if (!File.Exists(path))
@@ -81,12 +81,12 @@ namespace VRageRender
                 m_fontDirectory = Path.GetDirectoryName(path);
                 LoadFontXML();
 
-                MyLog.Default.WriteLine("FontFilePath: " + path);
-                MyLog.Default.WriteLine("LineHeight: " + LineHeight);
-                MyLog.Default.WriteLine("Baseline: " + Baseline);
-                MyLog.Default.WriteLine("KernEnabled: " + KernEnabled);
+                MyRenderProxy.Log.WriteLine("FontFilePath: " + path);
+                MyRenderProxy.Log.WriteLine("LineHeight: " + LineHeight);
+                MyRenderProxy.Log.WriteLine("Baseline: " + Baseline);
+                MyRenderProxy.Log.WriteLine("KernEnabled: " + KernEnabled);
             }
-            MyLog.Default.WriteLine("MyFont.Ctor - END");
+            MyRenderProxy.Log.WriteLine("MyFont.Ctor - END");
         }
 
         //  Calculate the width of the given string.

@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
@@ -10,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -222,7 +222,7 @@ namespace Sandbox.Game.Screens.Helpers
                 m_colorVariantPanel.Visible = MyFakes.ENABLE_BLOCK_COLORING; // character != null;
                 
                 if (toolbar.ShowHolsterSlot)
-                    SetGridItemAt(slotCount, new MyToolbarItemEmpty(), @"Textures\GUI\Icons\HideWeapon.dds", null, MyTexts.GetString(MySpaceTexts.HideWeapon));
+                    SetGridItemAt(slotCount, new MyToolbarItemEmpty(), @"Textures\GUI\Icons\HideWeapon.dds", null, MyTexts.GetString(MyCommonTexts.HideWeapon));
 
                 if(toolbar.PageCount > 1)
                     for (int i = 0; i < toolbar.PageCount; ++i)
@@ -287,7 +287,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             int page = m_shownToolbar.CurrentPage;
 
-            for (int i = 0; i < m_pageLabelList.Count(); ++i)
+            for (int i = 0; i < m_pageLabelList.Count; ++i)
             {
                 if (i != page && m_pageLabelList[i].BackgroundTexture == MyGuiConstants.TEXTURE_TOOLBAR_TAB_HIGHLIGHT)
                 {

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+﻿using VRage.Game;
+﻿using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -37,6 +39,7 @@ namespace Sandbox.Definitions
             }
             BaseProductionTimeInSeconds = builder.BaseProductionTimeInSeconds;
             PostprocessNeeded = true;
+            ProgressBarSoundCue = builder.ProgressBarSoundCue;
         }
 
         public override void Postprocess()

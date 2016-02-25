@@ -7,6 +7,7 @@ using Sandbox.Game.EntityComponents;
 using VRageMath;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
 
@@ -18,7 +19,9 @@ namespace Sandbox.Game.Entities.Blocks
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
 	    public MySolarPanelDefinition SolarPanelDefinition { get; private set; }
-	    public MySolarGameLogicComponent SolarComponent { get; private set; }
+        public MySolarGameLogicComponent SolarComponent { get; private set; }
+        protected MyEntity3DSoundEmitter m_soundEmitter;
+        internal MyEntity3DSoundEmitter SoundEmitter { get { return m_soundEmitter; } }
 
 	    private MyResourceSourceComponent m_sourceComponent;
 		public MyResourceSourceComponent SourceComp
@@ -29,7 +32,10 @@ namespace Sandbox.Game.Entities.Blocks
 
 	    public MySolarPanel()
 	    {
-			SourceComp = new MyResourceSourceComponent();
+            SourceComp = new MyResourceSourceComponent();
+
+            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 	    }
 
 	    public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -58,7 +64,7 @@ namespace Sandbox.Game.Entities.Blocks
         internal void UpdateDisplay()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxOutput));
@@ -117,6 +123,7 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
+            m_soundEmitter.Update();
             if (CubeGrid.Physics == null)
                 return;
 
@@ -132,6 +139,23 @@ namespace Sandbox.Game.Entities.Blocks
 			        UpdateDisplay();
 			    }
             }
+        }
+
+        internal override void SetDamageEffect(bool show)
+        {
+            if (BlockDefinition.DamagedSound != null)
+                if (show)
+                    m_soundEmitter.PlaySound(BlockDefinition.DamagedSound, true);
+                else
+                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                        m_soundEmitter.StopSound(false);
+            base.SetDamageEffect(show);
+        }
+        internal override void StopDamageEffect()
+        {
+            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                m_soundEmitter.StopSound(true);
+            base.StopDamageEffect();
         }
     }
 }

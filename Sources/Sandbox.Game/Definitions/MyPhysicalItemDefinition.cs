@@ -1,6 +1,10 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using System;
+using System.Text;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 using VRageMath;
 
@@ -20,6 +24,9 @@ namespace Sandbox.Definitions
         public bool RotateOnSpawnY = false;
         public bool RotateOnSpawnZ = false;
         public int Health;
+        public MyDefinitionId? DestroyedPieceId = null;
+        public int DestroyedPieces = 0;
+        public StringBuilder ExtraInventoryTooltipLine;
 
         public bool HasIntegralAmounts
         {
@@ -50,6 +57,15 @@ namespace Sandbox.Definitions
             RotateOnSpawnY = ob.RotateOnSpawnY;
             RotateOnSpawnZ = ob.RotateOnSpawnZ;
             Health = ob.Health;
+            if (ob.DestroyedPieceId.HasValue)
+            {
+                DestroyedPieceId = ob.DestroyedPieceId.Value;
+            }
+            DestroyedPieces = ob.DestroyedPieces;
+            if (ob.ExtraInventoryTooltipLine != null)
+                ExtraInventoryTooltipLine = new StringBuilder().Append(Environment.NewLine).Append(ob.ExtraInventoryTooltipLine);
+            else
+                ExtraInventoryTooltipLine = new StringBuilder();
         }
     }
 }

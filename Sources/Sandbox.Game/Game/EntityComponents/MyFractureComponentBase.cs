@@ -5,27 +5,29 @@ using System.Linq;
 using System.Text;
 using Havok;
 using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.EntityComponents
 {
     /// <summary>
-    /// Fracture component adds fractures to entities. The component replaces renderer so the entity is responsible to restore it to original when this component is removed and original state is needed (repaired blocks).
+    /// Fracture component adds fractures to entities. The component replaces renderer so the entity is responsible to restore it to original
+    /// when this component is removed and original state is needed (repaired blocks).
     /// </summary>
     public abstract class MyFractureComponentBase : MyEntityComponentBase
     {
-        protected static readonly List<HkdShapeInstanceInfo> m_tmpChildren = new List<HkdShapeInstanceInfo>();
-        protected static readonly List<HkdShapeInstanceInfo> m_tmpShapeInfos = new List<HkdShapeInstanceInfo>();
-        protected static readonly List<MyObjectBuilder_FractureComponentBase.FracturedShape> m_tmpShapeList = new List<MyObjectBuilder_FractureComponentBase.FracturedShape>();
+        protected readonly List<HkdShapeInstanceInfo> m_tmpChildren = new List<HkdShapeInstanceInfo>();
+        protected readonly List<HkdShapeInstanceInfo> m_tmpShapeInfos = new List<HkdShapeInstanceInfo>();
+        protected readonly List<MyObjectBuilder_FractureComponentBase.FracturedShape> m_tmpShapeList = new List<MyObjectBuilder_FractureComponentBase.FracturedShape>();
 
         public HkdBreakableShape Shape;
 
@@ -72,18 +74,22 @@ namespace Sandbox.Game.EntityComponents
         {
             base.OnBeforeRemovedFromContainer();
 
-            // Note that entity has the render MyRenderComponentFracturedPiece!
+            // Note that entity has the renderer MyRenderComponentFracturedPiece! Entity is responsible to set the original renderer back.
 
             if (Shape.IsValid())
                 Shape.RemoveReference();
         }
 
-        public void RemoveChildShapes(List<string> shapeNames)
+        /// <summary>
+        /// Removes child shapes with given names.
+        /// </summary>
+        /// <returns>true if the entity is to be removed</returns>
+        public bool RemoveChildShapes(List<string> shapeNames)
         {
-            RemoveChildShapes(shapeNames.GetInternalArray());
+            return RemoveChildShapes(shapeNames.GetInternalArray());
         }
 
-        public virtual void RemoveChildShapes(string[] shapeNames)
+        public virtual bool RemoveChildShapes(string[] shapeNames)
         {
             Debug.Assert(m_tmpShapeList.Count == 0);
             m_tmpShapeList.Clear();
@@ -92,6 +98,8 @@ namespace Sandbox.Game.EntityComponents
             RecreateShape(m_tmpShapeList);
 
             m_tmpShapeList.Clear();
+
+            return false;
         }
 
         protected void GetCurrentFracturedShapeList(List<MyObjectBuilder_FractureComponentBase.FracturedShape> shapeList, string[] excludeShapeNames = null)
@@ -100,8 +108,12 @@ namespace Sandbox.Game.EntityComponents
             GetCurrentFracturedShapeList(Shape, shapeList, excludeShapeNames: excludeShapeNames);
         }
 
-        private bool GetCurrentFracturedShapeList(HkdBreakableShape breakableShape, List<MyObjectBuilder_FractureComponentBase.FracturedShape> shapeList, string[] excludeShapeNames = null)
+        private static bool GetCurrentFracturedShapeList(HkdBreakableShape breakableShape, List<MyObjectBuilder_FractureComponentBase.FracturedShape> shapeList, string[] excludeShapeNames = null)
         {
+            Debug.Assert(breakableShape.IsValid());
+            if (!breakableShape.IsValid())
+                return false;
+
             var shapeName = breakableShape.Name;
             bool shapeNameEmpty = string.IsNullOrEmpty(shapeName);
 
@@ -129,7 +141,8 @@ namespace Sandbox.Game.EntityComponents
                 {
                     foreach (var inst in shapeInst)
                     {
-                        shapeList.RemoveAll(s => s.Name == inst.ShapeName);
+                        if (inst.Shape.IsValid())
+                            shapeList.RemoveAll(s => s.Name == inst.ShapeName);
                     }
 
                     shapeList.Add(new MyObjectBuilder_FractureComponentBase.FracturedShape() { Name = shapeName, Fixed = breakableShape.IsFixed() });

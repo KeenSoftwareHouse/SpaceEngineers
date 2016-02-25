@@ -1,33 +1,67 @@
 ﻿using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Linq;
+using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders;
+using VRage.Game;
 using VRage.Utils;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 
 namespace Sandbox.Game.GameSystems
 {
-    static class MyAntennaSystem
+    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, 588, typeof(MyObjectBuilder_AntennaSessionComponent))]
+    public class MyAntennaSystem : MySessionComponentBase
     {
-        static List<long> m_addedItems = new List<long>();
-        static HashSet<BroadcasterInfo> m_output = new HashSet<BroadcasterInfo>(new BroadcasterInfoComparer());
-        static HashSet<MyDataBroadcaster> m_tempPlayerRelayedBroadcasters = new HashSet<MyDataBroadcaster>();
-        static List<MyDataBroadcaster> m_tempGridBroadcastersFromPlayer = new List<MyDataBroadcaster>();
+        public static MyAntennaSystem Static { get; private set; }
 
-        public static HashSet<BroadcasterInfo> GetMutuallyConnectedGrids(MyEntity interactedEntityRepresentative, MyPlayer player = null)
+        private List<long> m_addedItems = new List<long>();
+        private HashSet<BroadcasterInfo> m_output = new HashSet<BroadcasterInfo>(new BroadcasterInfoComparer());
+        private HashSet<MyDataBroadcaster> m_tempPlayerRelayedBroadcasters = new HashSet<MyDataBroadcaster>();
+        private List<MyDataBroadcaster> m_tempGridBroadcastersFromPlayer = new List<MyDataBroadcaster>();
+
+        public override void BeforeStart()
+        {
+            Static = this;
+        }
+
+        protected override void UnloadData()
+        {
+            base.UnloadData();
+
+            m_addedItems.Clear();
+            m_addedItems = null;
+
+            m_output.Clear();
+            m_output = null;
+
+            m_tempGridBroadcastersFromPlayer.Clear();
+            m_tempGridBroadcastersFromPlayer = null;
+
+            m_tempPlayerRelayedBroadcasters.Clear();
+            m_tempPlayerRelayedBroadcasters = null;
+
+            m_tempPlayerReceivers.Clear();
+            m_tempPlayerReceivers = null;
+
+            Static = null;
+        }
+
+        public HashSet<BroadcasterInfo> GetMutuallyConnectedGrids(MyEntity interactedEntityRepresentative, MyPlayer player = null)
         {
             if (player == null)
             {
-                player = MySession.LocalHumanPlayer;
+                player = MySession.Static.LocalHumanPlayer;
             }
 
             MyIdentity playerIdentity = player.Identity;
             MyCharacter playerCharacter = playerIdentity.Character;
-            
-              //First: You are always connected to the block/ship/character you're in
+
+            //First: You are always connected to the block/ship/character you're in
             m_addedItems.Clear();
             m_output.Clear();
 
@@ -43,19 +77,19 @@ namespace Sandbox.Game.GameSystems
             GetPlayerRelayedBroadcasters(playerCharacter, interactedEntityRepresentative, m_tempPlayerRelayedBroadcasters);
             foreach (var broadcaster in m_tempPlayerRelayedBroadcasters)
             {
-                if (broadcaster.Parent == null || !(broadcaster.Parent is MyCubeBlock) || (broadcaster.Parent is MyBeacon))
+                if (broadcaster.Entity == null || !(broadcaster.Entity is MyCubeBlock) || (broadcaster.Entity is MyBeacon))
                     continue;
 
                 MyIDModule module;
-                if ((broadcaster.Parent as IMyComponentOwner<MyIDModule>).GetComponent(out module))
+                if ((broadcaster.Entity as IMyComponentOwner<MyIDModule>).GetComponent(out module))
                 {
-                    if (!((MyTerminalBlock)broadcaster.Parent).HasPlayerAccess(playerIdentity.IdentityId) || module.Owner == 0)
+                    if (!((MyTerminalBlock)broadcaster.Entity).HasPlayerAccess(playerIdentity.IdentityId) || module.Owner == 0)
                         continue;
                 }
                 else
                     continue;
 
-                var ownerCubeGrid = (broadcaster.Parent as MyCubeBlock).CubeGrid;
+                var ownerCubeGrid = (broadcaster.Entity as MyCubeBlock).CubeGrid;
 
                 m_tempGridBroadcastersFromPlayer.Clear();
                 GridBroadcastersFromPlayer(ownerCubeGrid, interactedEntityRepresentative, playerIdentity.IdentityId, m_tempGridBroadcastersFromPlayer);
@@ -77,7 +111,7 @@ namespace Sandbox.Game.GameSystems
             return m_output;
         }
 
-        private static void GetPlayerRadioReceivers(MyCharacter playerCharacter, MyEntity interactedEntityRepresentative, HashSet<MyDataReceiver> output)
+        private void GetPlayerRadioReceivers(MyCharacter playerCharacter, MyEntity interactedEntityRepresentative, HashSet<MyDataReceiver> output)
         {
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
@@ -90,8 +124,8 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private static HashSet<MyDataReceiver> m_tempPlayerReceivers = new HashSet<MyDataReceiver>();
-        public static void GetPlayerRelayedBroadcasters(MyCharacter playerCharacter, MyEntity interactedEntityRepresentative, HashSet<MyDataBroadcaster> output)
+        private HashSet<MyDataReceiver> m_tempPlayerReceivers = new HashSet<MyDataReceiver>();
+        public void GetPlayerRelayedBroadcasters(MyCharacter playerCharacter, MyEntity interactedEntityRepresentative, HashSet<MyDataBroadcaster> output)
         {
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
@@ -104,7 +138,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private static void GridBroadcastersFromPlayer(MyCubeGrid grid, MyEntity interactedEntityRepresentative, long playerId, List<MyDataBroadcaster> output)
+        private void GridBroadcastersFromPlayer(MyCubeGrid grid, MyEntity interactedEntityRepresentative, long playerId, List<MyDataBroadcaster> output)
         {
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
@@ -115,19 +149,19 @@ namespace Sandbox.Game.GameSystems
                     output.Add(broadcaster);
         }
 
-        public static long GetBroadcasterParentEntityId(MyDataBroadcaster broadcaster)
+        public long GetBroadcasterParentEntityId(MyDataBroadcaster broadcaster)
         {
-            if (broadcaster.Parent is MyCubeBlock)
-                return (broadcaster.Parent as MyCubeBlock).CubeGrid.EntityId;
+            if (broadcaster.Entity is MyCubeBlock)
+                return (broadcaster.Entity as MyCubeBlock).CubeGrid.EntityId;
 
-            else if (broadcaster.Parent is MyCharacter)
-                return (broadcaster.Parent as MyCharacter).EntityId;
+            else if (broadcaster.Entity is MyCharacter)
+                return (broadcaster.Entity as MyCharacter).EntityId;
 
             return 0;
         }
 
         //gets the grid with largest number of blocks in logical group
-        public static MyCubeGrid GetLogicalGroupRepresentative(MyCubeGrid grid)
+        public MyCubeGrid GetLogicalGroupRepresentative(MyCubeGrid grid)
         {
             var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
 
@@ -170,7 +204,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public static bool CheckConnection(MyIdentity sender, MyIdentity receiver)
+        public bool CheckConnection(MyIdentity sender, MyIdentity receiver)
         {
             if (sender == receiver)
             {
@@ -188,20 +222,20 @@ namespace Sandbox.Game.GameSystems
                 }
 
                 //Relayed broadcasters include antennas and characters 
-                if (senderRelayedBroadcaster.Parent is IMyComponentOwner<MyIDModule>)
+                if (senderRelayedBroadcaster.Entity is IMyComponentOwner<MyIDModule>)
                 {
                     MyIDModule broadcasterId;
-                    if ((senderRelayedBroadcaster.Parent as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
+                    if ((senderRelayedBroadcaster.Entity as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
                     {
-                        Sandbox.Common.MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(sender.IdentityId);
-                        if (relation == Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Enemies || relation == Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Neutral || broadcasterId.Owner == 0)
+                        VRage.Game.MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(sender.IdentityId);
+                        if (relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies || relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral || broadcasterId.Owner == 0)
                             continue;
                     }
                 }
-                if (senderRelayedBroadcaster.Parent is MyCharacter)
+                if (senderRelayedBroadcaster.Entity is MyCharacter)
                 {
-                    var relation = (senderRelayedBroadcaster.Parent as MyCharacter).GetRelationTo(sender.IdentityId);
-                    if (relation == Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Enemies || relation == Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Neutral)
+                    var relation = (senderRelayedBroadcaster.Entity as MyCharacter).GetRelationTo(sender.IdentityId);
+                    if (relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies || relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral)
                         continue;
                 }
 
@@ -214,15 +248,15 @@ namespace Sandbox.Game.GameSystems
             return false;
         }
 
-        private static bool IsBroadcasterConnectedToCharacter(MyRadioBroadcaster broadcaster, MyCharacter character)
+        private bool IsBroadcasterConnectedToCharacter(MyRadioBroadcaster broadcaster, MyCharacter character)
         {
-            var broadcasterCharacter = broadcaster.Parent as MyCharacter;
+            var broadcasterCharacter = broadcaster.Entity as MyCharacter;
             if (broadcasterCharacter == character)
             {
                 return true;
             }
 
-            var broadcasterBlock = broadcaster.Parent as MyCubeBlock;
+            var broadcasterBlock = broadcaster.Entity as MyCubeBlock;
             var characterBlock = character.Parent as MyCubeBlock;
             if (broadcasterBlock != null && characterBlock != null)
             {
@@ -241,20 +275,20 @@ namespace Sandbox.Game.GameSystems
             return false;
         }
 
-        public static bool CheckConnection(MyCharacter character, MyCubeGrid grid, MyPlayer player)
+        public bool CheckConnection(MyCharacter character, MyCubeGrid grid, MyPlayer player)
         {
             return CheckConnection((MyEntity)character, grid, player);
         }
 
-        public static bool CheckConnection(MyCubeGrid interactedGrid, MyCubeGrid grid, MyPlayer player)
+        public bool CheckConnection(MyCubeGrid interactedGrid, MyCubeGrid grid, MyPlayer player)
         {
-            return CheckConnection((MyEntity)MyAntennaSystem.GetLogicalGroupRepresentative(interactedGrid), grid, player);
+            return CheckConnection((MyEntity)GetLogicalGroupRepresentative(interactedGrid), grid, player);
         }
 
-        private static bool CheckConnection(MyEntity interactedEntityRepresentative, MyCubeGrid grid, MyPlayer player)
+        private bool CheckConnection(MyEntity interactedEntityRepresentative, MyCubeGrid grid, MyPlayer player)
         {
-            var connectedGrids = MyAntennaSystem.GetMutuallyConnectedGrids(interactedEntityRepresentative, player);
-            var gridRepresentative = MyAntennaSystem.GetLogicalGroupRepresentative(grid);
+            var connectedGrids = GetMutuallyConnectedGrids(interactedEntityRepresentative, player);
+            var gridRepresentative = GetLogicalGroupRepresentative(grid);
 
             foreach (var connectedGrid in connectedGrids)
             {

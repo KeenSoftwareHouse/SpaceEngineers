@@ -1,4 +1,5 @@
 ﻿using Sandbox.Game.Entities;
+using VRage.Game.Entity;
 
 namespace Sandbox.Engine.Utils
 {

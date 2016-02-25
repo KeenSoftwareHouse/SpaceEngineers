@@ -195,8 +195,8 @@ namespace VRageRender.Vertex
     unsafe struct MyVertexFormatCubeInstance
     {
         internal fixed byte bones[MyRender11Constants.CUBE_INSTANCE_BONES_NUM * 4];
-        internal HalfVector4 translationRotation;
-        internal HalfVector4 colorMaskHSV;
+        internal Vector4 translationRotation;
+        internal Vector4 colorMaskHSV;
 
         internal static int STRIDE = sizeof(MyVertexFormatCubeInstance);
     }
@@ -207,7 +207,6 @@ namespace VRageRender.Vertex
         internal HalfVector4 row1;
         internal HalfVector4 row2;
         internal HalfVector4 colorMaskHSV;
-        internal HalfVector2 uvOffset;
 
         internal static int STRIDE = sizeof(MyVertexFormatGenericInstance);
     }

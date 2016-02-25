@@ -72,7 +72,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Gui\IMyGuiControlsOwner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Gui\IMyGuiControlsParent.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
+    <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
     <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
     <Compile Include="Gui\MyKeyThrottler.cs" />
@@ -84,8 +91,6 @@
     <Compile Include="MyControlsGUI.cs" />
     <Compile Include="MyGuiSoundManager.cs" />
     <Compile Include="MyScreenManager.cs" />
-    <Compile Include="Gui\IMyGuiControlsOwner.cs" />
-    <Compile Include="Gui\IMyGuiControlsParent.cs" />
     <Compile Include="Gui\MyColoredText.cs" />
     <Compile Include="Gui\MyGuiCompositeTexture.cs" />
     <Compile Include="Gui\MyGuiConstants.cs" />
@@ -135,10 +140,8 @@
     <Compile Include="Gui\TreeView\MyTreeViewItemDragAndDrop.cs" />
     <Compile Include="MyGuiManager.cs" />
     <Compile Include="MyGuiScreenMessageBox.cs" />
-    <Compile Include="MyMeshHelper.cs" />
     <Compile Include="MyRenderProfiler.cs" />
     <Compile Include="MyTextureAtlas.cs" />
-    <Compile Include="MyTransparentGeometryConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessAntiAlias.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessChromaticAberration.cs" />
@@ -150,15 +153,7 @@
     <Compile Include="Render\PostProcesses\MyPostProcessVignetting.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessVolumetricFog.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessVolumetricSSAO2.cs" />
-    <Compile Include="TransparentGeometry\MySimpleObjectDraw.cs" />
-    <Compile Include="TransparentGeometry\MyTransparentGeometry.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyAnimatedParticle.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticleEffect.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticleEmitter.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticleFactory.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticleGeneration.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticlesLibrary.cs" />
-    <Compile Include="TransparentGeometry\Particles\MyParticlesManager.cs" />
+    <Compile Include="StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

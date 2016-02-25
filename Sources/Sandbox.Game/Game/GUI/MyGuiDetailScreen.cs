@@ -24,13 +24,15 @@ using System.Drawing;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Platform.VideoMode;
 using SteamSDK;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Multiplayer;
 using System.Diagnostics;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.World;
 #endregion
 
 namespace Sandbox.Game.Gui
@@ -97,22 +99,26 @@ namespace Sandbox.Game.Gui
                 displayName = displayName.Substring(0, 25) + "...";
             }
             m_textField.Clear();
-            m_textField.AppendText("Name: " + displayName);
+            m_textField.AppendText("Name: " + displayName);//zxc translate
             m_textField.AppendLine();
 
-            var type = m_loadedPrefab.ShipBlueprints[0].CubeGrids[0].GridSizeEnum.ToString();
+            MyCubeSize type = m_loadedPrefab.ShipBlueprints[0].CubeGrids[0].GridSizeEnum;
 
-            if (m_loadedPrefab.ShipBlueprints[0].CubeGrids[0].IsStatic && type == "Large")
+            m_textField.AppendText(MyTexts.GetString(MyCommonTexts.BlockPropertiesText_Type));
+            if (m_loadedPrefab.ShipBlueprints[0].CubeGrids[0].IsStatic && type == MyCubeSize.Large)
             {
-                m_textField.AppendText("Type: " + "Station");
+                m_textField.AppendText(MyTexts.GetString(MyCommonTexts.DetailStaticGrid));
             }
             else
             {
-                m_textField.AppendText("Type: " + type + " Ship");
+                if ( type == MyCubeSize.Small )
+                    m_textField.AppendText(MyTexts.GetString(MyCommonTexts.DetailSmallGrid));
+                else
+                    m_textField.AppendText(MyTexts.GetString(MyCommonTexts.DetailLargeGrid));
             }
 
             m_textField.AppendLine();
-            m_textField.AppendText("Number of blocks: " + GetNumberOfBlocks());
+            m_textField.AppendText("Number of blocks: " + GetNumberOfBlocks());//zxc translate
             m_textField.AppendLine();
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
@@ -120,12 +126,12 @@ namespace Sandbox.Game.Gui
                 int battlePoints = GetNumberOfBattlePoints();
                 if (battlePoints != 0)
                 {
-                    m_textField.AppendText("Castle siege points: " + battlePoints);
+                    m_textField.AppendText("Castle siege points: " + battlePoints);//zxc translate
                     m_textField.AppendLine();
                 }
             }
 
-            m_textField.AppendText("Author: " + m_loadedPrefab.ShipBlueprints[0].DisplayName);
+            m_textField.AppendText("Author: " + m_loadedPrefab.ShipBlueprints[0].DisplayName);//zxc translate
             m_textField.AppendLine();
         }
 
@@ -288,7 +294,7 @@ namespace Sandbox.Game.Gui
             foreach (var player in Sync.Clients.GetClients())
             {
                 m_sendToCombo.AddItem(Convert.ToInt64(player.SteamUserId), new StringBuilder(player.DisplayName));
-                if (player.SteamUserId != MySteam.UserId)
+                if (player.SteamUserId != Sync.MyId)
                 {
                     m_sendToCombo.AddItem(Convert.ToInt64(player.SteamUserId), new StringBuilder(player.DisplayName));
                 }
@@ -298,12 +304,8 @@ namespace Sandbox.Game.Gui
 
         void OnSendToPlayer()
         {
-            var msg = new ShareBlueprintMsg();
-            msg.WorkshopId = (ulong)m_publishedItemId;
-            msg.Name = m_blueprintName;
             var playerId = (ulong)m_sendToCombo.GetSelectedKey();
-            msg.SendToId = playerId;
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(x => MyGuiBlueprintScreen.ShareBlueprintRequest, (ulong)m_publishedItemId, m_blueprintName, playerId, MySession.Static.LocalHumanPlayer.DisplayName);
         }
 
         void OnOpenInWorkshop(MyGuiControlButton button) 

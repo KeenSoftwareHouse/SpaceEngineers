@@ -2,6 +2,7 @@
 using Sandbox.Common.Components;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
 {

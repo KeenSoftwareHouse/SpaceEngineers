@@ -16,11 +16,15 @@ using VRage.Serialization;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Networking;
 using VRage;
+using Sandbox.Definitions;
+using VRage.Game;
+using VRage.Network;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    public partial class MyFactionCollection :IEnumerable<KeyValuePair<long, MyFaction>>
+    [StaticEventOwner]
+    public partial class MyFactionCollection : IEnumerable<KeyValuePair<long, MyFaction>>
     {
         public enum MyFactionPeaceRequestState
         {
@@ -97,6 +101,8 @@ namespace Sandbox.Game.Multiplayer
             public string FactionDescription;
             [ProtoMember]
             public string FactionPrivateInfo;
+            [ProtoMember]
+            public bool CreateFromDefinition;
         }
 
         [MessageIdAttribute(3300, P2PMessageEnum.Reliable)]
@@ -134,11 +140,14 @@ namespace Sandbox.Game.Multiplayer
             public BoolBlit AutoAcceptPeace;
         }
 
-
         /// <summary>
         /// All factions in a game.
         /// </summary>
         private Dictionary<long, MyFaction> m_factions = new Dictionary<long, MyFaction>();
+        /// <summary>
+        /// Ditto, indexed by their faction tag
+        /// </summary>
+        private Dictionary<string, MyFaction> m_factionsByTag = new Dictionary<string, MyFaction>();
         /// <summary>
         /// 
         /// </summary>
@@ -167,19 +176,19 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ChangeAutoAcceptMsg>(ChangeAutoAcceptSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
+        /// <summary>
+        /// Checks if faction exists.
+        /// </summary>
+        /// <param name="factionId">Faction id.</param>
+        /// <returns>If true, faction exists.</returns>
+        public bool Contains(long factionId)
+        {
+            return m_factions.ContainsKey(factionId);
+        }
+
         public bool FactionTagExists(string tag, IMyFaction doNotCheck = null)
         {
-            foreach (var entry in m_factions)
-            {
-                var faction = entry.Value;
-
-                if (doNotCheck != null && doNotCheck.FactionId == faction.FactionId)
-                    continue;
-
-                if (string.Equals(tag, faction.Tag, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-            return false;
+            return TryGetFactionByTag(tag, doNotCheck) != null;
         }
 
         public bool FactionNameExists(string name, IMyFaction doNotCheck = null)
@@ -205,19 +214,117 @@ namespace Sandbox.Game.Multiplayer
             return null;
         }
 
-        public MyFaction TryGetFactionByTag(string tag, IMyFaction doNotCheck = null)
+        public MyFaction TryGetOrCreateFactionByTag(string tag)
         {
-            foreach (var entry in m_factions)
+            MyFaction faction = TryGetFactionByTag(tag);
+            if (faction == null)
             {
-                var faction = entry.Value;
+                var upper = tag.ToUpperInvariant();
+                var factionDef = MyDefinitionManager.Static.TryGetFactionDefinition(upper);
+                if (factionDef == null)
+                {
+                    Debug.Assert(false, "Could not find a faction definition for the tag " + upper);
+                    return null;
+                }
 
-                if (doNotCheck != null && doNotCheck.FactionId == faction.FactionId)
+                MyMultiplayer.RaiseStaticEvent(x => CreateFactionByDefinition, tag);
+                faction = TryGetFactionByTag(tag);
+
+            }
+            return faction;
+        }
+
+        [Event, Reliable, Server]
+        public static void CreateFactionByDefinition(string tag)
+        {
+            var upper = tag.ToUpperInvariant();
+
+            if (MySession.Static.Factions.m_factionsByTag.ContainsKey(upper)) return;
+
+            var factionDef = MyDefinitionManager.Static.TryGetFactionDefinition(upper);
+            if (factionDef == null)
+            {
+                Debug.Assert(false, "Could not find a faction definition for the tag " + upper);
+                return;
+            }
+
+            var founder = Sync.Players.CreateNewIdentity(factionDef.Founder);
+            Sync.Players.MarkIdentityAsNPC(founder.IdentityId);
+            
+            var factionId = MyEntityIdentifier.AllocateId(MyEntityIdentifier.ID_OBJECT_TYPE.FACTION);
+            CreateFactionServer(founder.IdentityId, upper, factionDef.DisplayNameText, factionDef.DescriptionText, "", factionDef);
+
+
+
+        }
+
+        /// <summary>
+        /// Creates adds default factions to the faction collection.
+        /// </summary>
+        public void CreateDefaultFactions()
+        {
+            List<MyFactionDefinition> defaultFactions = MyDefinitionManager.Static.GetDefaultFactions();
+
+            foreach(var faction in defaultFactions)
+            {
+                // Check if there is already one. If yes, don't recreate it.
+                MyFaction oldFaction = this.TryGetFactionByTag(faction.Tag);
+                if (oldFaction != null)
                     continue;
 
-                if (string.Equals(tag, faction.Tag, StringComparison.OrdinalIgnoreCase))
-                    return faction;
+                // Create founder for the faction.
+                var founder = Sync.Players.CreateNewIdentity(faction.Founder);
+                if(founder == null)
+                {
+                    Debug.Assert(false, "Unable to create founder!");
+                    continue;
+                }
+                Sync.Players.MarkIdentityAsNPC(founder.IdentityId);
+
+                // Create faction with above founder.
+                var factionId = MyEntityIdentifier.AllocateId(MyEntityIdentifier.ID_OBJECT_TYPE.FACTION);
+                bool result = CreateFactionInternal(founder.IdentityId, factionId, faction);
+                
+                // If failed, remove owner.
+                if (!result)
+                {
+                    Debug.Assert(false, "Could not create faction from definition");
+                    Sync.Players.RemoveIdentity(founder.IdentityId);
+                }
             }
-            return null;
+        }
+
+        public MyFaction TryGetFactionByTag(string tag, IMyFaction doNotCheck = null)
+        {
+            var upper = tag.ToUpperInvariant();
+            MyFaction faction = null;
+            m_factionsByTag.TryGetValue(upper, out faction);
+
+            if (faction == null) return null;
+            if (doNotCheck != null && faction.FactionId == doNotCheck.FactionId) return null;
+            return faction;
+        }
+
+        private void UnregisterFactionTag(MyFaction faction)
+        {
+            Debug.Assert(faction != null, "Unregistering non-existent faction!");
+            if (faction != null)
+            {
+                m_factionsByTag.Remove(faction.Tag.ToUpperInvariant());
+            }
+        }
+
+        private void RegisterFactionTag(MyFaction faction)
+        {
+            Debug.Assert(faction != null, "Registering non-existent faction!");
+            if (faction != null)
+            {
+                var upperTag = faction.Tag.ToUpperInvariant();
+                MyFaction existingFaction = null;
+                m_factionsByTag.TryGetValue(upperTag, out existingFaction);
+                Debug.Assert(existingFaction == null, "Faction with the given tag already registered!");
+                m_factionsByTag[upperTag] = faction;
+            }
         }
 
         public IMyFaction TryGetPlayerFaction(long playerId)
@@ -262,7 +369,7 @@ namespace Sandbox.Game.Multiplayer
             if (m_relationsBetweenFactions.ContainsKey(key))
                 return m_relationsBetweenFactions[key];
 
-            return MyRelationsBetweenFactions.Enemies;
+            return MyPerGameSettings.DefaultFactionRelationship;
         }
 
         public bool AreFactionsEnemies(long factionId1, long factionId2)
@@ -365,7 +472,6 @@ namespace Sandbox.Game.Multiplayer
 
             var key = new MyFactionPair(fromFactionId, toFactionId);
             HashSet<long> tmpSet;
-            MyRelationsBetweenFactions tmp;
 
             switch (action)
             {
@@ -374,8 +480,8 @@ namespace Sandbox.Game.Multiplayer
                 case MyFactionStateChange.SendPeaceRequest:   return (m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) ? !tmpSet.Contains(toFactionId) : true;
                 case MyFactionStateChange.CancelPeaceRequest: return (m_factionRequests.TryGetValue(fromFactionId, out tmpSet)) ?  tmpSet.Contains(toFactionId) : false;
 
-                case MyFactionStateChange.AcceptPeace: return (m_relationsBetweenFactions.TryGetValue(key, out tmp)) ? tmp != MyRelationsBetweenFactions.Neutral : true;
-                case MyFactionStateChange.DeclareWar:  return (m_relationsBetweenFactions.TryGetValue(key, out tmp)) ? tmp != MyRelationsBetweenFactions.Enemies : false;
+                case MyFactionStateChange.AcceptPeace: return GetRelationBetweenFactions(fromFactionId, toFactionId) != MyRelationsBetweenFactions.Neutral;
+                case MyFactionStateChange.DeclareWar:  return GetRelationBetweenFactions(fromFactionId, toFactionId) != MyRelationsBetweenFactions.Enemies;
 
                 case MyFactionStateChange.FactionMemberSendJoin:   return !m_factions[fromFactionId].IsMember(playerId)  && !m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
                 case MyFactionStateChange.FactionMemberCancelJoin: return !m_factions[fromFactionId].IsMember(playerId)  &&  m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
@@ -393,7 +499,7 @@ namespace Sandbox.Game.Multiplayer
             switch (action)
             {
                 case MyFactionStateChange.RemoveFaction:
-                    if (m_factions[fromFactionId].IsMember(MySession.LocalPlayerId)) // kick all players from faction
+                    if (m_factions[fromFactionId].IsMember(MySession.Static.LocalPlayerId)) // kick all players from faction
                         m_playerFaction.Remove(playerId);
 
                     foreach (var faction in m_factions)
@@ -404,6 +510,11 @@ namespace Sandbox.Game.Multiplayer
                             RemoveRelation(fromFactionId, faction.Key);
                         }
                     }
+
+                    MyFaction toRemoveFaction = null;
+                    var tag = m_factions.TryGetValue(fromFactionId, out toRemoveFaction);
+                    UnregisterFactionTag(toRemoveFaction);
+
                     m_factions.Remove(fromFactionId);
                     break;
 
@@ -485,7 +596,7 @@ namespace Sandbox.Game.Multiplayer
             msg.FromFactionId = fromFactionId;
             msg.ToFactionId = toFactionId;
             msg.PlayerId = playerId;
-            msg.SenderId = MySession.LocalPlayerId;
+            msg.SenderId = MySession.Static.LocalPlayerId;
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
@@ -502,10 +613,29 @@ namespace Sandbox.Game.Multiplayer
                 {
                     msg.Action = MyFactionStateChange.RemoveFaction;
                 }
-                else if (msg.Action == MyFactionStateChange.FactionMemberSendJoin && (toFaction.AutoAcceptMember || MySession.Static.Settings.ScenarioEditMode))
-                { 
-                    msg.Action = MyFactionStateChange.FactionMemberAcceptJoin;
-                    msg.SenderId = 0; // no need to check who accepted this
+                else if (msg.Action == MyFactionStateChange.FactionMemberSendJoin)
+                {
+                    bool canAccept = MySession.Static.Settings.ScenarioEditMode;
+                    if (toFaction.AutoAcceptMember)
+                    {
+                        canAccept = true;
+                        if (!toFaction.AcceptHumans)
+                        {
+                            // Check, whether the requesting player is human or bot
+                            var humanPlayer = sender.FirstPlayer;
+                            if (humanPlayer != null && humanPlayer.Identity.IdentityId == msg.PlayerId)
+                            {
+                                // You are a human. We dont like human!
+                                canAccept = false;
+                                msg.Action = MyFactionStateChange.FactionMemberCancelJoin;
+                            }
+                        }
+                    }
+                    if (canAccept)
+                    {
+                        msg.Action = MyFactionStateChange.FactionMemberAcceptJoin;
+                        msg.SenderId = 0; // no need to check who accepted this
+                    }
                 }
                 else if (msg.Action == MyFactionStateChange.SendPeaceRequest && toFaction.AutoAcceptPeace)
                 {
@@ -558,6 +688,7 @@ namespace Sandbox.Game.Multiplayer
                 m_factionRequests.Clear();
                 m_relationsBetweenFactions.Clear();
                 m_playerFaction.Clear();
+                m_factionsByTag.Clear();
             }
 
             if (factionBuilders == null)
@@ -658,10 +789,18 @@ namespace Sandbox.Game.Multiplayer
 
         static void EditFactionSuccess(ref EditFactionMsg msg, MyNetworkClient sender)
         {
-            MySession.Static.Factions[msg.FactionId].Tag         = msg.FactionTag;
-            MySession.Static.Factions[msg.FactionId].Name        = msg.FactionName;
-            MySession.Static.Factions[msg.FactionId].Description = msg.FactionDescription;
-            MySession.Static.Factions[msg.FactionId].PrivateInfo = msg.FactionPrivateInfo;
+            var faction = MySession.Static.Factions.TryGetFactionById(msg.FactionId) as MyFaction;
+            Debug.Assert(faction != null, "Editing a non-existent faction!");
+            if (faction == null) return;
+
+            MySession.Static.Factions.UnregisterFactionTag(faction);
+
+            faction.Tag = msg.FactionTag;
+            faction.Name = msg.FactionName;
+            faction.Description = msg.FactionDescription;
+            faction.PrivateInfo = msg.FactionPrivateInfo;
+
+            MySession.Static.Factions.RegisterFactionTag(faction);
 
             var handler = MySession.Static.Factions.FactionEdited;
 
@@ -683,6 +822,7 @@ namespace Sandbox.Game.Multiplayer
         void Add(MyFaction faction)
         {
             m_factions.Add(faction.FactionId, faction);
+            RegisterFactionTag(faction);
         }
 
         void SendCreateFaction(long founderId, string factionTag, string factionName, string factionDesc, string factionPrivate)
@@ -698,45 +838,205 @@ namespace Sandbox.Game.Multiplayer
 
         static void CreateFactionRequest(ref AddFactionMsg msg, MyNetworkClient sender)
         {
-            msg.FactionId = MyEntityIdentifier.AllocateId(MyEntityIdentifier.ID_OBJECT_TYPE.FACTION);
-            var faction   = MySession.Static.Factions.TryGetFactionById(msg.FactionId);
-            var senderFaction = MySession.Static.Factions.TryGetPlayerFaction(msg.FounderId);
+            CreateFactionServer(msg.FounderId, msg.FactionTag, msg.FactionName, msg.FactionDescription, msg.FactionPrivateInfo);
+        }
 
-            if (senderFaction == null && faction == null 
-                && !MySession.Static.Factions.FactionTagExists(msg.FactionTag)
-                && !MySession.Static.Factions.FactionNameExists(msg.FactionName)
-                && Sync.Players.HasIdentity(msg.FounderId))
+        /// <summary>
+        /// Creates faction on server and sends message to client to create one there. If faction definition is provided than faction will be created from definition and
+        /// faction name, description and private info will be taken from definition.
+        /// </summary>
+        /// <param name="founderId">Founder id</param>
+        /// <param name="factionTag">Faction tag</param>
+        /// <param name="factionName">Faction name</param>
+        /// <param name="description">Faction Description</param>
+        /// <param name="privateInfo">Private info</param>
+        /// <param name="factionDef">Optional: faction definition.</param>
+        private static void CreateFactionServer(long founderId, string factionTag, string factionName, string description, string privateInfo, MyFactionDefinition factionDef = null)
+        {
+            Debug.Assert(Sync.IsServer, "Faction ID can only be allocated on the server!");
+            if (!Sync.IsServer) return;
+
+            long factionId = MyEntityIdentifier.AllocateId(MyEntityIdentifier.ID_OBJECT_TYPE.FACTION);
+            var faction = MySession.Static.Factions.TryGetFactionById(factionId);
+            var senderFaction = MySession.Static.Factions.TryGetPlayerFaction(founderId);
+
+            if (senderFaction == null && faction == null
+                && !MySession.Static.Factions.FactionTagExists(factionTag)
+                && !MySession.Static.Factions.FactionNameExists(factionName)
+                && Sync.Players.HasIdentity(founderId))
             {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                bool createFromDef = factionDef == null ? false : true;
+
+                if (createFromDef)
+                    CreateFactionInternal(founderId, factionId, factionDef);
+                else
+                    CreateFactionInternal(founderId, factionId, factionTag, factionName, description, privateInfo);
+
+
+                AddFactionMsg newMsg = new AddFactionMsg();
+                newMsg.FactionId = factionId;
+                newMsg.FounderId = founderId;
+                newMsg.FactionTag = factionTag;
+                newMsg.FactionName = factionName;
+                newMsg.FactionDescription = description;
+                newMsg.FactionPrivateInfo = privateInfo;
+                newMsg.CreateFromDefinition = createFromDef;
+
+                Sync.Layer.SendMessageToAll(ref newMsg, MyTransportMessageEnum.Success);
+
+                // Call myself.
+                SetDefaultFactionStates(factionId);
+                // Call everyone else.
+                MyMultiplayer.RaiseStaticEvent(x => SetDefaultFactionStates, factionId);
+
             }
-            /*else
-            {
-                Sync.Layer.SendMessage(ref msg, SteamSDK.sender.SteamUserId, MyTransportMessageEnum.Failure);
-            }*/
         }
 
         static void CreateFactionSuccess(ref AddFactionMsg msg, MyNetworkClient sender)
         {
-            MySession.Static.Factions.AddPlayerToFaction(msg.FounderId, msg.FactionId);
-            MySession.Static.Factions.Add(new MyFaction(
-                id:          msg.FactionId,
-                tag:         msg.FactionTag,
-                name:        msg.FactionName,
-                desc:        msg.FactionDescription,
-                privateInfo: msg.FactionPrivateInfo,
-                creatorId:   msg.FounderId));
+            if (msg.CreateFromDefinition)
+            {
+                var factionDef = MyDefinitionManager.Static.TryGetFactionDefinition(msg.FactionTag);
+                if (factionDef == null)
+                {
+                    Debug.Assert(false, "Could not find a faction definition for the tag " + msg.FactionTag);
+                    return;
+                }
 
+                CreateFactionInternal(msg.FounderId, msg.FactionId, factionDef);
+            }
+            else
+                CreateFactionInternal(msg.FounderId, msg.FactionId, msg.FactionTag, msg.FactionName, msg.FactionDescription, msg.FactionPrivateInfo);
+        }
+
+        /// <summary>
+        /// Creates faction from definition.
+        /// </summary>
+        /// <param name="founderId">Identity id of the owner.</param>
+        /// <param name="factionId">Faction id to be used for the faction.</param>
+        /// <param name="factionDef">Faction definition.</param>
+        /// <returns>If true than faction was created.</returns>
+        private static bool CreateFactionInternal(long founderId, long factionId, MyFactionDefinition factionDef)
+        {
+            if (MySession.Static.Factions.Contains(factionId))
+                return false;
+
+            var newFaction = new MyFaction(
+                id: factionId,
+                tag: factionDef.Tag,
+                name: factionDef.DisplayNameText,
+                desc: factionDef.DescriptionText,
+                privateInfo: "",
+                creatorId: founderId);
+            MySession.Static.Factions.Add(newFaction);
+
+            MySession.Static.Factions.AddPlayerToFaction(founderId, factionId);
+
+            newFaction.AcceptHumans = factionDef.AcceptHumans;
+            newFaction.AutoAcceptMember = factionDef.AutoAcceptMember;
+            newFaction.EnableFriendlyFire = factionDef.EnableFriendlyFire;
+
+            AfterFactionCreated(founderId, factionId);
+
+            return true;
+        }
+
+        private static void CreateFactionInternal(long founderId, long factionId, string factionTag, string factionName, string factionDescription, string factionPrivateInfo)
+        {
+            MySession.Static.Factions.AddPlayerToFaction(founderId, factionId);
+            MySession.Static.Factions.Add(new MyFaction(
+                id: factionId,
+                tag: factionTag,
+                name: factionName,
+                desc: factionDescription,
+                privateInfo: factionPrivateInfo,
+                creatorId: founderId));
+
+            AfterFactionCreated(founderId, factionId);
+        }
+
+        /// <summary>
+        /// Determines what kind of faction change request should be used depending on default faction
+        /// relation to other ones.
+        /// </summary>
+        /// <returns></returns>
+        private static MyFactionStateChange DetermineRequestFromRelation(MyRelationsBetweenFactions relation)
+        {
+            MyFactionStateChange stateChange;
+            if (relation == MyRelationsBetweenFactions.Enemies)
+            {
+                stateChange = MyFactionStateChange.DeclareWar;
+            }
+            else
+            {
+                stateChange = MyFactionStateChange.SendPeaceRequest;
+            }
+
+            return stateChange;
+        }
+
+        private static void AfterFactionCreated(long founderId, long factionId)
+        {
             foreach (var entry in MySession.Static.Factions)
             {
                 var faction = entry.Value;
-                faction.CancelJoinRequest(msg.FounderId);
+                faction.CancelJoinRequest(founderId);
             }
 
             var handler = MySession.Static.Factions.FactionCreated;
 
             if (handler != null)
-                handler(msg.FactionId);
+                handler(factionId);
         }
+
+        [Event,Reliable, Broadcast]
+        private static void SetDefaultFactionStates(long recivedFactionId)
+        {
+            IMyFaction recievedFaction = MySession.Static.Factions.TryGetFactionById(recivedFactionId);
+            MyFactionDefinition recievedFactionDefiniton = MyDefinitionManager.Static.TryGetFactionDefinition(recievedFaction.Tag);
+
+            foreach (var factionPair in MySession.Static.Factions)
+            {
+                MyFaction faction = factionPair.Value;
+
+                if (faction.FactionId == recivedFactionId)
+                    continue;
+
+                if (recievedFactionDefiniton != null) // If I have definition, force my relations on everyone.
+                {
+                    SetDefaultFactionStateInternal(faction.FactionId, recievedFaction, recievedFactionDefiniton);
+                }
+                else // Otherwise search for default factions and set their relations on me.
+                {
+                    MyFactionDefinition factionDefiniton = MyDefinitionManager.Static.TryGetFactionDefinition(faction.Tag);
+                    if (factionDefiniton == null)
+                        continue;
+
+                    SetDefaultFactionStateInternal(recivedFactionId, faction, factionDefiniton);
+                }
+            }
+
+            
+
+        }
+
+        /// <summary>
+        /// Sets default faction relation on provided faction.
+        /// </summary>
+        /// <param name="factionId">Faction on which set the default faction relations.</param>
+        /// <param name="defaultFaction">Default faction which contains definition of the relation.</param>
+        /// <param name="defaultFactionDef">Default faction definition.</param>
+        private static void SetDefaultFactionStateInternal(long factionId, IMyFaction defaultFaction, MyFactionDefinition defaultFactionDef)
+        {
+            MyFactionStateChange stateChange = DetermineRequestFromRelation(defaultFactionDef.DefaultRelation);
+            MySession.Static.Factions.ApplyFactionStateChange(stateChange, defaultFaction.FactionId, factionId, defaultFaction.FounderId, defaultFaction.FounderId);
+            
+            var handler = MySession.Static.Factions.FactionStateChanged;
+
+            if (handler != null)
+                handler(stateChange, defaultFaction.FactionId, factionId, defaultFaction.FounderId, defaultFaction.FounderId);
+        }
+
 
         #endregion
 

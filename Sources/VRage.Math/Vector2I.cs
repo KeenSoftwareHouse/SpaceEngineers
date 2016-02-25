@@ -57,6 +57,12 @@ namespace VRageMath
                                 left.Y + right.Y);
         }
 
+        public static Vector2I operator +(Vector2I left, int right)
+        {
+            return new Vector2I(left.X + right,
+                                left.Y + right);
+        }
+
         public static Vector2I operator -(Vector2I left, Vector2I right)
         {
             return new Vector2I(left.X - right.X,

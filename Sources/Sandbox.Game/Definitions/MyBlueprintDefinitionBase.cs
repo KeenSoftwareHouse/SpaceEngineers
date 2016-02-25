@@ -6,6 +6,8 @@ using Sandbox.Game.World;
 using Sandbox.Game.Entities.Cube;
 using System.Collections.Generic;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 using VRage.ObjectBuilders;
 
@@ -46,6 +48,8 @@ namespace Sandbox.Definitions
 
         public Item[] Prerequisites;
         public Item[] Results;
+
+        public string ProgressBarSoundCue = null;
 
         /// <summary>
         /// Base production time in seconds, which is affected by speed increase of

@@ -2,21 +2,12 @@
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Configuration : MyObjectBuilder_Base
     {
-        [ProtoMember]
-        public CubeSizeSettings CubeSizes;
-
-        [ProtoMember]
-        public BaseBlockSettings BaseBlockPrefabs;
-
-        [ProtoMember]
-        public BaseBlockSettings BaseBlockPrefabsSurvival;
-
         [ProtoContract]
         public struct CubeSizeSettings
         {
@@ -42,5 +33,30 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [ProtoMember, XmlAttribute]
             public string LargeDynamic;
         }
+
+        [ProtoContract]
+        public class LootBagDefinition
+        {
+            [ProtoMember]
+            public SerializableDefinitionId ContainerDefinition;
+
+            // Radius for searching lootbag nearby player.
+            [ProtoMember, XmlAttribute]
+            public float SearchRadius = 3;
+        }
+
+        [ProtoMember]
+        public CubeSizeSettings CubeSizes;
+
+        [ProtoMember]
+        public BaseBlockSettings BaseBlockPrefabs;
+
+        [ProtoMember]
+        public BaseBlockSettings BaseBlockPrefabsSurvival;
+
+        // Definition of loot bag - spawned when an inventory item cannot be spawn in world (no free place found).
+        [ProtoMember]
+        public LootBagDefinition LootBag;
+
     }
 }

@@ -1,8 +1,8 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Game.AI.BehaviorTree;
+﻿using Sandbox.Game.AI.BehaviorTree;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using VRage.Game;
 
 namespace Sandbox.Game.AI
 {
@@ -23,6 +23,18 @@ namespace Sandbox.Game.AI
         public bool HasOldPath { get { return m_oldNodePath.Count > 0; } }
         public int LastRunningNodeIndex { get; private set; }
         public bool HasPathToSave { get { return m_newNodePath.Count > 0; } }
+        public int TickCounter { get; private set; } // Can be used by actions to check, whether something happened in the same frame
+
+        public MyBotMemory Clone() 
+        {
+            // creates copy of current memory state
+            MyBotMemory copy = new MyBotMemory(m_memoryUser);
+            copy.m_behaviorTree = m_behaviorTree;
+            MyObjectBuilder_BotMemory memoryBuilder = new MyObjectBuilder_BotMemory();
+            memoryBuilder = GetObjectBuilder();
+            copy.Init(memoryBuilder);
+            return copy;
+        }
 
         public MyBotMemory(IMyBot bot)
         {
@@ -62,6 +74,7 @@ namespace Sandbox.Game.AI
                     m_newNodePath.Push(builder.NewPath[i]);
 
             LastRunningNodeIndex = builder.LastRunningNodeIndex;
+            TickCounter = 0;
         }
 
         public MyObjectBuilder_BotMemory GetObjectBuilder()
@@ -142,6 +155,7 @@ namespace Sandbox.Game.AI
             if (HasPathToSave)
                 PrepareForNewNodePath();
             CurrentTreeBotMemory.ClearNodesData();
+            TickCounter = TickCounter + 1;
         }
 
         public void ClearPathMemory(bool postTick)

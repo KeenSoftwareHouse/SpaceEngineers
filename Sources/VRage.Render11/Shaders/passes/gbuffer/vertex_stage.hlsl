@@ -2,6 +2,7 @@ struct VertexStageOutput
 {
 	float4 position : SV_Position;
 	MaterialVertexPayload custom;
+
 	float4 key_color_alpha : TEXCOORD7;
 #ifdef BUILD_TANGENT_IN_PIXEL
 	float3 position_ws : TEXCOORD8;

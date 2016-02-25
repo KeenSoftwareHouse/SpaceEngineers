@@ -17,6 +17,13 @@ namespace VRage.Collections
         List<T> m_toAdd = new List<T>();
         List<T> m_toRemove = new List<T>();
 
+        public CachingList() { }
+
+        public CachingList(int capacity)
+        {
+            m_list = new List<T>(capacity);
+        }
+
         public int Count
         {
             get { return m_list.Count; }
@@ -73,6 +80,11 @@ namespace VRage.Collections
             foreach (var entity in m_toRemove)
                 m_list.Remove(entity);
             m_toRemove.Clear();
+        }
+
+        public void Sort(IComparer<T> comparer)
+        {
+            m_list.Sort(comparer);
         }
 
         public List<T>.Enumerator GetEnumerator()

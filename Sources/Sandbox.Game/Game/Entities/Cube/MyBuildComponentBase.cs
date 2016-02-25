@@ -1,6 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -14,8 +14,10 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRageMath;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.World
 {
@@ -43,9 +45,10 @@ namespace Sandbox.Game.World
 
         // Convention: All these functions will erase the RequiredMaterials first thing when they're called
         public abstract void GetGridSpawnMaterials(MyCubeBlockDefinition definition, MatrixD worldMatrix, bool isStatic);
+        public abstract void GetGridSpawnMaterials(MyObjectBuilder_CubeGrid grid);
         public abstract void GetBlockPlacementMaterials(MyCubeBlockDefinition definition, Vector3I position, MyBlockOrientation orientation, MyCubeGrid grid);
         public abstract void GetBlocksPlacementMaterials(HashSet<MyCubeGrid.MyBlockLocation> hashSet, MyCubeGrid grid);
-        public abstract void GetGridSpawnMaterials(MyObjectBuilder_CubeGrid grid);
+        public abstract void GetMultiBlockPlacementMaterials(MyMultiBlockDefinition multiBlockDefinition);
 
         // This function does some modifications to the cube block's object builder before it's built, usually integrity changes, etc...
         public virtual void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
@@ -71,6 +74,7 @@ namespace Sandbox.Game.World
         public abstract void AfterGridsSpawn(Dictionary<MyDefinitionId, int> buildItems, MyEntity builder);
         public abstract void AfterBlockBuild(MySlimBlock block, MyEntity builder);
         public abstract void AfterBlocksBuild(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks, MyEntity builder);
+        public abstract void AfterMultiBlockBuild(MyEntity builder);
 
         internal MyFixedPoint GetItemAmountCombined(MyInventoryBase availableInventory, MyDefinitionId myDefinitionId)
         {

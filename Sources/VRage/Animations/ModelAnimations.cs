@@ -22,7 +22,7 @@ namespace VRage.Animations
         /// <summary>
         /// Any associated animation clips
         /// </summary>
-        List<AnimationClip> clips = new List<AnimationClip>();
+        List<MyAnimationClip> clips = new List<MyAnimationClip>();
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace VRage.Animations
         /// <summary>
         /// Animation clips associated with this model
         /// </summary>
-        public List<AnimationClip> Clips { get { return clips; } set { clips = value; } }
+        public List<MyAnimationClip> Clips { get { return clips; } set { clips = value; } }
 
         #endregion
     }

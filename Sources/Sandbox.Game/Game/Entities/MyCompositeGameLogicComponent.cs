@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using VRage.ObjectBuilders;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {

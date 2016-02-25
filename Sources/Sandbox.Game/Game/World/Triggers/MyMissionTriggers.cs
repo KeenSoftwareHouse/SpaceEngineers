@@ -14,6 +14,9 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
+using VRage.Game.Common;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -69,7 +72,7 @@ namespace Sandbox.Game.World.Triggers
         {
             if (Message != null && m_notification==null)
             {
-                m_notification=MyAPIGateway.Utilities.CreateNotification(Message, 0, (IsMsgWinning ? Sandbox.Common.MyFontEnum.Green : Sandbox.Common.MyFontEnum.Red));
+                m_notification=MyAPIGateway.Utilities.CreateNotification(Message, 0, (IsMsgWinning ? MyFontEnum.Green : MyFontEnum.Red));
                 m_notification.Show();
                 return true;
             }
@@ -148,7 +151,7 @@ namespace Sandbox.Game.World.Triggers
             return false;
         }
 
-        public void DisplayHints(MyPlayer player, Entities.MyEntity me)
+        public void DisplayHints(MyPlayer player, MyEntity me)
         {
             for (int i = 0; i < m_winTriggers.Count; i++)
                 m_winTriggers[i].DisplayHints(player, me);

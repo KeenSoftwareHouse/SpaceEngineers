@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.ModAPI
 {
@@ -20,7 +21,7 @@ namespace Sandbox.ModAPI
         [Obsolete("Use KickMember instead, this will be removed in future")]
         void KickPlayerFromFaction(long playerId);
 
-        Sandbox.Common.MyRelationsBetweenFactions GetRelationBetweenFactions(long factionId1, long factionId2);
+        MyRelationsBetweenFactions GetRelationBetweenFactions(long factionId1, long factionId2);
 
         bool AreFactionsEnemies(long factionId1, long factionId2);
 
@@ -57,6 +58,6 @@ namespace Sandbox.ModAPI
 
         event Action<long> FactionCreated;
 
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_FactionCollection GetObjectBuilder();
+        MyObjectBuilder_FactionCollection GetObjectBuilder();
     }
 }

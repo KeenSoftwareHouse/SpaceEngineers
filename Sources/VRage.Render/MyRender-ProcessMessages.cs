@@ -108,7 +108,7 @@ namespace VRageRender
                     if (msg == null)
                         continue;
 
-                    if ((filter == null || filter(msg.MessageType)) && msg.MessageClass != MyRenderMessageType.Draw)
+                    if ((filter == null || filter(msg.MessageType)) && msg.MessageClass != MyRenderMessageType.Draw && msg.MessageClass != MyRenderMessageType.DebugDraw)
                     {
                         ProcessMessage(msg);
                     }
@@ -136,15 +136,15 @@ namespace VRageRender
             m_debugDrawMessages.Clear();
         }
 
-        internal static void EnqueueDrawMessage(IMyRenderMessage drawMessage)
+        internal static void EnqueueDrawMessage(MyRenderMessageBase drawMessage)
         {
             Debug.Assert(drawMessage.MessageClass == MyRenderMessageType.Draw, "Enqueuing non-draw message");
             m_drawMessages.Enqueue(drawMessage);
         }
 
-        internal static void EnqueueDebugDrawMessage(IMyRenderMessage drawMessage)
+        internal static void EnqueueDebugDrawMessage(MyRenderMessageBase drawMessage)
         {
-            Debug.Assert(drawMessage.MessageClass == MyRenderMessageType.Draw, "Enqueuing non-draw message");
+            Debug.Assert(drawMessage.MessageClass == MyRenderMessageType.DebugDraw, "Enqueuing non-draw message");
             m_debugDrawMessages.Enqueue(drawMessage);
         }
 

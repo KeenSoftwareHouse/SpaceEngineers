@@ -5,6 +5,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World.Generator;
 using System;
@@ -13,6 +14,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.Utils;
 using VRageMath;
@@ -24,7 +28,8 @@ namespace Sandbox.Game.World
     public class MyPirateAntennas : MySessionComponentBase
     {
         // CH: TODO: Do static identities in a proper way!
-        private static readonly string IDENTITY_NAME = "Space Pirates";
+        private static readonly string IDENTITY_NAME = "Pirate";
+        private static readonly string PIRATE_FACTION_TAG = "SPRT";
         private static readonly int DRONE_DESPAWN_TIMER = 600000;
         private static readonly int DRONE_DESPAWN_RETRY = 5000;
 
@@ -33,6 +38,7 @@ namespace Sandbox.Game.World
             public MyPirateAntennaDefinition AntennaDefinition;
             public int LastGenerationGameTime;
             public int SpawnedDrones;
+            public bool IsActive;
 
             public static List<PirateAntennaInfo> m_pool = new List<PirateAntennaInfo>();
 
@@ -64,6 +70,7 @@ namespace Sandbox.Game.World
                 AntennaDefinition = antennaDef;
                 LastGenerationGameTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + (int)antennaDef.FirstSpawnTimeMs - (int)antennaDef.SpawnTimeMs;
                 SpawnedDrones = 0;
+                IsActive = false;
             }
         }
         private class DroneInfo
@@ -100,7 +107,8 @@ namespace Sandbox.Game.World
             }
         }
 
-        private static Dictionary<long, PirateAntennaInfo> m_pirateAntennas;
+        private static CachingDictionary<long, PirateAntennaInfo> m_pirateAntennas;
+        private static bool m_iteratingAntennas;
         private static Dictionary<string, MyPirateAntennaDefinition> m_definitionsByAntennaName;
         private static int m_ctr = 0;
         private static int m_ctr2 = 0;
@@ -123,7 +131,7 @@ namespace Sandbox.Game.World
         {
             base.LoadData();
 
-            m_pirateAntennas = new Dictionary<long, PirateAntennaInfo>();
+            m_pirateAntennas = new CachingDictionary<long, PirateAntennaInfo>();
             m_definitionsByAntennaName = new Dictionary<string, MyPirateAntennaDefinition>();
             m_droneInfos = new CachingDictionary<long, DroneInfo>();
             foreach (var antennaDefinition in MyDefinitionManager.Static.GetPirateAntennaDefinitions())
@@ -149,32 +157,53 @@ namespace Sandbox.Game.World
                     m_droneInfos.Add(entry.EntityId, DroneInfo.Allocate(entry.AntennaEntityId, currentTime + entry.DespawnTimer), immediate: true);
                 }
             }
+
+            m_iteratingAntennas = false;
         }
 
         public override void BeforeStart()
         {
             base.BeforeStart();
 
-            // Make sure that the pirate identity exists
-            if (m_piratesIdentityId != 0)
-            {
-                MyIdentity pirateIdentity = Sync.Players.TryGetIdentity(m_piratesIdentityId);
-                Debug.Assert(pirateIdentity != null, "The pirate identity does not exist, although its ID was saved!");
+            MyFaction pirateFaction = MySession.Static.Factions.TryGetFactionByTag(PIRATE_FACTION_TAG);
 
-                if (Sync.IsServer && pirateIdentity == null)
+            Debug.Assert(pirateFaction != null, "No pirate faction in the world. Pirate antenan needs it.");
+
+            if (pirateFaction != null)
+            {
+                // Make sure that the pirate identity exists
+                if (m_piratesIdentityId != 0)
                 {
-                    Sync.Players.CreateNewIdentity(IDENTITY_NAME, m_piratesIdentityId, null);
-                }
-            }
-            else
-            {
-                var identity = Sync.Players.CreateNewIdentity(IDENTITY_NAME);
-                m_piratesIdentityId = identity.IdentityId;
-            }
 
-            if (!Sync.Players.IdentityIsNpc(m_piratesIdentityId))
-            {
-                Sync.Players.MarkIdentityAsNPC(m_piratesIdentityId);
+                    if (Sync.IsServer)
+                    {
+
+                        MyIdentity pirateIdentity = Sync.Players.TryGetIdentity(m_piratesIdentityId);
+                        Debug.Assert(pirateIdentity != null, "The pirate identity does not exist, although its ID was saved!");
+
+                        if (pirateIdentity == null)
+                        {
+                            Sync.Players.CreateNewIdentity(IDENTITY_NAME, m_piratesIdentityId, null);
+                        }
+
+                        // Check if he is already in a faction.
+                        MyFaction oldPirateFaction = MySession.Static.Factions.GetPlayerFaction(m_piratesIdentityId);
+                        if (oldPirateFaction == null)
+                        {
+                            MyFactionCollection.SendJoinRequest(pirateFaction.FactionId, m_piratesIdentityId);
+                        }
+                    }
+
+                }
+                else
+                {
+                    m_piratesIdentityId = pirateFaction.FounderId;
+                }
+
+                if (!Sync.Players.IdentityIsNpc(m_piratesIdentityId))
+                {
+                    Sync.Players.MarkIdentityAsNPC(m_piratesIdentityId);
+                }
             }
 
             // Make sure that all the drone entities exist
@@ -199,7 +228,8 @@ namespace Sandbox.Game.World
                         }
 
                         UnregisterDrone(entity, immediate: false);
-                        grid.SyncObject.SendCloseRequest();
+                        grid.Close();
+                        //grid.SyncObject.SendCloseRequest();
                     }
                     else
                     {
@@ -283,66 +313,69 @@ namespace Sandbox.Game.World
         private void UpdateDroneSpawning()
         {
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            m_iteratingAntennas = true;
             foreach (var antennaEntry in m_pirateAntennas)
             {
                 PirateAntennaInfo antennaInfo = antennaEntry.Value;
-                if (currentTime - antennaInfo.LastGenerationGameTime > antennaInfo.AntennaDefinition.SpawnTimeMs)
+                if (!antennaInfo.IsActive) continue;
+                if (currentTime - antennaInfo.LastGenerationGameTime <= antennaInfo.AntennaDefinition.SpawnTimeMs) continue;
+
+                MyRadioAntenna antenna = null;
+                MyEntities.TryGetEntityById(antennaEntry.Key, out antenna);
+                Debug.Assert(antenna != null, "Could not find antenna for spawning enemy drones!");
+
+                var spawnGroup = antennaInfo.AntennaDefinition.SpawnGroupSampler.Sample();
+                Debug.Assert(spawnGroup != null, "Could not find spawnGroup for spawning enemy drones!");
+
+                if
+                (
+                    !MySession.Static.Settings.EnableDrones ||
+                    antennaInfo.SpawnedDrones >= antennaInfo.AntennaDefinition.MaxDrones ||
+                    antenna == null ||
+                    spawnGroup == null ||
+                    m_droneInfos.Reader.Count() >= MySession.Static.Settings.MaxDrones
+                )
                 {
-                    MyRadioAntenna antenna = null;
-                    MyEntities.TryGetEntityById(antennaEntry.Key, out antenna);
-                    Debug.Assert(antenna != null, "Could not find antenna for spawning enemy drones!");
+                    antennaInfo.LastGenerationGameTime = currentTime;
+                    continue;
+                }
 
-                    var spawnGroup = antennaInfo.AntennaDefinition.SpawnGroupSampler.Sample();
-                    Debug.Assert(spawnGroup != null, "Could not find spawnGroup for spawning enemy drones!");
+                spawnGroup.ReloadPrefabs();
 
-                    if
-                    (
-                        !MySession.Static.Settings.EnableDrones ||
-                        antennaInfo.SpawnedDrones >= antennaInfo.AntennaDefinition.MaxDrones ||
-                        antenna == null ||
-                        spawnGroup == null ||
-                        m_droneInfos.Reader.Count() >= MySession.Static.Settings.MaxDrones
-                    )
+                BoundingSphereD antennaSphere = new BoundingSphereD(antenna.WorldMatrix.Translation, antenna.GetRadius());
+
+                var players = MySession.Static.Players.GetOnlinePlayers();
+                bool successfulSpawn = false;
+                foreach (var player in players)
+                {
+                    if (antennaSphere.Contains(player.GetPosition()) == ContainmentType.Contains)
                     {
-                        antennaInfo.LastGenerationGameTime = currentTime;
-                        continue;
-                    }
-
-                    spawnGroup.ReloadPrefabs();
-
-                    BoundingSphereD antennaSphere = new BoundingSphereD(antenna.WorldMatrix.Translation, antenna.GetRadius());
-
-                    var players = MySession.Static.Players.GetOnlinePlayers();
-                    bool successfulSpawn = false;
-                    foreach (var player in players)
-                    {
-                        if (antennaSphere.Contains(player.GetPosition()) == ContainmentType.Contains)
+                        Vector3D? spawnPosition = null;
+                        for (int i = 0; i < 10; ++i)
                         {
-                            Vector3D? spawnPosition = null;
-                            for (int i = 0; i < 10; ++i)
-                            {
-                                Vector3D position = antenna.WorldMatrix.Translation + MyUtils.GetRandomVector3Normalized() * antennaInfo.AntennaDefinition.SpawnDistance;
-                                spawnPosition = MyEntities.FindFreePlace(position, spawnGroup.SpawnRadius);
-                                if (spawnPosition.HasValue) break;
-                            }
+                            Vector3D position = antenna.WorldMatrix.Translation + MyUtils.GetRandomVector3Normalized() * antennaInfo.AntennaDefinition.SpawnDistance;
+                            spawnPosition = MyEntities.FindFreePlace(position, spawnGroup.SpawnRadius);
+                            if (spawnPosition.HasValue) break;
+                        }
 
-                            if (spawnPosition.HasValue)
-                            {
-                                successfulSpawn = SpawnDrone(antenna.EntityId, antenna.OwnerId, spawnPosition.Value, spawnGroup);
-                                break;
-                            }
-
+                        if (spawnPosition.HasValue)
+                        {
+                            successfulSpawn = SpawnDrone(antenna.EntityId, antenna.OwnerId, spawnPosition.Value, spawnGroup);
                             break;
                         }
-                    }
 
-                    // Don't reschedule if there was no player inside
-                    if (successfulSpawn)
-                    {
-                        antennaInfo.LastGenerationGameTime = currentTime;
+                        break;
                     }
                 }
+
+                // Don't reschedule if there was no player inside
+                if (successfulSpawn)
+                {
+                    antennaInfo.LastGenerationGameTime = currentTime;
+                }
             }
+            m_pirateAntennas.ApplyChanges();
+            m_iteratingAntennas = false;
         }
 
         private void UpdateDroneDespawning()
@@ -413,8 +446,17 @@ namespace Sandbox.Game.World
 
         private bool SpawnDrone(long antennaEntityId, long ownerId, Vector3D position, MySpawnGroupDefinition spawnGroup)
         {
-            Vector3D direction = MyUtils.GetRandomVector3Normalized();
-            Vector3D upVector = Vector3D.CalculatePerpendicularVector(direction);
+            var planet = MyGravityProviderSystem.GetStrongestGravityWell(position);
+            Vector3D upVector;
+            if (planet != null && planet.IsPositionInGravityWell(position))
+            {
+                planet.CorrectSpawnLocation(ref position, spawnGroup.SpawnRadius * 2.0);
+                upVector = -planet.GetWorldGravityNormalized(ref position);
+            }
+            else
+                upVector = MyUtils.GetRandomVector3Normalized();
+
+            Vector3D direction = MyUtils.GetRandomPerpendicularVector(ref upVector);
             MatrixD originMatrix = MatrixD.CreateWorld(position, direction, upVector);
 
             foreach (var shipPrefab in spawnGroup.Prefabs)
@@ -469,10 +511,23 @@ namespace Sandbox.Game.World
         {
             var newInfo = DroneInfo.Allocate(antennaEntityId, MySandboxGame.TotalGamePlayTimeInMilliseconds + DRONE_DESPAWN_TIMER);
             m_droneInfos.Add(droneMainEntity.EntityId, newInfo, immediate: immediate);
-            droneMainEntity.OnClose += DroneMainEntityOnClose;
+            droneMainEntity.OnClosing += DroneMainEntityOnClosing;
 
             PirateAntennaInfo antennaInfo = null;
-            m_pirateAntennas.TryGetValue(antennaEntityId, out antennaInfo);
+            if (!m_pirateAntennas.TryGetValue(antennaEntityId, out antennaInfo))
+            {
+                MyEntity entity;
+                if (MyEntities.TryGetEntityById(antennaEntityId, out entity))
+                {
+                    var antenna = entity as MyRadioAntenna;
+                    if (antenna != null)
+                    {
+                        antenna.UpdatePirateAntenna();
+                        m_pirateAntennas.TryGetValue(antennaEntityId, out antennaInfo);
+                    }
+                }
+
+            }
             if (antennaInfo != null)
             {
                 antennaInfo.SpawnedDrones++;
@@ -488,12 +543,14 @@ namespace Sandbox.Game.World
 
         private void UnregisterDrone(MyEntity entity, bool immediate = true)
         {
-            int antennaEntityId = 0;
+            long antennaEntityId = 0;
 
             DroneInfo info = null;
+            Debug.Assert(m_droneInfos.ContainsKey(entity.EntityId), "Unregistering drone with inconsistend entity id");
             m_droneInfos.TryGetValue(entity.EntityId, out info);
             if (info != null)
             {
+                antennaEntityId = info.AntennaEntityId;
                 DroneInfo.Deallocate(info);
             }
             m_droneInfos.Remove(entity.EntityId, immediate: immediate);
@@ -506,7 +563,7 @@ namespace Sandbox.Game.World
                 Debug.Assert(antennaInfo.SpawnedDrones >= 0, "Inconsistence in registered drone counts!");
             }
 
-            entity.OnClose -= DroneMainEntityOnClose;
+            entity.OnClosing -= DroneMainEntityOnClosing;
             var remote = entity as MyRemoteControl;
             if (remote != null)
             {
@@ -514,7 +571,7 @@ namespace Sandbox.Game.World
             }
         }
 
-        private void DroneMainEntityOnClose(MyEntity entity)
+        private void DroneMainEntityOnClosing(MyEntity entity)
         {
             UnregisterDrone(entity);
         }
@@ -528,7 +585,7 @@ namespace Sandbox.Game.World
             }
         }
 
-        public static void UpdatePirateAntenna(long antennaEntityId, bool remove, StringBuilder antennaName)
+        public static void UpdatePirateAntenna(long antennaEntityId, bool remove, bool activeState, StringBuilder antennaName)
         {
             Debug.Assert(Sync.IsServer, "Pirate antennas can only be registered on the server");
 
@@ -537,7 +594,7 @@ namespace Sandbox.Game.World
 
             if (remove == true)
             {
-                m_pirateAntennas.Remove(antennaEntityId);
+                m_pirateAntennas.Remove(antennaEntityId, immediate: !m_iteratingAntennas);
                 return;
             }
 
@@ -550,20 +607,29 @@ namespace Sandbox.Game.World
                 if (m_definitionsByAntennaName.TryGetValue(antennaNameStr, out antennaDef))
                 {
                     antennaInfo = PirateAntennaInfo.Allocate(antennaDef);
-                    m_pirateAntennas.Add(antennaEntityId, antennaInfo);
+                    antennaInfo.IsActive = activeState;
+                    m_pirateAntennas.Add(antennaEntityId, antennaInfo, immediate: !m_iteratingAntennas);
                 }
             }
-            else if (antennaInfo.AntennaDefinition.Name != antennaNameStr)
+            else
             {
-                MyPirateAntennaDefinition antennaDef = null;
-                if (!m_definitionsByAntennaName.TryGetValue(antennaNameStr, out antennaDef))
+                if (antennaInfo.AntennaDefinition.Name != antennaNameStr)
                 {
-                    PirateAntennaInfo.Deallocate(antennaInfo);
-                    m_pirateAntennas.Remove(antennaEntityId);
+                    MyPirateAntennaDefinition antennaDef = null;
+                    if (!m_definitionsByAntennaName.TryGetValue(antennaNameStr, out antennaDef))
+                    {
+                        PirateAntennaInfo.Deallocate(antennaInfo);
+                        m_pirateAntennas.Remove(antennaEntityId, immediate: !m_iteratingAntennas);
+                    }
+                    else
+                    {
+                        antennaInfo.Reset(antennaDef);
+                        antennaInfo.IsActive = activeState;
+                    }
                 }
                 else
                 {
-                    antennaInfo.Reset(antennaDef);
+                    antennaInfo.IsActive = activeState;
                 }
             }
         }
@@ -582,7 +648,7 @@ namespace Sandbox.Game.World
                 if (antenna != null)
                 {
                     var dt = Math.Max(0, antennaEntry.Value.AntennaDefinition.SpawnTimeMs - MySandboxGame.TotalGamePlayTimeInMilliseconds + antennaEntry.Value.LastGenerationGameTime);
-                    MyRenderProxy.DebugDrawText3D(antenna.WorldMatrix.Translation, "Time ramaining: " + dt.ToString(), Color.Red, 1.0f, false);
+                    MyRenderProxy.DebugDrawText3D(antenna.WorldMatrix.Translation, "Time remaining: " + dt.ToString(), Color.Red, 1.0f, false);
                 }
             }
 

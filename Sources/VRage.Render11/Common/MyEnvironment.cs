@@ -52,6 +52,10 @@ namespace VRageRender
         internal static string  SunMaterial;
         internal static float   SunSizeMultiplier;
         internal static bool    SunBillboardEnabled;
+        internal static float[]   AdditionalSunIntensities;
+        internal static Vector3[] AdditionalSunColors;
+        internal static Vector2[] AdditionalSunDirections;
+        internal static float   PlanetFactor;
 
         internal static string DaySkybox = "Textures/BackgroundCube/Final/BackgroundCube_skybox.dds";
         internal static string DaySkyboxPrefiltered = "Textures/BackgroundCube/Final/BackgroundCube_skybox_prefiltered.dds";

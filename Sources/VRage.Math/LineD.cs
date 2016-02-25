@@ -142,5 +142,10 @@ namespace VRageMath
         {
             return new LineD((Vector3D)b.From, (Vector3D)b.To);
         }
+
+        public BoundingBoxD GetBoundingBox()
+        {
+            return new BoundingBoxD(Vector3D.Min(From, To), Vector3D.Max(From, To));
+        }
     }
 }

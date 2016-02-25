@@ -13,6 +13,7 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyMotorSuspension.Steering { get { return Steering; } }
         bool IMyMotorSuspension.Propulsion { get { return Propulsion; } }
         bool IMyMotorSuspension.InvertSteer { get { return InvertSteer; } }
+        bool IMyMotorSuspension.InvertPropulsion { get { return InvertPropulsion; } }
         float IMyMotorSuspension.Damping { get { return GetDampingForTerminal(); } }
         float IMyMotorSuspension.Strength { get { return GetStrengthForTerminal(); } }
         float IMyMotorSuspension.Friction { get { return GetFrictionForTerminal(); } }

@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
@@ -10,10 +9,13 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -51,9 +53,9 @@ namespace Sandbox.Game.Gui
         MyEntity m_userAsEntity;
         MyEntity m_interactedAsEntity;
         MyEntity m_openInventoryInteractedAsEntity;
-        IMyInventoryOwner m_userAsOwner;
-        IMyInventoryOwner m_interactedAsOwner;
-        List<IMyInventoryOwner> m_interactedGridOwners = new List<IMyInventoryOwner>();
+        MyEntity m_userAsOwner;
+        MyEntity m_interactedAsOwner;
+        List<MyEntity> m_interactedGridOwners = new List<MyEntity>();
         List<IMyConveyorEndpoint> m_reachableInventoryOwners = new List<IMyConveyorEndpoint>();
 
         List<MyGridConveyorSystem> m_registeredConveyorSystems = new List<MyGridConveyorSystem>();
@@ -200,11 +202,11 @@ namespace Sandbox.Game.Gui
             m_throwOutButton.ButtonClicked += throwOutButton_OnButtonClick;
             m_dragAndDrop.ItemDropped += dragDrop_OnItemDropped;
 
-            var thisInventoryOwner = m_userAsEntity as IMyInventoryOwner;
+            var thisInventoryOwner = (m_userAsEntity != null && m_userAsEntity.HasInventory) ? m_userAsEntity : null;
             if (thisInventoryOwner != null)
                 m_userAsOwner = thisInventoryOwner;
 
-            var targetInventoryOwner = m_interactedAsEntity as IMyInventoryOwner;
+            var targetInventoryOwner = (m_interactedAsEntity != null && m_interactedAsEntity.HasInventory) ? m_interactedAsEntity : null;
             if (targetInventoryOwner != null)
                 m_interactedAsOwner = targetInventoryOwner;
 
@@ -224,7 +226,7 @@ namespace Sandbox.Game.Gui
             }
             
             m_leftTypeGroup.SelectedIndex = 0;
-            m_rightTypeGroup.SelectedIndex = (m_interactedAsEntity is MyCharacter) ? 0 : 1;
+            m_rightTypeGroup.SelectedIndex = (m_interactedAsEntity is MyCharacter) || (m_interactedAsEntity is MyInventoryBagEntity) ? 0 : 1;
             m_leftFilterGroup.SelectedIndex = 0;
             m_rightFilterGroup.SelectedIndex = 0;
 
@@ -358,7 +360,7 @@ namespace Sandbox.Game.Gui
         private IMyConveyorEndpointBlock m_interactedEndpointBlock;
         private bool EndpointPredicate(IMyConveyorEndpoint endpoint)
         {
-            return endpoint.CubeBlock is IMyInventoryOwner || endpoint.CubeBlock == m_interactedEndpointBlock;
+            return (endpoint.CubeBlock != null && endpoint.CubeBlock.HasInventory) || endpoint.CubeBlock == m_interactedEndpointBlock;
         }
 
         private void DisableUnreachableInventoryControls(MyInventory srcInventory, MyPhysicalInventoryItem item, MyGuiControlList list)
@@ -388,7 +390,7 @@ namespace Sandbox.Game.Gui
 
             if (srcEndpoint != null)
             {
-                long ownerId = MySession.LocalPlayerId;
+                long ownerId = MySession.Static.LocalPlayerId;
                 m_interactedEndpointBlock = interactedEndpoint;
                 MyGridConveyorSystem.AppendReachableEndpoints(srcEndpoint.ConveyorEndpoint, ownerId, m_reachableInventoryOwners, item, m_endpointPredicate);
             }
@@ -412,7 +414,9 @@ namespace Sandbox.Game.Gui
                 bool transferIsFar = !transferIsLocal && !transferIsClose;
                 bool endpointUnreachable = !m_reachableInventoryOwners.Contains(endpoint);
                 bool interactedReachable = interactedEndpoint != null && m_reachableInventoryOwners.Contains(interactedEndpoint.ConveyorEndpoint);
-                bool toOwnerThroughInteracted = owner == m_userAsOwner && interactedReachable;
+                // If interacted is reachable but does not have inventory, than you cant take anything out from it.
+                // WARNING: no need for check of null on m_interactedAsEntity, because interactedEndpoint is checked above already (that will be null also if the other is)
+                bool toOwnerThroughInteracted = owner == m_userAsOwner && interactedReachable && m_interactedAsEntity.HasInventory;
 
                 if (transferIsFar && endpointUnreachable && !toOwnerThroughInteracted)
                 {
@@ -430,7 +434,7 @@ namespace Sandbox.Game.Gui
             m_reachableInventoryOwners.Clear();
         }
 
-        private void GetGridInventories(MyCubeGrid grid, List<IMyInventoryOwner> outputInventories)
+        private void GetGridInventories(MyCubeGrid grid, List<MyEntity> outputInventories)
         {
             Debug.Assert(outputInventories != null);
 
@@ -452,16 +456,16 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void CreateInventoryControlInList(IMyInventoryOwner owner, MyGuiControlList listControl)
+        private void CreateInventoryControlInList(MyEntity owner, MyGuiControlList listControl)
         {
-            List<IMyInventoryOwner> inventories = new List<IMyInventoryOwner>();
+            List<MyEntity> inventories = new List<MyEntity>();
             if (owner != null)
                 inventories.Add(owner);
 
             CreateInventoryControlsInList(inventories, listControl);
         }
 
-        private void CreateInventoryControlsInList(List<IMyInventoryOwner> owners, MyGuiControlList listControl, MyInventoryOwnerTypeEnum? filterType = null)
+        private void CreateInventoryControlsInList(List<MyEntity> owners, MyGuiControlList listControl, MyInventoryOwnerTypeEnum? filterType = null)
         {
             if (listControl.Controls.Contains(m_focusedOwnerControl))
                 m_focusedOwnerControl = null;
@@ -470,7 +474,10 @@ namespace Sandbox.Game.Gui
 
             foreach (var owner in owners)
             {
-                if (filterType.HasValue && owner.InventoryOwnerType != filterType)
+                if (!(owner != null && owner.HasInventory))
+                    continue;
+
+                if (filterType.HasValue && (owner as MyEntity).InventoryOwnerType() != filterType)
                     continue;
 
                 Vector4 labelColor = Color.White.ToVector4();
@@ -523,7 +530,7 @@ namespace Sandbox.Game.Gui
                 maxDecimalDigits = MyInventoryConstants.GUI_DISPLAY_MAX_DECIMALS;
                 asInteger = false;
             }
-            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, MySpaceTexts.DialogAmount_AddAmountCaption, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger);
+            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, MyCommonTexts.DialogAmount_AddAmountCaption, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger);
             dialog.OnConfirmed += onConfirmed;
             MyGuiSandbox.AddScreen(dialog);
         }
@@ -559,7 +566,7 @@ namespace Sandbox.Game.Gui
 
 				try
 				{
-					MyGridConveyorSystem.AppendReachableEndpoints(srcEndpoint.ConveyorEndpoint, MySession.LocalPlayerId, m_reachableInventoryOwners, item, m_endpointPredicate);
+					MyGridConveyorSystem.AppendReachableEndpoints(srcEndpoint.ConveyorEndpoint, MySession.Static.LocalPlayerId, m_reachableInventoryOwners, item, m_endpointPredicate);
 
 					if (!m_reachableInventoryOwners.Contains(dstEndpoint.ConveyorEndpoint))
 						return false;
@@ -580,7 +587,9 @@ namespace Sandbox.Game.Gui
             MyInventory dstInventory = null;
             for (int i = 0; i < dstOwner.InventoryCount; ++i)
             {
-                var tmp = dstOwner.GetInventory(i);
+                var tmp = dstOwner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(tmp as MyInventory != null, "Null or unexpected inventory type!");
+
                 if (tmp.CheckConstraint(item.Content.GetId()))
                 {
                     dstInventory = tmp;
@@ -591,7 +600,7 @@ namespace Sandbox.Game.Gui
             if (dstInventory == null)
                 return false;
 
-            dstInventory.TransferItemFrom(srcInventory, m_focusedGridControl.SelectedIndex.Value, amount: item.Amount);
+            MyInventory.TransferByUser(srcInventory, dstInventory, srcInventory.GetItems()[m_focusedGridControl.SelectedIndex.Value].ItemId, amount: item.Amount);
             return true;
         }
 
@@ -702,7 +711,7 @@ namespace Sandbox.Game.Gui
         }
 
         #region Event handling
-        private void ConveyorSystem_BlockAdded(IMyInventoryOwner obj)
+        private void ConveyorSystem_BlockAdded(MyCubeBlock obj)
         {
             m_interactedGridOwners.Add(obj);
             if (m_leftShowsGrid) LeftTypeGroup_SelectedChanged(m_leftTypeGroup);
@@ -715,7 +724,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void ConveyorSystem_BlockRemoved(IMyInventoryOwner obj)
+        private void ConveyorSystem_BlockRemoved(MyCubeBlock obj)
         {
             m_interactedGridOwners.Remove(obj);
             if (m_leftShowsGrid) LeftTypeGroup_SelectedChanged(m_leftTypeGroup);
@@ -837,7 +846,7 @@ namespace Sandbox.Game.Gui
         {
             if (eventArgs.DropTo != null)
             {
-                MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                MyGuiAudio.PlaySound(MyGuiSounds.HudItem);
 
                 MyPhysicalInventoryItem inventoryItem = (MyPhysicalInventoryItem)eventArgs.Item.UserData;
 
@@ -854,6 +863,8 @@ namespace Sandbox.Game.Gui
 
                 if (srcGrid == dstGrid)
                 {
+                    if (eventArgs.DragFrom.ItemIndex < eventArgs.DropTo.ItemIndex)
+                        eventArgs.DropTo.ItemIndex++;
                     if (eventArgs.DragButton == MySharedButtonsEnum.Secondary)
                     {
                         ShowAmountTransferDialog(inventoryItem, delegate(float amount)
@@ -1004,7 +1015,7 @@ namespace Sandbox.Game.Gui
                 foreach (var item in list.Controls)
                 {
                     var owner   = (item as MyGuiControlInventoryOwner).InventoryOwner;
-                    var tmp     = owner.DisplayNameText.ToString().ToLower();
+                    var tmp     = (owner as MyEntity).DisplayNameText.ToString().ToLower();
                     var add     = true;
                     var isEmpty = true;
 
@@ -1021,7 +1032,9 @@ namespace Sandbox.Game.Gui
                     {
                         for (int i = 0; i < owner.InventoryCount; i++)
                         {
-                            foreach (var inventoryItem in owner.GetInventory(i).GetItems())
+                            System.Diagnostics.Debug.Assert(owner.GetInventory(i) as MyInventory != null, "Null or other inventory type!");
+
+                            foreach (var inventoryItem in (owner.GetInventory(i) as MyInventory).GetItems())
                             {
                                 bool matches = true;
                                 string inventoryItemName = MyDefinitionManager.Static.GetPhysicalItemDefinition(inventoryItem.Content).DisplayNameText.ToString().ToLower();

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using VRage;
+using VRage.Game;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -91,12 +92,27 @@ namespace Sandbox.Game.World
 
                     if (success)
                     {
-                        foreach (var file in Directory.GetFiles(saveAbsPath))
+                        HashSet<string> saveFiles = new HashSet<string>();
+                        foreach (var filepath in Directory.GetFiles(saveAbsPath))
                         {
-                            var targetFile = Path.Combine(TargetDir, Path.GetFileName(file));
+                            string filename = Path.GetFileName(filepath);
+
+                            var targetFile = Path.Combine(TargetDir, filename);
                             if (File.Exists(targetFile))
                                 File.Delete(targetFile);
-                            File.Move(file, targetFile);
+
+                            File.Move(filepath, targetFile);
+                            saveFiles.Add(filename);
+                        }
+
+                        // Clean leftovers from previous saves
+                        foreach (var filepath in Directory.GetFiles(TargetDir))
+                        {
+                            string filename = Path.GetFileName(filepath);
+                            if (saveFiles.Contains(filename) || filename == MyTextConstants.SESSION_THUMB_NAME_AND_EXTENSION)
+                                continue;
+
+                            File.Delete(filepath);
                         }
 
                         Directory.Delete(saveAbsPath);

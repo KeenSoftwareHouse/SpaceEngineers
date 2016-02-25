@@ -2,6 +2,7 @@
 using Sandbox.Graphics.GUI;
 using System;
 using System.Text;
+using VRage.Game;
 using VRage.Utils;
 
 //using SharpDX.Direct3D9;
@@ -15,6 +16,7 @@ namespace Sandbox.Game.Gui
     using Sandbox.Game.Localization;
     using Sandbox.Game.Screens;
     using Sandbox.Game.Screens.Helpers;
+    using Sandbox.Game.World;
     using Sandbox.Graphics;
     using VRage;
     using VRage.Audio;
@@ -78,7 +80,7 @@ namespace Sandbox.Game.Gui
             // Has to be done because of HW Cursor
             MyGuiSandbox.SetMouseCursorVisibility(false);
 
-            m_rotatingWheelTexture = MyGuiConstants.LOADING_TEXTURE;
+            m_rotatingWheelTexture = MyGuiConstants.LOADING_TEXTURE_LOADING_SCREEN;
             m_backgroundTextureFromConstructor = textureFromConstructor;
 
             m_loadFinished = false;
@@ -106,7 +108,7 @@ namespace Sandbox.Game.Gui
             base.RecreateControls(constructor);
 
             Vector2 loadingTextSize = MyGuiManager.MeasureString(m_fontId,
-                MyTexts.Get(MySpaceTexts.LoadingPleaseWaitUppercase), MyGuiConstants.LOADING_PLEASE_WAIT_SCALE);
+                MyTexts.Get(MyCommonTexts.LoadingPleaseWaitUppercase), MyGuiConstants.LOADING_PLEASE_WAIT_SCALE);
             m_wheel = new MyGuiControlRotatingWheel(
                 MyGuiConstants.LOADING_PLEASE_WAIT_POSITION - new Vector2(0, 0.06f + loadingTextSize.Y),
                 MyGuiConstants.ROTATING_WHEEL_COLOR,
@@ -232,6 +234,9 @@ namespace Sandbox.Game.Gui
                 {
                     MyAudio.Static.Mute = true;
                     MyAudio.Static.StopMusic();
+                    MyAudio.Static.VolumeMusic = 0f;
+                    MyAudio.Static.VolumeGame = 0f;
+                    MyAudio.Static.VolumeHud = 0f;
                     VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("LoadInBackgroundThread");
 
                     DrawLoading();
@@ -265,7 +270,6 @@ namespace Sandbox.Game.Gui
                     OnScreenLoadingFinished();
                     OnScreenLoadingFinished = null;
                 }
-
                 CloseScreenNow();
                 DrawLoading();
             }
@@ -295,7 +299,7 @@ namespace Sandbox.Game.Gui
                 }
                 catch (Exception e)
                 {
-                    OnLoadException(e, MyTexts.Get(MySpaceTexts.WorldFileIsCorruptedAndCouldNotBeLoaded));
+                    OnLoadException(e, MyTexts.Get(MyCommonTexts.WorldFileIsCorruptedAndCouldNotBeLoaded));
                     m_exceptionDuringLoad = true;
                 }
             }
@@ -316,11 +320,21 @@ namespace Sandbox.Game.Gui
             // Reset this to true so we have sounds
             MySandboxGame.IsUpdateReady = true;
             MySandboxGame.AreClipmapsReady = true;
-            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
+            try
+            {
+                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+            }
+            catch (Exception ex)
+            {
+                MySession.Static = null;
+                MySandboxGame.Log.WriteLine("ERROR: failed unload after exception in loading !");
+                MySandboxGame.Log.WriteLine(ex);
+            }
 
             var errorScreen = MyGuiSandbox.CreateMessageBox(
                 messageText: errorText,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
 
             var size = errorScreen.Size.Value;
             size.Y *= heightMultiplier;
@@ -389,7 +403,7 @@ namespace Sandbox.Game.Gui
             LastBackgroundTexture = m_backgroundScreenTexture;
 
             //  Loading Please Wait
-            MyGuiManager.DrawString(m_fontId, MyTexts.Get(MySpaceTexts.LoadingPleaseWaitUppercase),
+            MyGuiManager.DrawString(m_fontId, MyTexts.Get(MyCommonTexts.LoadingPleaseWaitUppercase),
                 MyGuiConstants.LOADING_PLEASE_WAIT_POSITION, MyGuiSandbox.GetDefaultTextScaleWithLanguage() * MyGuiConstants.LOADING_PLEASE_WAIT_SCALE, new Color(MyGuiConstants.LOADING_PLEASE_WAIT_COLOR * m_transitionAlpha),
                 MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM);
 
@@ -420,9 +434,6 @@ namespace Sandbox.Game.Gui
         public override void OnRemoved()
         {
             base.OnRemoved();
-            MyAudio.Static.VolumeMusic = MySandboxGame.Config.MusicVolume;
-            MyAudio.Static.VolumeGame = MySandboxGame.Config.GameVolume;
-            MyAudio.Static.VolumeHud = MySandboxGame.Config.GameVolume;
         }
     }
 }

@@ -22,6 +22,9 @@ using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Game.EntityComponents;
+using VRage.Game;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.Components
 {
@@ -89,7 +92,7 @@ namespace Sandbox.Game.Components
                     b.Orientation.GetMatrix(out blockMatrix);
                     var q = Quaternion.CreateFromRotationMatrix(blockMatrix * m_cubeGrid.WorldMatrix.GetOrientation());
 
-                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
+                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.CollideWithStaticLayer);
                     bool isStatic = false;
                     foreach (var p in m_penetrations)
                     {
@@ -196,9 +199,11 @@ namespace Sandbox.Game.Components
 
             if (MyFakes.ENABLE_TRASH_REMOVAL && MyDebugDrawSettings.DEBUG_DRAW_TRASH_REMOVAL)
             {
-                Color color = m_cubeGrid.IsTrash() ? Color.Red : Color.Green;
+                bool isTrash = m_cubeGrid.IsTrash();
+                Color color = isTrash ? Color.Red : Color.Green;
                 float sphereRadius = m_cubeGrid.PositionComp.LocalAABB.HalfExtents.AbsMax();
-                MyRenderProxy.DebugDrawSphere(m_cubeGrid.Physics != null ? m_cubeGrid.Physics.CenterOfMassWorld : m_cubeGrid.PositionComp.WorldMatrix.Translation, sphereRadius, color, 1.0f, false);
+                Vector3D com = m_cubeGrid.Physics != null ? m_cubeGrid.Physics.CenterOfMassWorld : m_cubeGrid.PositionComp.WorldMatrix.Translation;
+                MyRenderProxy.DebugDrawSphere(com, sphereRadius, color, 1.0f, false);
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_ORIGINS)
@@ -252,12 +257,20 @@ namespace Sandbox.Game.Components
             }
             else
             {
-                MatrixD blockWorldMatrix = m_cubeGrid.WorldMatrix;
                 Matrix blockMatrix;                
-                block.Orientation.GetMatrix(out blockMatrix);
-                blockWorldMatrix *= blockMatrix;
-                blockWorldMatrix.Translation = m_cubeGrid.GridIntegerToWorld(block.Position);
-                MyCubeBuilder.DrawMountPoints(m_cubeGrid.GridSize, block.BlockDefinition, ref blockWorldMatrix);
+                block.GetLocalMatrix(out blockMatrix);
+                MatrixD blockWorldMatrix = blockMatrix * m_cubeGrid.WorldMatrix;
+
+                if (MyFakes.ENABLE_FRACTURE_COMPONENT && block.FatBlock != null && block.FatBlock.Components.Has<MyFractureComponentBase>())
+                {
+                    var fractureComponent = block.GetFractureComponent();
+                    if (fractureComponent != null)
+                        MyCubeBuilder.DrawMountPoints(m_cubeGrid.GridSize, block.BlockDefinition, blockWorldMatrix, fractureComponent.MountPoints.GetInternalArray());
+                }
+                else
+                {
+                    MyCubeBuilder.DrawMountPoints(m_cubeGrid.GridSize, block.BlockDefinition, ref blockWorldMatrix);
+                }
             }             
         }
 

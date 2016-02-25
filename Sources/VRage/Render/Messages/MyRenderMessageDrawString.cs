@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawString : IMyRenderMessage
+    public class MyRenderMessageDrawString : MyRenderMessageBase
     {
         public int FontIndex;
         public Vector2 ScreenCoord;
@@ -15,7 +15,7 @@ namespace VRageRender
         public float ScreenScale;
         public float ScreenMaxWidth;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawString; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawString; } }
     }
 }

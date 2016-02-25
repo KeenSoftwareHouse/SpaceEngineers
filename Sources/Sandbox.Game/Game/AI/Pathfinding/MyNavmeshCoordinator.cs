@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -22,6 +24,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private MyGridPathfinding m_gridPathfinding;
         private MyVoxelPathfinding m_voxelPathfinding;
+        private MyDynamicObstacles m_obstacles;
 
         // List of all linked triangles per a voxel mesh cell
         private Dictionary<MyVoxelPathfinding.CellId, List<MyNavigationPrimitive>> m_voxelLinkDictionary = new Dictionary<MyVoxelPathfinding.CellId, List<MyNavigationPrimitive>>();
@@ -32,10 +35,11 @@ namespace Sandbox.Game.AI.Pathfinding
         public MyNavgroupLinks Links { get { return m_links; } }
         public MyNavgroupLinks HighLevelLinks { get { return m_highLevelLinks; } }
 
-        public MyNavmeshCoordinator()
+        public MyNavmeshCoordinator(MyDynamicObstacles obstacles)
         {
             m_links = new MyNavgroupLinks();
             m_highLevelLinks = new MyNavgroupLinks();
+            m_obstacles = obstacles;
         }
 
         public void SetGridPathfinding(MyGridPathfinding gridPathfinding)
@@ -55,7 +59,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_tmpEntityList.Clear();
 
             // Each triangle will be tested with grids up to one largest cube further away from them, so we have to reflect this in the bounding box.
-            float largeCubeSize = MyDefinitionManager.Static.GetCubeSize(Common.ObjectBuilders.MyCubeSize.Large);
+            float largeCubeSize = MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large);
             cellBoundingBox.Inflate(largeCubeSize);
 
             // Furthermore, a triangle cannot lie in a cube under existing block, so we have to extend the bbox even further
@@ -85,6 +89,17 @@ namespace Sandbox.Game.AI.Pathfinding
         public void TestVoxelNavmeshTriangle(ref Vector3D a, ref Vector3D b, ref Vector3D c, List<MyCubeGrid> gridsToTest, List<MyGridPathfinding.CubeId> linkCandidatesOutput, out bool intersecting)
         {
             ProfilerShort.Begin("TestVoxelNavmeshTriangle");
+
+            ProfilerShort.Begin("Triangle-obstacle tests");
+            Vector3D s = (a + b + c) / 3.0;
+            if (m_obstacles.IsInObstacle(s))
+            {
+                intersecting = true;
+                ProfilerShort.End();
+                ProfilerShort.End();
+                return;
+            }
+            ProfilerShort.End();
 
             BoundingBoxD triBB;
             Vector3D aLocal, bLocal, cLocal, gLocal;

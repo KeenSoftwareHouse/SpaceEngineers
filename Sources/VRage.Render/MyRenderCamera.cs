@@ -102,11 +102,6 @@ namespace VRageRender
 
         static MatrixD m_viewMatrix = MatrixD.Identity;
 
-        static float m_lodTransitionDistanceNear;
-        static float m_lodTransitionDistanceFar;
-        static float m_lodTransitionDistanceBackgroundStart;
-        static float m_lodTransitionDistanceBackgroundEnd;
-
         static BoundingFrustumD m_boundingFrustum = new BoundingFrustumD(MatrixD.Identity);
 
         internal static Matrix? m_backupMatrix = null;
@@ -220,37 +215,7 @@ namespace VRageRender
         public static void SetCustomProjection(Matrix projection)
         {
             ProjectionMatrix = projection;
-        }
-
-        //  Distances for LOD transition, near and far. Zoom is applied only of forward camera.
-        static void UpdateLodTransitionDistances()
-        {
-            m_lodTransitionDistanceNear = MyRenderConstants.RenderQualityProfile.LodTransitionDistanceNear;
-            m_lodTransitionDistanceFar = MyRenderConstants.RenderQualityProfile.LodTransitionDistanceFar;
-            m_lodTransitionDistanceBackgroundStart = MyRenderConstants.RenderQualityProfile.LodTransitionDistanceBackgroundStart;
-            m_lodTransitionDistanceBackgroundEnd = MyRenderConstants.RenderQualityProfile.LodTransitionDistanceBackgroundEnd;
-
-            // Make sure all distances are smaller than FAR_PLANE_DISTANCE (otherwise it would broke LOD transition effect and background blending)
-            if (m_lodTransitionDistanceBackgroundEnd > FAR_PLANE_DISTANCE)
-            {
-                m_lodTransitionDistanceBackgroundEnd = FAR_PLANE_DISTANCE - FAR_DISTANCE_THRESHOLD;
-
-                if (m_lodTransitionDistanceBackgroundStart > m_lodTransitionDistanceBackgroundEnd)
-                {
-                    m_lodTransitionDistanceBackgroundStart = m_lodTransitionDistanceBackgroundEnd - FAR_DISTANCE_THRESHOLD;
-
-                    if (m_lodTransitionDistanceFar > m_lodTransitionDistanceBackgroundStart)
-                    {
-                        m_lodTransitionDistanceFar = m_lodTransitionDistanceBackgroundStart - FAR_DISTANCE_THRESHOLD;
-
-                        if (m_lodTransitionDistanceNear > m_lodTransitionDistanceFar)
-                        {
-                            m_lodTransitionDistanceNear = m_lodTransitionDistanceFar - FAR_DISTANCE_THRESHOLD;
-                        }
-                    }
-                }
-            }
-        }
+        }    
 
         public static void UpdateCamera()
         {
@@ -264,7 +229,6 @@ namespace VRageRender
 
             ViewProjectionMatrixAtZero = ViewMatrixAtZero * ProjectionMatrix;
 
-            UpdateLodTransitionDistances();
             CornerFrustum = CalculateCornerFrustum();
 
             ProjectionMatrixForFarObjects = Matrix.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NEAR_PLANE_FOR_BACKGROUND, FAR_PLANE_FOR_BACKGROUND);
@@ -325,30 +289,6 @@ namespace VRageRender
             return result != VRageMath.ContainmentType.Disjoint;
         }
 
-
-        // Should not be used elsewhere than MyRender.ApplySetups, others should use MyRender.CurrentRenderSetup...
-        public static float GetLodTransitionDistanceNear()
-        {
-            return m_lodTransitionDistanceNear;
-        }
-
-        // Should not be used elsewhere than MyRender.ApplySetups, others should use MyRender.CurrentRenderSetup...
-        public static float GetLodTransitionDistanceFar()
-        {
-            return m_lodTransitionDistanceFar;
-        }
-
-        // Should not be used elsewhere than MyRender.ApplySetups, others should use MyRender.CurrentRenderSetup...
-        public static float GetLodTransitionDistanceBackgroundStart()
-        {
-            return m_lodTransitionDistanceBackgroundStart;
-        }
-
-        // Should not be used elsewhere than MyRender.ApplySetups, others should use MyRender.CurrentRenderSetup...
-        public static float GetLodTransitionDistanceBackgroundEnd()
-        {
-            return m_lodTransitionDistanceBackgroundEnd;
-        }
 
         static Vector3D CalculateCornerFrustum()
         {

@@ -6,13 +6,13 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageCreateManualCullObject: IMyRenderMessage
+    public class MyRenderMessageCreateManualCullObject: MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
         public MatrixD WorldMatrix;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateManualCullObject; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateManualCullObject; } }
     }
 }

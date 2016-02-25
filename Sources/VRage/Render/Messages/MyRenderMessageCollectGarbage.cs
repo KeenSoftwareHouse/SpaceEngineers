@@ -5,9 +5,9 @@ using System.Text;
 
 namespace VRageRender.Messages
 {
-    public class MyRenderMessageCollectGarbage : IMyRenderMessage
+    public class MyRenderMessageCollectGarbage : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CollectGarbage; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CollectGarbage; } }
     }
 }

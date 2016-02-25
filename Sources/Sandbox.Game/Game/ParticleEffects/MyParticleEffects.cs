@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using VRageMath;
 using Sandbox.Game.Entities;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Utils;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using Sandbox.Game.Weapons;
 
 using Sandbox.ModAPI;
 using VRage.ModAPI;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game
 {

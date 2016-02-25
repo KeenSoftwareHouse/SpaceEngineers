@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -96,7 +97,7 @@ namespace Sandbox.Game.Entities
             get { return SmallOwners; }
         }
 
-        void IMyCubeGrid.ChangeGridOwnership(long playerId, Common.ObjectBuilders.MyOwnershipShareModeEnum shareMode)
+        void IMyCubeGrid.ChangeGridOwnership(long playerId, MyOwnershipShareModeEnum shareMode)
         {
             ChangeGridOwnership(playerId, shareMode);
         }
@@ -146,7 +147,7 @@ namespace Sandbox.Game.Entities
             get { return GridSize; }
         }
 
-        Common.ObjectBuilders.MyCubeSize IMyCubeGrid.GridSizeEnum
+        MyCubeSize IMyCubeGrid.GridSizeEnum
         {
             get
             {

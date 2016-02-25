@@ -12,6 +12,8 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Weapons;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -20,6 +22,7 @@ namespace Sandbox.Game.Screens.Helpers
     {
         private int m_lastAmmoCount = -1;
         private bool m_needsWeaponSwitching = true;
+        private string m_lastTextValue = String.Empty;
 
         public MyToolbarItemWeapon() : base()
         {
@@ -60,20 +63,13 @@ namespace Sandbox.Game.Screens.Helpers
             if (Definition == null)
                 return false;
 
-            if (MyFakes.OCTOBER_RELEASE_DISABLE_WEAPONS_AND_TOOLS &&
-                (Definition.Id.TypeId == typeof(MyObjectBuilder_PhysicalGunObject) && MyFakes.OCTOBER_RELEASE_DISABLED_HANDHELD_WEAPONS.Contains(Definition.Id.SubtypeName)))
-            {
-                MyHud.Notifications.Add(MyNotificationSingletons.DisabledWeaponsAndTools);
-                return false;
-            }
-            
-            var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
+            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
             if (controlledObject != null)
             {
                 if (m_needsWeaponSwitching)
                 {
                     controlledObject.SwitchToWeapon(this);
-                    WantsToBeActivated = false;
+                    WantsToBeActivated = true; //by Gregory: changed to true because of 'Toolbar switching not working correctly' bug
                 }
                 else
                 {
@@ -93,8 +89,8 @@ namespace Sandbox.Game.Screens.Helpers
         {
             bool thisWeaponIsCurrent = false;
             bool shipHasThisWeapon = false;
-            var character = MySession.LocalCharacter;
-            bool characterHasThisWeapon = character != null && character.GetInventory() != null && (character.GetInventory().ContainItems(1, Definition.Id) || !character.WeaponTakesBuilderFromInventory(Definition.Id));
+            var character = MySession.Static.LocalCharacter;
+            bool characterHasThisWeapon = character != null && (character.FindWeaponItemByDefinition(Definition.Id).HasValue || !character.WeaponTakesBuilderFromInventory(Definition.Id));
             ChangeInfo changed = ChangeInfo.None;
 
             if (characterHasThisWeapon)
@@ -120,7 +116,7 @@ namespace Sandbox.Game.Screens.Helpers
                 }
             }
 
-            var shipControler = MySession.ControlledEntity as MyShipController;
+            var shipControler = MySession.Static.ControlledEntity as MyShipController;
             if (shipControler != null && shipControler.GridSelectionSystem.WeaponSystem != null)
             {
             //    var shipWeaponType = shipControler.GetWeaponType(Definition.Id.TypeId);
@@ -151,6 +147,14 @@ namespace Sandbox.Game.Screens.Helpers
             changed |= SetEnabled(characterHasThisWeapon || shipHasThisWeapon);
             WantsToBeSelected = thisWeaponIsCurrent;
             m_needsWeaponSwitching = !thisWeaponIsCurrent;
+
+            // Detecting external change of the text..
+            if (m_lastTextValue != IconText.ToString())
+            {
+                changed |= ChangeInfo.IconText;
+            }
+            m_lastTextValue = IconText.ToString();
+
             return changed;
         }
     }

@@ -20,10 +20,13 @@ namespace VRage.Audio
         int m_currentCount;
         private const int MAX_COUNT = 32;
 #if DEBUG
-        public List<MySourceVoice> m_debugPlayingList = new List<MySourceVoice>();
+        public MyConcurrentHashSet<MySourceVoice> m_debugPlayingList = new MyConcurrentHashSet<MySourceVoice>();
 #endif
+        MyConcurrentHashSet<MySourceVoice> m_allVoices = new MyConcurrentHashSet<MySourceVoice>();
 
         public WaveFormat WaveFormat { get { return m_waveFormat; } }
+        private List<MySourceVoice> m_voiceBuffer = new List<MySourceVoice>();
+        private List<MySourceVoice> m_voiceBuffer2 = new List<MySourceVoice>();
 
         public MySourceVoicePool(XAudio2 audioEngine, WaveFormat waveformat, MyCueBank owner)
         {
@@ -55,6 +58,7 @@ namespace VRage.Audio
                 if (m_currentCount < MAX_COUNT)
                 {
                     voice = new MySourceVoice(this, m_audioEngine, m_waveFormat);
+                    m_allVoices.Add(voice);
                     m_currentCount++;
                 }
             }
@@ -68,7 +72,7 @@ namespace VRage.Audio
         public void OnStopPlaying(MySourceVoice voice)
         {
 #if DEBUG
-            Debug.Assert(m_debugPlayingList.Contains(voice), string.Format("Debug only. Stopping not playing voice {0}", voice));
+            //Debug.Assert(m_debugPlayingList.Contains(voice), string.Format("Debug only. Stopping not playing voice {0}", voice));
             m_debugPlayingList.Remove(voice);
 #endif
             m_currentCount--;
@@ -77,13 +81,23 @@ namespace VRage.Audio
 
         public void Update()
         {
+            if (m_owner == null || m_audioEngine == null)
+                return;
             if (m_owner.DisablePooling)
             {
                 MySourceVoice voice;
-                for (int i = 0; i < m_availableVoices.Count; i++)
+                int i;
+                for (i = 0; i < m_voiceBuffer2.Count; i++)
+                {
+                    m_voiceBuffer2[i].Dispose();
+                }
+                m_voiceBuffer2 = m_voiceBuffer;
+                m_voiceBuffer.Clear();
+                for (i = 0; i < m_availableVoices.Count; i++)
                     if (m_availableVoices.TryDequeue(out voice))
                     {
                         voice.DestroyVoice();
+                        m_voiceBuffer.Add(voice);
                     }
             }
             int id = 0;
@@ -116,6 +130,29 @@ namespace VRage.Audio
         public void AddToFadeoutList(MySourceVoice voice)
         {
             m_fadingOutVoices.Add(voice);
+        }
+
+        public void StopAll()
+        {
+            foreach (var v in m_allVoices)
+            {
+                v.Stop(true);
+            }
+        }
+
+        public void Dispose()
+        {
+            m_availableVoices.Clear();
+            m_fadingOutVoices.Clear();
+            m_currentCount = 0;
+            m_audioEngine = null;
+            m_owner = null;
+            foreach(var v in m_allVoices)
+            {
+                v.Cleanup();
+                m_voiceBuffer.Add(v);
+            }
+            m_allVoices.Clear();
         }
 
 #if DEBUG
@@ -152,14 +189,15 @@ namespace VRage.Audio
         {
 #if DEBUG
             int id = 0;
-            while (id < m_debugPlayingList.Count)
+            foreach(var item in m_debugPlayingList)
             {
-                var item = m_debugPlayingList[id++];
                 if (item.IsPlaying && !item.IsPaused)
-                    stringBuilder.Append(item.CueEnum.ToString()).AppendDecimal(item.Volume,2).Append(", ");
-                if (id % 6 == 0)
+                    stringBuilder.Append(item.CueEnum.ToString()+" ").AppendDecimal(item.Volume, 2).Append(", ");
+                if (id % 5 == 0 && id > 0)
                     stringBuilder.AppendLine();
+                id++;
             }
+
             if(id > 0)
                 stringBuilder.AppendLine();
 #endif
@@ -169,13 +207,13 @@ namespace VRage.Audio
         {
 #if DEBUG
             int id = 0;
-            while (id < m_debugPlayingList.Count)
+            foreach(var item in m_debugPlayingList)
             {
-                var item = m_debugPlayingList[id++];
                 if (item.IsPlaying && item.IsPaused)
                     stringBuilder.Append(item.CueEnum.ToString()).Append(", ");
-                if (id % 6 == 0)
+                if (id % 5 == 0 && id > 0)
                     stringBuilder.AppendLine();
+                id++;
             }
             if (id > 0)
                 stringBuilder.AppendLine();

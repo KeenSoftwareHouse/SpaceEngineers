@@ -9,7 +9,6 @@ using ParallelTasks;
 using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -117,6 +116,14 @@ namespace Sandbox.Game.Gui
         protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
         {
             return MyLocalCache.GetAvailableTutorialInfos(); 
+        }
+    }
+
+    public class MyLoadAISchoolListResult : MyLoadListResult
+    {
+        protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
+        {
+            return MyLocalCache.GetAvailableAISchoolInfos(); 
         }
     }
 }

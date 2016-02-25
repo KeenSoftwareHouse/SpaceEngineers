@@ -5,10 +5,10 @@ using System.Text;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {

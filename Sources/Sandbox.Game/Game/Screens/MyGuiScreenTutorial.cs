@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Networking;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -22,6 +24,7 @@ namespace Sandbox.Game.Gui
             BASIC = 0,
             INTERMEDIATE,
             ADVANCED,
+            PLANETARY
         }
 
         private MyGuiControlCombobox m_trainingLevel;
@@ -49,26 +52,25 @@ namespace Sandbox.Game.Gui
         {
             base.BuildControls();
 
-            // Training level
-            {
-                var trainingLabel = MakeLabel(MySpaceTexts.TrainingLevel);
-                trainingLabel.Position = new Vector2(-0.25f, -0.47f + MARGIN_TOP);
-                trainingLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
+            var trainingLabel = MakeLabel(MySpaceTexts.TrainingLevel);
+            trainingLabel.Position = new Vector2(-0.25f, -0.47f + MARGIN_TOP);
+            trainingLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
 
-                m_trainingLevel = new MyGuiControlCombobox(
-                    position: new Vector2(-0.04f, -0.47f + MARGIN_TOP),
-                    size: new Vector2(0.2f, trainingLabel.Size.Y),
-                    originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER
-                    );
-                m_trainingLevel.AddItem((int)TrainingLevel.BASIC, MySpaceTexts.TrainingLevel_Basic);
-                m_trainingLevel.AddItem((int)TrainingLevel.INTERMEDIATE, MySpaceTexts.TrainingLevel_Intermediate);
-                m_trainingLevel.AddItem((int)TrainingLevel.ADVANCED, MySpaceTexts.TrainingLevel_Advanced);
-                m_trainingLevel.SelectItemByIndex(0);
-                m_trainingLevel.ItemSelected += OnTrainingLevelSelected;
+            m_trainingLevel = new MyGuiControlCombobox(
+                position: new Vector2(-0.04f, -0.47f + MARGIN_TOP),
+                size: new Vector2(0.2f, trainingLabel.Size.Y),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER
+                );
+            m_trainingLevel.AddItem((int)TrainingLevel.BASIC, MySpaceTexts.TrainingLevel_Basic);
+            //m_trainingLevel.AddItem((int)TrainingLevel.INTERMEDIATE, MySpaceTexts.TrainingLevel_Intermediate);
+            //m_trainingLevel.AddItem((int)TrainingLevel.ADVANCED, MySpaceTexts.TrainingLevel_Advanced);
+            if (MyFakes.ENABLE_XMAS15_CONTENT)
+                m_trainingLevel.AddItem((int)TrainingLevel.PLANETARY, MySpaceTexts.TrainingLevel_Planetary);
+            m_trainingLevel.SelectItemByIndex(0);
+            m_trainingLevel.ItemSelected += OnTrainingLevelSelected;
 
-                Controls.Add(trainingLabel);
-                Controls.Add(m_trainingLevel);
-            }
+            Controls.Add(trainingLabel);
+            Controls.Add(m_trainingLevel);
         }
 
         private void OnTrainingLevelSelected()
@@ -85,7 +87,7 @@ namespace Sandbox.Game.Gui
             scenarioTable.VisibleRowsCount = 18;
             scenarioTable.ColumnsCount = 2;
             scenarioTable.SetCustomColumnWidths(new float[] { 0.085f, 0.905f });
-            scenarioTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
+            scenarioTable.SetColumnName(1, MyTexts.Get(MyCommonTexts.Name));
             scenarioTable.ItemSelected += OnTableItemSelected;
 
             return scenarioTable;
@@ -95,7 +97,7 @@ namespace Sandbox.Game.Gui
         {
             base.FillList();
 
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, BeginTutorialLoading, EndTutorialLoading));
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, BeginTutorialLoading, EndTutorialLoading));
         }
 
         private IMyAsyncResult BeginTutorialLoading()
@@ -110,8 +112,8 @@ namespace Sandbox.Game.Gui
             if (loadListRes.ContainsCorruptedWorlds)
             {
                 var messageBox = MyGuiSandbox.CreateMessageBox(
-                    messageText: MyTexts.Get(MySpaceTexts.SomeWorldFilesCouldNotBeLoaded),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                    messageText: MyTexts.Get(MyCommonTexts.SomeWorldFilesCouldNotBeLoaded),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
                 MyGuiSandbox.AddScreen(messageBox);
             }
 
@@ -119,19 +121,24 @@ namespace Sandbox.Game.Gui
 
             Dictionary<string, int> trainingLevels = new Dictionary<string, int>();
             trainingLevels["Basic"] = (int)TrainingLevel.BASIC;
-            trainingLevels["Intermediate"] = (int)TrainingLevel.INTERMEDIATE;
-            trainingLevels["Advanced"] = (int)TrainingLevel.ADVANCED;
+            //trainingLevels["Intermediate"] = (int)TrainingLevel.INTERMEDIATE;
+            //trainingLevels["Advanced"] = (int)TrainingLevel.ADVANCED;
+            trainingLevels["Planetary"] = (int)TrainingLevel.PLANETARY;
 
             loadListRes.AvailableSaves.Sort((x, y) => x.Item2.SessionName.CompareTo(y.Item2.SessionName));
             foreach (var loadedRes in loadListRes.AvailableSaves)
             {
                 var splitted = loadedRes.Item1.Split('\\');
                 var trainingLevel = splitted[splitted.Length - 2];
+                if (!MyFakes.ENABLE_XMAS15_CONTENT && splitted[splitted.Length - 1].Contains("Tutorial 08 - Climbing on Planets"))
+                    continue;
+                if (!MyFakes.ENABLE_XMAS15_CONTENT && splitted[splitted.Length - 1].Contains("Tutorial 11 - Mining Planets and Ship Recovery"))
+                    continue;
                 if (trainingLevels.ContainsKey(trainingLevel))
                 {
                     int id = trainingLevels[trainingLevel];
                     if (!m_tutorials.ContainsKey(id))
-                        m_tutorials[id] = new List<Tuple<string,MyWorldInfo>>();
+                        m_tutorials[id] = new List<Tuple<string, MyWorldInfo>>();
                     m_tutorials[id].Add(loadedRes);
                 }
             }
@@ -141,6 +148,14 @@ namespace Sandbox.Game.Gui
             m_state = StateEnum.ListLoaded;
 
             screen.CloseScreen();
+        }
+
+        public override bool Update(bool hasFocus)
+        {
+            var ret = base.Update(hasFocus);
+            if (m_okButton.Enabled && !MyTutorialHelper.IsUnlocked(((Tuple<string, MyWorldInfo>)m_scenarioTable.SelectedRow.UserData).Item2.SessionName) && !MyFakes.DEVELOPMENT_PRESET)
+                m_okButton.Enabled = false;
+            return ret;
         }
 
         private void SelectTutorials()
@@ -154,7 +169,7 @@ namespace Sandbox.Game.Gui
                 AddSaves(loadedTrainingLevels);
             }
 
-            RefreshGameList();
+            RefreshGameList(true);
         }
 
         protected override void LoadSandboxInternal(Tuple<string, MyWorldInfo> save, bool MP)

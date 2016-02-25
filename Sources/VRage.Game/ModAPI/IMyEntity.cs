@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -91,6 +88,8 @@ namespace VRage.ModAPI
         NeedsUpdateBeforeNextFrame = 1 << 17,
 
 		DrawOutsideViewDistance = 1 << 18,
+
+        Default = EntityFlags.Visible | EntityFlags.SkipIfTooSmall | EntityFlags.Save | EntityFlags.NeedsResolveCastShadow | EntityFlags.InvalidateOnMove,
     }
 
     [Flags]

@@ -17,6 +17,7 @@ SamplerState	AlphamaskArraySampler   : register( s5 );
 #define PROJECTION_SLOT 1
 #define OBJECT_SLOT 2
 #define MATERIAL_SLOT 3
+#define FOLIAGE_SLOT 4
 #define ALPHAMASK_SLOT 5
 
 // srvs 0-9 
@@ -65,6 +66,8 @@ SamplerState	AlphamaskArraySampler   : register( s5 );
 	bool depth_not_background(float x) { return x > 0; }
 	static const bool DEPTH_CLEAR = 0;
 #endif
+
+#define MAX_ADDITIONAL_SUNS 5
 
 
 

@@ -15,7 +15,6 @@ using Sandbox.Game.Entities.Debris;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
@@ -26,10 +25,12 @@ using VRage;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
@@ -121,9 +122,10 @@ namespace Sandbox.Game.Entities
             
         }
 
-        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public bool DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             GameLogic.DoDamage(damage, damageType, sync, hitInfo, attackerId);
+            return true;
         }
 
         public float Integrity
@@ -142,10 +144,6 @@ namespace Sandbox.Game.Entities
         }
 
         // So much room for activities
-
-
-
-
 
         public class MyMeteorGameLogic : MyEntityGameLogic
         {
@@ -234,10 +232,10 @@ namespace Sandbox.Game.Entities
 
                 Entity.Physics = new MyPhysicsBody(Entity, RigidBodyFlag.RBF_BULLET);
                 Entity.Physics.ReportAllContacts = true;
-                Entity.Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.DefaultCollisionLayer);
+                Entity.GetPhysicsBody().CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.CollisionLayers.DefaultCollisionLayer);
                 Entity.Physics.Enabled = true;
                 Entity.Physics.RigidBody.ContactPointCallbackEnabled = true;
-                Entity.Physics.ContactPointCallback += RigidBody_ContactPointCallback;
+                Entity.GetPhysicsBody().ContactPointCallback += RigidBody_ContactPointCallback;
                 transform.Base.RemoveReference();
                 Entity.Physics.PlayCollisionCueEnabled = true;
 
@@ -336,7 +334,7 @@ namespace Sandbox.Game.Entities
 
                 m_soundEmitter.Update();
 
-                if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_timeCreated > Math.Min(MAX_TRAJECTORY_LENGTH / MIN_SPEED, MAX_TRAJECTORY_LENGTH / Entity.Physics.LinearVelocity.Length()) * 1000)
+                if (Sync.IsServer && MySandboxGame.TotalGamePlayTimeInMilliseconds - m_timeCreated > Math.Min(MAX_TRAJECTORY_LENGTH / MIN_SPEED, MAX_TRAJECTORY_LENGTH / Entity.Physics.LinearVelocity.Length()) * 1000)
                 {
                     CloseMeteorInternal();
                 }
@@ -464,7 +462,7 @@ namespace Sandbox.Game.Entities
                     voxel.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
                     MyVoxelGenerator.MakeCrater(voxel, sphere, -direction, material);
                 }
-                m_closeAfterSimulation = true;
+                m_closeAfterSimulation = Sync.IsServer;
             }
 
             private void DestroyGrid(ref MyPhysics.MyContactPointEvent value, MyCubeGrid grid)
@@ -483,7 +481,7 @@ namespace Sandbox.Game.Entities
                     ContactPointDirection = value.ContactPointEvent.Base.BodyB == grid.Physics.RigidBody ? -1 : 1,
                 };
                 grid.Physics.PerformMeteoritDeformation(ref breakInfo, value.ContactPointEvent.SeparatingVelocity);
-                m_closeAfterSimulation = true;
+                m_closeAfterSimulation = Sync.IsServer;
             }
 
             private void StartLoopSound()
@@ -522,9 +520,9 @@ namespace Sandbox.Game.Entities
                     if (Entity.UseDamageSystem)
                         MyDamageSystem.Static.RaiseAfterDamageApplied(Entity, info);
 
-                    if (m_integrity <= 0)
+                    if (m_integrity <= 0 && Sync.IsServer)
                     {
-                        m_closeAfterSimulation = true;
+                        m_closeAfterSimulation = Sync.IsServer;
 
                         if (Entity.UseDamageSystem)
                             MyDamageSystem.Static.RaiseDestroyed(Entity, info);

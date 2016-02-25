@@ -2,7 +2,7 @@
 using VRage.ObjectBuilders;
 using VRageRender;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

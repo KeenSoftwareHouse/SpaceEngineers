@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -28,7 +29,7 @@ namespace Sandbox.Game.GUI.HudViewers
             bool drawScrollbar = false,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
             bool selectable = false)
-            : base (position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, selectable)
+            : base (position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, selectable, true)
         {
             m_forceUpdate = true;
             m_chat = chat;
@@ -60,8 +61,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 {
                     bool isMe = Sandbox.Engine.Networking.MySteam.UserName == message.Item1;
 
-                    AppendText(new StringBuilder(message.Item1), isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
-                    AppendText(new StringBuilder(": "));
+                    AppendText(new StringBuilder(message.Item1 + ":"), isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
                     AppendText(new StringBuilder(message.Item2));
                     AppendLine();
                 }

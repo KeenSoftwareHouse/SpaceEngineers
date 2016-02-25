@@ -1,8 +1,5 @@
-﻿using System;
-using VRage.ObjectBuilders;
-using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using ProtoBuf;
+using VRage.Game;
 
 
 namespace VRage.ObjectBuilders.Definitions
@@ -20,5 +17,11 @@ namespace VRage.ObjectBuilders.Definitions
 
         [ProtoMember]
         public string CutEffect;
+
+        [ProtoMember]
+        public string FallSound;
+
+        [ProtoMember]
+        public string BreakSound;
     }
 }

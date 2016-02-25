@@ -10,6 +10,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
@@ -24,7 +26,7 @@ namespace Sandbox.Game.World
         {
             get
             {
-                return m_globalEvents.Count() == 0;
+                return m_globalEvents.Count == 0;
             }
         }
 

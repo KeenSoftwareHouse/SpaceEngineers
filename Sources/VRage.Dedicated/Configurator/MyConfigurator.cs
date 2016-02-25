@@ -1,5 +1,4 @@
 ﻿using Sandbox;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using VRage.Dedicated.Configurator;
 using VRage.FileSystem;
+using VRage.Game;
 
 namespace VRage.Dedicated
 {

@@ -36,7 +36,7 @@ namespace VRageRender
 
         CullingOptions m_cullingOptions = CullingOptions.Default;
 
-        protected List<IMyRenderMessage> m_billboards = new List<IMyRenderMessage>();
+        protected List<MyRenderMessageBase> m_billboards = new List<MyRenderMessageBase>();
 
 
         public MyRenderObject(uint id, string debugName, RenderFlags renderFlags = RenderFlags.Visible | RenderFlags.SkipIfTooSmall | RenderFlags.NeedsResolveCastShadow, CullingOptions cullingOptions = VRageRender.CullingOptions.Default)
@@ -242,7 +242,7 @@ namespace VRageRender
         {
         }
 
-        public List<IMyRenderMessage> Billboards
+        public List<MyRenderMessageBase> Billboards
         {
             get { return m_billboards; }
         }

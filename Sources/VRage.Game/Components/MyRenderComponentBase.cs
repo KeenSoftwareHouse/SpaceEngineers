@@ -4,7 +4,7 @@ using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public abstract class MyRenderComponentBase : MyEntityComponentBase
     {
@@ -405,7 +405,15 @@ namespace VRage.Components
             }
         }
 
+        public bool OffsetInVertexShader
+        {
+            get;
+            set;
+        }
+
         public float Transparency;
+
+        public byte DepthBias = 0;
 
         public virtual RenderFlags GetRenderFlags()
         {
@@ -426,6 +434,7 @@ namespace VRage.Components
 				renderFlags |= RenderFlags.DrawOutsideViewDistance;
             if (ShadowBoxLod)
 				renderFlags |= RenderFlags.ShadowLodBox;
+
             return renderFlags;
         }
 

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Engine.Physics
@@ -20,9 +21,12 @@ namespace Sandbox.Engine.Physics
         const int MAX_CLONE_PER_FRAME = 3;
         Dictionary<MyDefinitionId, Dictionary<string, ConcurrentQueue<HkdBreakableShape>>> m_pools = new Dictionary<MyDefinitionId, Dictionary<string, ConcurrentQueue<HkdBreakableShape>>>();
         MyWorkTracker<MyDefinitionId, MyBreakableShapeCloneJob> m_tracker = new MyWorkTracker<MyDefinitionId, MyBreakableShapeCloneJob>();
+        FastResourceLock m_poolLock = new VRage.FastResourceLock();
 
         public void Preallocate()
         {
+            MySandboxGame.Log.WriteLine("Preallocate shape pool - START");
+
             foreach (var groupName in MyDefinitionManager.Static.GetDefinitionPairNames())
             {
                 var group = MyDefinitionManager.Static.GetDefinitionGroup(groupName);
@@ -42,6 +46,8 @@ namespace Sandbox.Engine.Physics
                         AllocateForDefinition(model.File, group.Small, PREALLOCATE_COUNT);
                 }
             }
+
+            MySandboxGame.Log.WriteLine("Preallocate shape pool - END");
         }
 
         public void AllocateForDefinition(string model, MyPhysicalModelDefinition definition, int count)
@@ -49,18 +55,23 @@ namespace Sandbox.Engine.Physics
             if (string.IsNullOrEmpty(model))
                 return;
             ProfilerShort.Begin("Clone");
-            var data = MyModels.GetModelOnlyData(model);
-            if (MyFakes.LAZY_LOAD_DESTRUCTION && data.HavokBreakableShapes == null)
+            var data = VRage.Game.Models.MyModels.GetModelOnlyData(model);
+            if (data.HavokBreakableShapes == null)
             {
                 MyDestructionData.Static.LoadModelDestruction(model, definition, data.BoundingBoxSize);
-            }               
+            }          
+
             if (data.HavokBreakableShapes != null && data.HavokBreakableShapes.Length > 0)
             {
-                if (!m_pools.ContainsKey(definition.Id))
-                    m_pools[definition.Id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
-                if(!m_pools[definition.Id].ContainsKey(model))
-                    m_pools[definition.Id][model] = new ConcurrentQueue<HkdBreakableShape>();
-                var queue = m_pools[definition.Id][model];
+                ConcurrentQueue<HkdBreakableShape> queue;
+                using (m_poolLock.AcquireExclusiveUsing())
+                {
+                    if (!m_pools.ContainsKey(definition.Id))
+                        m_pools[definition.Id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
+                    if (!m_pools[definition.Id].ContainsKey(model))
+                        m_pools[definition.Id][model] = new ConcurrentQueue<HkdBreakableShape>();
+                    queue = m_pools[definition.Id][model];
+                }
                 for (int i = 0; i < count; i++)
                 {
                     var shape = data.HavokBreakableShapes[0].Clone();
@@ -97,20 +108,23 @@ namespace Sandbox.Engine.Physics
                 StartJobs();
             else
             {
-                foreach (var pool in m_pools)
+                using (m_poolLock.AcquireSharedUsing())
                 {
-                    foreach (var model in pool.Value)
+                    foreach (var pool in m_pools)
                     {
-                        if (pool.Value.Count < PREALLOCATE_COUNT)
+                        foreach (var model in pool.Value)
                         {
-                            MyCubeBlockDefinition def;
-                            MyDefinitionManager.Static.TryGetDefinition<MyCubeBlockDefinition>(pool.Key, out def);
-                            int cloneCount = Math.Min(PREALLOCATE_COUNT - pool.Value.Count, MAX_CLONE_PER_FRAME - clonedThisFrame);
-                            AllocateForDefinition(model.Key, def, cloneCount);
-                            clonedThisFrame += cloneCount;
+                            if (pool.Value.Count < PREALLOCATE_COUNT)
+                            {
+                                MyCubeBlockDefinition def;
+                                MyDefinitionManager.Static.TryGetDefinition<MyCubeBlockDefinition>(pool.Key, out def);
+                                int cloneCount = Math.Min(PREALLOCATE_COUNT - pool.Value.Count, MAX_CLONE_PER_FRAME - clonedThisFrame);
+                                AllocateForDefinition(model.Key, def, cloneCount);
+                                clonedThisFrame += cloneCount;
+                            }
+                            if (clonedThisFrame >= MAX_CLONE_PER_FRAME)
+                                break;
                         }
-                        if (clonedThisFrame == MAX_CLONE_PER_FRAME)
-                            break;
                     }
                 }
             }
@@ -122,24 +136,27 @@ namespace Sandbox.Engine.Physics
 
         private void StartJobs()
         {
-            foreach (var pool in m_pools)
+            using (m_poolLock.AcquireSharedUsing())
             {
-                foreach (var model in pool.Value)
+                foreach (var pool in m_pools)
                 {
-                    if (model.Value.Count < PREALLOCATE_COUNT && !m_tracker.Exists(pool.Key))
+                    foreach (var model in pool.Value)
                     {
-                        MyPhysicalModelDefinition def;
-                        MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(pool.Key, out def);
-                        var modelData = MyModels.GetModelOnlyData(def.Model);
-                        if (modelData.HavokBreakableShapes == null)
-                            continue;
-                        MyBreakableShapeCloneJob.Args args = new MyBreakableShapeCloneJob.Args();
-                        args.Model = model.Key;
-                        args.DefId = pool.Key;
-                        args.ShapeToClone = modelData.HavokBreakableShapes[0];
-                        args.Count = PREALLOCATE_COUNT - pool.Value.Count;
-                        args.Tracker = m_tracker;
-                        MyBreakableShapeCloneJob.Start(args);
+                        if (model.Value.Count < PREALLOCATE_COUNT && !m_tracker.Exists(pool.Key))
+                        {
+                            MyPhysicalModelDefinition def;
+                            MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(pool.Key, out def);
+                            var modelData = VRage.Game.Models.MyModels.GetModelOnlyData(def.Model);
+                            if (modelData.HavokBreakableShapes == null)
+                                continue;
+                            MyBreakableShapeCloneJob.Args args = new MyBreakableShapeCloneJob.Args();
+                            args.Model = model.Key;
+                            args.DefId = pool.Key;
+                            args.ShapeToClone = modelData.HavokBreakableShapes[0];
+                            args.Count = PREALLOCATE_COUNT - pool.Value.Count;
+                            args.Tracker = m_tracker;
+                            MyBreakableShapeCloneJob.Start(args);
+                        }
                     }
                 }
             }
@@ -151,10 +168,13 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("GetBreakableShape");
             if (!block.Public || MyFakes.LAZY_LOAD_DESTRUCTION)
             {
-                 if (!m_pools.ContainsKey(block.Id))
-                    m_pools[block.Id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
-                if(!m_pools[block.Id].ContainsKey(model))
-                    m_pools[block.Id][model] = new ConcurrentQueue<HkdBreakableShape>();
+                using (m_poolLock.AcquireExclusiveUsing())
+                {
+                    if (!m_pools.ContainsKey(block.Id))
+                        m_pools[block.Id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
+                    if (!m_pools[block.Id].ContainsKey(model))
+                        m_pools[block.Id][model] = new ConcurrentQueue<HkdBreakableShape>();
+                }
             }
             var queue = m_pools[block.Id][model];
             if (queue.Count == 0)
@@ -173,21 +193,27 @@ namespace Sandbox.Engine.Physics
         internal void Free()
         {
             m_tracker.CancelAll();
-            foreach (var pool in m_pools.Values)
+            using (m_poolLock.AcquireExclusiveUsing())
             {
-                foreach (var model in pool.Values)
-                    foreach (var shape in model)
-                        shape.RemoveReference();
+                foreach (var pool in m_pools.Values)
+                {
+                    foreach (var model in pool.Values)
+                        foreach (var shape in model)
+                            shape.RemoveReference();
+                }
+                m_pools.Clear();
             }
-            m_pools.Clear();
         }
 
         public void EnqueShapes(string model, MyDefinitionId id, List<HkdBreakableShape> shapes)
         {
-            if (!m_pools.ContainsKey(id))
-                m_pools[id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
-            if (!m_pools[id].ContainsKey(model))
-                m_pools[id][model] = new ConcurrentQueue<HkdBreakableShape>();
+            using (m_poolLock.AcquireExclusiveUsing())
+            {
+                if (!m_pools.ContainsKey(id))
+                    m_pools[id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
+                if (!m_pools[id].ContainsKey(model))
+                    m_pools[id][model] = new ConcurrentQueue<HkdBreakableShape>();
+            }
 
             foreach (var shape in shapes)
                 m_pools[id][model].Enqueue(shape);
@@ -197,10 +223,13 @@ namespace Sandbox.Engine.Physics
 
         public void EnqueShape(string model, MyDefinitionId id, HkdBreakableShape shape)
         {
-            if (!m_pools.ContainsKey(id))
-                m_pools[id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
-            if (!m_pools[id].ContainsKey(model))
-                m_pools[id][model] = new ConcurrentQueue<HkdBreakableShape>();
+            using (m_poolLock.AcquireExclusiveUsing())
+            {
+                if (!m_pools.ContainsKey(id))
+                    m_pools[id] = new Dictionary<string, ConcurrentQueue<HkdBreakableShape>>();
+                if (!m_pools[id].ContainsKey(model))
+                    m_pools[id][model] = new ConcurrentQueue<HkdBreakableShape>();
+            }
 
             m_pools[id][model].Enqueue(shape);
             m_missing--;

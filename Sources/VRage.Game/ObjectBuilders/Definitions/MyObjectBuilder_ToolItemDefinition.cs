@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -25,6 +25,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             // Removed radius from voxel map.
             [ProtoMember, DefaultValue(0f)]
             public float RemovedRadius = 0f;
+
+            [ProtoMember, DefaultValue(false)]
+            public bool OnlyApplyMaterial = false;
         }
 
         [ProtoContract]
@@ -37,10 +40,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public string Animation;
 
             [ProtoMember]
+            public float AnimationTimeScale = 1f;
+
+            [ProtoMember]
             public string StatsAction;
 
             [ProtoMember]
             public string StatsActionIfHit;
+
+            [ProtoMember]
+            public string StatsModifier;
+
+            [ProtoMember]
+            public string StatsModifierIfHit;
 
             [ProtoMember]
             public string Component;
@@ -60,6 +72,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             
             [ProtoMember, DefaultValue(1f)]
             public float Efficiency = 1f;
+
+            [ProtoMember, DefaultValue(null)]
+            public string StatsEfficiency = null;
 
             [ProtoMember, DefaultValue(null)]
             public string SwingSound = null;

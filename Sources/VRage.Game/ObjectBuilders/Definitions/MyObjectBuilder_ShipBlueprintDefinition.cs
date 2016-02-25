@@ -1,8 +1,7 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
-using System.Xml.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

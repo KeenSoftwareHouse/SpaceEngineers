@@ -15,6 +15,8 @@ namespace VRage.Collections
         private readonly CacheEntry[] m_cacheEntries;
         private readonly FastResourceLock m_lock = new FastResourceLock();
 
+        public Action<TKey, TValue> OnItemDiscarded;
+
         public LRUCache(int cacheSize, IEqualityComparer<TKey> comparer = null)
         {
             m_comparer = comparer ?? EqualityComparer<TKey>.Default;
@@ -24,10 +26,24 @@ namespace VRage.Collections
             ResetInternal();
         }
 
+        public float Usage
+        {
+            get { return (float)m_entryLookup.Count / m_cacheEntries.Length; }
+        }
+
         public void Reset()
         {
             if (m_entryLookup.Count > 0)
             {
+                if (OnItemDiscarded != null)
+                {
+                    for (int i = 0; i < m_cacheEntries.Length; ++i)
+                    {
+                        if (m_cacheEntries[i].Data != null)
+                            OnItemDiscarded(m_cacheEntries[i].Key, m_cacheEntries[i].Data);
+                    }
+                }
+
                 ResetInternal();
             }
         }
@@ -109,6 +125,27 @@ namespace VRage.Collections
             }
         }
 
+        public void Remove(TKey key)
+        {
+            using (m_lock.AcquireExclusiveUsing())
+            {
+                AssertConsistent();
+
+                try
+                {
+                    int cacheIndex;
+                    if (m_entryLookup.TryGetValue(key, out cacheIndex))
+                    {
+                        Remove(cacheIndex);
+                    }
+                }
+                finally
+                {
+                    AssertConsistent();
+                }
+            }
+        }
+
         private void RemoveLast()
         {
             int newLastIdx = m_cacheEntries[m_last].Prev;
@@ -120,6 +157,9 @@ namespace VRage.Collections
 
             m_cacheEntries[newLastIdx].Next = INVALID_ENTRY;
             m_cacheEntries[m_last].Prev = INVALID_ENTRY;
+
+            if (OnItemDiscarded != null && m_cacheEntries[m_last].Data != null)
+                OnItemDiscarded(m_cacheEntries[m_last].Key, m_cacheEntries[m_last].Data);
 
             Debug.Assert(m_cacheEntries[m_last].Prev == INVALID_ENTRY);
             Debug.Assert(m_cacheEntries[m_last].Next == INVALID_ENTRY);

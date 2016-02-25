@@ -5,9 +5,11 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Components;
+using VRage;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 
@@ -33,8 +35,40 @@ namespace Sandbox.Game
 			public MyStringHash StatId;
 
 			[ProtoMember]
-			public float Amount;
+			public float Cost;
+
+            [ProtoMember]
+            public float AmountToActivate;
+
+            [ProtoMember]
+            public bool CanPerformWithout;
 		}
+
+        [ProtoContract]
+        public struct MyStatRegenModifier
+        {
+            [ProtoMember]
+            public MyStringHash StatId;
+
+            [ProtoMember]
+            public float AmountMultiplier;
+
+            [ProtoMember]
+            public float Duration;
+        }
+
+        [ProtoContract]
+        public struct MyStatEfficiencyModifier
+        {
+            [ProtoMember]
+            public MyStringHash StatId;
+
+            [ProtoMember]
+            public float Threshold;
+
+            [ProtoMember]
+            public float EfficiencyMultiplier;
+        }
 
 		private string m_scriptName;
 		public string Name { get { return m_scriptName; } }
@@ -49,6 +83,14 @@ namespace Sandbox.Game
 
 		private Dictionary<string, MyStatAction> m_statActions = new Dictionary<string, MyStatAction>();
 		public Dictionary<string, MyStatAction> StatActions { get { return m_statActions; } }
+
+        private Dictionary<string, MyStatRegenModifier> m_statRegenModifiers = new Dictionary<string, MyStatRegenModifier>();
+        public Dictionary<string, MyStatRegenModifier> StatRegenModifiers { get { return m_statRegenModifiers; } }
+
+        private Dictionary<string, MyStatEfficiencyModifier> m_statEfficiencyModifiers = new Dictionary<string, MyStatEfficiencyModifier>();
+        public Dictionary<string, MyStatEfficiencyModifier> StatEfficiencyModifiers { get { return m_statEfficiencyModifiers; } }
+
+        public const int STAT_VALUE_TOO_LOW = 4;
 
 		public virtual void Init(IMyCharacter character, Dictionary<MyStringHash, MyEntityStat> stats, string scriptName)
 		{
@@ -75,19 +117,57 @@ namespace Sandbox.Game
 			m_statActions.Add(actionId, action);
 		}
 
-		public bool CanDoAction(string actionId)
+        public void AddModifier(string modifierId, MyStatRegenModifier modifier)
+        {
+            m_statRegenModifiers.Add(modifierId, modifier);
+        }
+
+        public void AddEfficiency(string modifierId, MyStatEfficiencyModifier modifier)
+        {
+            m_statEfficiencyModifiers.Add(modifierId, modifier);
+        }
+
+		public bool CanDoAction(string actionId, bool continuous, out MyTuple<ushort, MyStringHash> message)
 		{
 			MyStatAction action;
-			if(!m_statActions.TryGetValue(actionId, out action))
+			if(!m_statActions.TryGetValue(actionId, out action)) 
+            {
+                message = new MyTuple<ushort, MyStringHash>(0, action.StatId);
 				return true;
+            }
+
+            if (action.CanPerformWithout)
+            {
+                message = new MyTuple<ushort, MyStringHash>(0, action.StatId);
+                return true;
+            }
 
 			MyEntityStat stat;
 			if(!m_stats.TryGetValue(action.StatId, out stat))
+            {
+                message = new MyTuple<ushort, MyStringHash>(0, action.StatId);
 				return true;
+            }
 
-			if (stat.Value < action.Amount)
-				return false;
+            if (continuous)
+            {
+                if (stat.Value < action.Cost)
+                {
+                    message = new MyTuple<ushort, MyStringHash>(STAT_VALUE_TOO_LOW, action.StatId);
+                    return false;
+                }
+            }
+            else
+            {
+                if (stat.Value < action.Cost || stat.Value < action.AmountToActivate)
+                {
+                    message = new MyTuple<ushort, MyStringHash>(STAT_VALUE_TOO_LOW, action.StatId);
+                    Debug.Write(String.Format("value: {0}, cost: {1}, activation: {2}", stat.Value, action.Cost, action.AmountToActivate));
+                    return false;
+                }
+            }
 
+            message = new MyTuple<ushort, MyStringHash>(0, action.StatId);
 			return true;
 		}
 
@@ -101,10 +181,50 @@ namespace Sandbox.Game
 			if (!m_stats.TryGetValue(action.StatId, out stat))
 				return false;
 
-			if((action.Amount >= 0 && stat.Value >= action.Amount)
-				|| action.Amount < 0)
-				stat.Value -= action.Amount;
+            if (action.CanPerformWithout)
+            {
+                stat.Value = stat.Value - Math.Min(stat.Value, action.Cost);
+                return true;
+            }
+
+			if(((action.Cost >= 0 && stat.Value >= action.Cost)
+                || action.Cost < 0) && stat.Value >= action.AmountToActivate)
+				stat.Value -= action.Cost;
 			return true;
 		}
+
+        public void ApplyModifier(string modifierId)
+        {
+            MyStatRegenModifier modifier;
+            if (!m_statRegenModifiers.TryGetValue(modifierId, out modifier))
+            {
+                return;
+            }
+
+            MyEntityStat stat;
+            if (!m_stats.TryGetValue(modifier.StatId, out stat))
+            {
+                return;
+            }
+
+            stat.ApplyRegenAmountMultiplier(modifier.AmountMultiplier, modifier.Duration);
+        }
+
+        public float GetEfficiencyModifier(string modifierId)
+        {
+            MyStatEfficiencyModifier modifier;
+            if (!m_statEfficiencyModifiers.TryGetValue(modifierId, out modifier))
+            {
+                return 1.0f;
+            }
+
+            MyEntityStat stat;
+            if (!m_stats.TryGetValue(modifier.StatId, out stat))
+            {
+                return 1.0f;
+            }
+
+            return stat.GetEfficiencyMultiplier(modifier.EfficiencyMultiplier, modifier.Threshold);
+        }
 	}
 }

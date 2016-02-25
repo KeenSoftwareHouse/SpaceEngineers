@@ -12,6 +12,8 @@ using Sandbox.Graphics.GUI;
 using System.Collections.Generic;
 using System.Linq;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
@@ -31,6 +33,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_confirmButton;
         MyGuiControlButton m_cancelButton;
         MyGuiControlCombobox m_items;
+        private static double m_lastAmount=0;
+        private static int m_lastSelectedItem=0;
 
         private static int addedAsteroidsCount = 0;
 
@@ -54,8 +58,8 @@ namespace Sandbox.Game.Gui
             this.Controls.Add(new MyGuiControlLabel(new Vector2(0.0f, -0.10f), text: "Select the amount and type of items to spawn in your inventory", originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             m_amountTextbox = new MyGuiControlTextbox(new Vector2(-0.2f, 0.0f), null, 9, null, MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiControlTextboxType.DigitsOnly);
             m_items = new MyGuiControlCombobox(new Vector2(0.2f, 0.0f), new Vector2(0.3f, 0.05f), null, null, 10, null);
-            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
-            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
+            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
+            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
 
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
@@ -73,31 +77,54 @@ namespace Sandbox.Game.Gui
             this.Controls.Add(m_confirmButton);
             this.Controls.Add(m_cancelButton);
 
+            m_amountTextbox.Text = string.Format("{0}", m_lastAmount);
+            m_items.SelectItemByIndex(m_lastSelectedItem);
+
             m_confirmButton.ButtonClicked += confirmButton_OnButtonClick;
             m_cancelButton.ButtonClicked += cancelButton_OnButtonClick;
         }
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)
         {
             base.HandleUnhandledInput(receivedFocusInThisUpdate);
+
+            if (MyInput.Static.IsKeyPress(MyKeys.Enter))
+            {
+                confirmButton_OnButtonClick(m_confirmButton);
+            }
+
+            if (MyInput.Static.IsKeyPress(MyKeys.Escape))
+            {
+                cancelButton_OnButtonClick(m_cancelButton);
+            }
         }
 
         void confirmButton_OnButtonClick(MyGuiControlButton sender)
         {
-            IMyInventoryOwner invObject = MySession.ControlledEntity as IMyInventoryOwner;
-            if (invObject != null)
+            MyEntity invObject = MySession.Static.ControlledEntity as MyEntity;
+            if (invObject != null && invObject.HasInventory)
             {
                 double amountDec = 0;
                 double.TryParse(m_amountTextbox.Text, out amountDec);
+                m_lastAmount = amountDec;
 
                 MyFixedPoint amount = (MyFixedPoint)amountDec;
 
-                var itemId = m_physicalItemDefinitions[(int)m_items.GetSelectedKey()].Id;
-                MyInventory inventory = invObject.GetInventory(0);
-                if (!MySession.Static.CreativeMode)
-                    amount = MyFixedPoint.Min(inventory.ComputeAmountThatFits(itemId), amount);
+                if (m_items.GetSelectedKey() < 0 || (int)m_items.GetSelectedKey() >= m_physicalItemDefinitions.Count)
+                    return;
 
-                var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
-                inventory.DebugAddItems(amount, builder);
+                var itemId = m_physicalItemDefinitions[(int)m_items.GetSelectedKey()].Id;
+                m_lastSelectedItem = (int)m_items.GetSelectedKey();
+                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                if (inventory != null)
+                {
+                    if (!MySession.Static.CreativeMode)
+                        amount = MyFixedPoint.Min(inventory.ComputeAmountThatFits(itemId), amount);
+
+                    var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
+                    inventory.DebugAddItems(amount, builder);
+                }
             }
 
             CloseScreen();
@@ -137,8 +164,8 @@ namespace Sandbox.Game.Gui
 
             this.Controls.Add(new MyGuiControlLabel(new Vector2(0.0f, -0.10f), text: "Type the container type name for this cargo container:", originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             m_containerTypeTextbox = new MyGuiControlTextbox(new Vector2(0.0f, 0.0f), m_container.ContainerType, 100, null, MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiControlTextboxType.Normal);
-            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
-            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
+            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
+            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
 
             this.Controls.Add(m_containerTypeTextbox);
             this.Controls.Add(m_confirmButton);
@@ -244,14 +271,14 @@ namespace Sandbox.Game.Gui
 
         private static bool SetContainerType()
         {
-            MyCharacter character = MySession.LocalCharacter;
+            MyCharacter character = MySession.Static.LocalCharacter;
             if (character == null) return false;
 
             Matrix headMatrix = character.GetHeadMatrix(true);
             List<MyPhysics.HitInfo> hits = new List<MyPhysics.HitInfo>();
             Sandbox.Engine.Physics.MyPhysics.CastRay(headMatrix.Translation, headMatrix.Translation + headMatrix.Forward * 100.0f, hits);
 
-            if (hits.Count() == 0) return false;
+            if (hits.Count == 0) return false;
 
             var hit = hits.FirstOrDefault();
             if (hit.HkHitInfo.Body == null) return false;
@@ -267,13 +294,14 @@ namespace Sandbox.Game.Gui
 
         private static bool FillInventoryWithIron()
         {
-            IMyInventoryOwner invObject = MySession.ControlledEntity as IMyInventoryOwner;
-            if (invObject != null)
+            var invObject = MySession.Static.ControlledEntity as MyEntity;
+            if (invObject != null && invObject.HasInventory)
             {
                 MyFixedPoint amount = 20000;
 
                 var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Iron");
-                MyInventory inventory = invObject.GetInventory(0);
+                System.Diagnostics.Debug.Assert(invObject.GetInventory(0) as MyInventory != null,"Null or unexpected inventory type returned!");
+                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
                 amount = inventory.ComputeAmountThatFits(oreBuilder.GetId());
 
                 inventory.AddItems(amount, oreBuilder);
@@ -288,10 +316,11 @@ namespace Sandbox.Game.Gui
             bool spawnNonfitting = variant != 0;
             bool componentsOnly = variant == 2;
 
-            IMyInventoryOwner invObject = MySession.ControlledEntity as IMyInventoryOwner;
-            if (invObject != null)
+            var invObject = MySession.Static.ControlledEntity as MyEntity;
+            if (invObject != null && invObject.HasInventory)
             {
-                MyInventory inventory = invObject.GetInventory(0);
+                System.Diagnostics.Debug.Assert(invObject.GetInventory(0) as MyInventory != null, "Null or unexpected inventory type returned!");
+                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
                 //inventory.Clear();
 
                 if (!componentsOnly)
@@ -335,8 +364,8 @@ namespace Sandbox.Game.Gui
                     component.SubtypeName = definition.Id.SubtypeName;
                     if (!AddItems(inventory, component, overrideCheck, 1) && spawnNonfitting)
                     {
-                        Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                        MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                        Matrix headMatrix = MySession.Static.ControlledEntity.GetHeadMatrix(true);
+                        MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.Static.ControlledEntity.Entity.Physics);
                     }
                 }
 
@@ -349,8 +378,8 @@ namespace Sandbox.Game.Gui
                         var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(ore);
                         if (!AddItems(inventory, oreBuilder, overrideCheck, 1) && spawnNonfitting)
                         {
-                            Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                            MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                            Matrix headMatrix = MySession.Static.ControlledEntity.GetHeadMatrix(true);
+                            MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.Static.ControlledEntity.Entity.Physics);
                         }
                     }
                 }

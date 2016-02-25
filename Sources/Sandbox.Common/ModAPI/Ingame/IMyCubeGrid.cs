@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.Game;
 using VRage.ModAPI;
 namespace Sandbox.ModAPI.Ingame
 {
@@ -16,7 +17,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Grid size enum
         /// </summary>
-        Sandbox.Common.ObjectBuilders.MyCubeSize GridSizeEnum { get; }
+        MyCubeSize GridSizeEnum { get; }
 
         /// <summary>
         /// Station = static

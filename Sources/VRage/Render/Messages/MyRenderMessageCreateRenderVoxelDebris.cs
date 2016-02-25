@@ -2,7 +2,7 @@
 
 namespace VRageRender
 {
-    public class MyRenderMessageCreateRenderVoxelDebris : IMyRenderMessage
+    public class MyRenderMessageCreateRenderVoxelDebris : MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
@@ -13,7 +13,7 @@ namespace VRageRender
         public float TextureColorMultiplier;
         public byte VoxelMaterialIndex;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateRenderVoxelDebris; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateRenderVoxelDebris; } }
     }
 }

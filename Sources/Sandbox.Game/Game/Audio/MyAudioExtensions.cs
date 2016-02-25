@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 
@@ -15,7 +16,7 @@ namespace VRage.Audio
         public static readonly MySoundErrorDelegate OnSoundError = (cue, message) =>
         {
             MyAudioDefinition definition = MyDefinitionManager.Static.GetSoundDefinition(cue.SubtypeId);
-            MyDefinitionErrors.Add(definition.Context, message, ErrorSeverity.Error);
+            MyDefinitionErrors.Add(definition.Context, message, TErrorSeverity.Error);
         };
 
         public static MyCueId GetCueId(this IMyAudio self, string cueName)

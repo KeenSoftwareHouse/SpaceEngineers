@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Components;
 using VRageMath;
 
 namespace Sandbox.Game.SessionComponents
@@ -15,7 +17,7 @@ namespace Sandbox.Game.SessionComponents
         public abstract void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint);
         public abstract void SaveToCheckpoint(MyObjectBuilder_Checkpoint checkpoint);
 
-        public abstract bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoom, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition);
+        public abstract bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoom, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId);
         public abstract MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName);
         public abstract void AfterRemovePlayer(MyPlayer player);
         public abstract void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args);
@@ -24,6 +26,12 @@ namespace Sandbox.Game.SessionComponents
         public abstract bool IsInRespawnScreen();
         public abstract void CloseRespawnScreen();
         public abstract void SetNoRespawnText(StringBuilder text, int timeSec);
+        public abstract void SetupCharacterFromStarts(MyPlayer player, MyWorldGeneratorStartingStateBase[] playerStarts, MyWorldGenerator.Args args);
+
+        /// <summary>
+        /// Indicates if permadeath ownership warning should be shown.
+        /// </summary>
+        protected static bool ShowPermaWarning { get; set; }
 
         public void ResetPlayerIdentity(MyPlayer player)
         {

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.ModAPI;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class MyEntityComponentDescriptor : System.Attribute
@@ -56,6 +53,34 @@ namespace VRage.Components
         /// Name of the base component type for debug purposes (e.g.: "Position")
         /// </summary>
         public abstract string ComponentTypeDebugString { get; }
+
+        #region Events for replicable layer
+
+        public static event Action<MyEntityComponentBase> OnAfterAddedToContainer;
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
+            var handler = OnAfterAddedToContainer;
+            if (handler != null)
+                handler(this);
+        }
+
+        public event Action<MyEntityComponentBase> BeforeRemovedFromContainer;
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+
+            var handler = BeforeRemovedFromContainer;
+            if (handler != null)
+            {
+                handler(this);
+            }
+        }
+
+
+        #endregion
     }
 
 }

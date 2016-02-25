@@ -1,6 +1,6 @@
-﻿using MyDefinitionId = Sandbox.Definitions.MyDefinitionId;
+﻿using MyDefinitionId = VRage.Game.MyDefinitionId;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
 	public abstract class MyResourceSourceComponentBase : MyEntityComponentBase
 	{

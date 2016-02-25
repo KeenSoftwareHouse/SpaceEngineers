@@ -1,11 +1,12 @@
-﻿using ProtoBuf;
+﻿using ParallelTasks;
+using ProtoBuf;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI;
 using SteamSDK;
 using System;
@@ -13,9 +14,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage.Generics;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -42,6 +47,9 @@ namespace Sandbox.Game.GameSystems
             Index = index;
             Color = new Color(MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat());
         }
+        /*public MyOxygenRoom():this(-1)//for object pool
+        {
+        }*/
 
         public float OxygenLevel(float gridSize)
         {
@@ -50,7 +58,7 @@ namespace Sandbox.Game.GameSystems
 
         public double MissingOxygen(float gridSize)
         {
-            return MaxOxygen(gridSize) - OxygenAmount;
+            return Math.Max(MaxOxygen(gridSize) - OxygenAmount, 0.0);
         }
 
         public double MaxOxygen(float gridSize)
@@ -67,10 +75,57 @@ namespace Sandbox.Game.GameSystems
         public MyOxygenRoom Room;
         public MyOxygenRoomLink(MyOxygenRoom room)
         {
+            SetRoom(room);
+        }
+        public void SetRoom(MyOxygenRoom room)
+        {
             Room = room;
             Room.Link = this;
         }
+        public MyOxygenRoomLink()//for object pool
+        {
+        }
     }
+
+    class MyOxygenRoomLinkPool
+    {
+        public MyObjectsPool<MyOxygenRoomLink> pool;
+        public MyOxygenRoomLinkPool(int capacity)
+        {
+            pool=new MyObjectsPool<MyOxygenRoomLink>(capacity);
+        }
+        public MyOxygenRoomLink get()
+        {
+            MyOxygenRoomLink ret;
+            pool.AllocateOrCreate(out ret);
+            return ret;
+        }
+        public void give(MyOxygenRoomLink item)
+        {
+            pool.Deallocate(item);
+        }
+    }
+    /*class MyOxygenRoomPool
+    {
+        MyObjectsPool<MyOxygenRoom> pool;
+        public MyOxygenRoomPool(int capacity)
+        {
+            pool = new MyObjectsPool<MyOxygenRoom>(capacity);
+        }
+        MyOxygenRoom get()
+        {
+            MyOxygenRoom ret;
+            pool.AllocateOrCreate(out ret);
+            ret.Index = -1;
+            ret.IsPressurized = true;
+            ret.EnvironmentOxygen = 0f;//todo set defaults function
+            return ret;
+        }
+        void give(MyOxygenRoom item)
+        {
+            pool.Deallocate(item);
+        }
+    }*/
 
     public struct MyOxygenBlock
     {
@@ -93,7 +148,12 @@ namespace Sandbox.Game.GameSystems
             PreviousOxygenAmount = 0;
             OxygenChangeTime = 0;
         }
-
+        public void SetDefaults(MyOxygenRoomLink roomPointer)
+        {
+            RoomLink = roomPointer;
+            PreviousOxygenAmount = 0;
+            OxygenChangeTime = 0;
+        }
         internal float OxygenAmount()
         {
             if (Room == null)
@@ -113,9 +173,23 @@ namespace Sandbox.Game.GameSystems
             return MathHelper.Lerp(PreviousOxygenAmount, targetOxygenAmount, t);
         }
 
+        public void Reset()
+        {
+            if (RoomLink == null) return;
+            //RoomLink.Room = null;
+            RoomLink = null;
+            PreviousOxygenAmount = 0;
+            OxygenChangeTime = 0;
+        }
+
         public float OxygenLevel(float gridSize)
         {
             return OxygenAmount() / (gridSize * gridSize * gridSize);
+        }
+
+        public override string ToString()
+        {
+            return "MyOxygenBlock - Oxygen: " + OxygenAmount() + "/" + PreviousOxygenAmount;
         }
     }
 
@@ -131,6 +205,7 @@ namespace Sandbox.Game.GameSystems
         private static bool DEBUG_MODE = false;
 
         private readonly MyCubeGrid m_cubeGrid;
+        private readonly MySoundPair m_airleakSound = new MySoundPair("EventAirVent");
 
 		#region Oxygen
 		public const float OXYGEN_UNIFORMIZATION_TIME_MS = 1500;
@@ -145,12 +220,20 @@ namespace Sandbox.Game.GameSystems
         private MyOxygenBlock[, ,] m_cubeRoom;
         private List<MyOxygenRoom> m_rooms;
 
-        private List<RoomSquare> m_queue = new List<RoomSquare>();
-        private int m_queueIndex = 0;
-        
+        private Queue<RoomSquare> m_queue = new Queue<RoomSquare>();
+        private int m_qMaxSize;//debug only
+        private int m_roomCnt;//debug only
+
         private MyOxygenBlock[, ,] m_prevCubeRoom;
         private List<MyOxygenRoom> m_prevRooms;
         private Vector3I m_prevMin;
+        private Vector3I m_storedGridMin;
+        private Vector3I m_storedGridMax;
+
+        // Room dimensions
+        private Vector3I m_cubeRoomDimensions = Vector3I.Zero;
+        private Vector3I m_prevCubeRoomDimensions = Vector3I.Zero;
+        private Vector3I m_tempPrevCubeRoomDimensions = Vector3I.Zero;
 
         private float[] m_savedRooms;
 
@@ -162,6 +245,12 @@ namespace Sandbox.Game.GameSystems
         private readonly List<MyEntity> m_entitiesInDepressurizationRange = new List<MyEntity>();
         private readonly Dictionary<MyEntity, MyDepressurizationForceInfo> m_forcesToApply = new Dictionary<MyEntity, MyDepressurizationForceInfo>();
         private readonly List<Vector3I> m_deletedBlocks = new List<Vector3I>();
+
+        MyOxygenRoomLinkPool m_OxygenRoomLinkPool;
+        
+        Task m_backgroundTask;
+        bool m_bgTaskRunning=false;
+        bool m_doPostProcess = false;
 		#endregion
 
         private int m_lastUpdateTime;
@@ -213,6 +302,11 @@ namespace Sandbox.Game.GameSystems
             m_pressurizationPending = true;
         }
 
+        public void OnCubeGridShrinked()
+        {
+            m_pressurizationPending = true;
+        }
+
         private bool ShouldPressurize()
         {
             if (m_cubeGrid.Physics == null)
@@ -224,11 +318,14 @@ namespace Sandbox.Game.GameSystems
 	        if (m_rooms == null)
 		        return false;
 
-	        foreach (var room in m_rooms)
-	        {
-		        if (room.IsPressurized && room.OxygenAmount > 1f)
+            for (int roomIndex = 0; roomIndex < m_rooms.Count; roomIndex++)
+            {
+                MyOxygenRoom room = m_rooms[roomIndex];
+
+                if (room.IsPressurized && room.OxygenAmount > 1f)
 			        return true;
 
+                // If it is not pressurized, check if enough time elapsed since it was changed to prevent too-early depressurization
 		        if (!room.IsPressurized)
 		        {
 			        float deltaTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - room.DepressurizationTime;
@@ -237,46 +334,60 @@ namespace Sandbox.Game.GameSystems
 		        }
 	        }
 
+            // Grid is no longer pressurized, clear out data
+            // TODO: Performance optimization! This is probably a bad idea!
 	        m_rooms = null;
 	        m_cubeRoom = null;
+            m_cubeRoomDimensions = Vector3I.Zero;
 
 	        m_prevRooms = null;
 	        m_prevCubeRoom = null;
+            m_prevCubeRoomDimensions = Vector3I.Zero;
 
 	        m_tempPrevRooms = null;
 	        m_tempPrevCubeRoom = null;
+            m_tempPrevCubeRoomDimensions = Vector3I.Zero;
 
 	        return false;
         }
 
         public void UpdateBeforeSimulation()
         {
-            if (m_pressurizationPending)
-            {
-                if (ShouldPressurize())
-                    PressurizeInternal();
+            if (MyFakes.BACKGROUND_OXYGEN && m_bgTaskRunning)
+                return;//wait
 
+            if (m_pressurizationPending && !m_doPostProcess)
+            {
+                ProfilerShort.Begin("Oxygen Initialize");
+                if (ShouldPressurize())
+                {
+                    if (MyFakes.BACKGROUND_OXYGEN)
+                    {
+                        m_doPostProcess = false;
+                        PressurizeInitialize();
+                    }
+                    else
+                        PressurizeInternal();
+                }
                 m_pressurizationPending = false;
+                ProfilerShort.End();
             }
-            else if (m_isPressurizing)
+            if (m_isPressurizing)
             {
                 ProfilerShort.Begin("Oxygen Pressurize");
-                if (DEBUG_MODE)
+                if (m_doPostProcess)
                 {
-                    if (MyInput.Static.IsNewKeyPressed(MyKeys.Shift))
-                    {
-                        if (PressurizeProcessQueue(0))
-                            PressurizePostProcess();
-                    }
+                    PressurizePostProcess();
+                    m_doPostProcess = false;
                 }
-                else
+                else if (!m_bgTaskRunning)
                 {
-                    if (PressurizeProcessQueue(250))
-                        PressurizePostProcess();
+                    m_bgTaskRunning = true;
+                    m_backgroundTask = Parallel.Start(BackgroundPressurizeStart, BackgroundPressurizeFinished);
                 }
                 ProfilerShort.End();
             }
-            else if (m_deletedBlocks.Count > 0)
+            if (!m_isPressurizing && m_deletedBlocks.Count > 0)
             {
                 ProfilerShort.Begin("Removing blocks");
                 foreach (var deletedBlock in m_deletedBlocks)
@@ -288,8 +399,17 @@ namespace Sandbox.Game.GameSystems
                 ProfilerShort.End();
             }
         }
+        protected void BackgroundPressurizeStart()
+        {   //reading grid in realtime can clash with main thread, but process will be restarted anyway after grid change
+            //do not write anything into main thread data!
+            PressurizeProcessQueue(10000);
+        }
 
-        
+        protected void BackgroundPressurizeFinished()
+        {
+            m_bgTaskRunning = false;
+        }
+
         public void UpdateBeforeSimulation100()
         {
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -354,10 +474,6 @@ namespace Sandbox.Game.GameSystems
         private void PressurizeInternal()
         {
             PressurizeInitialize();
-
-            ProfilerShort.Begin("Oxygen Pressurize");
-            PressurizeProcessQueue(250);
-            ProfilerShort.End();
         }
 
         private int RoomIndex(int x, int y, int z)
@@ -367,41 +483,88 @@ namespace Sandbox.Game.GameSystems
 
         private void PressurizeInitialize()
         {
-            m_tempPrevCubeRoom = m_isPressurizing ? m_prevCubeRoom : m_cubeRoom;
-            m_tempPrevRooms = m_isPressurizing? m_prevRooms : m_rooms;
+            if (!m_isPressurizing)
+            {
+                m_tempPrevCubeRoom = m_cubeRoom;
+                m_tempPrevCubeRoomDimensions = m_cubeRoomDimensions;
+                m_tempPrevRooms = m_rooms;
+            }
 
             Vector3I size = GridMax() - GridMin();
 
-            m_cubeRoom = new MyOxygenBlock[size.X + 1, size.Y + 1, size.Z + 1];
+            // Only allocate new m_cubeRoom if the grid size changes
+            Vector3I newRoomDimensions = size + Vector3I.One;
+            //if (m_cubeRoom == null || newRoomDimensions.X != m_cubeRoomDimensions.X || newRoomDimensions.Y != m_cubeRoomDimensions.Y || newRoomDimensions.Z != m_cubeRoomDimensions.Z)
+            {
+                m_cubeRoom = new MyOxygenBlock[newRoomDimensions.X, newRoomDimensions.Y, newRoomDimensions.Z];
+                m_cubeRoomDimensions = newRoomDimensions;
+            }
+            /*else
+            {
+                // Reset the grid instead
+                for (int i = 0; i < m_cubeRoomDimensions.X; i++)
+                {
+                    for (int j = 0; j < m_cubeRoomDimensions.Y; j++)
+                    {
+                        for (int k = 0; k < m_cubeRoomDimensions.Z; k++)
+                        {
+                            m_cubeRoom[i, j, k].Reset();
+                        }
+                    }
+                }
+            }*/
+
+            if (m_OxygenRoomLinkPool == null)
+                m_OxygenRoomLinkPool = new MyOxygenRoomLinkPool(2 * (size.X + 1) * (size.Y + 1) * (size.Z + 1) + 10);
+            else
+            {
+                ProfilerShort.Begin("MarkAllActiveForDeallocate");
+                m_OxygenRoomLinkPool.pool.MarkAllActiveForDeallocate();
+                ProfilerShort.End();
+            }
             m_queue.Clear();
-            m_queue.Add(new RoomSquare(GridMin(), 0));
+            m_qMaxSize = 0;
+            m_roomCnt = 0;
+            m_storedGridMin = GridMin();
+            m_storedGridMax = GridMax();
+            m_queue.Enqueue(new RoomSquare(GridMin(), 0));
             m_tempRooms = new List<MyOxygenRoom>();
-            m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(0)));
+            MyOxygenRoomLink link = m_OxygenRoomLinkPool.get();
+            link.SetRoom(new MyOxygenRoom(0));
+            m_cubeRoom[0, 0, 0].SetDefaults(link);
+            //m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(0)));
             m_tempRooms.Add(m_cubeRoom[0, 0, 0].Room);
 
             m_deletedBlocks.Clear();
-
-            m_queueIndex = 0;
+            
             m_isPressurizing = true;
         }
-
-        private bool PressurizeProcessQueue(int count)
+        
+        private bool PressurizeProcessQueue(int count, bool useCount = false)
         {
-            int index = 0;
-            while (m_queueIndex < m_queue.Count)
+            if (DEBUG_MODE)
             {
+                if (MyInput.Static.IsNewKeyPressed(MyKeys.Shift))
+                    count = 0;
+                else
+                    return false;
+            }
+            ProfilerShort.Begin("Oxygen PressurizeProcessQueue");
+            int index = 0;
+            while (m_queue.Count > 0)
+            {
+                if (m_qMaxSize < m_queue.Count)
+                    m_qMaxSize = m_queue.Count;
+                var currentRoom = m_queue.Dequeue();//m_queue[m_queueIndex];
                 for (int i = 0; i < 6; i++)
                 {
-                    var currentRoom = m_queue[m_queueIndex];
-
                     Vector3I current = currentRoom.Pos + m_neighbours[i];
 
-                    if (!IsInBounds(current))
-                    {
+                    if (m_storedGridMin != Vector3I.Min(current, m_storedGridMin) 
+                        || m_storedGridMax != Vector3I.Max(current, m_storedGridMax))
                         continue;
-                    }
 
-                    Vector3I posInGrid = current - GridMin();
+                    Vector3I posInGrid = current - m_storedGridMin;
 
                     int x = posInGrid.X;
                     int y = posInGrid.Y;
@@ -417,37 +580,55 @@ namespace Sandbox.Game.GameSystems
 
                     if (isPressurized)
                     {
+                        ProfilerShort.Begin("Oxygen PressurizeProcessQueue: Presurized");
                         if (prevRoomIndex < currRoomIndex)
                         {
                             if (m_tempRooms.Count >= currRoomIndex)
                             {
+                                ProfilerShort.End();
                                 continue;
                             }
 
                             prevRoomIndex = m_tempRooms.Count;
-                            m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex)));
+                            //m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex)));
+                            var link=m_OxygenRoomLinkPool.get();
+                            link.SetRoom(new MyOxygenRoom(prevRoomIndex));
+                            m_cubeRoom[x, y, z].SetDefaults(link);
+                            m_roomCnt++;
                             m_tempRooms.Add(m_cubeRoom[x, y, z].Room);
-                            if (current == GridMin())
-                            {
 
-                            }
-                            m_queue.Add(new RoomSquare(current, prevRoomIndex, !currentRoom.WasWall));
+                            m_queue.Enqueue(new RoomSquare(current, prevRoomIndex, !currentRoom.WasWall));
                             if (m_cubeRoom[x, y, z].Room == null)
                             {
-                                m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                                //m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                                link=m_OxygenRoomLinkPool.get();
+                                link.SetRoom(new MyOxygenRoom(prevRoomIndex));
+                                m_cubeRoom[x, y, z].RoomLink=link;
+                                m_roomCnt++;
                             }
                             else
                             {
                                 m_cubeRoom[x, y, z].RoomLink = m_tempRooms[prevRoomIndex].Link;
                             }
                         }
+                        ProfilerShort.End();
                     }
                     else
                     {
-                        m_queue.Add(new RoomSquare(current, prevRoomIndex, currentRoom.WasWall));
+                        ProfilerShort.Begin("Oxygen PressurizeProcessQueue: not Presurized");
+                        ProfilerShort.Begin("Queue add");
+                        m_queue.Enqueue(new RoomSquare(current, prevRoomIndex, currentRoom.WasWall));
+                        ProfilerShort.End();
+                        ProfilerShort.Begin("if section");
                         if (m_cubeRoom[x, y, z].Room == null)
                         {
-                            m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                            ProfilerShort.Begin("new roomLink");
+                            //m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                            var link = m_OxygenRoomLinkPool.get();
+                            link.SetRoom(new MyOxygenRoom(prevRoomIndex));
+                            m_cubeRoom[x, y, z].RoomLink = link;
+                            m_roomCnt++;
+                            ProfilerShort.End();
                         }
                         else
                         {
@@ -456,54 +637,72 @@ namespace Sandbox.Game.GameSystems
                                 m_cubeRoom[x, y, z].RoomLink = m_tempRooms[prevRoomIndex].Link;
                             }
                         }
-
+                        ProfilerShort.End();
+                        ProfilerShort.Begin("OnBounds");
                         if (IsOnBounds(current))
                         {
                             m_cubeRoom[x, y, z].Room.IsPressurized = false;
                             m_cubeRoom[x, y, z].Room.EnvironmentOxygen = Math.Max(m_cubeRoom[x, y, z].Room.EnvironmentOxygen, MyOxygenProviderSystem.GetOxygenInPoint(m_cubeGrid.GridIntegerToWorld(posInGrid)));
                             m_cubeRoom[x, y, z].Room.DepressurizationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                         }
+                        ProfilerShort.End();
+                        ProfilerShort.End();
                     }
                 }
-                m_queueIndex++;
                 index++;
 
-                if ((index > count))
+                if (useCount && index > count)
                 {
+                    ProfilerShort.End();
                     return false;
                 }
             }
-            m_queue.Clear();
+            if (DEBUG_MODE)
+            {
+                MyLog.Default.WriteLine("Q max size: " + m_qMaxSize);
+                MyLog.Default.WriteLine("pool Active: " + m_OxygenRoomLinkPool.pool.ActiveCount);
+            }
+            ProfilerShort.End();
+            m_doPostProcess = true;
+
             return true;
         }
 
         private void PressurizePostProcess()
         {
+            ProfilerShort.Begin("Oxygen PressurizePostProcess");
             m_prevCubeRoom = m_tempPrevCubeRoom;
+            m_prevCubeRoomDimensions = m_tempPrevCubeRoomDimensions;
             m_prevRooms = m_tempPrevRooms;
 
-            for (int i = 0; i < m_cubeRoom.GetLength(0); i++)
-                for (int j = 0; j < m_cubeRoom.GetLength(1); j++)
-                    for (int k = 0; k < m_cubeRoom.GetLength(2); k++)
+            ProfilerShort.Begin("DeallocateAllMarked");
+            m_OxygenRoomLinkPool.pool.DeallocateAllMarked();
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("Block 1");
+            for (int i = 0; i < m_cubeRoomDimensions.X; i++)
+                for (int j = 0; j < m_cubeRoomDimensions.Y; j++)
+                    for (int k = 0; k < m_cubeRoomDimensions.Z; k++)
                     {
-                        var oldRoom = m_cubeRoom[i, j, k];
-                        var newRoom = m_tempRooms[m_cubeRoom[i, j, k].Room.Index];
+                        MyOxygenBlock cubeRoom = m_cubeRoom[i, j, k];
+                        var newRoom = m_tempRooms[cubeRoom.Room.Index];
 
                         m_cubeRoom[i, j, k].RoomLink = newRoom.Link;
 
-                        if (!oldRoom.Room.IsPressurized)
+                        if (!cubeRoom.Room.IsPressurized)
                         {
                             newRoom.IsPressurized = false;
-                            newRoom.EnvironmentOxygen = Math.Max(newRoom.EnvironmentOxygen, oldRoom.Room.EnvironmentOxygen);
+                            newRoom.EnvironmentOxygen = Math.Max(newRoom.EnvironmentOxygen, cubeRoom.Room.EnvironmentOxygen);
                             newRoom.DepressurizationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                         }
 
                         newRoom.blockCount++;
                     }
-
-            for (int i = 0; i < m_cubeRoom.GetLength(0); i++)
-                for (int j = 0; j < m_cubeRoom.GetLength(1); j++)
-                    for (int k = 0; k < m_cubeRoom.GetLength(2); k++)
+            ProfilerShort.End();
+            ProfilerShort.Begin("Block 2");
+            for (int i = 0; i < m_cubeRoomDimensions.X; i++)
+                for (int j = 0; j < m_cubeRoomDimensions.Y; j++)
+                    for (int k = 0; k < m_cubeRoomDimensions.Z; k++)
                     {
                         var room = m_cubeRoom[i, j, k].Room;
                         if (room != null && room.blockCount < 2)
@@ -511,8 +710,9 @@ namespace Sandbox.Game.GameSystems
                             m_cubeRoom[i, j, k].RoomLink = null;
                         }
                     }
+            ProfilerShort.End();
 
-
+            ProfilerShort.Begin("Block 3");
             m_rooms = new List<MyOxygenRoom>();
             int index = 0;
             foreach (var room in m_tempRooms)
@@ -526,11 +726,13 @@ namespace Sandbox.Game.GameSystems
                 }
             }
 
-            if (m_savedRooms != null && m_savedRooms.Count() != m_rooms.Count)
+            if (m_savedRooms != null && m_savedRooms.Length != m_rooms.Count)
             {
                 m_savedRooms = null;
             }
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("Block 4");
             if (m_savedRooms != null)
             {
                 for (int i = 0; i < m_rooms.Count; i++)
@@ -542,9 +744,10 @@ namespace Sandbox.Game.GameSystems
             {
                 if (m_prevCubeRoom != null)
                 {
-                    for (int i = 0; i < m_prevCubeRoom.GetLength(0); i++)
-                        for (int j = 0; j < m_prevCubeRoom.GetLength(1); j++)
-                            for (int k = 0; k < m_prevCubeRoom.GetLength(2); k++)
+                    ProfilerShort.Begin("Block 4 A");
+                    for (int i = 0; i < m_prevCubeRoomDimensions.X; i++)
+                        for (int j = 0; j < m_prevCubeRoomDimensions.Y; j++)
+                            for (int k = 0; k < m_prevCubeRoomDimensions.Z; k++)
                             {
                                 var prevRoom = m_prevCubeRoom[i, j, k];
                                 if (prevRoom.Room == null || prevRoom.Room.blockCount < 2)
@@ -554,11 +757,7 @@ namespace Sandbox.Game.GameSystems
 
                                 Vector3I pos = new Vector3I(i, j, k) + m_prevMin - GridMin();
 
-                                if (pos.X < 0 || pos.X >= m_cubeRoom.GetLength(0))
-                                    continue;
-                                if (pos.Y < 0 || pos.Y >= m_cubeRoom.GetLength(1))
-                                    continue;
-                                if (pos.Z < 0 || pos.Z >= m_cubeRoom.GetLength(2))
+                                if (!IsInGridBounds(ref pos, ref m_cubeRoomDimensions))
                                     continue;
                                 
                                 var currentRoom = m_cubeRoom[pos.X, pos.Y, pos.Z].Room;
@@ -575,14 +774,16 @@ namespace Sandbox.Game.GameSystems
                                     m_cubeRoom[pos.X, pos.Y, pos.Z].RoomLink = null;
                                 }
                             }
+                    ProfilerShort.End();
 
+                    ProfilerShort.Begin("Block 4 B");
                     //Do breach detection in a separate pass to ensure that oxygen levels are correct
-                    for (int i = 0; i < m_prevCubeRoom.GetLength(0); i++)
-                        for (int j = 0; j < m_prevCubeRoom.GetLength(1); j++)
-                            for (int k = 0; k < m_prevCubeRoom.GetLength(2); k++)
+                    for (int i = 0; i < m_prevCubeRoomDimensions.X; i++)
+                        for (int j = 0; j < m_prevCubeRoomDimensions.Y; j++)
+                            for (int k = 0; k < m_prevCubeRoomDimensions.Z; k++)
                             {
                                 Vector3I pos = new Vector3I(i, j, k) + m_prevMin - GridMin();
-                                if (!IsInGridBounds(pos, m_cubeRoom))
+                                if (!IsInGridBounds(ref pos, ref m_cubeRoomDimensions))
                                     continue;
 
                                 var prevRoom = m_prevCubeRoom[i, j, k].Room;
@@ -593,11 +794,11 @@ namespace Sandbox.Game.GameSystems
                                 for (int l = 0; l < 6; l++)
                                 {
                                     Vector3I currNeighbourPos = pos + m_neighbours[l];
-                                    if (!IsInGridBounds(currNeighbourPos, m_cubeRoom))
+                                    if (!IsInGridBounds(ref currNeighbourPos, ref m_cubeRoomDimensions))
                                         continue;
 
                                     Vector3I prevNeighbourPos = new Vector3I(i, j, k) + m_neighbours[l];
-                                    if (!IsInGridBounds(prevNeighbourPos, m_prevCubeRoom))
+                                    if (!IsInGridBounds(ref prevNeighbourPos, ref m_prevCubeRoomDimensions))
                                         continue;
 
                                     var currNeighbourRoom = m_cubeRoom[currNeighbourPos.X, currNeighbourPos.Y, currNeighbourPos.Z].Room;
@@ -618,11 +819,11 @@ namespace Sandbox.Game.GameSystems
                                     for (int l = 0; l < 6; l++)
                                     {
                                         Vector3I currNeighbourPos = pos + m_neighbours[l];
-                                        if (!IsInGridBounds(currNeighbourPos, m_cubeRoom))
+                                        if (!IsInGridBounds(ref currNeighbourPos, ref m_cubeRoomDimensions))
                                             continue;
 
                                         Vector3I prevNeighbourPos = new Vector3I(i, j, k) + m_neighbours[l];
-                                        if (!IsInGridBounds(prevNeighbourPos, m_prevCubeRoom))
+                                        if (!IsInGridBounds(ref prevNeighbourPos, ref m_prevCubeRoomDimensions))
                                             continue;
 
                                         var prevNeighbourRoom = m_prevCubeRoom[prevNeighbourPos.X, prevNeighbourPos.Y, prevNeighbourPos.Z].Room;
@@ -654,10 +855,14 @@ namespace Sandbox.Game.GameSystems
                                     AddDepressurizationEffects(from, to);
                                 }
                             }
+                    ProfilerShort.End();
                 }
 
+                ProfilerShort.Begin("Block 4 C");
                 ApplyDepressurizationForces();
+                ProfilerShort.End();
 
+                ProfilerShort.Begin("Block 4 D");
                 foreach (var room in m_rooms)
                 {
                     if (room.OxygenLevel(m_cubeGrid.GridSize) > 1.0)
@@ -666,11 +871,13 @@ namespace Sandbox.Game.GameSystems
                     }
 
                 }
+                ProfilerShort.End();
             }
+            ProfilerShort.End();
 
             m_prevMin = GridMin();
             m_isPressurizing = false;
-            m_queueIndex = 0;
+            ProfilerShort.End();
         }
 
         private void AddDepressurizationEffects(Vector3D from, Vector3D to)
@@ -737,6 +944,13 @@ namespace Sandbox.Game.GameSystems
                 effect.AutoDelete = true;
 
                 m_depressurizationEffects.Add(effect);
+
+                MyEntity3DSoundEmitter airLeakSound = MyAudioComponent.TryGetSoundEmitter();
+                if (airLeakSound != null)
+                {
+                    airLeakSound.SetPosition(from);
+                    airLeakSound.PlaySound(m_airleakSound);
+                }
             }
         }
 
@@ -766,8 +980,11 @@ namespace Sandbox.Game.GameSystems
 							jetpack.TurnOnJetpack(true);
                     }
 
-                    forceInfo.Direction.Normalize();
-                    entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
+
+                    if (Vector3.GetNormalized(ref forceInfo.Direction))
+                    {
+                        entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
+                    }
                 }
             }
 
@@ -802,13 +1019,13 @@ namespace Sandbox.Game.GameSystems
             return false;
         }
 
-        private bool IsInGridBounds(Vector3I pos, MyOxygenBlock[, ,] grid)
+        private bool IsInGridBounds(ref Vector3I pos, ref Vector3I dimensions)
         {
-            if (pos.X < 0 || pos.X >= grid.GetLength(0))
+            if (pos.X < 0 || pos.X >= dimensions.X)
                 return false;
-            if (pos.Y < 0 || pos.Y >= grid.GetLength(1))
+            if (pos.Y < 0 || pos.Y >= dimensions.Y)
                 return false;
-            if (pos.Z < 0 || pos.Z >= grid.GetLength(2))
+            if (pos.Z < 0 || pos.Z >= dimensions.Z)
                 return false;
 
             return true;
@@ -858,11 +1075,13 @@ namespace Sandbox.Game.GameSystems
 
         private bool IsPressurized(MySlimBlock block, Vector3I pos, Vector3 normal)
         {
+            ProfilerShort.Begin("IsPressurized");
             if (block.BlockDefinition.BuildProgressModels.Length > 0)
             {
                 var lastModel = block.BlockDefinition.BuildProgressModels[block.BlockDefinition.BuildProgressModels.Length - 1];
                 if (block.BuildLevelRatio < lastModel.BuildRatioUpperBound)
                 {
+                    ProfilerShort.End();
                     return false;
                 }
             }
@@ -882,6 +1101,7 @@ namespace Sandbox.Game.GameSystems
             bool isPressurized = block.BlockDefinition.IsCubePressurized[Vector3I.Round(transformedOffset)][Vector3I.Round(transformedNormal)];
             if (isPressurized)
             {
+                ProfilerShort.End();
                 return true;
             }
 
@@ -898,9 +1118,11 @@ namespace Sandbox.Game.GameSystems
                         {
                             if (transformedNormal == mountPoint.Normal)
                             {
+                                ProfilerShort.End();
                                 return false;
                             }
                         }
+                        ProfilerShort.End();
                         return true;
                     }
                 }
@@ -913,9 +1135,11 @@ namespace Sandbox.Game.GameSystems
                         {
                             if (transformedNormal == mountPoint.Normal)
                             {
+                                ProfilerShort.End();
                                 return false;
                             }
                         }
+                        ProfilerShort.End();
                         return true;
                     }
                 }
@@ -926,12 +1150,13 @@ namespace Sandbox.Game.GameSystems
                     {
                         if (transformedNormal == Vector3.Forward || transformedNormal == Vector3.Backward)
                         {
+                            ProfilerShort.End();
                             return true;
                         }
                     }
                 }
             }
-
+            ProfilerShort.End();
             return false;
         }
 
@@ -943,9 +1168,8 @@ namespace Sandbox.Game.GameSystems
             {
                 Vector3I neighbour = current + m_neighbours[i];
 
-                if (!IsInBounds(current))
+                if (!IsInBounds(current) || !IsInBounds(neighbour))
                 {
-                    Debug.Fail("Should always be in bounds");
                     continue;
                 }
 
@@ -977,9 +1201,8 @@ namespace Sandbox.Game.GameSystems
             {
                 Vector3I neighbour = current + m_neighbours[i];
 
-                if (!IsInBounds(current))
+                if (!IsInBounds(current) || !IsInBounds(neighbour))
                 {
-                    Debug.Fail("Should always be in bounds");
                     continue;
                 }
 
@@ -1039,6 +1262,13 @@ namespace Sandbox.Game.GameSystems
             {
                 return null;
             }
+
+            // Perform dimension check, room computation may not be finished yet for the older grid
+            Vector3I dimensions = (grid == m_cubeRoom) ? m_cubeRoomDimensions : m_prevCubeRoomDimensions;
+            if (blockPosition.X < 0 || blockPosition.X >= dimensions.X) return null;
+            if (blockPosition.Y < 0 || blockPosition.Y >= dimensions.Y) return null;
+            if (blockPosition.Z < 0 || blockPosition.Z >= dimensions.Z) return null;
+
             var oxygenBlock = grid[blockPosition.X, blockPosition.Y, blockPosition.Z];
             return oxygenBlock.Room;
         }
@@ -1048,23 +1278,16 @@ namespace Sandbox.Game.GameSystems
         {
             Vector3I blockPosition = m_cubeGrid.WorldToGridInteger(worldPosition) - GridMin();
 
-
             if (!m_isPressurizing)
             {
-                if (m_cubeRoom != null && 
-                    blockPosition.X >= 0 && blockPosition.X < m_cubeRoom.GetLength(0) &&
-                    blockPosition.Y >= 0 && blockPosition.Y < m_cubeRoom.GetLength(1) &&
-                    blockPosition.Z >= 0 && blockPosition.Z < m_cubeRoom.GetLength(2))
+                if (m_cubeRoom != null && IsInGridBounds(ref blockPosition, ref m_cubeRoomDimensions))
                 {
                     return m_cubeRoom[blockPosition.X, blockPosition.Y, blockPosition.Z];
                 }
             }
             else
             {
-                if (m_tempPrevCubeRoom != null &&
-                    blockPosition.X >= 0 && blockPosition.X < m_tempPrevCubeRoom.GetLength(0) &&
-                    blockPosition.Y >= 0 && blockPosition.Y < m_tempPrevCubeRoom.GetLength(1) &&
-                    blockPosition.Z >= 0 && blockPosition.Z < m_tempPrevCubeRoom.GetLength(2))
+                if (m_tempPrevCubeRoom != null && IsInGridBounds(ref blockPosition, ref m_tempPrevCubeRoomDimensions))
                 {
                     return m_tempPrevCubeRoom[blockPosition.X, blockPosition.Y, blockPosition.Z];
                 }
@@ -1129,6 +1352,7 @@ namespace Sandbox.Game.GameSystems
         public void DebugDraw()
         {
             var cubeRoom = (!m_isPressurizing|| DEBUG_MODE) ? m_cubeRoom : m_prevCubeRoom;
+            var cubeRoomDimensions = (!m_isPressurizing || DEBUG_MODE) ? m_cubeRoomDimensions : m_prevCubeRoomDimensions;
 
             if (cubeRoom == null)
             {
@@ -1136,9 +1360,9 @@ namespace Sandbox.Game.GameSystems
             }
 
             ProfilerShort.Begin("Oxygen Debug Draw");
-            for (int i = 0; i < cubeRoom.GetLength(0); i++)
-                for (int j = 0; j < cubeRoom.GetLength(1); j++)
-                    for (int k = 0; k < cubeRoom.GetLength(2); k++)
+            for (int i = 0; i < cubeRoomDimensions.X; i++)
+                for (int j = 0; j < cubeRoomDimensions.Y; j++)
+                    for (int k = 0; k < cubeRoomDimensions.Z; k++)
                     {
                         
                         Vector3I current = new Vector3I(i, j, k) + GridMin();
@@ -1211,7 +1435,7 @@ namespace Sandbox.Game.GameSystems
 
         internal void UpdateOxygenAmount(float[] oxygenAmount)
         {
-            if (!m_isPressurizing && m_rooms != null && m_rooms.Count == oxygenAmount.Count())
+            if (!m_isPressurizing && m_rooms != null && m_rooms.Count == oxygenAmount.Length)
             {
                 for (int i = 0; i < m_rooms.Count; i++)
                 {

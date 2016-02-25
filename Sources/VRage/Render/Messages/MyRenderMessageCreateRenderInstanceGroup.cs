@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageCreateRenderBatch : IMyRenderMessage
+    public class MyRenderMessageCreateRenderBatch : MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
@@ -15,7 +15,7 @@ namespace VRageRender
 
         public List<MyRenderBatchPart> RenderBatchParts = new List<MyRenderBatchPart>();
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateRenderBatch; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateRenderBatch; } }
     }
 }

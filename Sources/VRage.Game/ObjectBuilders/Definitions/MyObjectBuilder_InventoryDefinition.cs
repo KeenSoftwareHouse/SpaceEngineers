@@ -1,13 +1,8 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
+    //TODO: remove when inventories are set through entity containers
     [ProtoContract]    
     public class MyObjectBuilder_InventoryDefinition 
     {

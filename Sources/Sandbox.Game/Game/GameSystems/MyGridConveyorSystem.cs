@@ -16,6 +16,9 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using Sandbox.ModAPI.Interfaces;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -23,13 +26,16 @@ namespace Sandbox.Game.GameSystems
     {
         private static readonly float CONVEYOR_SYSTEM_CONSUMPTION = 0.005f;
 
-        readonly HashSet<IMyInventoryOwner> m_blocks = new HashSet<IMyInventoryOwner>();
+        readonly HashSet<MyCubeBlock> m_blocks = new HashSet<MyCubeBlock>();
         readonly HashSet<MyConveyorLine> m_lines = new HashSet<MyConveyorLine>();
 
         readonly HashSet<MyShipConnector> m_connectors = new HashSet<MyShipConnector>();
 
-        public event Action<IMyInventoryOwner> BlockAdded;
-        public event Action<IMyInventoryOwner> BlockRemoved;
+        public event Action<MyCubeBlock> BlockAdded;
+        public event Action<MyCubeBlock> BlockRemoved;
+
+        public event Action<IMyConveyorEndpointBlock> OnBeforeRemoveEndpointBlock;
+        public event Action<IMyConveyorSegmentBlock> OnBeforeRemoveSegmentBlock;
 
         private MyCubeGrid m_grid;
 
@@ -100,8 +106,8 @@ namespace Sandbox.Game.GameSystems
                 CONVEYOR_SYSTEM_CONSUMPTION,
                 CalculateConsumption);
 
-            ResourceSink.Update();
             ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink.Update();
         }
 
         public void BeforeBlockDeserialization(List<MyObjectBuilder_ConveyorLine> lines)
@@ -203,7 +209,7 @@ namespace Sandbox.Game.GameSystems
             m_lines.Clear();
         }
 
-        public void Add(IMyInventoryOwner block)
+        public void Add(MyCubeBlock block)
         {
             bool added = m_blocks.Add(block);
             System.Diagnostics.Debug.Assert(added, "Double add");
@@ -212,7 +218,7 @@ namespace Sandbox.Game.GameSystems
             if (handler != null) handler(block);
         }
 
-        public void Remove(IMyInventoryOwner block)
+        public void Remove(MyCubeBlock block)
         {
             bool removed = m_blocks.Remove(block);
             System.Diagnostics.Debug.Assert(removed, "Double remove or removing something not added");
@@ -343,6 +349,9 @@ namespace Sandbox.Game.GameSystems
 
             if (IsClosing) return;
 
+            if (OnBeforeRemoveEndpointBlock != null)
+                OnBeforeRemoveEndpointBlock(block);
+
             for (int i = 0; i < block.ConveyorEndpoint.GetLineCount(); ++i)
             {
                 MyConveyorLine line = block.ConveyorEndpoint.GetConveyorLine(i);
@@ -369,6 +378,9 @@ namespace Sandbox.Game.GameSystems
         public void RemoveSegmentBlock(IMyConveyorSegmentBlock segmentBlock)
         {
             if (IsClosing) return;
+
+            if (OnBeforeRemoveSegmentBlock != null)
+                OnBeforeRemoveSegmentBlock(segmentBlock);
 
             MyConveyorLine oldLine = segmentBlock.ConveyorSegment.ConveyorLine;
             MyConveyorLine newLine = segmentBlock.ConveyorSegment.ConveyorLine.RemovePortion(segmentBlock.ConveyorSegment.ConnectingPosition1.NeighbourGridPosition, segmentBlock.ConveyorSegment.ConnectingPosition2.NeighbourGridPosition);
@@ -524,7 +536,7 @@ namespace Sandbox.Game.GameSystems
 
             foreach (var connector in m_connectors)
             {
-                if (connector.GetPlayerRelationToOwner() == MyRelationsBetweenPlayerAndBlock.Enemies) continue;
+                if (connector.GetPlayerRelationToOwner() == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies) continue;
 
                 if (connected && connector.Connected)
                     connector.TryDisconnect();
@@ -551,7 +563,7 @@ namespace Sandbox.Game.GameSystems
         private static bool IsAccessAllowed(IMyConveyorEndpoint endpoint)
         {
             var relation = endpoint.CubeBlock.GetUserRelationToOwner(m_playerIdForAccessiblePredicate);
-            var isEnemy = relation == MyRelationsBetweenPlayerAndBlock.Enemies;
+            var isEnemy = relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies;
             if (isEnemy)
             {
                 return false;
@@ -599,11 +611,11 @@ namespace Sandbox.Game.GameSystems
             m_pathfinding.FindReachable(block.ConveyorEndpoint, reachable, endpointFilter, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
         }
 
-        public HashSetReader<IMyInventoryOwner> Blocks
+        public HashSetReader<MyCubeBlock> Blocks
         {
             get
             {
-                return new HashSetReader<IMyInventoryOwner>(m_blocks);
+                return new HashSetReader<MyCubeBlock>(m_blocks);
             }
         }
 
@@ -654,38 +666,42 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public static void PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyInventoryConstraint requestedTypeIds)
+        public static bool PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyInventoryConstraint requestedTypeIds)
         {
             SetTraversalPlayerId(playerId);
             m_tmpRequestedItemSet.Set(requestedTypeIds);
-            ItemPullAll(start, destinationInventory);
+            bool ret=ItemPullAll(start, destinationInventory);
             m_tmpRequestedItemSet.Clear();
+            return ret;
         }
 
-        public static void PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyObjectBuilderType? typeId = null)
+        public static bool PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyObjectBuilderType? typeId = null)
         {
             SetTraversalPlayerId(playerId);
             m_tmpRequestedItemSet.Set(typeId);
-            ItemPullAll(start, destinationInventory);
+            bool ret = ItemPullAll(start, destinationInventory);
             m_tmpRequestedItemSet.Clear();
+            return ret;
         }
 
-        public static void PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, bool all)
+        public static bool PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, bool all)
         {
             SetTraversalPlayerId(playerId);
             m_tmpRequestedItemSet.Set(all);
-            ItemPullAll(start, destinationInventory);
+            bool ret = ItemPullAll(start, destinationInventory);
             m_tmpRequestedItemSet.Clear();
+            return ret;
         }
 
-        private static void ItemPullAll(IMyConveyorEndpointBlock start, MyInventory destinationInventory)
+        private static bool ItemPullAll(IMyConveyorEndpointBlock start, MyInventory destinationInventory)
         {
             // First, search through small conveyor tubes and request only small items
             PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate);
-            ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, true);
+            bool ret=ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, true);
             // Then, search again through all tubes and request all items
             PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorLargePredicate);
-            ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, false);
+            ret|=ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, false);
+            return ret;
         }
 
         public static void PrepareTraversal(
@@ -698,20 +714,23 @@ namespace Sandbox.Game.GameSystems
             m_pathfinding.PrepareTraversal(startingVertex, vertexFilter, vertexTraversable, edgeTraversable);
         }
 
-        private static void ItemPullAllInternal(MyInventory destinationInventory, PullRequestItemSet requestedTypeIds, bool onlySmall)
+        private static bool ItemPullAllInternal(MyInventory destinationInventory, PullRequestItemSet requestedTypeIds, bool onlySmall)
         {
+            bool pullCreated = false;
             SetTraversalInventoryItemDefinitionId();
             Debug.Assert(m_tmpPullRequests.Count == 0, "m_tmpPullRequests is not empty!");
             using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
             {
                 foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
                 {
-                    IMyInventoryOwner owner = conveyorEndpoint.CubeBlock as IMyInventoryOwner;
+                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
                     if (owner == null) continue;
 
                     for (int i = 0; i < owner.InventoryCount; ++i)
                     {
-                        var inventory = owner.GetInventory(i);
+                        var inventory = owner.GetInventory(i) as MyInventory;
+                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                         if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
                             continue;
 
@@ -729,7 +748,7 @@ namespace Sandbox.Game.GameSystems
                             if (destinationInventory.VolumeFillFactor >= 1.0f)
                             {
                                 m_tmpInventoryItems.Clear();
-                                return;
+                                return pullCreated;
                             }
 
                             var itemId = item.Content.GetId();
@@ -772,7 +791,7 @@ namespace Sandbox.Game.GameSystems
                 if (destinationInventory.VolumeFillFactor >= 1.0f)
                 {
                     m_tmpPullRequests.Clear();
-                    return;
+                    return pullCreated;
                 }
 
                 var start = tuple.Item1;
@@ -794,19 +813,22 @@ namespace Sandbox.Game.GameSystems
 
                 SetTraversalInventoryItemDefinitionId(itemId);
                 ItemPullRequest(start, destinationInventory, m_playerIdForAccessiblePredicate, itemId, transferedAmount);
+                pullCreated = true;
             }
 
             m_tmpPullRequests.Clear();
+            return pullCreated;
         }
 
-        public static void ItemPullRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyDefinitionId itemId, MyFixedPoint? amount = null)
+        public static MyFixedPoint ItemPullRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyDefinitionId itemId, MyFixedPoint? amount = null, bool remove = false)
         {
+            MyFixedPoint transferred = 0;
             using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
             {
-                if (amount.HasValue)
+                /*if (amount.HasValue)
                     Debug.Assert(itemId.TypeId == typeof(MyObjectBuilder_Ore) ||
                                  itemId.TypeId == typeof(MyObjectBuilder_Ingot) ||
-                                 MyFixedPoint.Floor(amount.Value) == amount.Value);
+                                 MyFixedPoint.Floor(amount.Value) == amount.Value);*/
 
                 SetTraversalPlayerId(playerId);
                 SetTraversalInventoryItemDefinitionId(itemId);
@@ -814,38 +836,88 @@ namespace Sandbox.Game.GameSystems
                 PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
                 foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
                 {
-                    IMyInventoryOwner owner = conveyorEndpoint.CubeBlock as IMyInventoryOwner;
+                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
                     if (owner == null) continue;
 
                     for (int i = 0; i < owner.InventoryCount; ++i)
                     {
-                        var inventory = owner.GetInventory(i);
+                        var inventory = owner.GetInventory(i) as MyInventory;
+                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                        if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                            continue;
+
+                        if (inventory == destinationInventory)
+                            continue;
+                        
+                        var availableAmount = inventory.GetItemAmount(itemId);
+                        if (amount.HasValue)
+                        {
+                            availableAmount = amount.HasValue ? MyFixedPoint.Min(availableAmount, amount.Value) : availableAmount;
+                            if (availableAmount == 0)
+                                continue;
+
+                            if (remove)
+                            {
+                                transferred += inventory.RemoveItemsOfType(availableAmount, itemId);
+                            }
+                            else
+                            {
+                                transferred += MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, availableAmount);
+                            }
+                            
+
+                            amount -= availableAmount;
+                            if (amount.Value == 0)
+                                return transferred;
+                        }
+                        else
+                        {
+                            if (remove)
+                            {
+                                transferred += inventory.RemoveItemsOfType(availableAmount, itemId);
+                            }
+                            else
+                            {
+                                transferred += MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, availableAmount);
+                            }
+                        }
+                    }
+                }
+            }
+            return transferred;
+        }
+
+        public static MyFixedPoint ConveyorSystemItemAmount(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyDefinitionId itemId)
+        {
+            MyFixedPoint amount = 0;
+            using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
+            {
+                SetTraversalPlayerId(playerId);
+                SetTraversalInventoryItemDefinitionId(itemId);
+
+                PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
+                foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                {
+                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
+                    if (owner == null) continue;
+
+                    for (int i = 0; i < owner.InventoryCount; ++i)
+                    {
+                        var inventory = owner.GetInventory(i) as MyInventory;
+                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                         if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
                             continue;
 
                         if (inventory == destinationInventory)
                             continue;
 
-                        if (amount.HasValue)
-                        {
-                            var availableAmount = inventory.GetItemAmount(itemId);
-                            availableAmount = amount.HasValue ? MyFixedPoint.Min(availableAmount, amount.Value) : availableAmount;
-                            if (availableAmount == 0)
-                                continue;
-
-                            MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, availableAmount);
-
-                            amount -= availableAmount;
-                            if (amount.Value == 0)
-                                return;
-                        }
-                        else
-                        {
-                            MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None);
-                        }
+                        amount += inventory.GetItemAmount(itemId);
                     }
                 }
             }
+            return amount;
         }
 
         public static void PushAnyRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId)
@@ -893,12 +965,14 @@ namespace Sandbox.Game.GameSystems
 
             foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
             {
-                IMyInventoryOwner owner = conveyorEndpoint.CubeBlock as IMyInventoryOwner;
+                MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
                 if (owner == null) continue;
 
                 for (int i = 0; i < owner.InventoryCount; ++i)
                 {
-                    var inventory = owner.GetInventory(i);
+                    var inventory = owner.GetInventory(i) as MyInventory;
+                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                     if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
                         continue;
 

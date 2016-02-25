@@ -7,7 +7,6 @@ using VRageRender;
 using Sandbox.ModAPI;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -38,14 +37,14 @@ namespace Sandbox.Game.Components
             var minCorner = m_voxelMap.PositionLeftBottomCorner;
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_MAP_AABB)
             {
-                VRageRender.MyRenderProxy.DebugDrawAABB(m_voxelMap.PositionComp.WorldAABB, Color.White, 1f, 1f, true);
-                VRageRender.MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(1f, 0f, 0f), Color.Red, Color.Red, true);
-                VRageRender.MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 1f, 0f), Color.Green, Color.Green, true);
-                VRageRender.MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 0f, 1f), Color.Blue, Color.Blue, true);
+                MyRenderProxy.DebugDrawAABB(m_voxelMap.PositionComp.WorldAABB, Color.White, alpha: 0.2f);
+                MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(1f, 0f, 0f), Color.Red, Color.Red, true);
+                MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 1f, 0f), Color.Green, Color.Green, true);
+                MyRenderProxy.DebugDrawLine3D(minCorner, minCorner + new Vector3(0f, 0f, 1f), Color.Blue, Color.Blue, true);
 
-                VRageRender.MyRenderProxy.DebugDrawAxis(m_voxelMap.PositionComp.WorldMatrix, 2f, false);
+                MyRenderProxy.DebugDrawAxis(m_voxelMap.PositionComp.WorldMatrix, 2f, false);
 
-                VRageRender.MyRenderProxy.DebugDrawSphere(m_voxelMap.PositionComp.GetPosition(), 1, Color.OrangeRed, 1, false);
+                MyRenderProxy.DebugDrawSphere(m_voxelMap.PositionComp.GetPosition(), 1, Color.OrangeRed, 1, false);
             }
 
             m_voxelMap.Storage.DebugDraw(m_voxelMap, MyDebugDrawSettings.DEBUG_DRAW_VOXELS_MODE);
@@ -58,7 +57,7 @@ namespace Sandbox.Game.Components
             //    LineD worldLine;
             //    if (false)
             //    {
-            //        var entityMatrix = MySession.ControlledEntity.Entity.WorldMatrix;
+            //        var entityMatrix = MySession.Static.ControlledEntity.Entity.WorldMatrix;
             //        worldLine = new LineD(entityMatrix.Translation, entityMatrix.Translation + 25f * entityMatrix.Forward);
             //    }
             //    else
@@ -66,7 +65,7 @@ namespace Sandbox.Game.Components
             //        var camera = MySector.MainCamera;
             //        worldLine = new LineD(camera.Position, camera.Position + 25f * camera.ForwardVector);
             //    }
-            //    MyIntersectionResultLineTriangleEx? result;
+            //    VRage.Game.Models.MyIntersectionResultLineTriangleEx? result;
             //    bool depthRead = true;
             //    if (m_voxelMap.GetIntersectionWithLine(ref worldLine, out result))
             //    {

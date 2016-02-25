@@ -45,7 +45,7 @@ namespace Sandbox.Game.World
         public MyNetworkClient(ulong steamId)
         {
             m_steamUserId = steamId;
-            IsLocal = MySteam.UserId == steamId;
+            IsLocal = Sync.MyId == steamId;
             DisplayName = MySteam.IsActive ? MySteam.API.Friends.GetPersonaName(steamId) : "Client";
         }
 

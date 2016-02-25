@@ -1,6 +1,7 @@
 ﻿using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -21,7 +22,7 @@ namespace Sandbox.Gui.RichTextLabel
 
         public MyRichLabelLink(string url, string text, float scale, Action<string> onClick)
         {
-            Init(text, Common.MyFontEnum.Blue, scale, Vector4.Zero);
+            Init(text, MyFontEnum.Blue, scale, Vector4.Zero);
             this.Url = url;
             this.m_onClick = onClick;
             var size = MyGuiManager.GetNormalizedSizeFromScreenSize(
@@ -32,9 +33,9 @@ namespace Sandbox.Gui.RichTextLabel
         public override bool Draw(VRageMath.Vector2 position)
         {
             if (m_highlight)
-                MyGuiManager.DrawString(Common.MyFontEnum.White, Text, position, Scale, null, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                MyGuiManager.DrawString(MyFontEnum.White, Text, position, Scale, null, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             else
-                MyGuiManager.DrawString(Common.MyFontEnum.Blue, Text, position, Scale, VRageMath.Color.PowderBlue, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                MyGuiManager.DrawString(MyFontEnum.Blue, Text, position, Scale, VRageMath.Color.PowderBlue, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             m_linkImg.Draw(position + new Vector2(base.GetSize().X + m_linkImgSpace, 0));
             m_highlight = false;
             return true;

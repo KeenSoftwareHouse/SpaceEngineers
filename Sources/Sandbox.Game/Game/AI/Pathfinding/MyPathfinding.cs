@@ -1,4 +1,5 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox.Common;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,8 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
+using VRage.Game.Entity;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Pathfinding
@@ -16,10 +19,12 @@ namespace Sandbox.Game.AI.Pathfinding
         private MyVoxelPathfinding m_voxelPathfinding;
         private MyGridPathfinding m_gridPathfinding;
         private MyNavmeshCoordinator m_navmeshCoordinator;
+        private MyDynamicObstacles m_obstacles;
 
         public MyGridPathfinding GridPathfinding { get { return m_gridPathfinding; } }
         public MyVoxelPathfinding VoxelPathfinding { get { return m_voxelPathfinding; } }
         public MyNavmeshCoordinator Coordinator { get { return m_navmeshCoordinator; } }
+        public MyDynamicObstacles Obstacles { get { return m_obstacles; } }
 
         // Just a debug draw thing
         public long LastHighLevelTimestamp { get; set; }
@@ -35,28 +40,50 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             NextTimestampFunction = GenerateNextTimestamp;
 
-            m_navmeshCoordinator = new MyNavmeshCoordinator();
+            m_obstacles = new MyDynamicObstacles();
+            m_navmeshCoordinator = new MyNavmeshCoordinator(m_obstacles);
             m_gridPathfinding = new MyGridPathfinding(m_navmeshCoordinator);
             m_voxelPathfinding = new MyVoxelPathfinding(m_navmeshCoordinator);
+
+            MyEntities.OnEntityAdd += MyEntities_OnEntityAdd;
         }
 
         public void Update()
         {
             if (MyPerGameSettings.EnablePathfinding)
             {
+                m_obstacles.Update();
+
+                MyPathfindingStopwatch.CheckStopMeasuring();
+                MyPathfindingStopwatch.Start();
                 m_gridPathfinding.Update();
                 m_voxelPathfinding.Update();
+                MyPathfindingStopwatch.Stop();
             }
         }
 
         public void UnloadData()
         {
-            m_gridPathfinding.UnloadData();
+            MyEntities.OnEntityAdd -= MyEntities_OnEntityAdd;
+
             m_voxelPathfinding.UnloadData();
 
             m_gridPathfinding = null;
             m_voxelPathfinding = null;
             m_navmeshCoordinator = null;
+            m_obstacles.Clear();
+            m_obstacles = null;
+        }
+
+        private void MyEntities_OnEntityAdd(MyEntity newEntity)
+        {
+            m_obstacles.TryCreateObstacle(newEntity);
+
+            var grid = newEntity as MyCubeGrid;
+            if (grid != null)
+            {
+                m_gridPathfinding.GridAdded(grid);
+            }
         }
 
         public MySmartPath FindPathGlobal(Vector3D begin, IMyDestinationShape end, MyEntity entity = null)
@@ -68,12 +95,14 @@ namespace Sandbox.Game.AI.Pathfinding
             }
 
             ProfilerShort.Begin("MyPathfinding.FindPathGlobal");
+            MyPathfindingStopwatch.Start();
 
             // CH: TODO: Use pooling
             MySmartPath newPath = new MySmartPath(this);
             MySmartGoal newGoal = new MySmartGoal(end, entity);
             newPath.Init(begin, newGoal);
 
+            MyPathfindingStopwatch.Stop();
             ProfilerShort.End();
             return newPath;
         }
@@ -195,6 +224,7 @@ namespace Sandbox.Game.AI.Pathfinding
             }
 
             m_navmeshCoordinator.DebugDraw();
+            m_obstacles.DebugDraw();
         }
     }
 }

@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
@@ -14,7 +15,7 @@ namespace Sandbox.Game.Entities
         SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
         SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
 
-        public void Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
+        public void Init(MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
         {
             if(cubeGrid is MyCubeGrid)
                 Init(builder, cubeGrid as MyCubeGrid);
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Entities
             get { return DisplayNameText; }
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_CubeBlock IMyCubeBlock.GetObjectBuilderCubeBlock(bool copy)
+        MyObjectBuilder_CubeBlock IMyCubeBlock.GetObjectBuilderCubeBlock(bool copy)
         {
             return GetObjectBuilderCubeBlock(copy);
         }
@@ -87,12 +88,12 @@ namespace Sandbox.Game.Entities
             return GetOwnerFactionTag();
         }
 
-        Common.MyRelationsBetweenPlayerAndBlock IMyCubeBlock.GetPlayerRelationToOwner()
+        VRage.Game.MyRelationsBetweenPlayerAndBlock IMyCubeBlock.GetPlayerRelationToOwner()
         {
             return GetPlayerRelationToOwner();
         }
 
-        Common.MyRelationsBetweenPlayerAndBlock IMyCubeBlock.GetUserRelationToOwner(long playerId)
+        VRage.Game.MyRelationsBetweenPlayerAndBlock IMyCubeBlock.GetUserRelationToOwner(long playerId)
         {
             return GetUserRelationToOwner(playerId);
         }
@@ -102,7 +103,7 @@ namespace Sandbox.Game.Entities
             Init();
         }
 
-        void IMyCubeBlock.Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
+        void IMyCubeBlock.Init(MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
         {
             Init(builder, cubeGrid);
         }
@@ -227,7 +228,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return (uint)UpgradeValues.Count();
+                return (uint)UpgradeValues.Count;
             }
         }
 

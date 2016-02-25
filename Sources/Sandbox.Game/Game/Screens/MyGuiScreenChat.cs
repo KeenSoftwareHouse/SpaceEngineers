@@ -102,7 +102,7 @@ namespace Sandbox.Game.Gui
                         if (MyMultiplayer.Static != null)
                             MyMultiplayer.Static.SendChatMessage(message);
                         else
-                            MyHud.Chat.ShowMessage(MySession.LocalHumanPlayer == null ? "Player" : MySession.LocalHumanPlayer.DisplayName, message);
+                            MyHud.Chat.ShowMessage(MySession.Static.LocalHumanPlayer == null ? "Player" : MySession.Static.LocalHumanPlayer.DisplayName, message);
                     }
                 }
                 CloseScreen();

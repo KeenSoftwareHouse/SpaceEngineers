@@ -1,4 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Utils;
 

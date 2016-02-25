@@ -1,4 +1,6 @@
 ﻿using System;
+using VRage.Game;
+
 namespace Sandbox.ModAPI
 {
     public interface IMyConfigDedicated
@@ -15,10 +17,10 @@ namespace Sandbox.ModAPI
         System.Collections.Generic.List<ulong> Mods { get;}
         bool PauseGameWhenEmpty { get; set; }
         void Save(string path = null);
-        Sandbox.Definitions.MyDefinitionId Scenario { get; set; }
+        MyDefinitionId Scenario { get; set; }
         string ServerName { get; set; }
         int ServerPort { get; set; }
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_SessionSettings SessionSettings { get; set; }
+        MyObjectBuilder_SessionSettings SessionSettings { get; set; }
         int SteamPort { get; set; }
         string WorldName { get; set; }
     }

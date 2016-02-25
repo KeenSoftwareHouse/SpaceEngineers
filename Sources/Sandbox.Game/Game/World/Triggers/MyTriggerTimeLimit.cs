@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
@@ -45,7 +47,7 @@ namespace Sandbox.Game.World.Triggers
         }
 
         private int m_lastSeconds;
-        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
+        public override void DisplayHints(MyPlayer player, MyEntity me)
         {
             if (!MySession.Static.IsScenario || MyScenarioSystem.Static.ServerStartGameTime==DateTime.MaxValue)
                 return;

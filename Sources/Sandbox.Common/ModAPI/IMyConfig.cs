@@ -26,7 +26,6 @@ namespace Sandbox.ModAPI
         MyLanguagesEnum Language { get; }
         bool MemoryLimits { get; }
         bool MinimalHud { get; }
-        bool? MultithreadedRendering { get; }
         float MusicVolume { get; }
         bool NeedShowTutorialQuestion { get; }
         int RefreshRate { get; }
@@ -42,5 +41,6 @@ namespace Sandbox.ModAPI
         bool VerticalSync { get; }
         int VideoAdapter { get; }
         MyWindowModeEnum WindowMode { get; }
+        bool CaptureMouse { get; }
     }
 }

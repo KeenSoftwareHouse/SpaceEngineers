@@ -7,7 +7,6 @@ using VRageRender;
 using Sandbox.ModAPI;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -22,7 +21,9 @@ using Sandbox.Common.Components;
 using VRage.Utils;
 using VRage.Import;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Models;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Components
 {
@@ -93,16 +94,26 @@ namespace Sandbox.Game.Components
                 return;
             }
 
+            var distanceSquared = 0f;
+            var cameraPos = Vector3D.Zero;
+            if (MySector.MainCamera != null) 
+            {
+                distanceSquared = MyDebugDrawSettings.DEBUG_DRAW_MODEL_DUMMIES_DISTANCE * MyDebugDrawSettings.DEBUG_DRAW_MODEL_DUMMIES_DISTANCE;
+                cameraPos = MySector.MainCamera.WorldMatrix.Translation;
+            }
+
             foreach (var dummy in model.Dummies)
             {
                 MyModelDummy modelDummy = dummy.Value;
 
                 MatrixD worldMatrix = (MatrixD)modelDummy.Matrix * m_entity.PositionComp.WorldMatrix;
+                if (distanceSquared != 0f && Vector3D.DistanceSquared(cameraPos, worldMatrix.Translation) > distanceSquared)
+                    continue;
+
                 VRageRender.MyRenderProxy.DebugDrawText3D(worldMatrix.Translation, dummy.Key, Color.White, 0.7f, false);
                 VRageRender.MyRenderProxy.DebugDrawAxis(MatrixD.Normalize(worldMatrix), 0.1f, false);
-                VRageRender.MyRenderProxy.DebugDrawOBB(worldMatrix, Vector3.One, 1, false, false);
+                VRageRender.MyRenderProxy.DebugDrawOBB(worldMatrix, Vector3.One, 0.1f, false, false);
             }
-
         }
     }
 }

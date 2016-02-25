@@ -20,7 +20,8 @@ namespace VRageMath.Spatial
             }
         }
 
-        public struct Enumerator
+        // Note that this will be invalidated when the collection changes (unless otherwise noted)
+        public struct SphereQuery
         {
             private MyVector3Grid<T> m_parent;
             private Vector3 m_point;
@@ -31,15 +32,15 @@ namespace VRageMath.Spatial
 
             private Vector3I.RangeIterator m_rangeIterator;
 
-            public Enumerator(MyVector3Grid<T> parent, ref Vector3 point, float dist)
+            public SphereQuery(MyVector3Grid<T> parent, ref Vector3 point, float dist)
             {
                 m_parent = parent;
                 m_point = point;
                 m_distSq = dist * dist;
 
                 Vector3 offset = new Vector3(dist);
-                Vector3I start = Vector3I.Floor((point - offset) * parent.m_divisor);
-                Vector3I end = Vector3I.Floor((point + offset) * parent.m_divisor);
+                Vector3I start = m_parent.GetBinIndex(point - offset);
+                Vector3I end = m_parent.GetBinIndex(point + offset);
 
                 m_rangeIterator = new Vector3I.RangeIterator(ref start, ref end);
 
@@ -69,8 +70,8 @@ namespace VRageMath.Spatial
 
             /// <summary>
             /// Removes the current entry and returns true whether there is another entry.
-            /// May invalidate enumerators in the same bin.
-            /// To remove values from more enumerators while ensuring their validity use MyVector3Grid.Remove(...).
+            /// May invalidate indices and queries in the same bin.
+            /// To remove values from more queries while ensuring their validity use MyVector3Grid.RemoveTwo(...).
             /// </summary>
             public bool RemoveCurrent()
             {
@@ -147,6 +148,7 @@ namespace VRageMath.Spatial
             }
         }
 
+
         private float m_cellSize;
         private float m_divisor;
         private int m_nextFreeEntry;
@@ -156,23 +158,48 @@ namespace VRageMath.Spatial
         List<Entry> m_storage;
         Dictionary<Vector3I, int> m_bins;
 
+        private IEqualityComparer<T> m_equalityComparer;
         public int Count { get { return m_count; } }
 
-        public MyVector3Grid(float cellSize)
+        public int InvalidIndex { get { return -1; } }
+
+        public MyVector3Grid(float cellSize) : this(cellSize, EqualityComparer<T>.Default) { }
+
+        public MyVector3Grid(float cellSize, IEqualityComparer<T> comparer)
         {
             m_cellSize = cellSize;
             m_divisor = 1.0f / m_cellSize;
-            m_nextFreeEntry = 0;
-
-            m_count = 0;
 
             m_storage = new List<Entry>();
             m_bins = new Dictionary<Vector3I, int>();
+
+            m_equalityComparer = comparer;
+
+            Clear();
+        }
+
+        public void Clear()
+        {
+            m_nextFreeEntry = 0;
+            m_count = 0;
+            m_storage.Clear();
+            m_bins.Clear();
+        }
+
+        /// <summary>
+        /// Clears the storage faster than clear. Only use for value type T
+        /// </summary>
+        public void ClearFast()
+        {
+            m_nextFreeEntry = 0;
+            m_count = 0;
+            m_storage.SetSize(0);
+            m_bins.Clear();
         }
 
         public void AddPoint(ref Vector3 point, T data)
         {
-            Vector3I binIndex = Vector3I.Floor(point * m_divisor);
+            Vector3I binIndex = GetBinIndex(ref point);
             int storagePtr;
             if (!m_bins.TryGetValue(binIndex, out storagePtr))
             {
@@ -183,7 +210,7 @@ namespace VRageMath.Spatial
             {
                 Entry currentEntry = m_storage[storagePtr];
                 int nextEntryPtr = currentEntry.NextEntry;
-                while (nextEntryPtr != -1)
+                while (nextEntryPtr != InvalidIndex)
                 {
                     storagePtr = nextEntryPtr;
                     currentEntry = m_storage[storagePtr];
@@ -196,15 +223,160 @@ namespace VRageMath.Spatial
             }
         }
 
-        public Enumerator GetPointsCloserThan(ref Vector3 point, float dist)
+        // May invalidate indices and queries in the same bin!
+        // Also, beware that it removes ALL points with the given coord!
+        public void RemovePoint(ref Vector3 point)
         {
-            return new Enumerator(this, ref point, dist);
+            Vector3I binIndex = GetBinIndex(ref point);
+            int currentPtr;
+            if (m_bins.TryGetValue(binIndex, out currentPtr))
+            {
+                int previousPtr = InvalidIndex;
+                int firstPtr = currentPtr;
+
+                Entry previousEntry = default(Entry);
+
+                while (currentPtr != InvalidIndex)
+                {
+                    Entry currentEntry = m_storage[currentPtr];
+                    if (currentEntry.Point == point)
+                    {
+                        int nextEntry = RemoveEntry(currentPtr);
+                        if (firstPtr == currentPtr)
+                        {
+                            firstPtr = nextEntry;
+                        }
+                        else
+                        {
+                            previousEntry.NextEntry = nextEntry;
+                            m_storage[previousPtr] = previousEntry;
+                        }
+                        currentPtr = nextEntry;
+                    }
+                    else
+                    {
+                        previousPtr = currentPtr;
+                        previousEntry = currentEntry;
+                        currentPtr = currentEntry.NextEntry;
+                    }
+                }
+
+                if (firstPtr == InvalidIndex)
+                {
+                    m_bins.Remove(binIndex);
+                }
+                else
+                {
+                    m_bins[binIndex] = firstPtr;
+                }
+            }
+            else
+            {
+                Debug.Assert(false, "Could not find any entry at the given position!");
+            }
+        }
+
+        // Moves the data at the given index to a new position
+        public void MovePoint(int index, ref Vector3 newPosition)
+        {
+            Entry entry = m_storage[index];
+            Vector3I oldBinIndex = GetBinIndex(m_storage[index].Point);
+            Vector3I newBinIndex = GetBinIndex(ref newPosition);
+
+            if (oldBinIndex == newBinIndex)
+            {
+                entry.Point = newPosition;
+                m_storage[index] = entry;
+            }
+            else
+            {
+                int firstPtr = m_bins[oldBinIndex];
+                if (index == firstPtr)
+                {
+                    int nextPtr = RemoveEntry(index);
+                    if (nextPtr == InvalidIndex)
+                    {
+                        m_bins.Remove(oldBinIndex);
+                    }
+                    else
+                    {
+                        m_bins[oldBinIndex] = nextPtr;
+                    }
+                }
+                else
+                {
+                    int currentPtr = firstPtr;
+                    bool removed = false;
+                    while (currentPtr != InvalidIndex)
+                    {
+                        Entry currentEntry = m_storage[currentPtr];
+                        int nextPtr = currentEntry.NextEntry;
+
+                        if (nextPtr == index)
+                        {
+                            currentEntry.NextEntry = RemoveEntry(index);
+                            m_storage[currentPtr] = currentEntry;
+                            removed = true;
+                            break;
+                        }
+                    }
+                    Debug.Assert(removed, "Did not remove the entry in the old bin!");
+                }
+
+                AddPoint(ref newPosition, entry.Data);
+            }
         }
 
         /// <summary>
-        /// Removes values pointed at by en0 and en1 and ensures that the enumerators both stay consistent
+        /// Returns the index of the point containing the given data on the given position
+        /// The index is only valid as long as the grid does not change!
         /// </summary>
-        public void RemoveTwo(ref Enumerator en0, ref Enumerator en1)
+        public int FindPointIndex(ref Vector3 point, T data)
+        {
+            Vector3I binIndex = GetBinIndex(ref point);
+            int storagePtr = InvalidIndex;
+            m_bins.TryGetValue(binIndex, out storagePtr);
+
+            while (storagePtr != InvalidIndex)
+            {
+                Entry entry = m_storage[storagePtr];
+                if (entry.Point == point && m_equalityComparer.Equals(entry.Data, data))
+                    return storagePtr;
+
+                storagePtr = entry.NextEntry;
+            }
+
+            return storagePtr;
+        }
+
+        /// <summary>
+        /// Returns the data stored at the given index
+        /// </summary>
+        public T GetData(int index)
+        {
+            return m_storage[index].Data;
+        }
+
+        /// <summary>
+        /// Returns the point at which the data is stored at the given index
+        /// </summary>
+        public Vector3 GetPoint(int index)
+        {
+            return m_storage[index].Point;
+        }
+
+        /// <summary>
+        /// Returns a query for iterating over points inside a sphere of radius dist around the given point
+        /// </summary>
+        public SphereQuery QueryPointsSphere(ref Vector3 point, float dist)
+        {
+            return new SphereQuery(this, ref point, dist);
+        }
+
+        /// <summary>
+        /// Removes values pointed at by en0 and en1 and ensures that the queries both stay consistent
+        /// </summary>
+        public void RemoveTwo(ref SphereQuery en0, ref SphereQuery en1)
         {
             if (en0.CurrentBin == en1.CurrentBin)
             {
@@ -243,6 +415,13 @@ namespace VRageMath.Spatial
             return m_bins.GetEnumerator();
         }
 
+        public int GetNextBinIndex(int currentIndex)
+        {
+            if (currentIndex == InvalidIndex) return InvalidIndex;
+            Debug.Assert(currentIndex < m_storage.Count);
+            return m_storage[currentIndex].NextEntry;
+        }
+
         public void GetLocalBinBB(ref Vector3I binPosition, out BoundingBoxD output)
         {
             output.Min = binPosition * m_cellSize;
@@ -251,15 +430,43 @@ namespace VRageMath.Spatial
 
         public void CollectStorage(int startingIndex, ref List<T> output)
         {
+            CheckIndexIsValid(startingIndex);
+
             output.Clear();
 
             var entry = m_storage[startingIndex];
             output.Add(entry.Data);
-            while (entry.NextEntry != -1)
+            while (entry.NextEntry != InvalidIndex)
             {
                 entry = m_storage[entry.NextEntry];
                 output.Add(entry.Data);
             }
+        }
+
+        public void CollectEntireStorage(List<T> output)
+        {
+            output.Clear();
+            foreach (var binEntry in m_bins)
+            {
+                int storagePtr = binEntry.Value;
+                do
+                {
+                    var entry = m_storage[storagePtr];
+                    output.Add(entry.Data);
+                    storagePtr = entry.NextEntry;
+                } while (storagePtr != InvalidIndex);
+            }
+        }
+
+        private Vector3I GetBinIndex(ref Vector3 point)
+        {
+            Vector3I binIndex = Vector3I.Floor(point * m_divisor);
+            return binIndex;
+        }
+
+        private Vector3I GetBinIndex(Vector3 point)
+        {
+            return GetBinIndex(ref point);
         }
 
         private int AddNewEntry(ref Vector3 point, T data)
@@ -267,7 +474,7 @@ namespace VRageMath.Spatial
             m_count++;
             if (m_nextFreeEntry == m_storage.Count)
             {
-                m_storage.Add(new Entry() { Point = point, Data = data, NextEntry = -1 });
+                m_storage.Add(new Entry() { Point = point, Data = data, NextEntry = InvalidIndex });
                 return m_nextFreeEntry++;
             }
             else
@@ -277,7 +484,7 @@ namespace VRageMath.Spatial
 
                 int newEntry = m_nextFreeEntry;
                 m_nextFreeEntry = m_storage[m_nextFreeEntry].NextEntry;
-                m_storage[newEntry] = new Entry() { Point = point, Data = data, NextEntry = -1 };
+                m_storage[newEntry] = new Entry() { Point = point, Data = data, NextEntry = InvalidIndex };
                 return newEntry;
             }
         }
@@ -305,9 +512,9 @@ namespace VRageMath.Spatial
         [Conditional("DEBUG")]
         private void CheckIndexIsValid(int index)
         {
-            Debug.Assert(index >= 0 && index < m_storage.Count, "MyVector3Grid storage index overflow!");
+            Debug.Assert((index >= 0 && index < m_storage.Count), "MyVector3Grid storage index overflow!");
             int freeIndex = m_nextFreeEntry;
-            while (freeIndex != -1 && freeIndex != m_storage.Count)
+            while (freeIndex != InvalidIndex && freeIndex != m_storage.Count)
             {
                 Debug.Assert(index != freeIndex, "MyVector3Grid storage index was freed!");
                 freeIndex = m_storage[freeIndex].NextEntry;

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.ModAPI;
-using VRage.Utils;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     // This is needed only for ModAPI compatibility
     public interface IMyComponentContainer
@@ -22,6 +18,12 @@ namespace VRage.Components
         public MyEntityComponentContainer(IMyEntity entity)
         {
             Entity = entity;
+        }
+
+        public override void Init(MyContainerDefinition definition)
+        {
+            if (definition.Flags != null)
+                Entity.Flags |= definition.Flags.Value;
         }
 
         protected override void OnComponentAdded(Type t, MyComponentBase component)

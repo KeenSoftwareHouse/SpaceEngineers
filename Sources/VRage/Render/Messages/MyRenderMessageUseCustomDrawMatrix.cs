@@ -6,13 +6,13 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUseCustomDrawMatrix : IMyRenderMessage
+    public class MyRenderMessageUseCustomDrawMatrix : MyRenderMessageBase
     {
         public uint ID;
         public MatrixD DrawMatrix;
         public bool Enable;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UseCustomDrawMatrix; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UseCustomDrawMatrix; } }
     }
 }

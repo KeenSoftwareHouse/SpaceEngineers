@@ -113,6 +113,7 @@
     <Compile Include="Collections\MyConcurrentDictionary.cs" />
     <Compile Include="Collections\MyConcurrentHashSet.cs" />
     <Compile Include="Collections\MyIndexArray.cs" />
+    <Compile Include="Collections\MyIndexedComponentContainer.cs" />
     <Compile Include="Collections\MyIndexList.cs" />
     <Compile Include="Collections\IMyQueue.cs" />
     <Compile Include="Collections\MyBinaryStructHeap.cs" />
@@ -120,10 +121,12 @@
     <Compile Include="Collections\MyConcurrentList.cs" />
     <Compile Include="Collections\MyDeque.cs" />
     <Compile Include="Collections\MyIntervalList.cs" />
+    <Compile Include="Collections\MyListDictionary.cs" />
     <Compile Include="Collections\MyMultiKeyDictionary`4.cs" />
     <Compile Include="Collections\MyMultiKeyDictionary`3.cs" />
     <Compile Include="Collections\MyMultiKeyIndex`4.cs" />
     <Compile Include="Collections\MyMultiKeyIndex`3.cs" />
+    <Compile Include="Collections\MyTransparentQueue.cs" />
     <Compile Include="Collections\QueueReader.cs" />
     <Compile Include="Collections\SerializableDictionaryHack.cs" />
     <Compile Include="Collections\SmallBitField.cs" />
@@ -235,6 +238,7 @@
     <Compile Include="Memory\MyTuple.cs" />
     <Compile Include="Collections\MyConcurrentPool.cs" />
     <Compile Include="Collections\MyConcurrentQueue.cs" />
+    <Compile Include="Memory\Ref.cs" />
     <Compile Include="Native\NativeCall.Method.cs" />
     <Compile Include="Native\NativeCall.TResult.Function.cs" />
     <Compile Include="Native\NativeCall.Function.cs" />
@@ -398,7 +402,8 @@
     <Compile Include="Utils\MyRandom.cs" />
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
-    <Compile Include="Utils\MyUtils.cs" />
+    <Compile Include="Utils\MyLibraryUtils.cs" />
+    <Compile Include="Utils\WaitForTargetFrameRate.cs" />
     <Compile Include="Win32\WinApi-Constants.cs" />
     <Compile Include="Win32\WinApi-Functions.cs" />
     <Compile Include="Win32\WinApi-Helpers.cs" />

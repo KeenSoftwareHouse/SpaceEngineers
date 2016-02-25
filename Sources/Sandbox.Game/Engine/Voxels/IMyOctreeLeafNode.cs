@@ -18,14 +18,18 @@ namespace Sandbox.Engine.Voxels
 
         /// <param name="minInLod">Inclusive.</param>
         /// <param name="maxInLod">Inclusive.</param>
-        void ReadRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod);
+        void ReadRange(MyStorageData target, MyStorageDataTypeFlags types, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod, ref MyVoxelRequestFlags flags);
 
         /// <param name="minInLod">Inclusive.</param>
         /// <param name="maxInLod">Inclusive.</param>
-        void WriteRange(MyStorageDataCache source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max);
+        void WriteRange(MyStorageData source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max);
 
         void OnDataProviderChanged(IMyStorageDataProvider newProvider);
 
         void ReplaceValues(Dictionary<byte, byte> oldToNewValueMap);
+
+        ContainmentType Intersect(ref BoundingBoxI box, bool lazy = false);
+
+        bool Intersect(ref LineD box, out double startOffset, out double endOffset);
     }
 }

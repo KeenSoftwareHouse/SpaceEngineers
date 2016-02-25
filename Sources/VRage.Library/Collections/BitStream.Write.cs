@@ -16,11 +16,12 @@ namespace VRage.Library.Collections
             Debug.Assert(m_writing, "Trying to write into non-writing stream");
             EnsureSize(m_bitPosition + bitSize);
 
-            int longOffsetStart = m_bitPosition >> 6;
+            int longOffsetStart = m_bitPosition >> 6; // == / 64
             int longOffsetEnd = (m_bitPosition + bitSize - 1) >> 6;
 
             ulong basemask = (ulong.MaxValue >> (64 - bitSize));
-            int placeOffset = m_bitPosition & ~0x40;
+            int placeOffset = m_bitPosition & 0x3F; // & 63
+
             value = value & basemask; // Cut unused bits of value (IMPORTANT!)
             m_buffer[longOffsetStart] |= value << placeOffset;
 
@@ -31,13 +32,13 @@ namespace VRage.Library.Collections
             }
             m_bitPosition += bitSize;
         }
-        
+
         void Clear(int fromPosition)
         {
             int longOffsetStart = fromPosition >> 6; // Get start item in array of longs
-            int placeOffset = fromPosition & ~0x40; // Find value bit offset (how many LSB to skip)
+            int placeOffset = fromPosition & 0x3F; // Find value bit offset (how many LSB to skip)
             m_buffer[longOffsetStart] &= ~(ulong.MaxValue << placeOffset); // Take all ones, shift them left and negate
-            
+
             // Clear the rest
             int bufSize = m_bitLength / 64;
             int startClear = longOffsetStart + 1;
@@ -73,6 +74,14 @@ namespace VRage.Library.Collections
         public void WriteFloat(float value)
         {
             WriteInternal(*(uint*)&value, sizeof(float) * 8);
+        }
+
+        /// <summary>
+        /// Writes uniform-spaced float within -1,1 range with specified number of bits.
+        /// </summary>
+        public void WriteNormalizedSignedFloat(float value, int bits)
+        {
+            WriteUInt32(MyLibraryUtils.NormalizeFloatCenter(value, -1, 1, bits), bits);
         }
 
         public void WriteDecimal(decimal value)

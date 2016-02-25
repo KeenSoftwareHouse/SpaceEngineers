@@ -11,22 +11,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using VRage.Game.Components;
 using VRage.Game.Systems;
+using VRage.Network;
 using VRage.Plugins;
 using VRage.Utils;
 
 namespace Sandbox.Game.SessionComponents
 {
-    [PreloadRequired]
+    [StaticEventOwner]
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation, Priority = 300)]
     public class MyScriptedGroupsSystem : MySessionComponentBase
     {
-        [MessageId(1563, P2PMessageEnum.Reliable)]
-        struct RunScriptMsg
-        {
-            public MyStringHash ScriptId;
-        }
-
         private static MyScriptedGroupsSystem Static;
         private Queue<MyStringHash> m_scriptsQueue;
 
@@ -35,7 +31,6 @@ namespace Sandbox.Game.SessionComponents
 
         static MyScriptedGroupsSystem()
         {
-            MySyncLayer.RegisterMessage<RunScriptMsg>(OnRunScriptRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
         }
 
         public override bool IsRequiredByGame
@@ -121,7 +116,7 @@ namespace Sandbox.Game.SessionComponents
 
         public static void RunScript(string scriptName)
         {
-            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(MySteam.UserId))
+            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(Sync.MyId))
                 return;
             var scriptId = MyStringHash.Get(scriptName);
             if (Sync.IsServer)
@@ -132,16 +127,19 @@ namespace Sandbox.Game.SessionComponents
 
         private static void SendScriptRequest(MyStringHash stringId)
         {
-            var msg = new RunScriptMsg() { ScriptId = stringId };
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(x => RunScriptRequest, stringId);
         }
 
-        private static void OnRunScriptRequest(ref RunScriptMsg msg, MyNetworkClient sender)
+        [Event,Reliable,Server]
+        static void RunScriptRequest(MyStringHash stringId)
         {
-            Debug.Assert(Sync.IsServer || MyMultiplayer.Static.IsAdmin(sender.SteamUserId));
-            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(sender.SteamUserId))
+
+            Debug.Assert(Sync.IsServer || MyMultiplayer.Static.IsAdmin(MyEventContext.Current.Sender.Value));
+            if (!Sync.IsServer && !MyMultiplayer.Static.IsAdmin(MyEventContext.Current.Sender.Value))
                 return;
-            Static.RunScriptInternal(msg.ScriptId);
+            Static.RunScriptInternal(stringId);
         }
+
+
     }
 }

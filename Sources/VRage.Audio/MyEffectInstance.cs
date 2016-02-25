@@ -16,7 +16,7 @@ namespace VRage.Audio
         private bool m_ended = false;
         public bool Finished { get { return m_ended; } }
 
-        public IMySourceVoice OutputSound { get { return m_sounds[m_effect.ResultEmitterIdx].Sound; } }
+        public IMySourceVoice OutputSound { get { return m_effect.ResultEmitterIdx < m_sounds.Count ? m_sounds[m_effect.ResultEmitterIdx].Sound : null; } }
         class SoundData
         {
             public MySourceVoice Sound;
@@ -43,7 +43,7 @@ namespace VRage.Audio
             m_engine = engine;
             m_effect = effect;
             var inputSound = input as MySourceVoice;
-            if (inputSound != null && inputSound.Voice != null)
+            if (inputSound != null && inputSound.IsValid && inputSound.Voice != null && inputSound.Voice.IsValid())
             {
                 Debug.Assert(!inputSound.Voice.IsDisposed);
                 var sd = new SoundData()
@@ -71,7 +71,8 @@ namespace VRage.Audio
                     OrigFrequency = sound.FrequencyRatio,
                 });
             }
-            OutputSound.StoppedPlaying += EffectFinished;
+            if(OutputSound != null)
+                OutputSound.StoppedPlaying += EffectFinished;
 
             ComputeDurationAndScale(duration);
             Update(0);
@@ -199,15 +200,18 @@ namespace VRage.Audio
             m_ended = true;
             for (int i = 0; i < m_sounds.Count; i++)
             {
-                if (m_sounds[i].Sound == null || m_sounds[i].Sound.Voice == null) continue;
+                if (m_sounds[i].Sound == null || m_sounds[i].Sound.IsValid == false || m_sounds[i].Sound.Voice == null || m_sounds[i].Sound.Voice.IsValid() == false)
+                    continue;
                 m_sounds[i].Sound.Voice.SetFilterParameters(m_defaultFilter, FINISHED_OP_SET);
                 if (i == m_effect.ResultEmitterIdx)
                     continue;
                 m_sounds[i].Sound.Stop();
             }
-            m_engine.CommitChanges(FINISHED_OP_SET);
+            if(m_engine != null && !m_engine.IsDisposed)
+                m_engine.CommitChanges(FINISHED_OP_SET);
 
-            OutputSound.StoppedPlaying -= EffectFinished;
+            if(OutputSound != null)
+                OutputSound.StoppedPlaying -= EffectFinished;
             var onEffectEnded = OnEffectEnded;
             if (onEffectEnded != null)
                 onEffectEnded(this);

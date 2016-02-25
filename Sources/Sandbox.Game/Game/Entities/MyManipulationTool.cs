@@ -13,7 +13,7 @@ using VRageMath;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using Sandbox.Game.Entities.Inventory;
@@ -21,6 +21,11 @@ using VRage.Utils;
 using Sandbox.Game.Entities.Character.Components;
 using Sandbox.Graphics.GUI;
 using Sandbox.Game.Gui;
+using Sandbox.Game.Components;
+using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -35,10 +40,17 @@ namespace Sandbox.Game.Entities
         private static readonly List<MyPhysics.HitInfo> m_tmpHits = new List<MyPhysics.HitInfo>();
         private static readonly List<HkRigidBody> m_tmpBodies = new List<HkRigidBody>();
         private static readonly HashSet<MyEntity> m_manipulatedEntitites = new HashSet<MyEntity>();
+        private static readonly List<HkBodyCollision> m_tmpCollisions = new List<HkBodyCollision>();
+        private static readonly List<MyEntity> m_tmpEntities = new List<MyEntity>();
+
+        private const float HEAD_PIVOT_OFFSET = 1.5f;
+        private const float HEAD_PIVOT_MOVE_DISTANCE = 0.4f;
 
         private const float TARGET_ANGULAR_DAMPING = 0.95f;
         private const float TARGET_LINEAR_DAMPING = 0.95f;
         private const float TARGET_RESTITUTION = 0f;
+
+        private const float PULL_MALLEABLE_CONSTRAINT_STRENGTH = 0.005f;
 
         private MyDefinitionId m_handItemDefId;
         private MyPhysicalItemDefinition m_physItemDef;
@@ -62,18 +74,35 @@ namespace Sandbox.Game.Entities
 
         private Matrix m_headLocalPivotMatrix;
         private Matrix m_otherLocalPivotMatrix;
-        private Vector3D m_otherWorldPivotOrigin;
 
         private const float MANIPULATION_DISTANCE_RATIO = 3f / 2.5f;
         private float m_manipulationDistance;
         private float m_limitingLinearVelocity;
 
         private MyEntity m_otherEntity;
-        private float m_otherAngularDamping;
-        private float m_otherLinearDamping;
-        private float m_otherRestitution;
-        private float m_otherMaxLinearVelocity;
-        private float m_otherMaxAngularVelocity;
+
+        private struct MyManipulationInitData
+        {
+            public long OtherEntityId;
+            public MyState State;
+        }
+        private MyManipulationInitData? m_manipulationInitData;
+
+        private struct MyOtherPhysicsData
+        {
+            public float m_otherAngularDamping;
+            public float m_otherLinearDamping;
+            public float m_otherRestitution;
+            public float m_otherMaxLinearVelocity;
+            public float m_otherMaxAngularVelocity;
+            public HkMotionType m_motionType;
+
+            public bool m_entitySyncFlag;
+
+            public HkMassChangerUtil m_massChange;
+            public HkRigidBody m_massChangeBody;
+        }
+        private Dictionary<long, MyOtherPhysicsData> m_otherPhysicsData = new Dictionary<long, MyOtherPhysicsData>();
 
         private MyCharacterMovementEnum m_previousCharacterMovementState;
 
@@ -88,10 +117,11 @@ namespace Sandbox.Game.Entities
 
         private MyPhysicsBody m_otherPhysicsBody;
         private HkRigidBody m_otherRigidBody;
-        private HkMassChangerUtil m_massChange;
 
         public static event Action<MyEntity> ManipulationStarted;
         public static event Action<MyEntity> ManipulationStopped;
+
+        private bool m_manipulationStopped;
 
         #endregion
 
@@ -106,6 +136,8 @@ namespace Sandbox.Game.Entities
                 return !m_enabled;
             }
         }
+
+        public bool ForceAnimationInsteadOfIK { get { return true; } }
 
         public bool IsBlocking
         {
@@ -133,7 +165,7 @@ namespace Sandbox.Game.Entities
             protected set { }
         }
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_handItemDefId; }
         }
@@ -221,6 +253,19 @@ namespace Sandbox.Game.Entities
             {
                 // Do nothing
             }
+
+            public void GetCharacterLinearAndAngularVelocity(out Vector3 linearVelocity, out Vector3 angularVelocity)
+            {
+                linearVelocity = Vector3.Zero;
+                angularVelocity = Vector3.Zero;
+
+                MyCharacter character = Entity as MyCharacter;
+                if (character != null && character.Physics != null)
+                {
+                    linearVelocity = character.Physics.LinearVelocity;
+                    angularVelocity = character.Physics.AngularVelocity;
+                }
+            }
         }
 
         private MyCharacterVirtualPhysicsBody OwnerVirtualPhysics;
@@ -236,21 +281,42 @@ namespace Sandbox.Game.Entities
             base.Init(objectBuilder);
             Init(null, null/*PhysicalItemDefinition.Model*/, null, null, null);
 
+            var ob = objectBuilder as MyObjectBuilder_ManipulationTool;
+            var state = (MyState)ob.State;
+            if (!Sync.IsServer && state != MyState.NONE && ob.OtherEntityId != 0)
+            {
+                m_manipulationInitData = new MyManipulationInitData() { OtherEntityId = ob.OtherEntityId, State = state };
+
+                m_headLocalPivotMatrix = Matrix.CreateFromQuaternion(ob.HeadLocalPivotOrientation);
+                m_headLocalPivotMatrix.Translation = ob.HeadLocalPivotPosition;
+
+                m_otherLocalPivotMatrix = Matrix.CreateFromQuaternion(ob.OtherLocalPivotOrientation);
+                m_otherLocalPivotMatrix.Translation = ob.OtherLocalPivotPosition;
+            }
+
             Save = false;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
             SyncTool = new MySyncManipulationTool(EntityId);
-
-            //PhysicalObject = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(m_handItemDefId.SubtypeName);
-            //PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)objectBuilder.Clone();
-            //PhysicalObject.GunEntity.EntityId = this.EntityId;
         }
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
-            var ob = base.GetObjectBuilder(copy);
+            var ob = (MyObjectBuilder_ManipulationTool)base.GetObjectBuilder(copy);
             ob.SubtypeName = m_handItemDefId.SubtypeName;
+            ob.State = (byte)m_state;
+            if (m_state != MyState.NONE)
+            {
+                ob.OtherEntityId = m_otherEntity.EntityId;
+
+                ob.HeadLocalPivotPosition = m_headLocalPivotMatrix.Translation;
+                ob.HeadLocalPivotOrientation = Quaternion.CreateFromRotationMatrix(m_headLocalPivotMatrix);
+
+                ob.OtherLocalPivotPosition = m_otherLocalPivotMatrix.Translation;
+                ob.OtherLocalPivotOrientation = Quaternion.CreateFromRotationMatrix(m_otherLocalPivotMatrix);
+            }
+
             return ob;
         }
 
@@ -284,7 +350,7 @@ namespace Sandbox.Game.Entities
             {
                 case MyShootActionEnum.PrimaryAction:
                     {
-                        if (Sandbox.Game.Multiplayer.Sync.IsServer)
+                        if (Sync.IsServer)
                         {
                             if (SafeConstraint != null)
                             {
@@ -306,7 +372,7 @@ namespace Sandbox.Game.Entities
                 case MyShootActionEnum.SecondaryAction:
                     if (SafeConstraint != null)
                     {
-                        if (Sandbox.Game.Multiplayer.Sync.IsServer)
+                        if (Sync.IsServer)
                         {
                             if (m_state == MyState.HOLD)
                                 ThrowEntity();
@@ -316,7 +382,7 @@ namespace Sandbox.Game.Entities
                     }
                     else if (oldState == MyState.NONE)
                     {
-                        if (Sandbox.Game.Multiplayer.Sync.IsServer)
+                        if (Sync.IsServer)
                         {
                             MatrixD ownerWorldHeadMatrix = Owner.GetHeadMatrix(false, forceHeadBone: true);
                             Vector3D hitPosition;
@@ -368,6 +434,8 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateBeforeSimulation();
 
+            InitManipulationOnClient();
+
             if (OwnerVirtualPhysics != null)
                 OwnerVirtualPhysics.UpdatePositionAndOrientation();
         }
@@ -399,51 +467,55 @@ namespace Sandbox.Game.Entities
             otherEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, force, null, null);
         }
 
-        public void StartManipulation(MyState state, MyEntity otherEntity, Vector3D hitPosition, ref MatrixD ownerWorldHeadMatrix, bool fromServer = false)
+        public bool StartManipulation(MyState state, MyEntity otherEntity, Vector3D hitPosition, ref MatrixD ownerWorldHeadMatrix, bool fromServer = false)
         {
             Debug.Assert(m_constraintInitialized == false);
 
+            if (otherEntity.MarkedForClose)
+                return false;
+
             // Commenting this out to allow picking up dead bodies and characters
             if (otherEntity is MyCharacter)
-                return;
+                return false;
 
             if (Owner == null)
             {
                 Debug.Assert(!fromServer, "Desync!");
-                return;
+                return false;
             }
 
-            if (otherEntity.Physics == null) return;
-
-            m_otherRigidBody = otherEntity.Physics.RigidBody;
-            m_otherPhysicsBody = otherEntity.Physics;
+            if (otherEntity.Physics == null) 
+                return false;
 
             if (otherEntity is MyCharacter)
             {
                 if (!(otherEntity as MyCharacter).IsDead || !((otherEntity as MyCharacter).Components.Has<MyCharacterRagdollComponent>() && (otherEntity as MyCharacter).Components.Get<MyCharacterRagdollComponent>().IsRagdollActivated))
                 {
                     Debug.Assert(!fromServer, "Desync!");
-                    return;
+                    return false;
                 }
-
-                m_otherRigidBody = (otherEntity as MyCharacter).Physics.Ragdoll.GetRootRigidBody();
             }
             // else (!otherEntity.Physics.RigidBody.InWorld) // Do we need to check if the body is in the world when this was returned byt RayCast ? Commenting this out for now..
 
             var characterMovementState = Owner.GetCurrentMovementState();
-            if (!CanManipulate(characterMovementState))
-            {
-                Debug.Assert(!fromServer, "Desync!");
-                return;
-            }
+            if (!fromServer && !CanManipulate(characterMovementState))
+                return false;
 
             if (!CanManipulateEntity(otherEntity))
             {
                 Debug.Assert(!fromServer, "Desync!");
-                return;
+                return false;
             }
 
-            m_otherRigidBody.Activate();
+            float distanceFromHeadToOther = (float)(ownerWorldHeadMatrix.Translation - hitPosition).Length();
+            float headPivotOffset = HEAD_PIVOT_OFFSET;
+            if (distanceFromHeadToOther < HEAD_PIVOT_OFFSET + HEAD_PIVOT_MOVE_DISTANCE)
+            {
+                headPivotOffset = distanceFromHeadToOther - HEAD_PIVOT_MOVE_DISTANCE;
+            }
+
+            if (!fromServer && headPivotOffset < 0.4f)
+                return false;
 
             Vector3D hitUp = Vector3D.Up;
             Vector3D hitRight;
@@ -467,78 +539,128 @@ namespace Sandbox.Game.Entities
             otherWorldMatrix.Right = hitRight;
             otherWorldMatrix.Up = hitUp;
             otherWorldMatrix.Translation = hitPosition;
-
-            const float headPivotOffset = 1.5f;
-
-            MatrixD headPivotWorldMatrix = ownerWorldHeadMatrix;
-            headPivotWorldMatrix.Translation = ownerWorldHeadMatrix.Translation + headPivotOffset * ownerWorldHeadMatrix.Forward;
-            //float distanceToHead = (float)(headPivotWorldMatrix.Translation - otherWorldMatrix.Translation).Length();
-            //distanceToHead = MathHelper.Clamp(distanceToHead, 0.6f, 2.5f);
-
             // Matrix of constraint for other body in local
             m_otherLocalPivotMatrix = (Matrix)(otherWorldMatrix * otherEntity.PositionComp.WorldMatrixNormalizedInv);
-            m_otherWorldPivotOrigin = otherWorldMatrix.Translation;
 
-            MatrixD ownerWorldMatrixInverse = MatrixD.Normalize(MatrixD.Invert(ownerWorldHeadMatrix));
             m_headLocalPivotMatrix = Matrix.Identity;
-            m_headLocalPivotMatrix.Translation = Vector3D.Transform(headPivotWorldMatrix.Translation, ownerWorldMatrixInverse);
+            m_headLocalPivotMatrix.Translation = headPivotOffset * m_headLocalPivotMatrix.Forward;
+
+            return StartManipulationInternal(state, otherEntity, fromServer);
+        }
+
+        private bool StartManipulationInternal(MyState state, MyEntity otherEntity, bool fromServer)
+        {
+            m_manipulationStopped = false;
+
+            m_otherEntity = otherEntity;
+            MyPhysicsBody physicsBody = m_otherEntity.Physics as MyPhysicsBody;
+            m_otherRigidBody = physicsBody.RigidBody;
+            m_otherPhysicsBody = m_otherEntity.Physics as MyPhysicsBody;
+
+            if (otherEntity is MyCharacter)
+            {
+                Clean();
+                return false;
+            }
+
+            m_otherRigidBody.Activate();
 
             HkConstraintData data;
             if (state == MyState.HOLD)
             {
                 if (!fromServer)
                 {
-                    float mass = 0;
-                    if (otherEntity is MyCubeGrid)
+                    if (!IsManipulatedEntityMassValid())
                     {
-                        var group = MyCubeGridGroups.Static.Physical.GetGroup((otherEntity as MyCubeGrid));
-                        foreach (var node in group.Nodes)
-                        {
-                            if (node.NodeData.IsStatic) //fixed constraint on part connected to static grid isnt good idea
-                                return;
-                            mass += node.NodeData.Physics.Mass;
-                        }
-                        mass = GetRealMass(mass);
+                        Clean();
+                        return false;
                     }
-                    else if (otherEntity is MyCharacter)
-                    {
-                        mass = (otherEntity as MyCharacter).Definition.Mass;
-                    }
-                    else 
-                        mass = GetRealMass(m_otherRigidBody.Mass);
-
-                    // Player can hold large projectile (~222kg)
-                    if ((mass > 210) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass > 210)))
-                        return;
                 }
 
                 if (!CreateOwnerVirtualPhysics())
-                    return;
-
-                if (IsOwnerLocalPlayer()) 
                 {
-                    var controllingPlayer = Sync.Players.GetControllingPlayer(otherEntity);
-                    if (controllingPlayer != null) 
+                    Clean();
+                    return false;
+                }
+
+                if (IsOwnerLocalPlayer())
+                {
+                    var controllingPlayer = Sync.Players.GetControllingPlayer(m_otherEntity);
+                    if (controllingPlayer != null)
                     {
-                        RemoveOwnerVirtualPhysics();
-                        return;
+                        Clean();
+                        return false;
                     }
 
-                    if (!(otherEntity is MyCharacter)) // this would cause to start controlling the dead body..
+                    if (!(m_otherEntity is MyCharacter)) // this would cause to start controlling the dead body..
                     {
-                        Sync.Players.TrySetControlledEntity(Owner.ControllerInfo.Controller.Player.Id, otherEntity);
+                        Sync.Players.TrySetControlledEntity(Owner.ControllerInfo.Controller.Player.Id, m_otherEntity);
                     }
                 }
 
-                SetMotionOnClient(otherEntity, HkMotionType.Dynamic);
+                const float holdingTransparency = 0.4f;
 
-                data = CreateFixedConstraintData(ref m_otherLocalPivotMatrix, headPivotOffset);
-                if (otherEntity is MyCharacter)
+                if (m_otherEntity is MyCharacter)
+                {
+                    SetManipulated(m_otherEntity, true);
+
+                    foreach (var body in (m_otherEntity.Physics as MyPhysicsBody).Ragdoll.RigidBodies)
+                    {
+                        //body.AngularDamping = TARGET_ANGULAR_DAMPING;
+                        //body.LinearDamping = TARGET_LINEAR_DAMPING;
+                        //body.Mass = 5;
+                        body.Restitution = TARGET_RESTITUTION;
+                        body.MaxLinearVelocity = m_limitingLinearVelocity;
+                        body.MaxAngularVelocity = (float)Math.PI * 0.1f;
+                    }
+
+                    //TODO: don't know if this is needed for character
+                    SetMotionOnClient(m_otherEntity, HkMotionType.Dynamic, false);
+                }
+                else if (m_otherEntity is MyCubeGrid)
+                {
+                    var group = MyCubeGridGroups.Static.Physical.GetGroup((m_otherEntity as MyCubeGrid));
+                    if (group != null)
+                    {
+                        // Need to fill group entities because SetMotionOnClient raises physics change and this reacreates the group!
+                        m_tmpEntities.Clear();
+                        foreach (var node in group.Nodes)
+                            m_tmpEntities.Add(node.NodeData);
+
+                        foreach (var entity in m_tmpEntities)
+                        {
+                            SetManipulated(entity, true);
+                            SetStartManipulationHoldRigidBodyData(entity);
+                            // Must be before setting of event OnPhysicsChanged!
+                            SetMotionOnClient(entity, HkMotionType.Dynamic, false);
+                        }
+
+                        // Set events
+                        foreach (var entity in m_tmpEntities)
+                        {
+                            entity.OnMarkForClose += OtherEntity_OnMarkForClose;
+                            entity.OnClosing += OtherEntity_OnClosing;
+                            entity.OnPhysicsChanged += OtherEntity_OnPhysicsChanged;
+                        }
+                        m_tmpEntities.Clear();
+                    }
+                }
+                else
+                {
+                    SetManipulated(m_otherEntity, true);
+                    SetStartManipulationHoldRigidBodyData(m_otherEntity);
+                    SetMotionOnClient(m_otherEntity, HkMotionType.Dynamic, false);
+                }
+
+                SetTransparent(m_otherEntity, holdingTransparency);
+
+                data = CreateFixedConstraintData();
+                if (m_otherEntity is MyCharacter)
                 {
                     if (MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
                         HkMalleableConstraintData mcData = data as HkMalleableConstraintData;
-                        mcData.Strength = 0.005f;
+                        mcData.Strength = PULL_MALLEABLE_CONSTRAINT_STRENGTH;
                     }
                     else
                     {
@@ -551,70 +673,61 @@ namespace Sandbox.Game.Entities
             }
             else
             {
-
                 if (!CreateOwnerVirtualPhysics())
-                    return;
-
-                data = CreateBallAndSocketConstraintData(ref m_otherLocalPivotMatrix, ref m_headLocalPivotMatrix);
-                if (otherEntity is MyCharacter)
                 {
-                    HkMalleableConstraintData mcData = data as HkMalleableConstraintData;
-                    mcData.Strength = 0.005f;
+                    Clean();
+                    return false;
                 }
-            }
 
-            m_otherEntity = otherEntity;
-            m_otherEntity.OnClosing += OtherEntity_OnClosing;
-
-            //m_otherAngularDamping = m_otherRigidBody.AngularDamping;
-            //m_otherLinearDamping = m_otherRigidBody.LinearDamping;
-            m_otherRestitution = m_otherRigidBody.Restitution;
-            m_otherMaxLinearVelocity = m_otherRigidBody.MaxLinearVelocity;
-            m_otherMaxAngularVelocity = m_otherRigidBody.MaxAngularVelocity;
-
-            SetManipulated(m_otherEntity, true);
-            if (state == MyState.HOLD)
-            {                
+                data = CreateBallAndSocketConstraintData();
                 if (m_otherEntity is MyCharacter)
                 {
-                    foreach (var body in m_otherEntity.Physics.Ragdoll.RigidBodies)
+                    HkMalleableConstraintData mcData = data as HkMalleableConstraintData;
+                    mcData.Strength = PULL_MALLEABLE_CONSTRAINT_STRENGTH;
+                }
+                else if (m_otherEntity is MyCubeGrid)
+                {
+                    MyCubeGrid grid = m_otherEntity as MyCubeGrid;
+                    bool hasStatic = false;
+                    float totalMass = CalculateGridGroupMass(grid, GridLinkTypeEnum.Physical, out hasStatic);
+                    if (!hasStatic && MyRopeComponent.Static != null && MyRopeComponent.Static.HasGridAttachedRope(grid))
                     {
-                        //body.AngularDamping = TARGET_ANGULAR_DAMPING;
-                        //body.LinearDamping = TARGET_LINEAR_DAMPING;
-                        //body.Mass = 5;
-                        body.Restitution = TARGET_RESTITUTION;
-                        body.MaxLinearVelocity = m_limitingLinearVelocity;
-                        body.MaxAngularVelocity = (float)Math.PI*0.1f;
+                        // Higher strength is needed for manipulating of grid connected with rope to other grid. Manipulated grid has to be lightweight.
+                        float gridMass = GetRealMass(m_otherRigidBody.Mass);
+                        float coef = gridMass / totalMass;
+                        if (coef < 0.2f)
+                        {
+                            HkMalleableConstraintData mcData = data as HkMalleableConstraintData;
+                            float strength = PULL_MALLEABLE_CONSTRAINT_STRENGTH + coef * (mcData.Strength - PULL_MALLEABLE_CONSTRAINT_STRENGTH);
+                            mcData.Strength = strength;
+                        }
                     }
                 }
-                else
-                {
-                    m_massChange = HkMassChangerUtil.Create(m_otherRigidBody, int.MaxValue, 1, 0.001f);
-                    //m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
-                    //m_otherRigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
-                    m_otherRigidBody.Restitution = TARGET_RESTITUTION;
-                    m_otherRigidBody.MaxLinearVelocity = m_limitingLinearVelocity;
-                    m_otherRigidBody.MaxAngularVelocity = (float)Math.PI;
-                }
-
-                const float holdingTransparency = 0.4f;
-                SetTransparent(otherEntity, holdingTransparency);
             }
+
+            m_otherEntity.OnMarkForClose += OtherEntity_OnMarkForClose;
+            m_otherEntity.OnClosing += OtherEntity_OnClosing;
+            m_otherEntity.OnPhysicsChanged += OtherEntity_OnPhysicsChanged;
 
             m_constraint = new HkConstraint(m_otherRigidBody, OwnerVirtualPhysics.RigidBody, data);
 
             OwnerVirtualPhysics.AddConstraint(m_constraint);
 
-			m_constraintCreationTime = MySandboxGame.Static.UpdateTime;
+            m_constraintCreationTime = MySandboxGame.Static.UpdateTime;
 
             m_state = state;
 
-            m_previousCharacterMovementState  = Owner.GetCurrentMovementState();
+            m_previousCharacterMovementState = Owner.GetCurrentMovementState();
 
             if (m_state == MyState.HOLD)
-                Owner.PlayCharacterAnimation("PickLumber", MyBlendOption.Immediate, MyFrameOption.PlayOnce, 0.2f, 1f);
+            {
+                if (!MyFakes.DISABLE_MANIPULATION_TOOL_HOLD_VOXEL_CONTACT)
+                    Owner.PlayCharacterAnimation("PickLumber", MyBlendOption.Immediate, MyFrameOption.PlayOnce, 0.2f, 1f);
+            }
             else
+            {
                 Owner.PlayCharacterAnimation("PullLumber", MyBlendOption.Immediate, MyFrameOption.PlayOnce, 0.2f, 1f);
+            }
 
             m_manipulatedEntitites.Add(m_otherEntity);
 
@@ -623,9 +736,95 @@ namespace Sandbox.Game.Entities
             var handler = ManipulationStarted;
             if (handler != null)
                 handler(m_otherEntity);
+
+            return true;
         }
 
-        private void SetMotionOnClient(MyEntity otherEntity, HkMotionType motion)
+        private void SetStartManipulationHoldRigidBodyData(MyEntity entity)
+        {
+            if (entity.Physics != null && entity.Physics.RigidBody != null && !entity.Physics.RigidBody.IsDisposed)
+            {
+                var rigidBody = entity.Physics.RigidBody;
+                MyOtherPhysicsData otherPhysData = new MyOtherPhysicsData();
+                //otherPhysData.m_otherAngularDamping = rigidBody.AngularDamping;
+                //otherPhysData.m_otherLinearDamping = rigidBody.LinearDamping;
+                otherPhysData.m_otherRestitution = rigidBody.Restitution;
+                otherPhysData.m_otherMaxLinearVelocity = rigidBody.MaxLinearVelocity;
+                otherPhysData.m_otherMaxAngularVelocity = rigidBody.MaxAngularVelocity;
+                otherPhysData.m_motionType = rigidBody.GetMotionType();
+                otherPhysData.m_entitySyncFlag = entity.SyncFlag;
+                otherPhysData.m_massChange = HkMassChangerUtil.Create(rigidBody, int.MaxValue, 1, 0.001f);
+                otherPhysData.m_massChangeBody = rigidBody;
+
+                m_otherPhysicsData.Add(entity.EntityId, otherPhysData);
+
+                //rigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
+                //rigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
+                rigidBody.Restitution = TARGET_RESTITUTION;
+                rigidBody.MaxLinearVelocity = m_limitingLinearVelocity;
+                rigidBody.MaxAngularVelocity = (float)Math.PI;
+            }
+        }
+
+        private void SetStopManipulationRigidBodyData(MyEntity entity)
+        {
+            bool writeData = !entity.MarkedForClose && entity.Physics != null && entity.Physics.RigidBody != null && !entity.Physics.RigidBody.IsDisposed;
+
+            MyOtherPhysicsData otherPhysicsData;
+            if (m_otherPhysicsData.TryGetValue(entity.EntityId, out otherPhysicsData))
+            {
+                if (otherPhysicsData.m_massChange != null)
+                    otherPhysicsData.m_massChange.Remove();
+                otherPhysicsData.m_massChange = null;
+                otherPhysicsData.m_massChangeBody = null;
+
+                if (writeData)
+                {
+                    var rigidBody = entity.Physics.RigidBody;
+                    rigidBody.Restitution = otherPhysicsData.m_otherRestitution;
+                    rigidBody.MaxLinearVelocity = otherPhysicsData.m_otherMaxLinearVelocity;
+                    rigidBody.MaxAngularVelocity = otherPhysicsData.m_otherMaxAngularVelocity;
+                }
+            }
+
+            if (writeData)
+            {
+                var rigidBody = entity.Physics.RigidBody;
+                if (m_state == MyState.HOLD)
+                {
+                    Vector3 linearVelocity, angularVelocity;
+                    OwnerVirtualPhysics.GetCharacterLinearAndAngularVelocity(out linearVelocity, out angularVelocity);
+                    rigidBody.LinearVelocity = linearVelocity;
+                    rigidBody.AngularVelocity = angularVelocity;
+                }
+                else
+                {
+                    rigidBody.LinearVelocity = Vector3.Clamp(rigidBody.LinearVelocity, -2 * Vector3.One, 2 * Vector3.One);
+                    rigidBody.AngularVelocity = Vector3.Clamp(rigidBody.AngularVelocity, -Vector3.One * (float)Math.PI, Vector3.One * (float)Math.PI);
+                }
+
+                if (!rigidBody.IsActive)
+                    rigidBody.Activate();
+                rigidBody.EnableDeactivation = false;
+                rigidBody.EnableDeactivation = true; //resets deactivation counter                        
+            }
+        }
+
+        private void InitManipulationOnClient()
+        {
+            if (!Sync.IsServer && m_manipulationInitData != null)
+            {
+                MyEntity otherEntity;
+                if (MyEntities.TryGetEntityById(m_manipulationInitData.Value.OtherEntityId, out otherEntity) && otherEntity != null)
+                {
+                    StartManipulationInternal(m_manipulationInitData.Value.State, otherEntity, true);
+
+                    m_manipulationInitData = null;
+                }
+            }
+        }
+
+        private void SetMotionOnClient(MyEntity otherEntity, HkMotionType motion, bool syncFlag)
         {
             // PetrM:TODO: Make all client grids dynamic.
             if (!Sync.IsServer
@@ -633,7 +832,7 @@ namespace Sandbox.Game.Entities
                 && !(otherEntity is MyCharacter && (otherEntity as MyCharacter).Components.Has<MyCharacterRagdollComponent>() && (otherEntity as MyCharacter).Components.Get<MyCharacterRagdollComponent>().IsRagdollActivated))  // In case of picking up a ragdoll don't turn off and on the physics
             {
                 otherEntity.Physics.Enabled = false;
-                otherEntity.SyncFlag = false;
+                otherEntity.SyncFlag = syncFlag;
                 m_otherRigidBody.UpdateMotionType(motion);
                 otherEntity.Physics.Enabled = true;
 
@@ -645,8 +844,8 @@ namespace Sandbox.Game.Entities
         private void SetManipulated(MyEntity entity, bool value)
         {
             var otherBody = entity.Physics.RigidBody;
-            if (entity is MyCharacter && entity.Physics.Ragdoll.IsActive)
-                otherBody = entity.Physics.Ragdoll.GetRootRigidBody();
+            if (entity is MyCharacter && entity.GetPhysicsBody().Ragdoll.IsActive)
+                otherBody = entity.GetPhysicsBody().Ragdoll.GetRootRigidBody();
             if(otherBody == null) return;
             if (value)
             {
@@ -680,6 +879,9 @@ namespace Sandbox.Game.Entities
 
         private void SetTransparent(MyEntity entity, float dithering = 0)
         {
+            if (entity.MarkedForClose)
+                return;
+
             if (entity is MyFracturedPiece)
             {
                 foreach (var id in (entity as MyFracturedPiece).Render.RenderObjectIDs)
@@ -701,12 +903,11 @@ namespace Sandbox.Game.Entities
             return MyDestructionHelper.MassFromHavok(physicsMass);
         }
 
-        private HkConstraintData CreateFixedConstraintData(ref Matrix otherLocalMatrix, float headDistance)
+        private HkConstraintData CreateFixedConstraintData()
         {
             m_fixedConstraintData = new HkFixedConstraintData();
-            Matrix headPivotLocalMatrix;
-            GetHeadPivotLocalMatrix(headDistance, out headPivotLocalMatrix);
-            m_fixedConstraintData.SetInBodySpace(otherLocalMatrix, headPivotLocalMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
+            Matrix headPivotLocalMatrix = m_headLocalPivotMatrix;
+            m_fixedConstraintData.SetInBodySpace(m_otherLocalPivotMatrix, m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
             if (MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
             {
                 m_fixedConstraintData.MaximumLinearImpulse = 0.5f;
@@ -720,8 +921,8 @@ namespace Sandbox.Game.Entities
             }
             else
             {
-                m_fixedConstraintData.MaximumLinearImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
-                m_fixedConstraintData.MaximumAngularImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                m_fixedConstraintData.MaximumLinearImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                m_fixedConstraintData.MaximumAngularImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
             }
           
 
@@ -735,17 +936,11 @@ namespace Sandbox.Game.Entities
             //return bcData;
         }
 
-        private void GetHeadPivotLocalMatrix(float headDistance, out Matrix headPivotLocalMatrix)
-        {
-            headPivotLocalMatrix = Matrix.Identity;
-            headPivotLocalMatrix.Translation = headDistance * headPivotLocalMatrix.Forward;
-        }
-
-        private HkConstraintData CreateBallAndSocketConstraintData(ref Matrix otherLocalMatrix, ref Matrix headPivotLocalMatrix)
+        private HkConstraintData CreateBallAndSocketConstraintData()
         {
             HkBallAndSocketConstraintData data = new HkBallAndSocketConstraintData();
-            Vector3 otherPivot = otherLocalMatrix.Translation;
-            Vector3 headPivot = headPivotLocalMatrix.Translation;
+            Vector3 otherPivot = m_otherLocalPivotMatrix.Translation;
+            Vector3 headPivot = m_headLocalPivotMatrix.Translation;
             data.SetInBodySpace(otherPivot, headPivot, m_otherPhysicsBody, OwnerVirtualPhysics);
 
             HkMalleableConstraintData mcData = new HkMalleableConstraintData();
@@ -758,6 +953,12 @@ namespace Sandbox.Game.Entities
 
         public void StopManipulation()
         {
+            // Manipulation stopped might be recursivelly called when SetMotionOnClient is called which can raise physics change event!
+            if (m_manipulationStopped)
+                return;
+
+            m_manipulationStopped = true;
+
             if (m_state != MyState.NONE && Owner != null)
             {
                 var characterMovementState = Owner.GetCurrentMovementState();
@@ -812,14 +1013,16 @@ namespace Sandbox.Game.Entities
             m_otherLocalPivotMatrix = Matrix.Zero;
             if (m_otherEntity != null)
             {
+                m_otherEntity.OnMarkForClose -= OtherEntity_OnMarkForClose;
+                m_otherEntity.OnClosing -= OtherEntity_OnClosing;
+                m_otherEntity.OnPhysicsChanged -= OtherEntity_OnPhysicsChanged;
+
                 SetTransparent(m_otherEntity);
 
                 if (m_state == MyState.HOLD)
                 {
-                    SetMotionOnClient(m_otherEntity, HkMotionType.Dynamic);
-
                     // Do not send when disconnecting
-                    if (IsOwnerLocalPlayer() && !MyEntities.CloseAllowed && !(m_otherEntity is MyCharacter))
+                    if (IsOwnerLocalPlayer() && !(m_otherEntity is MyCharacter))
                     {
                         Sync.Players.RemoveControlledEntity(m_otherEntity);
                     }
@@ -834,43 +1037,82 @@ namespace Sandbox.Game.Entities
 
                 if (m_otherEntity.Physics != null && m_otherRigidBody != null && !m_otherRigidBody.IsDisposed)
                 {                    
-                    SetManipulated(m_otherEntity, false);
-                    //m_otherRigidBody.AngularDamping = m_otherAngularDamping;
-                    //m_otherRigidBody.LinearDamping = m_otherLinearDamping;
                     if (m_otherEntity is MyCharacter)
                     {
-                        m_otherEntity.Physics.SetRagdollDefaults();
+                        SetManipulated(m_otherEntity, false);
+                        m_otherEntity.GetPhysicsBody().SetRagdollDefaults();
+                        //TODO: don't know if this is needed for character
+                        //SetMotionOnClient(m_otherEntity, HkMotionType.Dynamic, false);
+                    }
+                    else if (m_otherEntity is MyCubeGrid)
+                    {
+                        var group = MyCubeGridGroups.Static.Physical.GetGroup((m_otherEntity as MyCubeGrid));
+                        if (group != null)
+                        {
+                            m_tmpEntities.Clear();
+                            foreach (var node in group.Nodes)
+                                m_tmpEntities.Add(node.NodeData);
+
+                            foreach (var entity in m_tmpEntities)
+                            {
+                                entity.OnMarkForClose -= OtherEntity_OnMarkForClose;
+                                entity.OnClosing -= OtherEntity_OnClosing;
+                                entity.OnPhysicsChanged -= OtherEntity_OnPhysicsChanged;
+                            }
+
+                            foreach (var entity in m_tmpEntities)
+                            {
+                                SetManipulated(entity, false);
+                                SetStopManipulationRigidBodyData(entity);
+                                if (m_state == MyState.HOLD)
+                                {
+                                    MyOtherPhysicsData otherPhysicsData;
+                                    if (m_otherPhysicsData.TryGetValue(entity.EntityId, out otherPhysicsData))
+                                        SetMotionOnClient(entity, otherPhysicsData.m_motionType, otherPhysicsData.m_entitySyncFlag);
+                                }
+                            }
+                            m_tmpEntities.Clear();
+                        }
                     }
                     else
                     {
-                        m_otherRigidBody.Restitution = m_otherRestitution;
-                        m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
-                        m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
-                        if (m_massChange != null)
-                            m_massChange.Remove();
-                        m_massChange = null;
-                        // Clamp output velocity
-                        m_otherRigidBody.LinearVelocity = Vector3.Clamp(m_otherRigidBody.LinearVelocity, -2 * Vector3.One, 2 * Vector3.One);
-                        m_otherRigidBody.AngularVelocity = Vector3.Clamp(m_otherRigidBody.AngularVelocity, -Vector3.One * (float)Math.PI, Vector3.One * (float)Math.PI);
-                        if (!m_otherRigidBody.IsActive)
-                            m_otherRigidBody.Activate();
-                        m_otherRigidBody.EnableDeactivation = false;
-                        m_otherRigidBody.EnableDeactivation = true; //resets deactivation counter                        
+                        SetManipulated(m_otherEntity, false);
+                        SetStopManipulationRigidBodyData(m_otherEntity);
 
+                        if (m_state == MyState.HOLD)
+                        {
+                            MyOtherPhysicsData otherPhysicsData;
+                            if (m_otherPhysicsData.TryGetValue(m_otherEntity.EntityId, out otherPhysicsData))
+                                SetMotionOnClient(m_otherEntity, otherPhysicsData.m_motionType, otherPhysicsData.m_entitySyncFlag);
+                        }
                     }
                     m_otherRigidBody = null;                    
                 }
 
-                m_otherEntity.OnClosing -= OtherEntity_OnClosing;
                 m_otherEntity = null;                
             }
 
-            m_constraintInitialized = false;
+            Clean();
+        }
 
+        private void Clean()
+        {
             RemoveOwnerVirtualPhysics();
 
-            if (Owner != null) Owner.ManipulatedEntity = null;
+            if (Owner != null)
+                Owner.ManipulatedEntity = null;
+
             m_state = MyState.NONE;
+            m_constraintInitialized = false;
+            m_manipulationInitData = null;
+            m_otherEntity = null;
+            m_otherRigidBody = null;
+            m_otherPhysicsData.Clear();
+            m_headLocalPivotMatrix = Matrix.Zero;
+            m_otherLocalPivotMatrix = Matrix.Zero;
+
+            Debug.Assert(m_constraint == null);
+            Debug.Assert(m_fixedConstraintData == null);
         }
 
         private void UpdateManipulation()
@@ -891,7 +1133,7 @@ namespace Sandbox.Game.Entities
                 double length = (worldOtherPivotMatrix.Translation - worldHeadPivotMatrix.Translation).Length();
                 double checkDst = m_fixedConstraintData != null ? fixedConstraintMaxDistance : ballAndSocketMaxDistance;
 
-				if (currentTimeDelta > constraintPrepareTime)
+                if (m_constraintInitialized || currentTimeDelta > constraintPrepareTime)
                 {
                     var characterMovementState = Owner.GetCurrentMovementState();
                     bool currentCanUseIdle = CanManipulate(characterMovementState);
@@ -900,7 +1142,10 @@ namespace Sandbox.Game.Entities
                     if ((!m_constraintInitialized && currentCanUseIdle) || (currentCanUseIdle && !previousCanUseIdle))
                     {
                         if (m_state == MyState.HOLD)
-                            Owner.PlayCharacterAnimation("PickLumberIdle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
+                        {
+                            if (!MyFakes.DISABLE_MANIPULATION_TOOL_HOLD_VOXEL_CONTACT)
+                                Owner.PlayCharacterAnimation("PickLumberIdle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
+                        }
                         else
                             Owner.PlayCharacterAnimation("PullLumberIdle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
                     }
@@ -911,33 +1156,35 @@ namespace Sandbox.Game.Entities
 
                     if (m_otherRigidBody != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
-                        m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
-                        m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
+                        if (m_otherEntity is MyCubeGrid)
+                        {
+                            var group = MyCubeGridGroups.Static.Physical.GetGroup((m_otherEntity as MyCubeGrid));
+                            foreach (var node in group.Nodes)
+                            {
+                                if (node.NodeData.Physics != null && node.NodeData.Physics.RigidBody != null && !node.NodeData.Physics.RigidBody.IsDisposed)
+                                {
+                                    var rigidBody = node.NodeData.Physics.RigidBody;
+                                    MyOtherPhysicsData otherPhysicsData;
+                                    if (m_otherPhysicsData.TryGetValue(node.NodeData.EntityId, out otherPhysicsData))
+                                    {
+                                        rigidBody.MaxLinearVelocity = otherPhysicsData.m_otherMaxLinearVelocity;
+                                        rigidBody.MaxAngularVelocity = otherPhysicsData.m_otherMaxAngularVelocity;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MyOtherPhysicsData otherPhysicsData;
+                            if (m_otherPhysicsData.TryGetValue(m_otherEntity.EntityId, out otherPhysicsData))
+                            {
+                                m_otherRigidBody.MaxLinearVelocity = otherPhysicsData.m_otherMaxLinearVelocity;
+                                m_otherRigidBody.MaxAngularVelocity = otherPhysicsData.m_otherMaxAngularVelocity;
+                            }
+                        }
                     }
 
-                    if(m_fixedConstraintData != null && (MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
-                    {
-                        float rotationSpeed = MyInput.Static.IsAnyShiftKeyPressed() ? - 0.01f : 0.01f;
-                        var tran = m_otherLocalPivotMatrix.Translation;
-                        if(MyInput.Static.IsKeyPress(MyKeys.E))
-                        {
-                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Up, rotationSpeed);
-                            m_otherLocalPivotMatrix.Translation = tran;
-                            m_fixedConstraintData.SetInBodySpace( m_otherLocalPivotMatrix,  m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
-                        }
-                        if (MyInput.Static.IsKeyPress(MyKeys.Q))
-                        {
-                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Forward, rotationSpeed);
-                            m_otherLocalPivotMatrix.Translation = tran;
-                            m_fixedConstraintData.SetInBodySpace( m_otherLocalPivotMatrix,  m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
-                        }
-                        if (MyInput.Static.IsKeyPress(MyKeys.R))
-                        {
-                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Right, rotationSpeed);
-                            m_otherLocalPivotMatrix.Translation = tran;
-                            m_fixedConstraintData.SetInBodySpace( m_otherLocalPivotMatrix,  m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
-                        }
-                    }
+                    UpdateInput();
 
                     if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
@@ -962,9 +1209,10 @@ namespace Sandbox.Game.Entities
                     {
                         // Synced from local player because lagged server can drop manipulated items with fast moves
                         if (!(m_otherEntity is MyCharacter) && IsOwnerLocalPlayer())
+                        {
                             SyncTool.StopManipulation();
-
-                        return;
+                            return;
+                        }
                     }
                 }
                 else
@@ -985,12 +1233,77 @@ namespace Sandbox.Game.Entities
                             {
                                 // Synced from local player because lagged server can drop manipulated items with fast moves
                                 if (!(m_otherEntity is MyCharacter) && IsOwnerLocalPlayer())
+                                {
                                     SyncTool.StopManipulation();
-
-                                return;
+                                    return;
+                                }
                             }
                         }
+                        else if (m_state == MyState.HOLD && length < 0.05f)
+                        {
+                            m_constraintInitialized = true;
+                        }
                     }
+                }
+
+                if (m_state == MyState.HOLD && Sync.IsServer)
+                {
+                    if (!IsManipulatedEntityMassValid())
+                    {
+                        SyncTool.StopManipulation();
+                        return;
+                    }
+                }
+
+                ProfilerShort.Begin("CheckOwnerPenetration");
+                if (IsOwnerLocalPlayer() && CheckManipulatedObjectPenetration())
+                {
+                    ProfilerShort.End();
+                    SyncTool.StopManipulation();
+                    return;
+                }
+
+                ProfilerShort.End();
+            }
+        }
+
+        private void UpdateInput()
+        {
+            // Check if you can manipulate the tool (if you are the controller)
+            bool isInputAllowed = IsOwnerLocalPlayer();
+
+            if (isInputAllowed && m_fixedConstraintData != null && (MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
+            {
+
+                float rotationSpeed = MyInput.Static.IsAnyShiftKeyPressed() ? -0.04f : 0.04f;
+
+                var tran = m_otherLocalPivotMatrix.Translation;
+                Quaternion? rotation = null;
+                if (MyInput.Static.IsKeyPress(MyKeys.E))
+                {
+                    m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Up, rotationSpeed);
+                    m_otherLocalPivotMatrix.Translation = tran;
+                    rotation = Quaternion.CreateFromRotationMatrix(m_otherLocalPivotMatrix);
+                    m_fixedConstraintData.SetInBodySpace(m_otherLocalPivotMatrix, m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
+                }
+                if (MyInput.Static.IsKeyPress(MyKeys.Q))
+                {
+                    m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Forward, rotationSpeed);
+                    m_otherLocalPivotMatrix.Translation = tran;
+                    rotation = Quaternion.CreateFromRotationMatrix(m_otherLocalPivotMatrix);
+                    m_fixedConstraintData.SetInBodySpace(m_otherLocalPivotMatrix, m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
+                }
+                if (MyInput.Static.IsKeyPress(MyKeys.R))
+                {
+                    m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Right, rotationSpeed);
+                    m_otherLocalPivotMatrix.Translation = tran;
+                    rotation = Quaternion.CreateFromRotationMatrix(m_otherLocalPivotMatrix);
+                    m_fixedConstraintData.SetInBodySpace(m_otherLocalPivotMatrix, m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
+                }
+
+                if (rotation != null)
+                {
+                    SyncTool.RotateManipulatedEntity(rotation.Value);
                 }
             }
         }
@@ -1003,6 +1316,85 @@ namespace Sandbox.Game.Entities
                 || characterMovementState == MyCharacterMovementEnum.Crouching
                 || characterMovementState == MyCharacterMovementEnum.Flying)
                 return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks penetration of manipulated entity with other entities.
+        /// </summary>
+        private bool CheckManipulatedObjectPenetration()
+        {
+            if (IsOwnerLocalPlayer() && (m_state == MyState.PULL || m_state == MyState.HOLD))
+            {
+                if (m_otherEntity is MyCubeGrid)
+                {
+                    var grid = m_otherEntity as MyCubeGrid;
+                    // Use logical group which does not include grids connected with ropes
+                    var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+                    if (group != null)
+                    {
+                        foreach (var node in group.Nodes)
+                        {
+                            if (CheckManipulatedObjectPenetration(node.NodeData, null, Owner, m_constraintInitialized))
+                                return true;
+                        }
+                    }
+                }
+                else
+                {
+                    return CheckManipulatedObjectPenetration(m_otherEntity, m_otherRigidBody, Owner, m_constraintInitialized);
+                }
+            }
+
+            return false;
+        }
+
+        private static bool CheckManipulatedObjectPenetration(MyEntity otherEntity, HkRigidBody otherRigidBody, MyCharacter owner, bool constraintInitialized)
+        {
+            if (otherRigidBody == null)
+            {
+                if (otherEntity.Physics != null && otherEntity.Physics.RigidBody != null)
+                    otherRigidBody = otherEntity.Physics.RigidBody;
+                else
+                    return false;
+            }
+
+            Vector3D otherTranslation = otherEntity.WorldMatrix.Translation;
+            Quaternion otherRotation = Quaternion.CreateFromRotationMatrix(otherEntity.WorldMatrix);
+            Debug.Assert(m_tmpCollisions.Count == 0);
+            MyPhysics.GetPenetrationsShape(otherRigidBody.GetShape(), ref otherTranslation, ref otherRotation, m_tmpCollisions, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+
+            try
+            {
+                foreach (var collision in m_tmpCollisions)
+                {
+                    var entity = collision.GetCollisionEntity();
+                    if (entity == otherEntity)
+                        continue;
+                    else if (entity == owner && owner.IsRealPlayer())
+                        return true;
+
+                    if (constraintInitialized)
+                    {
+                        if (IsEntityManipulated(entity as MyEntity))
+                            return true;
+                        else if ((entity is MyCharacter) && entity != owner)
+                            return true;
+                        else if (MyFakes.DISABLE_MANIPULATION_TOOL_HOLD_VOXEL_CONTACT && (entity is MyVoxelMap))
+                            return true;
+                        else if ((otherEntity is MyCubeGrid) && (entity is MyCubeGrid)) // Force stop manipulation when other entity is on rope with contact entity.
+                        {
+                            if (MyRopeComponent.AreGridsConnected(otherEntity as MyCubeGrid, entity as MyCubeGrid))
+                                return true;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                m_tmpCollisions.Clear();
+            }
 
             return false;
         }
@@ -1021,7 +1413,7 @@ namespace Sandbox.Game.Entities
             Vector3D rayEnd = rayStart + m_manipulationDistance * ownerForward;
 
             m_tmpHits.Clear();
-            MyPhysics.CastRay(rayStart, rayEnd, m_tmpHits, MyPhysics.ObjectDetectionCollisionLayer);
+            MyPhysics.CastRay(rayStart, rayEnd, m_tmpHits, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
 
             foreach (var hitInfo in m_tmpHits)
             {
@@ -1039,13 +1431,13 @@ namespace Sandbox.Game.Entities
             return null;
         }
 
-        private bool CanManipulateEntity(MyEntity entity)
+        private static bool CanManipulateEntity(MyEntity entity)
         {
-            if (entity is MyVoxelMap)
+            if (entity.Physics == null || entity.Physics.RigidBody == null || entity.Physics.IsStatic)
                 return false;
-            else if (entity is MyCubeGrid && ((MyCubeGrid)entity).IsStatic)
+            else if (entity is MyInventoryBagEntity) // currently only loot bags..
                 return false;
-            else if (m_manipulatedEntitites.Contains(entity))
+            else if (IsEntityManipulated(entity))
                 return false;            
 
             return true;
@@ -1056,9 +1448,26 @@ namespace Sandbox.Game.Entities
             return m_manipulatedEntitites.Contains(entity);
         }
 
+        void OtherEntity_OnMarkForClose(MyEntity obj)
+        {
+            if (Sync.IsServer)
+                StopManipulationSynced();
+            else 
+                StopManipulation();
+        }
+
         private void OtherEntity_OnClosing(MyEntity obj)
         {
-            StopManipulation();
+            if (Sync.IsServer)
+                StopManipulationSynced();
+            else
+                StopManipulation();
+        }
+
+        void OtherEntity_OnPhysicsChanged(MyEntity obj)
+        {
+            if (Sync.IsServer)
+                StopManipulationSynced();
         }
 
         public void StartManipulationSynced(MyState myState, MyEntity spawned, Vector3D position, ref MatrixD ownerWorldHeadMatrix)
@@ -1071,6 +1480,16 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(Sync.IsServer);
             SyncTool.StopManipulation();
+        }
+
+        IMyEntity IMyUseObject.Owner
+        {
+            get { return this; }
+        }
+
+        MyModelDummy IMyUseObject.Dummy
+        {
+            get { return null; }
         }
 
         float IMyUseObject.InteractiveDistance
@@ -1126,7 +1545,7 @@ namespace Sandbox.Game.Entities
                 {
                     return;
                 }
-                var inventory = inventoryAggregate.GetInventory(MyStringId.Get("Inventory")) as MyInventory;
+                var inventory = inventoryAggregate.GetInventory(MyStringHash.Get("Inventory")) as MyInventory;
                 
                 if (ManipulatedEntity != null && inventory != null)
                 {
@@ -1173,7 +1592,7 @@ namespace Sandbox.Game.Entities
             HkShape sh = new HkSphereShape(0.1f);
             OwnerVirtualPhysics.InitialSolverDeactivation = HkSolverDeactivation.Off;
             MatrixD headWorldMatrix = Owner.GetHeadMatrix(false, forceHeadBone: true);
-            OwnerVirtualPhysics.CreateFromCollisionObject(sh, Vector3.Zero, headWorldMatrix, massProperties, Sandbox.Engine.Physics.MyPhysics.NoCollisionLayer);
+            OwnerVirtualPhysics.CreateFromCollisionObject(sh, Vector3.Zero, headWorldMatrix, massProperties, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoCollisionLayer);
             OwnerVirtualPhysics.RigidBody.EnableDeactivation = false;
             // Character ray casts includes also NoCollision layer shapes so setup property for ignoring the body
             OwnerVirtualPhysics.RigidBody.SetProperty(HkCharacterRigidBody.MANIPULATED_OBJECT, 0);
@@ -1200,5 +1619,67 @@ namespace Sandbox.Game.Entities
                 && Owner.ControllerInfo.Controller != null
                 && Owner.ControllerInfo.Controller.Player.IsLocalPlayer;
         }
+
+        public void RotateManipulatedEntity(ref Quaternion rotation)
+        {
+            if (m_state == MyState.HOLD && IsHoldingItem && m_fixedConstraintData != null) 
+            {
+                var tran = m_otherLocalPivotMatrix.Translation;
+                m_otherLocalPivotMatrix = Matrix.CreateFromQuaternion(rotation);
+                m_otherLocalPivotMatrix.Translation = tran;
+                m_fixedConstraintData.SetInBodySpace(m_otherLocalPivotMatrix, m_headLocalPivotMatrix, m_otherPhysicsBody, OwnerVirtualPhysics);
+            }
+        }
+
+        private bool IsManipulatedEntityMassValid()
+        {
+            float mass = 0;
+            if (m_otherEntity is MyCubeGrid)
+            {
+                bool hasStatic = false;
+                mass = CalculateGridGroupMass(m_otherEntity as MyCubeGrid, GridLinkTypeEnum.Physical, out hasStatic);
+                if (hasStatic)
+                    return false;
+            }
+            else if (m_otherEntity is MyCharacter)
+                mass = (m_otherEntity as MyCharacter).Definition.Mass;
+            else
+                mass = GetRealMass(m_otherRigidBody.Mass);
+
+            // Player can't hold large projectile
+            if ((mass > 210) || ((m_otherEntity is MyCharacter) && (m_otherEntity.Physics.Mass > 210)))
+                return false;
+
+            return true;
+        }
+
+        private static float CalculateGridGroupMass(MyCubeGrid grid, GridLinkTypeEnum gridLinkType, out bool hasStaticGrid)
+        {
+            hasStaticGrid = false;
+
+            var groupNodes = MyCubeGridGroups.Static.GetGroups(gridLinkType).GetGroupNodes(grid);
+            if (groupNodes == null)
+            {
+                hasStaticGrid = grid.IsStatic;
+                return GetRealMass(grid.Physics.Mass);
+            }
+
+            float mass = 0f;
+            foreach (var node in groupNodes)
+            {
+                if (node.IsStatic)
+                {
+                    hasStaticGrid = true;
+                    continue;
+                }
+                mass += node.Physics.Mass;
+            }
+
+            mass = GetRealMass(mass);
+            return mass;
+        }
+
+        public int CurrentAmmunition { set; get; }
+        public int CurrentMagazineAmmunition { set; get; }
     }
 }

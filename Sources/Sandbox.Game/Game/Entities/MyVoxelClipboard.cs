@@ -1,7 +1,6 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -14,6 +13,9 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.ObjectBuilders;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -22,10 +24,10 @@ namespace Sandbox.Game.Entities
 {
     class MyVoxelClipboard
     {
-        private List<MyObjectBuilder_VoxelMap> m_copiedVoxelMaps = new List<MyObjectBuilder_VoxelMap>();
+        private List<MyObjectBuilder_EntityBase> m_copiedVoxelMaps = new List<MyObjectBuilder_EntityBase>();
         private List<IMyStorage> m_copiedStorages = new List<IMyStorage>();
         private List<Vector3> m_copiedVoxelMapOffsets = new List<Vector3>();
-        private List<MyVoxelMap> m_previewVoxelMaps = new List<MyVoxelMap>();
+        private List<MyVoxelBase> m_previewVoxelMaps = new List<MyVoxelBase>();
 
         // Paste position
         private Vector3D m_pastePosition;
@@ -43,6 +45,8 @@ namespace Sandbox.Game.Entities
 
         private bool m_shouldMarkForClose = true;
 
+        private bool m_planetMode = false;
+
         public bool IsActive
         {
             get;
@@ -59,11 +63,13 @@ namespace Sandbox.Game.Entities
         {
             ChangeClipboardPreview(false);
             IsActive = false;
+            m_planetMode = false;
         }
 
         public void Hide()
         {
             ChangeClipboardPreview(false);
+            m_planetMode = false;
         }
 
         public void Show()
@@ -80,7 +86,7 @@ namespace Sandbox.Game.Entities
             m_copiedVoxelMaps.Clear();
         }
 
-        public void CutVoxelMap(MyVoxelMap voxelMap)
+        public void CutVoxelMap(MyVoxelBase voxelMap)
         {
             if (voxelMap == null)
                 return;
@@ -90,7 +96,7 @@ namespace Sandbox.Game.Entities
             Deactivate();
         }
 
-        public void CopyVoxelMap(MyVoxelMap voxelMap)
+        public void CopyVoxelMap(MyVoxelBase voxelMap)
         {
             if (voxelMap == null)
                 return;
@@ -100,9 +106,9 @@ namespace Sandbox.Game.Entities
             Activate();
         }
 
-        private void CopyVoxelMapInternal(MyVoxelMap toCopy)
+        private void CopyVoxelMapInternal(MyVoxelBase toCopy)
         {
-            m_copiedVoxelMaps.Add((MyObjectBuilder_VoxelMap)toCopy.GetObjectBuilder(true));
+            m_copiedVoxelMaps.Add((MyObjectBuilder_EntityBase)toCopy.GetObjectBuilder(true));
             if (m_copiedVoxelMaps.Count == 1)
             {
                 MatrixD pasteMatrix = GetPasteMatrix();
@@ -116,6 +122,27 @@ namespace Sandbox.Game.Entities
 
         public bool PasteVoxelMap(MyInventory buildInventory = null)
         {
+            if (m_planetMode)
+            {
+                if (!m_canBePlaced)
+                {
+                    MyHud.Notifications.Add(MyNotificationSingletons.CopyPasteAsteoridObstructed);
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                    return false;
+                }
+
+                MyEntities.RemapObjectBuilderCollection(m_copiedVoxelMaps);
+
+                for (int i = 0; i < m_copiedVoxelMaps.Count; ++i)
+                {
+                    Vector3D pos = m_pastePosition - m_copiedVoxelMapOffsets[i];
+                    MyGuiScreenDebugSpawnMenu.SpawnPlanet(pos);
+                }
+
+                Deactivate();
+                return true;
+            }
+
             if (m_copiedVoxelMaps.Count == 0)
                 return false;
 
@@ -138,24 +165,30 @@ namespace Sandbox.Game.Entities
 
             foreach (var voxelMap in m_previewVoxelMaps)
             {
-                if (MySession.Static.Settings.OnlineMode == MyOnlineModeEnum.OFFLINE || (Sync.IsServer && Sync.Clients.Count == 1))
+                if (Sync.IsServer)
                 {
+                    voxelMap.CreatedByUser = true;
+                    voxelMap.AsteroidName = MyGuiScreenDebugSpawnMenu.GetAsteroidName();
                     EnablePhysicsRecursively(voxelMap);
                     voxelMap.Save = true;
                     MakeVisible(voxelMap);
                     m_shouldMarkForClose = false;
+                    MyEntities.RaiseEntityCreated(voxelMap);
                 }
                 else
                 {
-                    MyGuiScreenDebugSpawnMenu.SendAsteroid(voxelMap.PositionComp.GetPosition());
-                }
-            }
+                    m_shouldMarkForClose = true;
 
+                    MyGuiScreenDebugSpawnMenu.SpawnAsteroid(voxelMap.PositionComp.GetPosition());
+                }
+
+                voxelMap.AfterPaste();
+            }
             Deactivate();
             return true;
         }
 
-        public void SetVoxelMapFromBuilder(MyObjectBuilder_VoxelMap voxelMap, IMyStorage storage, Vector3 dragPointDelta, float dragVectorLength)
+        public void SetVoxelMapFromBuilder(MyObjectBuilder_EntityBase voxelMap, IMyStorage storage, Vector3 dragPointDelta, float dragVectorLength)
         {
             if (IsActive)
             {
@@ -169,13 +202,18 @@ namespace Sandbox.Game.Entities
             MatrixD pasteMatrix = GetPasteMatrix();
             m_dragPointToPositionLocal = dragPointDelta;
             m_dragDistance = dragVectorLength;
+            Vector3 offset = Vector3.Zero;
+            if (voxelMap is MyObjectBuilder_Planet)
+            {
+                offset = storage.Size / 2.0f;
+            }
 
-            SetVoxelMapFromBuilderInternal(voxelMap, storage, Vector3.Zero);
+            SetVoxelMapFromBuilderInternal(voxelMap, storage, offset);
 
             Activate();
         }
 
-        private void SetVoxelMapFromBuilderInternal(MyObjectBuilder_VoxelMap voxelMap, IMyStorage storage, Vector3 offset)
+        private void SetVoxelMapFromBuilderInternal(MyObjectBuilder_EntityBase voxelMap, IMyStorage storage, Vector3 offset)
         {
             m_copiedVoxelMaps.Add(voxelMap);
             m_copiedStorages.Add(storage);
@@ -186,7 +224,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_copiedVoxelMaps.Count == 0 || !visible)
             {
-                foreach(var voxelMap in m_previewVoxelMaps)
+                foreach (var voxelMap in m_previewVoxelMaps)
                 {
                     MyEntities.EnableEntityBoundingBoxDraw(voxelMap, false);
                     if (m_shouldMarkForClose)
@@ -203,9 +241,24 @@ namespace Sandbox.Game.Entities
             {
                 var voxelMapOb = m_copiedVoxelMaps[i];
                 var storage = m_copiedStorages[i];
-                var previewVoxelMap = new MyVoxelMap();
+
+                MyVoxelBase previewVoxelMap = null;
+
+                if (voxelMapOb is MyObjectBuilder_VoxelMap)
+                {
+                    previewVoxelMap = new MyVoxelMap();
+                }
+                if (voxelMapOb is MyObjectBuilder_Planet)
+                {
+                    m_planetMode = true;
+                    IsActive = visible;
+                    m_visible = visible;
+                    continue;
+                }
+
                 var pos = voxelMapOb.PositionAndOrientation.Value.Position;
-                previewVoxelMap.Init(voxelMapOb.StorageName, storage, new Vector3(pos.x, pos.y, pos.z));
+                previewVoxelMap.Init(voxelMapOb, storage);
+                previewVoxelMap.BeforePaste();
 
                 DisablePhysicsRecursively(previewVoxelMap);
                 MakeTransparent(previewVoxelMap);
@@ -220,14 +273,16 @@ namespace Sandbox.Game.Entities
                 m_visible = visible;
                 m_shouldMarkForClose = true;
             }
+
+
         }
 
-        private void MakeTransparent(MyVoxelMap voxelMap)
+        private void MakeTransparent(MyVoxelBase voxelMap)
         {
             voxelMap.Render.Transparency = MyGridConstants.BUILDER_TRANSPARENCY;
         }
 
-        private void MakeVisible(MyVoxelMap voxelMap)
+        private void MakeVisible(MyVoxelBase voxelMap)
         {
             voxelMap.Render.Transparency = 0f;
         }
@@ -271,13 +326,27 @@ namespace Sandbox.Game.Entities
 
         private void UpdateVoxelMapTransformations()
         {
-            for (int i = 0; i < m_previewVoxelMaps.Count; ++i)
+            if (m_planetMode)
             {
-                m_previewVoxelMaps[i].PositionLeftBottomCorner = m_pastePosition + m_copiedVoxelMapOffsets[i] - m_previewVoxelMaps[i].Storage.Size * 0.5f;
-                m_previewVoxelMaps[i].PositionComp.SetPosition(m_pastePosition + m_copiedVoxelMapOffsets[i]);
+                for (int i = 0; i < m_copiedVoxelMaps.Count; ++i)
+                {
+                    MyObjectBuilder_Planet builder = m_copiedVoxelMaps[i] as MyObjectBuilder_Planet;
+                    if (builder != null)
+                    {
+                        VRageRender.MyRenderProxy.DebugDrawSphere(m_pastePosition, builder.Radius, Color.Green, 1.0f, true, true);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < m_previewVoxelMaps.Count; ++i)
+                {
+                    m_previewVoxelMaps[i].PositionLeftBottomCorner = m_pastePosition + m_copiedVoxelMapOffsets[i] - m_previewVoxelMaps[i].Storage.Size * 0.5f;
+                    m_previewVoxelMaps[i].PositionComp.SetPosition(m_pastePosition + m_copiedVoxelMapOffsets[i]);
+                }
             }
         }
-        
+
         private void UpdatePastePosition()
         {
             // Current position of the placed entity is either simple translation or
@@ -294,78 +363,81 @@ namespace Sandbox.Game.Entities
         }
 
         private List<MyEntity> m_tmpResultList = new List<MyEntity>();
-        private HashSet<MyEntity> m_tmpResultHashset = new HashSet<MyEntity>();
-
         private bool TestPlacement()
         {
-            if (MySession.ControlledEntity != null &&
-                (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Entity || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator))
+            if (MySession.Static.ControlledEntity != null &&
+                (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator))
+            {
                 for (int i = 0; i < m_previewVoxelMaps.Count; ++i)
                 {
                     var aabb = m_previewVoxelMaps[i].PositionComp.WorldAABB;
 
                     using (m_tmpResultList.GetClearToken())
                     {
-                        MyGamePruningStructure.GetAllEntitiesInBox(ref aabb, m_tmpResultList);
-
-                        foreach (var entity in m_tmpResultList)
+                        MyGamePruningStructure.GetTopMostEntitiesInBox(ref aabb, m_tmpResultList);
+                        if (TestPlacement(m_tmpResultList) == false)
                         {
-                            m_tmpResultHashset.Add(entity.GetTopMostParent());
+                            return false;
                         }
-
-                        foreach (var entity in m_tmpResultHashset)
-                        {
-                            //ignore asteroids
-                            if (entity is MyVoxelBase)
-                            {
-                                continue;
-                            }
-
-                            //ignore stations
-                            if (entity is MyCubeGrid)
-                            {
-                                var grid = entity as MyCubeGrid;
-                                if (grid.IsStatic)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            switch (m_previewVoxelMaps[i].GetVoxelRangeTypeInBoundingBox(entity.PositionComp.WorldAABB))
-                            {
-                                case MyVoxelRangeType.EMPTY:
-                                    break;
-                                case MyVoxelRangeType.MIXED:
-                                    {
-                                        m_tmpResultList.Clear();
-                                        m_tmpResultHashset.Clear();
-                                        return false;
-                                    }
-                                    break;
-                                case MyVoxelRangeType.FULL:
-                                    {
-                                        m_tmpResultList.Clear();
-                                        m_tmpResultHashset.Clear();
-                                        return false;
-                                    }
-                                    break;
-                                default:
-                                    throw new InvalidBranchException();
-                                    break;
-                            }
-                        }
-                        m_tmpResultHashset.Clear();
                     }
                 }
+
+                if (m_planetMode)
+                {
+                    for (int i = 0; i < m_copiedVoxelMaps.Count; ++i)
+                    {
+                        MyObjectBuilder_Planet builder = m_copiedVoxelMaps[i] as MyObjectBuilder_Planet;
+                        if (builder != null)
+                        {
+                            using (m_tmpResultList.GetClearToken())
+                            {
+                                BoundingSphereD sphere = new BoundingSphereD(m_pastePosition, builder.Radius);
+                                MyGamePruningStructure.GetAllTopMostEntitiesInSphere(ref sphere, m_tmpResultList);
+
+                                if (TestPlacement(m_tmpResultList) == false)
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool TestPlacement(List<MyEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                //ignore asteroids
+                if (entity is MyVoxelBase)
+                {
+                    continue;
+                }
+
+                //ignore stations
+                if (entity is MyCubeGrid)
+                {
+                    var grid = entity as MyCubeGrid;
+                    if (grid.IsStatic)
+                    {
+                        continue;
+                    }
+                }
+
+                entities.Clear();
+                return false;
+            }
             return true;
         }
 
         private static MatrixD GetPasteMatrix()
         {
-            if (MySession.ControlledEntity != null &&
-                (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Entity || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator))
+            if (MySession.Static.ControlledEntity != null &&
+                (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator))
             {
-                return MySession.ControlledEntity.GetHeadMatrix(true);
+                return MySession.Static.ControlledEntity.GetHeadMatrix(true);
             }
             else
             {

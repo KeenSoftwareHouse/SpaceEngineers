@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.ModAPI.Ingame;
 using VRage.Collections;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
@@ -71,6 +72,14 @@ namespace Sandbox.Game.Gui
             ActionWithParameters = action;
             m_icon = icon;
             Writer = valueWriter;
+        }
+
+
+        public MyTerminalAction(string id, StringBuilder name, Action<TBlock> action, MyTerminalControl<TBlock>.WriterDelegate valueWriter, string icon, Func<TBlock, bool> enabled=null)
+            :this(id, name, action, valueWriter, icon)
+        {
+            if (enabled!=null)
+                Enabled = enabled;
         }
 
         public Action<TBlock> Action

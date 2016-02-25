@@ -33,6 +33,9 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         public static readonly string STATION_OFF = @"Textures\GUI\Icons\Actions\StationSwitchOff.dds";
         public static readonly string STATION_TOGGLE = @"Textures\GUI\Icons\Actions\StationToggle.dds";
 
+        public static readonly string NEUTRALS_TOGGLE = @"Textures\GUI\Icons\Actions\NeutralToggle.dds";
+        public static readonly string NEUTRALS_ON = @"Textures\GUI\Icons\Actions\NeutralSwitchOn.dds";
+        public static readonly string NEUTRALS_OFF = @"Textures\GUI\Icons\Actions\NeutralSwitchOff.dds";
 
         public static readonly string METEOR_ON = @"Textures\GUI\Icons\Actions\MeteorSwitchOn.dds";
         public static readonly string METEOR_OFF = @"Textures\GUI\Icons\Actions\MeteorSwitchOff.dds";

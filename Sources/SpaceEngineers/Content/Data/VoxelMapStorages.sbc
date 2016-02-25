@@ -4,6 +4,20 @@
     <VoxelMapStorage>
       <Id>
         <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>SnowCoverageIronCore</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\MediumStoneIronCoreSnowCoverage.vx2</StorageFile>
+    </VoxelMapStorage>
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>StoneCoverageIronCore</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\MediumStoneIronCoreStoneCoverage.vx2</StorageFile>
+    </VoxelMapStorage>
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
         <SubtypeId>Arabian_Border_7</SubtypeId>
       </Id>
       <StorageFile>VoxelMaps\Arabian_Border_7.vx2</StorageFile>
@@ -337,5 +351,375 @@
       </Id>
       <StorageFile>VoxelMaps\VerticalIslandStorySector_128x256x128.vx2</StorageFile>
     </VoxelMapStorage>
+	
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_horse_overhang</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_horse_overhang.vx2</StorageFile>
+    </VoxelMapStorage>
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_overhang_flat</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_overhang_flat.vx2</StorageFile>
+    </VoxelMapStorage>
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_overhang</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_overhang.vx2</StorageFile>
+    </VoxelMapStorage>
+	<VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>small_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\small_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+ <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>testplacement</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\testplacement.vx2</StorageFile>
+ </VoxelMapStorage>
+
+    <!-- Testing placement of voxel objects in definitions -->
+    <!-- Earthlike - stone -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Earthlike - stone with snow on top -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_snowtop_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_snowtop_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_snowtop_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_snowtop_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>stone_snowtop_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\stone_snowtop_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Earthlike + Titan - Desertrocks -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>desertrocks_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\desertrocks_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>desertrocks_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\desertrocks_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>desertrocks_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\desertrocks_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Alien - AlienRockyMountain -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Alien - AlienRockyMountain with snow on top -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_snowtop_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_snowtop_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_snowtop_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_snowtop_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockymountain_snowtop_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockymountain_snowtop_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Alien - AlienRockyTerrain -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+    
+    <!-- Alien - AlienRockyTerrain with snow on top -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_snowtop_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_snowtop_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_snowtop_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_snowtop_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>alienrockyterrain_snowtop_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\alienrockyterrain_snowtop_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+    
+    <!-- Mars - MarsRocks -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>marsrock_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\marsrock_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>marsrock_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\marsrock_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>marsrocks_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\marsrocks_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Europa - Ice_02 -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_02_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_02_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_02_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_02_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_02_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_02_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Europa - Ice -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>ice_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\ice_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+    
+    <!-- Moon - MoonSoil -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonsoil_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonsoil_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonsoil_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonsoil_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonsoil_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonsoil_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Moon - MoonRocks -->
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonrocks_smallstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonrocks_smallstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonrocks_mediumstone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonrocks_mediumstone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>moonrocks_largestone</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\moonrocks_largestone.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <!-- Voxelstones with ORE -->
+    
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>VoxelstoneStoneFe</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\VoxelstoneStoneFe.vx2</StorageFile>
+    </VoxelMapStorage>
+
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>VoxelstoneStoneSnowFe</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\VoxelstoneStoneSnowFe.vx2</StorageFile>
+    </VoxelMapStorage>
+    
   </VoxelMapStorages>
 </Definitions>

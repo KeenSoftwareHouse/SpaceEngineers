@@ -3,6 +3,8 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 
 using VRageMath;
 using Sandbox.Engine.Utils;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions

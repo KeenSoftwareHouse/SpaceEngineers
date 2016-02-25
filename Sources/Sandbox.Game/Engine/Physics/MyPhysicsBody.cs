@@ -26,6 +26,7 @@ using VRage;
 using Sandbox.Common.Components;
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Game;
 
 #endregion
 
@@ -41,43 +42,40 @@ namespace Sandbox.Engine.Physics
     using System;
     using Sandbox.Definitions;
     using VRage.ModAPI;
-    using VRage.Components;
+    using VRage.Game.Components;
+    using VRage.Trace;
+    using VRage.Game.Entity;
+    using Sandbox.Game.EntityComponents;
+    using VRage.Game.ObjectBuilders.ComponentSystem;
+    using Sandbox.Game.EntityComponents.Systems;
 
     /// <summary>
     /// Abstract engine physics body object.
     /// </summary>
-    public class MyPhysicsBody : MyPhysicsComponentBase, MyClusterTree.IMyActivationHandler
+    [MyComponentBuilder(typeof(MyObjectBuilder_PhysicsBodyComponent))]
+    public partial class MyPhysicsBody : MyPhysicsComponentBase, MyClusterTree.IMyActivationHandler
     {
-        public class MyWeldInfo
-        {
-            public MyPhysicsBody Parent = null;
-            public Matrix Transform = Matrix.Identity;
-            public readonly HashSet<MyPhysicsBody> Children = new HashSet<MyPhysicsBody>();
-            public HkMassElement MassElement;
-
-            internal void UpdateMassProps(HkRigidBody rb)
-            {
-                var mp = new HkMassProperties();
-                mp.InertiaTensor = rb.InertiaTensor;
-                mp.Mass = rb.Mass;
-                mp.CenterOfMass = rb.CenterOfMassLocal;
-                MassElement = new HkMassElement();
-                MassElement.Properties = mp;
-                MassElement.Tranform = Transform;
-                //MassElement.Tranform.Translation = Vector3.Transform(rb.CenterOfMassLocal, Transform);
-            }
-
-            internal void SetMassProps(HkMassProperties mp)
-            {
-                MassElement = new HkMassElement();
-                MassElement.Properties = mp;
-                MassElement.Tranform = Transform;
-            }
-        }
+        #region Fields
+        static MyStringId m_startCue = MyStringId.GetOrCompute("Start");
 
         private Vector3 m_lastLinearVelocity;
         private Vector3 m_lastAngularVelocity;
         private int m_motionCounter = 0;
+        //MyMotionState m_motionState;
+        protected float m_angularDamping;
+        protected float m_linearDamping;
+
+        protected ulong ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+
+        public new MyPhysicsBodyComponentDefinition Definition { get; private set; }
+
+        protected HkWorld m_world;
+        public HkWorld HavokWorld
+        {
+            get { return IsWelded ? WeldInfo.Parent.m_world : m_world; }
+        }
+
+        #endregion
 
         #region Properties
 
@@ -104,7 +102,7 @@ namespace Sandbox.Engine.Physics
             }
         }
         private HkRigidBody m_rigidBody;
-        public virtual HkRigidBody RigidBody
+        public override HkRigidBody RigidBody
         {
             get { return WeldInfo.Parent != null ? WeldInfo.Parent.RigidBody : m_rigidBody; }
             protected set
@@ -125,7 +123,7 @@ namespace Sandbox.Engine.Physics
                 }
             }
         }
-        public virtual HkRigidBody RigidBody2 { get; protected set; }
+        public override HkRigidBody RigidBody2 { get; protected set; }
 
         public delegate void PhysicsContactHandler(ref MyPhysics.MyContactPointEvent e);
         public event PhysicsContactHandler ContactPointCallback;
@@ -190,7 +188,7 @@ namespace Sandbox.Engine.Physics
         {
             get
             {
-                if(RigidBody != null)
+                if (RigidBody != null)
                     return RigidBody.IsFixed;
                 return false;
             }
@@ -208,8 +206,18 @@ namespace Sandbox.Engine.Physics
 
         protected override void CloseRigidBody()
         {
+            if(IsWelded)
+            {
+                WeldInfo.Parent.Unweld(this, false);
+            }
+            if(WeldInfo.Children.Count != 0)
+            {
+                MyWeldingGroups.ReplaceParent(MyWeldingGroups.Static.GetGroup((MyEntity)Entity), (MyEntity)Entity, null);
+            }
+
             Debug.Assert(WeldInfo.Children.Count == 0, "Closing weld parent!");
             Debug.Assert(IsWelded == false, "Closing welded physics");
+            CheckRBNotInWorld();
             if (RigidBody != null)
             {
                 // RigidBody.CollisionShape.Dispose();
@@ -241,33 +249,12 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        //public abstract void CreateFromCollisionObject(HkShape shape, Vector3 center, Matrix worldTransform, HkMassProperties massProperties = null, int collisionFilter = 15/*MyPhysics.DefaultCollisionLayer*/); //TODO!
+        //public abstract void CreateFromCollisionObject(HkShape shape, Vector3 center, Matrix worldTransform, HkMassProperties massProperties = null, int collisionFilter = 15/*MyPhysics.CollisionLayers.DefaultCollisionLayer*/); //TODO!
 
         /// <summary>
         /// Must be set before creating rigid body
         /// </summary>
         public HkSolverDeactivation InitialSolverDeactivation = HkSolverDeactivation.Low;
-
-
-        #endregion
-
-        #region Fields
-
-        //MyMotionState m_motionState;
-        protected float m_angularDamping;
-        protected float m_linearDamping;
-
-        protected ulong ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
-
-        protected HkWorld m_world;
-        public HkWorld HavokWorld
-        {
-            get { return IsWelded ? WeldInfo.Parent.HavokWorld : m_world; }
-        }
-
-        #endregion
-
-        #region Properties
 
         public MyCharacterProxy CharacterProxy { get; set; }
 
@@ -275,8 +262,6 @@ namespace Sandbox.Engine.Physics
         public int CharacterSystemGroupCollisionFilterID { get; private set; }
         /// This is character collision filter, use this to avoid collisions with character and character holding bodies
         public uint CharacterCollisionFilter { get; private set; }
-        /// This System Collision ID is used for ragdoll in non-dead mode to avoid collision with character's rigid body
-        public int RagdollSystemGroupCollisionFilterID { get; private set; }
 
         private bool m_isInWorld = false;
 
@@ -313,6 +298,9 @@ namespace Sandbox.Engine.Physics
                 if (CharacterProxy != null)
                     return CharacterProxy.LinearVelocity;
 
+                if (Ragdoll != null && Ragdoll.IsActive)
+                    return Ragdoll.GetRootRigidBody().LinearVelocity;
+
                 return Vector3.Zero;
             }
             set
@@ -328,7 +316,22 @@ namespace Sandbox.Engine.Physics
                 if (CharacterProxy != null)
                     CharacterProxy.LinearVelocity = value;
 
+                if (Ragdoll != null && Ragdoll.IsActive)
+                {
+                    foreach (var body in Ragdoll.RigidBodies)
+                    {
+                        body.LinearVelocity = value;
+                    }
+                }
             }
+        }
+
+        public override void SetSpeeds(Vector3 linear, Vector3 angular)
+        {
+            LinearVelocity = linear;
+            AngularVelocity = angular;
+            ClearAccelerations();
+            SetActualSpeedsAsPrevious();
         }
 
         /// <summary>
@@ -345,6 +348,8 @@ namespace Sandbox.Engine.Physics
             }
             set
             {
+                if (RigidBody != null)
+                    this.RigidBody.LinearDamping = value;
                 Debug.Assert(!float.IsNaN(value));
                 m_linearDamping = value;
             }
@@ -364,6 +369,8 @@ namespace Sandbox.Engine.Physics
             }
             set
             {
+                if(RigidBody != null)
+                    this.RigidBody.AngularDamping = value;
                 Debug.Assert(!float.IsNaN(value));
                 m_angularDamping = value;
             }
@@ -385,6 +392,10 @@ namespace Sandbox.Engine.Physics
                 if (CharacterProxy != null)
                     return CharacterProxy.AngularVelocity;
 
+
+                if (Ragdoll != null && Ragdoll.IsActive)
+                    return Ragdoll.GetRootRigidBody().AngularVelocity;
+
                 return Vector3.Zero;
             }
             set
@@ -397,12 +408,25 @@ namespace Sandbox.Engine.Physics
                 }
                 if (CharacterProxy != null)
                     CharacterProxy.AngularVelocity = value;
+
+                if (Ragdoll != null && Ragdoll.IsActive)
+                {
+                    foreach (var body in Ragdoll.RigidBodies)
+                    {
+                        body.AngularVelocity = value;
+                    }
+                }
             }
         }
 
         #endregion
 
         #region Methods
+
+        // Parameterless constructor for component initializer.
+        public MyPhysicsBody()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MyPhysicsBody"/> class.
@@ -462,12 +486,12 @@ namespace Sandbox.Engine.Physics
             position.AssertIsValid();
             torque.AssertIsValid();
 
-            System.Diagnostics.Debug.Assert(IsInWorld == true || IsWelded);
+            //System.Diagnostics.Debug.Assert(IsInWorld == true || IsWelded);
 
             if (IsStatic)
                 return;
             if (MyDebugDrawSettings.DEBUG_DRAW_PHYSICS_FORCES)
-                DebugDrawAddForce(type, force, position, torque);
+                MyPhysicsDebugDraw.DebugDrawAddForce(this, type, force, position, torque);
 
             Matrix transform;
 
@@ -525,107 +549,6 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        private void DebugDrawAddForce(MyPhysicsForceType type, Vector3? force, Vector3D? position, Vector3? torque)
-        {
-            Matrix transform;
-
-            const float scale = 0.1f; 
-            switch (type)
-            {
-                case MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE:
-                    {
-                        if (RigidBody != null)
-                        {
-                            transform = RigidBody.GetRigidBodyMatrix();
-                            Vector3D p = CenterOfMassWorld + LinearVelocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;// ClusterToWorld(transform.Translation);//ClusterToWorld(transform.Translation);
-
-                            if(force.HasValue)
-                            {
-                                Vector3 f = Vector3.TransformNormal(force.Value, transform) * scale;
-                                MyRenderProxy.DebugDrawArrow3D(p, p + f, Color.Blue, Color.Red, false);
-                            }
-                            if (torque.HasValue)
-                            {
-                                Vector3 f = Vector3.TransformNormal(torque.Value, transform) * scale;
-                                MyRenderProxy.DebugDrawArrow3D(p, p + f, Color.Blue, Color.Purple, false);
-                            }
-                        }
-                    }
-                    break;
-                case MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE:
-                    {
-                        Vector3D p = position.Value + LinearVelocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
-                        if (force.HasValue)
-                        {
-                            MyRenderProxy.DebugDrawArrow3D(p, p + force.Value * scale, Color.Blue, Color.Red, false);
-                        }
-                        if (torque.HasValue)
-                        {
-                            MyRenderProxy.DebugDrawArrow3D(p, p + torque.Value * scale, Color.Blue, Color.Purple, false);
-                        }
-                    }
-                    break;
-                case MyPhysicsForceType.APPLY_WORLD_FORCE:
-                    {
-                        if (position.HasValue)
-                        {
-                            Vector3D p = position.Value + LinearVelocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
-                            if (force.HasValue)
-                            {
-                                MyRenderProxy.DebugDrawArrow3D(p, p + force.Value * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * scale, Color.Blue, Color.Red, false);
-                            }
-                        }
-                    }
-
-                    break;
-                default:
-                    {
-                        Debug.Fail("Unhandled enum!");
-                    }
-                    break;
-            }
-        }
-
-
-        private void ApplyForceTorqueOnRagdoll(Vector3? force, Vector3? torque, HkRagdoll ragdoll, ref Matrix transform)
-        {
-            Debug.Assert(ragdoll != null, "Invalid parameter!");
-            Debug.Assert(ragdoll.Mass != 0, "Ragdoll's mass can not be zero!");
-            foreach (var rigidBody in ragdoll.RigidBodies)
-            {
-                if (rigidBody != null)
-                {
-                    Vector3 weightedForce = force.Value * rigidBody.Mass / ragdoll.Mass;
-                    transform = rigidBody.GetRigidBodyMatrix();
-                    AddForceTorqueBody(weightedForce, torque, rigidBody, ref transform);
-                }
-            }
-        }
-
-        private void ApplyImpuseOnRagdoll(Vector3? force, Vector3D? position, Vector3? torque, HkRagdoll ragdoll)
-        {
-            Debug.Assert(ragdoll != null, "Invalid parameter!");
-            Debug.Assert(ragdoll.Mass != 0, "Ragdoll's mass can not be zero!");
-            foreach (var rigidBody in ragdoll.RigidBodies)
-            {
-                Vector3 weightedForce = force.Value * rigidBody.Mass / ragdoll.Mass;
-                ApplyImplusesWorld(weightedForce, position, torque, rigidBody);
-            }
-        }
-
-        private void ApplyForceOnRagdoll(Vector3? force, Vector3D? position, HkRagdoll ragdoll)
-        {
-            Debug.Assert(ragdoll != null, "Invalid parameter!");
-            Debug.Assert(ragdoll.Mass != 0, "Ragdoll's mass can not be zero!");
-            foreach (var rigidBody in ragdoll.RigidBodies)
-            {               
-                Vector3 weightedForce = force.Value * rigidBody.Mass / ragdoll.Mass ;
-                ApplyForceWorld(weightedForce, position, rigidBody);
-            }
-        }
-
         private void ApplyForceWorld(Vector3? force, Vector3D? position, HkRigidBody rigidBody)
         {
             if (rigidBody == null || force == null || MyUtils.IsZero(force.Value))
@@ -636,10 +559,10 @@ namespace Sandbox.Engine.Physics
             if (position.HasValue)
             {
                 Vector3 point = position.Value - offset;
-                rigidBody.ApplyForce(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value, point);
+                rigidBody.ApplyForce(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value, point);
             }
             else
-                rigidBody.ApplyForce(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value);
+                rigidBody.ApplyForce(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value);
         }
 
         private void ApplyImplusesWorld(Vector3? force, Vector3D? position, Vector3? torque, HkRigidBody rigidBody)
@@ -653,7 +576,7 @@ namespace Sandbox.Engine.Physics
                 rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - offset));
 
             if (torque.HasValue)
-                rigidBody.ApplyAngularImpulse(torque.Value * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                rigidBody.ApplyAngularImpulse(torque.Value * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
         }
 
         private static void AddForceTorqueBody(Vector3? force, Vector3? torque, HkRigidBody rigidBody, ref Matrix transform)
@@ -664,13 +587,13 @@ namespace Sandbox.Engine.Physics
             if (force != null && !MyUtils.IsZero(force.Value))
             {
                 Vector3 tmpForce = Vector3.Transform(force.Value, tempM);
-                rigidBody.ApplyLinearImpulse(tmpForce * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                rigidBody.ApplyLinearImpulse(tmpForce * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
             }
 
             if (torque != null && !MyUtils.IsZero(torque.Value))
             {
                 Vector3 tmpTorque = Vector3.Transform(torque.Value, tempM);
-                rigidBody.ApplyAngularImpulse(tmpTorque * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                rigidBody.ApplyAngularImpulse(tmpTorque * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
             }
         }
 
@@ -728,12 +651,20 @@ namespace Sandbox.Engine.Physics
                 {
                     if (c.IsDisposed)
                         continue;
-                    var pos = Vector3D.Transform((Vector3D)(c.ConstraintData as HkLimitedHingeConstraintData).BodyAPos, Entity.WorldMatrix);
-                    MyRenderProxy.DebugDrawSphere(pos, 0.2f, Color.Red, 1, false);
+
+                    Color col = Color.Green;
+
+                    if (!IsConstraintValid(c))
+                        col = Color.Red;
+
+                    Vector3 pivotA, pivotB;
+                    c.GetPivotsInWorld(out pivotA, out pivotB);
+                    var pos = ClusterToWorld(pivotA);
+                    MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
                     MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
                     i++;
-                    pos = ClusterToWorld(Vector3D.Transform((Vector3D)(c.ConstraintData as HkLimitedHingeConstraintData).BodyBPos, c.RigidBodyB.GetRigidBodyMatrix()));
-                    MyRenderProxy.DebugDrawSphere(pos, 0.2f, Color.Red, 1, false);
+                    pos = ClusterToWorld(pivotB);
+                    MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
                 }
             }
 
@@ -769,7 +700,8 @@ namespace Sandbox.Engine.Physics
                 if (RigidBody != null && BreakableBody != null)
                 {
                     Vector3D com = Vector3D.Transform((Vector3D)BreakableBody.BreakableShape.CoM, RigidBody.GetRigidBodyMatrix()) + offset;
-                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + offset, 0.2f, Color.Wheat, 1, false);
+                    Color color = RigidBody.GetMotionType() != Havok.HkMotionType.Box_Inertia ? Color.Gray : RigidBody.IsActive ? Color.Red : Color.Blue;
+                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + offset, 0.2f, color, 1, false);
 
                     VRageRender.MyRenderProxy.DebugDrawAxis(Entity.PositionComp.WorldMatrix, 0.2f, false);
                 }
@@ -805,7 +737,7 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        public virtual void CreateFromCollisionObject(HkShape shape, Vector3 center, MatrixD worldTransform, HkMassProperties? massProperties = null, int collisionFilter = MyPhysics.DefaultCollisionLayer)
+        public virtual void CreateFromCollisionObject(HkShape shape, Vector3 center, MatrixD worldTransform, HkMassProperties? massProperties = null, int collisionFilter = MyPhysics.CollisionLayers.DefaultCollisionLayer)
         {
             //jn:TODO: is this safe? repro: destruction of cockpit -> character gets spawned
             //MyPhysics.AssertThread();
@@ -828,7 +760,7 @@ namespace Sandbox.Engine.Physics
 
             if ((int)(Flags & RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE) > 0)
             {
-                RigidBody.Layer = MyPhysics.NoCollisionLayer;
+                RigidBody.Layer = MyPhysics.CollisionLayers.NoCollisionLayer;
             }
 
             if ((int)(Flags & RigidBodyFlag.RBF_DOUBLED_KINEMATIC) > 0 && MyFakes.ENABLE_DOUBLED_KINEMATIC)
@@ -870,42 +802,6 @@ namespace Sandbox.Engine.Physics
             GetInfoFromFlags(rbInfo, Flags);
 
             RigidBody = new HkRigidBody(rbInfo);
-
-            ProfilerShort.End();
-        }
-
-        private List<HkdBreakableBodyInfo> m_tmpLst = new List<HkdBreakableBodyInfo>();
-
-        public virtual void FracturedBody_AfterReplaceBody(ref HkdReplaceBodyEvent e)
-        {
-            System.Diagnostics.Debug.Assert(Sync.IsServer, "Client must not simulate destructions");
-            if (!Sandbox.Game.Multiplayer.Sync.IsServer)
-                return;
-
-            ProfilerShort.Begin("DestructionFracture.AfterReplaceBody");
-            Debug.Assert(BreakableBody != null);
-            e.GetNewBodies(m_tmpLst);
-            if (m_tmpLst.Count == 0)// || e.OldBody != DestructionBody)
-                return;
-
-            MyPhysics.RemoveDestructions(RigidBody);
-            foreach (var b in m_tmpLst)
-            {
-                var bBody = MyFracturedPiecesManager.Static.GetBreakableBody(b);
-                MatrixD m = bBody.GetRigidBody().GetRigidBodyMatrix();
-                m.Translation = ClusterToWorld(m.Translation);
-                var piece = MyDestructionHelper.CreateFracturePiece(bBody, ref m, (Entity as MyFracturedPiece).OriginalBlocks);
-                if (piece == null)
-                {
-                    MyFracturedPiecesManager.Static.ReturnToPool(bBody);
-                    continue;
-                }
-            }
-            m_tmpLst.Clear();
-
-            BreakableBody.AfterReplaceBody -= FracturedBody_AfterReplaceBody;
-
-            MyFracturedPiecesManager.Static.RemoveFracturePiece(Entity as MyFracturedPiece, 0);
 
             ProfilerShort.End();
         }
@@ -969,30 +865,30 @@ namespace Sandbox.Engine.Physics
             var colision = value.Base;
             Func<bool> canHear = () =>
             {
-                if (MySession.ControlledEntity != null)
+                if (MySession.Static.ControlledEntity != null)
                 {
-                    var entity = MySession.ControlledEntity.Entity.GetTopMostParent();
+                    var entity = MySession.Static.ControlledEntity.Entity.GetTopMostParent();
                     return (entity == value.GetPhysicsBody(0).Entity || entity == value.GetPhysicsBody(1).Entity);
                 }
                 return false;
             };
 
-            Func<bool> shouldPlay2D = () => MySession.ControlledEntity != null && MySession.ControlledEntity.Entity is MyCharacter && (
-                            MySession.ControlledEntity.Entity.Components == value.GetPhysicsBody(0).Entity || MySession.ControlledEntity.Entity.Components == value.GetPhysicsBody(1).Entity);
+            Func<bool> shouldPlay2D = () => MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity is MyCharacter && (
+                            MySession.Static.ControlledEntity.Entity.Components == value.GetPhysicsBody(0).Entity || MySession.Static.ControlledEntity.Entity.Components == value.GetPhysicsBody(1).Entity);
 
             ProfilerShort.BeginNextBlock("Volume");
             if (volume == 0)
             {
-                var vel = value.Base.BodyA.LinearVelocity - value.Base.BodyB.LinearVelocity;
+                //var vel = value.Base.BodyA.LinearVelocity - value.Base.BodyB.LinearVelocity;
                 //if (System.Math.Abs(Vector3.Normalize(vel).Dot(value.ContactPoint.Normal)) < 0.7f)\
-                var val = System.Math.Abs(Vector3.Normalize(vel).Dot(value.ContactPoint.Normal)) * vel.Length();
+                //var val = System.Math.Abs(Vector3.Normalize(vel).Dot(value.ContactPoint.Normal)) * vel.Length();
                 //var mass = value.Base.BodyA.Mass;
                 //var massB = value.Base.BodyB.Mass;
                 //mass = mass == 0 ? massB : massB == 0 ? mass : mass < massB ? mass : massB; // select smaller mass > 0
                 //mass /= 40; //reference mass
                 //val *= mass;
-                if (val < 10)
-                    volume = val / 10;
+                if (value.SeparatingVelocity < 10)
+                    volume = value.SeparatingVelocity / 10;
                 else
                     volume = 1;
             }
@@ -1002,16 +898,16 @@ namespace Sandbox.Engine.Physics
             var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
             var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
             ProfilerShort.BeginNextBlock("PlaySound");
-
-            MyAudioComponent.PlayContactSound(Entity.EntityId, worldPos, materialA, materialB, volume, canHear);
+            MyAudioComponent.PlayContactSound(Entity.EntityId, m_startCue, worldPos, materialA, materialB, volume, canHear);
             ProfilerShort.End();
             ProfilerShort.End();
         }
 
 
         public override void CreateCharacterCollision(Vector3 center, float characterWidth, float characterHeight,
-            float crouchHeight, float ladderHeight, float headSize, float headHeight,
-            MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, float maxImpulse, bool networkProxy)
+                                                    float crouchHeight, float ladderHeight, float headSize, float headHeight,
+                                                    MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, float maxImpulse, float maxSpeedRelativeToShip, bool networkProxy,
+                                                    float? maxForce = null)
         {
             Center = center;
             CanUpdateAccelerations = false;
@@ -1046,10 +942,13 @@ false,
                 this,
                 isOnlyVertical,
                 maxSlope,
-                maxImpulse);
+                maxImpulse,
+                maxSpeedRelativeToShip,
+                maxForce);
 
-            CharacterProxy.GetRigidBody().ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
-            CharacterProxy.GetRigidBody().ContactSoundCallbackEnabled = true;
+            //Unreliable, using fall sounds only now (when hiting ground with feet)
+            //CharacterProxy.GetRigidBody().ContactSoundCallback += MyPhysicsBody_ContactSoundCallback;
+            //CharacterProxy.GetRigidBody().ContactSoundCallbackEnabled = true;
             CharacterProxy.GetRigidBody().ContactPointCallbackDelay = 0;
             //CharacterProxy.Gravity = new Vector3(0, -20, 0);
 
@@ -1065,8 +964,30 @@ false,
         {
             if (ClusterObjectID != MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED)
             {
-                MyPhysics.Clusters.RemoveObject(ClusterObjectID);
-                ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+                UnweldAll(true);
+                if (IsWelded)
+                    Unweld(false);
+                else
+                {
+                    MyPhysics.Clusters.RemoveObject(ClusterObjectID);
+                    ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+                    CheckRBNotInWorld();
+                }
+            }
+        }
+
+        private void CheckRBNotInWorld()
+        {
+            if (RigidBody != null && RigidBody.InWorld)
+            {
+                Debug.Fail("RB in world after deactivation.");
+                Sandbox.Engine.Networking.MyAnalyticsHelper.ReportActivityStart((MyEntity)Entity, "RigidBody in world after deactivation", "", "DevNote", "", false);
+                RigidBody.RemoveFromWorld();
+            }
+            if (RigidBody2 != null && RigidBody2.InWorld)
+            {
+                Debug.Fail("RB in world after deactivation.");
+                RigidBody2.RemoveFromWorld();
             }
         }
 
@@ -1077,22 +998,33 @@ false,
             if (IsRagdollModeActive)
             {
                 ReactivateRagdoll = true;
-                CloseRagdollMode();
+                CloseRagdollMode(world as HkWorld);
             }
 
             // MW: activate simulation island when a physics body is removed
             if (IsInWorld && RigidBody != null && !RigidBody.IsActive)
-                RigidBody.Activate();
+            {
+                if (!RigidBody.IsFixed)
+                {
+                    RigidBody.Activate();
+                }
+                else
+                {
+                    BoundingBoxD worldBox = Entity.PositionComp.WorldAABB;
+                    worldBox.Inflate(0.5f);
+                    MyPhysics.ActivateInBox(ref worldBox);
+                }
+            }
 
             if (BreakableBody != null && m_world.DestructionWorld != null)
             {
                 m_world.DestructionWorld.RemoveBreakableBody(BreakableBody);
             }
-            else if (RigidBody != null)
+            else if (RigidBody != null && !RigidBody.IsDisposed)
             {
-                m_world.RemoveRigidBody(RigidBody);
+                m_world.RemoveRigidBody(RigidBody);                
             }
-            if (RigidBody2 != null)
+            if (RigidBody2 != null && !RigidBody2.IsDisposed)
             {
                 m_world.RemoveRigidBody(RigidBody2);
             }
@@ -1100,10 +1032,13 @@ false,
             {
                 CharacterProxy.Deactivate(m_world);
             }
-
+            
             foreach (var constraint in m_constraints)
             {
-                m_world.RemoveConstraint(constraint);
+               if (constraint.IsDisposed) 
+                   continue;
+
+               m_world.RemoveConstraint(constraint);             
             }
 
             m_world = null;
@@ -1117,7 +1052,7 @@ false,
             if (IsRagdollModeActive)
             {
                 ReactivateRagdoll = true;
-                CloseRagdollMode();
+                CloseRagdollMode(world as HkWorld);
             }
 
             if (BreakableBody != null)
@@ -1152,8 +1087,13 @@ false,
 
             foreach (var constraint in m_constraintsAddBatch)
             {
-                m_world.AddConstraint(constraint);
-                constraint.OnAddedToWorld();
+                if (IsConstraintValid(constraint))
+                {
+                    m_world.AddConstraint(constraint);
+                    constraint.OnAddedToWorld();
+                }
+                else
+                    Debug.Fail("Trying to add invalid constraint!");
             }
             m_constraintsAddBatch.Clear();
 
@@ -1171,19 +1111,21 @@ false,
 
             foreach (var constraint in m_constraintsRemoveBatch)
             {
-                if (constraint.InWorld)
+                if (IsConstraintValid(constraint) && constraint.InWorld)
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
                     constraint.OnRemovedFromWorld();
                     world.RemoveConstraint(constraint);
                 }
+                else
+                    Debug.Fail("Trying to remove invalid constraint!");
             }
 
             if (IsRagdollModeActive)
             {
                 ReactivateRagdoll = true;
-                CloseRagdollMode();
+                CloseRagdollMode(world);
             }
 
             m_constraintsRemoveBatch.Clear();
@@ -1204,12 +1146,12 @@ false,
         /// <summary>
         /// Returns true when linear velocity or angular velocity is non-zero.
         /// </summary>
-        public bool IsMoving
+        public override bool IsMoving
         {
             get { return !Vector3.IsZero(LinearVelocity) || !Vector3.IsZero(AngularVelocity); }
         }
 
-        public Vector3 Gravity
+        public override Vector3 Gravity
         {
             get
             {
@@ -1236,6 +1178,7 @@ false,
         {
             if (rbo == RigidBody2)
                 return;
+            Debug.Assert(rbo == RigidBody);
 
             foreach(var child in WeldInfo.Children)
             {
@@ -1267,7 +1210,6 @@ false,
 
             if (RigidBody2 != null)
             {
-                Debug.Assert(rbo == RigidBody);
                 // To prevent disconnect movement between dynamic and kinematic
                 // Setting motion to prevent body activation (we don't want to activate kinematic body)
                 ProfilerShort.Begin("Set doubled body");
@@ -1285,7 +1227,7 @@ false,
                 ProfilerShort.End();
 
                 ProfilerShort.Begin("SetWorldMatrix");
-                this.Entity.PositionComp.SetWorldMatrix(matrix, this);
+                this.Entity.PositionComp.SetWorldMatrix(matrix, this, true);
                 ProfilerShort.End();
                 m_motionCounter = 0;
             }
@@ -1294,9 +1236,6 @@ false,
             if(WeldInfo.Parent == null)
                 UpdateCluster();
             ProfilerShort.End();
-
-            foreach (var weldedBody in WeldInfo.Children)
-                weldedBody.OnMotion(rbo, step);
 
             ProfilerShort.End();
         }
@@ -1334,8 +1273,7 @@ false,
             }
             else if (Ragdoll != null & IsRagdollModeActive)
             {
-                Ragdoll.UpdateWorldMatrixAfterSimulation();
-                entityMatrix = Ragdoll.WorldMatrix;
+                entityMatrix = Ragdoll.WorldMatrix;               
                 entityMatrix.Translation = entityMatrix.Translation + offset;
             }
 
@@ -1365,7 +1303,6 @@ false,
             Debug.Assert(this != source, "Recursion!");
             //Debug.Assert(Entity.Parent == null || RigidBody.IsFixedOrKeyframed);
 
-            var oldWorld = m_world;
             Vector3 velocity = Vector3.Zero;
             IMyEntity parentEntity = Entity.GetTopMostParent();
             if (parentEntity != null && parentEntity.Physics != null)
@@ -1375,12 +1312,6 @@ false,
             if(!IsWelded)
                 MyPhysics.Clusters.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
 
-            //if (m_motionState != null)
-            //{
-            //    m_motionState.FireOnOnMotion = false;
-            //    m_motionState.WorldTransform = rigidBodyMatrix;
-            //    m_motionState.FireOnOnMotion = true;
-            //}
             Matrix rigidBodyMatrix = GetRigidBodyMatrix();
 
             if (RigidBody != null)
@@ -1411,7 +1342,7 @@ false,
             //if (Ragdoll != null && IsRagdollModeActive && m_ragdollDeadMode && !Sync.IsServer && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
             //{
             //    //Ragdoll.SetToKeyframed();
-            //    //Ragdoll.SwitchToLayer(MyPhysics.RagdollCollisionLayer);
+            //    //Ragdoll.SwitchToLayer(MyPhysics.CollisionLayers.RagdollCollisionLayer);
             //    Ragdoll.SetWorldMatrix(rigidBodyMatrix,true);
             //}
 
@@ -1455,8 +1386,6 @@ false,
 
         #endregion
 
-        #region Clusters
-
         public override bool HasRigidBody { get { return RigidBody != null; } }
 
         public override Vector3D CenterOfMassWorld
@@ -1468,10 +1397,7 @@ false,
             }
         }
 
-        //Vector3 GetVelocityAtPoint(Vector3D worldPos)
-        //{
-        //    return LinearVelocity + AngularVelocity.Cross(worldPos - CenterOfMassWorld);
-        //}
+        #region Clusters
 
         void OnContactPointCallback(ref HkContactPointEvent e)
         {
@@ -1491,8 +1417,9 @@ false,
             ProfilerShort.End();
         }
 
-        private static bool IsConstraintValid(HkConstraint constraint)
+        public static bool IsConstraintValid(HkConstraint constraint)
         {
+            if (constraint == null) return false;
             if (constraint.IsDisposed) return false;
             if (constraint.RigidBodyA == null | constraint.RigidBodyB == null) return false;
             if (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld) return false;
@@ -1500,25 +1427,30 @@ false,
         }
         public void AddConstraint(HkConstraint constraint)
         {
-            if (constraint.UserData == 0)
-                constraint.UserData = (uint) (WeldedRigidBody == null ? RigidBody.GetGcRoot() : WeldedRigidBody.GetGcRoot());
-
             if (IsWelded)
             {
                 WeldInfo.Parent.AddConstraint(constraint);
                 return;
             }
+            if (HavokWorld == null || RigidBody == null)
+                return;
+            if (constraint.UserData == 0)
+                constraint.UserData = (uint)(WeldedRigidBody == null ? RigidBody.GetGcRoot() : WeldedRigidBody.GetGcRoot());
+
             Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
 
-            Debug.Assert(m_world.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
-            Debug.Assert(m_world.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
             Debug.Assert(constraint.RigidBodyA.IsAddedToWorld);
             Debug.Assert(constraint.RigidBodyB.IsAddedToWorld);
             m_constraints.Add(constraint);
 
-            m_world.AddConstraint(constraint);
+            HavokWorld.AddConstraint(constraint);
 
-            constraint.OnAddedToWorld();
+            if (constraint.InWorld)
+                constraint.OnAddedToWorld();
+            else
+                Debug.Fail("Constraint not added!");
         }
 
         public void RemoveConstraint(HkConstraint constraint)
@@ -1533,10 +1465,10 @@ false,
 
             m_constraints.Remove(constraint);
 
-            if (m_world != null)
+            if (HavokWorld != null)
             {
                 constraint.OnRemovedFromWorld();
-                m_world.RemoveConstraint(constraint);
+                HavokWorld.RemoveConstraint(constraint);
             }
         }
 
@@ -1552,13 +1484,13 @@ false,
             set { m_isStaticForCluster = value; }
         }
 
-        public Vector3D WorldToCluster(Vector3D worldPos)
+        public override Vector3D WorldToCluster(Vector3D worldPos)
         {
             var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
             return (Vector3D)(worldPos - offset);
         }
 
-        public Vector3D ClusterToWorld(Vector3 clusterPos)
+        public override Vector3D ClusterToWorld(Vector3 clusterPos)
         {
             var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
             return (Vector3D)clusterPos + (Vector3D)offset;
@@ -1581,6 +1513,7 @@ false,
         {
             System.Diagnostics.Debug.Assert(m_world == null, "Cannot activate already active object!");
             System.Diagnostics.Debug.Assert(!IsInWorld, "Cannot activate already active object!");
+            System.Diagnostics.Debug.Assert(!IsWelded, "Activating welded body!");
 
             m_world = (HkWorld)world;
             ClusterObjectID = clusterObjectID;
@@ -1617,7 +1550,7 @@ false,
                 // obtain this character new system group id for collision filtering
                 CharacterSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
                 // Calculate filter info for this character
-                CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 0, 0);
+                CharacterCollisionFilter = HkGroupFilter.CalcFilterInfo(MyPhysics.CollisionLayers.CharacterCollisionLayer, CharacterSystemGroupCollisionFilterID, 0, 0);
                 CharacterProxy.CharacterRigidBody.SetCollisionFilterInfo(CharacterCollisionFilter);
 
 
@@ -1639,16 +1572,24 @@ false,
                 SwitchToRagdollMode(m_ragdollDeadMode);
             }
 
+            m_world.LockCriticalOperations();
+                      
             foreach (var constraint in m_constraints)
             {
-                if (!IsConstraintValid(constraint)) continue;
-                m_world.AddConstraint(constraint);
+                if (!IsConstraintValid(constraint)) 
+                    continue;
+
+                m_world.AddConstraint(constraint);               
             }
+
+            m_world.UnlockCriticalOperations();
+           
         }
 
         public virtual void ActivateBatch(object world, ulong clusterObjectID)
         {
             System.Diagnostics.Debug.Assert(m_world == null, "Cannot activate already active object!");
+            System.Diagnostics.Debug.Assert(!IsWelded, "Activating welded body!");
 
             m_world = (HkWorld)world;
             ClusterObjectID = clusterObjectID;
@@ -1690,8 +1631,14 @@ false,
         }
         public void UpdateCluster()
         {
-            if (!MyPerGameSettings.LimitedWorld)
-                MyPhysics.Clusters.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB, Entity.GetTopMostParent().Physics.LinearVelocity);
+            Debug.Assert(Entity != null && !Entity.Closed && Entity.GetTopMostParent().Physics != null);
+            if (!MyPerGameSettings.LimitedWorld && Entity != null && !Entity.Closed)
+            {
+                var physics = Entity.GetTopMostParent().Physics;
+                if(physics != null)
+                    MyPhysics.Clusters.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
+                        physics.LinearVelocity);
+            }
         }
 
         void MyHavokCluster.IMyActivationHandler.Activate(object userData, ulong clusterObjectID)
@@ -1739,554 +1686,28 @@ false,
 
         #endregion
 
-        private HkdBreakableBody m_breakableBody;
-        public HkdBreakableBody BreakableBody
-        {
-            get { return m_breakableBody; }
-            set
-            {
-                m_breakableBody = value;
-                RigidBody = value;
-            }
-        }
         public override void UpdateAccelerations()
         {
             Vector3 delta = LinearVelocity - m_lastLinearVelocity;
             m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            LinearAcceleration = delta / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
             m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            AngularAcceleration = deltaAng / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
         }
 
-        #region Ragdoll
-
-        /// <summary>
-        /// Returns true when ragdoll is in world
-        /// </summary>
-        public bool IsRagdollModeActive
+        public void ClearAccelerations()
         {
-            get
-            {
-                if (Ragdoll == null) return false;
-                return Ragdoll.InWorld;
-            }
+            LinearAcceleration = Vector3.Zero;
+            AngularAcceleration = Vector3.Zero;
         }
 
-        public HkRagdoll Ragdoll
+        public void SetActualSpeedsAsPrevious()
         {
-            get
-            {
-                return m_ragdoll;
-            }
-            set
-            {
-                m_ragdoll = value;
-                if (m_ragdoll != null)
-                {
-                    m_ragdoll.AddedToWorld += OnRagdollAddedToWorld;
-                }
-            }
-        }
-
-        protected HkRagdoll m_ragdoll;
-        private bool m_ragdollDeadMode;
-
-        public void CloseRagdoll()
-        {
-            if (Ragdoll != null)
-            {
-                if (IsRagdollModeActive)
-                {
-                    CloseRagdollMode();
-                }
-                if (Ragdoll.InWorld)
-                {
-                    HavokWorld.RemoveRagdoll(Ragdoll);
-                }
-                Ragdoll.Dispose();
-                Ragdoll = null;
-            }
-        }
-
-        public void SwitchToRagdollMode(bool deadMode = true, int firstRagdollSubID = 1)
-        {
-            Debug.Assert(Enabled, "Trying to switch to ragdoll mode, but Physics are not enabled");
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.SwitchToRagdollMode");
-
-            if (HavokWorld == null || !Enabled)
-            {                
-                SwitchToRagdollModeOnActivate = true;
-                m_ragdollDeadMode = deadMode;
-                return;
-            }
-
-            if (IsRagdollModeActive)
-            {
-                Debug.Fail("Ragdoll mode is already active!");
-                return;
-            }                     
-
-            Matrix havokMatrix = Entity.WorldMatrix;
-            havokMatrix.Translation = WorldToCluster(havokMatrix.Translation);
-            Debug.Assert(havokMatrix.IsValid() && havokMatrix != Matrix.Zero, "Invalid world matrix!");
-
-            if (RagdollSystemGroupCollisionFilterID == 0)
-            {
-                RagdollSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
-            }
-
-            Ragdoll.SetToKeyframed();   // this will disable the bodies to get the impulse when repositioned
-
-            Ragdoll.GenerateRigidBodiesCollisionFilters(deadMode ? MyPhysics.CharacterCollisionLayer : MyPhysics.RagdollCollisionLayer, RagdollSystemGroupCollisionFilterID, firstRagdollSubID);
-
-            Ragdoll.ResetToRigPose();
-
-            Ragdoll.SetWorldMatrix(havokMatrix);
-            
-            if (deadMode) Ragdoll.SetToDynamic();
-
-            if (deadMode)
-            {
-                foreach (HkRigidBody body in Ragdoll.RigidBodies)
-                {
-                    // set the velocities for the bodies
-                    body.AngularVelocity = AngularVelocity;
-                    body.LinearVelocity = LinearVelocity;
-                }
-            }
-            else
-            {
-                Ragdoll.ResetVelocities();
-            }
-
-            if (CharacterProxy != null && deadMode)
-            {
-                CharacterProxy.Deactivate(HavokWorld);
-                CharacterProxy.Dispose();
-                CharacterProxy = null;
-            }
-
-            if (RigidBody != null && deadMode)
-            {
-                RigidBody.Deactivate();
-                HavokWorld.RemoveRigidBody(RigidBody);
-                RigidBody.Dispose();
-                RigidBody = null;
-            }
-
-            if (RigidBody2 != null && deadMode)
-            {
-                RigidBody2.Deactivate();
-                HavokWorld.RemoveRigidBody(RigidBody2);
-                RigidBody2.Dispose();
-                RigidBody2 = null;
-            }
-
-            foreach (var body in Ragdoll.RigidBodies)
-            {
-                body.UserObject = deadMode ? this : null;
-
-                // TODO: THIS SHOULD BE SET IN THE RAGDOLL MODEL AND NOT DEFINING IT FOR EVERY MODEL HERE
-                body.Motion.SetDeactivationClass(deadMode ? HkSolverDeactivation.High : HkSolverDeactivation.Medium);// - TODO: Find another way - this is deprecated by Havok
-                body.Quality = HkCollidableQualityType.Moving;
-
-            }
-
-            Ragdoll.OptimizeInertiasOfConstraintTree();
-
-            if (!Ragdoll.InWorld)
-            {
-                //Ragdoll.RecreateConstraints();
-                HavokWorld.AddRagdoll(Ragdoll);
-            }
-
-            Ragdoll.EnableConstraints();
-            Ragdoll.Activate();
-            m_ragdollDeadMode = deadMode;                        
-        }
-
-        private void ActivateRagdoll(Matrix worldMatrix)
-        {
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateRagdoll");
-            if (Ragdoll == null)
-            {
-                Debug.Fail("Can not switch to Ragdoll mode, ragdoll is null!");
-                return;
-            }
-            if (HavokWorld == null)
-            {
-                Debug.Fail("Can not swtich to Ragdoll mode, HavokWorld is null!");
-                return;
-            }
-            if (IsRagdollModeActive)
-            {
-                Debug.Fail("Can not switch to ragdoll mode, ragdoll is still active!");
-                return;
-            }
-            //Matrix world = Entity.WorldMatrix;
-            //world.Translation = WorldToCluster(world.Translation);
-            Debug.Assert(worldMatrix.IsValid() && worldMatrix != Matrix.Zero, "Ragdoll world matrix is invalid!");
-
-            Ragdoll.SetWorldMatrix(worldMatrix);
-
-            foreach (var body in Ragdoll.RigidBodies)
-            {
-                body.LinearVelocity = LinearVelocity;
-                body.AngularVelocity = Vector3.Zero;
-            }
-                        
-            // Because after cluster's reorder, the bodies can collide!            
-            HavokWorld.AddRagdoll(Ragdoll);
-            DisableRagdollBodiesCollisions();
-        }
-
-        private void OnRagdollAddedToWorld(HkRagdoll ragdoll)
-        {
-            Debug.Assert(Ragdoll.InWorld, "Ragdoll was not added to world!");
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.OnRagdollAddedToWorld");
-            Ragdoll.Activate();
-            Ragdoll.EnableConstraints();
-            HkConstraintStabilizationUtil.StabilizeRagdollInertias(ragdoll, 1, 0);
-        }
-
-        public void CloseRagdollMode()
-        {
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.CloseRagdollMode");
-            if (IsRagdollModeActive)
-            {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("CloseRagdollMode");
-                foreach (var body in Ragdoll.RigidBodies)
-                {
-                    body.UserObject = null;
-                }
-
-                Debug.Assert(Ragdoll.InWorld, "Can not remove ragdoll when it's not in the world");
-                Ragdoll.Deactivate();
-                HavokWorld.RemoveRagdoll(Ragdoll);
-                Ragdoll.ResetToRigPose();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-                if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.CloseRagdollMode Closed");
-            }
-        }
-
-        /// <summary>
-        ///  Sets default values for ragdoll bodies and constraints - useful if ragdoll model is not correct
-        /// </summary>
-        public void SetRagdollDefaults()
-        {
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.SetRagdollDefaults");
-            var wasKeyframed = Ragdoll.IsKeyframed;
-            Ragdoll.SetToDynamic();
-            
-            // Compute total mass of the character and distribute it amongs ragdoll bodies
-            var definedMass = (Entity as MyCharacter).Definition.Mass;       
-            if (definedMass <= 1)
-            {
-                definedMass = 80;
-            }
-
-            float totalVolume = 0f;
-            foreach (var body in Ragdoll.RigidBodies)
-            {
-                float bodyLength = 0;
-                
-                var shape = body.GetShape();
-
-                Vector4 min, max;
-                
-                shape.GetLocalAABB(0.01f, out min, out max);
-
-                bodyLength = (max - min).Length();
-
-                totalVolume += bodyLength;
-            }
-
-            // correcting the total volume
-            if (totalVolume <= 0)
-            {
-                totalVolume = 1;
-            }
-
-            // bodies default settings            
-            foreach (var body in Ragdoll.RigidBodies)
-            {
-                body.MaxLinearVelocity = 1000.0f;
-                body.MaxAngularVelocity = 1000.0f;
-
-                body.Quality = HkCollidableQualityType.Moving;               
-                               
-                var shape = body.GetShape();
-
-                Vector4 min, max;
-
-                shape.GetLocalAABB(0.01f, out min, out max);
-
-                float bodyLength = (max - min).Length();
-
-                float computedMass = definedMass / totalVolume * bodyLength;
-
-                body.Mass = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(computedMass) : computedMass;
-
-                float radius = shape.ConvexRadius;
-                if (shape.ShapeType == HkShapeType.Capsule)
-                {
-                    HkCapsuleShape capsule = (HkCapsuleShape)shape;
-                    HkMassProperties massProperties = HkInertiaTensorComputer.ComputeCapsuleVolumeMassProperties(capsule.VertexA, capsule.VertexB, radius, body.Mass);
-                    body.InertiaTensor = massProperties.InertiaTensor;
-                }
-                else
-                {
-                    HkMassProperties massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(Vector3.One * bodyLength * 0.5f, body.Mass);
-                    body.InertiaTensor = massProperties.InertiaTensor;
-                }
-
-                body.AngularDamping = 0.005f;
-                body.LinearDamping = 0.05f;
-                body.Friction = 6f;
-                body.AllowedPenetrationDepth = 0.1f;
-                body.Restitution = 0.05f;
-            }
-
-            Ragdoll.OptimizeInertiasOfConstraintTree();
-            
-            if (wasKeyframed)
-            {
-                Ragdoll.SetToKeyframed();
-            }
-
-            // Constraints default settings
-            foreach (var constraint in Ragdoll.Constraints)
-            {
-                if (constraint.ConstraintData is HkRagdollConstraintData)
-                {
-                    var constraintData = constraint.ConstraintData as HkRagdollConstraintData;
-                    constraintData.MaximumLinearImpulse = 3.40282e28f;
-                    constraintData.MaximumAngularImpulse = 3.40282e28f;
-                    constraintData.MaxFrictionTorque = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(0.5f) : 3f;
-                }
-                else if (constraint.ConstraintData is HkFixedConstraintData)
-                {
-                    var constraintData = constraint.ConstraintData as HkFixedConstraintData;
-                    constraintData.MaximumLinearImpulse = 3.40282e28f;
-                    constraintData.MaximumAngularImpulse = 3.40282e28f;                    
-                }
-                else if (constraint.ConstraintData is HkHingeConstraintData)
-                {
-                    var constraintData = constraint.ConstraintData as HkHingeConstraintData;
-                    constraintData.MaximumAngularImpulse = 3.40282e28f;
-                    constraintData.MaximumLinearImpulse = 3.40282e28f;                   
-                }
-                else if (constraint.ConstraintData is HkLimitedHingeConstraintData)
-                {
-                    var constraintData = constraint.ConstraintData as HkLimitedHingeConstraintData;
-                    constraintData.MaximumAngularImpulse = 3.40282e28f;
-                    constraintData.MaximumLinearImpulse = 3.40282e28f;
-                    constraintData.MaxFrictionTorque = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(0.5f) : 3f;
-                }
-            }
-        }
-
-        public bool ReactivateRagdoll { get; set; }
-
-
-        public bool SwitchToRagdollModeOnActivate { get; set; }
-
-
-        #endregion
-
-        #region Welding
-
-        public bool IsWelded { get { return WeldInfo.Parent != null; } }
-
-        public readonly MyWeldInfo WeldInfo = new MyWeldInfo();
-
-        public void Weld(MyPhysicsBody other, bool recreateShape = true)
-        {
-            if (other.WeldInfo.Parent == this) //already welded to this
-                return;
-
-            if(other.IsWelded && !IsWelded)
-            {
-                other.Weld(this);
-                return;
-            }
-
-            if(IsWelded)
-            {
-                WeldInfo.Parent.Weld(other);
-                return;
-            }
-            ProfilerShort.Begin("Weld");
-            HkShape thisShape;
-            bool firstWelded = WeldInfo.Children.Count == 0;
-            if (firstWelded)
-            {
-                RemoveConstraints(RigidBody);
-                WeldedRigidBody = RigidBody;
-                thisShape = RigidBody.GetShape();
-                if (HavokWorld != null) 
-                    HavokWorld.RemoveRigidBody(RigidBody);
-                RigidBody = HkRigidBody.Clone(RigidBody);
-                if (HavokWorld != null)
-                    HavokWorld.AddRigidBody(RigidBody);
-                HkShape.SetUserData(thisShape, RigidBody);
-                Entity.OnPhysicsChanged += WeldedEntity_OnPhysicsChanged;
-                WeldInfo.UpdateMassProps(RigidBody);
-                //Entity.OnClose += Entity_OnClose;
-            }
-            else
-                thisShape = GetShape();
-
-            other.Deactivate();
-
-            other.RemoveConstraints(other.RigidBody);//jn:TODO check if this is OK
-
-            var transform = other.RigidBody.GetRigidBodyMatrix() * Matrix.Invert(RigidBody.GetRigidBodyMatrix());
-            other.WeldInfo.Transform = transform;
-            other.WeldInfo.UpdateMassProps(other.RigidBody);
-            Debug.Assert(other.WeldedRigidBody == null);
-            other.WeldedRigidBody = other.RigidBody;
-            other.RigidBody = RigidBody;
-            other.WeldInfo.Parent = this;
-            other.ClusterObjectID = ClusterObjectID;
-            WeldInfo.Children.Add(other);
-
-            //if(recreateShape)
-            //    RecreateWeldedShape(thisShape);
-
-            ProfilerShort.BeginNextBlock("OnPhysicsChanged");
-            //(other.Entity as MyEntity).RaisePhysicsChanged();
-            //other.Entity.OnPhysicsChanged += WeldedEntity_OnPhysicsChanged;
-            //Debug.Assert(other.m_constraints.Count == 0, "Constraints left in welded body");
-            ProfilerShort.BeginNextBlock("RemoveConstraints");
-            ProfilerShort.End();
-            OnWelded(other);
-            other.OnWelded(this);
-        }
-
-        void Entity_OnClose(IMyEntity obj)
-        {
-            UnweldAll(true);
-        }
-
-        void WeldedEntity_OnPhysicsChanged(IMyEntity obj)
-        {
-            if(Entity == null || Entity.Physics == null)
-                return;
-            foreach(var child in WeldInfo.Children)
-            {
-                if(child.Entity == null) //Physics component was replaced
-                {
-                    child.WeldInfo.Parent = null;
-                    WeldInfo.Children.Remove(child);
-                    if(obj.Physics != null)
-                        Weld(obj.Physics as MyPhysicsBody);
-                    break;
-                }
-            }
-            //this breaks welded MP computation since bodys inertia tensor is diagonalized
-            //(obj as MyEntity).Physics.WeldInfo.UpdateMassProps((obj as MyEntity).Physics.WeldedRigidBody);
-
-            RecreateWeldedShape(GetShape());
-        }
-
-        public void RecreateWeldedShape()
-        {
-            //Debug.Assert(WeldInfo.Children.Count > 0);
-            if (WeldInfo.Children.Count == 0)
-                return;
-            RecreateWeldedShape(GetShape());
-        }
-
-        private List<HkMassElement> m_tmpElements = new List<HkMassElement>();
-
-        public void UpdateMassProps()
-        {
-            Debug.Assert(m_tmpElements.Count == 0, "mass elements not cleared!");
-            if (RigidBody.IsFixedOrKeyframed)
-                return;
-            if(WeldInfo.Parent !=  null)
-            {
-                WeldInfo.Parent.UpdateMassProps();
-                return;
-            }
-            m_tmpElements.Add(WeldInfo.MassElement);
-            foreach (var child in WeldInfo.Children)
-            {
-                m_tmpElements.Add(child.WeldInfo.MassElement);
-            }
-            var mp = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
-            RigidBody.SetMassProperties(ref mp);
-            m_tmpElements.Clear();
-        }
-
-        private void RecreateWeldedShape(HkShape thisShape)
-        {
-            ProfilerShort.Begin("RecreateWeldedShape");
-            //me.Tranform.Translation = Entity.PositionComp.LocalAABB.Center;
-
-            if (WeldInfo.Children.Count == 0)
-            {
-                RigidBody.SetShape(thisShape);
-                if (RigidBody2 != null)
-                    RigidBody2.SetShape(thisShape);
-            }
-            else
-            {
-                ProfilerShort.Begin("Create shapes");
-                //m_tmpElements.Add(WeldInfo.MassElement);
-                m_tmpShapeList.Add(thisShape);
-                foreach (var child in WeldInfo.Children)
-                {
-                    var transformShape = new HkTransformShape(child.WeldedRigidBody.GetShape(), ref child.WeldInfo.Transform);
-                    HkShape.SetUserData(transformShape, child.WeldedRigidBody);
-                    m_tmpShapeList.Add(transformShape);
-                    //m_tmpElements.Add(child.WeldInfo.MassElement);
-                }
-                //var list = new HkListShape(m_tmpShapeList.ToArray(), HkReferencePolicy.None);
-                var list = new HkSmartListShape(0);
-                foreach (var shape in m_tmpShapeList)
-                    list.AddShape(shape);
-                RigidBody.SetShape(list);
-                if (RigidBody2 != null)
-                    RigidBody2.SetShape(list);
-                list.Base.RemoveReference();
-
-                WeldedMarkBreakable();
-
-                for (int i = 1; i < m_tmpShapeList.Count; i++)
-                    m_tmpShapeList[i].RemoveReference();
-                m_tmpShapeList.Clear();
-                ProfilerShort.End();
-
-                ProfilerShort.Begin("CalcMassProps");
-                UpdateMassProps();
-                //m_tmpElements.Clear();
-                ProfilerShort.End();
-            }
-            ProfilerShort.End();
-        }
-
-        private void WeldedMarkBreakable()
-        {
-            if (HavokWorld == null)
-                return;
-            MyGridPhysics gp = this as MyGridPhysics;
-            if (gp != null && (gp.Entity as MyCubeGrid).BlocksDestructionEnabled)
-            {
-                HavokWorld.BreakOffPartsUtil.MarkPieceBreakable(RigidBody, 0, gp.Shape.BreakImpulse);
-            }
-
-            uint shapeKey = 1;
-            foreach (var child in WeldInfo.Children) 
-            {
-                gp = child as MyGridPhysics;
-                if (gp != null && (gp.Entity as MyCubeGrid).BlocksDestructionEnabled)
-                    HavokWorld.BreakOffPartsUtil.MarkPieceBreakable(RigidBody, shapeKey, gp.Shape.BreakImpulse);
-                shapeKey++;
-            }
+            // setting of previous speeds according to current one - elimination of acceleration that was caused by setting of speed when for example speed on server is different that speed on client
+            m_lastLinearVelocity = LinearVelocity;
+            m_lastAngularVelocity = AngularVelocity;
         }
 
         /// <summary>
@@ -2314,162 +1735,85 @@ false,
             return shape;
         }
 
-        public void UnweldAll(bool insertInWorld)
+        private static HkMassProperties? GetMassPropertiesFromDefinition(MyPhysicsBodyComponentDefinition physicsBodyComponentDefinition, MyModelComponentDefinition modelComponentDefinition)
         {
-            while (WeldInfo.Children.Count > 1)
-                Unweld(WeldInfo.Children.First(), insertInWorld, false);
-            if (WeldInfo.Children.Count > 0)
-                Unweld(WeldInfo.Children.First(), insertInWorld);
+            HkMassProperties? massProperties = null;
+
+            switch (physicsBodyComponentDefinition.MassPropertiesComputation) 
+            {
+                case MyObjectBuilder_PhysicsComponentDefinitionBase.MyMassPropertiesComputationType.None:
+                    break;
+                case MyObjectBuilder_PhysicsComponentDefinitionBase.MyMassPropertiesComputationType.Box:
+                    massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(
+                        modelComponentDefinition.Size / 2, (MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(modelComponentDefinition.Mass) : modelComponentDefinition.Mass));
+                    break;
+                default:
+                    Debug.Fail("Not implemented");
+                    break;
+            }
+
+            return massProperties;
         }
 
-        private List<HkShape> m_tmpShapeList = new List<HkShape>();
-        public void Unweld(MyPhysicsBody other, bool insertToWorld = true, bool recreateShape = true)
+        private void OnModelChanged(MyEntityContainerEventExtensions.EntityEventParams eventParams)
         {
-            Debug.Assert(other.IsWelded, "Invalid state");
-            if (IsWelded)
-            {
-                WeldInfo.Parent.Unweld(other, insertToWorld, recreateShape);
-                Debug.Assert(other.IsWelded);
-                return;
-            }
-            var rbWorldMatrix = RigidBody.GetRigidBodyMatrix();
-            //other.Entity.OnPhysicsChanged -= WeldedEntity_OnPhysicsChanged;
-
-            other.WeldInfo.Parent = null;
-            Debug.Assert(WeldInfo.Children.Contains(other));
-            WeldInfo.Children.Remove(other);
-
-            var body = other.RigidBody;
-            Debug.Assert(body == RigidBody);
-            other.RigidBody = other.WeldedRigidBody;
-            other.WeldedRigidBody = null;
-            if (!other.RigidBody.IsDisposed)
-            {
-                other.RigidBody.SetWorldMatrix(other.WeldInfo.Transform * rbWorldMatrix);
-                other.RigidBody.LinearVelocity = body.LinearVelocity;
-                other.WeldInfo.MassElement.Tranform = Matrix.Identity;
-                other.WeldInfo.Transform = Matrix.Identity;
-            }
-            else
-            {
-                Debug.Fail("Disposed welded body");
-            }
-            //RemoveConstraints(other.RigidBody);
-
-            other.ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
-            if (insertToWorld)
-            {
-                other.Activate();
-                other.OnMotion(other.RigidBody, 0);
-            }
-
-            if(WeldInfo.Children.Count == 0)
-            {
-                Entity.OnPhysicsChanged -= WeldedEntity_OnPhysicsChanged;
-                Entity.OnClose -= Entity_OnClose;
-                WeldedRigidBody.LinearVelocity = RigidBody.LinearVelocity;
-                WeldedRigidBody.AngularVelocity = RigidBody.AngularVelocity;
-                if (HavokWorld != null)
-                    HavokWorld.RemoveRigidBody(RigidBody);
-                RigidBody.Dispose();
-                RigidBody = WeldedRigidBody;
-                WeldedRigidBody = null;
-                RigidBody.SetWorldMatrix(rbWorldMatrix);
-                WeldInfo.Transform = Matrix.Identity;
-                if (HavokWorld != null)
-                    HavokWorld.AddRigidBody(RigidBody);
-                //(Entity as MyEntity).RaisePhysicsChanged();
-            }
-            if (RigidBody != null && recreateShape)
-                RecreateWeldedShape(GetShape());
-            OnUnwelded(other);
-            other.OnUnwelded(this);
-            //(other.Entity as MyEntity).RaisePhysicsChanged();
-            Debug.Assert(!other.IsWelded);
+            Close();
+            InitializeRigidBodyFromModel();
         }
 
-        private void RemoveConstraints(HkRigidBody hkRigidBody)
+        public override void Init(MyComponentDefinitionBase definition)
         {
-            foreach(var constraint in m_constraints)
+            base.Init(definition);
+
+            Definition = definition as MyPhysicsBodyComponentDefinition;
+            Debug.Assert(Definition != null);
+        }
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
+
+            if (Definition != null) 
             {
-                if (constraint.IsDisposed || (constraint.RigidBodyA == hkRigidBody || constraint.RigidBodyB == hkRigidBody))
-                    m_constraintsRemoveBatch.Add(constraint);
+                InitializeRigidBodyFromModel();
+
+                this.RegisterForEntityEvent(MyModelComponent.ModelChanged, OnModelChanged);
             }
-            foreach (var constraint in m_constraintsRemoveBatch)
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            if (Definition != null)
             {
-                m_constraints.Remove(constraint);
-                if (!constraint.IsDisposed && constraint.InWorld)
+                Enabled = true;
+                if (Definition.ForceActivate)
+                    ForceActivate();
+            }
+        }
+
+        private void InitializeRigidBodyFromModel()
+        {
+            if (Definition != null && RigidBody == null && Definition.CreateFromCollisionObject && Container.Has<MyModelComponent>())
+            {
+                MyModelComponent modelComponent = Container.Get<MyModelComponent>();
+                if (modelComponent.Definition != null && modelComponent.ModelCollision != null && modelComponent.ModelCollision.HavokCollisionShapes.Length >= 1)
                 {
-                    //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
-                    //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
-                    HavokWorld.RemoveConstraint(constraint);
+                    HkMassProperties? massProperties = GetMassPropertiesFromDefinition(Definition, modelComponent.Definition);
+                    int collisionFilter = Definition.CollisionLayer != null ? MyPhysics.GetCollisionLayer(Definition.CollisionLayer) : MyPhysics.CollisionLayers.DefaultCollisionLayer;
+                    CreateFromCollisionObject(modelComponent.ModelCollision.HavokCollisionShapes[0], Vector3.Zero, Entity.WorldMatrix, massProperties, collisionFilter: collisionFilter);
                 }
             }
-            m_constraintsRemoveBatch.Clear();
         }
 
-        public void Unweld(bool insertInWorld = true)
+        public override void UpdateFromSystem()
         {
-            Debug.Assert(WeldInfo.Parent != null);
-            WeldInfo.Parent.Unweld(this, insertInWorld);
-            Debug.Assert(!IsWelded);
-        }
-        #endregion
-
-        public HkRigidBody WeldedRigidBody { get; protected set; }
-
-        protected virtual void OnWelded(MyPhysicsBody other)
-        {
-
-        }
-
-        protected virtual void OnUnwelded(MyPhysicsBody other)
-        {
-
-        }
-
-
-        internal void DisableRagdollBodiesCollisions()
-        {
-            Debug.Assert(Ragdoll != null, "Ragdoll is null!");
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG)
+            if (Definition != null && (Definition.UpdateFlags & MyObjectBuilder_PhysicsComponentDefinitionBase.MyUpdateFlags.Gravity) != 0
+                && MyFakes.ENABLE_PLANETS && Entity != null && Entity.PositionComp != null && Enabled && RigidBody != null)
             {
-                var world = HavokWorld;
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.StaticCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.VoxelCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.DefaultCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.CharacterCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.CharacterNetworkCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.DynamicDoubledCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.KinematicDoubledCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.DebrisCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.FloatingObjectCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.GravityPhantomLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.ObjectDetectionCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.VirtualMassLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.NoCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.ExplosionRaycastLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.CollisionLayerWithoutCharacter),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.CollideWithStaticLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.CollectorCollisionLayer),"Collision isn't disabled!");
-                Debug.Assert(!world.IsCollisionEnabled(MyPhysics.RagdollCollisionLayer, MyPhysics.AmmoLayer),"Collision isn't disabled!");
+                RigidBody.Gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(Entity.PositionComp.GetPosition());
             }
-            if (Ragdoll != null)
-            {
-                foreach (var body in Ragdoll.RigidBodies)
-                {
-                    var info = HkGroupFilter.CalcFilterInfo(MyPhysics.RagdollCollisionLayer, 0, 0, 0);
-                    //HavokWorld.DisableCollisionsBetween(MyPhysics.RagdollCollisionLayer, MyPhysics.RagdollCollisionLayer);
-                    //HavokWorld.DisableCollisionsBetween(MyPhysics.RagdollCollisionLayer, MyPhysics.CharacterCollisionLayer);
-                    body.SetCollisionFilterInfo(info);
-                    body.LinearVelocity = Vector3.Zero;// Character.Physics.LinearVelocity;
-                    body.AngularVelocity = Vector3.Zero;
-                    HavokWorld.RefreshCollisionFilterOnEntity(body);
-                    Debug.Assert(body.InWorld,"Body isn't in world!");
-                    Debug.Assert(MyPhysics.RagdollCollisionLayer == HkGroupFilter.GetLayerFromFilterInfo(body.GetCollisionFilterInfo()),"Body is in wrong layer!");
-                }
-            }           
         }
     }
 }

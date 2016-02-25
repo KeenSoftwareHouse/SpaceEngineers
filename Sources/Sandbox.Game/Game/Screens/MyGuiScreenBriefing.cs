@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Game.Localization;
+﻿using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -55,14 +55,14 @@ namespace Sandbox.Game.Screens
                 selectable: false);
             layout.AddWithSize(m_descriptionBox, MyAlignH.Left, MyAlignV.Top, 1, 1, rowSpan: 1, colSpan: 3);
 
-            m_okButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Ok), visualStyle: MyGuiControlButtonStyleEnum.Rectangular, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE,
+            m_okButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Ok), visualStyle: MyGuiControlButtonStyleEnum.Rectangular, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE,
                 size: new Vector2(200, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE, onButtonClick: OnOkClicked);
             layout.AddWithSize(m_okButton, MyAlignH.Left, MyAlignV.Top, 2, 2);
         }
         private void FillData()
         {
             m_descriptionBox.Text.Clear().Append(MySession.Static.GetWorld().Checkpoint.Briefing).Append(Environment.NewLine).Append(Environment.NewLine);
-            m_descriptionBox.Text.Append(Environment.NewLine).Append(MySessionComponentMissionTriggers.GetProgress(MySession.LocalHumanPlayer));
+            m_descriptionBox.Text.Append(Environment.NewLine).Append(MySessionComponentMissionTriggers.GetProgress(MySession.Static.LocalHumanPlayer));
             m_descriptionBox.RefreshText(false);
         }
 

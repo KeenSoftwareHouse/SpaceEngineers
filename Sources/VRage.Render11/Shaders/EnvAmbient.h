@@ -1,7 +1,7 @@
 #ifndef ENVAMBIENT_H__
 #define ENVAMBIENT_H__
 
-#include <brdf.h>
+#include <Lighting/brdf.h>
 #include <frame.h>
 
 Texture2D<float2> AmbientBRDFTex : register( MERGE(t,AMBIENT_BRDF_LUT_SLOT) );
@@ -39,9 +39,8 @@ float3 SkyboxColorLod(float3 v, float lod)
 float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 {
 	float nv = saturate(dot(N, V));
-
-	float3 R = 2 * nv * N - V;
-	//R.x = -R.x;
+	float3 R = -reflect(V, N);
+	R.x = -R.x;
 
 	float3 sample = SkyboxIBLTex.SampleLevel(TextureSampler, R, (1 - gloss) * IBL_MAX_MIPMAP).xyz;
 	float3 sample1 = Skybox2IBLTex.SampleLevel(TextureSampler, R, (1 - gloss) * IBL_MAX_MIPMAP).xyz;
@@ -50,10 +49,8 @@ float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 	return lerp(sample, sample1, smoothstep(0, 1, frame_.skyboxBlend)) * ( f0 * env_brdf.x + env_brdf.y) * frame_.env_mult;
 }
 
-float3 ambient_diffuse(float3 f0, float gloss, float3 N, float3 V)
+float3 ambient_diffuse(float3 f0, float gloss, float3 N, float3 V, float global_ambient = 0.000075f)
 {
-	// Very small global ambient so shadows aren't pitch black
-	float global_ambient = 0.0075f;
 	// Remove some of the tint
 	float ambient_boost = 0.75f;
 

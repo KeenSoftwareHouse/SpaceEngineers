@@ -21,14 +21,18 @@ namespace Sandbox.Game.Gui
         {
             public float GameVolume;
             public float MusicVolume;
+            public float VoiceChatVolume;
             public bool HudWarnings;          
             public bool EnableVoiceChat;
+            public bool EnableMuteWhenNotInFocus;
         }
 
         MyGuiControlSlider m_gameVolumeSlider;
         MyGuiControlSlider m_musicVolumeSlider;
+        MyGuiControlSlider m_voiceChatVolumeSlider;
         MyGuiControlCheckbox m_hudWarnings;
         MyGuiControlCheckbox m_enableVoiceChat;
+        MyGuiControlCheckbox m_enableMuteWhenNotInFocus;
         MyGuiScreenOptionsAudioSettings m_settingsOld = new MyGuiScreenOptionsAudioSettings();
         MyGuiScreenOptionsAudioSettings m_settingsNew = new MyGuiScreenOptionsAudioSettings();
 
@@ -39,20 +43,21 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
 
-            AddCaption(MySpaceTexts.ScreenCaptionAudioOptions);
+            AddCaption(MyCommonTexts.ScreenCaptionAudioOptions);
 
             var topLeft = m_size.Value * -0.5f;
             var topCenter = m_size.Value * new Vector2(0f, -0.5f);
-            var bottomCenter = m_size.Value * new Vector2(0f, 0.6f);
+            var bottomCenter = m_size.Value * (MyPerGameSettings.VoiceChatEnabled ? new Vector2(0f, 0.7f) : new Vector2(0f, 0.6f));
+            float startHeight = MyPerGameSettings.VoiceChatEnabled? 150f : 170f;
 
-            Vector2 controlsOriginLeft = topLeft + new Vector2(110f, 170f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
-            Vector2 controlsOriginRight = topCenter + new Vector2(-25f, 170f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
+            Vector2 controlsOriginLeft = topLeft + new Vector2(110f, startHeight) / MyGuiConstants.GUI_OPTIMAL_SIZE;
+            Vector2 controlsOriginRight = topCenter + new Vector2(-25f, startHeight) / MyGuiConstants.GUI_OPTIMAL_SIZE;
             Vector2 controlsDelta = new Vector2(0f, 60f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
 
             //  Game Volume
             Controls.Add(new MyGuiControlLabel(
                 position: controlsOriginLeft + 0 * controlsDelta,
-                text: MyTexts.GetString(MySpaceTexts.GameVolume),
+                text: MyTexts.GetString(MyCommonTexts.GameVolume),
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
             m_gameVolumeSlider = new MyGuiControlSlider(
                 position: controlsOriginRight + 0 * controlsDelta,
@@ -65,7 +70,7 @@ namespace Sandbox.Game.Gui
             //  Music Volume
             Controls.Add(new MyGuiControlLabel(
                 position: controlsOriginLeft + 1 * controlsDelta,
-                text: MyTexts.GetString(MySpaceTexts.MusicVolume),
+                text: MyTexts.GetString(MyCommonTexts.MusicVolume),
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
             m_musicVolumeSlider = new MyGuiControlSlider(
                 position: controlsOriginRight + 1 * controlsDelta,
@@ -77,7 +82,7 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(new MyGuiControlLabel(
                 position: controlsOriginLeft + 2 * controlsDelta,
-                text: MyTexts.GetString(MySpaceTexts.HudWarnings),
+                text: MyTexts.GetString(MyCommonTexts.HudWarnings),
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
             m_hudWarnings = new MyGuiControlCheckbox(
                 position: controlsOriginRight + 2 * controlsDelta,
@@ -85,27 +90,57 @@ namespace Sandbox.Game.Gui
             m_hudWarnings.IsCheckedChanged = HudWarningsChecked;
             Controls.Add(m_hudWarnings);
 
+            Controls.Add(new MyGuiControlLabel(
+                position: controlsOriginLeft + 3 * controlsDelta,
+                text: MyTexts.GetString(MyCommonTexts.MuteWhenNotInFocus),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
+            m_enableMuteWhenNotInFocus = new MyGuiControlCheckbox(
+                position: controlsOriginRight + 3 * controlsDelta,
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_enableMuteWhenNotInFocus.IsCheckedChanged = EnableMuteWhenNotInFocusChecked;
+            Controls.Add(m_enableMuteWhenNotInFocus);
+
             // Voice chat
             if (MyPerGameSettings.VoiceChatEnabled)
             {
                 Controls.Add(new MyGuiControlLabel(
-                    position: controlsOriginLeft + 3 * controlsDelta,
-                    text: MyTexts.GetString(MySpaceTexts.EnableVoiceChat),
+                    position: controlsOriginLeft + 4 * controlsDelta,
+                    text: MyTexts.GetString(MyCommonTexts.EnableVoiceChat),
                     originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
             }
             m_enableVoiceChat = new MyGuiControlCheckbox(
-                position: controlsOriginRight + 3 * controlsDelta,
+                position: controlsOriginRight + 4 * controlsDelta,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
             m_enableVoiceChat.IsCheckedChanged = VoiceChatChecked;
+
+            m_voiceChatVolumeSlider = new MyGuiControlSlider(
+                position: controlsOriginRight + 5 * controlsDelta,
+                minValue: MyAudioConstants.VOICE_CHAT_VOLUME_MIN,
+                maxValue: MyAudioConstants.VOICE_CHAT_VOLUME_MAX,
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_voiceChatVolumeSlider.ValueChanged = OnVoiceChatVolumeChange;
+
             if (MyPerGameSettings.VoiceChatEnabled)
+            {
+                // voice char checkbox
                 Controls.Add(m_enableVoiceChat);
+
+                // label for voice chat
+                Controls.Add(new MyGuiControlLabel(
+                    position: controlsOriginLeft + 5 * controlsDelta,
+                    text: MyTexts.GetString(MyCommonTexts.VoiceChatVolume),
+                    originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
+
+                // adding of slider for volume of voice chat
+                Controls.Add(m_voiceChatVolumeSlider);
+            }
 
             //  Buttons OK and CANCEL
 
             var m_okButton = new MyGuiControlButton(
                 position: bottomCenter + new Vector2(-75f, -130f) / MyGuiConstants.GUI_OPTIMAL_SIZE,
                 size: MyGuiConstants.OK_BUTTON_SIZE,
-                text: MyTexts.Get(MySpaceTexts.Ok),
+                text: MyTexts.Get(MyCommonTexts.Ok),
                 onButtonClick: OnOkClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_okButton);
@@ -113,7 +148,7 @@ namespace Sandbox.Game.Gui
             var m_cancelButton = new MyGuiControlButton(
                 position: bottomCenter + new Vector2(75f, -130f) / MyGuiConstants.GUI_OPTIMAL_SIZE,
                 size: MyGuiConstants.OK_BUTTON_SIZE,
-                text: MyTexts.Get(MySpaceTexts.Cancel),
+                text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_cancelButton);
@@ -142,6 +177,11 @@ namespace Sandbox.Game.Gui
             m_settingsNew.HudWarnings = obj.IsChecked;
         }
 
+        private void EnableMuteWhenNotInFocusChecked(MyGuiControlCheckbox obj)
+        {
+            m_settingsNew.EnableMuteWhenNotInFocus = obj.IsChecked;
+        }
+
         public override string GetFriendlyName()
         {
             return "MyGuiScreenOptionsAudio";
@@ -149,10 +189,26 @@ namespace Sandbox.Game.Gui
 
         void UpdateFromConfig(MyGuiScreenOptionsAudioSettings settings)
         {
-            settings.GameVolume = MySandboxGame.Config.GameVolume;
-            settings.MusicVolume = MySandboxGame.Config.MusicVolume;
+            if (MySandboxGame.Config.MusicVolume > 0f)
+            {
+                settings.MusicVolume = MathHelper.Clamp(MathHelper.InterpLogInv((float)MySandboxGame.Config.MusicVolume, 0.01f, 1f), 0.01f, 1f);
+            }
+            else
+            {
+                settings.MusicVolume = 0f;
+            }
+            if (MySandboxGame.Config.GameVolume > 0f)
+            {
+                settings.GameVolume = MathHelper.Clamp(MathHelper.InterpLogInv((float)MySandboxGame.Config.GameVolume, 0.01f, 1f), 0.01f, 1f);
+            }
+            else
+            {
+                settings.GameVolume = 0f;
+            }
+            settings.VoiceChatVolume = MySandboxGame.Config.VoiceChatVolume;
             settings.HudWarnings = MySandboxGame.Config.HudWarnings;
             settings.EnableVoiceChat = MySandboxGame.Config.EnableVoiceChat;
+            settings.EnableMuteWhenNotInFocus = MySandboxGame.Config.EnableMuteWhenNotInFocus;
         }
 
         //void UpdateSettings(MyGuiScreenOptionsVideoSettings settings)
@@ -164,23 +220,42 @@ namespace Sandbox.Game.Gui
         {
             m_gameVolumeSlider.Value = settings.GameVolume;
             m_musicVolumeSlider.Value = settings.MusicVolume;
+            m_voiceChatVolumeSlider.Value = settings.VoiceChatVolume;
             m_hudWarnings.IsChecked = settings.HudWarnings;
             m_enableVoiceChat.IsChecked = settings.EnableVoiceChat;
+            m_enableMuteWhenNotInFocus.IsChecked = settings.EnableMuteWhenNotInFocus;
         }
 
         void Save()
         {
-            MySandboxGame.Config.GameVolume = m_gameVolumeSlider.Value;
-            MySandboxGame.Config.MusicVolume = m_musicVolumeSlider.Value;
+            MySandboxGame.Config.GameVolume = MyAudio.Static.VolumeGame;
+            MySandboxGame.Config.MusicVolume = MyAudio.Static.VolumeMusic;
+            MySandboxGame.Config.VoiceChatVolume = m_voiceChatVolumeSlider.Value;
             MySandboxGame.Config.HudWarnings = m_hudWarnings.IsChecked;
             MySandboxGame.Config.EnableVoiceChat = m_enableVoiceChat.IsChecked;
+            MySandboxGame.Config.EnableMuteWhenNotInFocus = m_enableMuteWhenNotInFocus.IsChecked;
             MySandboxGame.Config.Save();
         }
 
         static void UpdateValues(MyGuiScreenOptionsAudioSettings settings)
         {
-            MyAudio.Static.VolumeMusic = settings.MusicVolume;
-            MyAudio.Static.VolumeGame = settings.GameVolume;
+            if (settings.MusicVolume > 0f)
+            {
+                MyAudio.Static.VolumeMusic = MathHelper.Clamp(MathHelper.InterpLog((float)settings.MusicVolume, 0.01f, 1f), 0.01f, 1f);
+            }
+            else
+            {
+                MyAudio.Static.VolumeMusic = 0f;
+            }
+            if (settings.GameVolume > 0f)
+            {
+                MyAudio.Static.VolumeGame = MathHelper.Clamp(MathHelper.InterpLog((float)settings.GameVolume, 0.01f, 1f), 0.01f, 1f);
+            }
+            else
+            {
+                MyAudio.Static.VolumeGame = 0f;
+            }
+            MyAudio.Static.VolumeVoiceChat = settings.VoiceChatVolume;
             MyAudio.Static.VolumeHud = settings.GameVolume;
             MyAudio.Static.EnableVoiceChat = settings.EnableVoiceChat;
             MyGuiAudio.HudWarnings = settings.HudWarnings;
@@ -211,6 +286,12 @@ namespace Sandbox.Game.Gui
         void OnMusicVolumeChange(MyGuiControlSlider sender)
         {
             m_settingsNew.MusicVolume = m_musicVolumeSlider.Value;
+            UpdateValues(m_settingsNew);
+        }
+
+        void OnVoiceChatVolumeChange(MyGuiControlSlider sender)
+        {
+            m_settingsNew.VoiceChatVolume = m_voiceChatVolumeSlider.Value;
             UpdateValues(m_settingsNew);
         }
 

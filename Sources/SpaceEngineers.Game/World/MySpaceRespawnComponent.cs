@@ -27,9 +27,12 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.SessionComponents;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Network;
 using Sandbox.Game.GameSystems;
+using Sandbox.Game.Replication;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace SpaceEngineers.Game.Players
 {
@@ -110,7 +113,7 @@ namespace SpaceEngineers.Game.Players
         {
             var cooldowns = checkpoint.RespawnCooldowns;
 
-            m_lastUpdate = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            m_lastUpdate = MySandboxGame.TotalTimeInMilliseconds;
             m_globalRespawnTimesMs.Clear();
 
             if (cooldowns == null) return;
@@ -132,7 +135,7 @@ namespace SpaceEngineers.Game.Players
                 int cooldown = pair.Value - m_lastUpdate;
                 if (cooldown <= 0) continue;
 
-                var item = new Sandbox.Common.ObjectBuilders.MyObjectBuilder_Checkpoint.RespawnCooldownItem();
+                var item = new MyObjectBuilder_Checkpoint.RespawnCooldownItem();
                 item.PlayerSteamId = pair.Key.ControllerId.SteamId;
                 item.PlayerSerialId = pair.Key.ControllerId.SerialId;
                 item.RespawnShipId = pair.Key.RespawnShipId;
@@ -146,8 +149,8 @@ namespace SpaceEngineers.Game.Players
         {
             base.BeforeStart();
 
-            m_lastUpdate = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            m_updatingStopped = false;
+            m_lastUpdate = MySandboxGame.TotalTimeInMilliseconds;
+            m_updatingStopped = true;
             m_updateCtr = 0;
 
             if (!Sync.IsServer)
@@ -157,7 +160,7 @@ namespace SpaceEngineers.Game.Players
             }
             else
             {
-                m_globalRespawnTimesMs.Clear();
+                RequestSync();
                 m_synced = true;
             }
         }
@@ -168,6 +171,8 @@ namespace SpaceEngineers.Game.Players
 
             Sync.Players.RespawnComponent = this;
             Sync.Players.LocalRespawnRequested += OnLocalRespawnRequest;
+
+            ShowPermaWarning = false;
         }
 
         protected override void UnloadData()
@@ -190,14 +195,14 @@ namespace SpaceEngineers.Game.Players
 
         private SyncCooldownResponseMessage SyncCooldownResponse(SyncCooldownResponseMessage msg)
         {
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
 
             // msg.respawnTimes can be null, if the server sent empty list
             if (msg.RespawnTimes != null)
             {
                 foreach (var respawnTime in msg.RespawnTimes)
                 {
-                    var controllerId = new MyPlayer.PlayerId() { SteamId = MySteam.UserId, SerialId = respawnTime.ControllerId };
+                    var controllerId = new MyPlayer.PlayerId() { SteamId = Sync.MyId, SerialId = respawnTime.ControllerId };
                     var key = new RespawnKey() { ControllerId = controllerId, RespawnShipId = respawnTime.ShipId };
 
                     m_globalRespawnTimesMs.Add(key, currentTime + respawnTime.RelativeRespawnTime, immediate: true);
@@ -210,7 +215,7 @@ namespace SpaceEngineers.Game.Players
 
         public void SyncCooldownToPlayer(ulong steamId)
         {
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
 
             m_tmpRespawnTimes.Clear();
             foreach (var entry in m_globalRespawnTimesMs)
@@ -244,7 +249,7 @@ namespace SpaceEngineers.Game.Players
         {
             base.UpdateBeforeSimulation();
 
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
             int dt = currentTime - m_lastUpdate;
             if (m_updatingStopped)
             {
@@ -268,7 +273,7 @@ namespace SpaceEngineers.Game.Players
             /*if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
             {
                 List<MyCubeBlock> respawns = null;
-                GetNearestRespawn(MySession.LocalCharacter == null ? Vector3.Zero : (Vector3)MySession.LocalCharacter.PositionComp.GetPosition(), out respawns, MySession.LocalHumanPlayer.Identity.IdentityId);
+                GetNearestRespawn(MySession.Static.LocalCharacter == null ? Vector3.Zero : (Vector3)MySession.Static.LocalCharacter.PositionComp.GetPosition(), out respawns, MySession.Static.LocalHumanPlayer.Identity.IdentityId);
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "No. of respawn points: " + respawns.Count, Color.Red, 1.0f);
             }*/
         }
@@ -285,7 +290,7 @@ namespace SpaceEngineers.Game.Players
         private void RemoveOldRespawnTimes()
         {
             var respawnShips = MyDefinitionManager.Static.GetRespawnShipDefinitions();
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
             foreach (var key in m_globalRespawnTimesMs.Keys)
             {
                 int time = m_globalRespawnTimesMs[key];
@@ -298,7 +303,7 @@ namespace SpaceEngineers.Game.Players
         public void ResetRespawnCooldown(MyPlayer.PlayerId controllerId)
         {
             var respawnShips = MyDefinitionManager.Static.GetRespawnShipDefinitions();
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
             float multiplier = MySession.Static.Settings.SpawnShipTimeMultiplier;
 
             foreach (var pair in respawnShips)
@@ -322,7 +327,7 @@ namespace SpaceEngineers.Game.Players
             if (respawnShip == null) return 0;
 
             var key = new RespawnKey() { ControllerId = controllerId, RespawnShipId = respawnShipId };
-            int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            int currentTime = MySandboxGame.TotalTimeInMilliseconds;
             int time = currentTime;
             m_globalRespawnTimesMs.TryGetValue(key, out time);
             return Math.Max((time - currentTime) / 1000, 0);
@@ -330,15 +335,15 @@ namespace SpaceEngineers.Game.Players
 
         private void OnLocalRespawnRequest()
         {
-            if (MyFakes.SHOW_FACTIONS_GUI && !MySession.Static.CreativeMode)
+            if (MyFakes.SHOW_FACTIONS_GUI)
             {
-                ulong playerId = MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.Id.SteamId : 0;
-                int serialId = MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.Id.SerialId : 0;
+                ulong playerId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SteamId : Sync.MyId;
+                int serialId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SerialId : 0;
                 MyMultiplayer.RaiseStaticEvent(s => RespawnRequest_Implementation, playerId, serialId);
             }
             else
             {
-                MyPlayerCollection.RespawnRequest(MySession.LocalHumanPlayer == null, false, 0, null);
+                MyPlayerCollection.RespawnRequest(MySession.Static.LocalHumanPlayer == null, false, 0, null);
             }
         }
 
@@ -373,6 +378,8 @@ namespace SpaceEngineers.Game.Players
                     {
                         if (cryoChamber.TryToControlPilot(player))
                         {
+                            MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(cryoChamber.CubeGrid), new EndpointId(player.Id.SteamId));
+                            MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(cryoChamber.Pilot), new EndpointId(player.Id.SteamId));
                             return true;
                         }
                     }
@@ -385,10 +392,22 @@ namespace SpaceEngineers.Game.Players
         [Event, Reliable, Client]
         static void ShowMedicalScreen_Implementation()
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
+            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals(ShowPermaWarning));
         }
 
-        public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
+        [Event, Reliable, Client]
+        static void NewIdentityCreated_Response(MyPlayer.PlayerId playerId, bool joinGame)
+        {
+            if (MySession.Static != null && MySession.Static.LocalHumanPlayer != null)
+            {
+                int firstLocalPlayer = MySession.Static.LocalHumanPlayer.Id.SerialId;
+                ulong steamId = MySession.Static.LocalHumanPlayer.Id.SteamId;
+                if (steamId == playerId.SteamId && firstLocalPlayer == playerId.SerialId)
+                    ShowPermaWarning = !joinGame;
+            }
+        }
+
+        public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId)
         {
             MyPlayer player = Sync.Players.GetPlayerById(playerId);
 
@@ -401,11 +420,18 @@ namespace SpaceEngineers.Game.Players
             Vector3D currentPosition = Vector3D.Zero;
             if (player != null && player.Character != null) currentPosition = player.Character.PositionComp.GetPosition();
 
+            // Send postback message to a client that there was new identity created
+            MyMultiplayer.RaiseStaticEvent(s => NewIdentityCreated_Response, playerId, joinGame, new EndpointId(playerId.SteamId));
+
             if (TryFindCryoChamberCharacter(player))
             {
                 //Player found in chamber;
                 return true;
             }
+
+            MyBotDefinition botDefinition = null;
+            if (botDefinitionId != null)
+                MyDefinitionManager.Static.TryGetBotDefinition((MyDefinitionId)botDefinitionId, out botDefinition);
 
             if (!spawnAsNewPlayer)
             {
@@ -418,7 +444,7 @@ namespace SpaceEngineers.Game.Players
                         gravity.Normalize();
                     Vector3D perpendicular;
                     gravity.CalculatePerpendicularVector(out perpendicular);
-                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, true);
+                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, null, botDefinition, true );
 
                     return true;
                 }
@@ -445,7 +471,7 @@ namespace SpaceEngineers.Game.Players
 
                 // If spawning in respawn block fails, we will spawn as a new player
                 if (foundRespawn != null)
-                    SpawnInRespawn(player, foundRespawn);
+                    SpawnInRespawn(player, foundRespawn, botDefinition);
                 else
                     spawnAsNewPlayer = true;
             }
@@ -462,20 +488,20 @@ namespace SpaceEngineers.Game.Players
 
                 if (MySession.Static.CreativeMode)
                 {
-                    Vector3D? correctedPos = MyEntities.FindFreePlace(currentPosition, 1, 200);
+                    Vector3D? correctedPos = MyEntities.FindFreePlace(currentPosition, 2, 200);
                     if (correctedPos.HasValue) currentPosition = correctedPos.Value;
-                    player.SpawnAt(Matrix.CreateTranslation(currentPosition), Vector3.Zero);
+                    player.SpawnAt(Matrix.CreateTranslation(currentPosition), Vector3.Zero, null, botDefinition);
                 }
                 else
                 {
-                    SpawnAsNewPlayer(player, currentPosition, respawnShipId, resetIdentity);
+                    SpawnAsNewPlayer(player, currentPosition, respawnShipId, resetIdentity, botDefinition);
                 }
             }
 
             return true;
         }
 
-        private void SpawnInRespawn(MyPlayer player, MyRespawnComponent respawn)
+        private void SpawnInRespawn(MyPlayer player, MyRespawnComponent respawn, MyBotDefinition botDefinition)
         {
             if (MySession.Static.Settings.EnableOxygen)
             {
@@ -485,7 +511,7 @@ namespace SpaceEngineers.Game.Players
             if (respawn.Entity == null)
             {
                 Debug.Assert(false, "Respawn does not have entity!");
-                SpawnInSuit(player);
+                SpawnInSuit(player, null, botDefinition);
                 return;
             }
             var parent = respawn.Entity.GetTopMostParent();
@@ -493,7 +519,7 @@ namespace SpaceEngineers.Game.Players
             if (parent.Physics == null)
             {
                 Debug.Assert(false, "Respawn entity parent does not have physics!");
-                SpawnInSuit(player);
+                SpawnInSuit(player, (MyEntity)parent, botDefinition);
                 return;
             }
 
@@ -511,12 +537,19 @@ namespace SpaceEngineers.Game.Players
                 
             Vector3 velocity = parent.Physics.GetVelocityAtPoint(pos.Translation);
 
-            player.SpawnAt(pos, velocity, false);
+            MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(parent), new EndpointId(player.Id.SteamId));
+
+            player.SpawnAt(pos, velocity, (MyEntity)parent, botDefinition, true);
 
             if (medRoom != null)
             {
                 medRoom.TryTakeSpawneeOwnership(player);
                 medRoom.TrySetFaction(player);
+
+                if (medRoom.ForceSuitChangeOnRespawn)
+                {
+                    player.Character.ChangeModelAndColor(medRoom.RespawnSuitName, player.Character.ColorMask);
+                }
             }
         }
 
@@ -528,7 +561,8 @@ namespace SpaceEngineers.Game.Players
             if (!respawnBlock.IsWorking) return null;
 
             var medicalRoom = respawnBlock as MyMedicalRoom;
-            if (medicalRoom == null) return null;
+
+            if (medicalRoom == null || (!medicalRoom.SpawnWithoutOxygenEnabled && medicalRoom.GetOxygenLevel() == 0)) return null;
             // CH: TODO: Move the extra functionality to SpaceRespawnEntityComponent or something...
             if (player != null && !medicalRoom.HasPlayerAccess(player.Identity.IdentityId) && !medicalRoom.SetFactionToSpawnee)
                 return null;
@@ -539,7 +573,7 @@ namespace SpaceEngineers.Game.Players
             return respawnComponent;
         }
 
-        private MyRespawnComponent GetNearestRespawn(Vector3 position, out List<MyRespawnComponent> respawns, long? identityId = null)
+        private MyRespawnComponent GetNearestRespawn(Vector3D position, out List<MyRespawnComponent> respawns, long? identityId = null)
         {
             respawns = new List<MyRespawnComponent>();
             MyRespawnComponent closestRespawn = null;
@@ -560,14 +594,14 @@ namespace SpaceEngineers.Game.Players
                         (MyEntities.IsWorldLimited() && distanceFromCenter > MyEntities.WorldSafeHalfExtent()))
                         continue;
 
-                    distance = Vector3.Distance(position, block.PositionComp.GetPosition());
+                    distance = (float)Vector3D.Distance(position, block.PositionComp.GetPosition());
                 }
                 else
                 {
                     if (respawn.Entity == null) continue;
                     if (respawn.Entity.PositionComp == null) continue;
 
-                    distance = Vector3.Distance(position, respawn.Entity.PositionComp.GetPosition());
+                    distance = (float)Vector3D.Distance(position, respawn.Entity.PositionComp.GetPosition());
                 }
 
                 if (distance < closestDistance)
@@ -582,7 +616,7 @@ namespace SpaceEngineers.Game.Players
             return closestRespawn;
         }
 
-        public void SpawnAsNewPlayer(MyPlayer player, Vector3 currentPosition, string respawnShipId, bool resetIdentity)
+        public void SpawnAsNewPlayer(MyPlayer player, Vector3D currentPosition, string respawnShipId, bool resetIdentity, MyBotDefinition botDefinition)
         {
             Debug.Assert(Sync.IsServer, "Calling SpawnAsNewPlayer on client!");
             Debug.Assert(player.Identity != null, "Spawning with empty identity!");
@@ -600,15 +634,15 @@ namespace SpaceEngineers.Game.Players
 
             if (respawnShipId != null)
             {
-                SpawnAtShip(player, respawnShipId);
+                SpawnAtShip(player, respawnShipId, botDefinition);
             }
             else
             {
-                SpawnInSuit(player);
+                SpawnInSuit(player, null, botDefinition);
             }
         }
 
-        public void SpawnAtShip(MyPlayer player, string respawnShipId)
+        public void SpawnAtShip(MyPlayer player, string respawnShipId, MyBotDefinition botDefinition)
         {
             Debug.Assert(Sync.IsServer, "Spawning can only be called on the server!");
             if (!Sync.IsServer) return;
@@ -625,7 +659,8 @@ namespace SpaceEngineers.Game.Players
             MyPrefabDefinition prefabDef = respawnShipDef.Prefab;
 
             // Deploy ship
-            Vector3 direction, position;
+            Vector3 direction;
+            Vector3D position;
             GetSpawnPosition(prefabDef.BoundingSphere.Radius, out direction, out position);
             MyPrefabManager.Static.SpawnPrefab(
                 respawnGrids,
@@ -652,7 +687,7 @@ namespace SpaceEngineers.Game.Players
             System.Diagnostics.Debug.Assert(cockpit != null, "character is spawning in ship without cockpit !");
 
             // Create character
-            Matrix matrix = Matrix.Identity;
+            MatrixD matrix = MatrixD.Identity;
             if (cockpit != null)
             {
                 matrix = cockpit.WorldMatrix;
@@ -663,21 +698,31 @@ namespace SpaceEngineers.Game.Players
                 matrix.Translation = respawnGrids[0].PositionComp.WorldAABB.Center + respawnGrids[0].PositionComp.WorldAABB.HalfExtents;
             }
 
-            character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, cockpit: cockpit,playerSteamId: player.Id.SteamId);
-
-            if (cockpit != null)
-            {
-                cockpit.AttachPilot(character, false);
-            }
-
+            character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, cockpit: cockpit, playerSteamId: player.Id.SteamId);
+   
             CloseRespawnShip(player);
             foreach (var respawnGrid in respawnGrids)
             {
                 respawnGrid.ChangeGridOwnership(player.Identity.IdentityId, MyOwnershipShareModeEnum.None);
+                respawnGrid.IsRespawnGrid = true;
                 player.RespawnShip.Add(respawnGrid.EntityId);
             }
 
-            Sync.Players.SetPlayerCharacter(player, character, cockpit);
+            if (cockpit != null)
+            {
+                cockpit.AttachPilot(character, false);
+                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(cockpit.CubeGrid), new EndpointId(player.Id.SteamId));
+            }
+
+            if (cockpit == null)
+            {
+                Sync.Players.SetPlayerCharacter(player, character, null);
+            }
+            else
+            {
+                character.SetPlayer(player);
+                Sync.Players.SetPlayerToCockpit(player, cockpit);
+            }
             Sync.Players.RevivePlayer(player);
         }
 
@@ -712,22 +757,24 @@ namespace SpaceEngineers.Game.Players
             player.RespawnShip.Clear();
         }
 
-        private void SpawnInSuit(MyPlayer player)
+        private void SpawnInSuit(MyPlayer player, MyEntity spawnedBy, MyBotDefinition botDefinition)
         {
-            Vector3 direction, position;
+            Vector3 direction;
+            Vector3D position;
             GetSpawnPosition(10, out direction, out position);
 
             //Create character
             Matrix matrix = Matrix.CreateWorld(position, direction, Vector3.Up);
-            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null);
+            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, playerSteamId:player.Id.SteamId);
 
-            Sync.Players.SetPlayerCharacter(player, character);
+            Sync.Players.SetPlayerCharacter(player, character, spawnedBy);
             Sync.Players.RevivePlayer(player);
         }
 
-        public static void GetSpawnPosition(float collisionRadius, out Vector3 direction, out Vector3 position)
+        public static void GetSpawnPosition(float collisionRadius, out Vector3 direction, out Vector3D position)
         {
             float distance = 0;
+
             foreach (var entity in MyEntities.GetEntities())
             {
                 // Include only voxels
@@ -739,7 +786,7 @@ namespace SpaceEngineers.Game.Players
 
             // 500 - 650m from last voxel
             distance += MyUtils.GetRandomFloat(500, 650);
-
+            
             if (MyEntities.IsWorldLimited())
                 distance = Math.Min(distance, MyEntities.WorldSafeHalfExtent());
             else
@@ -750,7 +797,21 @@ namespace SpaceEngineers.Game.Players
             if (!searchPosition.HasValue)
                 searchPosition = (Vector3D)(direction * distance); // Spawn in existing place (better than crash)
 
-            position = (Vector3)searchPosition.Value;
+            Vector3D globalPoint = (Vector3D)searchPosition;
+            position = globalPoint;
+
+            if (MyGravityProviderSystem.CalculateNaturalGravityInPoint(globalPoint) != null && MyGravityProviderSystem.CalculateNaturalGravityInPoint(globalPoint).Length() != 0)
+            {
+                MyPlanet planet = MyGravityProviderSystem.GetStrongestGravityWell(globalPoint);
+                double multiplier = planet.MaximumRadius / globalPoint.Length();
+                globalPoint *= multiplier;
+                Vector3D closestPoint = planet.GetClosestSurfacePointGlobal(ref globalPoint) * 1.25;
+                searchPosition = MyEntities.FindFreePlace(closestPoint, collisionRadius);
+                if (searchPosition.HasValue)
+                    position = searchPosition.Value;
+            }
+            else
+                position = searchPosition.Value;
         }
 
         public override MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName)
@@ -761,7 +822,7 @@ namespace SpaceEngineers.Game.Players
         public override void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args)
         {
             string respawnShipId = MyDefinitionManager.Static.GetFirstRespawnShip();
-            SpawnAtShip(player, respawnShipId);
+            SpawnAtShip(player, respawnShipId, null);
         }
 
         public override int CountAvailableSpawns(MyPlayer player)
@@ -779,6 +840,12 @@ namespace SpaceEngineers.Game.Players
         public override void SetNoRespawnText(StringBuilder text, int timeSec)
         {
             MyGuiScreenMedicals.SetNoRespawnText(text, timeSec);
+        }
+
+        public override void SetupCharacterFromStarts(MyPlayer player, MyWorldGeneratorStartingStateBase[] playerStarts, MyWorldGenerator.Args args)
+        {
+            var randomStart = playerStarts[MyUtils.GetRandomInt(playerStarts.Length)];
+            randomStart.SetupCharacter(args);
         }
     }
 }

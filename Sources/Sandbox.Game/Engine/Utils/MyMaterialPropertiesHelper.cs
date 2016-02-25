@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Common;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Utils;
 using VRage.Library.Utils;
 using System.Diagnostics;
@@ -11,6 +10,8 @@ using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using VRageMath;
+using VRage.Game.Components;
+using VRage.Game;
 
 namespace Sandbox.Game.Utils
 {
@@ -20,6 +21,7 @@ namespace Sandbox.Game.Utils
         public static class CollisionType
         {
             public static MyStringId Start = MyStringId.GetOrCompute("Start");
+            public static MyStringId Hit = MyStringId.GetOrCompute("Hit");
 	        public static MyStringId Walk = MyStringId.GetOrCompute("Walk");
 	        public static MyStringId Run = MyStringId.GetOrCompute("Run");
 	        public static MyStringId Sprint = MyStringId.GetOrCompute("Sprint");
@@ -95,9 +97,21 @@ namespace Sandbox.Game.Utils
                             selfProps = pair.Value;
                             continue;
                         }
-                        MaterialCues[type][thisMaterial][pair.Key] = pair.Value;
-                        Debug.Assert(MaterialCues[type].ContainsKey(pair.Key));
-                        MaterialCues[type][pair.Key][thisMaterial] = pair.Value;
+                        // parent should no longer override
+                        if (MaterialCues[type][thisMaterial].ContainsKey(pair.Key))
+                        {
+                            if (MaterialCues[type][pair.Key].ContainsKey(thisMaterial))
+                            {
+                                continue;
+                            }
+                            MaterialCues[type][pair.Key][thisMaterial] = pair.Value;
+                        }
+                        else
+                        {
+                            MaterialCues[type][thisMaterial][pair.Key] = pair.Value;
+                            Debug.Assert(MaterialCues[type].ContainsKey(pair.Key));
+                            MaterialCues[type][pair.Key][thisMaterial] = pair.Value;
+                        }
                     }
 
                     if (selfProps != null)
@@ -137,11 +151,6 @@ namespace Sandbox.Game.Utils
         {
             base.UnloadData();
             Static = null;
-        }
-
-        public bool TryCreateCollisionEffect(Vector3 position, Vector3 normal, MyStringHash material1, MyStringHash material2)
-        {
-            return TryCreateCollisionEffect(CollisionType.Start, position, normal, material1, material2);
         }
 
 		public bool TryCreateCollisionEffect(MyStringId type, Vector3 position, Vector3 normal, MyStringHash material1, MyStringHash material2)

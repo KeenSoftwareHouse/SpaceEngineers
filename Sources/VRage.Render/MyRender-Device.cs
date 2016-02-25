@@ -398,7 +398,8 @@ namespace VRageRender
 
             if (canReset)
             {
-                Reset();
+                if (!Reset())
+                    Recreate();
             }
             else
             {
@@ -420,6 +421,7 @@ namespace VRageRender
             catch (SharpDXException)
             {
                 Debug.Fail("Device reset failed, probably unreleased resources");
+                return false;
             }
             return true;
         }

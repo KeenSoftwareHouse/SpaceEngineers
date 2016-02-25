@@ -21,26 +21,22 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.ModAPI.Ingame;
 
 namespace Sandbox.Game.Weapons
 {
     public abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
     {
-        private MyInventory m_inventory;
-        protected MyInventory Inventory
-        {
-            get
-            {
-                return m_inventory;
-            }
-        }
 
-        ModAPI.Interfaces.IMyInventory ModAPI.Interfaces.IMyInventoryOwner.GetInventory(int index)
-        {
-            return Inventory;
-        }
-		
+        /// <summary>
+        /// Default reach distance of a tool;
+        /// </summary>
+        protected float DEFAULT_REACH_DISTANCE = 4.5f;
+
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;
 
@@ -65,7 +61,9 @@ namespace Sandbox.Game.Weapons
         private HashSet<MySlimBlock> m_blocksToActivateOn;
         private HashSet<MySlimBlock> m_tempBlocksBuffer;
 
-        private bool m_useConveyorSystem;
+        private Sync<bool> m_useConveyorSystem;
+
+        protected MyCharacter controller = null;
 
         protected override bool CheckIsWorking()
         {
@@ -75,14 +73,22 @@ namespace Sandbox.Game.Weapons
         static MyShipToolBase()
         {
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipToolBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConvSystem.Getter = (x) => (x as IMyInventoryOwner).UseConveyorSystem;
-            useConvSystem.Setter = (x, v) => MySyncConveyors.SendChangeUseConveyorSystemRequest(x.EntityId, v);
+            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConvSystem.Setter = (x, v) => (x).UseConveyorSystem =  v;
             useConvSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConvSystem);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                MyStringHash.GetOrCompute("Defense"),
+                MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_GRINDER,
+                ComputeRequiredPower);
+            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
 
             m_entitiesInContact = new Dictionary<MyEntity, int>();
@@ -106,19 +112,15 @@ namespace Sandbox.Game.Weapons
             float inventoryVolume = def.Size.X * cubeGrid.GridSize*def.Size.Y *cubeGrid.GridSize* def.Size.Z * cubeGrid.GridSize * 0.5f;
             Vector3 inventorySize = new Vector3(def.Size.X, def.Size.Y, def.Size.Z * 0.5f);
 
-            m_inventory = new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this);
-            m_inventory.Init(typedBuilder.Inventory);
+            if (this.GetInventory() == null) // could be already initialized as component
+            {
+                Components.Add<MyInventoryBase>( new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this));
+                this.GetInventory().Init(typedBuilder.Inventory);
+            }
+            Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
             SlimBlock.UsesDeformation = false;
             SlimBlock.DeformationRatio = typedBuilder.DeformationRatio; // 3x times harder for destruction by high speed
-
-			var sinkComp = new MyResourceSinkComponent();
-			sinkComp.Init(
-                MyStringHash.GetOrCompute("Defense"),
-                MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_GRINDER,
-                ComputeRequiredPower);
-			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
-	        ResourceSink = sinkComp;
 
             Enabled = typedBuilder.Enabled;
             UseConveyorSystem = typedBuilder.UseConveyorSystem;
@@ -140,7 +142,7 @@ namespace Sandbox.Game.Weapons
             var ob = base.GetObjectBuilderCubeBlock(copy);
 
             MyObjectBuilder_ShipToolBase obShipToolBase = (MyObjectBuilder_ShipToolBase)ob;
-            obShipToolBase.Inventory = m_inventory.GetObjectBuilder();
+            obShipToolBase.Inventory = this.GetInventory().GetObjectBuilder();
             obShipToolBase.UseConveyorSystem = UseConveyorSystem;
 
             return obShipToolBase;
@@ -148,19 +150,19 @@ namespace Sandbox.Game.Weapons
 
         public override void OnRemovedByCubeBuilder()
         {
-            ReleaseInventory(m_inventory);
+            ReleaseInventory(this.GetInventory());
             base.OnRemovedByCubeBuilder();
         }
 
         public override void OnDestroy()
         {
-            ReleaseInventory(m_inventory, true);
+            ReleaseInventory(this.GetInventory(), true);
             base.OnDestroy();
         }
 
         private void LoadDummies()
         {
-            var finalModel = Engine.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
+            var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
             foreach (var dummy in finalModel.Dummies)
             {
                 if (dummy.Key.ToLower().Contains("detector_shiptool"))
@@ -179,7 +181,7 @@ namespace Sandbox.Game.Weapons
 
                     Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
                     Physics.IsPhantom = true;
-                    Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.ObjectDetectionCollisionLayer);
+                    Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
                     detectorShape.Base.RemoveReference();
                     break;
                 }
@@ -276,7 +278,6 @@ namespace Sandbox.Game.Weapons
 
         void MyShipToolBase_IsWorkingChanged(MyCubeBlock obj)
         {
-            ResourceSink.Update();
             UpdateActivationState();
         }
 
@@ -289,6 +290,8 @@ namespace Sandbox.Game.Weapons
 
         private void UpdateActivationState()
         {
+            if (ResourceSink != null)
+                ResourceSink.Update();
 			if ((Enabled || WantsToActivate) && IsFunctional && ResourceSink.IsPowered)
             {
                 StartShooting();
@@ -465,10 +468,10 @@ namespace Sandbox.Game.Weapons
             throw new NotImplementedException();
         }
 
-        public void OnControlAcquired(Entities.Character.MyCharacter owner)
+        public virtual void OnControlAcquired(Entities.Character.MyCharacter owner)
         { }
 
-        public void OnControlReleased()
+        public virtual void OnControlReleased()
         {
             if (!Enabled && !Closed)
                 StopShooting();
@@ -477,25 +480,9 @@ namespace Sandbox.Game.Weapons
         public void DrawHud(IMyCameraController camera, long playerId)
         { }
 
-        public int InventoryCount
-        {
-            get { return 1; }
-        }
-
-        public MyInventory GetInventory(int index)
-        {
-            Debug.Assert(index == 0);
-            return m_inventory;
-        }
-
         public void SetInventory(MyInventory inventory, int index)
         {
-            m_inventory = inventory;
-        }
-
-        public MyInventoryOwnerTypeEnum InventoryOwnerType
-        {
-            get { return MyInventoryOwnerTypeEnum.System; }
+            Components.Add<MyInventoryBase>( inventory);
         }
 
         public bool UseConveyorSystem
@@ -506,7 +493,7 @@ namespace Sandbox.Game.Weapons
             }
             set
             {
-                m_useConveyorSystem = value;
+                m_useConveyorSystem.Value = value;
             }
         }
 
@@ -607,6 +594,42 @@ namespace Sandbox.Game.Weapons
         {
             get { return null; }
         }
-        bool IMyShipToolBase.UseConveyorSystem { get { return (this as IMyInventoryOwner).UseConveyorSystem; } }
+        bool IMyShipToolBase.UseConveyorSystem { get { return UseConveyorSystem; } }
+
+        #region IMyInventoryOwner implementation
+
+        int IMyInventoryOwner.InventoryCount
+        {
+            get { return InventoryCount; }
+        }
+
+        long IMyInventoryOwner.EntityId
+        {
+            get { return EntityId; }
+        }
+
+        bool IMyInventoryOwner.HasInventory
+        {
+            get { return HasInventory; }
+        }
+
+        bool IMyInventoryOwner.UseConveyorSystem
+        {
+            get
+            {
+                return UseConveyorSystem;
+            }
+            set
+            {
+                UseConveyorSystem = value;
+            }
+        }
+
+        IMyInventory IMyInventoryOwner.GetInventory(int index)
+        {
+            return MyEntityExtensions.GetInventory(this, index);
+        }
+
+        #endregion
     }
 }

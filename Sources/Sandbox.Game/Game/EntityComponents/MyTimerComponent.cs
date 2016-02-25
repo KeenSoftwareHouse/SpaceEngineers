@@ -1,17 +1,24 @@
 ﻿using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.Components;
+using VRage.Game.Components;
+using VRageMath;
+using Sandbox.Definitions;
+using Sandbox.Game.EntityComponents;
+using System.Diagnostics;
+using Sandbox.Game.EntityComponents.Systems;
+using VRage.Game;
 
 
 namespace Sandbox.Game.Components
 {
+    [MyComponentType(typeof(MyTimerComponent))]
     [MyComponentBuilder(typeof(MyObjectBuilder_TimerComponent))]
-    public class MyTimerComponent : MyGameLogicComponent
+    public class MyTimerComponent : MyEntityComponentBase
     {
         public bool Repeat = false;
         public float TimeToEvent;
@@ -22,10 +29,15 @@ namespace Sandbox.Game.Components
         public bool RemoveEntityOnTimer = false;
         private bool m_resetOrigin;
 
+        public override string ComponentTypeDebugString
+        {
+            get { return "Timer"; }
+        }
+
         public void SetRemoveEntityTimer(float timeMin)
         {
             RemoveEntityOnTimer = true;
-            SetTimer(timeMin, (MyEntityComponentContainer container) => { container.Entity.Close(); } );
+            SetTimer(timeMin, GetRemoveEntityOnTimerEvent());
         }
 
         public void SetTimer(float timeMin, Action<MyEntityComponentContainer> triggerEvent, bool start = true, bool repeat = false)
@@ -49,25 +61,26 @@ namespace Sandbox.Game.Components
 
         private void StartTiming()
         {
-            System.Diagnostics.Debug.Assert(MyPerGameSettings.GetElapsedMinutes != null, "This component must be used together with time!");
+            System.Diagnostics.Debug.Assert(Sandbox.Game.World.MySession.Static != null, "This component must be used together with MySession time!");
             TimeToEvent = m_setTimeMin;
             TimerEnabled = true;
-            m_originTimeMin = MyPerGameSettings.GetElapsedMinutes();
+            m_originTimeMin = (float)Sandbox.Game.World.MySession.Static.ElapsedGameTime.TotalMinutes;
         }
 
-        public override void UpdateAfterSimulation100()
+        public void Update()
         {
-            base.UpdateAfterSimulation100();
             if (!TimerEnabled)
             {
                 return;
             }
-            var currentTime = MyPerGameSettings.GetElapsedMinutes();
+
+            var currentTime = (float)Sandbox.Game.World.MySession.Static.ElapsedGameTime.TotalMinutes;
             if (m_resetOrigin)
-            {              
-                m_originTimeMin = currentTime + m_setTimeMin - TimeToEvent;
+            {
+                m_originTimeMin = currentTime - m_setTimeMin + TimeToEvent;
                 m_resetOrigin = false;
             }
+
             TimeToEvent = m_originTimeMin + m_setTimeMin - currentTime;
             if (TimeToEvent <= 0)
             {
@@ -77,7 +90,7 @@ namespace Sandbox.Game.Components
                 }
                 if (Repeat)
                 {
-                    m_originTimeMin = MyPerGameSettings.GetElapsedMinutes();
+                    m_originTimeMin = (float)Sandbox.Game.World.MySession.Static.ElapsedGameTime.TotalMinutes;
                 }
                 else
                 {
@@ -88,13 +101,22 @@ namespace Sandbox.Game.Components
 
         public override void OnAddedToContainer()
         {
-            System.Diagnostics.Debug.Assert(MyPerGameSettings.GetElapsedMinutes != null, "This timing func not defined!");
+            System.Diagnostics.Debug.Assert(Sandbox.Game.World.MySession.Static != null, "This component must be used together with MySession time!");
             base.OnAddedToContainer();
             if (TimerEnabled)
             {
                 m_resetOrigin = true;
             }
-            Entity.NeedsUpdate = VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
+
+            Debug.Assert(MyTimerComponentSystem.Static != null);
+            MyTimerComponentSystem.Static.Register(this);
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+            if (MyTimerComponentSystem.Static != null)
+                MyTimerComponentSystem.Static.Unregister(this);
         }
 
         public override MyObjectBuilder_ComponentBase Serialize()
@@ -118,7 +140,7 @@ namespace Sandbox.Game.Components
             RemoveEntityOnTimer = builder.RemoveEntityOnTimer;
             if (RemoveEntityOnTimer)
             {
-                EventToTrigger = (MyEntityComponentContainer container) => { container.Entity.Close(); };
+                EventToTrigger = GetRemoveEntityOnTimerEvent();
             }
         }
 
@@ -127,9 +149,30 @@ namespace Sandbox.Game.Components
             return true;
         }
 
-        public override VRage.ObjectBuilders.MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
+        public override void Init(MyComponentDefinitionBase definition)
         {
-            return null;
+            base.Init(definition);
+
+            var timerComponentDefinition = definition as MyTimerComponentDefinition;
+            Debug.Assert(timerComponentDefinition != null);
+            if (timerComponentDefinition != null)
+            {
+                TimerEnabled = timerComponentDefinition.TimeToRemoveMin > 0;
+                m_setTimeMin = timerComponentDefinition.TimeToRemoveMin;
+                TimeToEvent = m_setTimeMin;
+                RemoveEntityOnTimer = timerComponentDefinition.TimeToRemoveMin > 0;
+
+                if (RemoveEntityOnTimer)
+                {
+                    EventToTrigger = GetRemoveEntityOnTimerEvent();
+                }
+            }
         }
+
+        private static Action<MyEntityComponentContainer> GetRemoveEntityOnTimerEvent()
+        {
+            return (MyEntityComponentContainer container) => { container.Entity.SyncObject.SendCloseRequest(); };
+        }
+
     }
 }

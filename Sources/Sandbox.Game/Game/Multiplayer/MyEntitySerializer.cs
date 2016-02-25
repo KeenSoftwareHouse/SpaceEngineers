@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Multiplayer
 {

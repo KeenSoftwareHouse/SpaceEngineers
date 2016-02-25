@@ -74,5 +74,31 @@ namespace Sandbox.Game.GameSystems
             }
             return null;
         }
+
+        IMyBlockGroup IMyGridTerminalSystem.GetBlockGroupWithName(string name)
+        {
+            foreach (var group in BlockGroups)
+            {
+                if (group.Name.ToString() == name)
+                {
+                    //Check if every block in group IsAccessibleForProgrammableBlock
+                    var IsAccessibleForProgrammableBlock = true;
+                    foreach (var block in group.Blocks)
+                    {
+                        if (!block.IsAccessibleForProgrammableBlock)
+                        {
+                            IsAccessibleForProgrammableBlock = false;
+                            break;
+                        }
+                    }
+
+                    if (IsAccessibleForProgrammableBlock)
+                    {
+                        return group;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

@@ -19,31 +19,64 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRageMath;
 using VRage.Utils;
+using VRage.Network;
+using VRage.ModAPI;
+using VRage.Game.Entity;
+using VRage.Library.Sync;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_FracturedPiece))]
-    public class MyFracturedPiece : MyEntity, IMyDestroyableObject
+    public class MyFracturedPiece : MyEntity, IMyDestroyableObject, IMyEventProxy
     {
+        private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
+
+        public event Action<MyEntity> OnRemove;
+
+        public new MyRenderComponentFracturedPiece Render { get { return (MyRenderComponentFracturedPiece)base.Render; } }
+        public HkdBreakableShape Shape;
+
         public class HitInfo
         {
             public Vector3D Position;
             public Vector3 Impulse;
         }
-
-        public new MyRenderComponentFracturedPiece Render { get { return (MyRenderComponentFracturedPiece)base.Render; } }
-        public HkdBreakableShape Shape;
-
         public HitInfo InitialHit;
 
-        private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
-
         private float m_hitPoints;
+
+        public List<MyDefinitionId> OriginalBlocks = new List<MyDefinitionId>();
+        private List<HkdShapeInstanceInfo> m_children = new List<HkdShapeInstanceInfo>();
+
+        private List<MyObjectBuilder_FracturedPiece.Shape> m_shapes = new List<MyObjectBuilder_FracturedPiece.Shape>();
+        private List<HkdShapeInstanceInfo> m_shapeInfos = new List<HkdShapeInstanceInfo>();
+
+        private MyTimeSpan m_markedBreakImpulse = MyTimeSpan.Zero;
+        private HkEasePenetrationAction m_easePenetrationAction;
+
+        private MyEntity3DSoundEmitter m_soundEmitter = null;
+        private DateTime m_soundStart;
+        private bool m_obstacleContact = false;
+        private bool m_groundContact = false;
+        private Sync<bool> m_fallSoundShouldPlay;
+        private MySoundPair m_fallSound = null;
+        private Sync<string> m_fallSoundString;
+        private bool m_contactSet = false;
+        public readonly SyncType SyncType;
+
+        public new MyPhysicsBody Physics
+        {
+            get { return base.Physics as MyPhysicsBody; }
+            set { base.Physics = value; }
+        }
+
         public MyFracturedPiece()
             : base()
         {
@@ -58,10 +91,13 @@ namespace Sandbox.Game.Entities
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
             UseDamageSystem = false;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            SyncType = SyncHelpers.Compose(this);
+            m_fallSoundShouldPlay.Value = false;
+            m_fallSoundString.Value = "";
+            m_fallSoundString.ValueChanged += (x) => SetFallSound();
         }
 
-        public List<MyDefinitionId> OriginalBlocks = new List<MyDefinitionId>();
-        private List<HkdShapeInstanceInfo> m_children = new List<HkdShapeInstanceInfo>();
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
             var old = base.GetObjectBuilder(copy);
@@ -75,6 +111,7 @@ namespace Sandbox.Game.Entities
                     ob.Shapes.Add(new MyObjectBuilder_FracturedPiece.Shape() { Name = shape.Name, Orientation = shape.Orientation });
                 return ob;
             }
+
             if (Physics.BreakableBody.BreakableShape.IsCompound() || string.IsNullOrEmpty(Physics.BreakableBody.BreakableShape.Name))
             {
                 Physics.BreakableBody.BreakableShape.GetChildren(m_children);
@@ -83,11 +120,26 @@ namespace Sandbox.Game.Entities
                     Debug.Fail("Saiving invalid piece!");
                     return ob;
                 }
+
+                int childrenCount = m_children.Count;
+                for (int i=0; i<childrenCount; ++i)
+                {
+                    var child = m_children[i];
+                    if (string.IsNullOrEmpty(child.ShapeName))
+                    {
+                        child.GetChildren(m_children);
+                    }
+                }
+
                 foreach (var child in m_children)
                 {
+                    var shapeName = child.ShapeName;
+                    if (string.IsNullOrEmpty(shapeName))
+                        continue;
+
                     var shape = new MyObjectBuilder_FracturedPiece.Shape()
                     {
-                        Name = child.ShapeName,
+                        Name = shapeName,
                         Orientation = Quaternion.CreateFromRotationMatrix(child.GetTransform().GetOrientation()),
                         Fixed = MyDestructionHelper.IsFixed(child.Shape)
                     };
@@ -111,7 +163,6 @@ namespace Sandbox.Game.Entities
             return ob;
         }
 
-        List<MyObjectBuilder_FracturedPiece.Shape> m_shapes = new List<MyObjectBuilder_FracturedPiece.Shape>();
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
@@ -143,9 +194,9 @@ namespace Sandbox.Game.Entities
                 }
 
                 model = mdef.Model;
-                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                     MyDestructionData.Static.LoadModelDestruction(model, mdef, Vector3.One);
-                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                var shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
@@ -155,9 +206,9 @@ namespace Sandbox.Game.Entities
                     foreach (var progress in blockDef.BuildProgressModels)
                     {
                         model = progress.File;
-                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                        if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                             MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
-                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                         si = new HkdShapeInstanceInfo(shape, null, null);
                         m_children.Add(si);
                         shape.GetChildren(m_children);
@@ -199,10 +250,18 @@ namespace Sandbox.Game.Entities
 
             if (m_shapeInfos.Count == 0)
             {
-                Debug.Fail("No relevant shape was found for fractured piece. It was probably reexported and names changed.");
+                List<string> shapesToLoad = new List<string>();
+                foreach (var obShape in ob.Shapes)
+                    shapesToLoad.Add(obShape.Name);
+
+                var shapesStr = shapesToLoad.Aggregate((str1, str2) => str1 + ", " + str2);
+                var blocksStr = OriginalBlocks.Aggregate("", (str, defId) => str + ", " + defId.ToString());
+                var failMsg = "No relevant shape was found for fractured piece. It was probably reexported and names changed. Shapes: " + shapesStr + ". Original blocks: " + shapesStr;
+
+                Debug.Fail(failMsg);
                 //HkdShapeInstanceInfo si = new HkdShapeInstanceInfo(new HkdBreakableShape((HkShape)new HkBoxShape(Vector3.One)), Matrix.Identity);
                 //m_shapeInfos.Add(si);
-                throw new Exception("No relevant shape was found for fractured piece. It was probably reexported and names changed.");
+                throw new Exception(failMsg);
             }
 
             if (offset.HasValue)
@@ -235,11 +294,10 @@ namespace Sandbox.Game.Entities
                 Shape.SetChildrenParent(Shape);
                 Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
                 Physics.CanUpdateAccelerations = true;
-                Physics.InitialSolverDeactivation = HkSolverDeactivation.Medium;
+                Physics.InitialSolverDeactivation = HkSolverDeactivation.High;
                 Physics.CreateFromCollisionObject(Shape.GetShape(), Vector3.Zero, PositionComp.WorldMatrix, mp);
                 Physics.BreakableBody = new HkdBreakableBody(Shape, Physics.RigidBody, MyPhysics.SingleWorld.DestructionWorld, (Matrix)PositionComp.WorldMatrix);
                 Physics.BreakableBody.AfterReplaceBody += Physics.FracturedBody_AfterReplaceBody;
-
 
                 if (OriginalBlocks.Count > 0)
                 {
@@ -258,15 +316,12 @@ namespace Sandbox.Game.Entities
                     rigidBody.AngularVelocity = Vector3.Zero;
                 }
 
-                //Cannot set keyframed in constructor, because Havok does not allow set CoM on kinematic object..
-                if(!Sync.IsServer)
-                    Physics.RigidBody.UpdateMotionType(HkMotionType.Keyframed);
+
                 Physics.Enabled = true;
             }
             m_children.Clear();
             m_shapeInfos.Clear();
         }
-
 
         internal void InitFromBreakableBody(HkdBreakableBody b, MatrixD worldMatrix, MyCubeBlock block)
         {
@@ -319,13 +374,13 @@ namespace Sandbox.Game.Entities
                     if (b.BreakableShape.Volume < 1 && MyRandom.Instance.Next(6) > 1)
                         rigidBody.Layer = MyFracturedPiecesManager.FakePieceLayer;
                     else
-                        rigidBody.Layer = MyPhysics.DefaultCollisionLayer;
+                        rigidBody.Layer = MyPhysics.CollisionLayers.DefaultCollisionLayer;
                 }
                 else
-                    rigidBody.Layer = MyPhysics.DefaultCollisionLayer;
+                    rigidBody.Layer = MyPhysics.CollisionLayers.DefaultCollisionLayer;
             }
             else
-                rigidBody.Layer = MyPhysics.StaticCollisionLayer;
+                rigidBody.Layer = MyPhysics.CollisionLayers.StaticCollisionLayer;
             Physics.BreakableBody.AfterReplaceBody += Physics.FracturedBody_AfterReplaceBody;
 
             if(OriginalBlocks.Count > 0)
@@ -381,8 +436,6 @@ namespace Sandbox.Game.Entities
             m_hitPoints = Shape.Volume * 100;
         }
 
-        List<HkdShapeInstanceInfo> m_shapeInfos = new List<HkdShapeInstanceInfo>();
-
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
@@ -416,6 +469,148 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public void RegisterObstacleContact(ref HkContactPointEvent e)
+        {
+            if (m_obstacleContact == false && m_fallSoundShouldPlay.Value == true && (DateTime.UtcNow - m_soundStart).TotalSeconds >= 1f)
+            {
+                m_obstacleContact = true;
+            }
+        }
+
+        private void SetFallSound()
+        {
+            m_fallSound = new MySoundPair(m_fallSoundString.Value);
+        }
+
+        public void StartFallSound(MySoundPair sound)
+        {
+            m_groundContact = false;
+            m_obstacleContact = false;
+            m_fallSoundString.Value = sound.ToString();
+            m_soundStart = DateTime.UtcNow;
+            m_fallSoundShouldPlay.Value = true;
+            if (m_contactSet == false && (MySandboxGame.IsDedicated || MyMultiplayer.Static == null || MyMultiplayer.Static.IsServer))
+                Physics.RigidBody.ContactSoundCallback += RegisterObstacleContact;
+            m_contactSet = true;
+        }
+
+        public override void UpdateAfterSimulation10()
+        {
+            base.UpdateAfterSimulation10();
+
+            if (m_markedBreakImpulse != MyTimeSpan.Zero)
+                UnmarkEntityBreakable(true);
+
+            //restart falling sound if it starts moving again
+            if (m_fallSoundShouldPlay.Value == false && this.Physics.LinearVelocity.LengthSquared() > 25f && (DateTime.UtcNow - m_soundStart).TotalSeconds >= 1f)
+            {
+                m_fallSoundShouldPlay.Value = true;
+                m_obstacleContact = false;
+                m_groundContact = false;
+            }
+        }
+
+        public override void UpdateBeforeSimulation()
+        {
+            base.UpdateBeforeSimulation();
+
+            //Sound control
+            if (MySandboxGame.IsDedicated == false)
+            {
+                if (m_fallSoundShouldPlay.Value == true)
+                {
+                    if (m_soundEmitter == null)
+                    {
+                        m_soundEmitter = new MyEntity3DSoundEmitter(this);
+                        NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+                    }
+                    if (m_soundEmitter.IsPlaying == false && m_fallSound != null && m_fallSound != MySoundPair.Empty)
+                        m_soundEmitter.PlaySound(m_fallSound, true, true);
+                }
+                else
+                {
+                    if (m_soundEmitter != null && m_soundEmitter.IsPlaying)
+                        m_soundEmitter.StopSound(false);
+                }
+            }
+
+            //contact was made
+            if (m_obstacleContact && m_groundContact == false)
+            {
+                if (Physics.LinearVelocity.Y > 0f || Physics.LinearVelocity.LengthSquared() < 9f)
+                {
+                    m_groundContact = true;
+                    m_fallSoundShouldPlay.Value = false;//start crash sound
+                    m_soundStart = DateTime.UtcNow;
+                }
+                else
+                {
+                    m_obstacleContact = false;//scratching
+                }
+            }
+        }
+
+        public override void UpdateBeforeSimulation100()
+        {
+            base.UpdateBeforeSimulation100();
+            if (m_soundEmitter != null)
+            {
+                m_soundEmitter.Update();
+                if (m_soundEmitter.IsPlaying && (DateTime.UtcNow - m_soundStart).TotalSeconds >= 15f)//stop falling sound if it playing too long
+                    m_fallSoundShouldPlay.Value = false;
+            }
+        }
+
+        private void UnmarkEntityBreakable(bool checkTime)
+        {
+            if (m_markedBreakImpulse != MyTimeSpan.Zero && (!checkTime || MySandboxGame.Static.UpdateTime - m_markedBreakImpulse > MyTimeSpan.FromSeconds(1.5)))
+            {
+                m_markedBreakImpulse = MyTimeSpan.Zero;
+                if (Physics != null && Physics.HavokWorld != null)
+                {
+                    Physics.HavokWorld.BreakOffPartsUtil.UnmarkEntityBreakable(Physics.RigidBody);
+                    if (checkTime)
+                        CreateEasyPenetrationAction(1f);
+                }
+            }
+        }
+
+        public override void OnAddedToScene(object source)
+        {
+            base.OnAddedToScene(source);
+
+            MyCubeBlockDefinition firstBlockDef = null;
+            if (Physics.HavokWorld != null && OriginalBlocks.Count != 0 && MyDefinitionManager.Static.TryGetCubeBlockDefinition(OriginalBlocks[0], out firstBlockDef) && firstBlockDef.CubeSize == MyCubeSize.Large)
+            {
+                var impulse = Physics.Mass * 0.4f;
+                Physics.HavokWorld.BreakOffPartsUtil.MarkEntityBreakable(Physics.RigidBody, impulse);
+                m_markedBreakImpulse = MySandboxGame.Static.UpdateTime;
+            }
+        }
+
+        public override void OnRemovedFromScene(object source)
+        {
+            base.OnRemovedFromScene(source);
+
+            UnmarkEntityBreakable(false);
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
+
+            if (OnRemove != null)
+                OnRemove(this);
+        }
+
+
+        private void CreateEasyPenetrationAction(float duration)
+        {
+            if (Physics != null && Physics.RigidBody != null)
+            {
+                m_easePenetrationAction = new HkEasePenetrationAction(Physics.RigidBody, duration);
+                m_easePenetrationAction.InitialAllowedPenetrationDepthMultiplier = 5f;
+                m_easePenetrationAction.InitialAdditionalAllowedPenetrationDepth = 2f;
+            }
+        }
+
         protected override void Closing()
         {
             base.Closing();
@@ -436,6 +631,32 @@ namespace Sandbox.Game.Entities
                 if (MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES)
                 {
                     VRageRender.MyRenderProxy.DebugDrawAxis(m_piece.WorldMatrix, 1, false);
+
+                    if (m_piece.Physics != null && m_piece.Physics.RigidBody != null)
+                    {
+                        MyPhysicsBody pb = m_piece.Physics as MyPhysicsBody;
+                        HkRigidBody rb = pb.RigidBody;
+
+                        Vector3 center = pb.ClusterToWorld(rb.CenterOfMassWorld);// tohle uz je pozice stredu rigid body
+                        BoundingBoxD bbox = new BoundingBoxD(center - Vector3D.One * 0.1f, center + Vector3D.One * 0.1f);
+
+                        if (!Sync.IsServer)
+                        {
+                            if (m_piece.m_serverPosition != Vector3.Zero)
+                            {
+                                BoundingBoxD bbox1 = new BoundingBoxD(m_piece.m_serverPosition - Vector3D.One * 0.1f, m_piece.GetBaseEntity().m_serverPosition + Vector3D.One * 0.1f);
+                                VRageRender.MyRenderProxy.DebugDrawAABB(bbox1, Color.Yellow, 1.0f, 1.0f, false);
+
+                                BoundingBoxD bbox2 = new BoundingBoxD(m_piece.PositionComp.WorldMatrix.Translation - Vector3D.One * 0.1f, m_piece.PositionComp.WorldMatrix.Translation + Vector3D.One * 0.1f);
+                                VRageRender.MyRenderProxy.DebugDrawAABB(bbox2, Color.YellowGreen, 1.0f, 1.0f, false);
+
+                                VRageRender.MyRenderProxy.DebugDrawLine3D(m_piece.GetBaseEntity().m_serverPosition, m_piece.PositionComp.WorldMatrix.Translation, Color.Yellow, Color.YellowGreen, false);
+                            }
+                        }
+
+                        string str = String.Format("{0}\n, {1}\n{2}", rb.GetMotionType(), pb.Friction, pb.Entity.EntityId.ToString().Substring(0,5));
+                        VRageRender.MyRenderProxy.DebugDrawText3D(center, str, Color.White, 0.6f, false);
+                    }
                 }
                 return false;
             }
@@ -453,7 +674,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public bool DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {
@@ -474,6 +695,7 @@ namespace Sandbox.Game.Entities
                         MyDamageSystem.Static.RaiseDestroyed(this, info);
                 }
             }
+            return true;
         }
 
         public float Integrity
@@ -482,5 +704,42 @@ namespace Sandbox.Game.Entities
         }
 
         public bool UseDamageSystem { get; private set; }
+
+        public void DebugCheckValidShapes()
+        {
+            bool hasBlock = false;
+            HashSet<Tuple<string, float>> shapeNamesAndProgress = new HashSet<Tuple<string, float>>();
+            HashSet<Tuple<string, float>> shapeNamesAndProgressInShape = new HashSet<Tuple<string, float>>();
+            foreach (var defId in OriginalBlocks)
+            {
+                MyCubeBlockDefinition blockDef;
+                if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDef))
+                {
+                    hasBlock = true;
+                    MyFracturedBlock.GetAllBlockBreakableShapeNames(blockDef, shapeNamesAndProgress);
+                }
+            }
+
+            MyFracturedBlock.GetAllBlockBreakableShapeNames(Shape, shapeNamesAndProgressInShape, 0);
+
+            // Check
+            foreach (var tupleInShape in shapeNamesAndProgressInShape)
+            {
+                bool found = false;
+                foreach (var tuple in shapeNamesAndProgress)
+                {
+                    if (tupleInShape.Item1 == tuple.Item1)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found && hasBlock && !tupleInShape.Item1.ToLower().Contains("compound"))
+                {
+                    Debug.Fail("Found shape which is not in any definition: " + tupleInShape.Item1);
+                }
+            }
+        }
     }
 }

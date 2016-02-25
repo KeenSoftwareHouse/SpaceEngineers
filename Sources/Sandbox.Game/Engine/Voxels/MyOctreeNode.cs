@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Game.Gui;
 using VRage.Voxels;
 using VRageMath;
 using TLeafData = System.Byte;
@@ -108,6 +109,21 @@ namespace Sandbox.Engine.Voxels
             for (int i = 1; i < CHILD_COUNT; ++i)
             {
                 if (pData[i] != refValue)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool AllDataSame(TLeafData value)
+        {
+            fixed (TLeafData* pData = Data) { return AllDataSame(pData, value); }
+        }
+
+        public static unsafe bool AllDataSame(TLeafData* pData, TLeafData value)
+        {
+            for (int i = 1; i < CHILD_COUNT; ++i)
+            {
+                if (pData[i] != value)
                     return false;
             }
             return true;
@@ -245,6 +261,16 @@ namespace Sandbox.Engine.Voxels
             return mostCommon;
         }
 
+        public bool AnyAboveIso()
+        {
+            fixed (byte* data = Data)
+                for (int i = 0; i < CHILD_COUNT; ++i)
+                {
+                    if (data[i] > MyVoxelConstants.VOXEL_ISO_LEVEL) return true;
+                }
+
+            return false;
+        }
     }
 
 }

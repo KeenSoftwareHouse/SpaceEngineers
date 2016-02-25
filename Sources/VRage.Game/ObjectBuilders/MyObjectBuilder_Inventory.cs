@@ -1,13 +1,11 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using VRage;
-using VRage.Network;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [Flags]
     public enum MyInventoryFlags
@@ -37,11 +35,15 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember, DefaultValue(null)]
         public MyInventoryFlags? InventoryFlags = null;
+        
+        [ProtoMember]
+        public bool RemoveEntityOnEmpty;
 
-        internal void Clear()
+        public override void Clear()
         {
             Items.Clear();
             nextItemId = 0;
+            base.Clear();
         }
     }
 }

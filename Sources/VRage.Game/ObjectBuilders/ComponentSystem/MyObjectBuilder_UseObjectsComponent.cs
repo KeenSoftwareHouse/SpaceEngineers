@@ -1,10 +1,5 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using VRage.ObjectBuilders;
 using VRageMath;
 

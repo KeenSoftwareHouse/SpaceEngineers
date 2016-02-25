@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using SharpDX.Direct3D11;
 using VRage.Utils;
-using System.Reflection;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 using Texture2D = SharpDX.Direct3D11.Texture2D;
@@ -16,12 +14,17 @@ using Vector2 = VRageMath.Vector2;
 using Resource = SharpDX.Direct3D11.Resource;
 using SharpDX.DXGI;
 using SharpDX.Direct3D;
-using VRage.Library.Utils;
 using VRage.FileSystem;
-using VRageMath;
 
 namespace VRageRender.Resources
 {
+    internal struct MyTextureUsageReport
+    {
+        public int TexturesTotal;
+        public int TexturesLoaded;
+        public long TotalTextureMemory;
+    }
+
     struct TexId
     {
         internal int Index;
@@ -71,6 +74,8 @@ namespace VRageRender.Resources
         internal int SkippedMipmaps;
         internal Resource Resource;
         internal Vector2 Size;
+
+        internal int ByteSize;
     }
 
     static class MyTextures
@@ -228,15 +233,25 @@ namespace VRageRender.Resources
                 if (Textures.Data[texId.Index].SkipQualityReduction)
                     skipMipmaps = 0;
 
+                int totalSize = 0;
+
                 int targetMipmaps = img.Description.MipLevels - skipMipmaps;
                 var mipmapsData = new DataBox[(img.Description.MipLevels - skipMipmaps) * img.Description.ArraySize];
+
+                long delta = 0;
+                int lastSize = 0;
+
                 for(int z = 0; z<img.Description.ArraySize; z++)
                 {
                     for (int i = 0; i < targetMipmaps; i++)
                     {
                         var pixels = img.GetPixelBuffer(z, i + skipMipmaps);
-                        mipmapsData[Resource.CalculateSubResourceIndex(i, z, targetMipmaps)] = 
+                        mipmapsData[Resource.CalculateSubResourceIndex(i, z, targetMipmaps)] =
                             new DataBox { DataPointer = pixels.DataPointer, RowPitch = pixels.RowStride };
+                        delta = pixels.DataPointer.ToInt64() - img.DataPointer.ToInt64();
+
+                        lastSize = pixels.BufferStride;
+                        totalSize += lastSize;
                     }
                 }
 
@@ -267,6 +282,7 @@ namespace VRageRender.Resources
                     Textures.Data[texId.Index].Size = new Vector2(targetWidth, targetHeight);
                     Textures.Data[texId.Index].SkippedMipmaps = skipMipmaps;
                     Textures.Data[texId.Index].FileExists = true;
+                    Textures.Data[texId.Index].ByteSize = totalSize;
 
                     Views[texId.Index] = new ShaderResourceView(MyRender11.Device, resource);
                     resource.DebugName = path;
@@ -451,7 +467,7 @@ namespace VRageRender.Resources
             }
         }
 
-        static TexId RegisterTexture(string name, string contentPath, MyTextureEnum type, Resource resource, Vector2 size)
+        static TexId RegisterTexture(string name, string contentPath, MyTextureEnum type, Resource resource, Vector2 size, int bytes)
         {
             var nameKey = X.TEXT(name);
             if (!NameIndex.ContainsKey(nameKey))
@@ -464,7 +480,8 @@ namespace VRageRender.Resources
                     ContentPath = contentPath,
                     Type = type,
                     Resource = resource,
-                    Size = size
+                    Size = size,
+                    ByteSize = bytes
                 };
 
                 resource.DebugName = name;
@@ -509,16 +526,16 @@ namespace VRageRender.Resources
                 databox[0].DataPointer = new IntPtr(ptr);
                 databox[0].RowPitch = 4;
 
-                ZeroTexId = RegisterTexture("EMPTY", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                ZeroTexId = RegisterTexture("EMPTY", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4);
 
                 data = (255 << 16) | (127 << 8) | 127;
-                MissingNormalGlossTexId = RegisterTexture("MISSING_NORMAL_GLOSS", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                MissingNormalGlossTexId = RegisterTexture("MISSING_NORMAL_GLOSS", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4);
 
                 data = 255;
-                MissingExtensionTexId = RegisterTexture("MISSING_EXTENSIONS", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                MissingExtensionTexId = RegisterTexture("MISSING_EXTENSIONS", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4);
 
                 data = (127 << 16) | (0 << 8) | 255;
-                DebugPinkTexId = RegisterTexture("Pink", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                DebugPinkTexId = RegisterTexture("Pink", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4);
             }
             {
                 var desc = new Texture2DDescription();
@@ -543,7 +560,7 @@ namespace VRageRender.Resources
                     databox[i].RowPitch = 4;
                 }
 
-                MissingCubeTexId = RegisterTexture("MISSING_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                MissingCubeTexId = RegisterTexture("MISSING_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4 * 6);
             }
             {
                 var desc = new Texture2DDescription();
@@ -569,22 +586,23 @@ namespace VRageRender.Resources
                     databox[i].RowPitch = 4;
                 }
 
-                IntelFallbackCubeTexId = RegisterTexture("INTEL_FALLBACK_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                IntelFallbackCubeTexId = RegisterTexture("INTEL_FALLBACK_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 4 * 6);
             }
             
             {
-                byte[] ditherData = new byte[] {
-                    0, 32, 8, 40, 2, 34, 10, 42,
+                byte[] ditherData = new byte[] 
+                {
+                    0,  32,  8, 40,  2, 34, 10, 42,
                     48, 16, 56, 24, 50, 18, 58, 26,
-                    12, 44, 4, 36, 14, 46, 6, 38, 
+                    12, 44,  4, 36, 14, 46,  6, 38, 
                     60, 28, 52, 20, 62, 30, 54, 22,
-                    3, 35, 11, 43, 1, 33, 9, 41,
+                     3, 35, 11, 43,  1, 33,  9, 41,
                     51, 19, 59, 27, 49, 17, 57, 25,
-                    15, 47, 7, 39, 13, 45, 5, 37,
+                    15, 47,  7, 39, 13, 45, 5,  37,
                     63, 31, 55, 23, 61, 29, 53, 21 };
                 for (int i = 0; i < 64; i++)
                 {
-                    ditherData[i] *= 4;
+                    ditherData[i] = (byte)(ditherData[i] * 4);
                 }
                 var desc = new Texture2DDescription();
                 desc.ArraySize = 1;
@@ -602,7 +620,7 @@ namespace VRageRender.Resources
                 {
                     databox[0].DataPointer = new IntPtr(dptr);
                     databox[0].RowPitch = 8;
-                    Dithering8x8TexId = RegisterTexture("DITHER_8x8", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(8, 8));
+                    Dithering8x8TexId = RegisterTexture("DITHER_8x8", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(8, 8), 8 * 8);
                 }
 
                 byte bdata = 255;
@@ -612,7 +630,7 @@ namespace VRageRender.Resources
                 desc.Height = 1;
                 desc.Width = 1;
 
-                MissingAlphamaskTexId = RegisterTexture("MISSING_ALPHAMASK", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+                MissingAlphamaskTexId = RegisterTexture("MISSING_ALPHAMASK", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1), 1);
             }
         }
 
@@ -712,6 +730,25 @@ namespace VRageRender.Resources
                 Debug.WriteLine(String.Format("Loaded {0} textures in {1} s", texturesToLoad, x.Elapsed.TotalSeconds));
             }
         }
+
+        public static MyTextureUsageReport GetReport()
+        {
+            MyTextureUsageReport report;
+
+            report.TexturesTotal = State[0].Count + State[1].Count;
+
+            var loaded = State[(int)MyTextureState.LOADED];
+            report.TexturesLoaded = loaded.Count;
+
+            report.TotalTextureMemory = 0;
+
+            foreach (var id in loaded)
+            {
+                report.TotalTextureMemory += Textures.Data[id.Index].ByteSize;
+            }
+
+            return report;
+        }
     }
 
     struct MyRwTextureInfo
@@ -727,6 +764,21 @@ namespace VRageRender.Resources
     {
         internal int Index;
 
+        #region Equals
+        public class MyRwTexIdComparerType : IEqualityComparer<RwTexId>
+        {
+            public bool Equals(RwTexId left, RwTexId right)
+            {
+                return left.Index == right.Index;
+            }
+
+            public int GetHashCode(RwTexId rwTexId)
+            {
+                return rwTexId.Index;
+            }
+        }
+        public static readonly MyRwTexIdComparerType Comparer = new MyRwTexIdComparerType();
+      
         public static bool operator ==(RwTexId x, RwTexId y)
         {
             return x.Index == y.Index;
@@ -736,9 +788,9 @@ namespace VRageRender.Resources
         {
             return x.Index != y.Index;
         }
+        #endregion
 
         internal static readonly RwTexId NULL = new RwTexId { Index = -1 };
-
 
         internal Resource Resource { get { return MyRwTextures.GetResource(this); } }
         internal ShaderResourceView ShaderView { get { return MyRwTextures.GetSrv(this); } }
@@ -757,6 +809,40 @@ namespace VRageRender.Resources
     {
         internal RwTexId Id;
         internal int Subresource;
+
+        #region Equals
+        public class MySubResourceIdComparerType : IEqualityComparer<MySubresourceId>
+        {
+            public bool Equals(MySubresourceId left, MySubresourceId right)
+            {
+                return left == right;
+            }
+
+            public int GetHashCode(MySubresourceId subresourceId)
+            {
+                return subresourceId.GetHashCode();
+            }
+        }
+        public static readonly MySubResourceIdComparerType Comparer = new MySubResourceIdComparerType();
+
+        public static bool operator ==(MySubresourceId x, MySubresourceId y)
+        {
+            return  x.Id == y.Id &&
+                    x.Subresource == y.Subresource;
+        }
+
+        public static bool operator !=(MySubresourceId x, MySubresourceId y)
+        {
+            return  x.Id != y.Id ||
+                    x.Subresource != y.Subresource;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.Index * 397 ^ Subresource;
+        }
+        #endregion
+
     }
 
     struct MyDsvInfo
@@ -785,17 +871,16 @@ namespace VRageRender.Resources
 
     static class MyRwTextures
     {
-    
-        static HashSet<RwTexId> Index = new HashSet<RwTexId>();
+        static HashSet<RwTexId> Index = new HashSet<RwTexId>(RwTexId.Comparer);
         internal static MyFreelist<MyRwTextureInfo> Textures = new MyFreelist<MyRwTextureInfo>(128);
-        static Dictionary<RwTexId, MySrvInfo> Srvs = new Dictionary<RwTexId,MySrvInfo>();
-        static Dictionary<RwTexId, MyUavInfo> Uavs = new Dictionary<RwTexId, MyUavInfo>();
-        static Dictionary<RwTexId, MyDsvInfo> Dsvs = new Dictionary<RwTexId, MyDsvInfo>();
-        static Dictionary<RwTexId, MyRtvInfo> Rtvs = new Dictionary<RwTexId, MyRtvInfo>();
-        static Dictionary<MySubresourceId, MyDsvInfo> SubresourceDsvs = new Dictionary<MySubresourceId,MyDsvInfo>();
-        static Dictionary<MySubresourceId, MyRtvInfo> SubresourceRtvs = new Dictionary<MySubresourceId, MyRtvInfo>();
-        static Dictionary<MySubresourceId, MySrvInfo> SubresourceSrvs = new Dictionary<MySubresourceId, MySrvInfo>();
-        static Dictionary<MySubresourceId, MyUavInfo> SubresourceUavs = new Dictionary<MySubresourceId, MyUavInfo>();
+        static Dictionary<RwTexId, MySrvInfo> Srvs = new Dictionary<RwTexId, MySrvInfo>(RwTexId.Comparer);
+        static Dictionary<RwTexId, MyUavInfo> Uavs = new Dictionary<RwTexId, MyUavInfo>(RwTexId.Comparer);
+        static Dictionary<RwTexId, MyDsvInfo> Dsvs = new Dictionary<RwTexId, MyDsvInfo>(RwTexId.Comparer);
+        static Dictionary<RwTexId, MyRtvInfo> Rtvs = new Dictionary<RwTexId, MyRtvInfo>(RwTexId.Comparer);
+        static Dictionary<MySubresourceId, MyDsvInfo> SubresourceDsvs = new Dictionary<MySubresourceId, MyDsvInfo>(MySubresourceId.Comparer);
+        static Dictionary<MySubresourceId, MyRtvInfo> SubresourceRtvs = new Dictionary<MySubresourceId, MyRtvInfo>(MySubresourceId.Comparer);
+        static Dictionary<MySubresourceId, MySrvInfo> SubresourceSrvs = new Dictionary<MySubresourceId, MySrvInfo>(MySubresourceId.Comparer);
+        static Dictionary<MySubresourceId, MyUavInfo> SubresourceUavs = new Dictionary<MySubresourceId, MyUavInfo>(MySubresourceId.Comparer);
 
         internal static ShaderResourceView GetSrv(RwTexId id)
         {
@@ -865,6 +950,76 @@ namespace VRageRender.Resources
             Rtvs[handle] = new MyRtvInfo { Description = null, View = new RenderTargetView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
 
             Index.Add(handle);
+
+            return handle;
+        }
+
+        internal static RwTexId CreateRenderTargetArray(int width, int height, int arraySize, Format resourceFormat, Format viewFormat, string debugName = null)
+        {
+            var desc = new Texture2DDescription
+            {
+                ArraySize = arraySize,
+                BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = resourceFormat,
+                MipLevels = 1,
+                Usage = ResourceUsage.Default,
+                Width = width,
+                Height = height,
+                SampleDescription = new SampleDescription(1, 0)
+            };
+
+            var handle = new RwTexId { Index = Textures.Allocate() };
+            var textureResource = new Texture2D(MyRender11.Device, desc);
+            Textures.Data[handle.Index] = new MyRwTextureInfo { Description2D = desc, Resource = textureResource };
+            Index.Add(handle);
+
+            var srvDescriptor = new ShaderResourceViewDescription()
+            {
+                Dimension = ShaderResourceViewDimension.Texture2DArray,
+                Format = viewFormat,
+                Texture2DArray = new ShaderResourceViewDescription.Texture2DArrayResource()
+                {
+                    MipLevels = -1,
+                    MostDetailedMip = 0,
+                    ArraySize = arraySize,
+                    FirstArraySlice = 0,
+                }
+            };
+
+            Srvs[handle] = new MySrvInfo { Description = srvDescriptor, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+
+            srvDescriptor.Texture2DArray.ArraySize = 1;
+
+            var rtvDescriptor = new RenderTargetViewDescription()
+            {
+                Dimension = RenderTargetViewDimension.Texture2DArray,
+                Format = viewFormat,
+                Texture2DArray = new RenderTargetViewDescription.Texture2DArrayResource()
+                {
+                    ArraySize = 1,
+                    MipSlice = 0,
+                },
+            };
+
+            for (int textureIndex = 0; textureIndex < arraySize; ++textureIndex)
+            {
+                srvDescriptor.Texture2DArray.FirstArraySlice = textureIndex;
+
+                SubresourceSrvs[new MySubresourceId() { Id = handle, Subresource = textureIndex }] = new MySrvInfo()
+                {
+                    Description = srvDescriptor,
+                    View = new ShaderResourceView(MyRender11.Device, textureResource, srvDescriptor),
+                };
+
+                rtvDescriptor.Texture2DArray.FirstArraySlice = textureIndex;
+
+                SubresourceRtvs[new MySubresourceId() { Id = handle, Subresource = textureIndex }] = new MyRtvInfo()
+                {
+                    Description = rtvDescriptor,
+                    View = new RenderTargetView(MyRender11.Device, textureResource, rtvDescriptor),
+                };
+            }
 
             return handle;
         }
@@ -1194,6 +1349,35 @@ namespace VRageRender.Resources
             return handle;
         }
 
+        internal static RwTexId CreateUavRenderTarget(int width, int height, Format fmt)
+        {
+            var desc = new Texture2DDescription
+            {
+                ArraySize = 1,
+                BindFlags = BindFlags.ShaderResource | BindFlags.RenderTarget | BindFlags.UnorderedAccess,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = fmt,
+                Height = height,
+                Width = width,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = ResourceUsage.Default
+            };
+
+            var handle = new RwTexId { Index = Textures.Allocate() };
+            Textures.Data[handle.Index] = new MyRwTextureInfo { Description2D = desc };
+            Textures.Data[handle.Index].Resource = new Texture2D(MyRender11.Device, desc);
+
+            Srvs[handle] = new MySrvInfo { Description = null, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+            Rtvs[handle] = new MyRtvInfo { Description = null, View = new RenderTargetView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+            Uavs[handle] = new MyUavInfo { Description = null, View = new UnorderedAccessView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+
+            Index.Add(handle);
+
+            return handle;
+        }
+
         internal static void Destroy(ref RwTexId id)
         {
             Destroy(id);
@@ -1292,13 +1476,17 @@ namespace VRageRender.Resources
                 SubresourceUavs.Remove(k);
             }
 
-            if (Textures.Data[id.Index].Resource != null)
+            if (id.Index >= 0 && id.Index < Textures.Data.Length)
             {
-                Textures.Data[id.Index].Resource.Dispose();
-                Textures.Data[id.Index].Resource = null;
+                if (Textures.Data[id.Index].Resource != null)
+                {
+                    Textures.Data[id.Index].Resource.Dispose();
+                    Textures.Data[id.Index].Resource = null;
+                }
+                Textures.Free(id.Index);
             }
-
-            Textures.Free(id.Index);
+            else
+                Debug.Fail("Removing an invalid texture!");
         }
 
         internal static void Init()

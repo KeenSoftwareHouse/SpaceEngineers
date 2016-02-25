@@ -1,9 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Engine.Utils;
 using VRage.Utils;
 using VRage;
 using Medieval.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 
 namespace Sandbox.Definitions
@@ -22,19 +26,33 @@ namespace Sandbox.Definitions
         public int MinVersion;
         public bool SpawnsInAsteroids;
         public bool SpawnsFromMeteorites;
-        public bool SpawnsFlora;
-
+        
         public string DiffuseXZ;
         public string NormalXZ;
         public string DiffuseY;
         public string NormalY;
+        public MyParticleEffectsIDEnum ParticleEffect;
         public float SpecularPower;
         public float SpecularShininess;
 
-        public byte BiomeValue;
+        public int DamageThreshold;
 
-        public int[] SpawnChannels;
+        public MyStringHash DamagedMaterial;
 
+        private int m_damagedMaterialId = -1;
+        public byte DamagedMaterialId
+        {
+            get
+            {
+                if (m_damagedMaterialId == -1)
+                {
+                    var mat = MyDefinitionManager.Static.GetVoxelMaterialDefinition(DamagedMaterial.ToString());
+                    m_damagedMaterialId = mat != null ? mat.Index : 255;
+                }
+
+                return (byte)m_damagedMaterialId;
+            }
+        }
 
         /// <summary>
         /// Value generated at runtime to ensure correctness. Do not serialize or deserialize.
@@ -46,6 +64,8 @@ namespace Sandbox.Definitions
             get;
             private set;
         }
+
+        public bool HasDamageMaterial { get { return DamagedMaterial != MyStringHash.NullOrEmpty; } }
 
         public void AssignIndex()
         {
@@ -66,45 +86,54 @@ namespace Sandbox.Definitions
             var builder = ob as MyObjectBuilder_VoxelMaterialDefinition;
             MyDebug.AssertDebug(builder != null);
 
-			this.MaterialTypeName		= builder.MaterialTypeName;
-            this.MinedOre               = builder.MinedOre;
-            this.MinedOreRatio          = builder.MinedOreRatio;
-            this.CanBeHarvested         = builder.CanBeHarvested;
-            this.IsRare                 = builder.IsRare;
-            this.SpawnsInAsteroids      = builder.SpawnsInAsteroids;
-            this.SpawnsFromMeteorites   = builder.SpawnsFromMeteorites;
-            this.DamageRatio            = builder.DamageRatio;
-            this.DiffuseXZ              = builder.DiffuseXZ;
-            this.DiffuseY               = builder.DiffuseY;
-            this.NormalXZ               = builder.NormalXZ;
-            this.NormalY                = builder.NormalY;
-            this.SpecularPower          = builder.SpecularPower;
-            this.SpecularShininess      = builder.SpecularShininess;
-            this.MinVersion             = builder.MinVersion;
-            this.SpawnsFlora            = builder.SpawnsFlora;
-            this.BiomeValue = 0;
-            SpawnChannels = builder.SpawnChannels;
+			MaterialTypeName	   = builder.MaterialTypeName;
+            MinedOre               = builder.MinedOre;
+            MinedOreRatio          = builder.MinedOreRatio;
+            CanBeHarvested         = builder.CanBeHarvested;
+            IsRare                 = builder.IsRare;
+            SpawnsInAsteroids      = builder.SpawnsInAsteroids;
+            SpawnsFromMeteorites   = builder.SpawnsFromMeteorites;
+            DamageRatio            = builder.DamageRatio;
+            DiffuseXZ              = builder.DiffuseXZ;
+            DiffuseY               = builder.DiffuseY;
+            NormalXZ               = builder.NormalXZ;
+            NormalY                = builder.NormalY;
+            SpecularPower          = builder.SpecularPower;
+            SpecularShininess      = builder.SpecularShininess;
+            MinVersion             = builder.MinVersion;
+            if (!string.IsNullOrEmpty(builder.ParticleEffect))
+            {
+                ParticleEffect = (MyParticleEffectsIDEnum)Enum.Parse(typeof(MyParticleEffectsIDEnum), builder.ParticleEffect);
+            }
+            else
+            {
+                ParticleEffect = MyParticleEffectsIDEnum.None;
+            }
+            DamageThreshold = (int) (builder.DamageThreashold*255);
+            DamagedMaterial = MyStringHash.GetOrCompute(builder.DamagedMaterial);
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {
             MyObjectBuilder_VoxelMaterialDefinition ob = (MyObjectBuilder_VoxelMaterialDefinition)base.GetObjectBuilder();
 
-			ob.MaterialTypeName			= this.MaterialTypeName;
-            ob.MinedOre                 = this.MinedOre;
-            ob.MinedOreRatio            = this.MinedOreRatio;
-            ob.CanBeHarvested           = this.CanBeHarvested;
-            ob.IsRare                   = this.IsRare;
-            ob.SpawnsInAsteroids        = this.SpawnsInAsteroids;
-            ob.SpawnsFromMeteorites     = this.SpawnsFromMeteorites;
-            ob.DamageRatio              = this.DamageRatio;
-            ob.DiffuseXZ                = this.DiffuseXZ;
-            ob.DiffuseY                 = this.DiffuseY;
-            ob.NormalXZ                 = this.NormalXZ;
-            ob.NormalY                  = this.NormalY;
-            ob.SpecularPower            = this.SpecularPower;
-            ob.SpecularShininess        = this.SpecularShininess;
-            ob.SpawnsFlora              = this.SpawnsFlora;
+			ob.MaterialTypeName			= MaterialTypeName;
+            ob.MinedOre                 = MinedOre;
+            ob.MinedOreRatio            = MinedOreRatio;
+            ob.CanBeHarvested           = CanBeHarvested;
+            ob.IsRare                   = IsRare;
+            ob.SpawnsInAsteroids        = SpawnsInAsteroids;
+            ob.SpawnsFromMeteorites     = SpawnsFromMeteorites;
+            ob.DamageRatio              = DamageRatio;
+            ob.DiffuseXZ                = DiffuseXZ;
+            ob.DiffuseY                 = DiffuseY;
+            ob.NormalXZ                 = NormalXZ;
+            ob.NormalY                  = NormalY;
+            ob.SpecularPower            = SpecularPower;
+            ob.SpecularShininess        = SpecularShininess;
+            ob.ParticleEffect           = ParticleEffect.ToString();
+            ob.DamagedMaterial          = DamagedMaterial.ToString();
+            ob.DamageThreashold         = DamageThreshold / 255f;
 
             return ob;
         }
@@ -113,13 +142,13 @@ namespace Sandbox.Definitions
         {
             renderData = new MyRenderVoxelMaterialData()
             {
-                Index             = this.Index,
-                DiffuseXZ         = this.DiffuseXZ,
-                NormalXZ          = this.NormalXZ,
-                DiffuseY          = this.DiffuseY,
-                NormalY           = this.NormalY,
-                SpecularPower     = this.SpecularPower,
-                SpecularShininess = this.SpecularShininess
+                Index             = Index,
+                DiffuseXZ         = DiffuseXZ,
+                NormalXZ          = NormalXZ,
+                DiffuseY          = DiffuseY,
+                NormalY           = NormalY,
+                SpecularPower     = SpecularPower,
+                SpecularShininess = SpecularShininess
             };
         }
     }

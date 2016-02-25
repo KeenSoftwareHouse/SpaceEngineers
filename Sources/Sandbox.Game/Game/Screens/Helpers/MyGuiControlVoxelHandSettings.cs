@@ -3,6 +3,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Graphics.GUI;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -24,12 +25,12 @@ namespace Sandbox.Game.Screens.Helpers
             m_labelSettings = new MyGuiControlLabel()
             {
                 Position = new Vector2(-0.1f, -0.1875f),
-                TextEnum = MySpaceTexts.VoxelHandSettingScreen_ShapeSettings,
+                TextEnum = MyCommonTexts.VoxelHandSettingScreen_ShapeSettings,
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 Font = MyFontEnum.ScreenCaption,
             };
 
-            OKButton = new MyGuiControlButton() { Position = new Vector2(0f, 0.19f), TextEnum = MySpaceTexts.Ok, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM };
+            OKButton = new MyGuiControlButton() { Position = new Vector2(0f, 0.19f), TextEnum = MyCommonTexts.Ok, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM };
         }
 
         public void UpdateControls()

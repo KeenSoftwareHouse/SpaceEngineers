@@ -11,6 +11,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character.Components;
 using VRage;
 using VRage;
+using VRage.Game;
 
 #endregion
 
@@ -397,11 +398,11 @@ namespace Sandbox.Game.Gui
             oxygenItem.NameFont = oxygenItem.ValueFont = IsOxygenLevelLow ? (MyFontEnum?)MyFontEnum.Red : null;
             oxygenItem.Visible = MySession.Static.Settings.EnableOxygen;
 
-            var character = MySession.LocalCharacter;
+            var character = MySession.Static.LocalCharacter;
             bool showHydrogen = MyFakes.ENABLE_HYDROGEN_FUEL;
             if (showHydrogen && character != null)
             {
-                showHydrogen = showHydrogen && character.OxygenComponent.ContainsGasStorage(MyCharacterOxygenComponent.HydrogenId);
+                showHydrogen = character.OxygenComponent != null && showHydrogen && character.OxygenComponent.ContainsGasStorage(MyCharacterOxygenComponent.HydrogenId);
             }
             hydrogenItem.Visible = showHydrogen;
         }

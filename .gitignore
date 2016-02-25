@@ -28,6 +28,10 @@ Sources/SpaceEngineers/Content/Textures/
 Sources/SpaceEngineers/Content/Videos/
 Sources/SpaceEngineers/Content/VoxelMaps/
 Sources/SpaceEngineers/Content/Worlds/
+Sources/SpaceEngineers/Content/AISchool/
+Sources/SpaceEngineers/Content/Brains/
+Sources/SpaceEngineers/Content/ShaderCache/
+Sources/SpaceEngineers/Content/Particles/
 user.props
 3rd/RakNet/Help/
 3rd/RakNet/Samples/

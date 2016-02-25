@@ -10,7 +10,7 @@ namespace VRage.Collections
     /// Simple thread-safe queue.
     /// Uses spin-lock
     /// </summary>
-    public class MyConcurrentDictionary<TKey, TValue>
+    public class MyConcurrentDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
         Dictionary<TKey, TValue> m_dictionary;
         SpinLockRef m_lock = new SpinLockRef();
@@ -44,7 +44,12 @@ namespace VRage.Collections
             }
         }
 
-        public MyConcurrentDictionary(int capacity = 0, EqualityComparer<TKey> comparer = null)
+        public MyConcurrentDictionary(IEqualityComparer<TKey> comparer)
+        {
+            m_dictionary = new Dictionary<TKey, TValue>(comparer);
+        }
+
+        public MyConcurrentDictionary(int capacity = 0, IEqualityComparer<TKey> comparer = null)
         {
             m_dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
         }
@@ -128,6 +133,57 @@ namespace VRage.Collections
                 foreach (var item in m_dictionary.Values)
                     result.Add(item);
             }
+        }
+
+
+        private class EWrapper : IEnumerator<KeyValuePair<TKey, TValue>>
+        {
+            Dictionary<TKey, TValue>.Enumerator m_enumerator;
+            SpinLockRef.Token m_token;
+
+
+            public EWrapper(Dictionary<TKey, TValue>.Enumerator enm, SpinLockRef.Token tok)
+            {
+                m_enumerator = enm;
+                m_token = tok;
+            }
+
+            public KeyValuePair<TKey, TValue> Current
+            {
+                get { return m_enumerator.Current; }
+            }
+
+            public void Dispose()
+            {
+                m_enumerator.Dispose();
+                m_token.Dispose();
+            }
+
+            object System.Collections.IEnumerator.Current
+            {
+                get { return m_enumerator.Current; }
+            }
+
+            public bool MoveNext()
+            {
+                return m_enumerator.MoveNext();
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            return new EWrapper(m_dictionary.GetEnumerator(), m_lock.Acquire());
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return new EWrapper(m_dictionary.GetEnumerator(), m_lock.Acquire());
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -220,6 +220,7 @@ namespace Sandbox.Graphics.GUI
         private MyFontEnum m_selectedItemFont;
 
         private MyGuiCompositeTexture m_scrollbarTexture;
+        private Vector4 m_textColor;
 
         private float m_textScaleWithLanguage;
 
@@ -291,7 +292,8 @@ namespace Sandbox.Graphics.GUI
             Vector2? iconSize        = null,
             bool useScrollBarOffset  = false,
             String toolTip           = null,
-            MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
+            MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
+            Vector4? textColor       = null)
             : base( position: position,
                     size: size ?? (new Vector2(455f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE),
                     colorMask: backgroundColor,
@@ -307,6 +309,7 @@ namespace Sandbox.Graphics.GUI
             m_openAreaItemsCount             = openAreaItemsCount;
             m_middleIndex                    = Math.Max(m_openAreaItemsCount / 2 - 1, 0);
 
+            m_textColor = textColor.HasValue ? textColor.Value : Vector4.One;
             m_dropDownItemSize        = GetItemSize();
             m_comboboxItemDeltaHeight = m_dropDownItemSize.Y;
             m_mousePositionReinit     = true;
@@ -999,7 +1002,7 @@ namespace Sandbox.Graphics.GUI
                         item.Value,
                         itemPosition,
                         m_textScaleWithLanguage,
-                        ApplyColorMaskModifiers(Vector4.One, Enabled, transitionAlpha),
+                        ApplyColorMaskModifiers(m_textColor, Enabled, transitionAlpha),
                         MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                     itemPosition.Y += ITEM_HEIGHT;
                 }
@@ -1020,7 +1023,7 @@ namespace Sandbox.Graphics.GUI
                                         m_selected.Value,
                                         textPos,
                                         m_textScaleWithLanguage,
-                                        ApplyColorMaskModifiers(Vector4.One, Enabled, transitionAlpha),
+                                        ApplyColorMaskModifiers(m_textColor, Enabled, transitionAlpha),
                                         MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
             }
         }

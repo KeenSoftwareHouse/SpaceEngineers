@@ -3,6 +3,7 @@ using Sandbox.Graphics.GUI;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -114,7 +115,7 @@ namespace Sandbox.Game.GUI
             (
                 position: new Vector2(-0.5f * m_screenScale, -0.25f) + m_margin,
                 size: new Vector2(m_screenScale, 0.5f - m_commandLine.Size.Y) - 2 * m_margin,
-                font: Common.MyFontEnum.Debug,
+                font: MyFontEnum.Debug,
                 textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 selectable: true
@@ -227,7 +228,7 @@ namespace Sandbox.Game.GUI
             if (MyConsole.TryGetCommand(text.Substring(0, text.Length - 1), out command))
             {
                 m_autoComplete.CreateNewContextMenu();
-                m_autoComplete.Position = new Vector2(((1 - m_screenScale)/2) + m_margin.X, m_size.Value.Y - 2*m_margin.Y) + MyGuiManager.MeasureString(Common.MyFontEnum.Debug, new StringBuilder(m_commandLine.Text), m_commandLine.TextScaleWithLanguage);
+                m_autoComplete.Position = new Vector2(((1 - m_screenScale)/2) + m_margin.X, m_size.Value.Y - 2*m_margin.Y) + MyGuiManager.MeasureString(MyFontEnum.Debug, new StringBuilder(m_commandLine.Text), m_commandLine.TextScaleWithLanguage);
 
                 foreach (var method in command.Methods)
                     m_autoComplete.AddItem(new StringBuilder(method).Append(" ").Append(command.GetHint(method)), userData: method);

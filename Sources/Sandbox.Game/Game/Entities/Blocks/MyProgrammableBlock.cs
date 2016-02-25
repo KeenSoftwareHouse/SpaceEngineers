@@ -25,6 +25,9 @@ using VRage;
 using VRage.Collections;
 using VRage.ModAPI;
 using VRage.Utils;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -42,8 +45,10 @@ namespace Sandbox.Game.Entities.Blocks
         private string m_terminalRunArgument = string.Empty;
         private StringBuilder m_echoOutput = new StringBuilder();
         private long m_previousRunTimestamp = 0;
-        
-        private readonly object[] m_argumentArray = new object[1]; 
+
+        private readonly List<TerminalActionParameter> m_tryRunArguments = new List<TerminalActionParameter>(
+            new[] { TerminalActionParameter.Empty }
+        );
 
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
@@ -60,6 +65,20 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get { return this.m_terminalRunArgument; }
             set { this.m_terminalRunArgument = value ?? string.Empty; }
+        }
+
+        bool IMyProgrammableBlock.TryRun(string argument)
+        {
+            // If we find some reason why a run couldn't possibly work, return false
+            if (m_instance == null || m_isRunning || this.IsWorking == false || this.IsFunctional == false)
+            {
+                return false;
+            }
+            
+            // Fill the arguments list. Make sure the argument is never null!
+            m_tryRunArguments[0] = TerminalActionParameter.Get(argument ?? "");
+            this.ApplyAction("Run", m_tryRunArguments);
+            return true;
         }
 
         public ulong UserId
@@ -158,21 +177,31 @@ namespace Sandbox.Game.Entities.Blocks
             }
             m_editorData = m_programData = m_editorScreen.Description.Text.ToString();
             m_compilerErrors.Clear();
+            // If there is an existing instance, make sure the storage data is updated before sending
+            // an update request
+            if (m_instance != null)
+            {
+                m_storageData = m_instance.Storage;
+            }
             SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
         }
 
         public void SendRecompile()
         {
-            SyncObject.SendProgramRecompile();
+            MyMultiplayer.RaiseEvent(this, x => x.Recompile);  
         }
 
-        public void Recompile()
+        [Event, Reliable, Server]
+        void Recompile()
         {
             m_compilerErrors.Clear();
-            if (Sync.IsServer)
+            // If there is an existing instance, make sure the storage data is updated before 
+            // rebuilding the program.
+            if (m_instance != null)
             {
-                CompileAndCreateInstance(m_programData, m_storageData);
+                m_storageData = m_instance.Storage;
             }
+            CompileAndCreateInstance(m_programData, m_storageData);
         }
 
         private void SaveCode(ResultEnum result)
@@ -317,8 +346,7 @@ namespace Sandbox.Game.Entities.Blocks
                 string response = this.ExecuteCode(argument);
                 if (this.DetailedInfo.ToString() != response)
                 {
-                    this.SyncObject.SendProgramResponseMessage(response);
-                    this.WriteProgramResponse(response);
+                    MyMultiplayer.RaiseEvent(this, x => x.WriteProgramResponse, response);   
                 }
             }
             else
@@ -329,6 +357,16 @@ namespace Sandbox.Game.Entities.Blocks
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
+            var blockDefinition = BlockDefinition as MyProgrammableBlockDefinition;
+
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+              blockDefinition.ResourceSinkGroup,
+              0.0005f,
+              () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+            sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
             var programmableBlockBuilder = (MyObjectBuilder_MyProgrammableBlock)objectBuilder;
             m_editorData = m_programData = programmableBlockBuilder.Program;
@@ -337,18 +375,8 @@ namespace Sandbox.Game.Entities.Blocks
 
             this.SyncObject = new MySyncProgrammableBlock(this);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-
-	        var blockDefinition = BlockDefinition as MyProgrammableBlockDefinition;
-
-			var sinkComp = new MyResourceSinkComponent();
-            sinkComp.Init(
-              blockDefinition.ResourceSinkGroup,
-              0.0005f,
-              () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
-			sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
-	        ResourceSink = sinkComp;
+	    	
 			ResourceSink.Update();
-
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             IsWorkingChanged += MyProgrammableBlock_IsWorkingChanged;
@@ -366,8 +394,7 @@ namespace Sandbox.Game.Entities.Blocks
                 string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NotAllowed);
                 if (Sync.IsServer)
                 {
-                    SyncObject.SendProgramResponseMessage(response);
-                    WriteProgramResponse(response);
+                    MyMultiplayer.RaiseEvent(this, x => x.WriteProgramResponse, response);   
                 }
                 else
                 {
@@ -377,6 +404,12 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (m_programData != null)
             {
+                // If there is an existing instance, make sure the storage data is updated before sending
+                // an update request
+                if (m_instance != null)
+                {
+                    m_storageData = m_instance.Storage;
+                }
                 SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
             }
             UpdateEmissivity();
@@ -401,19 +434,19 @@ namespace Sandbox.Game.Entities.Blocks
                 return;
             }
             m_wasTerminated = false;
-            Assembly temp = null;
-            MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
-            if (temp != null)
+            try
             {
-                try
+                Assembly temp = null;
+                MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
+                if (temp != null)
                 {
-					m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
+                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
 
                     var type = m_assembly.GetType("Program");
                     if (type != null)
                     {
                         IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
-						IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
+                        IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
                         try
                         {
                             m_instance = Activator.CreateInstance(type) as IMyGridProgram;
@@ -432,23 +465,20 @@ namespace Sandbox.Game.Entities.Blocks
                                 string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.InnerException.Message;
                                 if (DetailedInfo.ToString() != response)
                                 {
-                                    SyncObject.SendProgramResponseMessage(response);
-                                    WriteProgramResponse(response);
+                                    MyMultiplayer.RaiseEvent(this, x => x.WriteProgramResponse, response);   
                                 }
                             }
                         }
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
+                if (DetailedInfo.ToString() != response)
                 {
-                    string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
-                    if (DetailedInfo.ToString() != response)
-                    {
-                        SyncObject.SendProgramResponseMessage(response);
-                        WriteProgramResponse(response);
-                    }
+                    MyMultiplayer.RaiseEvent(this, x => x.WriteProgramResponse, response);   
                 }
-
             }
         }
 
@@ -487,7 +517,7 @@ namespace Sandbox.Game.Entities.Blocks
                                  messageText: new StringBuilder("Editor is opened by another player.")));
         }
 
-        public void UpdateProgram(string program,string storage)
+        public void UpdateProgram(string program, string storage)
         {
             this.m_editorData = this.m_programData = program;
             this.m_storageData = storage;
@@ -498,7 +528,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public void WriteProgramResponse(string response)
+        [Event,Reliable,Server,Broadcast]
+        void WriteProgramResponse(string response)
         {
             DetailedInfo.Clear();
             DetailedInfo.Append(response);
@@ -515,10 +546,9 @@ namespace Sandbox.Game.Entities.Blocks
             if (MySession.Static.SurvivalMode)
             {
                 OnProgramTermination();
-                SyncObject.SendProgramResponseMessage(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
                 if (Sync.IsServer)
                 {
-                    WriteProgramResponse(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
+                    MyMultiplayer.RaiseEvent(this, x => x.WriteProgramResponse, MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
                 }
             }
         }

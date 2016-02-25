@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Havok;
 using Sandbox.Common.ObjectBuilders;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -45,6 +46,11 @@ namespace Sandbox.Game.Entities.Cube
         /// Update generator after simulation. Add/remove generated blocks. Called from grid.
         /// </summary>
         void UpdateAfterSimulation();
+
+        /// <summary>
+        /// Update generator before simulation. Add/remove generated blocks. Called from grid.
+        /// </summary>
+        void UpdateBeforeSimulation();
 
         /// <summary>
         /// Updates generated objects with the block after grid has been spawn (grid is not in scene when creating blocks in spawned grid so this method must be called after it is initialized).

@@ -19,7 +19,7 @@ using System.IO;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage;
-using Sandbox.Game.Replicables;
+using Sandbox.Game.Replication;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -71,7 +71,7 @@ namespace Sandbox.Game.Multiplayer
             m_sender.SendStream.Position = 0;
             m_sender.SendStream.WriteUShort(id.Item1);
             callback.Write(m_sender.SendStream, ref msg);
-            var replicable = (MyExternalReplicable)MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)entity);
+            var replicable = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)entity) as MyExternalReplicable;
             Debug.Assert(replicable != null, "No replicable found for entity");
             Debug.Assert(replicable is IMyProxyTarget, "Replicable must be proxy target");
             return replicable;
@@ -91,7 +91,10 @@ namespace Sandbox.Game.Multiplayer
             else
             {
                 var replicable = PrepareSend<TMsg>(ref msg, messageType);
-                MyMultiplayer.RaiseEvent(replicable, x => x.RpcToServer_Implementation, (BitReaderWriter)m_sender);
+                if (replicable != null)
+                {
+                    MyMultiplayer.RaiseEvent(replicable, x => x.RpcToServer_Implementation, (BitReaderWriter)m_sender);
+                }
             }
         }
 
@@ -105,7 +108,10 @@ namespace Sandbox.Game.Multiplayer
             if (!Sync.IsServer)
             {
                 var replicable = PrepareSend<TMsg>(ref msg, messageType);
-                MyMultiplayer.RaiseEvent(replicable, x => x.RpcToServer_Implementation, (BitReaderWriter)m_sender);
+                if (replicable != null)
+                {
+                    MyMultiplayer.RaiseEvent(replicable, x => x.RpcToServer_Implementation, (BitReaderWriter)m_sender);
+                }
             }
         }
 
@@ -116,7 +122,10 @@ namespace Sandbox.Game.Multiplayer
             if (MyMultiplayer.Static != null)
             {
                 var replicable = PrepareSend<TMsg>(ref msg, messageType);
-                MyMultiplayer.RaiseEvent(replicable, x => x.RpcToAll_Implementation, (BitReaderWriter)m_sender);
+                if (replicable != null)
+                {
+                    MyMultiplayer.RaiseEvent(replicable, x => x.RpcToAll_Implementation, (BitReaderWriter)m_sender);
+                }
             }
         }
 
@@ -127,7 +136,10 @@ namespace Sandbox.Game.Multiplayer
             if (MyMultiplayer.Static != null)
             {
                 var replicable = PrepareSend<TMsg>(ref msg, messageType);
-                MyMultiplayer.RaiseEvent(replicable, x => x.RpcToAllButOne_Implementation, (BitReaderWriter)m_sender, new EndpointId(dontSentTo));
+                if (replicable != null)
+                {
+                    MyMultiplayer.RaiseEvent(replicable, x => x.RpcToAllButOne_Implementation, (BitReaderWriter)m_sender, new EndpointId(dontSentTo));
+                }
             }
         }
 

@@ -71,7 +71,7 @@ namespace VRageRender
             if (MyRender.Settings.SkipVoxels)
                 return;
 
-            Debug.Assert(lodTypeEnum == MyLodTypeEnum.LOD0);
+            Debug.Assert(lodTypeEnum == MyLodTypeEnum.LOD0 || lodTypeEnum == MyLodTypeEnum.LOD_BACKGROUND);
 
             foreach (MyRenderVoxelBatch batch in m_batches)
             {
@@ -182,11 +182,11 @@ namespace VRageRender
             MyPerformanceCounter.PerAppLifetime.VoxelVertexBuffersSize += vbSize;
 
             //  Index buffer
-            int ibSize = sizeof(short) * batch.Indices.Length;
+            int ibSize = sizeof(uint) * batch.Indices.Length;
             newBatch.IndexCount = batch.Indices.Length;
 
             // When Usage.Dynamic was not there, it crashed on nVidia cards
-            newBatch.IndexBuffer = new IndexBuffer(MyRender.GraphicsDevice, ibSize, Usage.WriteOnly | Usage.Dynamic, Pool.Default, true);
+            newBatch.IndexBuffer = new IndexBuffer(MyRender.GraphicsDevice, ibSize, Usage.WriteOnly | Usage.Dynamic, Pool.Default, false);
             newBatch.IndexBuffer.SetData(batch.Indices, LockFlags.Discard);
             newBatch.IndexBuffer.DebugName = debugName;
             MyPerformanceCounter.PerAppLifetime.VoxelIndexBuffersSize += ibSize;
@@ -285,6 +285,15 @@ namespace VRageRender
             SetDirty();
             UpdateWorldAABB();
             MyRender.UpdateRenderObject(this, sortIntoCullObjects);
+        }
+
+        void IMyClipmapCell.SetDithering(float dithering)
+        {
+        }
+
+        bool IMyClipmapCell.IsValid()
+        {
+            return true;
         }
 
         internal void GetEffectArgs(out EffectArgs effectParams)

@@ -5,6 +5,7 @@ using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using VRage.Game.Models;
 using VRage.Import;
 using VRageMath;
 using VRageRender;

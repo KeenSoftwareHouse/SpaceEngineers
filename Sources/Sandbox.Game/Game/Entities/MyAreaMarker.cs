@@ -12,8 +12,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.Entity.UseObject;
+using VRage.Game.Gui;
+using VRage.Import;
 using VRage.Input;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
@@ -122,9 +126,10 @@ namespace Sandbox.Game.Entities
             m_localActivationMatrix = MatrixD.CreateScale(this.PositionComp.LocalAABB.HalfExtents * 2.0f) * MatrixD.CreateTranslation(this.PositionComp.LocalAABB.Center);
 
             var shape = new HkBoxShape(m_localActivationMatrix.Scale);
-            Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE);
-            Physics.CreateFromCollisionObject(shape, Vector3.Zero, WorldMatrix, null, MyPhysics.ObjectDetectionCollisionLayer);
-            Physics.Enabled = true;
+            var physicsBody = new MyPhysicsBody(this, RigidBodyFlag.RBF_DISABLE_COLLISION_RESPONSE);
+            Physics = physicsBody;
+            physicsBody.CreateFromCollisionObject(shape, Vector3.Zero, WorldMatrix, null, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
+            physicsBody.Enabled = true;
 
             Components.Add<MyPlaceArea>(new MySpherePlaceArea(10.0f, m_definition.Id.SubtypeId)); // TODO: Add radius to the definition
 
@@ -137,7 +142,7 @@ namespace Sandbox.Game.Entities
 			{
 				FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_TEXT,
 				Text = m_definition.DisplayNameEnum.HasValue ? MyTexts.Get(m_definition.DisplayNameEnum.Value) : new StringBuilder(),
-				TargetMode = MyRelationsBetweenPlayerAndBlock.Neutral,
+				TargetMode = VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral,
 				MaxDistance = 200.0f,
 				MustBeDirectlyVisible = true
 			});
@@ -148,6 +153,16 @@ namespace Sandbox.Game.Entities
             MyHud.LocationMarkers.UnregisterMarker(this);
 
             base.Closing();
+        }
+
+        IMyEntity IMyUseObject.Owner
+        {
+            get { return this; }
+        }
+
+        MyModelDummy IMyUseObject.Dummy
+        {
+            get { return null; }
         }
 
         public float InteractiveDistance

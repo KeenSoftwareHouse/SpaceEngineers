@@ -17,11 +17,10 @@ namespace VRageRender
             noDepthLinesBatch.IgnoreDepth = true;
             var lines2D = MyLinesRenderer.CreateBatch();
             lines2D.IgnoreDepth = true;
-            
 
             while (m_debugDrawMessages.Count > 0)
             {
-                IMyRenderMessage debugDrawMessage = m_debugDrawMessages.Dequeue();
+                MyRenderMessageBase debugDrawMessage = m_debugDrawMessages.Dequeue();
 
                 MyRenderMessageEnum messageType = debugDrawMessage.MessageType;
 
@@ -128,20 +127,55 @@ namespace VRageRender
                         {
                             MyRenderMessageDebugDrawAABB message = (MyRenderMessageDebugDrawAABB)debugDrawMessage;
 
-                            BoundingBoxD aabb = message.AABB;
+                            BoundingBox aabb = (BoundingBox)message.AABB;
                             aabb.Translate(-MyEnvironment.CameraPosition);
 
                             if (message.DepthRead)
                             {
-                                linesBatch.AddBoundingBox((BoundingBox)aabb, message.Color);
+                                linesBatch.AddBoundingBox(aabb, message.Color);
                             }
                             else
                             {
-                                noDepthLinesBatch.AddBoundingBox((BoundingBox)aabb, message.Color);
+                                noDepthLinesBatch.AddBoundingBox(aabb, message.Color);
+                            }
+
+                            if (message.Shaded)
+                            {
+                                unsafe
+                                {
+                                    Vector3* points = stackalloc Vector3[8];
+
+                                    aabb.GetCornersUnsafe(points);
+
+                                    MyPrimitivesRenderer.Draw6FacedConvexZ(points, message.Color, message.Alpha);
+                                }
                             }
 
                             break;
                         }
+
+                    case MyRenderMessageEnum.DebugDraw6FaceConvex:
+                        {
+                            MyRenderMessageDebugDraw6FaceConvex convex = (MyRenderMessageDebugDraw6FaceConvex)debugDrawMessage;
+
+                            if (convex.Fill)
+                            {
+                                MyPrimitivesRenderer.Draw6FacedConvex(convex.Vertices, convex.Color, convex.Alpha);
+                            }
+                            else
+                            {
+                                if (convex.DepthRead)
+                                {
+                                    linesBatch.Add6FacedConvexWorld(convex.Vertices, convex.Color);
+                                }
+                                else
+                                {
+                                    noDepthLinesBatch.Add6FacedConvexWorld(convex.Vertices, convex.Color);
+                                }
+                            }
+                            break;
+                        }
+
 
                     case MyRenderMessageEnum.DebugDrawCone:
                         {
@@ -189,17 +223,17 @@ namespace VRageRender
                         {
                             MyRenderMessageDebugDrawOBB message = (MyRenderMessageDebugDrawOBB)debugDrawMessage;
 
-                            Vector3D [] cornersD = new Vector3D[8];
+                            Vector3D[] cornersD = new Vector3D[8];
                             MatrixD matrix = (MatrixD)message.Matrix;
                             new MyOrientedBoundingBoxD(matrix).GetCorners(cornersD, 0);
 
                             Vector3[] corners = new Vector3[8];
                             for (int i = 0; i < 8; i++)
                             {
-                                corners[i] = (Vector3)(cornersD[i] - MyEnvironment.CameraPosition);
+                                corners[i] = (cornersD[i] - MyEnvironment.CameraPosition);
                             }
 
-                            if(message.DepthRead)
+                            if (message.DepthRead)
                             {
                                 linesBatch.Add6FacedConvex(corners, message.Color);
                             }
@@ -208,8 +242,36 @@ namespace VRageRender
                                 noDepthLinesBatch.Add6FacedConvex(corners, message.Color);
                             }
 
-                            MyPrimitivesRenderer.Draw6FacedConvex(corners, message.Color, message.Alpha);
-                           
+                            MyPrimitivesRenderer.Draw6FacedConvexZ(corners, message.Color, message.Alpha);
+
+                            break;
+                        }
+
+                    case MyRenderMessageEnum.DebugDrawFrustrum:
+                        {
+                            MyRenderMessageDebugDrawFrustrum message = (MyRenderMessageDebugDrawFrustrum)debugDrawMessage;
+
+                            Vector3[] corners = new Vector3[8];
+
+                            Matrix m = message.Frustrum.Matrix;
+
+                            m.Translation -= MyEnvironment.CameraPosition;
+
+                            message.Frustrum.Matrix = m;
+
+                            message.Frustrum.GetCorners(corners);
+
+                            if (message.DepthRead)
+                            {
+                                linesBatch.Add6FacedConvex(corners, message.Color);
+                            }
+                            else
+                            {
+                                noDepthLinesBatch.Add6FacedConvex(corners, message.Color);
+                            }
+
+                            MyPrimitivesRenderer.Draw6FacedConvexZ(corners, message.Color, message.Alpha);
+
                             break;
                         }
 
@@ -269,6 +331,13 @@ namespace VRageRender
 
                                 MyPrimitivesRenderer.DrawTriangle(v0, v1, v2, message.Color);
                             }
+
+                            break;
+                        }
+
+                    case MyRenderMessageEnum.DebugDrawMesh:
+                        {
+                            MyPrimitivesRenderer.DebugMesh(debugDrawMessage as MyRenderMessageDebugDrawMesh);
 
                             break;
                         }
@@ -367,6 +436,12 @@ namespace VRageRender
                             MyRenderMessageDebugDrawPlane message = (MyRenderMessageDebugDrawPlane)debugDrawMessage;
 
 
+                            break;
+                        }
+                    case MyRenderMessageEnum.DebugWaitForPresent:
+                        {
+                            MyRenderMessageDebugWaitForPresent rMessage = (MyRenderMessageDebugWaitForPresent)debugDrawMessage;
+                            MyRenderProxy.RenderThread.DebugAddWaitingForPresent(rMessage.WaitHandle);
                             break;
                         }
 

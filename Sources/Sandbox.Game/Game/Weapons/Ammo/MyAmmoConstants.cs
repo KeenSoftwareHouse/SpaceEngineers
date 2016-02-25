@@ -7,6 +7,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {

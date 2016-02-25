@@ -45,6 +45,14 @@ namespace VRage.Library.Collections
         public void Write(BitStream stream)
         {
             // TODO: this is suboptimal
+            if (stream == null || m_writeData == null)
+            {
+                if (stream == null)
+                    Debug.Fail("BitReaderWriter - Write - stream is null");
+                if ( m_writeData == null)
+                    Debug.Fail("BitReaderWriter - Write - m_writeData is null");
+                return;
+            }
 
             // Store old bit position
             int pos = stream.BitPosition;

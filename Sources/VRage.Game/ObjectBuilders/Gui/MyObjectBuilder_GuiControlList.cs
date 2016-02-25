@@ -1,16 +1,14 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
-using VRageMath;
-using System.ComponentModel;
 
-namespace Sandbox.Common.ObjectBuilders.Gui
+namespace VRage.Game
 {
     public enum MyGuiControlListStyleEnum
     {
         Default,
         Simple,
     }
-    
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlList : MyObjectBuilder_GuiControlParent

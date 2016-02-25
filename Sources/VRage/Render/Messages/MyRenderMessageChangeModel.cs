@@ -1,23 +1,23 @@
 ﻿
 namespace VRageRender
 {
-    public class MyRenderMessageChangeModel : IMyRenderMessage
+    public class MyRenderMessageChangeModel : MyRenderMessageBase
     {
         public uint ID;
         public int LOD;
         public string Model;
         public bool UseForShadow;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ChangeModel; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ChangeModel; } }
     }
 
-    public class MyRenderMessageChangeModelMaterial : IMyRenderMessage
+    public class MyRenderMessageChangeModelMaterial : MyRenderMessageBase
     {
         public string Model;
         public string Material;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ChangeModelMaterial; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ChangeModelMaterial; } }
     }
 }

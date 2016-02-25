@@ -1,20 +1,16 @@
-﻿using Sandbox.Common.ObjectBuilders.Voxels;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
+using ParallelTasks;
 using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
-using VRage.Library.Utils;
-using VRage.Plugins;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -23,17 +19,52 @@ namespace Sandbox.Engine.Voxels
 {
     public abstract partial class MyStorageBase : IMyStorage
     {
+        struct MyVoxelObjectDefinition
+        {
+            public string filePath;
+            public byte[] materialChangeFrom;
+            public byte[] materialChangeTo;
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = 17;
+                    hash = hash * 486187739 + filePath.GetHashCode();
+                    if (materialChangeFrom != null && materialChangeTo != null)
+                    {
+                        for (int i = 0; i < Math.Min(materialChangeFrom.Length, materialChangeTo.Length); i++)
+                        {
+                            hash = hash * 486187739 + materialChangeFrom[i].GetHashCode();
+                            hash = hash * 486187739 + materialChangeTo[i].GetHashCode();
+                        }
+                    }
+                    return hash;
+                }
+            }
+        }
+
         protected const string STORAGE_TYPE_NAME_CELL = "Cell";
         protected const int STORAGE_TYPE_VERSION_CELL = 2;
         protected const string STORAGE_TYPE_NAME_OCTREE = "Octree";
         protected const int STORAGE_TYPE_VERSION_OCTREE = 1;
 
-        private byte[] m_compressedData;
+        protected byte[] m_compressedData;
         private readonly MyVoxelGeometry m_geometry = new MyVoxelGeometry();
         private readonly FastResourceLock m_lock = new FastResourceLock();
         protected byte m_defaultMaterial = MyDefinitionManager.Static.GetDefaultVoxelMaterialDefinition().Index;
 
         public abstract IMyStorageDataProvider DataProvider { get; set; }
+
+        public static bool UseStorageCache = true;
+        static LRUCache<int, MyStorageBase> m_storageCache = new LRUCache<int, MyStorageBase>(16);
+        public bool Shared { get; protected set; }
+
+        public bool MarkedForClose { get; private set; }
+
+        protected bool Pinned {
+            get { return m_pinCount > 0; }
+        }
 
         public MyVoxelGeometry Geometry
         {
@@ -59,12 +90,71 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        public MyStorageBase() 
+        public MyStorageBase()
         {
+            Closed = false;
         }
 
-        public static MyStorageBase LoadFromFile(string absoluteFilePath)
+        public bool ChangeMaterials(byte[] materialChangeFrom, byte[] materialChangeTo)
         {
+            int rewrites = 0;
+            if (materialChangeFrom != null && materialChangeTo != null)
+            {
+                int maxIndex = Math.Min(materialChangeFrom.Length, materialChangeTo.Length);
+                if (maxIndex > 0)
+                {
+                    Vector3I minCorner = Vector3I.Zero;
+                    Vector3I maxCorner = this.Size-1;
+
+                    MyStorageData cache = new MyStorageData();
+                    cache.Resize(this.Size);
+                    cache.ClearMaterials(0);
+
+                    this.ReadRange(cache, MyStorageDataTypeFlags.Material, 0, ref minCorner, ref maxCorner);
+                    byte[] data = cache[MyStorageDataTypeEnum.Material];
+                    int i, j;
+                    for (i = 0; i < data.Length; i++)
+                    {
+                        if (data[i] > 0)
+                        {
+                            for (j = 0; j < maxIndex; j++)
+                            {
+                                if (data[i] == materialChangeFrom[j])
+                                {
+                                    data[i] = materialChangeTo[j];
+                                    rewrites++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (rewrites > 0) this.WriteRange(cache, MyStorageDataTypeFlags.Material, ref minCorner, ref maxCorner);
+                }
+            }
+            return (rewrites > 0);
+        }
+
+        public static MyStorageBase LoadFromFile(string absoluteFilePath, byte[] materialChangeFrom = null, byte[] materialChangeTo = null)
+        {
+            //get hash code
+            MyVoxelObjectDefinition definition;
+            definition.filePath = absoluteFilePath;
+            definition.materialChangeFrom = materialChangeFrom;
+            definition.materialChangeTo = materialChangeTo;
+            int sh = definition.GetHashCode();
+
+            MyStorageBase result = null;
+
+            if (UseStorageCache)
+            {
+                result = m_storageCache.Read(sh);
+                if (result != null)
+                {
+                    result.Shared = true;
+                    return result;
+                }
+            }    
+
             const string loadingMessage = "Loading voxel storage from file '{0}'";
             if (!MyFileSystem.FileExists(absoluteFilePath))
             {
@@ -79,6 +169,7 @@ namespace Sandbox.Engine.Voxels
             }
             Debug.Assert(absoluteFilePath.EndsWith(MyVoxelConstants.FILE_EXTENSION));
 
+
             byte[] compressedData = null;
             using (var file = MyFileSystem.OpenRead(absoluteFilePath))
             {
@@ -86,25 +177,47 @@ namespace Sandbox.Engine.Voxels
                 file.Read(compressedData, 0, compressedData.Length);
             }
       
-            MyStorageBase result =  Load(compressedData);
+            result = Load(compressedData);
+
+            //change materials
+            result.ChangeMaterials(definition.materialChangeFrom,definition.materialChangeTo);
+
+            if (UseStorageCache)
+            {
+                m_storageCache.Write(sh, result);
+                result.Shared = true;
+            }
+            else
+                m_storageCache.Reset();
 
             return result;
+        }
+
+        public static void ResetCache()
+        {
+            m_storageCache.Reset();
         }
 
         public static MyStorageBase Load(string name)
         {
             Debug.Assert(name != null, "Name shouldn't be null");
 
-            MyStorageBase result;
+            MyStorageBase result = null;
             //If there are some voxels from multiplayer, use them (because it appears that we changed to server from client)
             if (MyMultiplayer.Static == null || MyMultiplayer.Static.IsServer)
             {
-                var filePath = Path.Combine(MySession.Static.CurrentPath, name + MyVoxelConstants.FILE_EXTENSION);
+                var filePath = Path.IsPathRooted(name) ? name : Path.Combine(MySession.Static.CurrentPath, name + MyVoxelConstants.FILE_EXTENSION);
                 result = LoadFromFile(filePath);
             }
             else
             {
-                result = Load(MyMultiplayer.Static.VoxelMapData[name]);
+                if (MyMultiplayer.Static.VoxelMapData.ContainsKey(name))
+                    result = Load(MyMultiplayer.Static.VoxelMapData[name]);
+                else
+                {
+                    Debug.Fail("Missing voxel map data! : " + name);
+                    Sandbox.Engine.Networking.MyAnalyticsHelper.ReportActivityStart(null, "Missing voxel map data!", name, "DevNote", "", false);
+                }
             }
             return result;
         }
@@ -167,27 +280,7 @@ namespace Sandbox.Engine.Voxels
             {
                 if (m_compressedData == null)
                 {
-                    MemoryStream ms;
-                    using (ms = new MemoryStream(0x4000))
-                    using (GZipStream gz = new GZipStream(ms, CompressionMode.Compress))
-                    using (BufferedStream buf = new BufferedStream(gz, 0x4000))
-                    {
-                        string name;
-                        int version;
-                        if (GetType() == typeof(MyOctreeStorage))
-                        {
-                            name = STORAGE_TYPE_NAME_OCTREE;
-                            version = STORAGE_TYPE_VERSION_OCTREE;
-                        }
-                        else
-                        {
-                            throw new InvalidBranchException();
-                        }
-                        buf.WriteNoAlloc(name);
-                        buf.Write7BitEncodedInt(version);
-                        SaveInternal(buf);
-                    }
-                    m_compressedData = ms.ToArray();
+                    SaveCompressedData(out m_compressedData);
                 }
 
                 outCompressedData = m_compressedData;
@@ -196,6 +289,32 @@ namespace Sandbox.Engine.Voxels
             {
                 ProfilerShort.End();
             }
+        }
+
+        protected void SaveCompressedData(out byte[] compressedData)
+        {
+            MemoryStream ms;
+            using (ms = new MemoryStream(0x4000))
+            using (GZipStream gz = new GZipStream(ms, CompressionMode.Compress))
+            using (BufferedStream buf = new BufferedStream(gz, 0x4000))
+            {
+                string name;
+                int version;
+                if (GetType() == typeof(MyOctreeStorage))
+                {
+                    name = STORAGE_TYPE_NAME_OCTREE;
+                    version = STORAGE_TYPE_VERSION_OCTREE;
+                }
+                else
+                {
+                    throw new InvalidBranchException();
+                }
+                buf.WriteNoAlloc(name);
+                buf.Write7BitEncodedInt(version);
+                SaveInternal(buf);
+            }
+
+            compressedData = ms.ToArray();
         }
 
         /// <summary>
@@ -226,7 +345,7 @@ namespace Sandbox.Engine.Voxels
             OnRangeChanged(Vector3I.Zero, Size - 1, MyStorageDataTypeFlags.Material);
         }
 
-        public void WriteRange(MyStorageDataCache source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax)
+        public void WriteRange(MyStorageData source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax)
         {
             MyPrecalcComponent.AssertUpdateThread();
 
@@ -250,7 +369,13 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        public void ReadRange(MyStorageDataCache target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax)
+        public void ReadRange(MyStorageData target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax)
+        {
+            MyVoxelRequestFlags flags = 0;
+            ReadRange(target, dataToRead, lodIndex, ref lodVoxelRangeMin, ref lodVoxelRangeMax, ref flags);
+        }
+
+        public void ReadRange(MyStorageData target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax, ref MyVoxelRequestFlags requestFlags)
         {
             ProfilerShort.Begin(GetType().Name + ".ReadRange");
             try
@@ -263,27 +388,28 @@ namespace Sandbox.Engine.Voxels
                 {
                     target.ClearContent(0);
                 }
-                if ((dataToRead & MyStorageDataTypeFlags.Material) != 0)
-                {
-                    //target.ClearMaterials(m_defaultMaterial);
-                }
 
-                if (rangeSize.X <= threshold.X &&
+                if ((rangeSize.X <= threshold.X &&
                     rangeSize.Y <= threshold.Y &&
-                    rangeSize.Z <= threshold.Z)
+                    rangeSize.Z <= threshold.Z) || !MyFakes.ENABLE_SPLIT_VOXEL_READ_QUERIES)
                 {
                     using (m_lock.AcquireSharedUsing())
                     {
-                        ReadRangeInternal(target, ref Vector3I.Zero, dataToRead, lodIndex, ref lodVoxelRangeMin, ref lodVoxelRangeMax);
+                        ReadRangeInternal(target, ref Vector3I.Zero, dataToRead, lodIndex, ref lodVoxelRangeMin, ref lodVoxelRangeMax, ref requestFlags);
                     }
                 }
                 else
                 {
+                    // These optimizations don't work when splitting the range.
+                    requestFlags &= ~(MyVoxelRequestFlags.OneMaterial | MyVoxelRequestFlags.ContentChecked);
+                    MyVoxelRequestFlags flags = requestFlags;
+
                     // splitting to smaller ranges to make sure the lock is not held for too long, preventing write on update thread
                     // subranges could be aligned to multiple of their size for possibly better performance
                     var steps = (rangeSize - 1) >> SUBRANGE_SIZE_SHIFT;
                     for (var it = new Vector3I.RangeIterator(ref Vector3I.Zero, ref steps); it.IsValid(); it.MoveNext())
                     {
+                        flags = requestFlags;
                         var offset = it.Current << SUBRANGE_SIZE_SHIFT;
                         var min = lodVoxelRangeMin + offset;
                         var max = min + SUBRANGE_SIZE - 1;
@@ -292,9 +418,12 @@ namespace Sandbox.Engine.Voxels
                         Debug.Assert(max.IsInsideInclusive(ref lodVoxelRangeMin, ref lodVoxelRangeMax));
                         using (m_lock.AcquireSharedUsing())
                         {
-                            ReadRangeInternal(target, ref offset, dataToRead, lodIndex, ref min, ref max);
+                            ReadRangeInternal(target, ref offset, dataToRead, lodIndex, ref min, ref max, ref flags);
                         }
                     }
+
+                    // If the storage is consistent this should be fine.
+                    requestFlags = flags;
                 }
             }
             finally
@@ -303,14 +432,36 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
+        public ContainmentType Intersect(ref BoundingBox box, bool lazy)
+        {
+            using (m_lock.AcquireSharedUsing())
+            {
+                if (Closed) return ContainmentType.Disjoint;
+                return IntersectInternal(ref box, lazy);
+            }
+        }
+
+        public bool Intersect(ref LineD line)
+        {
+            using (m_lock.AcquireSharedUsing())
+            {
+                if (Closed) return false;
+                return IntersectInternal(ref line);
+            }
+        }
+
+        public abstract ContainmentType IntersectInternal(ref BoundingBox box, bool lazy);
+
+        public abstract bool IntersectInternal(ref LineD line);
+
         protected abstract void LoadInternal(int fileVersion, Stream stream, ref bool isOldFormat);
         protected abstract void SaveInternal(Stream stream);
 
         protected abstract void ResetInternal(MyStorageDataTypeFlags dataToReset);
         protected abstract void OverwriteAllMaterialsInternal(MyVoxelMaterialDefinition material);
-        protected abstract void WriteRangeInternal(MyStorageDataCache source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax);
+        protected abstract void WriteRangeInternal(MyStorageData source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax);
 
-        protected abstract void ReadRangeInternal(MyStorageDataCache target, ref Vector3I targetWriteRange, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax);
+        protected abstract void ReadRangeInternal(MyStorageData target, ref Vector3I targetWriteRange, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax, ref MyVoxelRequestFlags requestFlags);
 
         public abstract void ResetOutsideBorders(MyVoxelBase voxelMap, BoundingBoxD worldAabb);
 
@@ -352,6 +503,77 @@ namespace Sandbox.Engine.Voxels
         public void Reset()
         {
             OnRangeChanged(Vector3I.Zero, Size - 1, MyStorageDataTypeFlags.All);
+        }
+
+        public virtual IMyStorage Copy()
+        {
+            return null;
+        }
+
+        public virtual void CloseInternal()
+        {
+            using (m_lock.AcquireExclusiveUsing())
+            {
+                Closed = true;
+                if (RangeChanged != null)
+                    foreach (var handler in RangeChanged.GetInvocationList())
+                    {
+                        RangeChanged -= (RangeChangedDelegate)handler;
+                    }
+
+                if (DataProvider != null)
+                    DataProvider.Close();
+            }
+        }
+
+        public bool Closed { get; private set; }
+
+        public void Close()
+        {
+            if (Pinned)
+                MarkedForClose = true;
+            else
+                CloseInternal();
+        }
+
+        private class StoragePin : IDisposable
+        {
+            MyStorageBase m_storage;
+
+            public StoragePin(MyStorageBase myStorageBase)
+            {
+                m_storage = myStorageBase;
+            }
+
+            public void Dispose()
+            {
+                m_storage.Unpin();
+            }
+        }
+
+        private volatile int m_pinCount = 0;
+
+        private SpinLockRef m_pinLock = new SpinLockRef();
+
+        public IDisposable Pin()
+        {
+            using (m_pinLock.Acquire())
+            {
+                if (Closed) return null;
+
+                m_pinCount++;
+                return new StoragePin(this);
+            }
+        }
+
+        private void Unpin()
+        {
+            using (m_pinLock.Acquire())
+            {
+                m_pinCount--;
+                if (m_pinCount < 1 && MarkedForClose)
+                    CloseInternal();
+            }
         }
     }
 }

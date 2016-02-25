@@ -240,10 +240,14 @@ namespace VRageRender
             //
             public int MeshesDrawn;
             public int SubmeshesDrawn;
+            public int BillboardsDrawn;
             public int ObjectConstantsChanges;
             public int MaterialConstantsChanges;
             public int TrianglesDrawn;
             public int InstancesDrawn;
+
+            public int[] ShadowCascadeTriangles;
+            public int OtherShadowTriangles;
 
             // api calls
             public int Draw;
@@ -251,6 +255,12 @@ namespace VRageRender
             public int DrawIndexed;
             public int DrawIndexedInstanced;
             public int DrawAuto;
+
+            public int ShadowDrawIndexed;
+            public int ShadowDrawIndexedInstanced;
+
+            public int BillboardDrawCalls;
+
             public int SetVB;
             public int SetIB;
             public int SetIL;
@@ -267,7 +277,13 @@ namespace VRageRender
 				CheckArrays();
                 RenderableObjectsNum = 0;
                 ViewFrustumObjectsNum = 0;
-                
+
+                for (int cascadeIndex = 0; cascadeIndex < MyRenderProxy.Settings.ShadowCascadeCount; ++cascadeIndex )
+                {
+                    ShadowCascadeObjectsNum[cascadeIndex] = 0;
+                    ShadowCascadeTriangles[cascadeIndex] = 0;
+                }
+                OtherShadowTriangles = 0;
 
                 MeshesDrawn = 0;
                 SubmeshesDrawn = 0;
@@ -281,6 +297,8 @@ namespace VRageRender
                 DrawIndexed = 0;
                 DrawIndexedInstanced = 0;
                 DrawAuto = 0;
+                ShadowDrawIndexed = 0;
+                ShadowDrawIndexedInstanced = 0;
                 SetVB = 0;
                 SetIB = 0;
                 SetIL = 0;
@@ -297,6 +315,9 @@ namespace VRageRender
 			{
 				if(ShadowCascadeObjectsNum == null || ShadowCascadeObjectsNum.Length != MyRenderProxy.Settings.ShadowCascadeCount)
 					ShadowCascadeObjectsNum = new int[MyRenderProxy.Settings.ShadowCascadeCount];
+
+                if (ShadowCascadeTriangles == null || ShadowCascadeTriangles.Length != MyRenderProxy.Settings.ShadowCascadeCount)
+                    ShadowCascadeTriangles = new int[MyRenderProxy.Settings.ShadowCascadeCount];
 			}
 			public MyPerCameraDraw11()
 			{

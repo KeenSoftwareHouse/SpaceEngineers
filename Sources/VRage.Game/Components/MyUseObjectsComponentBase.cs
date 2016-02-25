@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using VRage.Collections;
-using VRage.Components;
 using VRage.Game.Entity.UseObject;
 using VRageMath;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
+    [MyComponentType(typeof(MyUseObjectsComponentBase))]
     public abstract class MyUseObjectsComponentBase : MyEntityComponentBase
     {
         protected Dictionary<string, List<Matrix>> m_detectors = new Dictionary<string, List<Matrix>>();
@@ -21,6 +18,7 @@ namespace VRage.Components
         public abstract void LoadDetectorsFromModel();
 
         public abstract IMyUseObject GetInteractiveObject(uint shapeKey);
+        public abstract IMyUseObject GetInteractiveObject(string detectorName);
         public abstract void GetInteractiveObjects<T>(List<T> objects)
             where T : class, IMyUseObject;
 
@@ -56,6 +54,8 @@ namespace VRage.Components
 
             return result;
         }
+
+        public abstract IMyUseObject RaycastDetectors(Vector3D worldFrom, Vector3D worldTo, out float distance);
 
         public ListReader<Matrix> GetDetectors(string detectorName)
         {

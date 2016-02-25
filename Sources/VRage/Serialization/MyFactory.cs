@@ -77,6 +77,10 @@ namespace VRage.Serialization
             {
                 return (MySerializer)Activator.CreateInstance(typeof(MySerializerList<>).MakeGenericType(t.GetGenericArguments()[0]));
             }
+            else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(HashSet<>))
+            {
+                return (MySerializer)Activator.CreateInstance(typeof(MySerializerHashSet<>).MakeGenericType(t.GetGenericArguments()[0]));
+            }
             else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
                 var args = t.GetGenericArguments();

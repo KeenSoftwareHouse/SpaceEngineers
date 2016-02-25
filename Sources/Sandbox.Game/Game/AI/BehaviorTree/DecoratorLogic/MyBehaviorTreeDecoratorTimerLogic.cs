@@ -1,9 +1,9 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {
@@ -52,6 +52,11 @@ namespace Sandbox.Game.AI.BehaviorTree
                 int result = ((int)TimeInMs).GetHashCode();
                 return result;
             }
+        }
+
+        public override string ToString()
+        {
+            return "Timer";
         }
     }
 }

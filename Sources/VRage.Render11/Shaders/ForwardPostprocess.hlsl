@@ -10,7 +10,7 @@ cbuffer Constants : register( MERGE(b,PROJECTION_SLOT) )
 	matrix viewMatrix;
 };
 
-void apply_skybox(PostprocessVertex vertex, out float4 output : SV_Target0) {
+void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0) {
 	float depth = DepthBuffer[vertex.position.xy];
 
 	if(depth < 1) {

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -168,8 +169,8 @@ namespace Sandbox.Graphics
 
         public static void LoadContent(MyFontDescription[] fonts)
         {
-            MyLog.Default.WriteLine("MyGuiManager2.LoadContent() - START");
-            MyLog.Default.IncreaseIndent();
+            VRageRender.MyRenderProxy.Log.WriteLine("MyGuiManager2.LoadContent() - START");
+            VRageRender.MyRenderProxy.Log.IncreaseIndent();
 
             var path = Path.Combine(MyFileSystem.ContentPath, Path.Combine("Textures", "GUI", "MouseCursorHW.png"));
             using (var stream = MyFileSystem.OpenRead(path))
@@ -198,8 +199,8 @@ namespace Sandbox.Graphics
 
             MouseCursorPosition = new Vector2(0.5f, 0.5f);// new MyMwcVector2Int(MySandboxGame.ScreenSizeHalf.X, MySandboxGame.ScreenSizeHalf.Y);
 
-            MyLog.Default.DecreaseIndent();
-            MyLog.Default.WriteLine("MyGuiManager2.LoadContent() - END");
+            VRageRender.MyRenderProxy.Log.DecreaseIndent();
+            VRageRender.MyRenderProxy.Log.WriteLine("MyGuiManager2.LoadContent() - END");
         }
 
         //  Normalized size of screen for HUD (we are geting it from GUI, because GUI knows safe screen)
@@ -321,75 +322,75 @@ namespace Sandbox.Graphics
         /// <param name="texture">Sprite texture as path.</param>
         /// <param name="rectangle">Rectangle in screen coordinates (pixels).</param>
         /// <param name="color">Masking color.</param>
-        public static void DrawSprite(string texture, Rectangle rectangle, Color color)
+        public static void DrawSprite(string texture, Rectangle rectangle, Color color, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
-            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f);
+            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, int x, int y, int width, int height, Color color)
+        public static void DrawSpriteBatch(string texture, int x, int y, int width, int height, Color color, bool waitTillLoaded = true)
         {
-            DrawSprite(texture, new Rectangle(x, y, width, height), color);
+            DrawSprite(texture, new Rectangle(x, y, width, height), color, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Rectangle destinationRectangle, Color color)
+        public static void DrawSpriteBatch(string texture, Rectangle destinationRectangle, Color color, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
 
             var destination = new RectangleF(destinationRectangle.X, destinationRectangle.Y, destinationRectangle.Width, destinationRectangle.Height);
-            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f);
+            DrawSprite(texture, ref destination, false, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Vector2 pos, Color color)
+        public static void DrawSpriteBatch(string texture, Vector2 pos, Color color, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
 
-            DrawSprite(texture, pos, color);
+            DrawSprite(texture, pos, color, waitTillLoaded);
         }
 
-        public static void DrawSprite(string texture, Vector2 position, Color color)
+        public static void DrawSprite(string texture, Vector2 position, Color color, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, 1f, 1f);
-            DrawSprite(texture, ref destination, true, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f);
+            DrawSprite(texture, ref destination, true, ref nullRectangle, color, 0f, ref vector2Zero, VRageRender.Graphics.SpriteEffects.None, 0f, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth)
+        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
-            DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+            DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth, waitTillLoaded);
         }
 
-        public static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth)
+        public static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, scale.X, scale.Y);
-            DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth);
+            DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified SCREEN position (in screen coordinates, not normalized coordinates).
-        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth)
+        public static void DrawSpriteBatch(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
-            DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+            DrawSprite(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth, waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth)
+        static void DrawSprite(string texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(position.X, position.Y, scale, scale);
-            DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth);
+            DrawSprite(texture, ref destination, true, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, ref RectangleF destination, bool scaleDestination, ref Rectangle? sourceRectangle, Color color, float rotation, ref Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float depth)
+        static void DrawSprite(string texture, ref RectangleF destination, bool scaleDestination, ref Rectangle? sourceRectangle, Color color, float rotation, ref Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float depth, bool waitTillLoaded = true)
         {
-            VRageRender.MyRenderProxy.DrawSprite(texture, ref destination, scaleDestination, ref sourceRectangle, color, rotation, Vector2.UnitX, ref origin, effects, depth);
+            VRageRender.MyRenderProxy.DrawSprite(texture, ref destination, scaleDestination, ref sourceRectangle, color, rotation, Vector2.UnitX, ref origin, effects, depth, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified NORMALIZED position, with SCREEN-PIXEL width, but NORMALIZED height
         //  Use if you want to draw rectangle where width is in screen coords, but rest is in normalized coord (e.g. textbox carriage blinker)
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, int screenWidth, float normalizedHeight, Color color, MyGuiDrawAlignEnum drawAlign)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, int screenWidth, float normalizedHeight, Color color, MyGuiDrawAlignEnum drawAlign, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
@@ -399,12 +400,12 @@ namespace Sandbox.Graphics
             screenSize.X = screenWidth; //  Replace with desired value
             screenCoord = MyUtils.GetCoordAligned(screenCoord, screenSize, drawAlign);
 
-            DrawSprite(texture, new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y), color);
+            DrawSprite(texture, new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y), color, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified NORMALIZED position, with NORMALIZED width, but SCREEN-PIXEL height.
         //  Use if you want to draw rectangle where height is in screen coords, but rest is in normalized coord (e.g. slider long line)
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float normalizedWidth, int screenHeight, Color color, MyGuiDrawAlignEnum drawAlign)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float normalizedWidth, int screenHeight, Color color, MyGuiDrawAlignEnum drawAlign, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
@@ -414,7 +415,7 @@ namespace Sandbox.Graphics
             screenSize.Y = screenHeight; //  Replace with desired value
             screenCoord = MyUtils.GetCoordAligned(screenCoord, screenSize, drawAlign);
 
-            DrawSprite(texture, new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y), color);
+            DrawSprite(texture, new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y), color, waitTillLoaded);
         }
 
         //  Draws sprite batch at specified position
@@ -424,7 +425,7 @@ namespace Sandbox.Graphics
         //  originNormalized -> the origin of the sprite. Specify (0,0) for the upper-left corner.
         //  RETURN: Method returns rectangle where was sprite/texture drawn in normalized coordinates
 
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, bool fullscreen = false)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, bool fullscreen = false, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
@@ -435,11 +436,11 @@ namespace Sandbox.Graphics
 
             var rect = new Rectangle((int)screenCoord.X, (int)screenCoord.Y, (int)screenSize.X, (int)screenSize.Y);
 
-            DrawSprite(texture, rect, color);
+            DrawSprite(texture, rect, color, waitTillLoaded);
         }
 
         // different rounding of coords
-        public static void DrawSpriteBatchRoundUp(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign)
+        public static void DrawSpriteBatchRoundUp(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, bool waitTillLoaded = true)
         {
             if (string.IsNullOrEmpty(texture))
                 return;
@@ -448,7 +449,7 @@ namespace Sandbox.Graphics
             Vector2 screenSize = GetScreenSizeFromNormalizedSize(normalizedSize);
             screenCoord = MyUtils.GetCoordAligned(screenCoord, screenSize, drawAlign);
 
-            DrawSprite(texture, new Rectangle((int)Math.Floor(screenCoord.X), (int)Math.Floor(screenCoord.Y), (int)Math.Ceiling(screenSize.X), (int)Math.Ceiling(screenSize.Y)), color);
+            DrawSprite(texture, new Rectangle((int)Math.Floor(screenCoord.X), (int)Math.Floor(screenCoord.Y), (int)Math.Ceiling(screenSize.X), (int)Math.Ceiling(screenSize.Y)), color, waitTillLoaded);
         }
 
 
@@ -461,15 +462,15 @@ namespace Sandbox.Graphics
         ///  RETURN: Method returns rectangle where was sprite/texture drawn in normalized coordinates
         /// </summary>
         /// <returns></returns>
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, float rotation)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, Vector2 normalizedSize, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, bool waitTillLoaded = true)
         {
-            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, normalizedSize, color, drawAlign, rotation, Vector2.UnitX, 1, null);
+            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, normalizedSize, color, drawAlign, rotation, Vector2.UnitX, 1, null, waitTillLoaded: waitTillLoaded);
         }
 
-        static void DrawSprite(string texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float layerDepth)
+        static void DrawSprite(string texture, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, VRageRender.Graphics.SpriteEffects effects, float layerDepth, bool waitTillLoaded = true)
         {
             var destination = new RectangleF(destinationRectangle.X, destinationRectangle.Y, destinationRectangle.Width, destinationRectangle.Height);
-            DrawSprite(texture, ref destination, false, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth);
+            DrawSprite(texture, ref destination, false, ref sourceRectangle, color, rotation, ref origin, effects, layerDepth, waitTillLoaded);
         }
 
 
@@ -479,14 +480,14 @@ namespace Sandbox.Graphics
         //  rotation -> angle in radians. Rotation is always around "origin" coordinate
         //  originNormalized -> the origin of the sprite. Specify (0,0) for the upper-left corner.
         //  RETURN: Method returns rectangle where was sprite/texture drawn in normalized coordinates
-        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2? originNormalized)
+        public static void DrawSpriteBatch(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2? originNormalized, bool waitTillLoaded = true)
         {
-            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, Vector2.One, color, drawAlign, rotation, Vector2.UnitX, scale, originNormalized);
+            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, Vector2.One, color, drawAlign, rotation, Vector2.UnitX, scale, originNormalized, waitTillLoaded: waitTillLoaded);
         }
 
-        public static void DrawSpriteBatchRotate(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2 originNormalized, float rotationSpeed)
+        public static void DrawSpriteBatchRotate(string texture, Vector2 normalizedCoord, float scale, Color color, MyGuiDrawAlignEnum drawAlign, float rotation, Vector2 originNormalized, float rotationSpeed, bool waitTillLoaded = true)
         {
-            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, Vector2.One, color, drawAlign, rotation, Vector2.UnitX, scale, originNormalized, rotationSpeed);
+            VRageRender.MyRenderProxy.DrawSprite(texture, normalizedCoord, Vector2.One, color, drawAlign, rotation, Vector2.UnitX, scale, originNormalized, rotationSpeed, waitTillLoaded);
         }
 
         #endregion
@@ -735,8 +736,8 @@ namespace Sandbox.Graphics
         {
             TotalTimeInMilliseconds = totalTimeInMS;
 
-            TransparentGeometry.MyTransparentGeometry.Camera = MyGuiManager.Camera;
-            TransparentGeometry.MyTransparentGeometry.CameraView = MyGuiManager.CameraView;      
+            MyTransparentGeometry.Camera = MyGuiManager.Camera;
+            MyTransparentGeometry.CameraView = MyGuiManager.CameraView;      
         }
 
 

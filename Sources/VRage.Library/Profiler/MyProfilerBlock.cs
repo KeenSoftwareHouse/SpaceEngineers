@@ -16,18 +16,20 @@ namespace VRage.Profiler
     {
         public class MyProfilerBlock
         {
-            public readonly int Id;
-            public readonly MyProfilerBlockKey Key;
-            public readonly int ForceOrder;
+            public int Id { get; private set; }
+            public MyProfilerBlockKey Key { get; private set; }
+            public int ForceOrder { get; private set; }
 
             public string Name { get { return Key.Name; } }
 
             // Immediate data not accessed by Draw
-            public MyTimeSpan MeasureStart;
+            public long MeasureStartTimestamp = 0;
+            public long ElapsedTimestamp = 0;
+
             public MyTimeSpan Elapsed;
             public long StartManagedMB = 0;
             public long EndManagedMB = 0;
-            public float DeltaManagedB = 0; //?
+            public long DeltaManagedB = 0; //?
             public float TotalManagedMB = 0; //?
             public long StartProcessMB = 0;
             public long EndProcessMB = 0;
@@ -43,10 +45,10 @@ namespace VRage.Profiler
             public string ValueFormat;
             public string CallFormat;
 
-            public float ManagedDeltaMB
+            public long ManagedDeltaMB
             {
                 //conversion to MB
-                get { return (DeltaManagedB) * 0.000000953674f; }
+                get { return (DeltaManagedB / 1024 / 1024); }
             }
 
             public float ProcessDeltaMB
@@ -57,7 +59,7 @@ namespace VRage.Profiler
 
             // History data not accessed by Start/End
             public float[] ProcessMemory = new float[MAX_FRAMES];
-            public float[] ManagedMemory = new float[MAX_FRAMES];
+            public long[] ManagedMemoryBytes = new long[MAX_FRAMES];
             public float[] Miliseconds = new float[MAX_FRAMES];
             public float[] CustomValues = new float[MAX_FRAMES];
             public int[] NumCallsArray = new int[MAX_FRAMES];
@@ -67,8 +69,19 @@ namespace VRage.Profiler
 
             public List<MyProfilerBlock> Children = new List<MyProfilerBlock>();
             public MyProfilerBlock Parent = null;
-            
+
+            public MyProfilerBlock()
+            {
+            }
+
             public MyProfilerBlock(ref MyProfilerBlockKey key, string memberName, int blockId, int forceOrder = int.MaxValue)
+            {
+                Id = blockId;
+                Key = key;
+                ForceOrder = forceOrder;
+            }
+
+            public void SetBlockData(ref MyProfilerBlockKey key, int blockId, int forceOrder = int.MaxValue)
             {
                 Id = blockId;
                 Key = key;
@@ -77,7 +90,7 @@ namespace VRage.Profiler
 
             public void Reset()
             {
-                MeasureStart = new MyTimeSpan(Stopwatch.GetTimestamp());
+                MeasureStartTimestamp = Stopwatch.GetTimestamp();
                 Elapsed = MyTimeSpan.Zero;
             }
 
@@ -104,38 +117,50 @@ namespace VRage.Profiler
             {
                 NumCalls++;
 
+                // Timestamp at the start, include own overhead
+                MeasureStartTimestamp = Stopwatch.GetTimestamp();
+
+                StartManagedMB = GC.GetTotalMemory(false);   // About 1ms per 2000 calls
+
                 if (memoryProfiling)
                 {
-                    StartManagedMB = GC.GetTotalMemory(false);   // About 1ms per 2000 calls
-
                     // TODO: OP! Use better non-alloc call
-                    StartProcessMB = Environment.WorkingSet;   // WorkingSet is allocating memory in each call, also its expensive (about 7ms per 2000 calls).
+                    StartProcessMB = System.Environment.WorkingSet;   // WorkingSet is allocating memory in each call, also its expensive (about 7ms per 2000 calls).
                 }
-
-                MeasureStart = new MyTimeSpan(Stopwatch.GetTimestamp());
             }
 
             public void End(bool memoryProfiling, MyTimeSpan? customTime = null)
             {
-                MyTimeSpan delta = customTime ?? (new MyTimeSpan(Stopwatch.GetTimestamp()) - MeasureStart);
-                Elapsed += delta;
-
-                if (memoryProfiling)
-                {
-                    EndManagedMB = System.GC.GetTotalMemory(false);
-                    EndProcessMB = System.Environment.WorkingSet;
-                }
-
+                EndManagedMB = System.GC.GetTotalMemory(false);
                 DeltaManagedB += EndManagedMB - StartManagedMB;
+
                 if (memoryProfiling)
                 {
+                    // TODO: OP! Use better non-alloc call
+                    EndProcessMB = System.Environment.WorkingSet;   // WorkingSet is allocating memory in each call, also its expensive (about 7ms per 2000 calls).
                     DeltaProcessB += EndProcessMB - StartProcessMB;
                 }
+
+                // Time stamp at the end, include own overhead
+                long endTimestamp = Stopwatch.GetTimestamp();
+                ElapsedTimestamp = endTimestamp - MeasureStartTimestamp;
+                Elapsed += customTime ?? new MyTimeSpan(ElapsedTimestamp);
             }
 
             public override string ToString()
             {
                 return Key.Name + " (" + NumCalls.ToString() + " calls)";
+            }
+
+            internal void Dump(StringBuilder sb, int frame)
+            {
+                if (NumCallsArray[frame] < 0.01)
+                    return;
+                sb.Append(string.Format("<Block Name=\"{0}\">\n", Name));
+                sb.Append(string.Format("<Time>{0}</Time>\n<Calls>{1}</Calls>\n",Miliseconds[frame],NumCallsArray[frame]));
+                foreach (var child in Children)
+                    child.Dump(sb, frame);
+                sb.Append("</Block>\n");
             }
         }
     }

@@ -9,6 +9,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -18,6 +19,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -58,20 +60,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AI\MyObjectBuilder_SpaceSpawnComponent.cs" />
     <Compile Include="AI\MySpaceBotFactory.cs" />
-    <Compile Include="AI\MySpaceSpawnComponent.cs" />
+    <Compile Include="AI\MyCyberhoundActions.cs" />
+    <Compile Include="AI\MySpiderActions.cs" />
+    <Compile Include="AI\MyCyberhoundLogic.cs" />
+    <Compile Include="AI\MySpiderLogic.cs" />
+    <Compile Include="AI\MyCyberhoundTarget.cs" />
+    <Compile Include="AI\MySpiderTarget.cs" />
+    <Compile Include="AI\MySpaceFaunaComponent.cs" />
     <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
     <Compile Include="Entities\Blocks\MyShipWelder.cs" />
+    <Compile Include="Entities\MyPlanetSectorReplicable.cs" />
+    <Compile Include="Entities\Blocks\MySpaceProjector.cs" />
     <Compile Include="Entities\MySpaceBuildComponent.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectInventory.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectMedicalRoom.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectWardrobe.cs" />
     <Compile Include="Entities\Weapons\MyCubePlacer.cs" />
+    <Compile Include="GUI\MyGuiScreenCreateOrEditFactionSpace.cs" />
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
+    <Compile Include="Multiplayer\MySpaceClientState.cs" />
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -80,6 +91,7 @@
     <Compile Include="World\Environment\MyEnvironmentalParticleLogicSpace.cs" />
     <Compile Include="World\Generator\MyShipStartingState.cs" />
     <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
+    <Compile Include="World\MySpacePlanetTrackComponent.cs" />
     <Compile Include="World\MySpaceRespawnComponent.cs" />
     <Compile Include="World\MySpaceSessionCompatHelper.cs" />
   </ItemGroup>
@@ -95,6 +107,10 @@
     <ProjectReference Include="..\Sandbox.Graphics\Sandbox.Graphics.csproj">
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842ba2d4}</Project>
       <Name>Sandbox.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj">
+      <Project>{e48feb99-6814-4947-8035-8c2b4066dd9b}</Project>
+      <Name>SpaceEngineers.ObjectBuilders</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
       <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
@@ -122,6 +138,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ModAPI\Blocks\" />
     <Folder Include="Players\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

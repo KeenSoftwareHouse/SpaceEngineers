@@ -15,6 +15,8 @@ using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -25,7 +27,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override bool Activate()
         {
-            var character = MySession.LocalCharacter;
+            var character = MySession.Static.LocalCharacter;
 
 			MyDefinitionId weaponDefinition = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
             if (character != null)
@@ -34,9 +36,11 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     character.SwitchToWeapon(weaponDefinition);
                 }
-                
+
                 MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
             }
+            else 
+            { }
 
             if (MyCubeBuilder.SpectatorIsBuilding)
             {
@@ -51,7 +55,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override bool AllowedInToolbarType(MyToolbarType type)
         {
-            return (type == MyToolbarType.Character || type == MyToolbarType.Spectator);
+            return (type == MyToolbarType.Character || type == MyToolbarType.Spectator || type == MyToolbarType.BuildCockpit);
         }
 
         public override bool Init(MyObjectBuilder_ToolbarItem data)

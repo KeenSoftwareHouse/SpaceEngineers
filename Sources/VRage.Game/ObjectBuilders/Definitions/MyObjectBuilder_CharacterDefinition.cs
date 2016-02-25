@@ -5,8 +5,9 @@ using System.Xml.Serialization;
 using VRage.Data;
 using VRage.ObjectBuilders;
 using System.ComponentModel;
+using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     public class MyJetpackThrustDefinition
@@ -32,18 +33,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public MyObjectBuilder_ThrustDefinition ThrustProperties;
     }
 
-	[ProtoContract]
-	public class SuitResourceDefinition
-	{
-		[ProtoMember]
-		public SerializableDefinitionId Id;
+    [ProtoContract]
+    public class SuitResourceDefinition
+    {
+        [ProtoMember]
+        public SerializableDefinitionId Id;
 
-		[ProtoMember]
-		public float MaxCapacity;
+        [ProtoMember]
+        public float MaxCapacity;
 
-		[ProtoMember]
-		public float Throughput;
-	}
+        [ProtoMember]
+        public float Throughput;
+    }
 
     [ProtoContract]
     public class MyBoneSetDefinition
@@ -53,6 +54,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public string Bones;
+    }
+
+    [ProtoContract]
+    public class MyRagdollBoneSetDefinition: MyBoneSetDefinition
+    {
+        [ProtoMember]
+        public float CollisionRadius = 0;
     }
 
     [ProtoContract]
@@ -96,11 +104,25 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float AnkleHeight;
     }
 
+    [ProtoContract]
+    public class MyObjectBuilder_DeadBodyShape
+    {
+        [ProtoMember]
+        public SerializableVector3 BoxShapeScale;            // scaling factor of the dead body physics shape (aabb)
+        [ProtoMember]
+        public SerializableVector3 RelativeCenterOfMass;     // center of mass relative to size of box [1 == half extent]
+        [ProtoMember]
+        public SerializableVector3 RelativeShapeTranslation; // translation of dead body physics shape, relative to size of box [1 == half extent]
+        [ProtoMember]
+        public float Friction;                               // friction factor
+    }
 
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CharacterDefinition : MyObjectBuilder_DefinitionBase
     {
+        static readonly Vector3 DefaultLightOffset = new Vector3(0.0f, 0.0f, -0.5f);
+
         [ProtoMember]
         public string Name;
 
@@ -127,11 +149,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_JetpackDefinition Jetpack;
 
-	    [ProtoMember]
-		[XmlArrayItem("Resource")]
-	    public List<SuitResourceDefinition> SuitResourceStorage;
+        [ProtoMember]
+        [XmlArrayItem("Resource")]
+        public List<SuitResourceDefinition> SuitResourceStorage;
 
-		[ProtoMember, XmlArrayItem("BoneSet")]
+        [ProtoMember, XmlArrayItem("BoneSet")]
         public MyBoneSetDefinition[] BoneSets;
 
         [ProtoMember, XmlArrayItem("BoneSet")]
@@ -142,6 +164,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public string RightLightBone = null;
+
+        [ProtoMember]
+        public Vector3 LightOffset = DefaultLightOffset;
 
         [ProtoMember]
         public string HeadBone = null;
@@ -195,9 +220,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, XmlArrayItem("Mapping")]
         public MyMovementAnimationMapping[] AnimationMappings;
 
-		[ProtoMember]
-		public string Stats;
-
         [ProtoMember]
         public float Mass = 100f;
 
@@ -238,10 +260,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string RagdollDataFile;
 
         [ProtoMember, XmlArrayItem("BoneSet")]
-        public MyBoneSetDefinition[] RagdollBonesMappings;
+        public MyRagdollBoneSetDefinition[] RagdollBonesMappings;
 
         [ProtoMember, XmlArrayItem("BoneSet")]
         public MyBoneSetDefinition[] RagdollPartialSimulations;
+
+        [ProtoMember]
+        public float OxygenConsumptionMultiplier = 1f;
 
         [ProtoMember]
         public float OxygenConsumption = 10f;
@@ -251,9 +276,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float DamageAmountAtZeroPressure = 7f;
-
-        [ProtoMember]
-        public float OxygenCapacity = 6000f;
 
         //Character control
         [ProtoMember]
@@ -304,7 +326,34 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string HelmetVariation;
 
         [ProtoMember]
+        public string JumpSoundName = "";
+        [ProtoMember]
+        public float JumpForce = 2.5f;
+
+        [ProtoMember]
+        public string JetpackIdleSoundName = "";
+        [ProtoMember]
+        public string JetpackRunSoundName = "";
+
+        [ProtoMember]
+        public string CrouchDownSoundName = "";
+        [ProtoMember]
+        public string CrouchUpSoundName = "";
+
+        [ProtoMember]
+        public string PainSoundName = "";
+        [ProtoMember]
         public string DeathSoundName = "";
+
+        [ProtoMember]
+        public string IronsightActSoundName = "";
+        [ProtoMember]
+        public string IronsightDeactSoundName = "";
+        [ProtoMember]
+        public string FastFlySoundName = "";
+
+        [ProtoMember]
+        public bool LoopingFootsteps = false;
 
         [ProtoMember]
         public bool VisibleOnHud = true;
@@ -328,6 +377,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public SerializableDefinitionId? InventorySpawnContainerId;
 
         [ProtoMember]
+        public bool SpawnInventoryOnBodyRemoval = false;
+
+        [ProtoMember]
         public float LootingTime = 5 * 60f; // default from SE
 
         [ProtoMember]
@@ -335,5 +387,24 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float ImpulseLimit = float.PositiveInfinity;
+
+        /// <summary>
+        /// Physical material of the character.
+        /// </summary>
+        [ProtoMember]
+        public string PhysicalMaterial = "Character";
+
+        /// <summary>
+        /// Physics shape used after character's death.
+        /// </summary>
+        [ProtoMember]
+        public MyObjectBuilder_DeadBodyShape DeadBodyShape = null;
+
+        /// <summary>
+        /// Name of used animation controller.
+        /// </summary>
+        public string AnimationController = null;
+
+        public float? MaxForce = null;
     }
 }

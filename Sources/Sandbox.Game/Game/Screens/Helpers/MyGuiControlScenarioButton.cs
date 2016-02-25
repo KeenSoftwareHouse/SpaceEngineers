@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Utils;
 using VRage;
@@ -11,6 +10,7 @@ using VRageMath;
 using Sandbox.Graphics;
 using Sandbox.Definitions;
 using Sandbox.Common;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers

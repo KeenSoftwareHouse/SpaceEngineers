@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
@@ -22,6 +21,7 @@ using VRage.Utils;
 using VRage.Library.Utils;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Entities.Blocks;
+using VRage.Game;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -31,7 +31,7 @@ namespace Sandbox.Graphics.GUI
 
         private MyGuiControlSeparatorList m_separatorList;
         private MyGuiControlList m_terminalControlList;
-        private MyGuiControlMultilineText m_blockPropertiesLabel;
+        private MyGuiControlMultilineText m_blockPropertiesMultilineText;
 
         private MyTerminalBlock[] m_currentBlocks;
         private Dictionary<ITerminalControl, int> m_tmpControlDictionary = new Dictionary<ITerminalControl, int>(InstanceComparer<ITerminalControl>.Default);
@@ -68,18 +68,18 @@ namespace Sandbox.Graphics.GUI
             m_terminalControlList.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP;
             m_terminalControlList.Position = new Vector2(0.1f, 0.1f);
             Elements.Add(m_terminalControlList);
-          
-            m_blockPropertiesLabel = new MyGuiControlMultilineText(
+
+            m_blockPropertiesMultilineText = new MyGuiControlMultilineText(
                 position: new Vector2(0.049f, -0.195f),
                 size: new Vector2(0.39f, 0.635f),
-                backgroundColor: null,
                 font: MyFontEnum.Blue,
-                textScale: 0.95f,
+                textScale: 0.85f,
                 textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                contents: null);
-            m_blockPropertiesLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            m_blockPropertiesLabel.TextBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            Elements.Add(m_blockPropertiesLabel);
+                textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP
+                );
+            m_blockPropertiesMultilineText.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockPropertiesMultilineText.Text = new StringBuilder();
+            Elements.Add(m_blockPropertiesMultilineText);
 
             m_transferToCombobox = new MyGuiControlCombobox(
                 Vector2.Zero,
@@ -117,7 +117,7 @@ namespace Sandbox.Graphics.GUI
                     position,
                     MyGuiControlButtonStyleEnum.Tiny,
                     new Vector2(0.1f, 0.1f),
-                    null, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, MyTexts.GetString(MySpaceTexts.AddNewNPC), new StringBuilder("+"),
+                    null, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, MyTexts.GetString(MyCommonTexts.AddNewNPC), new StringBuilder("+"),
                     MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiControlHighlightType.WHEN_ACTIVE, true,
                     OnNewNpcClick, GuiSounds.MouseClick, 0.75f);
                 Elements.Add(m_npcButton);
@@ -210,18 +210,21 @@ namespace Sandbox.Graphics.GUI
         private void UpdateDetailedInfo()
         {
             ProfilerShort.Begin("UpdateDetailedInfo");
-            m_blockPropertiesLabel.Text.Clear();
-            if (m_currentBlocks.Count() == 1)
+            m_blockPropertiesMultilineText.Text.Clear();
+            if (m_currentBlocks.Length == 1)
             {
                 var block = m_currentBlocks[0];
-                m_blockPropertiesLabel.Text.AppendStringBuilder(block.DetailedInfo);
+
+                m_blockPropertiesMultilineText.Text.AppendStringBuilder(block.DetailedInfo);
                 if(block.CustomInfo.Length > 0)
                 {
-                    m_blockPropertiesLabel.Text.TrimTrailingWhitespace().AppendLine();
-                    m_blockPropertiesLabel.Text.AppendStringBuilder(block.CustomInfo);
+                    m_blockPropertiesMultilineText.Text.TrimTrailingWhitespace().AppendLine();
+                    m_blockPropertiesMultilineText.Text.AppendStringBuilder(block.CustomInfo);
                 }
+
+                m_blockPropertiesMultilineText.Text.Autowrap(0.29f, MyFontEnum.Blue, MyGuiConstants.DEFAULT_TEXT_SCALE * MyGuiManager.LanguageTextScale);
+                m_blockPropertiesMultilineText.RefreshText(false);
             }
-            m_blockPropertiesLabel.RefreshText(false);
             ProfilerShort.End();
         }
 
@@ -249,7 +252,7 @@ namespace Sandbox.Graphics.GUI
                     var scenarioType = typeof(MyTerminalBlock);
                     var c = MyTerminalControlFactory.GetControls(scenarioType);
                     foreach (var control in c)
-                        m_tmpControlDictionary[control] = m_currentBlocks.Count();
+                        m_tmpControlDictionary[control] = m_currentBlocks.Length;
                 }
 
                 int blockCount = m_currentBlocks.Length;
@@ -347,7 +350,7 @@ namespace Sandbox.Graphics.GUI
 
         protected override void OnSizeChanged()
         {
-            if (m_currentBlocks.Count() == 0)
+            if (m_currentBlocks.Length == 0)
                 return;
 
             var topLeftRelative = Size * -0.5f;
@@ -376,8 +379,8 @@ namespace Sandbox.Graphics.GUI
                 }
             }
 
-            m_blockPropertiesLabel.Position = topLeftRelative + new Vector2(leftColumnSize.X + 0.008f, propertiesOffset + 0.12f);
-            m_blockPropertiesLabel.Size = 0.5f * Size - m_blockPropertiesLabel.Position;
+            m_blockPropertiesMultilineText.Position = topLeftRelative + new Vector2(leftColumnSize.X + 0.008f, propertiesOffset + 0.12f);
+            m_blockPropertiesMultilineText.Size = 0.5f * Size - m_blockPropertiesMultilineText.Position;
 
             base.OnSizeChanged();
         }
@@ -401,7 +404,7 @@ namespace Sandbox.Graphics.GUI
                  {
                      if (block.IDModule != null)
                      {
-                         if (shareMode >= 0 && (block.OwnerId == MySession.LocalPlayerId))
+                         if (shareMode >= 0 && (block.OwnerId == MySession.Static.LocalPlayerId))
                          {
                              m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
                              {
@@ -414,7 +417,7 @@ namespace Sandbox.Graphics.GUI
                  }
 
                  if (m_requests.Count > 0)
-                     MySyncGrid.ChangeOwnersRequest(shareMode, m_requests);
+                     MySyncGrid.ChangeOwnersRequest(shareMode, m_requests, MySession.Static.LocalPlayerId);
              }
 
             m_canChangeShareMode = true;
@@ -436,8 +439,8 @@ namespace Sandbox.Graphics.GUI
 
                 var messageBox = MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                    messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.MessageBoxTextChangeOwner), ownerName.ToString()),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                    messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MyCommonTexts.MessageBoxTextChangeOwner), ownerName.ToString()),
                     focusedResult: MyGuiScreenMessageBox.ResultEnum.NO,
                     callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                     {
@@ -451,7 +454,7 @@ namespace Sandbox.Graphics.GUI
                                 {
                                     if (block.IDModule != null)
                                     {
-                                        if (block.OwnerId == 0 || block.OwnerId == MySession.LocalPlayerId)
+                                        if (block.OwnerId == 0 || block.OwnerId == MySession.Static.LocalPlayerId)
                                         {
                                             m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
                                             {
@@ -464,10 +467,19 @@ namespace Sandbox.Graphics.GUI
 
                                 if (m_requests.Count > 0)
                                 {
-                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey))
-                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests);
+                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey)) 
+                                    {
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
+                                    }
+                                    else if (MySession.Static.LocalPlayerId == ownerKey)
+                                    {
+                                        // this should not be changed to No share, without approval from a designer, see ticket https://app.asana.com/0/64822442925263/64356719169418
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests, MySession.Static.LocalPlayerId);
+                                    }
                                     else
-                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests);
+                                    {
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests, MySession.Static.LocalPlayerId);
+                                    }
                                 }
                             }
 
@@ -501,16 +513,16 @@ namespace Sandbox.Graphics.GUI
             if (propertyMixed || owner.Value != 0)
                 m_transferToCombobox.AddItem(0, MyTexts.Get(MySpaceTexts.BlockOwner_Nobody));
 
-            if (propertyMixed || owner.Value != MySession.LocalPlayerId)
-                m_transferToCombobox.AddItem(MySession.LocalPlayerId, MyTexts.Get(MySpaceTexts.BlockOwner_Me));
+            if (propertyMixed || owner.Value != MySession.Static.LocalPlayerId)
+                m_transferToCombobox.AddItem(MySession.Static.LocalPlayerId, MyTexts.Get(MySpaceTexts.BlockOwner_Me));
 
             foreach (var playerEntry in Sync.Players.GetOnlinePlayers())
             {
                 var identity = playerEntry.Identity;
-                if (identity.IdentityId != MySession.LocalPlayerId && !identity.IsDead)
+                if (identity.IdentityId != MySession.Static.LocalPlayerId && !identity.IsDead)
                 {
-                    var relation = MySession.LocalHumanPlayer.GetRelationTo(identity.IdentityId);
-                    if (relation != MyRelationsBetweenPlayerAndBlock.Enemies)
+                    var relation = MySession.Static.LocalHumanPlayer.GetRelationTo(identity.IdentityId);
+                    if (relation != VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies)
                     {
                         m_transferToCombobox.AddItem(identity.IdentityId, new StringBuilder(identity.DisplayName));
                     }
@@ -523,13 +535,13 @@ namespace Sandbox.Graphics.GUI
                 Debug.Assert(identity != null, "Couldn't find NPC identity!");
                 if (identity == null) continue;
 
-                var relation = MySession.LocalHumanPlayer.GetRelationTo(identity.IdentityId);
+                var relation = MySession.Static.LocalHumanPlayer.GetRelationTo(identity.IdentityId);
                 m_transferToCombobox.AddItem(identity.IdentityId, new StringBuilder(identity.DisplayName));
             }
 
             if (!propertyMixed)
             {
-                if (owner.Value == MySession.LocalPlayerId)
+                if (owner.Value == MySession.Static.LocalPlayerId)
                 {
                     m_shareModeCombobox.Enabled = true;
                 }
@@ -545,14 +557,14 @@ namespace Sandbox.Graphics.GUI
                 }
                 else
                 {
-                    m_transferToCombobox.Enabled = owner.Value == MySession.LocalPlayerId;
+                    m_transferToCombobox.Enabled = owner.Value == MySession.Static.LocalPlayerId;
                     m_ownerLabel.TextEnum = MySpaceTexts.BlockOwner_Me;
-                    if (owner.Value != MySession.LocalPlayerId)
+                    if (owner.Value != MySession.Static.LocalPlayerId)
                     {
                         var identity = Sync.Players.TryGetIdentity(owner.Value);
                         if (identity != null)
                         {
-                            m_ownerLabel.Text = identity.DisplayName + (identity.IsDead ? " [" + MyTexts.Get(MySpaceTexts.PlayerInfo_Dead).ToString() + "]" : "");
+                            m_ownerLabel.Text = identity.DisplayName + (identity.IsDead ? " [" + MyTexts.Get(MyCommonTexts.PlayerInfo_Dead).ToString() + "]" : "");
                         }
                         else
                         {

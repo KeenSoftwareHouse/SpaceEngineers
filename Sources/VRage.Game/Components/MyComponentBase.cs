@@ -1,10 +1,6 @@
-﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public abstract class MyComponentBase
     {
@@ -24,7 +20,7 @@ namespace VRage.Components
         /// will in turn call this method. Actually, you should seldom have the need to call this method yourself.
         /// </summary>
         /// <param name="container">The new container of the component</param>
-        public void SetContainer(MyComponentContainer container)
+        public virtual void SetContainer(MyComponentContainer container)
         {
             if (container == null)
                 OnBeforeRemovedFromContainer();
@@ -35,6 +31,7 @@ namespace VRage.Components
             {
                 foreach (var child in aggregate.ChildList.Reader)
                 {
+                    System.Diagnostics.Debug.Assert(child != this, "Error, the child is the same as this object!");
                     child.SetContainer(container);
                 }
             }
@@ -78,6 +75,8 @@ namespace VRage.Components
         public virtual void Deserialize(MyObjectBuilder_ComponentBase builder)
         {
         }
+
+        public virtual void Init(MyComponentDefinitionBase definition) { }
 
 		/// <summary>
 		/// Tells the component container serializer whether this component should be saved

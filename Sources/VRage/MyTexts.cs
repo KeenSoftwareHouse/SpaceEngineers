@@ -7,6 +7,7 @@ using System.Text;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Utils;
+using System;
 
 namespace VRage
 {
@@ -40,6 +41,7 @@ namespace VRage
         Ukrainian = 22,
         Turkish = 23,
         Latvian = 24,
+        ChineseChina = 25,
     }
 
 
@@ -76,6 +78,7 @@ namespace VRage
 
         private static Dictionary<MyStringId, string> m_strings = new Dictionary<MyStringId, string>(MyStringId.Comparer);
         private static Dictionary<MyStringId, StringBuilder> m_stringBuilders = new Dictionary<MyStringId, StringBuilder>(MyStringId.Comparer);
+        static bool CheckMissingTexts = false;   // if you want to find texts that are not translated then set CheckMissingTexts = true
 
         static MyTexts()
         {
@@ -105,6 +108,7 @@ namespace VRage
             AddLanguage(MyLanguagesEnum.Ukrainian,               "uk",       displayName: "Українська");
             AddLanguage(MyLanguagesEnum.Turkish,                 "tr", "TR", displayName: "Türkçe");
             AddLanguage(MyLanguagesEnum.Latvian,                 "lv",       displayName: "Latviešu", guiTextScale: 0.87f);
+            //AddLanguage(MyLanguagesEnum.ChineseChina,            "zh", "CN", displayName: "Chinese-China", guiTextScale: 0.87f);
         }
 
         private static void AddLanguage(MyLanguagesEnum id, string cultureName, string subcultureName = null, string displayName = null, float guiTextScale = 1f, bool isCommunityLocalized = true)
@@ -147,8 +151,18 @@ namespace VRage
             StringBuilder result;
             if (!m_stringBuilders.TryGetValue(id, out result))
             {
-                result = new StringBuilder(id.ToString());
+                if (CheckMissingTexts)
+                    result = new StringBuilder("X_"+id.ToString());
+                else
+                    result = new StringBuilder(id.ToString());
+                //System.Diagnostics.Debug.Assert(false, String.Format("Key text \"{0}\" isn't translated. Should it be in CommonTexts.resx or where?", id.ToString()));
                 //Debug.Fail(string.Format("Missing text for localization. Id: {0}", id.ToString()));
+            }
+            if (CheckMissingTexts)
+            {
+                StringBuilder resultMod = new StringBuilder();
+                resultMod.Append("T_");
+                result = resultMod.Append(result);
             }
 
             return result;
@@ -159,11 +173,22 @@ namespace VRage
             string result;
             if (!m_strings.TryGetValue(id, out result))
             {
-                result = id.ToString();
+                if (CheckMissingTexts)
+                    result = "X_" + id.ToString();
+                else
+                    result = id.ToString();
                 //Debug.Fail(string.Format("Missing text for localization. Id: {0}", id.ToString()));
             }
+            if (CheckMissingTexts)
+                result = "T_" + result;
 
             return result;
+        }
+
+        public static string GetString(string keyString)
+        {
+            MyStringId stringId = MyStringId.GetOrCompute(keyString);
+            return GetString(stringId);
         }
 
         public static bool Exists(MyStringId id)
@@ -171,10 +196,10 @@ namespace VRage
             return m_strings.ContainsKey(id);
         }
 
-        public static bool TryGet(MyStringId id, out string value)
-        {
-            return m_strings.TryGetValue(id, out value);
-        }
+        //public static bool TryGet(MyStringId id, out string value)
+        //{
+        //    return m_strings.TryGetValue(id, out value);
+        //}
 
         public static void Clear()
         {
@@ -186,29 +211,59 @@ namespace VRage
             m_stringBuilders[default(MyStringId)] = new StringBuilder();
         }
 
+        private static string GetPathWithFile(string file, List<string> allFiles)
+        {
+            // returns matching file in List of files - now are added files from common texts directory by linked directory
+            foreach(string f in allFiles)
+            {
+                if (f.Contains(file))
+                    return f;
+            }
+            return null;
+        }
+
         public static void LoadTexts(string rootDirectory, string cultureName = null, string subcultureName = null)
         {
+            HashSet<string> commonTexts = new HashSet<string>();
             HashSet<string> baseFiles = new HashSet<string>();
-            var files = MyFileSystem.GetFiles(rootDirectory, "*.resx", FileSystem.MySearchOption.TopDirectoryOnly);
+            var files = MyFileSystem.GetFiles(rootDirectory, "*.resx", FileSystem.MySearchOption.AllDirectories);
+            List<string> allFiles = new List<string>(); // list of files with their full path
             foreach (var file in files)
             {
-                baseFiles.Add(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+                if (file.Contains("MyCommonTexts"))
+                {
+                    commonTexts.Add(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+                }
+                else
+                {
+                    baseFiles.Add(Path.GetFileNameWithoutExtension(file).Split('.')[0]);
+                }
+                allFiles.Add(file);
             }
 
+            foreach (var commonText in commonTexts)
+                PatchTexts(GetPathWithFile(string.Format("{0}.resx", commonText), allFiles));
+
             foreach (var baseFile in baseFiles)
-                PatchTexts(Path.Combine(rootDirectory, string.Format("{0}.resx", baseFile)));
+                PatchTexts(GetPathWithFile(string.Format("{0}.resx", baseFile), allFiles));
 
             if (cultureName == null)
                 return;
 
+            foreach (var commonText in commonTexts)
+                PatchTexts(GetPathWithFile(string.Format("{0}.{1}.resx", commonText, cultureName), allFiles));
+
             foreach (var baseFile in baseFiles)
-                PatchTexts(Path.Combine(rootDirectory, string.Format("{0}.{1}.resx", baseFile, cultureName)));
+                PatchTexts(GetPathWithFile(string.Format("{0}.{1}.resx", baseFile, cultureName), allFiles));
 
             if (subcultureName == null)
                 return;
 
+            foreach (var commonText in commonTexts)
+                PatchTexts(GetPathWithFile(string.Format("{0}.{1}-{2}.resx", commonText, cultureName, subcultureName), allFiles));
+
             foreach (var baseFile in baseFiles)
-                PatchTexts(Path.Combine(rootDirectory, string.Format("{0}.{1}-{2}.resx", baseFile, cultureName, subcultureName)));
+                PatchTexts(GetPathWithFile(string.Format("{0}.{1}-{2}.resx", baseFile, cultureName, subcultureName), allFiles));
         }
 
         private static void PatchTexts(string resourceFile)

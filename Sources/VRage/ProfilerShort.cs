@@ -65,5 +65,13 @@ namespace VRage
                 MyRenderProxy.GetRenderProfiler().Commit();
             }
         }
+
+        public static void DestroyThread()
+        {
+            if (MyRenderProxy.GetRenderProfiler() != null)
+            {
+                MyRenderProxy.GetRenderProfiler().DestroyThread();
+            }
+        }
     }
 }

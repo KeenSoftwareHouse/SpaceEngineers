@@ -64,12 +64,15 @@
   <ItemGroup>
     <Compile Include="BackgroundCube\MyBackgroundCube.cs" />
     <Compile Include="Cockpit\MyCockpitGlass.cs" />
+    <Compile Include="Effects\MyEffectAtmosphere.cs" />
     <Compile Include="MyDirect3D9Extensions.cs" />
+    <Compile Include="Effects\MyEffectAtmosphereBase.cs" />
     <Compile Include="MyGraphicsTest.cs" />
     <Compile Include="MyRender-Adapters.cs" />
     <Compile Include="MyRender-Device.cs" />
     <Compile Include="MyRenderTexturePool.cs" />
     <Compile Include="RenderObjects\IMyFarDrawableRenderObject.cs" />
+    <Compile Include="RenderObjects\MyRenderAtmosphere.cs" />
     <Compile Include="RenderObjects\MyRenderLineBasedObject.cs" />
     <Compile Include="RenderObjects\MyRenderVoxelCellFar.cs" />
     <Compile Include="RenderObjects\Voxels\MyRenderClipmap.cs" />
@@ -191,9 +194,10 @@
     <Compile Include="RenderObjects\Models\MyRenderMesh.cs" />
     <Compile Include="RenderObjects\MyRenderEntity.cs" />
     <Compile Include="RenderObjects\MyCullableRenderObject.cs" />
-    <Compile Include="RenderProxy\MyNullRenderProfiler.cs" />
     <Compile Include="SecondaryCamera\MySecondaryCameraRenderer.cs" />
     <Compile Include="SharpDxExtensions.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueAtmosphere.cs" />
+    <Compile Include="Techniques\MyDrawTechniquePlanetSurface.cs" />
     <Compile Include="Textures\Sun\MySunGlare.cs" />
     <Compile Include="Techniques\MyDrawTechniqueMeshInstancedGenericMasked.cs" />
     <Compile Include="Techniques\MyDrawTechniqueGlass.cs" />
@@ -295,10 +299,12 @@
     <None Include="Effects2\Lights\MyEffectBlendLights.fxo" />
     <None Include="Effects2\Lights\MyEffectDirectionalLight.fxo" />
     <None Include="Effects2\Lights\MyEffectPointLight.fxo" />
+    <None Include="Effects2\Models\MyEffectAtmosphere.fxo" />
     <None Include="Effects2\Models\MyEffectModelsDiffuse.fxo" />
     <None Include="Effects2\Models\MyEffectModelsDNS.fxo" />
     <None Include="Effects2\Models\MyEffectOcclusionQueryDraw.fxo" />
     <None Include="Effects2\Models\MyEffectRenderGizmo.fxo" />
+    <None Include="Effects2\MyEffectAtmosphereBase.fxh" />
     <None Include="Effects2\MyEffectBase.fxh" />
     <None Include="Effects2\MyEffectDynamicLightingBase.fxh" />
     <None Include="Effects2\MyEffectInstanceBase.fxh" />
@@ -349,6 +355,7 @@
     <Content Include="Effects2\Lights\MyEffectBlendLights.fx" />
     <Content Include="Effects2\Lights\MyEffectDirectionalLight.fx" />
     <Content Include="Effects2\Lights\MyEffectPointLight.fx" />
+    <Content Include="Effects2\Models\MyEffectAtmosphere.fx" />
     <Content Include="Effects2\Models\MyEffectModelsDiffuse.fx" />
     <Content Include="Effects2\Models\MyEffectModelsDNS.fx" />
     <Content Include="Effects2\Models\MyEffectOcclusionQueryDraw.fx" />

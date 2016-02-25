@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.AI.Pathfinding;
@@ -15,13 +14,16 @@ using System.Linq;
 using System.Text;
 using VRage.Utils;
 using VRageMath;
+using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.AI.Actions
 {
     public abstract class MyAgentActions : MyBotActionsBase
     {
         protected MyAgentBot Bot { get; private set; }
-        public abstract MyAiTargetBase AiTargetBase { get; }
+        public MyAiTargetBase AiTargetBase { get { return Bot.AgentLogic.AiTarget; } }
 
         private string m_animationName = null;
 
@@ -83,12 +85,12 @@ namespace Sandbox.Game.AI.Actions
         {
             if (AiTargetBase.HasTarget())
             {
-                AiTargetBase.GotoTargetNoPath(1.0f);
+                AiTargetBase.GotoTargetNoPath(1.0f, true);
             }
         }
 
         [MyBehaviorTreeAction("GotoTargetNoPathfinding")]
-        protected MyBehaviorTreeState GotoTargetNoPathfinding([BTParam] float radius)
+        protected MyBehaviorTreeState GotoTargetNoPathfinding([BTParam] float radius, [BTParam] bool resetStuckDetection)
         {
             if (!AiTargetBase.HasTarget())
                 return MyBehaviorTreeState.FAILURE;
@@ -101,7 +103,7 @@ namespace Sandbox.Game.AI.Actions
                 }
                 else
                 {
-                    AiTargetBase.GotoTargetNoPath(radius);
+                    AiTargetBase.GotoTargetNoPath(radius, resetStuckDetection);
                     return MyBehaviorTreeState.RUNNING;
                 }
             }
@@ -201,7 +203,7 @@ namespace Sandbox.Game.AI.Actions
 			Vector3D position = Bot.Player.Character.PositionComp.GetPosition();
 			Vector3D gotoPosition;
 			float gotoRadius;
-			AiTargetBase.GetGotoPosition(position, out gotoPosition, out gotoRadius);
+            AiTargetBase.GetTargetPosition(position, out gotoPosition, out gotoRadius);
 			var xzPosition = new Vector2((float)position.X, (float)position.Z);
 			var xzGotoPosition = new Vector2((float)gotoPosition.X, (float)gotoPosition.Z);
 
@@ -267,23 +269,12 @@ namespace Sandbox.Game.AI.Actions
 		}
 
         [MyBehaviorTreeAction("IsTargetValid", ReturnsRunning = false)]
-        protected virtual MyBehaviorTreeState IsTargetValid([BTIn] ref MyBBMemoryTarget inTarget)
+        protected MyBehaviorTreeState IsTargetValid([BTIn] ref MyBBMemoryTarget inTarget)
         {
-			if (inTarget != null && inTarget.EntityId.HasValue)
-			{
-                if (inTarget.EntityId.HasValue)
-                {
-                    MyEntity entity = null;
-                    if (MyEntities.TryGetEntityById(inTarget.EntityId.Value, out entity))
-                        return MyBehaviorTreeState.SUCCESS;
-
-                    return MyBehaviorTreeState.FAILURE;
-                }
-
-                if (inTarget.TargetType != MyAiTargetEnum.NO_TARGET)
-                    return MyBehaviorTreeState.SUCCESS;
-            }
-            return MyBehaviorTreeState.FAILURE;
+            if (inTarget == null)
+                return MyBehaviorTreeState.FAILURE;
+            else
+                return AiTargetBase.IsMemoryTargetValid(inTarget) ? MyBehaviorTreeState.SUCCESS : MyBehaviorTreeState.FAILURE;
         }
 
         [MyBehaviorTreeAction("HasPlaceArea", ReturnsRunning = false)]
@@ -353,12 +344,23 @@ namespace Sandbox.Game.AI.Actions
             // generate position and set navigation
             var position = Bot.AgentEntity.PositionComp.GetPosition();
             var up = MyPerGameSettings.NavmeshPresumesDownwardGravity ? Vector3D.UnitY : (Vector3D)MyGravityProviderSystem.CalculateTotalGravityInPoint(position);
-            var randomDir = MyUtils.GetRandomPerpendicularVector(ref up);
+            var randomDir = MyFakes.DEBUG_AVOID_RANDOM_AI? GetRandomPerpendicularVector(ref up): MyUtils.GetRandomPerpendicularVector(ref up);
             var correctedPosition = position - randomDir * 15;
             AiTargetBase.SetTargetPosition(position + randomDir * 30);
+            Bot.Navigation.AimAt(null,AiTargetBase.TargetPosition);
             m_locationSphere.Init(ref correctedPosition, 30, randomDir);
             Bot.Navigation.Goto(m_locationSphere);
         }
+
+        static Vector3D GetRandomPerpendicularVector(ref Vector3D axis)
+        {
+            Debug.Assert(Vector3D.IsUnit(ref axis));
+            Vector3D tangent = Vector3D.CalculatePerpendicularVector(axis);
+            Vector3D bitangent; Vector3D.Cross(ref axis, ref tangent, out bitangent);
+            double angle = MyAIComponent.Static.GetRandomDouble(0, 2 * MathHelper.Pi);
+            return Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent;
+        }
+
 
         [MyBehaviorTreeAction("GotoRandomLocation")]
         protected MyBehaviorTreeState GotoRandomLocation()
@@ -392,10 +394,19 @@ namespace Sandbox.Game.AI.Actions
             {
                 if (Bot.Navigation.Stuck)
                 {
+                    AiTargetBase.GotoFailed();
                     return MyBehaviorTreeState.FAILURE;
                 }
                 else
                 {
+                    // correction of target position - init of this node was called with different target or with not set target
+                    Vector3D targetPos = AiTargetBase.GetTargetPosition(Bot.Navigation.PositionAndOrientation.Translation);
+                    Vector3D navigationTarget = Bot.Navigation.TargetPoint;
+                    if ((navigationTarget - targetPos).Length() > 0.1f )
+                    {
+                        CheckReplanningOfPath(targetPos, navigationTarget);
+                    }
+ 
                     return MyBehaviorTreeState.RUNNING;
                 }
             }
@@ -403,9 +414,38 @@ namespace Sandbox.Game.AI.Actions
             {
                 return MyBehaviorTreeState.RUNNING;
             }
-            else
+            else if (AiTargetBase.PositionIsNearTarget(Bot.Navigation.PositionAndOrientation.Translation, 2.0f))
             {
                 return MyBehaviorTreeState.SUCCESS;
+            }
+            else
+            {
+                AiTargetBase.GotoFailed();
+                return MyBehaviorTreeState.FAILURE;
+            }
+        }
+
+        void CheckReplanningOfPath(Vector3D targetPos, Vector3D navigationTarget)
+        {
+            // replans a path if target of navigation is too far from target position
+            // current navigation target differs from actual target position
+            Vector3D directionToTarget = targetPos - Bot.Navigation.PositionAndOrientation.Translation;
+            Vector3D directionToNavigationTarget = navigationTarget - Bot.Navigation.PositionAndOrientation.Translation;
+            double toTargetDist = directionToTarget.Length();
+            double toNavigationTargetDist = directionToNavigationTarget.Length();
+            if (toTargetDist != 0 && toNavigationTargetDist != 0)
+            {
+                double cosFi = directionToTarget.Dot(directionToNavigationTarget) / (toTargetDist * toNavigationTargetDist);
+                double angle = Math.Acos(cosFi);
+                double actualToPlanned = toTargetDist / toNavigationTargetDist;
+                if (angle > Math.PI / 5 // angle to target is too different
+                    || actualToPlanned < 0.8 // this could be ommited probably
+                    || (actualToPlanned>1 && toNavigationTargetDist<2) ) // bot is approaching navigation target already
+                {
+                    // change of navigation target
+                    AiTargetBase.GotoTarget();
+                    AiTargetBase.AimAtTarget();
+                }
             }
         }
 
@@ -564,7 +604,7 @@ namespace Sandbox.Game.AI.Actions
             return character == null || character.IsDead ? MyBehaviorTreeState.SUCCESS : MyBehaviorTreeState.FAILURE;
         }
 
-        protected MyCharacter FindCharacterInRadius(int radius)
+        protected MyCharacter FindCharacterInRadius(int radius, bool ignoreReachability = false)
         {
             var myPosition = Bot.Navigation.PositionAndOrientation.Translation;
             var players = Sync.Players.GetOnlinePlayers();
@@ -579,7 +619,7 @@ namespace Sandbox.Game.AI.Actions
                         continue;
                 }
 
-                if (!(player.Character is MyCharacter) || !AiTargetBase.IsEntityReachable(player.Character))
+                if (!(player.Character is MyCharacter) || (!ignoreReachability && !AiTargetBase.IsEntityReachable(player.Character)))
                 {
                     continue;
                 }

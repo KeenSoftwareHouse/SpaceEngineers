@@ -10,6 +10,7 @@ namespace Sandbox
         MouseClick,
         MouseOver,
         None,
+        Item
     }
 
     public interface IMyGuiAudio

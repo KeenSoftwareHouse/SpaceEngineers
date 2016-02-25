@@ -3,7 +3,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawSpriteNormalized : IMyRenderMessage
+    public class MyRenderMessageDrawSpriteNormalized : MyRenderMessageBase
     {
         public string Texture;
         public Vector2 NormalizedCoord;
@@ -15,8 +15,9 @@ namespace VRageRender
         public float Scale;
         public Vector2? OriginNormalized;
         public float RotationSpeed; // Rad/s
+        public bool WaitTillLoaded;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawSpriteNormalized; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawSpriteNormalized; } }
     }
 }

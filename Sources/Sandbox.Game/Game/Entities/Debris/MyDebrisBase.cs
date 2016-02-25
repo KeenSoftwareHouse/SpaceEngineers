@@ -11,16 +11,17 @@ using VRageMath;
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Game.Components;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ModAPI;
 using Sandbox.Game.GameSystems;
+using VRage.Game.Entity;
 namespace Sandbox.Game.Entities.Debris
 {
 
     /// <summary>
     /// Description of 
     /// </summary>
-    class MyDebrisBaseDescription
+    public class MyDebrisBaseDescription
     {
         public string Model;
         public float ScaleMin;
@@ -35,7 +36,7 @@ namespace Sandbox.Game.Entities.Debris
     /// all the time, but only pulled out and returned back to the pool. Therefore, we do not use constructor
     /// to initialize an instance.
     /// </summary>
-    class MyDebrisBase : MyEntity
+    public class MyDebrisBase : MyEntity
     {
         private MyDebrisBaseLogic m_debrisLogic;
         public MyDebrisBaseLogic Debris { get { return m_debrisLogic; } }
@@ -65,18 +66,36 @@ namespace Sandbox.Game.Entities.Debris
             public virtual void CreatePhysicsShape(out HkShape shape, ref HkMassProperties massProperties)
             {
                 var boxShape = new HkBoxShape(((((MyEntity)Entity).Render.GetModel().BoundingBox.Max - ((MyEntity)Entity).Render.GetModel().BoundingBox.Min) / 2) * Entity.PositionComp.Scale.Value);
-                shape = boxShape;
-                massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(boxShape.HalfExtents, massProperties.Mass);
+                var pos = ((((MyEntity)Entity).Render.GetModel().BoundingBox.Max + ((MyEntity)Entity).Render.GetModel().BoundingBox.Min) / 2);
+                shape = new HkTransformShape(boxShape, ref pos, ref Quaternion.Identity);
+                //shape = boxShape;
+                massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(boxShape.HalfExtents, boxShape.HalfExtents.Volume * 0.5f);
+                massProperties.CenterOfMass = pos;
             }
 
             public virtual void ScalePhysicsShape(ref HkMassProperties massProperties)
             {
-                var shape = RigidBody.GetShape();
-                var boxShape = (HkBoxShape)shape;
-                boxShape.HalfExtents = ((((MyEntity)Entity).Render.GetModel().BoundingBox.Max - ((MyEntity)Entity).Render.GetModel().BoundingBox.Min) / 2) * Entity.PositionComp.Scale.Value;
-                massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(boxShape.HalfExtents, massProperties.Mass);
-
-                RigidBody.SetShape(boxShape);
+                var debriModel = Entity.Render.GetModel();
+                HkShape shape;
+                if (debriModel.HavokCollisionShapes != null && debriModel.HavokCollisionShapes.Length > 0)
+                {
+                    shape = debriModel.HavokCollisionShapes[0];
+                    Vector4 min, max;
+                    shape.GetLocalAABB(0.1f, out min, out max);
+                    Vector3 he = new Vector3((max - min) * 0.5f);
+                    massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(he, he.Volume * 50);
+                    massProperties.CenterOfMass = new Vector3((min + max) * 0.5f);
+                }
+                else
+                {
+                    var transformShape = (HkTransformShape)RigidBody.GetShape();
+                    var boxShape = (HkBoxShape)transformShape.ChildShape;
+                    boxShape.HalfExtents = ((debriModel.BoundingBox.Max - debriModel.BoundingBox.Min) / 2) * Entity.PositionComp.Scale.Value;
+                    massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(boxShape.HalfExtents, boxShape.HalfExtents.Volume * 0.5f);
+                    massProperties.CenterOfMass = transformShape.Transform.Translation;
+                    shape = transformShape;
+                }
+                RigidBody.SetShape(shape);
                 RigidBody.SetMassProperties(ref massProperties);
                 RigidBody.UpdateShape();
             }
@@ -93,8 +112,8 @@ namespace Sandbox.Game.Entities.Debris
 
             private bool m_isStarted;
             private int m_createdTime;
-            private int m_lifespanInMiliseconds;
-            private float m_randomScale;
+            public int LifespanInMiliseconds;
+            public float RandomScale;
 
 
             protected HkMassProperties m_massProperties;
@@ -108,16 +127,16 @@ namespace Sandbox.Game.Entities.Debris
             public virtual void Init(MyDebrisBaseDescription desc)
             {
                 base.Init(null, desc.Model, null, 1.0f);
-                m_randomScale = MyUtils.GetRandomFloat(desc.ScaleMin, desc.ScaleMax);
-                Container.Entity.PositionComp.Scale = m_randomScale;
-                m_lifespanInMiliseconds = MyUtils.GetRandomInt(desc.LifespanMinInMiliseconds, desc.LifespanMaxInMiliseconds);
+                RandomScale = MyUtils.GetRandomFloat(desc.ScaleMin, desc.ScaleMax);
+                Container.Entity.PositionComp.Scale = RandomScale;
+                LifespanInMiliseconds = MyUtils.GetRandomInt(desc.LifespanMinInMiliseconds, desc.LifespanMaxInMiliseconds);
 
                 HkShape shape;
                 m_massProperties = new HkMassProperties();
                 m_massProperties.Mass = 50;
                 Container.Entity.Physics = GetPhysics(RigidBodyFlag.RBF_DEBRIS);
                 (Container.Entity.Physics as MyDebrisPhysics).CreatePhysicsShape(out shape, ref m_massProperties);
-                (Container.Entity.Physics as MyDebrisPhysics).CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, m_massProperties, MyPhysics.DebrisCollisionLayer);
+                (Container.Entity.Physics as MyDebrisPhysics).CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, m_massProperties, MyPhysics.CollisionLayers.DebrisCollisionLayer);
                 Container.Entity.Physics.Enabled = false;
                 shape.RemoveReference();
 
@@ -149,19 +168,27 @@ namespace Sandbox.Game.Entities.Debris
             /// </summary>
             public virtual void Start(Vector3D position, Vector3D initialVelocity, float scale)
             {
+                Start(MatrixD.CreateTranslation(position), initialVelocity, scale);
+            }
+            public virtual void Start(MatrixD position, Vector3D initialVelocity, float scale, bool randomRotation = true)
+            {
                 MyDebug.AssertDebug(!m_isStarted);
                 m_createdTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                Container.Entity.PositionComp.Scale = m_randomScale * scale;
-                Container.Entity.WorldMatrix = MatrixD.CreateTranslation(position);
+                Container.Entity.PositionComp.Scale = RandomScale * scale;
+                Container.Entity.WorldMatrix = position;
                 (Container.Entity.Physics as MyDebrisPhysics).ScalePhysicsShape(ref m_massProperties);
                 Container.Entity.Physics.Clear();
                 Container.Entity.Physics.LinearVelocity = initialVelocity;
                 //apply random rotation impulse
-                Container.Entity.Physics.AngularVelocity = new Vector3(MyUtils.GetRandomRadian(),
+                if(randomRotation)
+                    Container.Entity.Physics.AngularVelocity = new Vector3(MyUtils.GetRandomRadian(),
                                                       MyUtils.GetRandomRadian(),
                                                       MyUtils.GetRandomRadian());
                 MyEntities.Add(m_entity);
                 Container.Entity.Physics.Enabled = true;
+                Vector3D gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(position.Translation);
+                ((MyPhysicsBody)Container.Entity.Physics).RigidBody.Gravity = gravity;
+                (Container.Entity.Physics as MyPhysicsBody).HavokWorld.ActiveRigidBodies.Add((Container.Entity.Physics as MyPhysicsBody).RigidBody);
                 m_isStarted = true;
             }
 
@@ -177,9 +204,9 @@ namespace Sandbox.Game.Entities.Debris
                 if (m_isStarted)
                 {
                     int age = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_createdTime;
-                    if (age > m_lifespanInMiliseconds)
+                    if (age > LifespanInMiliseconds)
                         MarkForClose();
-                    float dithering = age / (float)m_lifespanInMiliseconds;
+                    float dithering = age / (float)LifespanInMiliseconds;
                     float ditherStart = 3.0f / 4.0f;
                     if (dithering > ditherStart)
                     {

@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common;
 using Sandbox.Game;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Lights;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -13,11 +15,20 @@ namespace Sandbox.Engine.Utils
     //  Player with movements like 6DOF camera
     public class MySpectatorCameraController : MySpectator, IMyCameraController
     {
+        // Increases how far the light can reflect
+        private const int REFLECTOR_RANGE_MULTIPLIER = 5;
+
         public static MySpectatorCameraController Static;
 
         private double m_yaw;
         private double m_pitch;
         private double m_roll;
+
+        private MyLight m_light;
+        Vector3 m_lightLocalPosition;
+        Matrix m_reflectorAngleMatrix;
+
+        public bool IsLightOn { get { return m_light != null && m_light.LightOn; } }
 
         public MySpectatorCameraController()
         {
@@ -47,10 +58,10 @@ namespace Sandbox.Engine.Utils
                             }
                         }
 
-                        if (MySession.ControlledEntity != null)
+                        if (MySession.Static.ControlledEntity != null)
                         {
-                            Position = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition() + ThirdPersonCameraDelta;
-                            Target = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition();
+                            Position = (Vector3D)MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition() + ThirdPersonCameraDelta;
+                            Target = (Vector3D)MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition();
                         }
                     }
                     break;
@@ -82,7 +93,7 @@ namespace Sandbox.Engine.Utils
 
                         //  Physical movement and rotation is based on constant time, therefore is indepedent of time delta
                         //  This formulas works even if FPS is low or high, or if step size is 1/10 or 1/10000
-                        float amountOfMovement = MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 100;
+                        float amountOfMovement = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 100;
                         float amountOfRotation = 0.0025f * m_speedModeAngular;
 
                         if (MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS)
@@ -106,7 +117,7 @@ namespace Sandbox.Engine.Utils
                         if (MyPerGameSettings.RestrictSpectatorFlyMode && !MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS)
                         {
                             // Spectator has constatnt speed (reset speed to default value)
-                            SpeedModeLinear = 11 * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                            SpeedModeLinear = 11 * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                             if (MyInput.Static.IsAnyShiftKeyPressed())
                                 SpeedModeLinear *= 5;
 
@@ -194,11 +205,86 @@ namespace Sandbox.Engine.Utils
                     break;
             }
 
+            if (IsLightOn)
+                UpdateLightPosition();
         }
+        
         MatrixD IMyCameraController.GetViewMatrix()
         {
             return GetViewMatrix();
         }
+
+        #region Light
+        public void InitLight(bool isLightOn)
+        {
+            m_light = MyLights.AddLight();
+            m_light.Start(MyLight.LightTypeEnum.Spotlight, 1.5f);
+            m_light.ShadowDistance = 20;
+            m_light.ReflectorFalloff = 5;
+            m_light.LightOwner = MyLight.LightOwnerEnum.SmallShip;
+            m_light.UseInForwardRender = true;
+            m_light.ReflectorTexture = "Textures\\Lights\\dual_reflector_2.dds";
+            m_light.Range = 2;
+
+            m_light.ReflectorRange = MyCharacter.REFLECTOR_RANGE;
+            m_light.ReflectorColor = MyCharacter.REFLECTOR_COLOR;
+            m_light.ReflectorIntensity = MyCharacter.REFLECTOR_INTENSITY;
+            m_light.Color = MyCharacter.POINT_COLOR;
+            m_light.SpecularColor = new Vector3(MyCharacter.POINT_COLOR_SPECULAR);
+            m_light.Intensity = MyCharacter.POINT_LIGHT_INTENSITY;
+            // Reflector Range now very far
+            m_light.UpdateReflectorRangeAndAngle(MyCharacter.REFLECTOR_CONE_ANGLE, MyCharacter.REFLECTOR_RANGE * REFLECTOR_RANGE_MULTIPLIER);
+
+            m_light.LightOn = isLightOn;
+            m_light.ReflectorOn = isLightOn;
+        }
+
+        
+        public void UpdateLightPosition()
+        {
+            if (m_light != null)
+            {
+                MatrixD specMatrix = MatrixD.CreateWorld(Position, m_orientation.Forward, m_orientation.Up);
+                m_reflectorAngleMatrix = MatrixD.CreateFromAxisAngle(specMatrix.Backward, MathHelper.ToRadians(MyCharacter.REFLECTOR_DIRECTION));
+                m_light.ReflectorDirection = Vector3.Transform(specMatrix.Forward, m_reflectorAngleMatrix);
+                m_light.ReflectorUp = specMatrix.Up;
+                m_light.Position = Position;
+                m_light.UpdateLight();
+            }
+        }
+
+        /// <summary>
+        /// Switch the light of the spectator - especially relevant during night time or dark zone
+        /// </summary>
+        public void SwitchLight()
+        {
+            if (m_light != null)
+            {
+                m_light.LightOn = !m_light.LightOn;
+                m_light.ReflectorOn = !m_light.ReflectorOn;
+                m_light.UpdateLight();
+            }
+        }
+
+        public void TurnLightOff()
+        {
+            if (m_light != null)
+            {
+                m_light.LightOn = false;
+                m_light.ReflectorOn = false;
+                m_light.UpdateLight();
+            }
+        }
+
+        public void CleanLight()
+        {
+            if (m_light != null)
+            {
+                MyLights.RemoveLight(m_light);
+                m_light = null;
+            }
+        }
+        #endregion
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
         {
@@ -216,6 +302,7 @@ namespace Sandbox.Engine.Utils
 
         public void OnReleaseControl(IMyCameraController newCameraController)
         {
+            TurnLightOff();
         }
 
         void IMyCameraController.OnAssumeControl(IMyCameraController previousCameraController)

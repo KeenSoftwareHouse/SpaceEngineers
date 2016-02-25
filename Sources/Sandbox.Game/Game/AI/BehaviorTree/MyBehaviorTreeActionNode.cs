@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using VRageMath;
 using VRage.Utils;
 using Sandbox.Common;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 
@@ -112,6 +112,16 @@ namespace Sandbox.Game.AI.BehaviorTree
                 }
                 return result;
             }
+        }
+
+        public override string ToString()
+        {
+            return "ACTION: " + m_actionName.ToString();
+        }
+
+        public string GetActionName()
+        {
+            return m_actionName.ToString();
         }
     }
 }

@@ -7,6 +7,7 @@ using Sandbox.Common.ObjectBuilders;
 using VRageMath;
 using VRage;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
@@ -541,8 +542,8 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("RemoveUnusedBones");
             if (m_tmpRemovedCubes.Count != 0)
             {
-                Debug.Assert(m_testedCubes.Count() == 0);
-                Debug.Assert(m_usedBones.Count() == 0);
+                Debug.Assert(m_testedCubes.Count == 0);
+                Debug.Assert(m_usedBones.Count == 0);
 
                 foreach (var cube in m_tmpRemovedCubes)
                 {

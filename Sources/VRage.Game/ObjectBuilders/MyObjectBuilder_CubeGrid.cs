@@ -3,36 +3,12 @@ using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
 using System.ComponentModel;
-using System;
 using VRage.ObjectBuilders;
-using VRage;
 using VRage.ModAPI;
 using VRage.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
-    public enum MyCubeSize : byte
-    {
-        Large = 0,
-        Small = 1,
-    }
-
-    public enum MyBlockTopology : byte
-    {
-        Cube = 0,
-        TriangleMesh = 1,
-    }
-
-    [ProtoContract]
-    public struct BoneInfo
-    {
-        [ProtoMember]
-        public SerializableVector3I BonePosition;
-
-        [ProtoMember]
-        public SerializableVector3UByte BoneOffset;
-    }
-
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeGrid : MyObjectBuilder_EntityBase
@@ -48,6 +24,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool IsStatic = false;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<BoneInfo> Skeleton;
         public bool ShouldSerializeSkeleton() { return Skeleton != null && Skeleton.Count != 0; }
 
@@ -128,13 +105,19 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
-        public long? JumpElapsedTicks;
-        public bool ShouldSerializeJumpElapsedTicks() { return JumpElapsedTicks.HasValue; }
+        public float? JumpRemainingTime;
+        public bool ShouldSerializeJumpRemainingTime() { return JumpRemainingTime.HasValue; }
 
         [DefaultValue(true)]
         public bool CreatePhysics = true;
 
         [DefaultValue(true)]
         public bool EnableSmallToLargeConnections = true;
+
+        public bool IsRespawnGrid;
+
+        [ProtoMember]
+        public long LocalCoordSys;
+
     }
 }

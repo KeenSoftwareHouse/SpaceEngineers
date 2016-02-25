@@ -8,6 +8,7 @@ namespace VRageMath
     /// <summary>
     /// Defines a matrix.
     /// </summary>
+    [ProtoBuf.ProtoContract, Serializable]
     public struct CompressedPositionOrientation
     {
         public Vector3 Position;

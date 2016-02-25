@@ -1,8 +1,7 @@
 ﻿using System;
 using ProtoBuf;
-using VRageMath;
 using VRage.ModAPI;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using System.ComponentModel;
 using VRage.Serialization;
 
@@ -45,13 +44,15 @@ namespace VRage.ObjectBuilders
         [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_ComponentContainer ComponentContainer = null;
 
-        [ProtoMember, DefaultValue(null)]
-        public SerializableDefinitionId? EntityDefinitionId; // used to init entity from the definition - MyPhysicalItemDefinition
-
         public bool ShouldSerializeComponentContainer()
         {
             return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Count > 0;
         }
+
+        [ProtoMember, DefaultValue(null)]
+        [NoSerialize]
+        public SerializableDefinitionId? EntityDefinitionId = null;
+        public bool ShouldSerializeEntityDefinitionId() { return false; } // Used for backward compatibility only
 
         /// <summary>
         /// Remaps this entity's entityId to a new value.

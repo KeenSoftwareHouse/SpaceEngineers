@@ -17,6 +17,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
 
 #endregion
 
@@ -31,21 +32,16 @@ namespace Sandbox.Game.Entities
             get { return (MyGravityGeneratorDefinition)base.BlockDefinition; }
         }
 
-        private new MySyncGravityGenerator SyncObject;
         private BoundingBox m_gizmoBoundingBox = new BoundingBox();
 
-        private Vector3 m_fieldSize = new Vector3(150f);
+        private readonly Sync<Vector3> m_fieldSize;
         public Vector3 FieldSize
         {
             get { return m_fieldSize; }
             set
             {
-                if (m_fieldSize != value)
-                {
-                    m_fieldSize = value;
-                    UpdateFieldShape();
-                    RaisePropertiesChanged();
-                }
+
+                m_fieldSize.Value = value;           
             }
         }
         
@@ -56,31 +52,38 @@ namespace Sandbox.Game.Entities
             return m_gizmoBoundingBox;
         }
 
+        public MyGravityGenerator()
+        {
+            m_fieldSize.ValueChanged += (x) => UpdateFieldShape();
+        }
+
         static MyGravityGenerator()
         {
             var fieldWidth = new MyTerminalControlSlider<MyGravityGenerator>("Width", MySpaceTexts.BlockPropertyTitle_GravityFieldWidth, MySpaceTexts.BlockPropertyDescription_GravityFieldWidth);
             fieldWidth.SetLimits(1, 150);
             fieldWidth.DefaultValue = 150;
-            fieldWidth.Getter = (x) => x.m_fieldSize.X;
+            fieldWidth.Getter = (x) => x.m_fieldSize.Value.X;
             fieldWidth.Setter = (x, v) =>
             {
-                x.m_fieldSize.X = v;
-                x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, x.GravityAcceleration);
+                Vector3 fieldSize = x.m_fieldSize;
+                fieldSize.X = v;
+                x.m_fieldSize.Value = fieldSize;
             };
-            fieldWidth.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.X, NUM_DECIMALS)).Append(" m");
+            fieldWidth.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.Value.X, NUM_DECIMALS)).Append(" m");
             fieldWidth.EnableActions();
             MyTerminalControlFactory.AddControl(fieldWidth);
 
             var fieldHeight = new MyTerminalControlSlider<MyGravityGenerator>("Height", MySpaceTexts.BlockPropertyTitle_GravityFieldHeight, MySpaceTexts.BlockPropertyDescription_GravityFieldHeight);
             fieldHeight.SetLimits(1, 150);
             fieldHeight.DefaultValue = 150;
-            fieldHeight.Getter = (x) => x.m_fieldSize.Y;
+            fieldHeight.Getter = (x) => x.m_fieldSize.Value.Y;
             fieldHeight.Setter = (x, v) =>
             {
-                x.m_fieldSize.Y = v;
-                x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, x.GravityAcceleration);
+                Vector3 fieldSize = x.m_fieldSize;
+                fieldSize.Y = v;
+                x.m_fieldSize.Value = fieldSize;
             };
-            fieldHeight.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.Y, NUM_DECIMALS)).Append(" m");
+            fieldHeight.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.Value.Y, NUM_DECIMALS)).Append(" m");
 
             fieldHeight.EnableActions();
             MyTerminalControlFactory.AddControl(fieldHeight);
@@ -88,13 +91,14 @@ namespace Sandbox.Game.Entities
             var fieldDepth = new MyTerminalControlSlider<MyGravityGenerator>("Depth", MySpaceTexts.BlockPropertyTitle_GravityFieldDepth, MySpaceTexts.BlockPropertyDescription_GravityFieldDepth);
             fieldDepth.SetLimits(1, 150);
             fieldDepth.DefaultValue = 150;
-            fieldDepth.Getter = (x) => x.m_fieldSize.Z;
+            fieldDepth.Getter = (x) => x.m_fieldSize.Value.Z;
             fieldDepth.Setter = (x, v) =>
             {
-                x.m_fieldSize.Z = v;
-                x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, x.GravityAcceleration);
+                Vector3 fieldSize = x.m_fieldSize;
+                fieldSize.Z = v;
+                x.m_fieldSize.Value = fieldSize;
             };
-            fieldDepth.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.Z, NUM_DECIMALS)).Append(" m");
+            fieldDepth.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_fieldSize.Value.Z, NUM_DECIMALS)).Append(" m");
             fieldDepth.EnableActions();
             MyTerminalControlFactory.AddControl(fieldDepth);
 
@@ -102,20 +106,19 @@ namespace Sandbox.Game.Entities
             gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
 			gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
             gravityAcceleration.Getter = (x) => x.GravityAcceleration;
-            gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v);
+            gravityAcceleration.Setter = (x, v) => x.GravityAcceleration = v;
             gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();
             MyTerminalControlFactory.AddControl(gravityAcceleration);
         }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            var builder = (MyObjectBuilder_GravityGenerator)objectBuilder;
-            m_fieldSize = builder.FieldSize;
-            m_gravityAcceleration = builder.GravityAcceleration;
-
             base.Init(objectBuilder, cubeGrid);
 
-            SyncObject = new MySyncGravityGenerator(this);
+            var builder = (MyObjectBuilder_GravityGenerator)objectBuilder;
+            m_fieldSize.Value = builder.FieldSize;
+            m_gravityAcceleration.Value = builder.GravityAcceleration;
         }
 
 	    protected override void InitializeSinkComponent()
@@ -131,7 +134,6 @@ namespace Sandbox.Game.Entities
 			{
 				ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 				ResourceSink.RequiredInputChanged += Receiver_RequiredInputChanged;
-				ResourceSink.Update();
 				AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 			}
 
@@ -141,7 +143,7 @@ namespace Sandbox.Game.Entities
         {
             var builder = (MyObjectBuilder_GravityGenerator)base.GetObjectBuilderCubeBlock(copy);
 
-            builder.FieldSize = m_fieldSize;
+            builder.FieldSize = m_fieldSize.Value;
             builder.GravityAcceleration = m_gravityAcceleration;
 
             return builder;
@@ -151,7 +153,7 @@ namespace Sandbox.Game.Entities
         protected override float CalculateRequiredPowerInput()
         {
             if (Enabled && IsFunctional)
-                return 0.0003f * Math.Abs(m_gravityAcceleration) * (float)Math.Pow(m_fieldSize.Volume, 0.35);
+                return 0.0003f * Math.Abs(m_gravityAcceleration) * (float)Math.Pow(m_fieldSize.Value.Volume, 0.35);
             else
                 return 0.0f;
         }
@@ -159,7 +161,7 @@ namespace Sandbox.Game.Entities
         protected override void UpdateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
@@ -172,7 +174,7 @@ namespace Sandbox.Game.Entities
 
         public override bool IsPositionInRange(Vector3D worldPoint)
         {
-            Vector3 halfExtents = m_fieldSize * 0.5f;
+            Vector3 halfExtents = m_fieldSize.Value * 0.5f;
             MyOrientedBoundingBox obb = new MyOrientedBoundingBox((Vector3)WorldMatrix.Translation, halfExtents, Quaternion.CreateFromRotationMatrix(WorldMatrix));
             Vector3 conv = (Vector3)worldPoint;
             return obb.Contains(ref conv);
@@ -185,12 +187,12 @@ namespace Sandbox.Game.Entities
 
         protected override HkShape GetHkShape()
         {
-            return new HkBoxShape(m_fieldSize * 0.5f);
+            return new HkBoxShape(m_fieldSize.Value * 0.5f);
         }
 
-        float IMyGravityGenerator.FieldWidth { get { return m_fieldSize.X; } }
-        float IMyGravityGenerator.FieldHeight { get { return m_fieldSize.Y; } }
-        float IMyGravityGenerator.FieldDepth { get { return m_fieldSize.Z; } }
+        float IMyGravityGenerator.FieldWidth { get { return m_fieldSize.Value.X; } }
+        float IMyGravityGenerator.FieldHeight { get { return m_fieldSize.Value.Y; } }
+        float IMyGravityGenerator.FieldDepth { get { return m_fieldSize.Value.Z; } }
         float IMyGravityGenerator.Gravity { get { return GravityAcceleration / MyGravityProviderSystem.G; } }
     }
 }

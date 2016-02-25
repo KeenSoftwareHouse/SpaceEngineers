@@ -27,6 +27,7 @@ namespace VRage.Import
         public const string TAG_SWAP_WINDING_ORDER = "SwapWindingOrder";
         public const string TAG_DUMMIES = "Dummies";
         public const string TAG_MESH_PARTS = "MeshParts";
+        public const string TAG_MESH_SECTIONS = "Sections";
         public const string TAG_MODEL_BVH = "ModelBvh";
         public const string TAG_MODEL_INFO = "ModelInfo";
         public const string TAG_BLENDINDICES = "BlendIndices";

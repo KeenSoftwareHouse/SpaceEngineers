@@ -1,10 +1,10 @@
 ﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.Actions
 {
@@ -79,6 +79,41 @@ namespace Sandbox.Game.AI.Actions
         protected MyBehaviorTreeState IsFalse([BTIn] ref MyBBMemoryBool variable)
         {
             return (variable == null || variable.BoolValue) ? MyBehaviorTreeState.FAILURE : MyBehaviorTreeState.SUCCESS;
+        }
+
+        [MyBehaviorTreeAction("SetInt", ReturnsRunning = false)]
+        protected MyBehaviorTreeState SetInt([BTOut] ref MyBBMemoryInt variable, [BTParam] int value)
+        {
+            if (variable == null)
+            {
+                variable = new MyBBMemoryInt();
+            }
+
+            variable.IntValue = value;
+            return MyBehaviorTreeState.SUCCESS;
+        }
+
+        [MyBehaviorTreeAction("IsIntLargerThan", ReturnsRunning = false)]
+        protected MyBehaviorTreeState IsIntLargerThan([BTIn] ref MyBBMemoryInt variable, [BTParam] int value)
+        {
+            if (variable == null)
+            {
+                variable = new MyBBMemoryInt();
+            }
+
+            return variable.IntValue > value ? MyBehaviorTreeState.SUCCESS : MyBehaviorTreeState.FAILURE;
+        }
+
+        [MyBehaviorTreeAction("Increment", ReturnsRunning = false)]
+        protected MyBehaviorTreeState Increment([BTInOut] ref MyBBMemoryInt variable)
+        {
+            if (variable == null)
+            {
+                variable = new MyBBMemoryInt();
+            }
+
+            variable.IntValue = variable.IntValue + 1;
+            return MyBehaviorTreeState.SUCCESS;
         }
     }
 }

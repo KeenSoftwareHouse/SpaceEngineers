@@ -12,6 +12,8 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 
 using Sandbox.Game.Localization;
+using VRage.Game;
+using VRage.Game.Entity;
 
 #endregion
 

@@ -441,6 +441,11 @@ namespace VRageMath
             get { return (Max - Min) / 2; }
         }
 
+        public Vector3D Extents
+        {
+            get { return (Max - Min); }
+        }
+
         /// <summary>
         /// Checks whether the current BoundingBox intersects a BoundingFrustum.
         /// </summary>
@@ -495,7 +500,22 @@ namespace VRageMath
         }
 
 
-        public bool Intersects(LineD line, out double distance)
+        public bool Intersects(ref LineD line)
+        {
+            double? f = Intersects(new RayD(line.From, line.Direction));
+            if (!f.HasValue)
+                return false;
+
+            if (f.Value < 0)
+                return false;
+
+            if (f.Value > line.Length)
+                return false;
+
+            return true;
+        }
+
+        public bool Intersects(ref LineD line, out double distance)
         {
             distance = 0f;
             double? f = Intersects(new RayD(line.From, line.Direction));
@@ -667,6 +687,67 @@ namespace VRageMath
             result = new double?(num1);
         }
 
+        public bool Intersect(ref LineD line, out LineD intersectedLine)
+        {
+            var ray = new RayD(line.From, line.Direction);
+
+            double t1, t2;
+            if (!Intersect(ref ray, out t1, out t2))
+            {
+                intersectedLine = line;
+                return false;
+            }
+
+            t1 = Math.Max(t1, 0);
+            t2 = Math.Min(t2, line.Length);
+
+            intersectedLine.From = line.From + line.Direction*t1;
+            intersectedLine.To = line.From + line.Direction*t2;
+            intersectedLine.Direction = line.Direction;
+            intersectedLine.Length = t2 - t1;
+
+            return true;
+        }
+
+        public bool Intersect(ref LineD line, out double t1, out double t2)
+        {
+            var ray = new RayD(line.From, line.Direction);
+            return Intersect(ref ray, out t1, out t2);
+        }
+
+        public bool Intersect(ref RayD ray, out double tmin, out double tmax)
+        {
+            // r.dir is unit direction vector of ray
+            var recipx = 1.0f / ray.Direction.X;
+            var recipy = 1.0f / ray.Direction.Y;
+            var recipz = 1.0f / ray.Direction.Z;
+            // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+            // r.org is origin of ray
+            double t1 = (Min.X - ray.Position.X) * recipx;
+            double t2 = (Max.X - ray.Position.X) * recipx;
+            double t3 = (Min.Y - ray.Position.Y) * recipy;
+            double t4 = (Max.Y - ray.Position.Y) * recipy;
+            double t5 = (Min.Z - ray.Position.Z) * recipz;
+            double t6 = (Max.Z - ray.Position.Z) * recipz;
+
+            tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
+            tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+
+            // if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
+            if (tmax < 0)
+            {
+                return false;
+            }
+
+            // if tmin > tmax, ray doesn't intersect AABB
+            if (tmin > tmax)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Checks whether the current BoundingBox intersects a BoundingSphere.
         /// </summary>
@@ -705,6 +786,15 @@ namespace VRageMath
 
             var clamp = Vector3D.Clamp(point, Min, Max);
             return Vector3D.Distance(clamp, point);
+        }
+
+        public double DistanceSquared(Vector3D point)
+        {
+            if (Contains(point) == ContainmentType.Contains)
+                return 0;
+
+            var clamp = Vector3D.Clamp(point, Min, Max);
+            return Vector3D.DistanceSquared(clamp, point);
         }
 
         /// <summary>
@@ -1045,6 +1135,14 @@ namespace VRageMath
                 double wz = Max.Z - Min.Z;
 
                 return 4.0 * (wx + wy + wz);
+            }
+        }
+
+        public bool Valid
+        {
+            get
+            {
+                return Min == new Vector3D(double.MaxValue) && Max == new Vector3D(double.MinValue);
             }
         }
 

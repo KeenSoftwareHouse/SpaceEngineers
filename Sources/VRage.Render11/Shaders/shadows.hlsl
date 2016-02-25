@@ -1,3 +1,10 @@
+// @defineMandatory NUMTHREADS_X 40
+// @defineMandatory NUMTHREADS_Y 25
+// @defineMandatory THREAD_GROUPS_X 32
+// @defineMandatory THREAD_GROUPS_Y 32
+// @defineMandatory PIXELS_PER_THREAD_X 1
+// @defineMandatory PIXELS_PER_THREAD_Y 1
+
 #ifndef SAMPLE_FREQ_PASS
 #define PIXEL_FREQ_PASS
 #endif
@@ -14,20 +21,7 @@
 
 #include <frame.h>
 #include <csm.h>
-#include <math.h>
-
-
-Texture2D<float>	DepthBuffer	: register( t0 );
-
-#ifndef MS_SAMPLE_COUNT
-	Texture2D<uint2>	Stencil		: register( t1 );
-#else
-	Texture2DMS<uint2, MS_SAMPLE_COUNT>	StencilMS	: register( t1 );
-#endif
-
-
-Texture2D<float> Shadow : register( t0 );
-RWTexture2D<float> Output : register( u0 );
+#include <Math/math.h>
 
 static const float2 PoissonSamplesArray[] = {
 	float2( 0.130697, -0.209628),
@@ -67,87 +61,69 @@ static const float2 RandomRotation[] = {
 	float2(-0.893640, 0.448784)
 };
 
-static const uint PoissonSamplesNum = 16;
+static const uint PoissonSamplesNum = 12;
 static const float FilterSize = 3;
 
-[numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void write_shadow(
-	uint3 dispatchThreadID : SV_DispatchThreadID,
-	uint3 groupThreadID : SV_GroupThreadID,
-	uint3 GroupID : SV_GroupID,
-	uint ThreadIndex : SV_GroupIndex) {
+Texture2D<float>	DepthBuffer	: register(t0);
 
-	float2 Texel = dispatchThreadID.xy;
+#ifndef MS_SAMPLE_COUNT
+Texture2D<uint2>	Stencil		: register(t1);
+#else
+Texture2DMS<uint2, MS_SAMPLE_COUNT>	StencilMS	: register(t1);
+#endif
 
-	float2 uv = (Texel + 0.5f) / frame_.resolution;
-	float3 pos = reconstruct_position(DepthBuffer[Texel], uv);
-	
-	#ifndef MS_SAMPLE_COUNT
-		uint c_id = cascade_id_stencil(Stencil[Texel].y);
-	#else
-		uint c_id = cascade_id_stencil(StencilMS.Load(Texel, 0).y);
-	#endif
-	
-	float3 lpos = world_to_shadowmap(pos, csm_.cascade_matrix[c_id]);
+RWTexture2D<float> Output : register(u0);
 
-	float texelsize = 1/512.f;
-	float2 filterSize = csm_.cascade_scale[c_id].xy * FilterSize;
+float GetShadowmapValue(int2 Texel, uint2 rotationOffset)
+{
+    float2 screenUV = (Texel + 0.5f) / frame_.resolution;
+    float3 worldPosition = ReconstructWorldPosition(DepthBuffer[Texel], screenUV);
 
-	uint2 rotationOffset = dispatchThreadID.xy % 4;
-	float2 theta = RandomRotation[rotationOffset.x * 4 + rotationOffset.y].xy;
-    float2x2 rotMatrix = float2x2( float2(theta.xy), float2(-theta.y, theta.x) );
+#ifndef MS_SAMPLE_COUNT
+    uint cascadeIndex = cascade_id_stencil(Stencil[Texel].y);
+#else
+    uint cascadeIndex = cascade_id_stencil(StencilMS.Load(Texel, 0).y);
+#endif
 
-	float result = 0;
-	[branch]
-    if(filterSize.x > 1.0f || filterSize.y > 1.0f) {
-    	[unroll]
-    	for(uint i=0; i<PoissonSamplesNum; i++) {
-    		float2 offset = filterSize * 0.5f * PoissonSamplesArray[i] * texelsize;
-    		offset = mul(rotMatrix, offset);
-    		result += CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy + offset, c_id), lpos.z);	
-    	}
-    	result /= PoissonSamplesNum;
-    }
-    else {
-    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(saturate(lpos.xy) != (lpos.xy));
+    float3 shadowmapPosition = WorldToShadowmap(worldPosition, csm_.cascade_matrix[cascadeIndex]);
+
+    float texelSize = rcp(csm_.resolution);
+    texelSize *= cascadeIndex > 0 ? 2.0f : 1.0f;
+    float2 filterSize = csm_.cascade_scale[cascadeIndex].xy * FilterSize;
+    float2 filterTexelSize = texelSize*filterSize;
+
+    float2 theta = RandomRotation[rotationOffset.y * 4 + rotationOffset.x].xy;
+    float2x2 rotMatrix = float2x2(float2(theta.xy), float2(-theta.y, theta.x));
+
+    float result = 0;
+    [unroll]
+    for ( uint sampleIndex = 0; sampleIndex < PoissonSamplesNum; ++sampleIndex )
+    {
+        float2 offset = filterTexelSize * PoissonSamplesArray[sampleIndex];
+        offset = mul(rotMatrix, offset);
+        result += CSM.SampleCmpLevelZero(ShadowmapSampler, float3(shadowmapPosition.xy + offset, cascadeIndex), shadowmapPosition.z);
     }
 
-   	Output[Texel] = result;
+    return result / PoissonSamplesNum;
 }
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void blur(uint3 dispatchThreadID : SV_DispatchThreadID) {
-	
-	float2 Texel = dispatchThreadID.xy;
+void __compute_shader(
+    uint3 dispatchThreadID : SV_DispatchThreadID,
+    uint3 groupThreadID : SV_GroupThreadID,
+    uint3 GroupID : SV_GroupID,
+    uint ThreadIndex : SV_GroupIndex) {
 
-	#ifndef MS_SAMPLE_COUNT
-		uint c_id = cascade_id_stencil(Stencil[Texel].y);
-	#else
-		uint c_id = cascade_id_stencil(StencilMS.Load(Texel, 0).y);
-	#endif
+    const int rowPixelCount = PIXELS_PER_THREAD_X;
+    const int columnPixelCount = PIXELS_PER_THREAD_Y;
+    const int2 pixelsPerGroup = int2(NUMTHREADS_X*rowPixelCount, NUMTHREADS_Y*columnPixelCount);
 
-	float result;
-	[branch]
-	if(c_id > 1) {
-		result = 0;
-
-		for(int i=-5; i<5; i++) {
-			#ifdef VERTICAL
-			float sample = Shadow[Texel + float2(0, i)];
-			#else
-			float sample = Shadow[Texel + float2(i, 0)];
-			#endif
-
-			result += sample * gaussian_weigth(i, 1.5);
-		}
-		#ifdef VERTICAL
-		result = pow(result, 2);
-		#endif		
-	}
-	else
-	{
-		result = Shadow[Texel];
-	}
-
-	Output[Texel] = result;
+    float2 texelBase = float2(groupThreadID.x*rowPixelCount, groupThreadID.y*columnPixelCount); // In-group coordinate
+    texelBase += float2(GroupID.x*pixelsPerGroup.x, GroupID.y*pixelsPerGroup.y); // In-dispatch coordinate
+    for ( int texelIndex = 0; texelIndex < PIXELS_PER_THREAD_X*PIXELS_PER_THREAD_Y; ++texelIndex )
+    {
+        float2 texel = texelBase + float2(texelIndex % rowPixelCount, texelIndex / rowPixelCount);
+        
+        Output[texel] = GetShadowmapValue(texel, dispatchThreadID.xy % 4);
+    }
 }

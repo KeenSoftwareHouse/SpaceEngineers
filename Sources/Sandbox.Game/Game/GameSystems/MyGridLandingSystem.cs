@@ -6,6 +6,7 @@ using System.Text;
 using VRage;
 using Sandbox.Game.Entities.Cube;
 using VRage.Utils;
+using Sandbox.Common.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {

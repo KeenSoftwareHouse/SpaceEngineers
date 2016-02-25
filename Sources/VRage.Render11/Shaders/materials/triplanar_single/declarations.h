@@ -14,8 +14,10 @@ struct MaterialVertexPayload
 //#ifndef DEPTH_ONLY
 	float3 texcoords	: TEXCOORD0;
 	float distance	: TEXCOORD1;
-	float3x3 world_matrix : TEXCOORD2;
+	float dark_side : TEXCOORD2;
+	float3x3 world_matrix : TEXCOORD3;
 	float ambient_occlusion : Ambient0;
+	
 //#endif
 };
 

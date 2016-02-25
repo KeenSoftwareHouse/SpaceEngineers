@@ -2,7 +2,7 @@
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateColorEmissivity : IMyRenderMessage
+    public class MyRenderMessageUpdateColorEmissivity : MyRenderMessageBase
     {
         public uint ID;
         public int LOD;
@@ -10,7 +10,7 @@ namespace VRageRender
         public Color DiffuseColor;
         public float Emissivity;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateColorEmissivity; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateColorEmissivity; } }
     }
 }

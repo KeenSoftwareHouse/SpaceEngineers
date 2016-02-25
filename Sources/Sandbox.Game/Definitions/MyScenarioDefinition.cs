@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Linq;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -22,15 +24,46 @@ namespace Sandbox.Definitions
         public bool  AsteroidClustersEnabled;
         public float AsteroidClustersOffset;
         public bool  CentralClusterEnabled;
+        public MyEnvironmentHostilityEnum DefaultEnvironment;
         public MyStringId[] CreativeModeWeapons;
         public MyStringId[] SurvivalModeWeapons;
+        public StartingItem[] CreativeModeComponents;
+        public StartingItem[] SurvivalModeComponents;
+        public StartingPhysicalItem[] CreativeModePhysicalItems;
+        public StartingPhysicalItem[] SurvivalModePhysicalItems;
+        public StartingItem[] CreativeModeAmmoItems;
+        public StartingItem[] SurvivalModeAmmoItems;
         public MyObjectBuilder_Toolbar CreativeDefaultToolbar;
         public MyObjectBuilder_Toolbar SurvivalDefaultToolbar;
         public MyStringId MainCharacterModel;
 
+        public struct StartingItem
+        {
+            public MyFixedPoint amount;
+
+            public MyStringId itemName;
+        }
+
+        public struct StartingPhysicalItem
+        {
+            public MyFixedPoint amount;
+
+            public MyStringId itemName;
+
+            public MyStringId itemType;
+        }
+
         public DateTime GameDate;
 
         public Vector3 SunDirection;
+
+        public bool HasPlanets
+        {
+            get
+            {
+                return WorldGeneratorOperations != null && WorldGeneratorOperations.Any(s => s is MyWorldGenerator.OperationAddPlanetPrefab || s is MyWorldGenerator.OperationCreatePlanet);
+            }
+        }
 
         public MyObjectBuilder_Toolbar DefaultToolbar
         {
@@ -45,6 +78,7 @@ namespace Sandbox.Definitions
             AsteroidClustersEnabled = ob.AsteroidClusters.Enabled;
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
             CentralClusterEnabled   = ob.AsteroidClusters.CentralCluster;
+            DefaultEnvironment      = ob.DefaultEnvironment;
             CreativeDefaultToolbar  = ob.CreativeDefaultToolbar;
             SurvivalDefaultToolbar  = ob.SurvivalDefaultToolbar;
             MainCharacterModel = MyStringId.GetOrCompute(ob.MainCharacterModel);
@@ -89,6 +123,68 @@ namespace Sandbox.Definitions
                 }
             }
 
+            if (ob.CreativeModeComponents != null && ob.CreativeModeComponents.Length > 0)
+            {
+                CreativeModeComponents = new StartingItem[ob.CreativeModeComponents.Length];
+                for (int i = 0; i < ob.CreativeModeComponents.Length; ++i)
+                {
+                    CreativeModeComponents[i].amount = (MyFixedPoint)ob.CreativeModeComponents[i].amount;
+                    CreativeModeComponents[i].itemName = MyStringId.GetOrCompute(ob.CreativeModeComponents[i].itemName);
+                }
+            }
+
+            if (ob.SurvivalModeComponents != null && ob.SurvivalModeComponents.Length > 0)
+            {
+                SurvivalModeComponents = new StartingItem[ob.SurvivalModeComponents.Length];
+                for (int i = 0; i < ob.SurvivalModeComponents.Length; ++i)
+                {
+                    SurvivalModeComponents[i].amount = (MyFixedPoint)ob.SurvivalModeComponents[i].amount;
+                    SurvivalModeComponents[i].itemName = MyStringId.GetOrCompute(ob.SurvivalModeComponents[i].itemName);
+                }
+            }
+
+            if (ob.CreativeModePhysicalItems != null && ob.CreativeModePhysicalItems.Length > 0)
+            {
+                CreativeModePhysicalItems = new StartingPhysicalItem[ob.CreativeModePhysicalItems.Length];
+                for (int i = 0; i < ob.CreativeModePhysicalItems.Length; ++i)
+                {
+                    CreativeModePhysicalItems[i].amount = (MyFixedPoint)ob.CreativeModePhysicalItems[i].amount;
+                    CreativeModePhysicalItems[i].itemName = MyStringId.GetOrCompute(ob.CreativeModePhysicalItems[i].itemName);
+                    CreativeModePhysicalItems[i].itemType = MyStringId.GetOrCompute(ob.CreativeModePhysicalItems[i].itemType);
+                }
+            }
+
+            if (ob.SurvivalModePhysicalItems != null && ob.SurvivalModePhysicalItems.Length > 0)
+            {
+                SurvivalModePhysicalItems = new StartingPhysicalItem[ob.SurvivalModePhysicalItems.Length];
+                for (int i = 0; i < ob.SurvivalModePhysicalItems.Length; ++i)
+                {
+                    SurvivalModePhysicalItems[i].amount = (MyFixedPoint)ob.SurvivalModePhysicalItems[i].amount;
+                    SurvivalModePhysicalItems[i].itemName = MyStringId.GetOrCompute(ob.SurvivalModePhysicalItems[i].itemName);
+                    SurvivalModePhysicalItems[i].itemType = MyStringId.GetOrCompute(ob.SurvivalModePhysicalItems[i].itemType);
+                }
+            }
+
+            if (ob.CreativeModeAmmoItems != null && ob.CreativeModeAmmoItems.Length > 0)
+            {
+                CreativeModeAmmoItems = new StartingItem[ob.CreativeModeAmmoItems.Length];
+                for (int i = 0; i < ob.CreativeModeAmmoItems.Length; ++i)
+                {
+                    CreativeModeAmmoItems[i].amount = (MyFixedPoint)ob.CreativeModeAmmoItems[i].amount;
+                    CreativeModeAmmoItems[i].itemName = MyStringId.GetOrCompute(ob.CreativeModeAmmoItems[i].itemName);
+                }
+            }
+
+            if (ob.SurvivalModeAmmoItems != null && ob.SurvivalModeAmmoItems.Length > 0)
+            {
+                SurvivalModeAmmoItems = new StartingItem[ob.SurvivalModeAmmoItems.Length];
+                for (int i = 0; i < ob.SurvivalModeAmmoItems.Length; ++i)
+                {
+                    SurvivalModeAmmoItems[i].amount = (MyFixedPoint)ob.SurvivalModeAmmoItems[i].amount;
+                    SurvivalModeAmmoItems[i].itemName = MyStringId.GetOrCompute(ob.SurvivalModeAmmoItems[i].itemName);
+                }
+            }
+
             WorldBoundaries.Min = ob.WorldBoundaries.Min;
             WorldBoundaries.Max = ob.WorldBoundaries.Max;
         }
@@ -100,6 +196,7 @@ namespace Sandbox.Definitions
             ob.AsteroidClusters.Enabled        = AsteroidClustersEnabled;
             ob.AsteroidClusters.Offset         = AsteroidClustersOffset;
             ob.AsteroidClusters.CentralCluster = CentralClusterEnabled;
+            ob.DefaultEnvironment              = DefaultEnvironment;
             ob.CreativeDefaultToolbar          = CreativeDefaultToolbar;
             ob.SurvivalDefaultToolbar          = SurvivalDefaultToolbar;
             ob.MainCharacterModel = MainCharacterModel.ToString();

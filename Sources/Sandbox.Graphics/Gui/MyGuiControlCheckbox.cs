@@ -1,5 +1,5 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using System;
+﻿using System;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -72,6 +72,14 @@ namespace Sandbox.Graphics.GUI
                 HighlightUncheckedTexture = MyGuiConstants.TEXTURE_RECTANGLE_NEUTRAL,
                 CheckedIcon = MyGuiConstants.TEXTURE_BUTTON_ICON_SLAVE,
                 SizeOverride = MyGuiConstants.TEXTURE_BUTTON_ICON_SLAVE.SizeGui * 1.4f,
+            };
+            m_styles[(int)MyGuiControlCheckboxStyleEnum.Muted] = new StyleDefinition()
+            {
+                NormalCheckedTexture = new MyGuiCompositeTexture() { Center = MyGuiConstants.TEXTURE_CHECKBOX_DEFAULT_NORMAL_CHECKED.LeftTop },
+                NormalUncheckedTexture = new MyGuiCompositeTexture() { Center = MyGuiConstants.TEXTURE_CHECKBOX_DEFAULT_NORMAL_UNCHECKED.LeftTop },
+                HighlightCheckedTexture = new MyGuiCompositeTexture() { Center = MyGuiConstants.TEXTURE_CHECKBOX_DEFAULT_HIGHLIGHT_CHECKED.LeftTop },
+                HighlightUncheckedTexture = new MyGuiCompositeTexture() { Center = MyGuiConstants.TEXTURE_CHECKBOX_DEFAULT_HIGHLIGHT_UNCHECKED.LeftTop },
+                SizeOverride = MyGuiConstants.TEXTURE_CHECKBOX_DEFAULT_NORMAL_UNCHECKED.MinSizeGui * 0.65f,
             };
         }
 
@@ -176,7 +184,7 @@ namespace Sandbox.Graphics.GUI
 
             MyGuiControlBase ret = base.HandleInput();
 
-            if (ret == null && Owner.HandleMouse)
+            if (ret == null && (Owner == null || (Owner != null && Owner.HandleMouse)) )
             {
                 if ( (IsMouseOver && MyInput.Static.IsNewPrimaryButtonPressed()) ||
                      (HasFocus && (MyInput.Static.IsNewKeyPressed(MyKeys.Enter) ||

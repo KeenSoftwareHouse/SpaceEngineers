@@ -12,6 +12,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Weapons;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.GameSystems
@@ -75,6 +76,11 @@ namespace Sandbox.Game.GameSystems
         internal void Unregister(IMyGunObject<MyDeviceBase> gun)
         {
             MyDebug.AssertDebug(gun != null);
+            if (!m_gunsByDefId.ContainsKey(gun.DefinitionId))
+            {
+                MyDebug.FailRelease("deinition ID " + gun.DefinitionId + " not in m_gunsByDefId");
+                return;
+            }
             MyDebug.AssertDebug(m_gunsByDefId[gun.DefinitionId].Contains(gun));
 
             m_gunsByDefId[gun.DefinitionId].Remove(gun);

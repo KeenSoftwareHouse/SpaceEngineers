@@ -1,6 +1,5 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
@@ -15,6 +14,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Screens
         private Vector3 m_storedHSV;
         private MyCameraControllerSettings m_storedCamera;
 
-        public MyGuiScreenWardrobe(MyCharacter user)
+        public MyGuiScreenWardrobe(MyCharacter user, HashSet<string> customCharacterNames = null)
             : base(size: new Vector2(0.31f, 0.55f),
                    position: MyGuiManager.ComputeFullscreenGuiCoordinate(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP),
                    backgroundColor: MyGuiConstants.SCREEN_BACKGROUND_COLOR,
@@ -68,13 +68,35 @@ namespace Sandbox.Game.Screens
             m_models = new Dictionary<int, string>();
 
             int i = 0;
-            foreach (var character in MyDefinitionManager.Static.Characters)
+            if (customCharacterNames == null)
             {
-                if (!character.UsableByPlayer) continue;
+                foreach (var character in MyDefinitionManager.Static.Characters)
+                {
+                    // NPCs can't be played with while in survival mode
+                    if (MySession.Static.SurvivalMode && !character.UsableByPlayer) continue;
+                    if (!character.Public) continue;
 
-                var key = GetDisplayName(character.Name);
-                m_displayModels[key] = i;
-                m_models[i++] = character.Name;
+                    var key = GetDisplayName(character.Name);
+                    m_displayModels[key] = i;
+                    m_models[i++] = character.Name;
+                }
+
+            }
+            else
+            {
+                var definedCharacters = MyDefinitionManager.Static.Characters;
+
+                foreach (var characterName in customCharacterNames)
+                {
+                    MyCharacterDefinition definition;
+                    // NPCs can't be played with while in survival mode
+                    if (!definedCharacters.TryGetValue(characterName, out definition) || MySession.Static.SurvivalMode && !definition.UsableByPlayer) continue;
+                    if (definition.Public) continue;
+
+                    var key = GetDisplayName(definition.Name);
+                    m_displayModels[key] = i;
+                    m_models[i++] = definition.Name;
+                }
             }
 
             RecreateControls(true);
@@ -93,13 +115,14 @@ namespace Sandbox.Game.Screens
 
         private string GetDisplayName(string name)
         {
-            MyStringId tmp = MyStringId.GetOrCompute(name);
+            //MyStringId tmp = MyStringId.GetOrCompute(name);
 
-            string result;
-            if (!MyTexts.TryGet(tmp, out result))
-                result = name;
+            //string result;
+            //if (!MyTexts.TryGet(tmp, out result))
+            //    result = name;
 
-            return name;
+            //return name;
+            return MyTexts.GetString(name);
         }
 
         public override string GetFriendlyName()
@@ -122,7 +145,7 @@ namespace Sandbox.Game.Screens
         {
             base.RecreateControls(constructor);
 
-            var caption = AddCaption(MySpaceTexts.PlayerCharacterModel);
+            var caption = AddCaption(MyCommonTexts.PlayerCharacterModel);
             var listSize = MyGuiControlListbox.GetVisualStyle(MyGuiControlListboxStyleEnum.Default).ItemSize;
 
             //m_modelPicker = new MyGuiControlCombobox(position: new Vector2(0f, -0.18f));
@@ -145,7 +168,7 @@ namespace Sandbox.Game.Screens
             m_position.X -= (positionOffset.X / 2.5f);
             m_position.Y += (positionOffset.Y * 3.6f);
 
-            Controls.Add(new MyGuiControlLabel(position: new Vector2(0f, currY), text: MyTexts.GetString(MySpaceTexts.PlayerCharacterColor), originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
+            Controls.Add(new MyGuiControlLabel(position: new Vector2(0f, currY), text: MyTexts.GetString(MyCommonTexts.PlayerCharacterColor), originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             currY += 0.04f;
 
             Controls.Add( new MyGuiControlLabel(position: new Vector2(-0.135f, currY), text: "Hue:", originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
@@ -268,11 +291,11 @@ namespace Sandbox.Game.Screens
         {
             if (MySession.Static.Settings.Enable3rdPersonView)
             {
-                m_storedCamera.Controller = MySession.GetCameraControllerEnum();
-                m_storedCamera.Distance = MySession.GetCameraTargetDistance();
+                m_storedCamera.Controller = MySession.Static.GetCameraControllerEnum();
+                m_storedCamera.Distance = MySession.Static.GetCameraTargetDistance();
 
-                MySession.SetCameraController(MyCameraControllerEnum.ThirdPersonSpectator);
-                MySession.SetCameraTargetDistance(2f);
+                MySession.Static.SetCameraController(MyCameraControllerEnum.ThirdPersonSpectator);
+                MySession.Static.SetCameraTargetDistance(2f);
             }
         }
 
@@ -280,8 +303,8 @@ namespace Sandbox.Game.Screens
         {
             if (MySession.Static.Settings.Enable3rdPersonView)
             {
-                MySession.SetCameraController(m_storedCamera.Controller, m_user);
-                MySession.SetCameraTargetDistance(m_storedCamera.Distance);
+                MySession.Static.SetCameraController(m_storedCamera.Controller, m_user);
+                MySession.Static.SetCameraTargetDistance(m_storedCamera.Distance);
             }
         }
 

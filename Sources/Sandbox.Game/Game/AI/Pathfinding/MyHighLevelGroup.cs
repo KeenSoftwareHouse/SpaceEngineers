@@ -53,6 +53,13 @@ namespace Sandbox.Game.AI.Pathfinding
             m_primitives.Add(index, new MyHighLevelPrimitive(this, index, localPosition));
         }
 
+        public MyHighLevelPrimitive TryGetPrimitive(int index)
+        {
+            MyHighLevelPrimitive retval = null;
+            m_primitives.TryGetValue(index, out retval);
+            return retval;
+        }
+
         public MyHighLevelPrimitive GetPrimitive(int index)
         {
             MyHighLevelPrimitive retval = null;
@@ -110,6 +117,13 @@ namespace Sandbox.Game.AI.Pathfinding
             Connect(a, b);
         }
 
+        public void DisconnectPrimitives(int a, int b)
+        {
+            Debug.Assert(m_primitives.ContainsKey(a), "Disconnecting non-existent navigation primitives!");
+            Debug.Assert(m_primitives.ContainsKey(b), "Disconnecting non-existent navigation primitives!");
+            Disconnect(a, b);
+        }
+
         private void Connect(int a, int b)
         {
             var primA = GetPrimitive(a);
@@ -120,6 +134,18 @@ namespace Sandbox.Game.AI.Pathfinding
             }
             primA.Connect(b);
             primB.Connect(a);
+        }
+
+        private void Disconnect(int a, int b)
+        {
+            var primA = GetPrimitive(a);
+            var primB = GetPrimitive(b);
+            if (primA == null || primB == null)
+            {
+                return;
+            }
+            primA.Disconnect(b);
+            primB.Disconnect(a);
         }
 
         public MyNavigationPrimitive FindClosestPrimitive(Vector3D point, bool highLevel, ref double closestDistanceSq)
@@ -244,7 +270,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
                     if (primitive.PathfindingData.GetTimestamp() == lastTimestamp)
                     {
-                        //MyRenderProxy.DebugDrawSphere(primitive.WorldPosition, 0.5f, Color.DarkRed, 1.0f, false);
+                        MyRenderProxy.DebugDrawSphere(primitive.WorldPosition, 0.5f, Color.DarkRed, 1.0f, false);
                     }
                 }
             }
@@ -263,6 +289,18 @@ namespace Sandbox.Game.AI.Pathfinding
         public IMyHighLevelComponent GetComponent(MyHighLevelPrimitive highLevelPrimitive)
         {
             return null;
+        }
+
+        public void GetPrimitivesOnPath(ref List<MyHighLevelPrimitive> primitives)
+        {
+            // primitives on a path are observed...
+            foreach(var v in m_primitiveObservers)
+            {
+                // get high level primitive
+                MyHighLevelPrimitive primitive = TryGetPrimitive(v.Key);
+                Debug.Assert(primitive != null); // observer primitive should be in primitives
+                primitives.Add(primitive);
+            }
         }
     }
 }

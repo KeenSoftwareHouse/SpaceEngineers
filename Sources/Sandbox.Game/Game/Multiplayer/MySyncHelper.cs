@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 
@@ -57,6 +58,9 @@ namespace Sandbox.Game.Multiplayer
 
             [ProtoMember]
             public long AttackerEntityId;
+
+            [ProtoMember]
+            public uint CompoundBlockId;
         }
 
 		[MessageIdAttribute(13270, P2PMessageEnum.Reliable)]
@@ -138,6 +142,17 @@ namespace Sandbox.Game.Multiplayer
             msg.Damage = damage;
             msg.HitInfo = hitInfo;
             msg.AttackerEntityId = attackerId;
+            msg.CompoundBlockId = 0xFFFFFFFF;
+
+            // Get compound block id
+            var blockOnPosition = block.CubeGrid.GetCubeBlock(block.Position);
+            if (blockOnPosition != null && block != blockOnPosition && blockOnPosition.FatBlock is MyCompoundCubeBlock) 
+            {
+                MyCompoundCubeBlock compound = blockOnPosition.FatBlock as MyCompoundCubeBlock;
+                ushort? compoundBlockId = compound.GetBlockId(block);
+                if (compoundBlockId != null)
+                    msg.CompoundBlockId = compoundBlockId.Value;
+            }
 
             block.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
             Sync.Layer.SendMessageToAll<DoDamageSlimBlockMsg>(ref msg);
@@ -152,6 +167,15 @@ namespace Sandbox.Game.Multiplayer
             var block = grid.GetCubeBlock(msg.Position);
             if (block == null)
                 return;
+
+            if (msg.CompoundBlockId != 0xFFFFFFFF && block.FatBlock is MyCompoundCubeBlock)
+            {
+                var compound = block.FatBlock as MyCompoundCubeBlock;
+                var blockInCompound = compound.GetBlock((ushort)msg.CompoundBlockId);
+                if (blockInCompound != null)
+                    block = blockInCompound;
+            }
+
             block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo, attackerId:msg.AttackerEntityId);
         }
 

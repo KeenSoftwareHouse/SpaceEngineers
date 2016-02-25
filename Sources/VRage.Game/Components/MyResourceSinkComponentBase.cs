@@ -1,9 +1,9 @@
 ﻿using System;
 using VRage.Collections;
 using VRage.ModAPI;
-using MyDefinitionId = Sandbox.Definitions.MyDefinitionId;
+using MyDefinitionId = VRage.Game.MyDefinitionId;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public struct MyResourceSinkInfo
     {
@@ -21,8 +21,12 @@ namespace VRage.Components
         public abstract float MaxRequiredInputByType(MyDefinitionId resourceTypeId);
         public abstract void SetMaxRequiredInputByType(MyDefinitionId resourceTypeId, float newMaxRequiredInput);
         public abstract float RequiredInputByType(MyDefinitionId resourceTypeId);
-        public abstract void SetInputFromDistributor(MyDefinitionId resourceTypeId, float newResourceInput, bool isAdaptible);
+        public abstract void SetInputFromDistributor(MyDefinitionId resourceTypeId, float newResourceInput, bool isAdaptible, bool fireEvents = true);
         public abstract void SetRequiredInputByType(MyDefinitionId resourceTypeId, float newRequiredInput);
+        /// <summary>
+        /// Change the required input function (callback) for given type of resource. It does not call it immediatelly to update required input value.
+        /// </summary>
+        public abstract void SetRequiredInputFuncByType(MyDefinitionId resourceTypeId, Func<float> newRequiredInputFunc);
         public abstract float SuppliedRatioByType(MyDefinitionId resourceTypeId);
         public abstract IMyEntity TemporaryConnectedEntity { get; set; }
     }

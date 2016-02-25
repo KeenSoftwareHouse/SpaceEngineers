@@ -35,17 +35,13 @@ namespace VRageRender
         {
             var mapping = MyMapping.MapDiscard(m_texture.Resource);
 
-            var lineSize = (uint)(SharpDX.DXGI.FormatHelper.SizeOfInBytes(VideoFormat) * VideoWidth);
-            var rowPitch = mapping.dataBox.RowPitch;
+            int lineSize = SharpDX.DXGI.FormatHelper.SizeOfInBytes(VideoFormat) * VideoWidth;
+            int frameDataPos = 0;
 
-            fixed(byte *ptr = frameData)
+            for(int y=0; y<VideoHeight; y++)
             {
-                for(int y=0; y<VideoHeight; y++)
-                {
-                    var dst = new IntPtr((byte*)mapping.dataBox.DataPointer.ToPointer() + rowPitch * y);
-                    var src = new IntPtr((byte*)ptr + lineSize * y);
-                    MyMemory.CopyMemory(dst, src, lineSize);
-                }
+                mapping.WriteAndPositionByRow(frameData, frameDataPos, lineSize);
+                frameDataPos += lineSize;
             }
             
             mapping.Unmap();
@@ -123,6 +119,8 @@ namespace VRageRender
         internal static Dictionary<uint, MyVideoPlayer> Videos = new Dictionary<uint, MyVideoPlayer>();
         internal static Mutex VideoMutex = new Mutex();
 
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
         internal static void Create(uint id, string videoFile)
         {
             VideoMutex.WaitOne();

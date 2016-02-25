@@ -1,3 +1,5 @@
+// @define NUMTHREADS 8
+
 #ifndef NUMTHREADS
 #define NUMTHREADS 1
 #endif
@@ -43,7 +45,7 @@ struct PsInput
 	float4 positionWorld : POSITION0;
 };
 
-void proxyVs(VsInputVertex inputVertex, out PsInput output)
+void __vertex_shader(VsInputVertex inputVertex, out PsInput output)
 {
 	output.positionWorld = mul(unpack_position_and_scale(inputVertex.positionLocal), World);
 	output.positionScreen = mul(output.positionWorld, ViewProj);
@@ -53,7 +55,7 @@ void proxyVs(VsInputVertex inputVertex, out PsInput output)
 	output.uv = inputVertex.uv;
 }
 
-void cloudLayerPs(PsInput input, out float4 output : SV_Target0)
+void __pixel_shader(PsInput input, out float4 output : SV_Target0)
 {
 	float alphaSample = AlphamaskTexture.Sample(Sampler, input.uv) * Color.w;
 
@@ -78,13 +80,13 @@ void cloudLayerPs(PsInput input, out float4 output : SV_Target0)
 
 	// Extremely simple shading
 	//float3 normalSample = normalize(mul(NormalGlossTexture.Sample(PointSampler, input.uv).xyz, (float3x3)World));
-	float shadingMultiplier = clamp(pow(abs((1 - dot(input.normal, frame_.directionalLightVec)) / 2), 1.2), 0.1, 1);
+	float shadingMultiplier = clamp(pow(abs((1 - dot(input.normal, frame_.directionalLightVec)) / 2), 2.0), 0.025, 1);
 
 	output = float4(colorSample, alphaSample) * shadingMultiplier * edgeFactor;
 }
 
 #include <gbuffer.h>
-#include <LightingModel.h>
+#include <Lighting/LightingModel.h>
 
 cbuffer FogConstants : register(b1) {
 	float LayerAltitude;
@@ -105,7 +107,7 @@ Texture2D<float> LayerAlphaTexture : register(t2);
 RWTexture2D<float4> Output : register(u0);
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void CloudFogCS(
+void __compute_shader(
 	uint3 dispatchThreadID : SV_DispatchThreadID,
 	uint3 groupThreadID : SV_GroupThreadID,
 	uint3 GroupID : SV_GroupID,

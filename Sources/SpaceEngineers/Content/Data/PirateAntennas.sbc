@@ -142,7 +142,73 @@
         <Group>IMDC_Vulture_Fighter_Bomber</Group>
       </SpawnGroups>
     </Antenna>
+    
+    <Antenna>
+	<Id>
+	<TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	<SubtypeId>EarthPirateSmall</SubtypeId>
+	</Id>
+	<Name>MiningOperationSite</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>2</MaxDrones> 
+	<SpawnGroups>
+	<Group>FleetingRival</Group>
+	<Group>StingingAdversary</Group>		
+	</SpawnGroups>
+    </Antenna>
 
+    <Antenna>
+	<Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>EarthPirateMedium</SubtypeId>
+	</Id>
+	<Name>RemoteDroneAssembly</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>60000</FirstSpawnTimeMs> 
+	<MaxDrones>3</MaxDrones> 
+	<SpawnGroups>
+	  <Group>DriftingPursuant</Group>
+	  <Group>FleetingRival</Group>
+	  <Group>SpitefulAggressor</Group>
+	  <Group>StingingAdversary</Group>		
+	</SpawnGroups>
+    </Antenna>
 
+    <Antenna>      
+      <Id>
+	  <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+	  <SubtypeId>EarthPirateLarge</SubtypeId>
+	</Id>
+	<Name>Headquarters</Name>
+	<SpawnDistance>80</SpawnDistance>
+	<SpawnTimeMs>300000</SpawnTimeMs>
+	<FirstSpawnTimeMs>30000</FirstSpawnTimeMs>
+	<MaxDrones>6</MaxDrones>
+	<SpawnGroups>
+	  <Group>DriftingPursuant</Group>
+	  <Group>SpitefulAggressor</Group>
+	  <Group>StingingAdversary</Group>		
+	</SpawnGroups>
+    </Antenna>
+
+    <Antenna>
+      <Id>
+        <TypeId>MyObjectBuilder_PirateAntennaDefinition</TypeId>
+        <SubtypeId>MoonPirateSmall</SubtypeId>
+      </Id>
+      <Name>MoonMiningOperationSite</Name>
+      <SpawnDistance>80</SpawnDistance>
+      <SpawnTimeMs>500000</SpawnTimeMs>
+      <FirstSpawnTimeMs>60000</FirstSpawnTimeMs>
+      <MaxDrones>2</MaxDrones>
+      <SpawnGroups>
+        <Group>Spur</Group>
+	    <Group>Tusk</Group>
+      </SpawnGroups>
+    </Antenna>
+    
   </PirateAntennas>
 </Definitions>

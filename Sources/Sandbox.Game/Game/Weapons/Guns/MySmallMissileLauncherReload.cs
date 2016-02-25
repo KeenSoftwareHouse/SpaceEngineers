@@ -31,7 +31,7 @@ namespace Sandbox.Game.Weapons
         {
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => x.UseConveyorSystem;
-            useConveyor.Setter = (x, v) => MySyncConveyors.SendChangeUseConveyorSystemRequest(x.EntityId, v);
+            useConveyor.Setter = (x, v) => x.UseConveyorSystem = v;
             useConveyor.Visible = (x) => (true);
             useConveyor.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConveyor);

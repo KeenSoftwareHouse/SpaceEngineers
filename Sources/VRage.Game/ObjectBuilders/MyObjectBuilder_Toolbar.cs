@@ -1,12 +1,13 @@
 ﻿using ProtoBuf;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Xml.Serialization;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     public enum MyToolbarType
     {
@@ -21,6 +22,7 @@ namespace Sandbox.Common.ObjectBuilders
         /// </summary>
         Spectator,
         None,
+        BuildCockpit
     }
 
     [ProtoContract]
@@ -38,6 +40,7 @@ namespace Sandbox.Common.ObjectBuilders
 
             [ProtoMember]
             [DynamicObjectBuilder]
+            [XmlElement(Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_ToolbarItem>))]
             public MyObjectBuilder_ToolbarItem Data;
         }
 
@@ -45,22 +48,24 @@ namespace Sandbox.Common.ObjectBuilders
         public MyToolbarType ToolbarType = MyToolbarType.Character;
 
         [ProtoMember, DefaultValue(null)]
+        [Serialize(MyObjectFlags.Nullable)]
         public int? SelectedSlot = null;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<Slot> Slots;
 
-		#region Obsolete
+        #region Obsolete
 
-		[ProtoMember, DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         [NoSerialize]
-		// Obsolete
+        // Obsolete
         public List<Vector3> ColorMaskHSVList = null;
-		public bool ShouldSerializeColorMaskHSVList() { return false; }	// Moved to MyPlayer
+        public bool ShouldSerializeColorMaskHSVList() { return false; }	// Moved to MyPlayer
 
-		#endregion
+        #endregion
 
-		public void Remap(IMyRemapHelper remapHelper)
+        public void Remap(IMyRemapHelper remapHelper)
         {
             if (Slots != null)
             {

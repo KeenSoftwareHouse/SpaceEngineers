@@ -8,6 +8,8 @@ using System.Text;
 using VRageMath;
 using System;
 using Sandbox.Engine.Utils;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 using VRage.ObjectBuilders;
 

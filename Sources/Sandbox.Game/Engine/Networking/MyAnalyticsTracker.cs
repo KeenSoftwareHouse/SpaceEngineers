@@ -21,6 +21,8 @@ using VRage.Trace;
 using LitJson;
 using VRage;
 using Sandbox.Game;
+using Sandbox.Game.Multiplayer;
+using VRage.Game;
 
 namespace Sandbox.Engine.Networking
 {
@@ -50,7 +52,7 @@ namespace Sandbox.Engine.Networking
         private static string[] m_oreTypes;
         private static readonly CommonRequiredData m_requiredData;
 
-        private static bool AnalyticsEnabled = MyFinalBuildConstants.IS_OFFICIAL && !MyCompilationSymbols.PerformanceOrMemoryProfiling;
+        private static bool AnalyticsEnabled = (MyFinalBuildConstants.IS_OFFICIAL || MyFakes.ENABLE_INFINARIO) && !MyCompilationSymbols.PerformanceOrMemoryProfiling;
 
         static MyAnalyticsTracker()
         {
@@ -58,7 +60,7 @@ namespace Sandbox.Engine.Networking
             string userId;
             using (HMACSHA1 shaCoder = new HMACSHA1(hashKey))
             {
-                userId = BitConverter.ToString(shaCoder.ComputeHash(BitConverter.GetBytes(MySteam.UserId)));
+                userId = BitConverter.ToString(shaCoder.ComputeHash(BitConverter.GetBytes(Sync.MyId)));
             }
 
             m_requiredData = new CommonRequiredData()

@@ -17,5 +17,8 @@ namespace Sandbox.Graphics.GUI
 
         string DebugNamePath { get; }
         bool HandleMouse { get; }
+
+        string Name { get; }
+        IMyGuiControlsOwner Owner { get; }
     }
 }

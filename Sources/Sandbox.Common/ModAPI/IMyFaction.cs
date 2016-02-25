@@ -18,6 +18,7 @@ namespace Sandbox.ModAPI
 
         bool AutoAcceptMember { get; }
         bool AutoAcceptPeace { get; }
+        bool AcceptHumans { get; }
 
         long FounderId { get; }
 

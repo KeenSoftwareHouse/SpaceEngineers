@@ -28,9 +28,13 @@ namespace VRageRender
         /// </summary>
         public void CommitUpdateFrame()
         {
+            VRage.Library.Utils.MyTimeSpan lastUpdateTimestamp = CurrentUpdateFrame.UpdateTimestamp;
+
             CurrentUpdateFrame.Processed = false;
             m_updateDataQueue.Enqueue(CurrentUpdateFrame);
             CurrentUpdateFrame = m_frameDataPool.Get();
+
+            CurrentUpdateFrame.UpdateTimestamp = lastUpdateTimestamp;
         }
 
         /// <summary>

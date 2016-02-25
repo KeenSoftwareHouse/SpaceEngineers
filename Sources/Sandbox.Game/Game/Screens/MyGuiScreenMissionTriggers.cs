@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
@@ -13,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -64,9 +64,9 @@ namespace Sandbox.Game.Screens
             AddCaption(MySpaceTexts.MissionScreenCaption);
             var textBackgroundPanel = AddCompositePanel(MyGuiConstants.TEXTURE_RECTANGLE_DARK, new Vector2(0f,0.08f), new Vector2(0.75f, 0.45f), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
-            m_okButton = new MyGuiControlButton(position: new Vector2(0.17f,0.37f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Refresh),
+            m_okButton = new MyGuiControlButton(position: new Vector2(0.17f, 0.37f), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Refresh),
                 onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_cancelButton = new MyGuiControlButton(position: new Vector2(0.38f,0.37f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel),
+            m_cancelButton = new MyGuiControlButton(position: new Vector2(0.38f, 0.37f), size: buttonSize, text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);

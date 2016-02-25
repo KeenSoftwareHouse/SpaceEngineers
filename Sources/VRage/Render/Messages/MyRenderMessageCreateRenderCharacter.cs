@@ -8,17 +8,17 @@ namespace VRageRender
         public int Parent;
     }
 
-    public class MyRenderMessageSetCharacterSkeleton : IMyRenderMessage
+    public class MyRenderMessageSetCharacterSkeleton : MyRenderMessageBase
     {
         public uint CharacterID;
         public MySkeletonBoneDescription[] SkeletonBones;
         public int[] SkeletonIndices;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SetCharacterSkeleton; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetCharacterSkeleton; } }
     }
 
-    public class MyRenderMessageCreateRenderCharacter : IMyRenderMessage
+    public class MyRenderMessageCreateRenderCharacter : MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
@@ -29,7 +29,7 @@ namespace VRageRender
         public Color? DiffuseColor;
         public Vector3? ColorMaskHSV;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateRenderCharacter; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateRenderCharacter; } }
     }
 }

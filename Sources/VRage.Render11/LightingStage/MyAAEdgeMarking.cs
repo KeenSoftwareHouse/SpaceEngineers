@@ -15,7 +15,7 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("edge_detection.hlsl", "edge_marking");
+            m_ps = MyShaders.CreatePs("edge_detection.hlsl");
         }
 
         internal static void Run()

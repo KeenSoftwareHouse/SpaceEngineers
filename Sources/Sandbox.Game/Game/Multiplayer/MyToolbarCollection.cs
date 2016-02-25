@@ -17,6 +17,8 @@ using VRage.Serialization;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 
 using Sandbox.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Game.Multiplayer
 {

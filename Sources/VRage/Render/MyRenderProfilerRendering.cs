@@ -61,11 +61,10 @@ namespace VRageRender.Profiler
             }
         }
 
-        void DrawEvent(float textPosY, MyProfiler.MyProfilerBlock profilerBlock, int blockIndex, int frameIndex, int lastValidFrame)
+        void DrawEvent(float textPosY, MyProfiler.MyProfilerBlock profilerBlock, int blockIndex, int frameIndex, int lastValidFrame, ref Color color)
         {
-            Color color = IndexToColor(blockIndex);
             float miliseconds = 0;
-            float managedMemory = 0;
+            long managedMemory = 0;
             float processMemory = 0;
             int numCalls = -1; // To show update window in profiler
             float customValue = 0;
@@ -73,7 +72,7 @@ namespace VRageRender.Profiler
             if (IsValidIndex(frameIndex, lastValidFrame))
             {
                 miliseconds = profilerBlock.Miliseconds[frameIndex];
-                managedMemory = profilerBlock.ManagedMemory[frameIndex];
+                managedMemory = profilerBlock.ManagedMemoryBytes[frameIndex];
                 processMemory = profilerBlock.ProcessMemory[frameIndex];
                 numCalls = profilerBlock.NumCallsArray[frameIndex];
                 customValue = profilerBlock.CustomValues[frameIndex];
@@ -104,7 +103,20 @@ namespace VRageRender.Profiler
             length += 155 * textScale;
 
             m_text.Clear();
-            m_text.Concat(managedMemory, 3).Append(" GC");
+            if (managedMemory < 1024 && managedMemory > -1024) // Still in bytes?
+            {
+                m_text.Append(managedMemory.ToString()).Append(" B");
+            }
+            else if (managedMemory < 1048576 && managedMemory > -1048576) // Still in kilobytes?
+            {
+                float managedMemoryKB = managedMemory / 1024f;
+                m_text.Concat(managedMemoryKB, 3).Append(" KB");
+            }
+            else // Else display in megabytes
+            {
+                float managedMemoryKB = managedMemory / 1048576;
+                m_text.Concat(managedMemoryKB, 3).Append(" MB");
+            }
             DrawTextShadow(new Vector2(20 + length, textPosY), m_text, color, textScale);
             length += 40 + 158 * textScale;
 
@@ -163,8 +175,8 @@ namespace VRageRender.Profiler
                 m_fpsBlock.ProcessMemory[lastFrameIndex] = processDeltaMB;
             }
 
-            float managedDeltaMB = m_fpsBlock.ManagedDeltaMB;
-            m_fpsBlock.ManagedMemory[lastFrameIndex] = managedDeltaMB;
+            long managedDeltaMB = m_fpsBlock.ManagedDeltaMB;
+            m_fpsBlock.ManagedMemoryBytes[lastFrameIndex] = managedDeltaMB;
             m_fpsBlock.CustomValues[lastFrameIndex] = m_fpsBlock.CustomValue;
 
             m_fpsBlock.Reset();
@@ -180,7 +192,7 @@ namespace VRageRender.Profiler
 
                 // Draw thread name and level limit
                 m_text.Clear();
-                m_text.ConcatFormat("\"{2}\" ({0}/{1})", m_selectedProfiler.GlobalProfilerIndex + 1, m_threadProfilers.Count, m_selectedProfiler.DisplayedName).AppendLine();
+                m_text.ConcatFormat("\"{2}\" ({0}/{1})", m_threadProfilers.IndexOf(m_selectedProfiler) + 1, m_threadProfilers.Count, m_selectedProfiler.DisplayedName).AppendLine();
                 m_text.Append("Level limit: ").AppendInt32(m_selectedProfiler.LevelLimit).AppendLine();
                 DrawText(new Vector2(20, textOffsetY), m_text, Color.LightGray, 1);
                 textOffsetY += largeTextLineSize * 2 + 10;
@@ -214,12 +226,68 @@ namespace VRageRender.Profiler
                 DrawText(new Vector2(0, 0), m_text, Color.Yellow, 0.6f);
 
                 textOffsetY = ViewportSize.Y / 2;
-                var children = m_selectedProfiler.SelectedRootChildren;
-                for (int i = 0; i < children.Count; i++)
-                {
-                    MyProfiler.MyProfilerBlock profilerBlock = children[i];
+                List<MyProfiler.MyProfilerBlock> children = m_selectedProfiler.SelectedRootChildren;
+                List<MyProfiler.MyProfilerBlock> sortedChildren = GetSortedChildren(frameToDraw);
 
-                    DrawEvent(textOffsetY, profilerBlock, i, frameToDraw, lastFrameIndex);
+                // Draw the 'stack trace'
+                m_text.Clear();
+                MyProfiler.MyProfilerBlock currentBlock = m_selectedProfiler.SelectedRoot;
+
+                while (currentBlock != null)
+                {
+                    // Stop inserting new elements if the path becomes too long
+                    if (currentBlock.Name.Length + 3 + m_text.Length > 170)
+                    {
+                        m_text.Insert(0, "... > ");
+                        break;
+                    }
+
+                    if (m_text.Length > 0)
+                        m_text.Insert(0, " > ");
+                    m_text.Insert(0, currentBlock.Name);
+                    currentBlock = currentBlock.Parent;
+                }
+
+                DrawTextShadow(new Vector2(20, textOffsetY), m_text, Color.White, 0.7f);
+                textOffsetY += eventLineSize;
+
+                if (sortedChildren.Count > 0)
+                {
+                    // Draw the sorting order indicator
+                    m_text.Clear().Append("\\/");
+                    switch (m_sortingOrder)
+                    {
+                        case RenderProfilerSortingOrder.Id:
+                            m_text.Append(" ASC");
+                            DrawTextShadow(new Vector2(20, textOffsetY), m_text, Color.White, 0.7f);
+                            break;
+                        case RenderProfilerSortingOrder.MillisecondsLastFrame:
+                            m_text.Append(" DESC");
+                            DrawTextShadow(new Vector2(660, textOffsetY), m_text, Color.White, 0.7f);
+                            break;
+                        case RenderProfilerSortingOrder.MillisecondsAverage:
+                            m_text.Append(" DESC");
+                            DrawTextShadow(new Vector2(1270, textOffsetY), m_text, Color.White, 0.7f);
+                            break;
+                    }
+                    textOffsetY += eventLineSize;
+
+                    // Draw the profiler blocks
+                    for (int i = 0; i < sortedChildren.Count; i++)
+                    {
+                        MyProfiler.MyProfilerBlock profilerBlock = sortedChildren[i];
+
+                        Color lineColor = IndexToColor(children.IndexOf(profilerBlock));
+
+                        DrawEvent(textOffsetY, profilerBlock, i, frameToDraw, lastFrameIndex, ref lineColor);
+                        textOffsetY += eventLineSize;
+                    }
+                }
+                else
+                {
+                    m_text.Clear().Append("No more blocks at this point!");
+                    textOffsetY += eventLineSize;
+                    DrawTextShadow(new Vector2(20, textOffsetY), m_text, Color.White, 0.7f);
                     textOffsetY += eventLineSize;
                 }
 
@@ -249,7 +317,7 @@ namespace VRageRender.Profiler
                     v0.Z = 0;
 
                     v1.X = v0.X;
-                    v1.Y = 0.9f;
+                    v1.Y = 1;
                     v1.Z = 0;
 
                     DrawOnScreenLine(v0, v1, Color.Yellow);

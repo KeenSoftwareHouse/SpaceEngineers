@@ -22,6 +22,8 @@ using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.UseObject;
 using VRage.Game.Entity.UseObject;
+using VRage.Game;
+using VRage.Game.Entity;
 
 //using Sandbox.Game.Gui;
 
@@ -41,25 +43,6 @@ namespace Sandbox.Game.Multiplayer
         public long SyncedEntityId
         {
             get { return (this as MySyncEntity).Entity.EntityId; }
-        }
-
-        [MessageId(6, P2PMessageEnum.Reliable)]
-        protected struct UseObject_UseMsg : IEntityMessage
-        {
-            public long EntityId;
-            public long GetEntityId() { return EntityId; }
-
-            public long UsedByEntityId;
-
-            public UseActionEnum UseAction;
-            public UseActionResult UseResult;
-        }
-
-        [MessageId(7, P2PMessageEnum.Reliable)]
-        protected struct ControlledEntity_UseMsg : IEntityMessage
-        {
-            public long EntityId;
-            public long GetEntityId() { return EntityId; }
         }
 
         [ProtoContract]
@@ -148,13 +131,6 @@ namespace Sandbox.Game.Multiplayer
 
         static MySyncControllableEntity()
         {
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, UseObject_UseMsg>(UseRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, UseObject_UseMsg>(UseSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, UseObject_UseMsg>(UseFailureCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ControlledEntity_UseMsg>(ControlledEntity_UseRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, ControlledEntity_UseMsg>(ControlledEntity_UseCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponRequest, MyMessagePermissions.ToServer ,  MyTransportMessageEnum.Request);
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchToWeaponMsg>(OnSwitchToWeaponFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
@@ -168,9 +144,6 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncControllableEntity, SwitchAmmoMagazineMsg>(OnSwitchAmmoMagazineFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
         }
 
-        public event Action ControlledEntity_Used;
-        public event Action<UseActionEnum, IMyControllableEntity> UseSuccess;
-        public event Action<UseActionEnum, UseActionResult, IMyControllableEntity> UseFailed;
         public event SwitchToWeaponDelegate SwitchToWeaponSuccessHandler;
         public event SwitchToWeaponDelegate SwitchToWeaponFailureHandler;
         public event SwitchAmmoMagazineDelegate SwitchAmmoMagazineSuccessHandler;
@@ -185,130 +158,15 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        private int m_switchAmmoMagazineCounter;
-        public bool IsWaitingForAmmoMagazineSwitch
-        {
-            get
-            {
-                return m_switchAmmoMagazineCounter != 0;
-            }
-        }
-
         private long m_lastShootDirectionUpdate;
 
         public MySyncControllableEntity(MyEntity entity)
             : base(entity)
         {
             m_switchWeaponCounter = 0;
-            m_switchAmmoMagazineCounter = 0;
             m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
         }
-
-        public virtual void ControlledEntity_Use()
-        {
-            ControlledEntity_UseMsg msg = new ControlledEntity_UseMsg();
-            msg.EntityId = SyncedEntityId;
-
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-        }
-
-        static void ControlledEntity_UseRequest(MySyncControllableEntity sync, ref ControlledEntity_UseMsg msg, MyNetworkClient sender)
-        {
-            // TODO: check responsibility for update
-            ControlledEntity_UseCallback(sync, ref msg, sender);
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-        }
-
-        static void ControlledEntity_UseCallback(MySyncControllableEntity sync, ref ControlledEntity_UseMsg msg, MyNetworkClient sender)
-        {
-            var handler = sync.ControlledEntity_Used;
-            if (handler != null) 
-                handler();
-        }
       
-        public virtual void RequestUse(UseActionEnum actionEnum, IMyControllableEntity usedBy)
-        {
-            Debug.Assert(Entity is IMyUsableEntity, "Entity must implement IMyUsableEntity to use it");
-
-            UseObject_UseMsg msg = new UseObject_UseMsg();
-            msg.EntityId = SyncedEntityId;
-            msg.UseAction = actionEnum;
-            msg.UsedByEntityId = usedBy.Entity.EntityId;
-
-            MySession.Static.SyncLayer.SendMessageToServer(ref msg);
-        }
-
-        void RaiseUseSuccess(UseActionEnum actionEnum, IMyControllableEntity usedBy)
-        {
-            var handler = UseSuccess;
-            if (handler != null) handler(actionEnum, usedBy);
-        }
-
-        void RaiseUseFailure(UseActionEnum actionEnum, UseActionResult actionResult, IMyControllableEntity usedBy)
-        {
-            var handler = UseFailed;
-            if (handler != null) 
-                handler(actionEnum, actionResult, usedBy);
-        }
-
-        static void UseRequestCallback(MySyncEntity sync, ref UseObject_UseMsg msg, MyNetworkClient sender)
-        {
-            var usableEntity = sync.Entity as IMyUsableEntity;
-            MyEntity controlledEntity;
-            bool entityExists = MyEntities.TryGetEntityById<MyEntity>(msg.UsedByEntityId, out controlledEntity);
-            IMyControllableEntity controllableEntity = controlledEntity as IMyControllableEntity;
-            Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
-            Debug.Assert(entityExists && usableEntity != null);
-
-            if (entityExists && usableEntity != null && (msg.UseResult = usableEntity.CanUse(msg.UseAction, controllableEntity)) == UseActionResult.OK)
-            {
-                MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                UseSuccessCallback(sync as MySyncControllableEntity, ref msg, Sync.Clients.LocalClient);
-            }
-            else
-            {
-                MySession.Static.SyncLayer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Failure);
-            }
-        }
-
-        static void UseFailureCallback(MySyncControllableEntity sync, ref UseObject_UseMsg msg, MyNetworkClient sender)
-        {
-            MyEntity controlledEntity;
-            bool userFound = MyEntities.TryGetEntityById<MyEntity>(msg.UsedByEntityId, out controlledEntity);
-            Debug.Assert(userFound);
-            IMyControllableEntity controllableEntity = controlledEntity as IMyControllableEntity;
-            Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
-            sync.RaiseUseFailure(msg.UseAction, msg.UseResult, controllableEntity);
-        }
-
-        static void UseSuccessCallback(MySyncControllableEntity sync, ref UseObject_UseMsg msg, MyNetworkClient sender)
-        {
-            MyEntity controlledEntity;
-            if (MyEntities.TryGetEntityById<MyEntity>(msg.UsedByEntityId, out controlledEntity))
-            {
-                var controllableEntity = controlledEntity as IMyControllableEntity;
-                Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
-
-                if (controllableEntity != null)
-                {
-                    MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.NoOwnership;
-                    var cubeBlock = sync.Entity as MyCubeBlock;
-                    if (cubeBlock != null && controllableEntity.ControllerInfo.Controller != null)
-                    {
-                        relation = cubeBlock.GetUserRelationToOwner(controllableEntity.ControllerInfo.Controller.Player.Identity.IdentityId);
-                    }
-
-                    if (relation.IsFriendly())
-                    {
-                        sync.RaiseUseSuccess(msg.UseAction, controllableEntity);
-                    }
-                    else
-                    {
-                        sync.RaiseUseFailure(msg.UseAction, msg.UseResult, controllableEntity);
-                    }
-                }
-            }
-        }
 
         public void RequestSwitchToWeapon(MyDefinitionId? weapon, MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId)
         {
@@ -374,11 +232,6 @@ namespace Sandbox.Game.Multiplayer
 
         public void RequestSwitchAmmoMagazine()
         {
-            if (!Sync.IsServer)
-            {
-                m_switchAmmoMagazineCounter++;
-            }
-
             var msg = new SwitchAmmoMagazineMsg();
             msg.ControlledEntityId = SyncedEntityId;
 
@@ -399,15 +252,7 @@ namespace Sandbox.Game.Multiplayer
 
         private static void OnSwitchAmmoMagazineSuccess(MySyncControllableEntity sync, ref SwitchAmmoMagazineMsg msg, MyNetworkClient sender)
         {
-            if (!Sync.IsServer)
-            {
-                // Update the counter only if we are waiting for it
-                if (sync.m_switchAmmoMagazineCounter > 0)
-                {
-                    sync.m_switchAmmoMagazineCounter--;
-                }
-            }
-
+          
             var handler = sync.SwitchAmmoMagazineSuccessHandler;
             if (handler != null)
                 handler();
@@ -415,11 +260,6 @@ namespace Sandbox.Game.Multiplayer
 
         private static void OnSwitchAmmoMagazineFailure(MySyncControllableEntity sync, ref SwitchAmmoMagazineMsg msg, MyNetworkClient sender)
         {
-            if (!Sync.IsServer)
-            {
-                sync.m_switchAmmoMagazineCounter--;
-            }
-
             var handler = sync.SwitchAmmoMagazineFailureHandler;
             if (handler != null)
                 handler();

@@ -9,6 +9,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using VRageMath;
 using System.Diagnostics;
+using VRage.Game;
 using VRageRender;
 
 namespace Sandbox.Game.Entities

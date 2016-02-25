@@ -92,7 +92,7 @@ namespace SpaceStatEffect
 
 			string actionId = "MedRoomHeal";
 			action.StatId = HealthId;
-			action.Amount = MyEffectConstants.MedRoomHeal;
+			action.Cost = MyEffectConstants.MedRoomHeal;
 			AddAction(actionId, action);
 		}
 	}

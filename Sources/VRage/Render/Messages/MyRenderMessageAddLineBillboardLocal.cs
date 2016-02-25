@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageAddLineBillboardLocal : IMyRenderMessage
+    public class MyRenderMessageAddLineBillboardLocal : MyRenderMessageBase
     {
         public uint RenderObjectID;
         public string Material;
@@ -18,7 +18,7 @@ namespace VRageRender
         public int Priority;
         public bool Near;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.AddLineBillboardLocal; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.AddLineBillboardLocal; } }
     }
 }

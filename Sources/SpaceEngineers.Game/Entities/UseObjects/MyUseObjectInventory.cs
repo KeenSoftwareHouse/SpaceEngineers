@@ -11,73 +11,81 @@ using VRage.Import;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
     [MyUseObject("inventory")]
     [MyUseObject("conveyor")]
-    class MyUseObjectInventory : IMyUseObject
+    class MyUseObjectInventory : MyUseObjectBase
     {
-        public readonly MyCubeBlock Block;
+        public readonly MyEntity Entity;
         public readonly Matrix LocalMatrix;
 
         public MyUseObjectInventory(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
+            : base(owner, dummyData)
         {
-            Block = owner as MyCubeBlock;
+            Entity = owner as MyEntity;
             LocalMatrix = dummyData.Matrix;
         }
 
-        float IMyUseObject.InteractiveDistance
+        public override float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
 
-        MatrixD IMyUseObject.ActivationMatrix
+        public override MatrixD ActivationMatrix
         {
-            get { return LocalMatrix * Block.WorldMatrix; }
+            get { return LocalMatrix * Entity.WorldMatrix; }
         }
 
-        MatrixD IMyUseObject.WorldMatrix
+        public override MatrixD WorldMatrix
         {
-            get { return Block.WorldMatrix; }
+            get { return Entity.WorldMatrix; }
         }
 
-        int IMyUseObject.RenderObjectID
+        public override int RenderObjectID
         {
             get
             {
-                return Block.Render.GetRenderObjectID();
+                return Entity.Render.GetRenderObjectID();
             }
         }
 
-        bool IMyUseObject.ShowOverlay
+        public override bool ShowOverlay
         {
             get { return true; }
         }
 
-        UseActionEnum IMyUseObject.SupportedActions
+        public override UseActionEnum SupportedActions
         {
             get { return UseActionEnum.OpenInventory | UseActionEnum.OpenTerminal; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
+        public override void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             var user = entity as MyCharacter;
-            var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (!relation.IsFriendly())
+            var block = Entity as MyCubeBlock;
+
+            if (block != null)
             {
-                if (user.ControllerInfo.IsLocallyHumanControlled())
+                var relation = block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
+                if (!relation.IsFriendly())
                 {
-                    MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
+                    if (user.ControllerInfo.IsLocallyHumanControlled())
+                    {
+                        MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
+                    }
+                    return;
                 }
-                return;
             }
 
             switch (actionEnum)
             {
                 case UseActionEnum.OpenInventory:
                 case UseActionEnum.OpenTerminal:
-                    MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Block);
+                    MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Entity);
                     break;
                 default:
                     //MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, Block);
@@ -85,28 +93,30 @@ namespace SpaceEngineers.Game.Entities.UseObjects
             }
         }
 
-        MyActionDescription IMyUseObject.GetActionInfo(UseActionEnum actionEnum)
+        public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
+            var block = Entity as MyCubeBlock;
+            var text = block != null ? block.DefinitionDisplayNameText : Entity.DisplayNameText;
             return new MyActionDescription()
             {
                 Text = MySpaceTexts.NotificationHintPressToOpenInventory,
-                FormatParams = new object[] { MyInput.Static.GetGameControl(MyControlsSpace.TERMINAL), Block.DefinitionDisplayNameText },
+                FormatParams = new object[] { MyInput.Static.GetGameControl(MyControlsSpace.TERMINAL), text },
                 IsTextControlHint = true,
                 JoystickText = MySpaceTexts.NotificationHintJoystickPressToOpenControlPanel,
-                JoystickFormatParams = new object[] { Block.DefinitionDisplayNameText },
+                JoystickFormatParams = new object[] { text },
             };
         }
 
-        bool IMyUseObject.ContinuousUsage
+        public override bool ContinuousUsage
         {
             get { return false; }
         }
 
-        bool IMyUseObject.HandleInput() { return false; }
+        public override bool HandleInput() { return false; }
 
-        void IMyUseObject.OnSelectionLost() { }
+        public override void OnSelectionLost() { }
 
-        bool IMyUseObject.PlayIndicatorSound
+        public override bool PlayIndicatorSound
         {
             get { return true; }
         }

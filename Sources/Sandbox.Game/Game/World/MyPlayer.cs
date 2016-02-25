@@ -4,12 +4,16 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
+using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRageMath;
+using VRage.Game.Entity;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.World
 {
@@ -30,6 +34,7 @@ namespace Sandbox.Game.World
                 SerialId = serialId;
             }
 
+            #region Equals
             public static bool operator ==(PlayerId a, PlayerId b)
             {
                 return a.SteamId == b.SteamId && a.SerialId == b.SerialId;
@@ -63,6 +68,21 @@ namespace Sandbox.Game.World
                 else if (SerialId > other.SerialId) return 1;
                 else return 0;
             }
+
+            public class PlayerIdComparerType : IEqualityComparer<PlayerId>
+            {
+                public bool Equals(PlayerId left, PlayerId right)
+                {
+                    return left == right;
+                }
+
+                public int GetHashCode(PlayerId playerId)
+                {
+                    return playerId.GetHashCode();
+                }
+            }
+            public static readonly PlayerIdComparerType Comparer = new PlayerIdComparerType();
+            #endregion Equals
 
             public static PlayerId operator ++(PlayerId id)
             {
@@ -115,9 +135,9 @@ namespace Sandbox.Game.World
 		public Vector3 SelectedBuildColor { get { return m_buildColorHSVSlots[m_selectedBuildColorSlot]; } set { m_buildColorHSVSlots[m_selectedBuildColorSlot] = value; } }
 
 		// MK: TODO: Remove these static properties for bot colours
-		public static int SelectedColorSlot { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.SelectedBuildColorSlot : 0; } }
-		public static Vector3 SelectedColor { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.SelectedBuildColor : m_buildColorDefaults[0]; } }
-		public static ListReader<Vector3> ColorSlots { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.BuildColorSlots : new ListReader<Vector3>(m_buildColorDefaults); } }
+		public static int SelectedColorSlot { get { return MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.SelectedBuildColorSlot : 0; } }
+		public static Vector3 SelectedColor { get { return MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.SelectedBuildColor : m_buildColorDefaults[0]; } }
+		public static ListReader<Vector3> ColorSlots { get { return MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.BuildColorSlots : new ListReader<Vector3>(m_buildColorDefaults); } }
 
 		private static readonly List<Vector3> m_buildColorDefaults = new List<Vector3>(m_buildColorSlotCount);
 
@@ -126,6 +146,9 @@ namespace Sandbox.Game.World
 
 		public bool IsLocalPlayer { get { return m_client == Sync.Clients.LocalClient; } }
 		public bool IsRemotePlayer { get { return m_client != Sync.Clients.LocalClient; } }
+
+        public bool IsRealPlayer { get { return Id.SerialId == 0; } }
+        public bool IsBot { get { return !IsRealPlayer; } }
 
         public MyCharacter Character
         {
@@ -145,6 +168,8 @@ namespace Sandbox.Game.World
         /// Grids in which this player has at least one block
         /// </summary>
         public HashSet<long> Grids = new HashSet<long>();
+
+        public List<long> CachedControllerId;
 
 		static MyPlayer()
 		{
@@ -295,32 +320,54 @@ namespace Sandbox.Game.World
             else return Vector3D.Zero;
         }
 
-        public void SpawnAt(MatrixD worldMatrix, Vector3 velocity, bool findFreePlace = true)
+        public void SpawnAt(MatrixD worldMatrix, Vector3 velocity, MyEntity spawnedBy, MyBotDefinition botDefinition, bool findFreePlace = true)
         {
             Debug.Assert(Sync.IsServer, "Spawning can be called only on the server!");
             Debug.Assert(Identity != null, "Spawning with empty identity!");
             if (!Sync.IsServer || Identity == null) return;
+
+            var character = MyCharacter.CreateCharacter(worldMatrix, velocity, Identity.DisplayName, Identity.Model,
+                Identity.ColorMask, findNearPos: false, useInventory: Id.SerialId == 0, playerSteamId: this.Id.SteamId,
+                botDefinition: botDefinition);
 
             if (findFreePlace)
             {
-                Vector3D? correctedPos = MyEntities.FindFreePlace(worldMatrix.Translation, 0.5f, 200);
+                float radius;
+                MyModel model = character.Render.GetModel();
+                radius = model.BoundingBox.Size.Length() / 2;
+                const float SPHERE_REDUCTION_RATE = 0.9f;
+                radius *= SPHERE_REDUCTION_RATE;
+
+                // Offset from bottom position to center.
+                Vector3 up = worldMatrix.Up;
+                up.Normalize();
+                const float RISE_STEP = 0.01f; // 1cm
+                Vector3 offset = up * (radius + RISE_STEP);
+                MatrixD matrix = worldMatrix;
+                matrix.Translation = worldMatrix.Translation + offset;
+
+                // Attempt first to rotate around the given spawn location (matrix.Up axis rotation)
+                // NOTE: A proper orbital search would be better here
+                Vector3D? correctedPos = MyEntities.FindFreePlace(ref matrix, matrix.GetDirectionVector(Base6Directions.Direction.Up), radius, 200, 15, 0.2f);
+                if (!correctedPos.HasValue)
+                {
+                    // Attempt secondly to rotate around matrix.Right axis
+                    correctedPos = MyEntities.FindFreePlace(ref matrix, matrix.GetDirectionVector(Base6Directions.Direction.Right), radius, 200, 15, 0.2f);
+                    if (!correctedPos.HasValue)
+                    {
+                        // If everything fails attempt the old FindFreePlace
+                        correctedPos = MyEntities.FindFreePlace(worldMatrix.Translation + offset, radius, 200, 15, 0.2f);
+                    }
+                }
+
                 if (correctedPos.HasValue)
-                    worldMatrix.Translation = correctedPos.Value;
+                {
+                    worldMatrix.Translation = correctedPos.Value - offset;
+                    character.PositionComp.SetWorldMatrix(worldMatrix);
+                }
             }
 
-            var character = MyCharacter.CreateCharacter(worldMatrix, velocity, Identity.DisplayName, Identity.Model, Identity.ColorMask, findNearPos: false, useInventory: Id.SerialId == 0);
-            Sync.Players.SetPlayerCharacter(this, character);
-            Sync.Players.RevivePlayer(this);
-        }
-
-        public void SpawnAtRelative(MyEntity parentEntity, Matrix relativeMatrix, Vector3 relativeVelocity)
-        {
-            Debug.Assert(Sync.IsServer, "Spawning can be called only on the server!");
-            Debug.Assert(Identity != null, "Spawning with empty identity!");
-            if (!Sync.IsServer || Identity == null) return;
-
-            var character = MyCharacter.CreateCharacterRelative(parentEntity, relativeMatrix, relativeVelocity, Identity.DisplayName, Identity.Model, Identity.ColorMask, false);
-            Sync.Players.SetPlayerCharacter(this, character);
+            Sync.Players.SetPlayerCharacter(this, character, spawnedBy);
             Sync.Players.RevivePlayer(this);
         }
 
@@ -328,33 +375,33 @@ namespace Sandbox.Game.World
         {
             Debug.Assert(Sync.IsServer);
 
-            Sync.Players.SetPlayerCharacter(this, character);
+            Sync.Players.SetPlayerCharacter(this, character, null);
             Sync.Players.RevivePlayer(this);
         }
 
-        public static MyRelationsBetweenPlayerAndBlock GetRelationBetweenPlayers(long playerId1, long playerId2)
+        public static VRage.Game.MyRelationsBetweenPlayerAndBlock GetRelationBetweenPlayers(long playerId1, long playerId2)
         {
-            if (playerId1 == playerId2) return MyRelationsBetweenPlayerAndBlock.Owner;
+            if (playerId1 == playerId2) return VRage.Game.MyRelationsBetweenPlayerAndBlock.Owner;
 
             var faction1 = MySession.Static.Factions.TryGetPlayerFaction(playerId1);
             var faction2 = MySession.Static.Factions.TryGetPlayerFaction(playerId2);
 
             if (faction1 == null || faction2 == null)
-                return MyRelationsBetweenPlayerAndBlock.Enemies;
+                return VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies;
 
             if (faction1 == faction2)
-                return MyRelationsBetweenPlayerAndBlock.FactionShare;
+                return VRage.Game.MyRelationsBetweenPlayerAndBlock.FactionShare;
 
             MyRelationsBetweenFactions relation = MySession.Static.Factions.GetRelationBetweenFactions(faction1.FactionId, faction2.FactionId);
             if (relation == MyRelationsBetweenFactions.Neutral)
-                return MyRelationsBetweenPlayerAndBlock.Neutral;
+                return VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral;
 
-            return MyRelationsBetweenPlayerAndBlock.Enemies;
+            return VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies;
         }
 
-        public MyRelationsBetweenPlayerAndBlock GetRelationTo(long playerId)
+        public VRage.Game.MyRelationsBetweenPlayerAndBlock GetRelationTo(long playerId)
         {
-            if (Identity == null) return MyRelationsBetweenPlayerAndBlock.Enemies;
+            if (Identity == null) return VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies;
 
             return GetRelationBetweenPlayers(Identity.IdentityId, playerId);
         }

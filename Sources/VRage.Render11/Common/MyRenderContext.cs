@@ -21,6 +21,9 @@ using BoundingFrustum = VRageMath.BoundingFrustum;
 using VRage.Collections;
 using System.Collections.Specialized;
 using System.Threading;
+using VRage;
+using VRage.Library.Collections;
+using VRage.Utils;
 
 namespace VRageRender
 {
@@ -51,6 +54,24 @@ namespace VRageRender
             UavSlot = -1;
             DsvRead = dsvRead;
         }
+
+        #region Equals
+        public class MyBindingComparerType : IEqualityComparer<MyBinding>
+        {
+            public bool Equals(MyBinding left, MyBinding right)
+            {
+                return left.WriteView == right.WriteView &&
+                        left.UavSlot == right.UavSlot &&
+                        left.DsvRead == right.DsvRead;
+            }
+
+            public int GetHashCode(MyBinding binding)
+            {
+                return (int)(binding.WriteView) << 27 | binding.UavSlot | (binding.DsvRead ? 1 : 0) << 31;
+            }
+        }
+        public static MyBindingComparerType Comparer = new MyBindingComparerType();
+        #endregion
     }
 
     enum DepthStencilAccess
@@ -68,6 +89,11 @@ namespace VRageRender
         public int DrawIndexed;
         public int DrawIndexedInstanced;
         public int DrawAuto;
+
+        public int ShadowDrawIndexed;
+        public int ShadowDrawIndexedInstanced;
+
+        public int BillboardDrawIndexed;
 
         public int SetVB;
         public int SetIB;
@@ -89,6 +115,11 @@ namespace VRageRender
             DrawIndexed = 0;
             DrawIndexedInstanced = 0;
             DrawAuto = 0;
+
+            ShadowDrawIndexed = 0;
+            ShadowDrawIndexedInstanced = 0;
+
+            BillboardDrawIndexed = 0;
 
             SetVB = 0;
             SetIB = 0;
@@ -112,6 +143,11 @@ namespace VRageRender
             DrawIndexedInstanced += other.DrawIndexedInstanced;
             DrawAuto             += other.DrawAuto;
 
+            ShadowDrawIndexed           += other.ShadowDrawIndexed;
+            ShadowDrawIndexedInstanced  += other.ShadowDrawIndexedInstanced;
+
+            BillboardDrawIndexed        += other.BillboardDrawIndexed;
+
             SetVB               += other.SetVB;
             SetIB               += other.SetIB;
             SetIL               += other.SetIL;
@@ -132,12 +168,6 @@ namespace VRageRender
         const int PoolSize = 8;
         static MyConcurrentPool<MyRenderContext> m_pool = new MyConcurrentPool<MyRenderContext>(PoolSize, true);
         //internal static MyConcurrentQueue<DeviceContext> m_intialized = new MyConcurrentQueue<DeviceContext>(PoolSize);
-        internal static MyRenderContext Immediate;
-
-        static MyRenderContextPool()
-        {
-            Immediate = new MyRenderContext(MyRender11.ImmediateContext, false);
-        }
 
         static internal MyRenderContext AcquireRC()
         {
@@ -154,7 +184,6 @@ namespace VRageRender
 
         internal static void OnDeviceReset()
         {
-            Immediate.Context = MyRender11.ImmediateContext;
             m_pool = new MyConcurrentPool<MyRenderContext>(PoolSize, true);
         }
     }
@@ -170,14 +199,46 @@ namespace VRageRender
     {
         internal int Slot;
         internal MyShaderStage Stage;
+
+        #region Equals
+        public class MyStageBindingComparerType : IEqualityComparer<MyStageBinding>
+        {
+            public bool Equals(MyStageBinding left, MyStageBinding right)
+            {
+                return left.Slot == right.Slot && left.Stage == right.Stage;
+            }
+
+            public int GetHashCode(MyStageBinding stageBinding)
+            {
+                return stageBinding.Slot << 4 + (int)stageBinding.Stage;
+            }
+        }
+        public static MyStageBindingComparerType Comparer = new MyStageBindingComparerType();
+        #endregion
     }
 
     struct MyStageSrvBinding
     {
-        internal MyShaderStage Stage;
         internal int Slot;
+        internal MyShaderStage Stage;
         //internal int Length;
         //internal int Version;
+
+        #region Equals
+        public class MyStageSrvBindingComparerType : IEqualityComparer<MyStageSrvBinding>
+        {
+            public bool Equals(MyStageSrvBinding left, MyStageSrvBinding right)
+            {
+                return left.Slot == right.Slot && left.Stage == right.Stage;
+            }
+
+            public int GetHashCode(MyStageSrvBinding stageBinding)
+            {
+                return stageBinding.Slot << 4 + (int)stageBinding.Stage;
+            }
+        }
+        public static MyStageSrvBindingComparerType Comparer = new MyStageSrvBindingComparerType();
+        #endregion
     }
 
     struct MyContextState
@@ -201,8 +262,9 @@ namespace VRageRender
         internal int m_stencilRef;
 
         // for read-write resources
-        internal SortedDictionary<int, MyBinding> m_bindings;
-        internal SortedSet<Tuple<int, int>> m_srvBindings;
+        internal Dictionary<int, MyBinding> m_bindings;
+        internal MyListDictionary<int, int> m_slotToBindingKeys;
+        internal MyListDictionary<int, int> m_srvBindings;
 
         // for read-only resources
         internal Dictionary<Buffer, int> m_constantsVersion;
@@ -218,15 +280,16 @@ namespace VRageRender
                 m_strides = new int[8];
                 m_CBs = new Buffer[8];
 
-                m_bindings = new SortedDictionary<int, MyBinding>();
-                m_srvBindings = new SortedSet<Tuple<int, int>>();
+                m_bindings = new Dictionary<int, MyBinding>();
+                m_slotToBindingKeys = new MyListDictionary<int, int>();
+                m_srvBindings = new MyListDictionary<int, int>();
 
                 m_RTVs = new RenderTargetView[8];
                 m_SRVs = new ShaderResourceView[8];
 
                 m_constantsVersion = new Dictionary<Buffer, int>();
-                m_constantBindings = new Dictionary<MyStageBinding, Buffer>();
-                m_srvTableBindings = new Dictionary<MyStageSrvBinding, int>();
+                m_constantBindings = new Dictionary<MyStageBinding, Buffer>(MyStageBinding.Comparer);
+                m_srvTableBindings = new Dictionary<MyStageSrvBinding, int>(MyStageSrvBinding.Comparer);
                 m_srvBindings1 = new List<MyStageSrvBinding>();
             }
 
@@ -246,12 +309,13 @@ namespace VRageRender
             Array.Clear(m_CBs, 0, m_CBs.Length);
 
             m_bindings.Clear();
+            m_slotToBindingKeys.Clear();
             m_srvBindings.Clear();
 
             m_constantsVersion.Clear();
             m_constantBindings.Clear();
             m_srvTableBindings.Clear();
-            m_srvBindings1.Clear();
+            m_srvBindings1.SetSize(0);
         }
     }
 
@@ -260,7 +324,7 @@ namespace VRageRender
         static readonly int[] ZeroOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         internal MyContextState State;
-        internal DeviceContext  Context;
+        internal DeviceContext  DeviceContext;
         internal MyRCStats Stats;
         internal MyFrameProfilingContext ProfilingQueries = new MyFrameProfilingContext();
         bool m_deferred;
@@ -268,8 +332,12 @@ namespace VRageRender
         bool m_joined;
         internal CommandList m_commandList;
 
+        private readonly List<int> m_tmpBindingClearList = new List<int>();
+
         internal bool Joined { get { return m_joined; } }
         internal bool OkToRelease { get { return m_finished == true && m_joined == true && ProfilingQueries.m_issued.Count == 0; } }
+
+        internal static MyRenderContext Immediate = new MyRenderContext(MyRender11.DeviceContext, false);
 
         public MyRenderContext()
         {
@@ -279,15 +347,15 @@ namespace VRageRender
         internal MyRenderContext(DeviceContext context, bool isDeferred)
         {
             m_deferred = isDeferred;
-            Context = context;
+            DeviceContext = context;
             LazyInitialize();
         }
 
         internal void LazyInitialize()
         {
-            if(Context == null)
+            if(DeviceContext == null)
             {
-                Context = new DeviceContext(MyRender11.Device);
+                DeviceContext = new DeviceContext(MyRender11.Device);
                 //MyRenderContextPool.m_intialized.Enqueue(Context);
             }
 
@@ -315,7 +383,7 @@ namespace VRageRender
             if(!m_finished && m_deferred)
             {
                 m_finished = true;
-                m_commandList = Context.FinishCommandList(false);
+                m_commandList = DeviceContext.FinishCommandList(false);
             }
         }
 
@@ -350,7 +418,7 @@ namespace VRageRender
         {
             if (UpdateVB(slot, vb, stride))
             {
-                Context.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb, stride, 0));
+                DeviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(vb, stride, 0));
                 Stats.SetVB++;
             }
         }
@@ -372,12 +440,12 @@ namespace VRageRender
                 if(lastSlot)
                 {
                     int slot = vbs.Length - 1;
-                    Context.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(State.m_VBs[slot], State.m_strides[slot], 0));
+                    DeviceContext.InputAssembler.SetVertexBuffers(slot, new VertexBufferBinding(State.m_VBs[slot], State.m_strides[slot], 0));
                     Stats.SetVB++;
                 }
                 else if (change)
                 { 
-                    Context.InputAssembler.SetVertexBuffers(0, State.m_VBs, State.m_strides, ZeroOffsets);
+                    DeviceContext.InputAssembler.SetVertexBuffers(0, State.m_VBs, State.m_strides, ZeroOffsets);
                     Stats.SetVB++;
                 }
 
@@ -389,14 +457,14 @@ namespace VRageRender
             if (State.m_IB != ib)
             {
                 State.m_IB = ib;
-                Context.InputAssembler.SetIndexBuffer(ib, format, 0);
+                DeviceContext.InputAssembler.SetIndexBuffer(ib, format, 0);
                 Stats.SetIB++;
             }
         }
 
         internal void CSSetCB(int slot, Buffer cb)
         {
-            Context.ComputeShader.SetConstantBuffer(slot, cb);
+            DeviceContext.ComputeShader.SetConstantBuffer(slot, cb);
         }
 
         internal void SetCB(int slot, Buffer cb)
@@ -404,11 +472,11 @@ namespace VRageRender
             if (State.m_CBs[slot] != cb)
             {
                 State.m_CBs[slot] = cb;
-                Context.VertexShader.SetConstantBuffer(slot, cb);
+                DeviceContext.VertexShader.SetConstantBuffer(slot, cb);
                 Stats.SetCB++;
-                Context.GeometryShader.SetConstantBuffer(slot, cb);
+                DeviceContext.GeometryShader.SetConstantBuffer(slot, cb);
                 Stats.SetCB++;
-                Context.PixelShader.SetConstantBuffer(slot, cb);
+                DeviceContext.PixelShader.SetConstantBuffer(slot, cb);
                 Stats.SetCB++;
             }
         }
@@ -418,7 +486,7 @@ namespace VRageRender
             if (State.m_ps != ps)
             {
                 State.m_ps = ps;
-                Context.PixelShader.Set(ps);
+                DeviceContext.PixelShader.Set(ps);
                 Stats.SetPS++;
             }
         }
@@ -428,14 +496,14 @@ namespace VRageRender
             if (State.m_vs != vs)
             {
                 State.m_vs = vs;
-                Context.VertexShader.Set(vs);
+                DeviceContext.VertexShader.Set(vs);
                 Stats.SetVS++;
             }
         }
 
         internal void SetCS(ComputeShader cs)
         {
-            Context.ComputeShader.Set(cs);
+            DeviceContext.ComputeShader.Set(cs);
         }
 
         internal void SetGS(GeometryShader gs)
@@ -443,7 +511,7 @@ namespace VRageRender
             if (State.m_gs != gs)
             {
                 State.m_gs = gs;
-                Context.GeometryShader.Set(gs);
+                DeviceContext.GeometryShader.Set(gs);
                 Stats.SetGS++;
             }
         }
@@ -453,7 +521,7 @@ namespace VRageRender
             if (State.m_inputLayout != il)
             {
                 State.m_inputLayout = il;
-                Context.InputAssembler.InputLayout = il;
+                DeviceContext.InputAssembler.InputLayout = il;
                 Stats.SetIL++;
             }
         }
@@ -463,7 +531,7 @@ namespace VRageRender
             if (State.m_RS != rs)
             {
                 State.m_RS = rs;
-                Context.Rasterizer.State = rs;
+                DeviceContext.Rasterizer.State = rs;
                 Stats.SetRasterizerState++;
             }
         }
@@ -473,7 +541,7 @@ namespace VRageRender
             if (State.m_BS != bs || blendFactor != null)
             {
                 State.m_BS = bs;
-                Context.OutputMerger.SetBlendState(bs, blendFactor);
+                DeviceContext.OutputMerger.SetBlendState(bs, blendFactor);
                 Stats.SetBlendState++;
             }
         }
@@ -484,88 +552,149 @@ namespace VRageRender
             {
                 State.m_DS = ds;
                 State.m_stencilRef = stencilRef;
-                Context.OutputMerger.SetDepthStencilState(ds, stencilRef);
+                DeviceContext.OutputMerger.SetDepthStencilState(ds, stencilRef);
             }
         }
 
-        internal void BindRawSRV(int slot, params ShaderResourceView[] srvs)
+        internal void BindRawSRV(int slot, ShaderResourceView srv)
         {
-            Context.VertexShader.SetShaderResources(slot, srvs);
-            Context.PixelShader.SetShaderResources(slot, srvs);
+            DeviceContext.VertexShader.SetShaderResource(slot, srv);
+            DeviceContext.PixelShader.SetShaderResource(slot, srv);
 
             Stats.BindShaderResources++;
             Stats.BindShaderResources++;
         }
 
-        internal void VSBindSRV(int slot, params ShaderResourceView[] srvs)
+        internal void BindRawSRV(int slot, ShaderResourceView[] srvs)
         {
-            Context.VertexShader.SetShaderResources(slot, srvs);
+            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
+            DeviceContext.PixelShader.SetShaderResources(slot, srvs);
 
             Stats.BindShaderResources++;
             Stats.BindShaderResources++;
         }
 
-        internal void CSBindRawSRV(int slot, params ShaderResourceView[] srvs)
+        internal void VSBindSRV(int slot, ShaderResourceView srv)
         {
-            Context.ComputeShader.SetShaderResources(slot, srvs);
+            DeviceContext.VertexShader.SetShaderResource(slot, srv);
+
+            Stats.BindShaderResources++;
+            Stats.BindShaderResources++;
+        }
+
+        internal void VSBindSRV(int slot, ShaderResourceView[] srvs)
+        {
+            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
+
+            Stats.BindShaderResources++;
+            Stats.BindShaderResources++;
+        }
+
+        internal void CSBindRawSRV(int slot, ShaderResourceView srvs)
+        {
+            DeviceContext.ComputeShader.SetShaderResource(slot, srvs);
+
+            Stats.BindShaderResources++;
+        }
+
+        internal void CSBindRawSRV(int slot, ShaderResourceView[] srvs)
+        {
+            DeviceContext.ComputeShader.SetShaderResources(slot, srvs);
 
             Stats.BindShaderResources++;
         }
 
         internal void BindRawSRV(ShaderResourceView[] srvs)
         {
-            Context.PixelShader.SetShaderResources(0, srvs);
+            DeviceContext.PixelShader.SetShaderResources(0, srvs);
 
             Stats.BindShaderResources++;
         }
 
         void UnbindSRVRead(int resId)
         {
-            foreach (var b in State.m_srvBindings.Where(x => x.Item1 == resId))
+            List<int> resourceList = State.m_srvBindings.GetList(resId);
+            if (resourceList == null)
+                return;
+
+            foreach (var resourceId in resourceList)
             {
-                Context.VertexShader.SetShaderResource(b.Item2, null);
-                Context.PixelShader.SetShaderResource(b.Item2, null);
-                Context.ComputeShader.SetShaderResource(b.Item2, null);
+                DeviceContext.VertexShader.SetShaderResource(resourceId, null);
+                DeviceContext.PixelShader.SetShaderResource(resourceId, null);
+                DeviceContext.ComputeShader.SetShaderResource(resourceId, null);
             }
-            State.m_srvBindings.RemoveWhere(x => x.Item1 == resId);
+            resourceList.Clear();
         }
 
-        internal void BindUAV(int slot, params MyBindableResource[] UAVs)
+        class KeyListComparer : IComparer<int>
         {
-            var buffer = new UnorderedAccessView[UAVs.Length];
-            for (int i = 0; i < UAVs.Length; i++)
+            public int Compare(int x, int y)
             {
-                if (UAVs[i] != null)
-                {
-                    var ua = UAVs[i] as IUnorderedAccessBindable;
-                    Debug.Assert(ua != null);
-
-                    UnbindSRVRead(UAVs[i].GetID());
-                    //UnbindDSVReadOnly(UAVs[i].ResId); necessary?
-
-                    int? currentlyBound = null;
-                    foreach (var kv in State.m_bindings)
-                    {
-                        if (kv.Value.UavSlot == slot + i)
-                        {
-                            currentlyBound = kv.Key;
-                            break;
-                        }
-                    }
-                    if (currentlyBound.HasValue)
-                    {
-                        State.m_bindings.Remove(currentlyBound.Value);
-                    }
-
-                    State.m_bindings[UAVs[i].GetID()] = new MyBinding(MyWriteBindingEnum.UAV, slot + i);
-                    buffer[i] = ua.UAV;
-                }
+                return y - x;
             }
 
-            Context.ComputeShader.SetUnorderedAccessViews(slot, buffer);
+            internal static KeyListComparer Comparer = new KeyListComparer();
         }
 
-        internal void BindDepthRT(MyBindableResource depthStencil, DepthStencilAccess dsAccess, params MyBindableResource[] RTs)
+        UnorderedAccessView[] m_tmpBuffer = new UnorderedAccessView[1];
+        internal void BindUAV(int slot, MyBindableResource UAV)
+        {
+            if (UAV != null)
+            {
+                var ua = UAV as IUnorderedAccessBindable;
+                Debug.Assert(ua != null);
+
+                UnbindSRVRead(UAV.GetID());
+                //UnbindDSVReadOnly(UAVs[i].ResId); necessary?
+
+                List<int> keyList = State.m_slotToBindingKeys.GetList(slot);
+                if (keyList != null)
+                {
+                    keyList.Sort(KeyListComparer.Comparer);
+                    State.m_bindings.Remove(keyList[0]);
+                    State.m_slotToBindingKeys.Remove(slot);
+                }
+
+                var binding = new MyBinding(MyWriteBindingEnum.UAV, slot);
+                State.m_bindings[UAV.GetID()] = binding;
+                State.m_slotToBindingKeys.Add(slot, UAV.GetID());
+                ComputeShaderId.TmpUav[0] = ua.UAV;
+            }
+
+            DeviceContext.ComputeShader.SetUnorderedAccessViews(slot, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
+        }
+
+        internal void BindDepthRT(MyBindableResource depthStencil, DepthStencilAccess dsAccess, MyBindableResource RT)
+        {
+            m_tmpBinds1[0] = RT;
+
+            BindDepthRTInternal(depthStencil, dsAccess, m_tmpBinds1);
+
+            Array.Clear(m_tmpBinds1, 0, m_tmpBinds1.Length);
+        }
+
+        internal void BindDepthRT(MyBindableResource depthStencil, DepthStencilAccess dsAccess, MyBindableResource bindable0, MyBindableResource bindable1)
+        {
+            m_tmpBinds2[0] = bindable0;
+            m_tmpBinds2[1] = bindable1;
+
+            BindDepthRTInternal(depthStencil, dsAccess, m_tmpBinds2);
+
+            Array.Clear(m_tmpBinds2, 0, m_tmpBinds2.Length);
+        }
+
+        internal void BindDepthRT(MyBindableResource depthStencil, DepthStencilAccess dsAccess, MyBindableResource bindable0, MyBindableResource bindable1, MyBindableResource bindable2)
+        {
+            m_tmpBinds3[0] = bindable0;
+            m_tmpBinds3[1] = bindable1;
+            m_tmpBinds3[2] = bindable2;
+
+            BindDepthRTInternal(depthStencil, dsAccess, m_tmpBinds3);
+
+            Array.Clear(m_tmpBinds3, 0, m_tmpBinds3.Length);
+        }
+
+        private void BindDepthRTInternal(MyBindableResource depthStencil, DepthStencilAccess dsAccess, params MyBindableResource[] RTs)
         {
             DepthStencilView dsv = null;
             if (depthStencil != null)
@@ -616,7 +745,7 @@ namespace VRageRender
                     }
                 }
             }
-            Context.OutputMerger.SetTargets(
+            DeviceContext.OutputMerger.SetTargets(
                 dsv,
                 State.m_RTVs);
 
@@ -627,23 +756,40 @@ namespace VRageRender
                 var ds = depthStencil as MyDepthStencil;
                 if (dsAccess == DepthStencilAccess.ReadWrite)
                 {
-                    State.m_bindings[ds.Depth.GetID()] = new MyBinding(MyWriteBindingEnum.DSV);
-                    State.m_bindings[ds.Stencil.GetID()] = new MyBinding(MyWriteBindingEnum.DSV);
+                    var binding = new MyBinding(MyWriteBindingEnum.DSV);
+                    State.m_bindings[ds.Depth.GetID()] = binding;
+                    State.m_slotToBindingKeys.Add(binding.UavSlot, ds.Depth.GetID());
+                    State.m_bindings[ds.Stencil.GetID()] = binding;
+                    State.m_slotToBindingKeys.Add(binding.UavSlot, ds.Stencil.GetID());
                 }
                 else if (dsAccess == DepthStencilAccess.DepthReadOnly)
                 {
-                    State.m_bindings[ds.Depth.GetID()] = new MyBinding(true);
-                    State.m_bindings[ds.Stencil.GetID()] = new MyBinding(MyWriteBindingEnum.DSV);
+                    var depthBinding = new MyBinding(true);
+                    State.m_bindings[ds.Depth.GetID()] = depthBinding;
+                    State.m_slotToBindingKeys.Add(depthBinding.UavSlot, ds.Depth.GetID());
+
+                    var stencilBinding = new MyBinding(MyWriteBindingEnum.DSV);
+                    State.m_bindings[ds.Stencil.GetID()] = stencilBinding;
+                    State.m_slotToBindingKeys.Add(stencilBinding.UavSlot, ds.Stencil.GetID());
                 }
                 else if (dsAccess == DepthStencilAccess.StencilReadOnly)
                 {
-                    State.m_bindings[ds.Depth.GetID()] = new MyBinding(MyWriteBindingEnum.DSV);
-                    State.m_bindings[ds.Stencil.GetID()] = new MyBinding(true);
+                    var depthBinding = new MyBinding(MyWriteBindingEnum.DSV);
+                    State.m_bindings[ds.Depth.GetID()] = depthBinding;
+                    State.m_slotToBindingKeys.Add(depthBinding.UavSlot, ds.Depth.GetID());
+
+                    var stencilBinding = new MyBinding(true);
+                    State.m_bindings[ds.Stencil.GetID()] = stencilBinding;
+                    State.m_slotToBindingKeys.Add(stencilBinding.UavSlot, ds.Stencil.GetID());
                 }
                 else if (dsAccess == DepthStencilAccess.ReadOnly)
                 {
-                    State.m_bindings[ds.Depth.GetID()] = new MyBinding(true);
-                    State.m_bindings[ds.Stencil.GetID()] = new MyBinding(true);
+                    var binding = new MyBinding(true);
+                    State.m_bindings[ds.Depth.GetID()] = binding;
+                    State.m_bindings[ds.Stencil.GetID()] = binding;
+
+                    State.m_slotToBindingKeys.Add(binding.UavSlot, ds.Depth.GetID());
+                    State.m_slotToBindingKeys.Add(binding.UavSlot, ds.Stencil.GetID());
                 }
             }
             if (RTs != null)
@@ -652,7 +798,9 @@ namespace VRageRender
                 {
                     if (RTs[i] != null)
                     {
-                        State.m_bindings[RTs[i].GetID()] = new MyBinding(MyWriteBindingEnum.RTV);
+                        var binding = new MyBinding(MyWriteBindingEnum.RTV);
+                        State.m_bindings[RTs[i].GetID()] = binding;
+                        State.m_slotToBindingKeys.Add(binding.UavSlot, RTs[i].GetID());
                     }
                 }
             }
@@ -660,96 +808,179 @@ namespace VRageRender
 
         void ClearDsvRtvWriteBindings()
         {
-            for (int i = 0; i < State.m_bindings.Count; )
+            foreach(var pair in State.m_bindings)
             {
-                var view = State.m_bindings.ElementAt(i).Value.WriteView;
+                var view = pair.Value.WriteView;
                 if (view == MyWriteBindingEnum.RTV || view == MyWriteBindingEnum.DSV)
                 {
-                    State.m_bindings.Remove(State.m_bindings.ElementAt(i).Key);
+                    m_tmpBindingClearList.Add(pair.Key);
+
+                    List<int> keyList = State.m_slotToBindingKeys.GetList(pair.Value.UavSlot);
+                    if (keyList != null)
+                    {
+                        keyList.Remove(pair.Key);
+                        if (keyList.Count == 0)
+                            State.m_slotToBindingKeys.Remove(pair.Value.UavSlot);
+                    }
                 }
-                else
-                    i++;
             }
+            foreach (int key in m_tmpBindingClearList)
+            {
+                State.m_bindings.Remove(key);
+            }
+            m_tmpBindingClearList.SetSize(0);
         }
 
-        internal void BindSRV(int slot, params MyBindableResource[] bindable)
+        internal void BindSRV(int slot, MyBindableResource bindable)
+        {
+            Array.Clear(State.m_SRVs, 0, State.m_SRVs.Length);
+            Debug.Assert(bindable as IShaderResourceBindable != null);
+            MyBinding binding;
+            State.m_bindings.TryGetValue(bindable.GetID(), out binding);
+            if (binding.WriteView == MyWriteBindingEnum.RTV || binding.WriteView == MyWriteBindingEnum.DSV)
+            {
+                DeviceContext.OutputMerger.ResetTargets();
+                ClearDsvRtvWriteBindings();
+            }
+            else if (binding.WriteView == MyWriteBindingEnum.UAV)
+            {
+                ComputeShaderId.TmpUav[0] = null;
+                DeviceContext.ComputeShader.SetUnorderedAccessViews(binding.UavSlot, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
+                State.m_bindings.Remove(bindable.GetID());
+                List<int> keyList = State.m_slotToBindingKeys.GetList(slot);
+                if(keyList != null)
+                {
+                    keyList.Remove(bindable.GetID());
+                    if (keyList.Count == 0)
+                        State.m_slotToBindingKeys.Remove(slot);
+                }
+            }
+
+            State.m_srvBindings.Add(bindable.GetID(), slot);
+            var bindableShaderResource = bindable as IShaderResourceBindable;
+            Debug.Assert(bindableShaderResource != null);
+            State.m_SRVs[0] = bindableShaderResource.SRV;
+
+            DeviceContext.VertexShader.SetShaderResource(slot, State.m_SRVs[0]);
+            DeviceContext.PixelShader.SetShaderResource(slot, State.m_SRVs[0]);
+            DeviceContext.ComputeShader.SetShaderResource(slot, State.m_SRVs[0]);
+        }
+
+        MyBindableResource[] m_tmpBinds1 = new MyBindableResource[1];
+        MyBindableResource[] m_tmpBinds2 = new MyBindableResource[2];
+        MyBindableResource[] m_tmpBinds3 = new MyBindableResource[3];
+        MyBindableResource[] m_tmpBinds4 = new MyBindableResource[4];
+        MyBindableResource[] m_tmpBinds5 = new MyBindableResource[5];
+
+        internal void BindSRVs(int slot, MyBindableResource bindable0, MyBindableResource bindable1)
+        {
+            m_tmpBinds2[0] = bindable0;
+            m_tmpBinds2[1] = bindable1;
+            BindSRVsInternal(slot, m_tmpBinds2);
+
+            Array.Clear(m_tmpBinds2, 0, m_tmpBinds2.Length);
+        }
+
+        internal void BindSRVs(int slot, MyBindableResource bindable0, MyBindableResource bindable1, MyBindableResource bindable2)
+        {
+            m_tmpBinds3[0] = bindable0;
+            m_tmpBinds3[1] = bindable1;
+            m_tmpBinds3[2] = bindable2;
+            BindSRVsInternal(slot, m_tmpBinds3);
+
+            Array.Clear(m_tmpBinds3, 0, m_tmpBinds3.Length);
+        }
+
+        private void BindSRVsInternal(int slot, MyBindableResource[] bindable)
         {
             Array.Clear(State.m_SRVs, 0, State.m_SRVs.Length);
             for (int i = 0; i < bindable.Length; i++)
             {
                 Debug.Assert(bindable[i] as IShaderResourceBindable != null);
-                var binding = State.m_bindings.Get(bindable[i].GetID());
+                MyBinding binding;
+                State.m_bindings.TryGetValue(bindable[i].GetID(), out binding);
                 if (binding.WriteView == MyWriteBindingEnum.RTV || binding.WriteView == MyWriteBindingEnum.DSV)
                 {
-                    Context.OutputMerger.ResetTargets();
+                    DeviceContext.OutputMerger.ResetTargets();
                     ClearDsvRtvWriteBindings();
                 }
                 else if (binding.WriteView == MyWriteBindingEnum.UAV)
                 {
-                    Context.ComputeShader.SetUnorderedAccessView(binding.UavSlot, null);
+                    ComputeShaderId.TmpUav[0] = null;
+                    DeviceContext.ComputeShader.SetUnorderedAccessViews(binding.UavSlot, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
                     State.m_bindings.Remove(bindable[i].GetID());
+                    List<int> keyList = State.m_slotToBindingKeys.GetList(slot);
+                    if (keyList != null)
+                    {
+                        keyList.Remove(bindable[i].GetID());
+                        if (keyList.Count == 0)
+                            State.m_slotToBindingKeys.Remove(slot);
+                    }
                 }
 
-                State.m_srvBindings.Add(Tuple.Create(bindable[i].GetID(), slot + i));
+                State.m_srvBindings.Add(bindable[i].GetID(), slot + i);
                 State.m_SRVs[i] = (bindable[i] as IShaderResourceBindable).SRV;
             }
 
             for (int i = 0; i < bindable.Length; i++)
             {
-                Context.VertexShader.SetShaderResource(slot + i, State.m_SRVs[i]);
-                Context.PixelShader.SetShaderResource(slot + i, State.m_SRVs[i]);
-                Context.ComputeShader.SetShaderResource(slot + i, State.m_SRVs[i]);
+                DeviceContext.VertexShader.SetShaderResource(slot + i, State.m_SRVs[i]);
+                DeviceContext.PixelShader.SetShaderResource(slot + i, State.m_SRVs[i]);
+                DeviceContext.ComputeShader.SetShaderResource(slot + i, State.m_SRVs[i]);
             }
-            
         }
 
         internal void BindGBufferForRead(int slot, MyGBuffer gbuffer)
         {
-            BindSRV(slot,
-                gbuffer.DepthStencil.Depth,
-                gbuffer.Get(MyGbufferSlot.GBuffer0),
-                gbuffer.Get(MyGbufferSlot.GBuffer1),
-                gbuffer.Get(MyGbufferSlot.GBuffer2),
-                gbuffer.DepthStencil.Stencil
-                );
+            m_tmpBinds5[0] = gbuffer.DepthStencil.Depth;
+            m_tmpBinds5[1] = gbuffer.Get(MyGbufferSlot.GBuffer0);
+            m_tmpBinds5[2] = gbuffer.Get(MyGbufferSlot.GBuffer1);
+            m_tmpBinds5[3] = gbuffer.Get(MyGbufferSlot.GBuffer2);
+            m_tmpBinds5[4] = gbuffer.DepthStencil.Stencil;
+            BindSRVsInternal(slot, m_tmpBinds5);
+
+            Array.Clear(m_tmpBinds5, 0, m_tmpBinds5.Length);
         }
 
         internal void BindGBufferForReadSkipStencil(int slot, MyGBuffer gbuffer)
         {
-            BindSRV(slot,
-                gbuffer.DepthStencil.Depth,
-                gbuffer.Get(MyGbufferSlot.GBuffer0),
-                gbuffer.Get(MyGbufferSlot.GBuffer1),
-                gbuffer.Get(MyGbufferSlot.GBuffer2));
+            m_tmpBinds4[0] = gbuffer.DepthStencil.Depth;
+            m_tmpBinds4[1] = gbuffer.Get(MyGbufferSlot.GBuffer0);
+            m_tmpBinds4[2] = gbuffer.Get(MyGbufferSlot.GBuffer1);
+            m_tmpBinds4[3] = gbuffer.Get(MyGbufferSlot.GBuffer2);
+            BindSRVsInternal(slot, m_tmpBinds4);
+
+            Array.Clear(m_tmpBinds4, 0, m_tmpBinds4.Length);
         }
 
-        internal void BindGBufferForWrite(MyGBuffer gbuffer)
+        internal void BindGBufferForWrite(MyGBuffer gbuffer, DepthStencilAccess depthStencilFlags = DepthStencilAccess.ReadWrite)
         {
-            BindDepthRT(
-                gbuffer.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadWrite,
-                gbuffer.Get(MyGbufferSlot.GBuffer0),
-                gbuffer.Get(MyGbufferSlot.GBuffer1),
-                gbuffer.Get(MyGbufferSlot.GBuffer2));
+            m_tmpBinds3[0] = gbuffer.Get(MyGbufferSlot.GBuffer0);
+            m_tmpBinds3[1] = gbuffer.Get(MyGbufferSlot.GBuffer1);
+            m_tmpBinds3[2] = gbuffer.Get(MyGbufferSlot.GBuffer2);
+            BindDepthRTInternal(gbuffer.Get(MyGbufferSlot.DepthStencil), depthStencilFlags, m_tmpBinds3);
+
+            Array.Clear(m_tmpBinds3, 0, m_tmpBinds3.Length);
         }
 
         internal void ClearDepthStencil(MyDepthStencil depthStencil, float depth, byte stencil)
         {
-            Context.ClearDepthStencilView(depthStencil.m_DSV, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, depth, stencil);
+            DeviceContext.ClearDepthStencilView(depthStencil.m_DSV, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, depth, stencil);
         }
 
         internal void SetupScreenViewport()
         {
-            Context.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+            DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
         }
 
         internal void Begin(MyQuery query)
         {
-            Context.Begin(query.m_query);
+            DeviceContext.Begin(query.m_query);
         }
 
         internal void End(MyQuery query)
         {
-            Context.End(query.m_query);
+            DeviceContext.End(query.m_query);
         }
 
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
@@ -784,6 +1015,11 @@ namespace VRageRender
             {
                 MyGpuProfiler.IC_Enqueue(info);
             }
+        }
+
+        internal static void OnDeviceReset()
+        {
+            Immediate.DeviceContext = MyRender11.DeviceContext;
         }
 
         internal void BindVertexData(ref MyVertexDataProxy_2 desc)
@@ -832,13 +1068,13 @@ namespace VRageRender
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }] = desc.Version;
-                Context.VertexShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                DeviceContext.VertexShader.SetShaderResources(desc.StartSlot, desc.SRVs);
             }
             if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0 &&
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }] = desc.Version;
-                Context.PixelShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                DeviceContext.PixelShader.SetShaderResources(desc.StartSlot, desc.SRVs);
             }
         }
 
@@ -849,28 +1085,42 @@ namespace VRageRender
             if (State.m_constantsVersion.Get(desc.CB) != desc.Version)
             {
                 State.m_constantsVersion[desc.CB] = desc.Version;
-                
-                var box = Context.MapSubresource((SharpDX.Direct3D11.Resource)desc.CB, 0, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None);
-                // TODO: try with aligned memory
-                fixed(byte* ptr = desc.Data)
-                {
-                    MyMemory.CopyMemory(box.DataPointer, new IntPtr(ptr), (uint)desc.Data.Length);
-                }
-                Context.UnmapSubresource(desc.CB, 0);
+
+                var mapping = MyMapping.MapDiscard(DeviceContext, desc.CB);
+                mapping.WriteAndPosition(desc.Data, 0, desc.Data.Length);
+                mapping.Unmap();
             }
         }
 
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        [System.Security.SecurityCriticalAttribute]
         internal void SetConstants(ref MyConstantsPack desc, int slot)
         {
-            if ((desc.BindFlag & MyBindFlag.BIND_VS) > 0 && State.m_constantBindings.Get(new MyStageBinding { Slot = slot, Stage = MyShaderStage.VS }) != desc.CB)
+            MyStageBinding key;
+            key.Stage = MyShaderStage.VS;
+         
+            try
             {
-                State.m_constantBindings[new MyStageBinding { Slot = slot, Stage = MyShaderStage.VS }] = desc.CB;
-                Context.VertexShader.SetConstantBuffer(slot, desc.CB);
+                if ((desc.BindFlag & MyBindFlag.BIND_VS) > 0 && State.m_constantBindings.Get(new MyStageBinding { Slot = slot, Stage = MyShaderStage.VS }) != desc.CB)
+                {
+                    key = new MyStageBinding {Slot = slot, Stage = MyShaderStage.VS};
+                    State.m_constantBindings[key] = desc.CB;
+                    DeviceContext.VertexShader.SetConstantBuffer(slot, desc.CB);
+                }
+                if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0 && State.m_constantBindings.Get(new MyStageBinding { Slot = slot, Stage = MyShaderStage.PS }) != desc.CB)
+                {
+                    key = new MyStageBinding {Slot = slot, Stage = MyShaderStage.PS};
+                    State.m_constantBindings[key] = desc.CB;
+                    DeviceContext.PixelShader.SetConstantBuffer(slot, desc.CB);
+                }
             }
-            if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0 && State.m_constantBindings.Get(new MyStageBinding { Slot = slot, Stage = MyShaderStage.PS }) != desc.CB)
+            catch (Exception ex)
             {
-                State.m_constantBindings[new MyStageBinding { Slot = slot, Stage = MyShaderStage.PS }] = desc.CB;
-                Context.PixelShader.SetConstantBuffer(slot, desc.CB);
+                MyLog.Default.WriteLine(ex);
+                MyLog.Default.WriteLine(string.Format("Some additional info: slot {0}, Stage {1}, desc {2}", slot, key.Stage, desc));
+                MyLog.Default.WriteLine("m_constantBindings.Count: " + State.m_constantBindings.Count);
+                MyLog.Default.WriteLine("m_constantBindings: " + State.m_constantBindings);
+                throw;
             }
         }
     }

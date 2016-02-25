@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.Game;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -69,7 +70,7 @@ namespace Sandbox.ModAPI
         /// </summary>
         /// <param name="copy">Set if creating a copy of block</param>
         /// <returns>Block object builder</returns>
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false);
+        MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false);
 
         /// <summary>
         /// 
@@ -81,14 +82,14 @@ namespace Sandbox.ModAPI
         /// 
         /// </summary>
         /// <returns>Relation of local player to the block</returns>
-        Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
+        VRage.Game.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId">Id of player to check relation with (not steam id!)</param>
         /// <returns>Relation of defined player to the block</returns>
-        Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
+        VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
 
         //Sandbox.Game.Entities.MyIDModule IDModule { get; }
 
@@ -102,7 +103,7 @@ namespace Sandbox.ModAPI
         /// </summary>
         /// <param name="builder">Object builder of block (should correspond with block type)</param>
         /// <param name="cubeGrid">Owning grid</param>
-        void Init(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid);
+        void Init(MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid);
 
 
         bool IsBeingHacked { get; }

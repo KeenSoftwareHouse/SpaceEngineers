@@ -1,6 +1,5 @@
 ﻿using ParallelTasks;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
@@ -20,6 +19,8 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
+using Sandbox.Game.Multiplayer;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
@@ -76,6 +77,9 @@ namespace Sandbox.Game.Gui
         {
             m_modListToEdit = modListToEdit;
 
+            if(m_modListToEdit == null)
+                m_modListToEdit = new List<MyObjectBuilder_Checkpoint.ModItem>();
+
             EnabledBackgroundFade = true;
 
             GetWorldMods(m_modListToEdit);
@@ -103,7 +107,7 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
-            AddCaption(MySpaceTexts.ScreenCaptionWorkshop);
+            AddCaption(MyCommonTexts.ScreenCaptionWorkshop);
 
             var origin = new Vector2(-0.4375f, -0.375f);
             Vector2 tinyButtonsOrigin = new Vector2(-0.0015f, -4.5f * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA.Y);
@@ -132,47 +136,39 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_modsTableDisabled);
 
             m_modsTableEnabled = new MyGuiControlTable();
-            m_modsTableEnabled.Position = origin + new Vector2(m_modsTableDisabled.Size.X + 0.04f, 0f);
+            m_modsTableEnabled.Position = origin + new Vector2(m_modsTableDisabled.Size.X + 0.04f, 0.1f);
             m_modsTableEnabled.Size = new Vector2(m_size.Value.X * 0.4375f, 1.25f);
             m_modsTableEnabled.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_modsTableEnabled.ColumnsCount = 2;
-
-            if (MyFakes.ENABLE_MOD_CATEGORIES)
-            {
-                m_modsTableEnabled.Position = new Vector2(m_modsTableEnabled.Position.X, m_modsTableDisabled.Position.Y - 0.065f);
-                m_modsTableEnabled.VisibleRowsCount = 19;
-            }
-            else
-            {
-                m_modsTableEnabled.VisibleRowsCount = 20;
-            }
-
+            m_modsTableEnabled.VisibleRowsCount = MyFakes.ENABLE_MOD_CATEGORIES ? 17 : 20;
+            
             m_modsTableEnabled.ItemSelected += OnTableItemSelected;
             m_modsTableEnabled.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
             m_modsTableEnabled.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
             m_modsTableEnabled.SetCustomColumnWidths(new float[] { 0.085f, 0.905f });
+            m_modsTableEnabled.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             Controls.Add(m_modsTableEnabled);
 
-            Controls.Add(m_labelEnabled = MakeLabel(m_modsTableEnabled.Position + new Vector2(m_modsTableEnabled.Size.X / 2f, 0f), MySpaceTexts.ScreenMods_ActiveMods));
-            Controls.Add(m_labelDisabled = MakeLabel(m_modsTableDisabled.Position + new Vector2(m_modsTableDisabled.Size.X / 2f, 0f), MySpaceTexts.ScreenMods_AvailableMods));
+            Controls.Add(m_labelEnabled = MakeLabel(m_modsTableEnabled.Position + new Vector2(m_modsTableEnabled.Size.X / 2f, 0f), MyCommonTexts.ScreenMods_ActiveMods));
+            Controls.Add(m_labelDisabled = MakeLabel(m_modsTableDisabled.Position + new Vector2(m_modsTableDisabled.Size.X / 2f, 0f), MyCommonTexts.ScreenMods_AvailableMods));
 
-            Controls.Add(m_moveUpButton = MakeButtonTiny(tinyButtonsOrigin + 0 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, -MathHelper.PiOver2, MySpaceTexts.ToolTipScreenMods_MoveUp, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveUpClick));
-            Controls.Add(m_moveTopButton = MakeButtonTiny(tinyButtonsOrigin + 1 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, -MathHelper.PiOver2, MySpaceTexts.ToolTipScreenMods_MoveTop, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveTopClick));
-            Controls.Add(m_moveBottomButton = MakeButtonTiny(tinyButtonsOrigin + 2 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.PiOver2, MySpaceTexts.ToolTipScreenMods_MoveBottom, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveBottomClick));
-            Controls.Add(m_moveDownButton = MakeButtonTiny(tinyButtonsOrigin + 3 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.PiOver2, MySpaceTexts.ToolTipScreenMods_MoveDown, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveDownClick));
+            Controls.Add(m_moveUpButton = MakeButtonTiny(tinyButtonsOrigin + 0 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, -MathHelper.PiOver2, MyCommonTexts.ToolTipScreenMods_MoveUp, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveUpClick));
+            Controls.Add(m_moveTopButton = MakeButtonTiny(tinyButtonsOrigin + 1 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, -MathHelper.PiOver2, MyCommonTexts.ToolTipScreenMods_MoveTop, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveTopClick));
+            Controls.Add(m_moveBottomButton = MakeButtonTiny(tinyButtonsOrigin + 2 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.PiOver2, MyCommonTexts.ToolTipScreenMods_MoveBottom, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveBottomClick));
+            Controls.Add(m_moveDownButton = MakeButtonTiny(tinyButtonsOrigin + 3 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.PiOver2, MyCommonTexts.ToolTipScreenMods_MoveDown, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveDownClick));
 
-            Controls.Add(m_moveLeftButton = MakeButtonTiny(tinyButtonsOrigin + 5 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.Pi, MySpaceTexts.ToolTipScreenMods_MoveLeft, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveLeftClick));
-            Controls.Add(m_moveLeftAllButton = MakeButtonTiny(tinyButtonsOrigin + 6 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.Pi, MySpaceTexts.ToolTipScreenMods_MoveLeftAll, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveLeftAllClick));
-            Controls.Add(m_moveRightAllButton = MakeButtonTiny(tinyButtonsOrigin + 7 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, 0f, MySpaceTexts.ToolTipScreenMods_MoveRightAll, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveRightAllClick));
-            Controls.Add(m_moveRightButton = MakeButtonTiny(tinyButtonsOrigin + 8 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, 0f, MySpaceTexts.ToolTipScreenMods_MoveRight, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveRightClick));
+            Controls.Add(m_moveLeftButton = MakeButtonTiny(tinyButtonsOrigin + 5 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.Pi, MyCommonTexts.ToolTipScreenMods_MoveLeft, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveLeftClick));
+            Controls.Add(m_moveLeftAllButton = MakeButtonTiny(tinyButtonsOrigin + 6 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, MathHelper.Pi, MyCommonTexts.ToolTipScreenMods_MoveLeftAll, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveLeftAllClick));
+            Controls.Add(m_moveRightAllButton = MakeButtonTiny(tinyButtonsOrigin + 7 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, 0f, MyCommonTexts.ToolTipScreenMods_MoveRightAll, MyGuiConstants.TEXTURE_BUTTON_ARROW_DOUBLE, OnMoveRightAllClick));
+            Controls.Add(m_moveRightButton = MakeButtonTiny(tinyButtonsOrigin + 8 * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA, 0f, MyCommonTexts.ToolTipScreenMods_MoveRight, MyGuiConstants.TEXTURE_BUTTON_ARROW_SINGLE, OnMoveRightClick));
 
-            Controls.Add(m_publishModButton = MakeButton(m_modsTableDisabled.Position + new Vector2(0f, m_modsTableDisabled.Size.Y + 0.01f), MySpaceTexts.LoadScreenButtonPublish, MySpaceTexts.LoadScreenButtonPublish, OnPublishModClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
-            Controls.Add(m_openInWorkshopButton = MakeButton(m_publishModButton.Position + new Vector2(m_publishModButton.Size.X + 0.04f, 0f), MySpaceTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MySpaceTexts.ToolTipWorkshopOpenModInWorkshop, OnOpenInWorkshopClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
-            Controls.Add(m_refreshButton = MakeButton(m_publishModButton.Position + new Vector2(0f, m_publishModButton.Size.Y + 0.01f), MySpaceTexts.ScreenLoadSubscribedWorldRefresh, MySpaceTexts.ToolTipWorkshopRefreshMod, OnRefreshClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
-            Controls.Add(m_browseWorkshopButton = MakeButton(m_openInWorkshopButton.Position + new Vector2(0f, m_publishModButton.Size.Y + 0.01f), MySpaceTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MySpaceTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
+            Controls.Add(m_publishModButton = MakeButton(m_modsTableDisabled.Position + new Vector2(0f, m_modsTableDisabled.Size.Y + 0.01f), MyCommonTexts.LoadScreenButtonPublish, MyCommonTexts.LoadScreenButtonPublish, OnPublishModClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
+            Controls.Add(m_openInWorkshopButton = MakeButton(m_publishModButton.Position + new Vector2(m_publishModButton.Size.X + 0.04f, 0f), MyCommonTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MyCommonTexts.ToolTipWorkshopOpenModInWorkshop, OnOpenInWorkshopClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
+            Controls.Add(m_refreshButton = MakeButton(m_publishModButton.Position + new Vector2(0f, m_publishModButton.Size.Y + 0.01f), MyCommonTexts.ScreenLoadSubscribedWorldRefresh, MyCommonTexts.ToolTipWorkshopRefreshMod, OnRefreshClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
+            Controls.Add(m_browseWorkshopButton = MakeButton(m_openInWorkshopButton.Position + new Vector2(0f, m_publishModButton.Size.Y + 0.01f), MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MyCommonTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
 
-            Controls.Add(m_cancelButton = MakeButton(m_modsTableEnabled.Position + m_modsTableEnabled.Size + new Vector2(0f, 0.01f), MySpaceTexts.Cancel, MySpaceTexts.Cancel, OnCancelClick, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP));
-            Controls.Add(m_okButton = MakeButton(m_cancelButton.Position - new Vector2(m_cancelButton.Size.X + 0.04f, 0f), MySpaceTexts.Ok, MySpaceTexts.Ok, OnOkClick, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP));
+            Controls.Add(m_cancelButton = MakeButton(m_modsTableEnabled.Position + m_modsTableEnabled.Size + new Vector2(0f, 0.01f), MyCommonTexts.Cancel, MyCommonTexts.Cancel, OnCancelClick, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP));
+            Controls.Add(m_okButton = MakeButton(m_cancelButton.Position - new Vector2(m_cancelButton.Size.X + 0.04f, 0f), MyCommonTexts.Ok, MyCommonTexts.Ok, OnOkClick, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP));
 
             //category buttons
             if (MyFakes.ENABLE_MOD_CATEGORIES)
@@ -196,13 +192,13 @@ namespace Sandbox.Game.Gui
                     OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                     VisualStyle = MyGuiControlButtonStyleEnum.Tiny,
                 };
-                m_categoryCategorySelectButton.SetToolTip(MySpaceTexts.TooltipScreenMods_SelectCategories);
+                m_categoryCategorySelectButton.SetToolTip(MyCommonTexts.TooltipScreenMods_SelectCategories);
                 m_categoryCategorySelectButton.ButtonClicked += OnSelectCategoryClicked;
                 Controls.Add(m_categoryCategorySelectButton);
 
                 Vector2 searchPosition = m_modsTableDisabled.Position + new Vector2(0.1625f, -0.08f);
 
-                var searchBoxLabel = MakeLabel(searchPosition + new Vector2(-0.135f, 0.01f), MySpaceTexts.ScreenMods_SearchLabel);
+                var searchBoxLabel = MakeLabel(searchPosition + new Vector2(-0.135f, 0.01f), MyCommonTexts.ScreenMods_SearchLabel);
                 m_searchBox = new MyGuiControlTextbox(searchPosition);
                 m_searchBox.Size = new Vector2(0.2f, 0.2f);
                 m_searchBox.TextChanged += OnSearchTextChanged;
@@ -454,13 +450,13 @@ namespace Sandbox.Game.Gui
             MyStringId textQuestion, captionQuestion;
             if (mod.PublishedFileId != 0)
             {
-                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToUpdateMod;
-                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToUpdateMod;
+                textQuestion = MyCommonTexts.MessageBoxTextDoYouWishToUpdateMod;
+                captionQuestion = MyCommonTexts.MessageBoxCaptionDoYouWishToUpdateMod;
             }
             else
             {
-                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToPublishMod;
-                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToPublishMod;
+                textQuestion = MyCommonTexts.MessageBoxTextDoYouWishToPublishMod;
+                captionQuestion = MyCommonTexts.MessageBoxCaptionDoYouWishToPublishMod;
             }
 
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -478,11 +474,11 @@ namespace Sandbox.Game.Gui
                         {
                             inTags = subscribedItem.Tags;
 
-                            if (subscribedItem.SteamIDOwner != MySteam.UserId)
+                            if (subscribedItem.SteamIDOwner != Sync.MyId)
                             {
                                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextPublishFailed_OwnerMismatchMod),
-                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionModPublishFailed)));
+                                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextPublishFailed_OwnerMismatchMod),
+                                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModPublishFailed)));
                                 return;
                             }
                         }
@@ -495,11 +491,11 @@ namespace Sandbox.Game.Gui
                                 {
                                     if (success)
                                     {
-                                        MySteamWorkshop.GenerateModInfo(modFullPath, publishedFileId, MySteam.UserId);
+                                        MySteamWorkshop.GenerateModInfo(modFullPath, publishedFileId, Sync.MyId);
                                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                             styleEnum: MyMessageBoxStyleEnum.Info,
-                                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextModPublished),
-                                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionModPublished),
+                                            messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextModPublished),
+                                            messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModPublished),
                                             callback: (a) =>
                                             {
                                                 MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
@@ -512,16 +508,16 @@ namespace Sandbox.Game.Gui
                                         switch (result)
                                         {
                                             case Result.AccessDenied:
-                                                error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
+                                                error = MyCommonTexts.MessageBoxTextPublishFailed_AccessDenied;
                                                 break;
                                             default:
-                                                error = MySpaceTexts.MessageBoxTextWorldPublishFailed;
+                                                error = MyCommonTexts.MessageBoxTextWorldPublishFailed;
                                                 break;
                                         }
 
                                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                             messageText: MyTexts.Get(error),
-                                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionModPublishFailed)));
+                                            messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModPublishFailed)));
                                     }
                                 });
                             }
@@ -615,7 +611,7 @@ namespace Sandbox.Game.Gui
 
         void FillList()
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginAction, endAction));
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginAction, endAction));
         }
 
         class LoadListResult : IMyAsyncResult
@@ -659,8 +655,8 @@ namespace Sandbox.Game.Gui
 
         private void AddHeaders()
         {
-            m_modsTableEnabled.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
-            m_modsTableDisabled.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
+            m_modsTableEnabled.SetColumnName(1, MyTexts.Get(MyCommonTexts.Name));
+            m_modsTableDisabled.SetColumnName(1, MyTexts.Get(MyCommonTexts.Name));
         }
 
         private void AddMod(bool active, StringBuilder title, StringBuilder toolTip, StringBuilder modState, MyGuiHighlightTexture? icon, MyObjectBuilder_Checkpoint.ModItem mod, Color? textColor = null)
@@ -729,13 +725,13 @@ namespace Sandbox.Game.Gui
                     var title = new StringBuilder(mod.Name);
                     var modFullPath = Path.Combine(MyFileSystem.ModsPath, mod.Name);
                     var toolTip = new StringBuilder(modFullPath);
-                    var modState = MyTexts.Get(MySpaceTexts.ScreenMods_LocalMod);
+                    var modState = MyTexts.Get(MyCommonTexts.ScreenMods_LocalMod);
                     Color? textColor = null;
                     MyGuiHighlightTexture icon = MyGuiConstants.TEXTURE_ICON_MODS_LOCAL;
 
                     if (!Directory.Exists(modFullPath) && !File.Exists(modFullPath))
                     {
-                        toolTip = MyTexts.Get(MySpaceTexts.ScreenMods_MissingLocalMod);
+                        toolTip = MyTexts.Get(MyCommonTexts.ScreenMods_MissingLocalMod);
                         modState = toolTip;
                         textColor = MyHudConstants.MARKER_COLOR_RED;
                     }
@@ -746,7 +742,7 @@ namespace Sandbox.Game.Gui
                 {
                     var title = new StringBuilder();
                     var toolTip = new StringBuilder();
-                    var modState = MyTexts.Get(MySpaceTexts.ScreenMods_WorkshopMod);
+                    var modState = MyTexts.Get(MyCommonTexts.ScreenMods_WorkshopMod);
                     Color? textColor = null;
 
                     var subscribedItem = GetSubscribedItem(mod.PublishedFileId);
@@ -763,7 +759,7 @@ namespace Sandbox.Game.Gui
                     else
                     {
                         title.Append(mod.PublishedFileId.ToString());
-                        toolTip = MyTexts.Get(MySpaceTexts.ScreenMods_MissingDetails);
+                        toolTip = MyTexts.Get(MyCommonTexts.ScreenMods_MissingDetails);
                         textColor = MyHudConstants.MARKER_COLOR_RED;
                     }
 
@@ -793,7 +789,7 @@ namespace Sandbox.Game.Gui
 
                 var titleSB = new StringBuilder(modName);
                 var descriptionSB = modFullPath;
-                var modStateSB = MyTexts.GetString(MySpaceTexts.ScreenMods_LocalMod);
+                var modStateSB = MyTexts.GetString(MyCommonTexts.ScreenMods_LocalMod);
 
                 var publishedFileId = MySteamWorkshop.GetWorkshopIdFromLocalMod(modFullPath);
 
@@ -809,7 +805,7 @@ namespace Sandbox.Game.Gui
             {
                 foreach (var mod in m_subscribedMods)
                 {
-                    if (m_worldWorkshopMods.Contains(mod.PublishedFileId))
+                    if (mod == null || m_worldWorkshopMods.Contains(mod.PublishedFileId))
                         continue;
                     if (MyFakes.ENABLE_MOD_CATEGORIES)
                     {
@@ -833,7 +829,7 @@ namespace Sandbox.Game.Gui
                     if (newlineIndex > 0)
                         shortLen = Math.Min(shortLen, newlineIndex - 1);
                     var descriptionSB = new StringBuilder();
-                    var modStateSB = MyTexts.GetString(MySpaceTexts.ScreenMods_WorkshopMod);
+                    var modStateSB = MyTexts.GetString(MyCommonTexts.ScreenMods_WorkshopMod);
 
                     var path = Path.Combine(MyFileSystem.ModsPath, string.Format("{0}.sbm", mod.PublishedFileId));
 

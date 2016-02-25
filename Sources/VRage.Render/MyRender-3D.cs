@@ -158,11 +158,6 @@ namespace VRageRender
             public float? Fov;
             public Viewport? Viewport;
 
-            public float? LodTransitionNear; // Used
-            public float? LodTransitionFar; // Used
-            public float? LodTransitionBackgroundStart; // Used
-            public float? LodTransitionBackgroundEnd; // Used
-
             public bool? EnableHDR; // Used
             public bool? EnableLights; // Used
             public bool? EnableSun; // Used
@@ -200,11 +195,6 @@ namespace VRageRender
                 AspectRatio = null;
                 Fov = null;
                 Viewport = null;
-
-                LodTransitionNear = null;
-                LodTransitionFar = null;
-                LodTransitionBackgroundStart = null;
-                LodTransitionBackgroundEnd = null;
 
                 EnableHDR = null;
                 EnableLights = null;
@@ -487,6 +477,7 @@ namespace VRageRender
         static HashSet<MyRenderObject> m_nearObjects = new HashSet<MyRenderObject>();
         internal static Dictionary<uint, MyRenderObject> m_renderObjects = new Dictionary<uint, MyRenderObject>();
         
+        static MyDynamicAABBTreeD m_atmospherePurunnigStructure = new MyDynamicAABBTreeD(PrunningExtension);
         static MyDynamicAABBTreeD m_farObjectsPrunningStructure = new MyDynamicAABBTreeD(PrunningExtension);
         static MyDynamicAABBTreeD m_prunningStructure = new MyDynamicAABBTreeD(PrunningExtension);
         static MyDynamicAABBTreeD m_cullingStructure = new MyDynamicAABBTreeD(PrunningExtension);
@@ -503,6 +494,9 @@ namespace VRageRender
         static BoundingFrustumD m_cameraFrustum = new BoundingFrustumD(MatrixD.Identity);
         static Vector3D m_cameraPosition;
       
+        static List<MyElement> m_renderAtmospheresForNearPlanetSurface = new List<MyElement>(128);
+
+
         //Sun
         static MySunLight m_sun = new MySunLight();
         static Vector3[] frustumCorners = new Vector3[8];

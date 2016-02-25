@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Library.Utils;
 using VRage.Utils;
 
@@ -41,8 +43,8 @@ namespace Sandbox.Definitions
             ItemsCumulativeFrequency = 0.0f;
             
             int i = 0;
-            Items = new ContainerTypeItem[definition.Items.Count()];
-            m_itemSelection = new bool[definition.Items.Count()];
+            Items = new ContainerTypeItem[definition.Items.Length];
+            m_itemSelection = new bool[definition.Items.Length];
             foreach (var itemBuilder in definition.Items)
             {
                 ContainerTypeItem item = new ContainerTypeItem();
@@ -63,7 +65,7 @@ namespace Sandbox.Definitions
 
         public void DeselectAll()
         {
-            for (int i = 0; i < Items.Count(); ++i)
+            for (int i = 0; i < Items.Length; ++i)
             {
                 m_itemSelection[i] = false;
             }
@@ -74,7 +76,7 @@ namespace Sandbox.Definitions
         {
             float rnd = MyRandom.Instance.NextFloat(0.0f, m_tempCumulativeFreq);
             int i = 0;
-            while (i < Items.Count() - 1)
+            while (i < Items.Length - 1)
             {
                 if (m_itemSelection[i] == true)
                 {

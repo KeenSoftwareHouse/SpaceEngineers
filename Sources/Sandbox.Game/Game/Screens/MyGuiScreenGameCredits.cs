@@ -3,6 +3,7 @@ using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -79,7 +80,7 @@ namespace Sandbox.Game.Gui
         {
             if (base.Update(hasFocus) == false) return false;
 
-            m_scrollingPositionY -= (1.0f / (NUMBER_OF_SECONDS_TO_SCROLL_THROUGH_WHOLE_SCREEN * MyEngineConstants.UPDATE_STEPS_PER_SECOND)) * m_movementSpeedMultiplier;
+            m_scrollingPositionY -= (1.0f / (NUMBER_OF_SECONDS_TO_SCROLL_THROUGH_WHOLE_SCREEN * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND)) * m_movementSpeedMultiplier;
 
             return true;
         }

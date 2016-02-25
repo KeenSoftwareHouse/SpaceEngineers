@@ -4,15 +4,12 @@ using VRageMath;
 using System.ComponentModel;
 using System.Collections.Generic;
 using VRage.Serialization;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
-using VRage;
-using Sandbox.Common.ObjectBuilders.Definitions;
 
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     public enum MyCameraControllerEnum
     {
@@ -63,6 +60,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyPositionAndOrientation SpectatorPosition = new MyPositionAndOrientation(Matrix.Identity);
 
+        [ProtoMember]
+        public bool SpectatorIsLightOn = false;
+
         //[ProtoMember, DefaultValue(MySpectatorCameraMovementEnum.UserControlled)]
         //public MySpectatorCameraMovementEnum SpectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
 
@@ -94,10 +94,10 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyObjectBuilder_Toolbar CharacterToolbar;
 
-		[ProtoMember]
-		public SerializableDictionaryCompat<long, PlayerId, ulong> ControlledEntities;
+        [ProtoMember]
+        public SerializableDictionaryCompat<long, PlayerId, ulong> ControlledEntities;
 
-		[ProtoMember]
+        [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
 
@@ -171,6 +171,9 @@ namespace Sandbox.Common.ObjectBuilders
         public List<ModItem> Mods;
 
         [ProtoMember]
+        public List<ulong> PromotedUsers;
+
+        [ProtoMember]
         public SerializableDefinitionId Scenario = DEFAULT_SCENARIO;
 
         [ProtoContract]
@@ -205,9 +208,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public SerializableDictionary<PlayerId, MyObjectBuilder_Player> AllPlayersData;
 
-		[ProtoMember]
-		public SerializableDictionary<PlayerId, List<Vector3>> AllPlayersColors;
-		public bool ShouldSerializeAllPlayersColors() { return AllPlayersColors != null && AllPlayersColors.Dictionary.Count > 0; }
+        [ProtoMember]
+        public SerializableDictionary<PlayerId, List<Vector3>> AllPlayersColors;
+        public bool ShouldSerializeAllPlayersColors() { return AllPlayersColors != null && AllPlayersColors.Dictionary.Count > 0; }
 
         [ProtoMember]
         public List<MyObjectBuilder_ChatHistory> ChatHistory;
@@ -227,7 +230,7 @@ namespace Sandbox.Common.ObjectBuilders
         {
             // Prevent this from appearing in SE checkpoints.
             return WorldBoundaries.Min != Vector3D.Zero ||
-                WorldBoundaries.Max != Vector3D.Zero;
+                   WorldBoundaries.Max != Vector3D.Zero;
         }
 
         [ProtoMember]
@@ -250,169 +253,172 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public string BriefingVideo;
 
-		#region obsolete
+        [ProtoMember, DefaultValue(9)]
+        public int RequiresDX = 9;
 
-		/// <summary>
-		/// Obsolete. Use ElapsedGameTime
-		/// </summary>
-		//[ProtoMember]
-		public DateTime GameTime
-		{
-			get
-			{
-				Debug.Fail("Obsolete!");
-				return new DateTime(2081, 1, 1, 0, 0, 0, DateTimeKind.Utc) + new TimeSpan(ElapsedGameTime);
-			}
-			set
-			{
-				ElapsedGameTime = (value - new DateTime(2081, 1, 1)).Ticks;
-			}
-		}
-		public bool ShouldSerializeGameTime() { return false; }
+        #region obsolete
 
-		//[ProtoMember]
-		public MyOnlineModeEnum OnlineMode
-		{
-			get { Debug.Fail("Obsolete."); return Settings.OnlineMode; }
-			set { Settings.OnlineMode = value; }
-		}
-		public bool ShouldSerializeOnlineMode() { return false; }
+        /// <summary>
+        /// Obsolete. Use ElapsedGameTime
+        /// </summary>
+        //[ProtoMember]
+        public DateTime GameTime
+        {
+            get
+            {
+                Debug.Fail("Obsolete!");
+                return new DateTime(2081, 1, 1, 0, 0, 0, DateTimeKind.Utc) + new TimeSpan(ElapsedGameTime);
+            }
+            set
+            {
+                ElapsedGameTime = (value - new DateTime(2081, 1, 1)).Ticks;
+            }
+        }
+        public bool ShouldSerializeGameTime() { return false; }
 
-		//[ProtoMember]
-		public bool AutoHealing
-		{
-			get { Debug.Fail("Obsolete."); return Settings.AutoHealing; }
-			set { Settings.AutoHealing = value; }
-		}
-		public bool ShouldSerializeAutoHealing() { return false; }
+        //[ProtoMember]
+        public MyOnlineModeEnum OnlineMode
+        {
+            get { Debug.Fail("Obsolete."); return Settings.OnlineMode; }
+            set { Settings.OnlineMode = value; }
+        }
+        public bool ShouldSerializeOnlineMode() { return false; }
 
-		//[ProtoMember]
-		// Obsolete!
-		public SerializableDictionary<ulong, MyObjectBuilder_Player> Players;
+        //[ProtoMember]
+        public bool AutoHealing
+        {
+            get { Debug.Fail("Obsolete."); return Settings.AutoHealing; }
+            set { Settings.AutoHealing = value; }
+        }
+        public bool ShouldSerializeAutoHealing() { return false; }
 
-		[ProtoMember]
-		// Obsolete!
-		public SerializableDictionary<PlayerId, MyObjectBuilder_Player> ConnectedPlayers;
-		public bool ShouldSerializeConnectedPlayers() { return false; }
+        //[ProtoMember]
+        // Obsolete!
+        public SerializableDictionary<ulong, MyObjectBuilder_Player> Players;
 
-		[ProtoMember]
-		// Obsolete!
-		public SerializableDictionary<PlayerId, long> DisconnectedPlayers;
-		public bool ShouldSerializeDisconnectedPlayers() { return false; }
+        [ProtoMember]
+        // Obsolete!
+        public SerializableDictionary<PlayerId, MyObjectBuilder_Player> ConnectedPlayers;
+        public bool ShouldSerializeConnectedPlayers() { return false; }
 
-		//[ProtoMember, DefaultValue(true)]
-		public bool EnableCopyPaste
-		{
-			get { Debug.Fail("Obsolete."); return Settings.EnableCopyPaste; }
-			set { Settings.EnableCopyPaste = value; }
-		}
-		public bool ShouldSerializeEnableCopyPaste() { return false; }
+        [ProtoMember]
+        // Obsolete!
+        public SerializableDictionary<PlayerId, long> DisconnectedPlayers;
+        public bool ShouldSerializeDisconnectedPlayers() { return false; }
 
-		//[ProtoMember, DefaultValue(4)]
-		public short MaxPlayers
-		{
-			get { Debug.Fail("Obsolete."); return Settings.MaxPlayers; }
-			set { Settings.MaxPlayers = value; }
-		}
-		public bool ShouldSerializeMaxPlayers() { return false; }
+        //[ProtoMember, DefaultValue(true)]
+        public bool EnableCopyPaste
+        {
+            get { Debug.Fail("Obsolete."); return Settings.EnableCopyPaste; }
+            set { Settings.EnableCopyPaste = value; }
+        }
+        public bool ShouldSerializeEnableCopyPaste() { return false; }
 
-		//[ProtoMember, DefaultValue(true)]
-		public bool WeaponsEnabled
-		{
-			get { Debug.Fail("Obsolete"); return Settings.WeaponsEnabled; }
-			set { Settings.WeaponsEnabled = value; }
-		}
-		public bool ShouldSerializeWeaponsEnabled() { return false; }
+        //[ProtoMember, DefaultValue(4)]
+        public short MaxPlayers
+        {
+            get { Debug.Fail("Obsolete."); return Settings.MaxPlayers; }
+            set { Settings.MaxPlayers = value; }
+        }
+        public bool ShouldSerializeMaxPlayers() { return false; }
 
-
-		//[ProtoMember, DefaultValue(true)]
-		public bool ShowPlayerNamesOnHud
-		{
-			get { Debug.Fail("Obsolete"); return Settings.ShowPlayerNamesOnHud; }
-			set { Settings.ShowPlayerNamesOnHud = value; }
-		}
-		public bool ShouldSerializeShowPlayerNamesOnHud() { return false; }
+        //[ProtoMember, DefaultValue(true)]
+        public bool WeaponsEnabled
+        {
+            get { Debug.Fail("Obsolete"); return Settings.WeaponsEnabled; }
+            set { Settings.WeaponsEnabled = value; }
+        }
+        public bool ShouldSerializeWeaponsEnabled() { return false; }
 
 
-		//[ProtoMember, DefaultValue(256)]
-		public short MaxFloatingObjects
-		{
-			get { Debug.Fail("Obsolete"); return Settings.MaxFloatingObjects; }
-			set { Settings.MaxFloatingObjects = value; }
-		}
-		public bool ShouldSerializeMaxFloatingObjects() { return false; }
-
-		//[ProtoMember]
-		public MyGameModeEnum GameMode
-		{
-			get { Debug.Fail("Obsolete"); return Settings.GameMode; }
-			set { Settings.GameMode = value; }
-		}
-		public bool ShouldSerializeGameMode() { return false; }
-
-		//[ProtoMember]
-		public float InventorySizeMultiplier
-		{
-			get { Debug.Fail("Obsolete."); return Settings.InventorySizeMultiplier; }
-			set { Settings.InventorySizeMultiplier = value; }
-		}
-		public bool ShouldSerializeInventorySizeMultiplier() { return false; }
-
-		//[ProtoMember]
-		public float AssemblerSpeedMultiplier
-		{
-			get { Debug.Fail("Obsolete."); return Settings.AssemblerSpeedMultiplier; }
-			set { Settings.AssemblerSpeedMultiplier = value; }
-		}
-		public bool ShouldSerializeAssemblerSpeedMultiplier() { return false; }
-
-		//[ProtoMember]
-		public float AssemblerEfficiencyMultiplier
-		{
-			get { Debug.Fail("Obsolete."); return Settings.AssemblerEfficiencyMultiplier; }
-			set { Settings.AssemblerEfficiencyMultiplier = value; }
-		}
-		public bool ShouldSerializeAssemblerEfficiencyMultiplier() { return false; }
-
-		//[ProtoMember]
-		public float RefinerySpeedMultiplier
-		{
-			get { Debug.Fail("Obsolete."); return Settings.RefinerySpeedMultiplier; }
-			set { Settings.RefinerySpeedMultiplier = value; }
-		}
-		public bool ShouldSerializeRefinerySpeedMultiplier() { return false; }
-
-		//[ProtoMember, DefaultValue(true)]
-		public bool ThrusterDamage
-		{
-			get { Debug.Fail("Obsolete."); return Settings.ThrusterDamage; }
-			set { Settings.ThrusterDamage = value; }
-		}
-		public bool ShouldSerializeThrusterDamage() { return false; }
+        //[ProtoMember, DefaultValue(true)]
+        public bool ShowPlayerNamesOnHud
+        {
+            get { Debug.Fail("Obsolete"); return Settings.ShowPlayerNamesOnHud; }
+            set { Settings.ShowPlayerNamesOnHud = value; }
+        }
+        public bool ShouldSerializeShowPlayerNamesOnHud() { return false; }
 
 
-		//[ProtoMember, DefaultValue(false)]
-		public bool CargoShipsEnabled
-		{
-			get { Debug.Fail("Obsolete."); return Settings.CargoShipsEnabled; }
-			set { Settings.CargoShipsEnabled = value; }
-		}
-		public bool ShouldSerializeCargoShipsEnabled() { return false; }
+        //[ProtoMember, DefaultValue(256)]
+        public short MaxFloatingObjects
+        {
+            get { Debug.Fail("Obsolete"); return Settings.MaxFloatingObjects; }
+            set { Settings.MaxFloatingObjects = value; }
+        }
+        public bool ShouldSerializeMaxFloatingObjects() { return false; }
 
-		//[ProtoMember]
-		// Obsolete!
-		public List<PlayerItem> AllPlayers;
-		public bool ShouldSerializeAllPlayers() { return false; }
+        //[ProtoMember]
+        public MyGameModeEnum GameMode
+        {
+            get { Debug.Fail("Obsolete"); return Settings.GameMode; }
+            set { Settings.GameMode = value; }
+        }
+        public bool ShouldSerializeGameMode() { return false; }
 
-		//[ProtoMember]
-		public bool AutoSave
-		{
-			get { Debug.Fail("Obsolete."); return Settings.AutoSaveInMinutes > 0; }
-			set { Settings.AutoSaveInMinutes = value ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0; }
-		}
-		public bool ShouldSerializeAutoSave() { return false; }
+        //[ProtoMember]
+        public float InventorySizeMultiplier
+        {
+            get { Debug.Fail("Obsolete."); return Settings.InventorySizeMultiplier; }
+            set { Settings.InventorySizeMultiplier = value; }
+        }
+        public bool ShouldSerializeInventorySizeMultiplier() { return false; }
 
-		#endregion
+        //[ProtoMember]
+        public float AssemblerSpeedMultiplier
+        {
+            get { Debug.Fail("Obsolete."); return Settings.AssemblerSpeedMultiplier; }
+            set { Settings.AssemblerSpeedMultiplier = value; }
+        }
+        public bool ShouldSerializeAssemblerSpeedMultiplier() { return false; }
+
+        //[ProtoMember]
+        public float AssemblerEfficiencyMultiplier
+        {
+            get { Debug.Fail("Obsolete."); return Settings.AssemblerEfficiencyMultiplier; }
+            set { Settings.AssemblerEfficiencyMultiplier = value; }
+        }
+        public bool ShouldSerializeAssemblerEfficiencyMultiplier() { return false; }
+
+        //[ProtoMember]
+        public float RefinerySpeedMultiplier
+        {
+            get { Debug.Fail("Obsolete."); return Settings.RefinerySpeedMultiplier; }
+            set { Settings.RefinerySpeedMultiplier = value; }
+        }
+        public bool ShouldSerializeRefinerySpeedMultiplier() { return false; }
+
+        //[ProtoMember, DefaultValue(true)]
+        public bool ThrusterDamage
+        {
+            get { Debug.Fail("Obsolete."); return Settings.ThrusterDamage; }
+            set { Settings.ThrusterDamage = value; }
+        }
+        public bool ShouldSerializeThrusterDamage() { return false; }
+
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool CargoShipsEnabled
+        {
+            get { Debug.Fail("Obsolete."); return Settings.CargoShipsEnabled; }
+            set { Settings.CargoShipsEnabled = value; }
+        }
+        public bool ShouldSerializeCargoShipsEnabled() { return false; }
+
+        //[ProtoMember]
+        // Obsolete!
+        public List<PlayerItem> AllPlayers;
+        public bool ShouldSerializeAllPlayers() { return false; }
+
+        //[ProtoMember]
+        public bool AutoSave
+        {
+            get { Debug.Fail("Obsolete."); return Settings.AutoSaveInMinutes > 0; }
+            set { Settings.AutoSaveInMinutes = value ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0; }
+        }
+        public bool ShouldSerializeAutoSave() { return false; }
+
+        #endregion
 
     }
 }

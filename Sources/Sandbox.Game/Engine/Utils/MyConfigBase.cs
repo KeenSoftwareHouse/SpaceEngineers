@@ -60,6 +60,20 @@ namespace Sandbox.Engine.Utils
             return outValue;
         }
 
+        protected T GetParameterValueT<T>(string parameterName)
+        {
+            object outObject;
+            T outValue;
+            if (m_values.Dictionary.TryGetValue(parameterName, out outObject) == false)
+            {
+                outValue = default(T);
+            }
+            else
+                outValue = (T)outObject;
+
+            return outValue;
+        }
+
         protected Vector3I GetParameterValueVector3I(string parameterName)
         {
             var parts = GetParameterValue(parameterName).Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -178,7 +192,7 @@ namespace Sandbox.Engine.Utils
 
                         using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
                         {
-                            XmlSerializer xmlSerializer = new XmlSerializer(m_values.GetType(), new Type[] { typeof(SerializableDictionary<string, string>) } );
+                            XmlSerializer xmlSerializer = new XmlSerializer(m_values.GetType(), new Type[] { typeof(SerializableDictionary<string, string>), typeof(List<string>), typeof(SerializableDictionary<string, MyConfig.MyDebugInputData>), typeof(MyConfig.MyDebugInputData) });
                             xmlSerializer.Serialize(xmlWriter, m_values);
                         }
                     }
@@ -221,7 +235,8 @@ namespace Sandbox.Engine.Utils
                         using (var stream = MyFileSystem.OpenRead(m_path))
                         using (XmlReader xmlReader = XmlReader.Create(stream))
                         {
-                            XmlSerializer xmlSerializer = new XmlSerializer(m_values.GetType(), new Type[] { typeof(SerializableDictionary<string, string>) });
+                            XmlSerializer xmlSerializer = new XmlSerializer(m_values.GetType(), new Type[] { typeof(SerializableDictionary<string, string>), typeof(List<string>), typeof(SerializableDictionary<string, MyConfig.MyDebugInputData>), typeof(MyConfig.MyDebugInputData) });
+
                             SerializableDictionary<string, object> newValues = (SerializableDictionary<string, object>)xmlSerializer.Deserialize(xmlReader);
 
                             m_values.Dictionary = newValues.Dictionary;

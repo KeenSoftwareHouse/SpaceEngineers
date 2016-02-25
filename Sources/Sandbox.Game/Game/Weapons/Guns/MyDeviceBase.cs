@@ -14,6 +14,7 @@ using Sandbox.Game.World;
 
 using System.Collections.Generic;
 using Sandbox.Game.Weapons.Guns;
+using VRage.Game;
 using VRage.Serialization;
 
 #endregion

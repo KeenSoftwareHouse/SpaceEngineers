@@ -2,7 +2,7 @@
 using System.Xml.Serialization;
 using ProtoBuf;
 
-namespace Sandbox.Common.ObjectBuilders.VRageData
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

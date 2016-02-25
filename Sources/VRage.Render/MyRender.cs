@@ -110,6 +110,7 @@ namespace VRageRender
             //Task.Factory.StartNew(PrepareEntitiesForDrawBackground, TaskCreationOptions.PreferFairness);
 
             MyRender.RegisterRenderModule(MyRenderModuleEnum.PrunningStructure, "Prunning structure", DebugDrawPrunning, MyRenderStage.DebugDraw, 250, false);
+            MyRender.RegisterRenderModule(MyRenderModuleEnum.Atmosphere, "Draw atmosphere", DrawAtmosphere, MyRenderStage.AlphaBlendPreHDR, 1, false);
             //MyRender.RegisterRenderModule(MyRenderModuleEnum.PhysicsPrunningStructure, "Physics prunning structure", MyPhysics.DebugDrawPhysicsPrunning, MyRenderStage.DebugDraw, 250, false);
 
             MyRenderConstants.OnRenderQualityChange += new EventHandler(MyRenderConstants_OnRenderQualityChange);
@@ -162,12 +163,12 @@ namespace VRageRender
             RegisterComponent(new MyRenderModels());
         }
 
-        internal static void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)
+        internal static void EnqueueMessage(MyRenderMessageBase message, bool limitMaxQueueSize)
         {
             SharedData.CurrentUpdateFrame.RenderInput.Add(message);
         }
 
-        internal static void EnqueueOutputMessage(IMyRenderMessage message)
+        internal static void EnqueueOutputMessage(MyRenderMessageBase message)
         {
             SharedData.RenderOutputMessageQueue.Enqueue(message);
         }

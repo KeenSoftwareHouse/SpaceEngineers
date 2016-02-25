@@ -9,6 +9,8 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using VRage;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
@@ -117,6 +119,13 @@ namespace Sandbox.Engine.Utils
         uint m_updateCount;
         float[] m_lastShapeCastDistance = new float[SHAPE_CAST_MAX_STEP_COUNT];
 
+        private bool? m_localCharacterWasInThirdPerson;
+        public bool? LocalCharacterWasInThirdPerson
+        {
+            get { return m_localCharacterWasInThirdPerson; }
+            set { m_localCharacterWasInThirdPerson = value; }
+        }
+
         public MyThirdPersonSpectator()
         {
             Static = this;
@@ -150,13 +159,13 @@ namespace Sandbox.Engine.Utils
             {
                 m_currentSpring.Setup(StrafingSpring, NormalSpring, m_springChangeTime);
             }
-            m_springChangeTime += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_springChangeTime += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
         }
 
         // Updates spectator position (spring connected to desired position)
         public override void UpdateAfterSimulation()
         {
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
             if (controlledEntity == null)
                 return;
 
@@ -189,7 +198,7 @@ namespace Sandbox.Engine.Utils
 
             // Apply acceleration
             Vector3 acceleration = (Vector3)force / m_currentSpring.Mass;
-            m_velocity += acceleration * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_velocity += acceleration * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_velocity.AssertIsValid();
 
             // Apply velocity
@@ -199,7 +208,7 @@ namespace Sandbox.Engine.Utils
             }
             else
             {
-                m_position += m_velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_position += m_velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             }
             m_position.AssertIsValid();
 
@@ -220,10 +229,10 @@ namespace Sandbox.Engine.Utils
 
             // Compute spring physics
             float angleForce = -AngleSpring.Stiffness * angleDifference - AngleSpring.Damping * m_angleVelocity;
-            m_angleVelocity += angleForce / AngleSpring.Mass * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_angleVelocity += angleForce / AngleSpring.Mass * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             if (angleDifference > 0)
             {
-                float factor = Math.Abs(m_angleVelocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS / angleDifference);
+                float factor = Math.Abs(m_angleVelocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS / angleDifference);
                 if (angleDifference > MathHelper.PiOver4)
                 {
                     factor = Math.Max(factor, 1.0f - MathHelper.PiOver4 / angleDifference);
@@ -233,9 +242,11 @@ namespace Sandbox.Engine.Utils
                 m_orientationMatrix = Matrix.CreateFromQuaternion(m_orientation);
             }
 
+            if ((m_position - m_desiredPosition).LengthSquared() > MAX_DISTANCE * MAX_DISTANCE) RecalibrateCameraPosition();
+
             if (m_saveSettings)
             {
-                MySession.SaveControlledEntityCameraSettings(false);
+                MySession.Static.SaveControlledEntityCameraSettings(false);
                 m_saveSettings = false;
             }
 
@@ -273,7 +284,7 @@ namespace Sandbox.Engine.Utils
                     var castStartUnsafe = line.From + line.Direction * unsafeIntersection.Value;
                     var castEndUnsafe = castStartSafe + line.Direction;
                     // short raycast, not causing problems with asteroids generating geometry
-                    Physics.MyPhysics.CastRay(castStartUnsafe, castEndUnsafe, m_raycastList, MyPhysics.DefaultCollisionLayer);
+                    Physics.MyPhysics.CastRay(castStartUnsafe, castEndUnsafe, m_raycastList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
                     if (!IsRaycastOK(m_raycastList))
                     {
                         return false;
@@ -284,7 +295,7 @@ namespace Sandbox.Engine.Utils
             if (requireRaycast)
             {
                 // short raycast, not causing problems with asteroids generating geometry
-                Physics.MyPhysics.CastRay(line.From, castStartSafe + line.Direction, m_raycastList, MyPhysics.DefaultCollisionLayer);
+                Physics.MyPhysics.CastRay(line.From, castStartSafe + line.Direction, m_raycastList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
                 if (!IsRaycastOK(m_raycastList))
                 {
                     return false;
@@ -295,13 +306,13 @@ namespace Sandbox.Engine.Utils
             try
             {
                 // small shape, not causing problems with asteroids generating geometry
-                Physics.MyPhysics.GetPenetrationsShape(shape, ref castStartSafe, ref Quaternion.Identity, m_rigidList, 15);
+                Physics.MyPhysics.GetPenetrationsShape(shape, ref castStartSafe, ref Quaternion.Identity, m_rigidList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
                 if (m_rigidList.Count > 0)
                 {
                     bool sameGrid = false;
-                    if (MySession.ControlledEntity != null && m_rigidList[0].Body != null)
+                    if (MySession.Static.ControlledEntity != null && m_rigidList[0].Body != null)
                     {
-                        sameGrid = m_rigidList[0].GetCollisionEntity() == MySession.ControlledEntity;
+                        sameGrid = m_rigidList[0].GetCollisionEntity() == MySession.Static.ControlledEntity;
                     }
 
                     if (sameGrid)
@@ -333,10 +344,10 @@ namespace Sandbox.Engine.Utils
 
                 var matrix = MatrixD.CreateTranslation(shapeCastLine.From);
                 HkContactPointData? cpd;
-                if (controlledEntity.Physics != null && controlledEntity.Physics.CharacterProxy != null)
-                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, controlledEntity.Physics.CharacterCollisionFilter, 0.0f); 
+                if (controlledEntity.Physics != null && controlledEntity.GetPhysicsBody().CharacterProxy != null)
+                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, MyPhysics.CollisionLayers.CharacterCollisionLayer, 0.0f);
                 else
-                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, HkGroupFilter.CalcFilterInfo(MyPhysics.DefaultCollisionLayer,0), 0.0f);
+                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, MyPhysics.CollisionLayers.DefaultCollisionLayer, 0.0f);
                 if (cpd.HasValue)
                 {
                     var point = shapeCastLine.From + shapeCastLine.Direction * shapeCastLine.Length * cpd.Value.DistanceFraction;
@@ -398,12 +409,12 @@ namespace Sandbox.Engine.Utils
                 return false;
             }
 
-            if (m_raycastHashSet.Count == 1 && MySession.ControlledEntity == null)
+            if (m_raycastHashSet.Count == 1 && MySession.Static.ControlledEntity == null)
             {
                 return false;
             }
 
-            if (m_raycastHashSet.Count == 1 && m_raycastHashSet.FirstElement() != ((MyEntity)MySession.ControlledEntity).GetTopMostParent())
+            if (m_raycastHashSet.Count == 1 && m_raycastHashSet.FirstElement() != ((MyEntity)MySession.Static.ControlledEntity).GetTopMostParent())
             {
                 return false;
             }
@@ -514,7 +525,7 @@ namespace Sandbox.Engine.Utils
             if (cameraController == null || !(cameraController is MyEntity))
                 return;
 
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
             if (controlledEntity == null)
                 return;
 
@@ -600,10 +611,10 @@ namespace Sandbox.Engine.Utils
                 double newDistance = 0;
 
                 var velocity = Vector3.Zero;
-                if (MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null)
-                    velocity = MySession.ControlledEntity.Entity.Physics.LinearVelocity;
+                if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
+                    velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
 
-                var positionSafe = m_positionSafe + velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                var positionSafe = m_positionSafe + velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
@@ -659,7 +670,7 @@ namespace Sandbox.Engine.Utils
 
         public float GetMinDistance()
         {
-            // return MySession.PlayerShip != null ? MySession.PlayerShip.WorldVolume.Radius * 1.3f : MyThirdPersonSpectator.DEFAULT_MIN_DISTANCE;
+            // return MySession.Static.PlayerShip != null ? MySession.Static.PlayerShip.WorldVolume.Radius * 1.3f : MyThirdPersonSpectator.DEFAULT_MIN_DISTANCE;
             return 1;
         }
 
@@ -679,7 +690,7 @@ namespace Sandbox.Engine.Utils
         {
             if (headAngle.HasValue)
             {
-                Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+                Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
                 if (controlledEntity == null)
                     return;
 

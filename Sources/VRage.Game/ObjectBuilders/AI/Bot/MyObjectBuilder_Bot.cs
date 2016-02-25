@@ -1,10 +1,7 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.ObjectBuilders;
-using VRage.Library.Utils;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

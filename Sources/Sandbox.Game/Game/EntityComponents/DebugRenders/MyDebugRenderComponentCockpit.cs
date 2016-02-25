@@ -26,7 +26,7 @@ namespace Sandbox.Game.Components
             if (m_cockpit.AiPilot != null)
                 m_cockpit.AiPilot.DebugDraw();
 
-            VRageRender.MyRenderProxy.DebugDrawText3D(m_cockpit.PositionComp.WorldMatrix.Translation, m_cockpit.SyncObject.IsShooting() ? "PEW!" : "", Color.Red, 2.0f, false);
+            VRageRender.MyRenderProxy.DebugDrawText3D(m_cockpit.PositionComp.WorldMatrix.Translation, m_cockpit.IsShooting() ? "PEW!" : "", Color.Red, 2.0f, false);
 
             if (m_cockpit.Pilot == null)
                 return false;

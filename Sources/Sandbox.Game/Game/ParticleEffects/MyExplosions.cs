@@ -6,6 +6,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
 using VRage.Generics;
 using VRageMath;
+using VRage.Game.Components;
 
 
 #endregion
@@ -13,7 +14,7 @@ using VRageMath;
 namespace Sandbox.Game
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    class MyExplosions : MySessionComponentBase
+    public class MyExplosions : MySessionComponentBase
     {
         static MyObjectsPool<MyExplosion> m_explosions = null;
 

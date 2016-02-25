@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -12,6 +14,7 @@ namespace Sandbox.Definitions
         public string HighlightIcon;
         public string InputConstraintIcon;
         public string OutputConstraintIcon;
+        public string ProgressBarSoundCue = null;
 
         private SortedSet<MyBlueprintDefinitionBase> m_blueprints;
 
@@ -34,6 +37,7 @@ namespace Sandbox.Definitions
             HighlightIcon = classBuilder.HighlightIcon;
             InputConstraintIcon = classBuilder.InputConstraintIcon;
             OutputConstraintIcon = classBuilder.OutputConstraintIcon;
+            ProgressBarSoundCue = classBuilder.ProgressBarSoundCue;
 
             m_blueprints = new SortedSet<MyBlueprintDefinitionBase>(SubtypeComparer.Static);
         }

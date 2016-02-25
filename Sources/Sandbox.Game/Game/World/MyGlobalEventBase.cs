@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 

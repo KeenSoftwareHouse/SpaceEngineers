@@ -20,8 +20,10 @@ using Sandbox.Common;
 using Sandbox.Game.Components;
 using VRage.Utils;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -76,7 +78,7 @@ namespace Sandbox.Game.Entities.Cube
         public MyCubeGridRenderCell(MyRenderComponentCubeGrid gridRender)
         {
             m_gridRenderComponent = gridRender;
-            EdgeViewDistance = gridRender.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large ? 130 : 35;
+            EdgeViewDistance = gridRender.GridSizeEnum == MyCubeSize.Large ? 130 : 35;
         }
 
         public bool AddCubePart(MyCubePart part)
@@ -423,7 +425,7 @@ namespace Sandbox.Game.Entities.Cube
                 bool exists = m_instanceGroupRenderObjects.TryGetValue(item.Key, out renderObjectId);
                 bool hasAnyInstances = item.Value.InstanceCount > 0;
 
-                var flags = item.Value.CastShadows ? renderFlags | RenderFlags.CastShadows : renderFlags & ~RenderFlags.CastShadows;
+                var flags = renderFlags;//item.Value.CastShadows ? renderFlags | RenderFlags.CastShadows : renderFlags & ~RenderFlags.CastShadows;
 
                 if (!exists && hasAnyInstances)
                 {

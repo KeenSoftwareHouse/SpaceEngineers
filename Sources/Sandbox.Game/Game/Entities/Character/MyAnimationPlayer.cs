@@ -8,6 +8,7 @@ using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Common;
 using VRage.Utils;
+using VRage.Game.Models;
 
 
 namespace Sandbox.Game.Entities
@@ -282,7 +283,10 @@ namespace Sandbox.Game.Entities
             m_weight = player.Weight;
             m_timeScale = player.m_timeScale;
             m_frameOption = player.m_frameOption;
-            m_boneLODs.Clear();
+
+            foreach(var list in m_boneLODs.Values)
+                list.Clear();
+            //m_boneLODs.Clear();
 
             m_boneCount = player.m_boneCount;
             if (m_boneInfos == null || m_boneInfos.Length < m_boneCount)
@@ -339,7 +343,7 @@ namespace Sandbox.Game.Entities
                 if (MyFakes.ENABLE_BONES_AND_ANIMATIONS_DEBUG)
                 {
                     int index;
-                    System.Diagnostics.Debug.Assert(m_skinnedEntity.FindBone(boneInfo.ClipBone.Name, out index) != null, "Can not find clip bone with name: " + boneInfo.ClipBone.Name + " in model: " + m_skinnedEntity.Name);
+                    System.Diagnostics.Debug.Assert(m_skinnedEntity.AnimationController.FindBone(boneInfo.ClipBone.Name, out index) != null, "Can not find clip bone with name: " + boneInfo.ClipBone.Name + " in model: " + m_skinnedEntity.Name);
                 }
             }
 
@@ -362,9 +366,17 @@ namespace Sandbox.Game.Entities
             m_weight = weight;
             m_timeScale = timeScale;
             m_frameOption = frameOption;
-            m_boneLODs.Clear();
-            var lod0 = new List<BoneInfo>();
-            m_boneLODs.Add(0, lod0);
+
+            foreach (var list in m_boneLODs.Values)
+                list.Clear();
+            //m_boneLODs.Clear();
+
+            List<BoneInfo> lod0;
+            if (!m_boneLODs.TryGetValue(0, out lod0))
+            {
+                lod0 = new List<BoneInfo>();
+                m_boneLODs.Add(0, lod0);
+            }
 
             // Create the bone information classes
             var maxBoneCount = explicitBones == null ? clip.Bones.Count : explicitBones.Length;
@@ -383,7 +395,14 @@ namespace Sandbox.Game.Entities
                     continue;
 
                 // Create it
-                var boneInfo = new BoneInfo(bone, this);
+                BoneInfo boneInfo = m_boneInfos[neededBonesCount];
+                if(m_boneInfos[neededBonesCount] == null)
+                    boneInfo = new BoneInfo(bone, this);
+                else
+                {
+                    boneInfo.Clear();
+                    boneInfo.Init(bone, this);
+                }
 
                 m_boneInfos[neededBonesCount] = boneInfo;
 
@@ -438,9 +457,9 @@ namespace Sandbox.Game.Entities
             get { return m_initialized; }
         }
 
-        AnimationClip.Bone FindBone(List<AnimationClip.Bone> bones, string name)
+        MyAnimationClip.Bone FindBone(List<MyAnimationClip.Bone> bones, string name)
         {
-            foreach (AnimationClip.Bone bone in bones)
+            foreach (MyAnimationClip.Bone bone in bones)
             {
                 if (bone.Name == name)
                     return bone;
@@ -470,11 +489,11 @@ namespace Sandbox.Game.Entities
             /// we are greater than or equal to this keyframe's time and less
             /// than the next keyframes time.
             /// </summary>
-            private int m_currentKeyframe = 0;
+            private int m_currentKeyframe = 0; // new anim sys: supported
 
-            bool m_isConst = false;
+            bool m_isConst = false; // new anim sys: supported (differently)
             
-            public int CurrentKeyframe
+            public int CurrentKeyframe // new anim sys: omitted
             {
                 get { return m_currentKeyframe; }
                 set
@@ -505,12 +524,12 @@ namespace Sandbox.Game.Entities
             /// We are at a location between Keyframe1 and Keyframe2 such 
             /// that Keyframe1's time is less than or equal to the current position
             /// </summary>
-            public AnimationClip.Keyframe Keyframe1;
+            public MyAnimationClip.Keyframe Keyframe1;
 
             /// <summary>
             /// Second keyframe value
             /// </summary>
-            public AnimationClip.Keyframe Keyframe2;
+            public MyAnimationClip.Keyframe Keyframe2;
 
             #endregion
 
@@ -519,8 +538,8 @@ namespace Sandbox.Game.Entities
             /// <summary>
             /// The bone in the actual animation clip
             /// </summary>
-            AnimationClip.Bone m_clipBone;
-            public AnimationClip.Bone ClipBone
+            MyAnimationClip.Bone m_clipBone;
+            public MyAnimationClip.Bone ClipBone
             {
                 get
                 {
@@ -549,7 +568,12 @@ namespace Sandbox.Game.Entities
             public BoneInfo()
             {
             }
-            public BoneInfo(AnimationClip.Bone bone, AnimationPlayer player)
+            public BoneInfo(MyAnimationClip.Bone bone, AnimationPlayer player)
+            {
+                Init(bone, player);
+            }
+
+            public void Init(MyAnimationClip.Bone bone, AnimationPlayer player)
             {
                 this.ClipBone = bone;
                 Player = player;
@@ -557,7 +581,20 @@ namespace Sandbox.Game.Entities
                 SetKeyframes();
                 SetPosition(0);
 
-                m_isConst = bone.Keyframes.Count == 1;
+                m_isConst = ClipBone.Keyframes.Count == 1;
+            }
+
+            public void Clear()
+            {
+                m_currentKeyframe = 0;
+                m_isConst = false;
+                m_assignedBone = null;
+                Rotation = default(Quaternion);
+                Translation = Vector3.Zero;
+                Player = null;
+                Keyframe1 = null;
+                Keyframe2 = null;
+                m_clipBone = null;
             }
 
 
@@ -574,7 +611,7 @@ namespace Sandbox.Game.Entities
                 if (ClipBone == null)
                     return;
 
-                List<AnimationClip.Keyframe> keyframes = ClipBone.Keyframes;
+                List<MyAnimationClip.Keyframe> keyframes = ClipBone.Keyframes;
                 if (keyframes.Count == 0)
                     return;
 
@@ -607,7 +644,7 @@ namespace Sandbox.Game.Entities
                     else
                     {
                         // Interpolate between keyframes
-                        float t = (float)((position - Keyframe1.Time) * Keyframe2.TimeDiff);
+                        float t = (float)((position - Keyframe1.Time) * Keyframe2.InvTimeDiff);
 
                         t = MathHelper.Clamp(t, 0, 1);
 
@@ -669,7 +706,7 @@ namespace Sandbox.Game.Entities
 
                 // Find this bone
                 int index;
-                m_assignedBone = skinnedEntity.FindBone(ClipBone.Name, out index);
+                m_assignedBone = skinnedEntity.AnimationController.FindBone(ClipBone.Name, out index);
             }
 
             #endregion

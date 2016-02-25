@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.GameSystems.Conveyors
@@ -39,7 +40,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             m_block = myBlock;
 
             MyConveyorLine.BlockLinePositionInformation[] positionInfo = MyConveyorLine.GetBlockLinePositions(myBlock);
-            m_conveyorLines = new MyConveyorLine[positionInfo.Count()];
+            m_conveyorLines = new MyConveyorLine[positionInfo.Length];
 
             MyGridConveyorSystem conveyorSystem = myBlock.CubeGrid.GridSystems.ConveyorSystem;
 
@@ -99,7 +100,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         public MyConveyorLine GetConveyorLine(ConveyorLinePosition position)
         {
             ConveyorLinePosition[] positions = GetLinePositions();
-            for (int i = 0; i < positions.Count(); ++i)
+            for (int i = 0; i < positions.Length; ++i)
             {
                 var gridPosition = PositionToGridCoords(positions[i]);
                 if (gridPosition.Equals(position))
@@ -120,7 +121,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         public MyConveyorLine GetConveyorLine(int index)
         {
-            if (index >= m_conveyorLines.Count())
+            if (index >= m_conveyorLines.Length)
                 throw new IndexOutOfRangeException();
 
             return m_conveyorLines[index];
@@ -129,7 +130,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         public void SetConveyorLine(ConveyorLinePosition position, MyConveyorLine newLine)
         {
             ConveyorLinePosition[] positions = GetLinePositions();
-            for (int i = 0; i < positions.Count(); ++i)
+            for (int i = 0; i < positions.Length; ++i)
             {
                 var gridPosition = PositionToGridCoords(positions[i]);
                 if (gridPosition.Equals(position))
@@ -153,7 +154,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         public int GetLineCount()
         {
-            return m_conveyorLines.Count();
+            return m_conveyorLines.Length;
         }
 
         protected ConveyorLinePosition[] GetLinePositions()
@@ -169,7 +170,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, string dummyName)
         {
-            return GetLinePositions(cubeBlock, Engine.Models.MyModels.GetModelOnlyDummies(cubeBlock.BlockDefinition.Model).Dummies, dummyName);
+            return GetLinePositions(cubeBlock, VRage.Game.Models.MyModels.GetModelOnlyDummies(cubeBlock.BlockDefinition.Model).Dummies, dummyName);
         }
 
         public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, IDictionary<string, VRage.Import.MyModelDummy> dummies, string dummyName)
@@ -217,7 +218,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         protected void UpdateLineFunctionality()
         {
-            for (int i = 0; i < m_conveyorLines.Count(); ++i)
+            for (int i = 0; i < m_conveyorLines.Length; ++i)
             {
                 m_conveyorLines[i].UpdateIsFunctional();
             }
@@ -250,7 +251,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
 
         protected virtual int GetNeighborCount()
         {
-            return m_conveyorLines.Count();
+            return m_conveyorLines.Length;
         }
 
         IMyPathVertex<IMyConveyorEndpoint> IMyPathVertex<IMyConveyorEndpoint>.GetNeighbor(int index)

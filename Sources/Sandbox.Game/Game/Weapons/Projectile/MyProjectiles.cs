@@ -7,6 +7,8 @@ using Sandbox.Definitions;
 using Sandbox.Game.Weapons.Guns;
 using System;
 using System.Runtime.InteropServices;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 
 namespace Sandbox.Game.Weapons
@@ -39,7 +41,7 @@ namespace Sandbox.Game.Weapons
         }
 
         //  Add new projectile to the list  
-        public static void Add(MyProjectileAmmoDefinition ammoDefinition, Vector3D origin, Vector3 initialVelocity, Vector3 directionNormalized, IMyGunBaseUser user)
+        public static void Add(MyProjectileAmmoDefinition ammoDefinition, Vector3D origin, Vector3 initialVelocity, Vector3 directionNormalized, IMyGunBaseUser user, MyEntity owner)
         {
             //MyProjectile newProjectile = m_projectiles.Allocate();
             MyProjectile newProjectile;
@@ -53,8 +55,8 @@ namespace Sandbox.Game.Weapons
                 directionNormalized,
                 user.Weapon
                 );
-            newProjectile.OwnerEntity = user.Owner != null ? user.Owner : user.IgnoreEntity; 
-
+            newProjectile.OwnerEntity = user.Owner != null ? user.Owner : user.IgnoreEntity;
+            newProjectile.OwnerEntityAbsolute = owner;
         }
 
         public static void AddShrapnel(MyProjectileAmmoDefinition ammoDefinition, MyEntity ignoreEntity, Vector3 origin, Vector3 initialVelocity, Vector3 directionNormalized, bool groupStart, float thicknessMultiplier, float trailProbability, MyEntity weapon, MyEntity ownerEntity = null, float projectileCountMultiplier = 1)

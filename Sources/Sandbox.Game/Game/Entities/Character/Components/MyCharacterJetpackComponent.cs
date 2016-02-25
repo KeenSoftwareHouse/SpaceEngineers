@@ -12,10 +12,12 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 using Vector3 = VRageMath.Vector3;
-using VRage.Components;
+using VRage.Game.Components;
+using Sandbox.Game.GUI;
 
 namespace Sandbox.Game.Entities.Character.Components
 {
@@ -33,12 +35,16 @@ namespace Sandbox.Game.Entities.Character.Components
 		public bool DampenersTurnedOn { get { return ThrustComp.DampenersEnabled; } }
         public MyGasProperties FuelDefinition { get; private set; }
         public MyFuelConverterInfo FuelConverterDefinition { get; private set; }
-        public bool IsPowered { get { return (ThrustComp != null && ThrustComp.ResourceSink.IsPoweredByType(FuelDefinition.Id)); } }
+        public bool IsPowered { get { return (MySession.Static.LocalCharacter == Character &&MySession.Static.IsAdminModeEnabled) || (ThrustComp != null && ThrustComp.IsThrustPoweredByType(Character, ref FuelDefinition.Id)); } }
 		public bool Running { get { return TurnedOn && IsPowered && !Character.IsDead; } }
 		public bool TurnedOn { get; private set; }
 
+        public float MinPlanetaryInfluence { get; private set; }
+        public float MaxPlanetaryInfluence { get; private set; }
         public float EffectivenessAtMaxInfluence { get; private set; }
         public float EffectivenessAtMinInfluence { get; private set; }
+        public bool NeedsAtmosphereForInfluence { get; private set; }
+        public float ConsumptionFactorPerG { get; private set; }
 
 		private bool IsFlying { get; set; }
 
@@ -46,6 +52,9 @@ namespace Sandbox.Game.Entities.Character.Components
 		private MyHudNotification m_jetpackToggleNotification;
 
 		private const float AUTO_ENABLE_JETPACK_INTERVAL = 1; //s
+
+		private bool m_isOnPlanetSurface = false;
+		private int m_planetSurfaceRaycastCounter = 0;
 
 		public MyCharacterJetpackComponent()
 		{
@@ -88,22 +97,26 @@ namespace Sandbox.Game.Entities.Character.Components
             ForceMagnitude = thrustProperties.ForceMagnitude;
 			MinPowerConsumption = thrustProperties.MinPowerConsumption;
 			MaxPowerConsumption = thrustProperties.MaxPowerConsumption;
+		    MinPlanetaryInfluence = thrustProperties.MinPlanetaryInfluence;
+		    MaxPlanetaryInfluence = thrustProperties.MaxPlanetaryInfluence;
 		    EffectivenessAtMinInfluence = thrustProperties.EffectivenessAtMinInfluence;
 		    EffectivenessAtMaxInfluence = thrustProperties.EffectivenessAtMaxInfluence;
+		    NeedsAtmosphereForInfluence = thrustProperties.NeedsAtmosphereForInfluence;
+		    ConsumptionFactorPerG = thrustProperties.ConsumptionFactorPerG;
 
 			MyEntityThrustComponent thrustComp = new MyJetpackThrustComponent();
 			thrustComp.Init();
-
-		    thrustComp.ResourceSink.TemporaryConnectedEntity = Character;
-
 			Character.Components.Add(thrustComp);
+
+
 			ThrustComp.DampenersEnabled = characterBuilder.DampenersEnabled;
 
 			foreach (Vector3I direction in Base6Directions.IntDirections)
 			{
 				ThrustComp.Register(Character, direction);	// Preferably there should be a jetpack entity (equipment) that could hold the thrusts instead of the character
 			}
-            Character.SuitRechargeDistributor.AddSink(thrustComp.ResourceSink);
+		    thrustComp.ResourceSink(Character).TemporaryConnectedEntity = Character;
+            Character.SuitRechargeDistributor.AddSink(thrustComp.ResourceSink(Character));
 			TurnOnJetpack(characterBuilder.JetpackEnabled, true, true, true);
 		}
 
@@ -116,7 +129,7 @@ namespace Sandbox.Game.Entities.Character.Components
 
 		public override void OnBeforeRemovedFromContainer()
 		{
-			Character.SuitRechargeDistributor.RemoveSink(ThrustComp.ResourceSink, true, Entity.MarkedForClose);
+			Character.SuitRechargeDistributor.RemoveSink(ThrustComp.ResourceSink(Character), true, Entity.MarkedForClose);
 			base.OnBeforeRemovedFromContainer();
 		}
 
@@ -124,18 +137,18 @@ namespace Sandbox.Game.Entities.Character.Components
 		{
 			ThrustComp.UpdateBeforeSimulation();
 		}
-
+        public override void OnCharacterDead()
+        {
+            base.OnCharacterDead();
+            TurnOnJetpack(false);
+        }
 		public void TurnOnJetpack(bool newState, bool fromLoad = false, bool updateSync = true, bool fromInit = false)
 		{
-			MyCharacterMovementEnum currentMovementState = Character.GetCurrentMovementState();
-			if (currentMovementState == MyCharacterMovementEnum.Sitting)
-				return;
-
 			bool originalNewState = newState;
 
 			newState = newState && MySession.Static.Settings.EnableJetpack;
 			newState = newState && Character.Definition.Jetpack != null;
-			newState = newState && (!MySession.Static.SurvivalMode || MyFakes.ENABLE_JETPACK_IN_SURVIVAL);
+			newState = newState && (!MySession.Static.SurvivalMode || MyFakes.ENABLE_JETPACK_IN_SURVIVAL||MySession.Static.IsAdminModeEnabled);
 
 			bool valueChanged = TurnedOn != newState;
 			TurnedOn = newState;
@@ -143,34 +156,35 @@ namespace Sandbox.Game.Entities.Character.Components
 			ThrustComp.ControlThrust = Vector3.Zero;
             ThrustComp.MarkDirty();
             ThrustComp.UpdateBeforeSimulation();
-            if (!ThrustComp.Enabled)
-                ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f);
+		    if (!ThrustComp.Enabled)
+		        ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
 
-            ThrustComp.ResourceSink.Update();
-
-			if (valueChanged && updateSync)
-				Character.SendFlags();
+            ThrustComp.ResourceSink(Character).Update();
 
 			if (!Character.ControllerInfo.IsLocallyControlled() && !fromInit && !Sync.IsServer && !MyFakes.CHARACTER_SERVER_SYNC)
 				return;
 
+            MyCharacterMovementEnum currentMovementState = Character.GetCurrentMovementState();
+            if (currentMovementState == MyCharacterMovementEnum.Sitting)
+                return;
+
 			Character.StopFalling();
 
-			bool noEnergy = false;
+			bool noHydrogen = false;
 			bool canUseJetpack = newState;
 
-			if (!IsPowered && canUseJetpack)
+            if (!IsPowered && canUseJetpack &&(MySession.Static.IsAdminModeEnabled == false || MySession.Static.LocalCharacter != Character))
 			{
 				canUseJetpack = false;
-				noEnergy = true;
+				noHydrogen = true;
 			}
 
 			if (canUseJetpack)
 				Character.IsUsing = null;
 
-			if (MySession.ControlledEntity == Character && valueChanged && !fromLoad)
+            if (MySession.Static.ControlledEntity == Character && valueChanged && !fromLoad)
 			{
-				m_jetpackToggleNotification.Text = (noEnergy) ? MySpaceTexts.NotificationJetpackOffNoEnergy
+				m_jetpackToggleNotification.Text = (noHydrogen) ? MySpaceTexts.NotificationJetpackOffNoHydrogen
 													 : (canUseJetpack || (originalNewState)) ? MySpaceTexts.NotificationJetpackOn
 																		  : MySpaceTexts.NotificationJetpackOff;
 				MyHud.Notifications.Add(m_jetpackToggleNotification);
@@ -183,6 +197,19 @@ namespace Sandbox.Game.Entities.Character.Components
                 {
                     MyAnalyticsHelper.ReportActivityEnd(Character, "jetpack");
                 }
+
+                //unable sound + turn off jetpack
+                if (noHydrogen)
+                {
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                    TurnedOn = false;
+                    ThrustComp.Enabled = false;
+                    ThrustComp.ControlThrust = Vector3.Zero;
+                    ThrustComp.MarkDirty();
+                    ThrustComp.UpdateBeforeSimulation();
+                    ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
+                    ThrustComp.ResourceSink(Character).Update();
+                }
 			}
 
 			var characterProxy = Character.Physics.CharacterProxy;
@@ -194,12 +221,13 @@ namespace Sandbox.Game.Entities.Character.Components
 
 				if (currentMovementState != MyCharacterMovementEnum.Died)
 				{
-					if (!Running && (characterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)characterProxy.GetState() == 5))
+                    if (!Running && (characterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)characterProxy.GetState() == MyCharacter.HK_CHARACTER_FLYING))
 						Character.StartFalling();
-					else if (currentMovementState != MyCharacterMovementEnum.Standing)
+                    //If we are in any state but not standing and new state is to be flying, dont change to standing. Else is probably ok?
+                    else if (currentMovementState != MyCharacterMovementEnum.Standing && !newState) 
 					{
 						Character.PlayCharacterAnimation("Idle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
-						Character.SetCurrentMovementState(MyCharacterMovementEnum.Standing);
+                        Character.SetCurrentMovementState(MyCharacterMovementEnum.Standing);
 						currentMovementState = Character.GetCurrentMovementState();
 					}
 				}
@@ -207,7 +235,7 @@ namespace Sandbox.Game.Entities.Character.Components
 				if (Running && currentMovementState != MyCharacterMovementEnum.Died)
 				{
 					Character.PlayCharacterAnimation("Jetpack", MyBlendOption.Immediate, MyFrameOption.Loop, 0.0f);
-					Character.SetCurrentMovementState(MyCharacterMovementEnum.Flying);
+                    Character.SetCurrentMovementState(MyCharacterMovementEnum.Flying);
 					Character.SetLocalHeadAnimation(0, 0, 0.3f);
 
 					// If the character is running when enabling the jetpack, these will keep making him fly in the same direction always if not zeroed
@@ -244,7 +272,7 @@ namespace Sandbox.Game.Entities.Character.Components
 
 			Character.SwitchAnimation(newMovementState);
 
-			Character.SetCurrentMovementState(newMovementState);
+            Character.SetCurrentMovementState(newMovementState);
 
 			bool wantsFlyDown = (Character.MovementFlags & MyCharacterMovementFlags.FlyDown) == MyCharacterMovementFlags.FlyDown;
 			bool wantsFlyUp = (Character.MovementFlags & MyCharacterMovementFlags.FlyUp) == MyCharacterMovementFlags.FlyUp;
@@ -252,7 +280,7 @@ namespace Sandbox.Game.Entities.Character.Components
 			IsFlying = moveIndicator.LengthSquared() != 0;
 
 			var proxyState = characterProxy != null ? characterProxy.GetState() : 0;
-			if ((proxyState == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)proxyState == 5))
+            if ((proxyState == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)proxyState == MyCharacter.HK_CHARACTER_FLYING))
 			{
 				Character.PlayCharacterAnimation("Jetpack", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
 
@@ -266,11 +294,11 @@ namespace Sandbox.Game.Entities.Character.Components
 
 				if (Character.Definition.VerticalPositionFlyingOnly)
 				{
-					Character.SetHeadLocalXAngle(MathHelper.Clamp(Character.HeadLocalXAngle - rotationIndicator.X*MyCharacter.CHARACTER_X_ROTATION_SPEED, MyCharacter.MIN_HEAD_LOCAL_X_ANGLE, MyCharacter.MAX_HEAD_LOCAL_X_ANGLE));
+                    Character.SetHeadLocalXAngle(MathHelper.Clamp(Character.HeadLocalXAngle - rotationIndicator.X * Character.RotationSpeed, MyCharacter.MIN_HEAD_LOCAL_X_ANGLE, MyCharacter.MAX_HEAD_LOCAL_X_ANGLE));
 				}
 				else
 				{
-					rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(Character.WorldMatrix.Right, rotationIndicator.X * -0.002f);
+                    rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(Character.WorldMatrix.Right, rotationIndicator.X * -0.02 * Character.RotationSpeed);
 				}
 
 				rotationMatrix.Translation = translation - rotationMatrix.Up;
@@ -310,13 +338,45 @@ namespace Sandbox.Game.Entities.Character.Components
 				return false;
 
 			var characterPhysics = Character.Physics;
+
 			var characterProxy = characterPhysics.CharacterProxy;
-			characterProxy.Gravity = Vector3.Zero;
+            if (characterProxy != null)
+            {
+                if (characterProxy.LinearVelocity.Length() < MyCharacter.MINIMAL_SPEED)
+                    characterProxy.LinearVelocity = Vector3.Zero;
+            }
 
-			if (characterProxy.LinearVelocity.Length() < MyCharacter.MINIMAL_SPEED)
-				characterProxy.LinearVelocity = Vector3.Zero;
+            var rigidBody = characterPhysics.RigidBody;
+            if (rigidBody != null)
+            {
+                rigidBody.Gravity = Vector3.Zero;
 
-			return true;
+                if (MySession.Static.SurvivalMode || MyFakes.ENABLE_PLANETS_JETPACK_LIMIT_IN_CREATIVE)
+                {
+                    Vector3 planetGravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(Character.PositionComp.WorldAABB.Center);
+
+                    if (planetGravity != Vector3.Zero)
+                        rigidBody.Gravity = planetGravity * MyPerGameSettings.CharacterGravityMultiplier;
+                }
+
+                return true;
+            }
+            else if(characterProxy != null)
+            { 
+			    characterProxy.Gravity = Vector3.Zero;
+
+                if (MySession.Static.SurvivalMode || MyFakes.ENABLE_PLANETS_JETPACK_LIMIT_IN_CREATIVE)
+                {
+                    Vector3 planetGravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(Character.PositionComp.WorldAABB.Center);
+
+                    if (planetGravity != Vector3.Zero)
+                        characterProxy.Gravity = planetGravity * MyPerGameSettings.CharacterGravityMultiplier;
+                }
+
+                return true;
+            }
+
+            return false;
 		}
 
 		public void EnableDampeners(bool enable, bool updateSync = true)
@@ -325,8 +385,6 @@ namespace Sandbox.Game.Entities.Character.Components
 				return;
 
 			ThrustComp.DampenersEnabled = enable;
-			if (updateSync)
-				Character.SendFlags();
 		}
 
 		public void SwitchDamping()
@@ -336,15 +394,15 @@ namespace Sandbox.Game.Entities.Character.Components
 
 			EnableDampeners(!DampenersTurnedOn, true);
 
-			m_inertiaDampenersNotification.Text = (DampenersTurnedOn ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
+            m_inertiaDampenersNotification.Text = (DampenersTurnedOn ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
 			MyHud.Notifications.Add(m_inertiaDampenersNotification);
 		}
 
 		public void SwitchThrusts()
 		{
 			if (Character.GetCurrentMovementState() != MyCharacterMovementEnum.Died
-				&& ((!MySession.Static.SimpleSurvival && MyPerGameSettings.Game != GameEnum.ME_GAME)
-				|| !MySession.Static.SurvivalMode) && !MySession.Static.Battle)
+				&& ((MyPerGameSettings.Game != GameEnum.ME_GAME
+				|| !MySession.Static.SurvivalMode)||MySession.Static.IsAdminModeEnabled))
 			{
 				TurnOnJetpack(!TurnedOn);
 			}

@@ -10,6 +10,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Engine.Physics;
 using System;
 using Sandbox.Game.Weapons.Guns;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -76,7 +77,18 @@ namespace Sandbox.Game.Weapons
         public static MyMissile AddUnsynced(MyWeaponPropertiesWrapper weaponProperties, Vector3D position, Vector3D initialVelocity, Vector3D direction, long ownerId)
         {
             MyMissile newMissile = CreateMissile(weaponProperties);
+            if (Sync.IsServer)
+            { 
+                //"hack" to prevent self shooting of rocket launchers if there is lag on network
+                Vector3D extendedPos = position+direction*4.0f;
+                MyPhysics.HitInfo? info = MyPhysics.CastRay(position, extendedPos);
 
+                //spawn rocket 4m in fron of launcher on DS (why 4 ? why not ;) ), but only if there is nothing in front of launcher
+                if (info.HasValue == false)
+                {
+                    position = extendedPos;
+                }
+            }
             newMissile.Start(position, initialVelocity, direction, ownerId);
 
             return newMissile;

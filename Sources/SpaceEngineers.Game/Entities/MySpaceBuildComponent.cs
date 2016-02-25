@@ -1,10 +1,12 @@
-﻿using Sandbox.Common;
+﻿using Sandbox;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
 using SpaceEngineers.Game.Entities.Blocks;
 using System;
@@ -12,6 +14,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRageMath;
 
 namespace SpaceEngineers.Game.Entities
@@ -34,7 +39,7 @@ namespace SpaceEngineers.Game.Entities
 
         public override MyInventoryBase GetBuilderInventory(long entityId)
         {
-            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
+            if (MySession.Static.CreativeMode)
                 return null;
 
             MyEntity entity;
@@ -48,18 +53,18 @@ namespace SpaceEngineers.Game.Entities
 
         public override MyInventoryBase GetBuilderInventory(MyEntity entity)
         {
-            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
+            if (MySession.Static.CreativeMode)
                 return null;
 
             var character = entity as MyCharacter;
             if (character != null)
             {
-                return character.GetInventory(0);
+                return character.GetInventory(0) as MyInventoryBase;
             }
             var shipWelder = entity as MyShipWelder;
             if (shipWelder != null)
             {
-                return shipWelder.GetInventory(0);
+                return shipWelder.GetInventory(0) as MyInventoryBase;
             }
 
             Debug.Fail("Only characters and ship welders can build blocks!");
@@ -68,17 +73,42 @@ namespace SpaceEngineers.Game.Entities
 
         public override bool HasBuildingMaterials(MyEntity builder)
         {
-            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
+            if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled && builder == MySession.Static.LocalCharacter))
                 return true;
 
             if (builder == null) return false;
             var inventory = GetBuilderInventory(builder);
             if (inventory == null) return false;
-
+            MyInventory shipInventory = null;
+            MyCockpit cockpit = null;
+            long identityId = MySession.Static.LocalPlayerId;
+            if (builder is MyCharacter)
+            {//construction cockpit?
+                cockpit = (builder as MyCharacter).IsUsing as MyCockpit;
+                if (cockpit != null)
+                {
+                    shipInventory = cockpit.GetInventory();
+                    identityId = cockpit.ControllerInfo.ControllingIdentityId;
+                }
+                else
+                    if ((builder as MyCharacter).ControllerInfo != null)
+                        identityId = (builder as MyCharacter).ControllerInfo.ControllingIdentityId;
+                    else
+                        Debug.Fail("failed to get identityId");
+            }
             bool result = true;
             foreach (var entry in m_materialList.RequiredMaterials)
             {
                 result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                if (!result && shipInventory != null)
+                {
+                    result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                    if (!result)
+                    {
+                        //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
+                        result = MyGridConveyorSystem.ConveyorSystemItemAmount(cockpit, shipInventory, identityId, entry.Key) >= entry.Value;
+                    }
+                }
                 if (!result) break;
             }
             return result;
@@ -121,20 +151,25 @@ namespace SpaceEngineers.Game.Entities
                 {
                     foreach (var item in block.ConstructionStockpile.Items)
                     {
-                        var itemId = item.PhysicalContent.GetId();
-                        m_materialList.AddMaterial(itemId, item.Amount, item.Amount, addToDisplayList: false);
+                        if (item.PhysicalContent != null)
+                        {
+                            var itemId = item.PhysicalContent.GetId();
+                            m_materialList.AddMaterial(itemId, item.Amount, item.Amount, addToDisplayList: false);
+                        }
                     }
                 }
             }
+        }
+
+        public override void GetMultiBlockPlacementMaterials(MyMultiBlockDefinition multiBlockDefinition)
+        {
         }
 
         public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
         {
             base.BeforeCreateBlock(definition, builder, ob);
 
-            Debug.Assert(MySession.Static.SimpleSurvival == false, "In SE, there should not be simple survival!");
-
-            if (builder != null && MySession.Static.SurvivalMode)
+            if (builder != null && MySession.Static.SurvivalMode&&MySession.Static.IsAdminModeEnabled == false)
             {
                 ob.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
                 ob.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
@@ -143,7 +178,7 @@ namespace SpaceEngineers.Game.Entities
 
         public override void AfterGridCreated(MyCubeGrid grid, MyEntity builder)
         {
-            if (MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+            if (MySession.Static.SurvivalMode)
             {
                 TakeMaterialsFromBuilder(builder);
             }
@@ -157,13 +192,17 @@ namespace SpaceEngineers.Game.Entities
         {
             if (builder == null) return;
 
-            if (MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+            if (MySession.Static.SurvivalMode)
             {
                 TakeMaterialsFromBuilder(builder);
             }
         }
 
         public override void AfterBlocksBuild(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks, MyEntity builder)
+        {
+        }
+
+        public override void AfterMultiBlockBuild(MyEntity builder)
         {
         }
 
@@ -187,11 +226,61 @@ namespace SpaceEngineers.Game.Entities
             if (builder == null) return;
             var inventory = GetBuilderInventory(builder);
             if (inventory == null) return;
+            MyInventory shipInventory = null;
+            MyCockpit cockpit = null;
+            long identityId=long.MaxValue;
+            if (builder is MyCharacter)
+            {//construction cockpit?
+                cockpit = (builder as MyCharacter).IsUsing as MyCockpit;
+                if (cockpit != null)
+                {
+                    shipInventory = cockpit.GetInventory();
+                    identityId = cockpit.ControllerInfo.ControllingIdentityId;
+                }
+                else
+                    if ((builder as MyCharacter).ControllerInfo != null)
+                        identityId = (builder as MyCharacter).ControllerInfo.ControllingIdentityId;
+                    else
+                        Debug.Fail("failed to get identityId");
+            }
+
+            VRage.MyFixedPoint hasAmount,hasAmountCockpit;
 
             foreach (var entry in m_materialList.RequiredMaterials)
             {
-                inventory.RemoveItemsOfType(entry.Value, entry.Key);
+                VRage.MyFixedPoint toRemove = entry.Value;
+                hasAmount = inventory.GetItemAmount(entry.Key);
+                if (hasAmount > entry.Value)
+                {
+                    inventory.RemoveItemsOfType(toRemove, entry.Key);
+                    continue;
+                }
+                if (hasAmount>0)
+                {
+                    inventory.RemoveItemsOfType(hasAmount, entry.Key);
+                    toRemove -= hasAmount;
+                }
+                if (shipInventory != null)
+                {
+                    hasAmountCockpit = shipInventory.GetItemAmount(entry.Key);
+                    if (hasAmountCockpit >= toRemove)
+                    {
+                        shipInventory.RemoveItemsOfType(toRemove, entry.Key);
+                        continue;
+                    }
+                    if (hasAmountCockpit > 0)
+                    {
+                        shipInventory.RemoveItemsOfType(hasAmountCockpit, entry.Key);
+                        toRemove -= hasAmountCockpit;
+                    }
+                    var transferred = MyGridConveyorSystem.ItemPullRequest(cockpit, shipInventory, identityId, entry.Key, toRemove, true);
+                    Debug.Assert(transferred == toRemove, "Cannot pull enough materials to build, "+transferred+"!="+toRemove);
+                }
+                else
+                    Debug.Assert(toRemove==0, "Needs more materials and ship inventory is null");
             }
         }
+
+
     }
 }

@@ -1,4 +1,5 @@
-#include <brdf.h>
+#include <Lighting/brdf.h>
+#include <Math/Color.h>
 
 float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
 	float3 dp1 =  ddx(pos);
@@ -66,11 +67,13 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
 	N = normalize(mul(normalmap, tangent_to_world));
 
-	if(pixel.material_flags & MATERIAL_FLAG_RGB_COLORING) {
+	if(pixel.material_flags & MATERIAL_FLAG_RGB_COLORING) 
+	{
 		float3 c_rgb = hsv_to_rgb(saturate(pixel.key_color.xyz * float3(1, 0.5, 0.5) + float3(0, 0.5, 0.5)));
 		output.base_color = lerp(1, c_rgb, color_mask) * cm.xyz;
 	}
-	else {
+	else 
+	{
 		output.base_color = colorize_1(cm.xyz, pixel.key_color.xyz, color_mask);
 	}
 
@@ -112,17 +115,22 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	// bc7 compression artifacts can give byte value 1 for 0, which should more visible than small shift
 	output.emissive = max(output.emissive, saturate(extras.y - 1/255. + pixel.emissive));
 
+#ifndef USE_VOXEL_DATA
 	if (object_.facing)
 	{
 		output.id = 2;
 	}
+#endif
 	output.ao = ao;
 
 #endif
 
+#if defined(DITHERED) || defined(DITHERED_LOD)
 #ifdef DITHERED
-
 	float tex_dither = Dither8x8[(uint2)pixel.screen_position.xy % 8];
+#else
+	float tex_dither = rand(pixel.screen_position.xy);
+#endif
 	float object_dither = abs(pixel.custom_alpha);
 
 	if (object_dither > 1)

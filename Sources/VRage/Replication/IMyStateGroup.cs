@@ -29,13 +29,18 @@ namespace VRage.Network
         void ClientUpdate();
 
         /// <summary>
+        /// Called when state group is being destroyed.
+        /// </summary>
+        void Destroy();
+
+        /// <summary>
         /// Gets priority related to client.
         /// When priority is lower than zero, it means the object is not relevant for client.
         /// Default priority is 1.0f.
         /// </summary>
         /// <param name="frameCountWithoutSync">How long (in update frame count) has client not received sync of this state group.</param>
         /// <param name="forClient">Client for whom is the priority get.</param>
-        float GetGroupPriority(int frameCountWithoutSync, MyClientStateBase forClient);
+        float GetGroupPriority(int frameCountWithoutSync, MyClientInfo forClient);
 
         /// <summary>
         /// (De)serializes group state or it's diff for client.
@@ -58,5 +63,7 @@ namespace VRage.Network
         /// <param name="packetId">Id of the delivered or lost packet.</param>
         /// <param name="delivered">True when packet was delivered, false when packet is considered lost.</param>
         void OnAck(MyClientStateBase forClient, byte packetId, bool delivered);
+
+        void ForceSend(MyClientStateBase clientData);
     }
 }

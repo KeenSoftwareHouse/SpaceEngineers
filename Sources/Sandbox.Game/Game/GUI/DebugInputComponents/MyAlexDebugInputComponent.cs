@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.World;
 using System.Collections.Generic;
@@ -63,19 +64,19 @@ namespace Sandbox.Game.Gui
             }
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad1))
             {
-                MySession.LocalCharacter.OxygenComponent.SuitOxygenLevel = 0.35f;
+                MySession.Static.LocalCharacter.OxygenComponent.SuitOxygenLevel = 0.35f;
             }
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad2))
             {
-                MySession.LocalCharacter.OxygenComponent.SuitOxygenLevel = 0f;
+                MySession.Static.LocalCharacter.OxygenComponent.SuitOxygenLevel = 0f;
             }
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad3))
             {
-                MySession.LocalCharacter.OxygenComponent.SuitOxygenLevel -= 0.05f;
+                MySession.Static.LocalCharacter.OxygenComponent.SuitOxygenLevel -= 0.05f;
             }
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad4))
             {
-                MySession.LocalCharacter.SuitBattery.DebugDepleteBattery();
+                MySession.Static.LocalCharacter.SuitBattery.DebugDepleteBattery();
             }
             if (MyInput.Static.IsKeyPress(MyKeys.Control))
             {
@@ -104,8 +105,8 @@ namespace Sandbox.Game.Gui
         }
 
         private void ModifyOxygenBottleAmount(float amount)
-        {
-            var inventory = MySession.LocalCharacter.GetInventory();
+        {                                                   
+            var inventory = MySession.Static.LocalCharacter.GetInventory();
             var items = inventory.GetItems();
             foreach (var item in items)
             {

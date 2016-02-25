@@ -48,13 +48,15 @@ namespace Sandbox.Game.AI.Pathfinding
             public Base6Directions.Direction Direction;
         }
 
+        public static readonly bool DO_CONSISTENCY_CHECKS = true;
+
         private MyVoxelNavigationMesh m_mesh;
 
         // Fields for currently processed cell/component:
         private bool m_cellOpen = false;
         MyIntervalList m_triangleList;
-        private int m_currentComponent;
         private int m_currentComponentRel; // Index of the current component relative to m_currentComponent
+        private int m_currentComponentMarker; // Fake index of component to mark visited triangles of current component
         private Vector3I m_currentCell;
         private ulong m_packedCoord;
         private List<List<ConnectionInfo>> m_currentCellConnections;
@@ -65,6 +67,13 @@ namespace Sandbox.Game.AI.Pathfinding
         private MyNavmeshComponents m_navmeshComponents;
 
         private Predicate<MyNavigationPrimitive> m_processTrianglePredicate = ProcessTriangleForHierarchyStatic;
+
+        // Stores triangles of all components for us to be able to set their component index. "null" values separate components (to avoid having to allocate more lists)
+        private List<MyNavigationTriangle> m_tmpComponentTriangles = new List<MyNavigationTriangle>();
+        private List<int> m_tmpNeighbors = new List<int>();
+
+        private static List<ulong> m_removedHLpackedCoord = new List<ulong>();
+
 
         public MyVoxelHighLevelHelper(MyVoxelNavigationMesh mesh)
         {
@@ -117,74 +126,30 @@ namespace Sandbox.Game.AI.Pathfinding
             ProfilerShort.Begin("ProcessCellComponents");
             m_triangleLists.Add(m_packedCoord, m_triangleList.GetCopy());
 
-            long timeBegin = m_mesh.GetCurrentTimestamp() + 1;
-            long timeEnd = timeBegin;
+            // Find the components by traversing the graph
+            MyNavmeshComponents.ClosedCellInfo cellInfo = ConstructComponents();
 
-            m_currentComponentRel = 0;
-            m_currentComponent = m_navmeshComponents.OpenCell(m_packedCoord);
-
-            foreach (var triIndex in m_triangleList)
-            {
-                // Skip already visited triangles
-                var triangle = m_mesh.GetTriangle(triIndex);
-                if (m_mesh.VisitedBetween(triangle, timeBegin, timeEnd))
-                {
-                    continue;
-                }
-
-                m_navmeshComponents.OpenComponent();
-
-                // Make sure we have place in m_currentCellConnections
-                if (m_currentComponentRel >= m_currentCellConnections.Count)
-                {
-                    m_currentCellConnections.Add(new List<ConnectionInfo>());
-                }
-
-                // Find connected component from an unvisited triangle
-                ProfilerShort.Begin("Graph traversal");
-                m_currentHelper = this;
-
-                m_navmeshComponents.AddComponentTriangle(triangle, triangle.Center);
-                triangle.ComponentIndex = m_navmeshComponents.OpenComponentIndex;
-                m_mesh.PrepareTraversal(triangle, null, m_processTrianglePredicate);
-
-                var primitiveEnum = m_mesh.GetEnumerator();
-                while (primitiveEnum.MoveNext());
-                primitiveEnum.Dispose();
-                ProfilerShort.End();
-
-                m_navmeshComponents.CloseComponent();
-
-                timeEnd = m_mesh.GetCurrentTimestamp();
-                m_currentComponentRel++;
-            }
-
-            MyNavmeshComponents.ClosedCellInfo cellInfo = new MyNavmeshComponents.ClosedCellInfo();
-            m_navmeshComponents.CloseAndCacheCell(ref cellInfo);
-
-            // Add new component primitives 
-            if (cellInfo.NewCell)
-            {
-                for (int i = 0; i < cellInfo.ComponentNum; ++i)
-                {
-                    m_mesh.HighLevelGroup.AddPrimitive(cellInfo.StartingIndex + i, m_navmeshComponents.GetComponentCenter(i));
-                }
-            }
-            
-            // Connect new components with the others in the neighboring cells
-            for (int i = 0; i < cellInfo.ComponentNum; ++i)
-            {
-                foreach (var connectionInfo in m_currentCellConnections[i])
-                {
-                    if (!cellInfo.ExploredDirections.HasFlag(Base6Directions.GetDirectionFlag(connectionInfo.Direction)))
-                    {
-                        m_mesh.HighLevelGroup.ConnectPrimitives(cellInfo.StartingIndex + i, connectionInfo.ComponentIndex);
-                    }
-                }
-                m_currentCellConnections[i].Clear();
-            }
+            // Assign correct component indices to the new components and their triangles
+            // Then, remove or create the respective high-level primitives, if the components changed since last time
+            // Then, update connections, if the components changed since last time
+            UpdateHighLevelPrimitives(ref cellInfo);
 
             // Mark explored directions in the navmesh component helper
+            MarkExploredDirections(ref cellInfo);
+
+            // Set all the components as expanded
+            for (int i = 0; i < cellInfo.ComponentNum; ++i)
+            {
+                int componentIndex = cellInfo.StartingIndex + i;
+                var component = m_mesh.HighLevelGroup.GetPrimitive(componentIndex);
+                if (component != null) component.IsExpanded = true;
+            }
+
+            ProfilerShort.End();
+        }
+
+        private void MarkExploredDirections(ref MyNavmeshComponents.ClosedCellInfo cellInfo)
+        {
             foreach (var direction in Base6Directions.EnumDirections)
             {
                 var dirFlag = Base6Directions.GetDirectionFlag(direction);
@@ -212,19 +177,144 @@ namespace Sandbox.Game.AI.Pathfinding
                 }
             }
             m_navmeshComponents.SetExplored(m_packedCoord, cellInfo.ExploredDirections);
+        }
 
-            // Set all the components as expanded
-            for (int i = 0; i < cellInfo.ComponentNum; ++i)
+        private void UpdateHighLevelPrimitives(ref MyNavmeshComponents.ClosedCellInfo cellInfo)
+        {
+            ProfilerShort.Begin("UpdateHighLevelPrimitives");
+
+            // Renumber triangles from the old indices to the newly assigned index from m_components
+            int componentIndex = cellInfo.StartingIndex;
+            foreach (var triangle in m_tmpComponentTriangles)
             {
-                int componentIndex = cellInfo.StartingIndex + i;
-                var component = m_mesh.HighLevelGroup.GetPrimitive(componentIndex);
-                if (component != null)
+                if (triangle == null)
                 {
-                    component.IsExpanded = true;
+                    componentIndex++;
+                    continue;
+                }
+                triangle.ComponentIndex = componentIndex;
+            }
+            m_tmpComponentTriangles.Clear();
+
+            // Remove old component primitives
+            if (!cellInfo.NewCell && cellInfo.ComponentNum != cellInfo.OldComponentNum)
+            {
+                for (int i = 0; i < cellInfo.OldComponentNum; ++i)
+                {
+                    m_mesh.HighLevelGroup.RemovePrimitive(cellInfo.OldStartingIndex + i);
+                }
+            }
+            
+            // Add new component primitives
+            if (cellInfo.NewCell || cellInfo.ComponentNum != cellInfo.OldComponentNum)
+            {
+                for (int i = 0; i < cellInfo.ComponentNum; ++i)
+                {
+                    m_mesh.HighLevelGroup.AddPrimitive(cellInfo.StartingIndex + i, m_navmeshComponents.GetComponentCenter(i));
                 }
             }
 
+            // Update existing component primitives
+            if (!cellInfo.NewCell && cellInfo.ComponentNum == cellInfo.OldComponentNum)
+            {
+                for (int i = 0; i < cellInfo.ComponentNum; ++i)
+                {
+                    var primitive = m_mesh.HighLevelGroup.GetPrimitive(cellInfo.StartingIndex + i);
+                    primitive.UpdatePosition(m_navmeshComponents.GetComponentCenter(i));
+                }
+            }
+            
+            // Connect new components with the others in the neighboring cells
+            for (int i = 0; i < cellInfo.ComponentNum; ++i)
+            {
+                int compIndex = cellInfo.StartingIndex + i;
+
+                var primitive = m_mesh.HighLevelGroup.GetPrimitive(compIndex);
+                primitive.GetNeighbours(m_tmpNeighbors);
+
+                // Connect to disconnected components
+                foreach (var connectionInfo in m_currentCellConnections[i])
+                {
+                    if (!m_tmpNeighbors.Remove(connectionInfo.ComponentIndex))
+                    {
+                        m_mesh.HighLevelGroup.ConnectPrimitives(compIndex, connectionInfo.ComponentIndex);
+                    }
+                }
+
+                // Disconnect neighbors that should be no longer connected
+                foreach (var neighbor in m_tmpNeighbors)
+                {
+                    // Only disconnect from the other cell if it is expanded and there was no connection found
+                    var neighborPrimitive = m_mesh.HighLevelGroup.TryGetPrimitive(neighbor);
+                    if (neighborPrimitive != null && neighborPrimitive.IsExpanded)
+                    {
+                        m_mesh.HighLevelGroup.DisconnectPrimitives(compIndex, neighbor);
+                    }
+                }
+
+                m_tmpNeighbors.Clear();
+                m_currentCellConnections[i].Clear();
+            }
+
             ProfilerShort.End();
+        }
+
+        private MyNavmeshComponents.ClosedCellInfo ConstructComponents()
+        {
+            ProfilerShort.Begin("ConstructComponents");
+
+            long timeBegin = m_mesh.GetCurrentTimestamp() + 1;
+            long timeEnd = timeBegin;
+
+            m_currentComponentRel = 0;
+            m_navmeshComponents.OpenCell(m_packedCoord);
+
+            m_tmpComponentTriangles.Clear();
+            foreach (var triIndex in m_triangleList)
+            {
+                // The marker is used as a fake component index in triangles to mark visited triangles.
+                // Negative numbers from -2 down are used to avoid collisions with existing component numbers (0, 1, 2, ...) or the special value -1
+                m_currentComponentMarker = -2 - m_currentComponentRel;
+
+                // Skip already visited triangles
+                var triangle = m_mesh.GetTriangle(triIndex);
+                if (m_mesh.VisitedBetween(triangle, timeBegin, timeEnd))
+                {
+                    continue;
+                }
+
+                m_navmeshComponents.OpenComponent();
+
+                // Make sure we have place in m_currentCellConnections
+                if (m_currentComponentRel >= m_currentCellConnections.Count)
+                {
+                    m_currentCellConnections.Add(new List<ConnectionInfo>());
+                }
+
+                // Find connected component from an unvisited triangle
+                ProfilerShort.Begin("Graph traversal");
+                m_currentHelper = this;
+
+                m_navmeshComponents.AddComponentTriangle(triangle, triangle.Center);
+                triangle.ComponentIndex = m_currentComponentMarker;
+                m_tmpComponentTriangles.Add(triangle);
+
+                m_mesh.PrepareTraversal(triangle, null, m_processTrianglePredicate);
+                m_mesh.PerformTraversal();
+                ProfilerShort.End();
+
+                m_tmpComponentTriangles.Add(null); // Mark end of component in m_tmpComponentTriangles
+                m_navmeshComponents.CloseComponent();
+
+                timeEnd = m_mesh.GetCurrentTimestamp();
+                m_currentComponentRel++;
+            }
+
+            MyNavmeshComponents.ClosedCellInfo cellInfo = new MyNavmeshComponents.ClosedCellInfo();
+            m_navmeshComponents.CloseAndCacheCell(ref cellInfo);
+
+            ProfilerShort.End();
+            return cellInfo;
         }
 
         public MyIntervalList TryGetTriangleList(ulong packedCellCoord)
@@ -408,14 +498,17 @@ namespace Sandbox.Game.AI.Pathfinding
                 return false;
             }
 
+            // Previously unvisited triangle will be assigned the current relative component index
             if (triangle.ComponentIndex == -1)
             {
                 m_navmeshComponents.AddComponentTriangle(triangle, triangle.Center);
-                triangle.ComponentIndex = m_navmeshComponents.OpenComponentIndex;
+                m_tmpComponentTriangles.Add(triangle);
+                triangle.ComponentIndex = m_currentComponentMarker;
                 return true;
             }
-            else if (triangle.ComponentIndex == m_navmeshComponents.OpenComponentIndex)
+            else if (triangle.ComponentIndex == m_currentComponentMarker)
             {
+                // We can safely ignore this triangle (it has already been processed);
                 return true;
             }
             else
@@ -444,6 +537,19 @@ namespace Sandbox.Game.AI.Pathfinding
                 }
             }
             return false;
+        }
+
+        [Conditional("DEBUG")]
+        public void CheckConsistency()
+        {
+            if (!DO_CONSISTENCY_CHECKS) return;
+
+            MyCellCoord cellCoord = new MyCellCoord();
+            foreach (var pair in m_triangleLists)
+            {
+                cellCoord.SetUnpack(pair.Key);
+                Debug.Assert(m_exploredCells.Contains(ref cellCoord.CoordInLod), "Cell in triangle lists, but not explored!");
+            }
         }
 
         public void DebugDraw()
@@ -497,6 +603,49 @@ namespace Sandbox.Game.AI.Pathfinding
                             }
                         }
                     }
+                }
+            }
+        }
+
+        public void RemoveTooFarCells(List<Vector3D> importantPositions, float maxDistance, MyVector3ISet processedCells)
+        {
+            // remove too far high level info (if it isn't in processed cells)
+            m_removedHLpackedCoord.Clear();
+            foreach (var cell in m_exploredCells)
+            {
+                Vector3D worldCellCenterPos;
+                Vector3I cellPos = cell;
+                MyVoxelCoordSystems.GeometryCellCenterCoordToWorldPos(m_mesh.VoxelMapReferencePosition, ref cellPos, out worldCellCenterPos);
+
+                // finding of distance from the nearest important object
+                float dist = float.PositiveInfinity;
+                foreach (Vector3D vec in importantPositions)
+                {
+                    float d = Vector3.RectangularDistance(vec, worldCellCenterPos);
+                    if (d < dist)
+                        dist = d;
+                }
+
+                if (dist > maxDistance && !processedCells.Contains(cellPos))
+                {
+                    MyCellCoord coord = new MyCellCoord(MyVoxelNavigationMesh.NAVMESH_LOD, cellPos);
+                    m_removedHLpackedCoord.Add(coord.PackId64());
+                }
+            }
+            foreach(ulong coord in m_removedHLpackedCoord)
+            {
+                TryClearCell(coord);
+            }
+        }
+
+        public void GetCellsOfPrimitives(ref HashSet<ulong> cells, ref List<MyHighLevelPrimitive> primitives)
+        {
+            ulong cellIndex;
+            foreach (MyHighLevelPrimitive primitive in primitives)
+            {
+                if (m_navmeshComponents.GetComponentCell(primitive.Index, out cellIndex))
+                {
+                    cells.Add(cellIndex);
                 }
             }
         }

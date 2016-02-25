@@ -5,51 +5,51 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawScene : IMyRenderMessage
+    public class MyRenderMessageDrawScene : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawScene; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawScene; } }
     }
 
-    public class MyRenderMessageUnloadData : IMyRenderMessage
+    public class MyRenderMessageUnloadData : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UnloadData; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UnloadData; } }
     }
 
-    public class MyRenderMessageRebuildCullingStructure : IMyRenderMessage
+    public class MyRenderMessageRebuildCullingStructure : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.RebuildCullingStructure; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RebuildCullingStructure; } }
     }
 
-    public class MyRenderMessageReloadEffects : IMyRenderMessage
+    public class MyRenderMessageReloadEffects : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadEffects; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadEffects; } }
     }
 
-    public class MyRenderMessageReloadModels : IMyRenderMessage
+    public class MyRenderMessageReloadModels : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadModels; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadModels; } }
     }
 
-    public class MyRenderMessageReloadTextures : IMyRenderMessage
+    public class MyRenderMessageReloadTextures : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadTextures; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadTextures; } }
     }
 
-    public class MyRenderMessageReloadGrass : IMyRenderMessage
+    public class MyRenderMessageReloadGrass : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.ReloadGrass; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ReloadGrass; } }
     }
 
-    public class MyRenderMessageUpdateEnvironmentMap : IMyRenderMessage
+    public class MyRenderMessageUpdateEnvironmentMap : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateEnvironmentMap; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateEnvironmentMap; } }
     }
 }

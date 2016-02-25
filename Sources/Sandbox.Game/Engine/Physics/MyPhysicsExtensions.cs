@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Sandbox.Common.Components;
 using VRage.ModAPI;
 using VRageMath;
+using VRage.Game.Components;
 
 namespace Sandbox.Engine.Physics
 {
@@ -125,5 +126,9 @@ namespace Sandbox.Engine.Physics
             return body.IsInWorld || (body.WeldInfo.Parent != null && body.WeldInfo.Parent.IsInWorld);
         }
 
+        public static bool IsInWorldWelded(this MyPhysicsComponentBase body)
+        {
+            return body != null && (body is MyPhysicsBody) && IsInWorldWelded((MyPhysicsBody)body);
+        }
     }
 }

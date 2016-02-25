@@ -29,6 +29,26 @@ namespace VRage.Import
         }
     }
 
+    public class Mesh
+    {
+        public Matrix AbsoluteMatrix = Matrix.Identity;
+        public int MeshIndex;
+
+        /// <summary>
+        /// Offset on the vertex buffer
+        /// </summary>
+        public int VertexOffset = -1;
+
+        public int VertexCount = -1;
+
+        /// <summary>
+        /// Offset on the indices buffer
+        /// </summary>
+        public int StartIndex = -1;
+
+        public int IndexCount = -1;
+    }
+
     public class NodeDesc
     {
         public string Name;
@@ -651,6 +671,18 @@ namespace VRage.Import
             return true;
         }
 
+        public bool ExportData(string tagName, List<MyMeshSectionInfo> list)
+        {
+            WriteTag(tagName);
+            m_writer.Write(list.Count);
+            foreach (MyMeshSectionInfo section in list)
+            {
+                section.Export(m_writer);
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// ExportData
         /// </summary>
@@ -705,16 +737,16 @@ namespace VRage.Import
         }
 
 
-        protected void Write(AnimationClip clip)
+        protected void Write(MyAnimationClip clip)
         {
             m_writer.Write(clip.Name);
             m_writer.Write(clip.Duration);
             m_writer.Write(clip.Bones.Count);
-            foreach (AnimationClip.Bone bone in clip.Bones)
+            foreach (MyAnimationClip.Bone bone in clip.Bones)
             {
                 m_writer.Write(bone.Name);
                 m_writer.Write(bone.Keyframes.Count);
-                foreach (AnimationClip.Keyframe keyframe in bone.Keyframes)
+                foreach (MyAnimationClip.Keyframe keyframe in bone.Keyframes)
                 {
                     m_writer.Write(keyframe.Time);
                     WriteQuaternion(keyframe.Rotation);
@@ -924,6 +956,9 @@ namespace VRage.Import
 
                 exportDictionary.Add(MyImporterConstants.TAG_MESH_PARTS, modelExporter.GetCachePosition());
                 modelExporter.ExportData(MyImporterConstants.TAG_MESH_PARTS, (List<MyMeshPartInfo>)tagData[MyImporterConstants.TAG_MESH_PARTS]);
+
+                exportDictionary.Add(MyImporterConstants.TAG_MESH_SECTIONS, modelExporter.GetCachePosition());
+                modelExporter.ExportData(MyImporterConstants.TAG_MESH_SECTIONS, (List<MyMeshSectionInfo>)tagData[MyImporterConstants.TAG_MESH_SECTIONS]);
 
                 exportDictionary.Add(MyImporterConstants.TAG_MODEL_BVH, modelExporter.GetCachePosition());
                 modelExporter.ExportData(MyImporterConstants.TAG_MODEL_BVH, ((BulletXNA.BulletCollision.GImpactQuantizedBvh)tagData[MyImporterConstants.TAG_MODEL_BVH]).Save());

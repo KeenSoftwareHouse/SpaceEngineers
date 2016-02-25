@@ -3,6 +3,7 @@ using Sandbox.Game.World;
 using System;
 using System.Text;
 using System.Threading;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 

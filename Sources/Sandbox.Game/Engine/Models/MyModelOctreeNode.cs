@@ -13,7 +13,8 @@ using VRageRender;
 using VRage;
 using Sandbox.ModAPI;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Models;
 
 namespace Sandbox.Engine.Models
 {
@@ -90,13 +91,13 @@ namespace Sandbox.Engine.Models
         //  Difference between GetIntersectionWithLine and GetIntersectionWithLineRecursive is that the later doesn't calculate
         //  final result, but is better suited for recursive nature of octree. Don't call GetIntersectionWithLineRecursive() from
         //  the outisde of this class, it's private method.
-        public MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, MyModel model, ref LineD line, double? minDistanceUntilNow, IntersectionFlags flags)
+        public VRage.Game.Models.MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, MyModel model, ref LineD line, double? minDistanceUntilNow, IntersectionFlags flags)
         {
-            MyIntersectionResultLineTriangle? foundTriangle = GetIntersectionWithLineRecursive(model, ref line, minDistanceUntilNow);
+            VRage.Game.Models.MyIntersectionResultLineTriangle? foundTriangle = GetIntersectionWithLineRecursive(model, ref line, minDistanceUntilNow);
 
             if (foundTriangle != null)
             {
-                return new MyIntersectionResultLineTriangleEx(foundTriangle.Value, physObject, ref line);
+                return new VRage.Game.Models.MyIntersectionResultLineTriangleEx(foundTriangle.Value, physObject, ref line);
             }
             else
             {
@@ -107,7 +108,7 @@ namespace Sandbox.Engine.Models
         //  Finds intersection between line and model, using octree for speedup the lookup.
         //  Another speedup is, that first we check triangles that are directly in the node and then start
         //  checking node's childs. But only if child node instersection is less than last know min distance.
-        MyIntersectionResultLineTriangle? GetIntersectionWithLineRecursive(MyModel model, ref LineD line, double? minDistanceUntilNow)
+        VRage.Game.Models.MyIntersectionResultLineTriangle? GetIntersectionWithLineRecursive(MyModel model, ref LineD line, double? minDistanceUntilNow)
         {
             //  Check if line intersects bounding box of this node and if distance to bounding box is less then last know min distance
             Line lineF = (Line)line;
@@ -115,7 +116,7 @@ namespace Sandbox.Engine.Models
             if ((distanceToBoundingBox.HasValue == false) || ((minDistanceUntilNow != null) && (minDistanceUntilNow < distanceToBoundingBox.Value))) return null;
 
             //  Triangles that are directly in this node
-            MyIntersectionResultLineTriangle? foundIntersection = null;
+            VRage.Game.Models.MyIntersectionResultLineTriangle? foundIntersection = null;
 
             // temporary variable for storing tirngle boundingbox info
             BoundingBox triangleBoundingBox = new BoundingBox();
@@ -147,7 +148,7 @@ namespace Sandbox.Engine.Models
                         Vector3 calculatedTriangleNormal = MyUtils.GetNormalVectorFromTriangle(ref triangle);
 
                         //  We need to remember original triangleVertexes coordinates (not transformed by world matrix)
-                        foundIntersection = new MyIntersectionResultLineTriangle(ref triangle, ref calculatedTriangleNormal, distance.Value);
+                        foundIntersection = new VRage.Game.Models.MyIntersectionResultLineTriangle(ref triangle, ref calculatedTriangleNormal, distance.Value);
                     }
                 }
             }
@@ -157,11 +158,11 @@ namespace Sandbox.Engine.Models
             {
                 for (int i = 0; i < m_childs.Count; i++)
                 {
-                    MyIntersectionResultLineTriangle? childIntersection = m_childs[i].GetIntersectionWithLineRecursive(model, ref line,
+                    VRage.Game.Models.MyIntersectionResultLineTriangle? childIntersection = m_childs[i].GetIntersectionWithLineRecursive(model, ref line,
                         (foundIntersection == null) ? (double?)null : foundIntersection.Value.Distance);
 
                     //  If intersection occured and if distance to intersection is closer to origin than any previous intersection
-                    foundIntersection = MyIntersectionResultLineTriangle.GetCloserIntersection(ref foundIntersection, ref childIntersection);
+                    foundIntersection = VRage.Game.Models.MyIntersectionResultLineTriangle.GetCloserIntersection(ref foundIntersection, ref childIntersection);
                 }
             }
 

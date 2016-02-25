@@ -18,10 +18,12 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using VRage.Audio;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Gui
 {
@@ -82,7 +84,7 @@ namespace Sandbox.Game.Gui
             if (!isWarnedHigherPriority)
                 m_warningDetected = m_warningDetectionMethod(out cue, out text);
 
-            m_msSinceLastStateChange += MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS * MyHudWarnings.FRAMES_BETWEEN_UPDATE;
+            m_msSinceLastStateChange += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS * MyHudWarnings.FRAMES_BETWEEN_UPDATE;
             if (m_warningDetected)
             {
                 switch (m_warningState)
@@ -176,7 +178,7 @@ namespace Sandbox.Game.Gui
             //    return;
             if (!MySandboxGame.IsGameReady)
                 return;
-            m_msSinceLastCuePlayed += MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS * MyHudWarnings.FRAMES_BETWEEN_UPDATE;
+            m_msSinceLastCuePlayed += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS * MyHudWarnings.FRAMES_BETWEEN_UPDATE;
             bool isWarnedHigherPriority = false;
             foreach (MyHudWarning hudWarning in m_hudWarnings)
                 if (hudWarning.Update(isWarnedHigherPriority))
@@ -287,12 +289,12 @@ namespace Sandbox.Game.Gui
             var list = new List<MyHudWarning>();
             //Health warnings
             var warning = new MyHudWarning((out MyGuiSounds cue, out MyStringId text) => 
-                { cue = MyGuiSounds.HudVocHealthLow;  text = MySpaceTexts.NotificationHealthLow; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO*2);},
-                1, 60000, 0, 2500);
+                { cue = MyGuiSounds.HudVocHealthLow;  text = MyCommonTexts.NotificationHealthLow; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO*2);},
+                1, 300000, 0, 2500);
             list.Add(warning);
             warning = new MyHudWarning((out MyGuiSounds cue, out MyStringId text) =>
-                { cue = MyGuiSounds.HudVocHealthCritical;  text = MySpaceTexts.NotificationHealthCritical; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO); },
-                 0, 30000, 0, 5000);
+                { cue = MyGuiSounds.HudVocHealthCritical;  text = MyCommonTexts.NotificationHealthCritical; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO); },
+                 0, 300000, 0, 5000);
             list.Add(warning);
             var group = new MyHudWarningGroup(list, false);
             Add(group);
@@ -300,15 +302,15 @@ namespace Sandbox.Game.Gui
             //Energy warnings
             warning = new MyHudWarning(
                 EnergyLowWarningMethod,
-                2, 60000, 0, 2500);
+                2, 300000, 0, 2500);
             list.Add(warning);
             warning = new MyHudWarning(
                EnergyCritWarningMethod,
-               1, 30000, 0 , 5000);
+               1, 300000, 0 , 5000);
             list.Add(warning);
             warning = new MyHudWarning(
                EnergyNoWarningMethod,
-               0, 10000, 0, 5000);
+               0, 300000, 0, 5000);
             list.Add(warning);
             group = new MyHudWarningGroup(list, false);
             Add(group);
@@ -325,9 +327,9 @@ namespace Sandbox.Game.Gui
 
         private static bool HealthWarningMethod(float treshold)
         {
-            if (MySession.LocalCharacter != null && MySession.LocalCharacter.StatComp != null)
+            if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.StatComp != null)
             {
-                return MySession.LocalCharacter.StatComp.HealthRatio < treshold && !MySession.LocalCharacter.IsDead;
+                return MySession.Static.LocalCharacter.StatComp.HealthRatio < treshold && !MySession.Static.LocalCharacter.IsDead;
             }
             else
                 return false;
@@ -335,22 +337,22 @@ namespace Sandbox.Game.Gui
 
         private static bool IsEnergyUnderTreshold(float treshold)
         {
-            if (MySession.Static.CreativeMode || MySession.ControlledEntity == null)
+            if (MySession.Static.CreativeMode || MySession.Static.ControlledEntity == null)
                 return false;
-            if (MySession.ControlledEntity.Entity is MyCharacter || MySession.ControlledEntity == null)
+            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
             {
-                var character = MySession.LocalCharacter;
+                var character = MySession.Static.LocalCharacter;
                 if (character == null) return false;
 
                 if (character.SuitBattery.ResourceSink.CurrentInput > 0)
                     return false;
                 return (character.SuitBattery.ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId) / MyEnergyConstants.BATTERY_MAX_CAPACITY) <= treshold && !character.IsDead;
             }
-            else if (MySession.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
             {
-                var grid = (MySession.ControlledEntity.Entity as MyCockpit).CubeGrid;
+                var grid = (MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid;
                 var sourcesEnabled = grid.GridSystems.ResourceDistributor.SourcesEnabledByType(MyResourceDistributorComponent.ElectricityId);
-                return MyHud.ShipInfo.FuelRemainingTime * 60 < treshold && sourcesEnabled != MyMultipleEnabledEnum.AllDisabled && sourcesEnabled != MyMultipleEnabledEnum.NoObjects;
+                return MyHud.ShipInfo.FuelRemainingTime <= treshold && sourcesEnabled != MyMultipleEnabledEnum.AllDisabled && sourcesEnabled != MyMultipleEnabledEnum.NoObjects;
             }
             else
                 return false;
@@ -360,9 +362,9 @@ namespace Sandbox.Game.Gui
         {
             cue = MyGuiSounds.HudVocMeteorInbound; 
             text = MySpaceTexts.NotificationMeteorInbound;
-            if (MyMeteorShower.CurrentTarget.HasValue && MySession.ControlledEntity != null)
+            if (MyMeteorShower.CurrentTarget.HasValue && MySession.Static.ControlledEntity != null)
             {
-                var dist = Vector3.Distance(MyMeteorShower.CurrentTarget.Value.Center, MySession.ControlledEntity.Entity.PositionComp.GetPosition());
+                var dist = Vector3.Distance(MyMeteorShower.CurrentTarget.Value.Center, MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition());
                 return dist < (2 * MyMeteorShower.CurrentTarget.Value.Radius) + 500;
             }
             return false;
@@ -374,10 +376,10 @@ namespace Sandbox.Game.Gui
             text = MySpaceTexts.Blank;
             if(!IsEnergyUnderTreshold(MyBattery.EnergyLowThreshold))
                 return false;
-            if (MySession.ControlledEntity.Entity is MyCharacter)
+            if (MySession.Static.ControlledEntity.Entity is MyCharacter)
             {
                 cue = MyGuiSounds.HudVocEnergyLow;
-                if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationSuitEnergyLowNoDamage;
                 }
@@ -386,13 +388,13 @@ namespace Sandbox.Game.Gui
                     text = MySpaceTexts.NotificationSuitEnergyLow;
                 }
             }
-            else if (MySession.ControlledEntity.Entity is MyCockpit)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
+                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
                     cue = MyGuiSounds.HudVocStationFuelLow;
                 else
                     cue = MyGuiSounds.HudVocShipFuelLow;
-                if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationShipEnergyLowNoDamage;
                 }
@@ -412,10 +414,10 @@ namespace Sandbox.Game.Gui
             text = MySpaceTexts.Blank;
             if (!IsEnergyUnderTreshold(MyBattery.EnergyCriticalThreshold))
                 return false;
-            if (MySession.ControlledEntity.Entity is MyCharacter || MySession.ControlledEntity == null)
+            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
             {
                 cue = MyGuiSounds.HudVocEnergyCrit;
-                if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationSuitEnergyCriticalNoDamage;
                 }
@@ -424,13 +426,13 @@ namespace Sandbox.Game.Gui
                     text = MySpaceTexts.NotificationSuitEnergyCritical;
                 }
             }
-            else if (MySession.ControlledEntity.Entity is MyCockpit)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
+                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
                     cue = MyGuiSounds.HudVocStationFuelCrit;
                 else
                     cue = MyGuiSounds.HudVocShipFuelCrit;
-                if (MySession.LocalCharacter != null && MySession.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.Definition.NeedsOxygen && MySession.Static.Settings.EnableOxygen)
                 {
                     text = MySpaceTexts.NotificationShipEnergyCriticalNoDamage;
                 }
@@ -450,14 +452,14 @@ namespace Sandbox.Game.Gui
             text = MySpaceTexts.Blank;
             if (!IsEnergyUnderTreshold(0f))
                 return false;
-            if (MySession.ControlledEntity.Entity is MyCharacter)
+            if (MySession.Static.ControlledEntity.Entity is MyCharacter)
             {
                 cue = MyGuiSounds.HudVocEnergyNo;
                 text = MySpaceTexts.NotificationEnergyNo;
             }
-            else if (MySession.ControlledEntity.Entity is MyCockpit)
+            else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
+                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
                     cue = MyGuiSounds.HudVocStationFuelNo;
                 else
                     cue = MyGuiSounds.HudVocShipFuelNo;

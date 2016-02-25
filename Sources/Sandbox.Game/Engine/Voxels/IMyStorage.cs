@@ -1,4 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Voxels;
+﻿using System;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
@@ -11,12 +11,15 @@ namespace Sandbox.Engine.Voxels
 {
     public delegate void RangeChangedDelegate(Vector3I minVoxelChanged, Vector3I maxVoxelChanged, MyStorageDataTypeFlags changedData);
 
-    public interface IMyStorage : Sandbox.ModAPI.Interfaces.IMyStorage
+    public interface IMyStorage : VRage.ModAPI.IMyStorage
     {
         new Vector3I Size { get; }
 
         MyVoxelGeometry Geometry { get; }
 
+        /// <summary>
+        /// please use RangeChanged on voxelbase if possible
+        /// </summary>
         event RangeChangedDelegate RangeChanged;
 
         void OverwriteAllMaterials(MyVoxelMaterialDefinition material);
@@ -28,14 +31,42 @@ namespace Sandbox.Engine.Voxels
         /// </summary>
         /// <param name="lodVoxelRangeMin">Inclusive.</param>
         /// <param name="lodVoxelRangeMax">Inclusive.</param>
-        void ReadRange(MyStorageDataCache target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax);
+        void ReadRange(MyStorageData target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax);
+
+        /**
+         * Read from the storage accepting the optimizations provided in requestFlags.
+         * 
+         * After this call requestFlags will inform of which optimization were in fact employed on the request.
+         */
+        void ReadRange(MyStorageData target, MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelRangeMin, ref Vector3I lodVoxelRangeMax, ref MyVoxelRequestFlags requestFlags);
 
         /// <summary>
         /// Writes range of content and/or materials from cache to storage. Note that this can only write to LOD0 (higher LODs must be computed based on that).
         /// </summary>
         /// <param name="voxelRangeMin">Inclusive.</param>
         /// <param name="voxelRangeMax">Inclusive.</param>
-        void WriteRange(MyStorageDataCache source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax);
+        void WriteRange(MyStorageData source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax);
+
+        /**
+         * Check for intersection with a bounding box.
+         * 
+         * The bounding box must be in local space (LLB corner origin).
+         * 
+         * If lazy is true the method is faster but may return Intersects when the box is actually contained.
+         */
+        ContainmentType Intersect(ref BoundingBox box, bool lazy = true);
+
+        /**
+         * Find the smallest continuous segment from the provided line that may intersect the storage
+         * (within some storage dependent margin).
+         * 
+         * The coordinates must be in local space (LLB corner origin).
+         * 
+         * The provided segment is replaced with the intersecting segment.
+         * 
+         * This returns true when there is intersection, false otherwise.
+         */
+        bool Intersect(ref LineD line);
 
         /// <summary>
         /// Resets map ouside the given aabb.
@@ -48,12 +79,30 @@ namespace Sandbox.Engine.Voxels
 
         IMyStorageDataProvider DataProvider { get; }
 
+        /**
+         * Pin storage.
+         * 
+         * Prevent the storage from closing while the pin is alive.
+         */
+        IDisposable Pin();
+
+        /**
+         * Weather the storage is closed.
+         */
+        bool Closed { get; }
+
         void Reset();
+
+        void Close();
+
+        bool Shared { get; }
+
+        IMyStorage Copy();
     }
 
     public static class IMyStorageExtensions
     {
-        public static void ClampVoxelCoord(this Sandbox.ModAPI.Interfaces.IMyStorage self, ref Vector3I voxelCoord, int distance = 1)
+        public static void ClampVoxelCoord(this VRage.ModAPI.IMyStorage self, ref Vector3I voxelCoord, int distance = 1)
         {
             if (self == null) return;
             var sizeMinusOne = self.Size - distance;
@@ -66,7 +115,7 @@ namespace Sandbox.Engine.Voxels
 
             Vector3I voxelCoords = Vector3D.Floor(localCoords / MyVoxelConstants.VOXEL_SIZE_IN_METRES);
 
-            MyStorageDataCache cache = new MyStorageDataCache();
+            MyStorageData cache = new MyStorageData();
             cache.Resize(Vector3I.One);
             cache.ClearMaterials(0);
 
@@ -81,7 +130,7 @@ namespace Sandbox.Engine.Voxels
         {
             MyVoxelMaterialDefinition def;
 
-            MyStorageDataCache cache = new MyStorageDataCache();
+            MyStorageData cache = new MyStorageData();
             cache.Resize(Vector3I.One);
             cache.ClearMaterials(0);
 

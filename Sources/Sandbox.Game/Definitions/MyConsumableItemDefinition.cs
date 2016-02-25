@@ -1,6 +1,8 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using System.Collections.Generic;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {

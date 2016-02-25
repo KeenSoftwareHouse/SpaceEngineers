@@ -12,6 +12,7 @@ using VRage.Trace;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Compiler;
 using VRage.ObjectBuilders;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -24,7 +25,7 @@ namespace Sandbox.Game.Multiplayer
     {
         public static string GetEntityText(this IEntityMessage msg)
         {
-            Sandbox.Game.Entities.MyEntity entity;
+            MyEntity entity;
             if (Sandbox.Game.Entities.MyEntities.TryGetEntityById(msg.GetEntityId(), out entity))
             {
                 return entity.ToString();
@@ -124,10 +125,17 @@ namespace Sandbox.Game.Multiplayer
                 {
                     Layer.LastMessageFromServer = DateTime.UtcNow;
                 }
-
+                
                 MyNetworkClient player;
                 bool playerFound = Layer.Clients.TryGetClient(sender, out player);
                 bool permissionsOk = MySyncLayer.CheckReceivePermissions(sender, Permission);
+
+                if (!playerFound && msg is ConnectedClientDataMsg)
+                {
+                    var m = (ConnectedClientDataMsg)(object)msg;
+                    player = Layer.Clients.AddClient(sender);
+                    playerFound = true;
+                }
 
                 //TODO: This should be ok if client loads the scene, buffers another player messages
                 //and during that time is that player kicked

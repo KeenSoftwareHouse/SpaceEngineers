@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageCreateLineBasedObject : IMyRenderMessage
+    public class MyRenderMessageCreateLineBasedObject : MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
@@ -14,17 +14,17 @@ namespace VRageRender
         public string NormalGlossTexture;
         public string ExtensionTexture;
 
-        public MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        public MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateLineBasedObject; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateLineBasedObject; } }
     }
 
-    public class MyRenderMessageUpdateLineBasedObject : IMyRenderMessage
+    public class MyRenderMessageUpdateLineBasedObject : MyRenderMessageBase
     {
         public uint ID;
         public Vector3D WorldPointA;
         public Vector3D WorldPointB;
 
-        public MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        public MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateLineBasedObject; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateLineBasedObject; } }
     }
 }

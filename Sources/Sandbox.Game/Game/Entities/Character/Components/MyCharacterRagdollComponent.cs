@@ -1,4 +1,5 @@
 ﻿using Havok;
+using Sandbox.Common;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.GameSystems;
@@ -9,9 +10,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Components;
+using VRage.Animations;
+using VRage.Game.Components;
 using VRage.FileSystem;
+using VRage.Utils;
 using VRageMath;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Character.Components
 {
@@ -20,8 +24,13 @@ namespace Sandbox.Game.Entities.Character.Components
         public MyRagdollMapper RagdollMapper;
         private IMyGunObject<Weapons.MyDeviceBase> m_previousWeapon;
         private MyPhysicsBody m_previousPhysics;
+        private Vector3D m_lastPosition;
+        private int m_gravityTimer;
+        private const int GRAVITY_DELAY = (int)(VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND * 0.5f);
 
         public bool ResetJetpackRagdoll { get; set; }
+
+        public bool IsRagdollMoving { get; set; }
 
         public bool IsRagdollActivated
         {
@@ -38,7 +47,12 @@ namespace Sandbox.Game.Entities.Character.Components
         /// <param name="ragDollFile"></param>
         public bool InitRagdoll()
         {
-            if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.InitRagdoll");
+            if (MyFakes.ENABLE_RAGDOLL_DEBUG)
+            {
+                Debug.WriteLine("RagdollComponent.InitRagdoll");
+                MyLog.Default.WriteLine("RagdollComponent.InitRagdoll");
+            }
+
             if (Character.Physics.Ragdoll != null)
             {
                 Character.Physics.CloseRagdollMode();
@@ -112,17 +126,22 @@ namespace Sandbox.Game.Entities.Character.Components
                 Character.Physics.SetRagdollDefaults();
             }
 
-            return dataLoaded;
+            if (MyFakes.ENABLE_RAGDOLL_DEBUG)
+            {
+                Debug.WriteLine("RagdollComponent.InitRagdoll - FINISHED");
+                MyLog.Default.WriteLine("RagdollComponent.InitRagdoll - FINISHED");
+            }
 
+            return dataLoaded;
         }
 
         public void InitRagdollMapper()
         {
             if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.InitRagdollMapper");
-            if (Character.Bones.Count == 0) return;
+            if (Character.AnimationController.CharacterBones.Length == 0) return;
             if (Character.Physics == null || Character.Physics.Ragdoll == null) return;
 
-            RagdollMapper = new MyRagdollMapper(Character, Character.Bones);
+            RagdollMapper = new MyRagdollMapper(Character, Character.AnimationController.CharacterBones);
 
             RagdollMapper.Init(Character.Definition.RagdollBonesMappings);
         }
@@ -141,7 +160,9 @@ namespace Sandbox.Game.Entities.Character.Components
             if (!RagdollMapper.IsKeyFramed && !RagdollMapper.IsPartiallySimulated) return;
 
             RagdollMapper.UpdateRagdollPosition();
-            RagdollMapper.UpdateRagdollPose();
+            
+            //RagdollMapper.UpdateRagdollPose(); Note: If we don't want to animate ragdoll, we don't need to call this, just use phys simulation..
+            
             RagdollMapper.SetVelocities();
 
             RagdollMapper.DebugDraw(Character.WorldMatrix);
@@ -153,7 +174,7 @@ namespace Sandbox.Game.Entities.Character.Components
             if (RagdollMapper == null || Character.Physics == null || Character.Physics.Ragdoll == null) return;
             if (!MyPerGameSettings.EnableRagdollModels) return;
             if (!MyPerGameSettings.EnableRagdollInJetpack) return;
-            if (Character.Physics.HavokWorld == null) return;
+            if (Character.GetPhysicsBody().HavokWorld == null) return;
 
             List<string> bodies = new List<string>();
             string[] bodiesArray;
@@ -275,9 +296,10 @@ namespace Sandbox.Game.Entities.Character.Components
             // save bone changes
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
 
-            for (int i = 0; i < Character.Bones.Count; i++)
+            var characterBones = Character.AnimationController.CharacterBones;
+            for (int i = 0; i < characterBones.Length; i++)
             {
-                MyCharacterBone bone = Character.Bones[i];
+                MyCharacterBone bone = characterBones[i];
                 Character.BoneRelativeTransforms[i] = bone.ComputeBoneTransform();
             }
 
@@ -324,27 +346,51 @@ namespace Sandbox.Game.Entities.Character.Components
             //if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.UpdateBeforeSimulation");
             base.UpdateBeforeSimulation();
 
-            // TODO: This should be changed so the ragdoll gets registered in the generators, now for SE, apply gravity explictly
-            // Apply Gravity on Ragdoll 
-            // OM: This should be called only in SE, in ME this is handled by world!
-            if (Character.Physics.Ragdoll != null && Character.Physics.Ragdoll.InWorld && (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated) && (MyPerGameSettings.Game == GameEnum.SE_GAME))
-            {
-                Vector3 gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(Character.PositionComp.WorldAABB.Center) + Character.Physics.HavokWorld.Gravity * MyCharacter.CHARACTER_GRAVITY_MULTIPLIER;
-                Character.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * (MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(Character.Definition.Mass) : Character.Definition.Mass), null, null);                
-            }
-
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Ragdoll");
             UpdateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            // TODO: This should be changed so the ragdoll gets registered in the generators, now for SE, apply gravity explictly
+            // Apply Gravity on Ragdoll 
+            // OM: This should be called only in SE, in ME this is handled by world!
+            if (Character.Physics != null &&
+                Character.Physics.Ragdoll != null &&
+                Character.Physics.Ragdoll.InWorld &&
+                (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated) &&
+                (MyPerGameSettings.Game == GameEnum.SE_GAME) &&
+                (IsRagdollMoving || m_gravityTimer > 0) )
+            {
+                Vector3 gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(Character.PositionComp.WorldAABB.Center) + Character.GetPhysicsBody().HavokWorld.Gravity * MyPerGameSettings.CharacterGravityMultiplier;
+                Character.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * (MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(Character.Definition.Mass) : Character.Definition.Mass), null, null);
+                m_gravityTimer = IsRagdollMoving ? GRAVITY_DELAY : m_gravityTimer - 1;
+            }
+            
+            if (Character.Physics != null && Character.Physics.Ragdoll != null && IsRagdollMoving)
+            {
+                m_lastPosition = Character.Physics.Ragdoll.WorldMatrix.Translation;
+            }
         }
 
         public override void UpdateAfterSimulation()
         {
             //if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("RagdollComponent.UpdateAfterSimulation");
             base.UpdateAfterSimulation();          
+            
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
-            SimulateRagdoll();    
+            if (!Character.IsDead || (RagdollMapper.Ragdoll != null && RagdollMapper.Ragdoll.IsSimulationActive))
+                SimulateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            
+            if (Character.Physics != null && Character.Physics.Ragdoll != null)
+            {
+                double distance = Vector3D.DistanceSquared(m_lastPosition,Character.Physics.Ragdoll.WorldMatrix.Translation);
+                IsRagdollMoving = distance > 0.0001f;
+            }
+            else
+            {
+                IsRagdollMoving = true;
+            }
+
             CheckChangesOnCharacter();
         }
 
@@ -361,7 +407,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 m_previousWeapon = Character.CurrentWeapon;
                 var movementState = Character.GetCurrentMovementState();
 	            var jetpack = Character.JetpackComp;
-                if ((jetpack != null && jetpack.TurnedOn) && movementState == Common.ObjectBuilders.MyCharacterMovementEnum.Flying && Character.Physics.Enabled)
+                if ((jetpack != null && jetpack.TurnedOn) && movementState == MyCharacterMovementEnum.Flying && Character.Physics.Enabled)
                 {
                     if (!IsRagdollActivated || !RagdollMapper.IsActive)
                     {
@@ -419,5 +465,6 @@ namespace Sandbox.Game.Entities.Character.Components
         }
 
         #endregion
+
     }
 }

@@ -149,8 +149,8 @@ namespace Sandbox.Game.Multiplayer
                 return;
 
             var msg = new PrepareScenarioFromLobbyMsg();
-            msg.ServerPlayerSteamId = MySteam.UserId;
-            msg.ServerPlayerIdentityId = MySession.LocalPlayerId;
+            msg.ServerPlayerSteamId = Sync.MyId;
+            msg.ServerPlayerIdentityId = MySession.Static.LocalPlayerId;
             msg.PreparationStartTime = preparationStartTime;
 
             Sync.Layer.SendMessageToAll(ref msg);
@@ -176,7 +176,7 @@ namespace Sandbox.Game.Multiplayer
             MyGuiScreenLoadSandbox.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
 
             var msg = new PlayerReadyToStartScenarioMsg();
-            msg.PlayerSteamId = MySteam.UserId;
+            msg.PlayerSteamId = Sync.MyId;
 
             Sync.Layer.SendMessageToServer(ref msg);
 
@@ -203,8 +203,8 @@ namespace Sandbox.Game.Multiplayer
         //        return;
 
         //    var msg = new StartScenarioMsg();
-        //    msg.ServerPlayerSteamId = MySteam.UserId;
-        //    msg.ServerPlayerIdentityId = MySession.LocalPlayerId;
+        //    msg.ServerPlayerSteamId = Sync.MyId;
+        //    msg.ServerPlayerIdentityId = MySession.Static.LocalPlayerId;
 
         //    Sync.Layer.SendMessageToAll(ref msg);
         //}
@@ -214,8 +214,8 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(Sync.IsServer);
 
             var msg = new StartScenarioMsg();
-            msg.ServerPlayerSteamId = MySteam.UserId;
-            msg.ServerPlayerIdentityId = MySession.LocalPlayerId;
+            msg.ServerPlayerSteamId = Sync.MyId;
+            msg.ServerPlayerIdentityId = MySession.Static.LocalPlayerId;
             msg.GameStartTime = gameStartTime;
 
             Sync.Layer.SendMessage(ref msg, playerSteamId);

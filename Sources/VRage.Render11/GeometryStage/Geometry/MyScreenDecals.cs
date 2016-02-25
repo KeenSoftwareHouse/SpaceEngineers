@@ -74,8 +74,8 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_vs = MyShaders.CreateVs("decal.hlsl", "vs");
-            m_ps = MyShaders.CreatePs("decal.hlsl", "ps");
+            m_vs = MyShaders.CreateVs("decal.hlsl");
+            m_ps = MyShaders.CreatePs("decal.hlsl");
 
             InitIB();
         }
@@ -238,14 +238,15 @@ namespace VRageRender
                 {
                     MyMatrix4x3 worldMatrix = new MyMatrix4x3();
                     worldMatrix.Matrix4x4 = m_matrices[i];
-
-                    mapping.stream.Write(worldMatrix);
-                    mapping.stream.Write(new Vector4(decalType == MyScreenDecalType.ScreenDecalBump ? 1 : 0, 0, 0, 0));
-                    mapping.stream.Write(Matrix.Transpose(Matrix.Invert(m_matrices[i])));
+                    Vector4 decalVector = new Vector4(decalType == MyScreenDecalType.ScreenDecalBump ? 1 : 0, 0, 0, 0);
+                    Matrix transposeInverseMatrix = Matrix.Transpose(Matrix.Invert(m_matrices[i]));
+                    mapping.WriteAndPosition(ref worldMatrix);
+                    mapping.WriteAndPosition(ref decalVector);
+                    mapping.WriteAndPosition(ref transposeInverseMatrix);
                 }
                 mapping.Unmap();
 
-                MyImmediateRC.RC.Context.DrawIndexed(36 * N, 0, 0);
+                MyImmediateRC.RC.DeviceContext.DrawIndexed(36 * N, 0, 0);
             }
             m_matrices.Clear();
         }
@@ -263,23 +264,19 @@ namespace VRageRender
             // bind gbuffer for write
 
             var RC = MyImmediateRC.RC;
-            RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             RC.SetIB(m_IB.Buffer, m_IB.Format);
             RC.SetIL(null);
-            RC.Context.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+            RC.DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-            RC.BindDepthRT(
-                MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.DepthReadOnly,
-                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer0),
-                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer1),
-                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer2));
+            RC.BindGBufferForWrite(MyGBuffer.Main, DepthStencilAccess.DepthReadOnly);
             RC.SetVS(m_vs);
             RC.SetPS(m_ps);
             RC.SetDS(MyDepthStencilState.DepthTest);
-            RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
 
             RC.BindSRV(0, MyGBuffer.Main.DepthStencil.Depth);
-            RC.Context.PixelShader.SetShaderResources(1, MyRender11.m_gbuffer1Copy.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(1, MyRender11.m_gbuffer1Copy.ShaderView);
 
             var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * MAX_DECALS);
             RC.SetCB(2, decalCb);
@@ -301,7 +298,9 @@ namespace VRageRender
                     decalType = matDesc.DecalType;
                     // factor 1 makes overwriting of gbuffer color & subtracting from ao
                     RC.SetBS(MyRender11.BlendDecal, matDesc.DecalType == MyScreenDecalType.ScreenDecalBump ? new SharpDX.Color4(0) : SharpDX.Color4.White);
-                    RC.Context.PixelShader.SetShaderResources(3, MyTextures.GetView(matDesc.AlphamaskTexture), MyTextures.GetView(matDesc.ColorMetalTexture), MyTextures.GetView(matDesc.NormalmapTexture));
+                    RC.DeviceContext.PixelShader.SetShaderResource(3, MyTextures.GetView(matDesc.AlphamaskTexture));
+                    RC.DeviceContext.PixelShader.SetShaderResource(4, MyTextures.GetView(matDesc.ColorMetalTexture));
+                    RC.DeviceContext.PixelShader.SetShaderResource(5, MyTextures.GetView(matDesc.NormalmapTexture));
                 }
 
                 var parent = MyIDTracker<MyActor>.FindByID(Decals.Data[index].ParentID);

@@ -3,7 +3,6 @@
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
@@ -31,6 +30,8 @@ using ModelId = System.Int32;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Models;
 using Havok;
+using VRage.Game.Models;
+using VRage.Game;
 
 #endregion
 
@@ -38,6 +39,11 @@ namespace Sandbox.Game.Entities
 {
     public partial class MyCubeBuilder : MyBlockBuilderBase
     {
+        /// <summary>
+        /// Used for rescaling aabb in the Draw semi transparent method.
+        /// </summary>
+        private static float SEMI_TRANSPARENT_BOX_MODIFIER = 1.04f;
+
         public static void DrawSemiTransparentBox(MyCubeGrid grid, MySlimBlock block, Color color, bool onlyWireframe = false, string lineMaterial = null, Vector4? lineColor = null)
         {
             DrawSemiTransparentBox(block.Min, block.Max, grid, color, onlyWireframe: onlyWireframe, lineMaterial: lineMaterial, lineColor: lineColor);
@@ -47,8 +53,8 @@ namespace Sandbox.Game.Entities
             Vector4? lineColor = null)
         {
             var gridSize = grid.GridSize;
-            var min = (minPosition * gridSize) - new Vector3(gridSize / 2.0f + 0.02f);
-            var max = (maxPosition * gridSize) + new Vector3(gridSize / 2.0f + 0.02f);
+            var min = (minPosition * gridSize) - new Vector3((gridSize / 2.0f) * SEMI_TRANSPARENT_BOX_MODIFIER);
+            var max = (maxPosition * gridSize) + new Vector3((gridSize / 2.0f) * SEMI_TRANSPARENT_BOX_MODIFIER);
             BoundingBoxD boxr = new BoundingBoxD(min, max);
             MatrixD gridMatrix = grid.WorldMatrix;
             var lColor = Color.White;
@@ -71,6 +77,7 @@ namespace Sandbox.Game.Entities
             {
                 m_shipCreationClipboard.Update();
                 ShipCreationClipboard.CalculateRotationHints(m_rotationHints, m_rotationHintRotating);
+                UpdateBlockInfoHud();
             }
             else if (CopyPasteIsActivated)
             {
@@ -101,6 +108,9 @@ namespace Sandbox.Game.Entities
                 if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                     DebugDrawModelTextures();
 
+                if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_NAMES)
+                    DebugDrawVertexNames();
+
                 if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
                     DebugDrawGeneratingBlock();
 
@@ -115,15 +125,16 @@ namespace Sandbox.Game.Entities
 
         public override void Draw()
         {
+            ProfilerShort.Begin("base.Draw()");
             base.Draw();
-
-            //VRageRender.MyRenderProxy.DebugDrawAABB(m_cubeBuilderAABB, Vector3.One, 1, 1, false);
-
+            
+            ProfilerShort.BeginNextBlock("Crosshair");
             if (BlockCreationIsActivated)
             {
-                MyHud.Crosshair.Position = MyHudCrosshair.ScreenCenter;
+                MyHud.Crosshair.Recenter();
             }
 
+            ProfilerShort.BeginNextBlock("IsActivated");
             if (IsActivated)
             {
                 if (DynamicMode)
@@ -137,25 +148,34 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            ProfilerShort.BeginNextBlock("UpdateClipboards");
             if (UpdateClipboards())
+            {
+                ProfilerShort.End();
                 return;
+            }
 
+            ProfilerShort.BeginNextBlock("DrawBuildingStepsCount");
             DrawBuildingStepsCount(m_gizmo.SpaceDefault.m_startBuild, m_gizmo.SpaceDefault.m_startRemove, m_gizmo.SpaceDefault.m_continueBuild, ref m_gizmo.SpaceDefault.m_localMatrixAdd);
+            ProfilerShort.End();
 
             bool addPos = m_gizmo.SpaceDefault.m_startBuild.HasValue;
             bool removePos = false;
 
             if (DynamicMode)
             {
+                ProfilerShort.Begin("DynamicMode");
                 Vector3D freePlacementIntersectionPoint = GetFreeSpacePlacementPosition(out m_gizmo.SpaceDefault.m_dynamicBuildAllowed);
                 m_gizmo.SpaceDefault.m_worldMatrixAdd.Translation = freePlacementIntersectionPoint;
 
                 addPos = true;
+                ProfilerShort.End();
             }
             else
             {
                 if (m_gizmo.SpaceDefault.m_startBuild == null && m_gizmo.SpaceDefault.m_startRemove == null)
                 {
+                    ProfilerShort.Begin("!FreezeGizmo");
                     if (!FreezeGizmo)
                     {
                         float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
@@ -164,6 +184,7 @@ namespace Sandbox.Game.Entities
                             out m_gizmo.SpaceDefault.m_removePos, out m_gizmo.SpaceDefault.m_removeBlock, out m_gizmo.SpaceDefault.m_blockIdInCompound, m_gizmo.SpaceDefault.m_removeBlocksInMultiBlock);
                     }
 
+                    ProfilerShort.BeginNextBlock("addPos");
                     if (addPos)
                     {
                         if (PlacingSmallGridOnLargeStatic)
@@ -180,10 +201,12 @@ namespace Sandbox.Game.Entities
                         if (m_gizmo.SpaceDefault.m_removeBlock != null)
                             removePos = true;
                     }
+                    ProfilerShort.End();
                 }
             }
 
-            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
+            ProfilerShort.Begin("buildingDisabledByCockpit");
+            bool buildingDisabledByCockpit = MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
             //bool buildingDisabledByCockpit = true;
             if (!buildingDisabledByCockpit)
             {
@@ -228,10 +251,13 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            ProfilerShort.BeginNextBlock("UpdateGizmos");
             UpdateGizmos(addPos, removePos, true);
-
+            
+            ProfilerShort.BeginNextBlock("UpdateRenderInstanceData");
             m_renderData.UpdateRenderInstanceData();
-
+            
+            ProfilerShort.BeginNextBlock("CurrentVoxelMap");
             if (DynamicMode || CurrentVoxelMap != null)
             {
                 MatrixD drawMatrix = m_gizmo.SpaceDefault.m_worldMatrixAdd;
@@ -247,9 +273,12 @@ namespace Sandbox.Game.Entities
                 m_renderData.UpdateRenderEntitiesData(CurrentGrid != null ? CurrentGrid.WorldMatrix : MatrixD.Identity, UseTransparency);
             }
 
+            ProfilerShort.BeginNextBlock("UpdateBlockInfoHud");
             UpdateBlockInfoHud();
-
+            
+            ProfilerShort.BeginNextBlock("DebugDraw");
             DebugDraw();
+            ProfilerShort.End();
         }
 
         protected void DrawBuildingStepsCount(Vector3I? startBuild, Vector3I? startRemove, Vector3I? continueBuild, ref Matrix localMatrixAdd )
@@ -308,6 +337,9 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                 DebugDrawModelTextures();
 
+            if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_NAMES)
+                DebugDrawVertexNames();
+
             if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
                 DebugDrawGeneratingBlock();
         }
@@ -315,12 +347,12 @@ namespace Sandbox.Game.Entities
         private void DebugDrawGeneratingBlock()
         {
             LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 200);
-            MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.LocalCharacter, null);
+            VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.Static.LocalCharacter, null);
 
             if (intersection.HasValue && intersection.Value.Entity is MyCubeGrid)
             {
                 MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
-                MyIntersectionResultLineTriangleEx? t = null;
+                VRage.Game.Models.MyIntersectionResultLineTriangleEx? t = null;
                 MySlimBlock block = null;
                 if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
                 {
@@ -346,7 +378,7 @@ namespace Sandbox.Game.Entities
         private void DebugDrawModelTextures() 
         {
             LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 200);
-            MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.LocalCharacter, null);
+            VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.Static.LocalCharacter, null);
 
             if (intersection.HasValue)
             {
@@ -355,7 +387,7 @@ namespace Sandbox.Game.Entities
                 if (intersection.Value.Entity is MyCubeGrid)
                 {
                     MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
-                    MyIntersectionResultLineTriangleEx? t = null;
+                    VRage.Game.Models.MyIntersectionResultLineTriangleEx? t = null;
                     MySlimBlock block = null;
                     if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null) 
                     {
@@ -365,30 +397,106 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void DebugDrawVertexNames()
+        {
+            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(10, 0), "Voxel names searching", Color.Yellow, 0.5f);
+            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 500);
+            VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.Static.LocalCharacter, null,false,true,true,VRage.Game.Components.IntersectionFlags.ALL_TRIANGLES,0,false);
+            
+
+            if (intersection.HasValue)
+            {
+                if (intersection.Value.Entity is MyVoxelBase)
+                {
+                    MyVoxelBase voxels = intersection.Value.Entity as MyVoxelBase;
+                    Vector3D point = intersection.Value.IntersectionPointInWorldSpace;
+                    if (intersection.Value.Entity is MyPlanet)
+                    {
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: planet/moon", Color.Yellow, 0.5f);
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Terrain: " + voxels.GetMaterialAt(ref point).ToString(), Color.Yellow, 0.5f);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: asteroid", Color.Yellow, 0.5f);
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Terrain: " + voxels.GetMaterialAt(ref point).ToString(), Color.Yellow, 0.5f);
+                    }
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 40), "Object size: " + voxels.SizeInMetres.ToString(), Color.Yellow, 0.5f);
+
+                    //location
+                    /*
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 50), "Location:", Color.Yellow, 0.5f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(30, 60), "x " + Math.Round(point.X, 3).ToString(), Color.Yellow, 0.5f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(30, 70), "y " + Math.Round(point.Y, 3).ToString(), Color.Yellow, 0.5f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(30, 80), "z " + Math.Round(point.Z, 3).ToString(), Color.Yellow, 0.5f);*/
+                }
+                else if (intersection.Value.Entity is MyCubeGrid)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Detected grid object", Color.Yellow, 0.5f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Grid name: " + intersection.Value.Entity.DisplayName.ToString(), Color.Yellow, 0.5f);
+                    int row = 4;
+                    MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
+                    VRage.Game.Models.MyIntersectionResultLineTriangleEx? t = null;
+                    MySlimBlock block = null;
+                    if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
+                    {
+                        DebugDrawModelTextures(block.FatBlock, ref row);
+                    }
+                } 
+                else
+                {
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Unknown object detected", Color.Yellow, 0.5f);
+                }
+            }
+            else
+            {
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Nothing detected nearby", Color.Yellow, 0.5f);
+            }
+        }
+
         private void DebugDrawModelTextures(MyCubeBlock block, ref int row)
         {
+            float scale = 0.5f;
             if (block != null)
             {
                 MyModel model = block.Model;
                 if (model != null)
                 {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, row++ * 10), "SubTypeId: " + block.BlockDefinition.Id.SubtypeName, Color.Yellow, 0.5f);
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, row++ * 10), "Display name: " + block.BlockDefinition.DisplayNameText, Color.Yellow, 0.5f);
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, row++ * 10), "Asset: " + model.AssetName, Color.Yellow, 0.5f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "SubTypeId: " + block.BlockDefinition.Id.SubtypeName, Color.Yellow, scale);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "Display name: " + block.BlockDefinition.DisplayNameText, Color.Yellow, scale);
+                    if (block.SlimBlock.IsMultiBlockPart)
+                    {
+                        var multiblockInfo = block.CubeGrid.GetMultiBlockInfo(block.SlimBlock.MultiBlockId);
+                        if (multiblockInfo != null)
+                            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10 + 20), "Multiblock: " + multiblockInfo.MultiBlockDefinition.Id.SubtypeName + " (Id:" 
+                                + block.SlimBlock.MultiBlockId + ")", Color.Yellow, scale);
+                    }
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "Asset: " + model.AssetName, Color.Yellow, scale);
+
+                    // Enables to copy asset name to windows clipboard through * key in MyTomasInputComponent
+                    var lastIndex = model.AssetName.LastIndexOf("\\") + 1;
+                    if (lastIndex != -1 && lastIndex < model.AssetName.Length)
+                    {
+                        MyTomasInputComponent.ClipboardText = model.AssetName.Substring(lastIndex);
+                    }
+                    else
+                    {
+                        MyTomasInputComponent.ClipboardText = model.AssetName;
+                    }
 
                     HashSet<string> textures = new HashSet<string>();
                     foreach (var mesh in model.GetMeshList())
                     {
-                        foreach (var pair in mesh.Material.Textures)
+                        Debug.Assert(mesh.Material.Textures != null);
+                        if (mesh.Material.Textures != null)
                         {
-                            textures.Add(pair.Value);
-                            
+                            foreach (var pair in mesh.Material.Textures)
+                                textures.Add(pair.Value);
                         }
                     }
 
                     foreach (var texture in textures)
                     {
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, row++ * 10), texture, Color.White, 0.5f);
+                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), texture, Color.White, scale);
                     }
                 }
             }
@@ -484,7 +592,7 @@ namespace Sandbox.Game.Entities
                 if (def.Model != null)
                 {
                     int index = 0;
-                    MyModel model = MyModels.GetModel(def.Model);
+                    MyModel model = VRage.Game.Models.MyModels.GetModel(def.Model);
 
                     foreach (var shape in model.HavokCollisionShapes)
                     {

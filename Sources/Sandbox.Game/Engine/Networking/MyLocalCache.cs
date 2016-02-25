@@ -13,10 +13,13 @@ using VRage.Trace;
 using VRageMath;
 using Sandbox.Engine.Utils;
 using System.IO.Compression;
+using System.Linq;
 using Sandbox.Common;
 using VRage.Library.Utils;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using VRage.ObjectBuilders;
+using VRage;
+using VRage.Game;
 
 namespace Sandbox.Engine.Networking
 {
@@ -30,6 +33,7 @@ namespace Sandbox.Engine.Networking
         public static string LastSessionPath { get { return Path.Combine(MyFileSystem.SavesPath, LAST_SESSION_FILE); } }
         public static string ContentSessionsPath { get { return "Worlds"; } }
         public static string MissionSessionsPath { get { return "Missions"; } }
+        public static string AISchoolSessionsPath { get { return "AISchool"; } }
 
         private static string GetSectorPath(string sessionPath, Vector3I sectorPosition)
         {
@@ -129,6 +133,7 @@ namespace Sandbox.Engine.Networking
                 result.SessionName = Path.GetFileNameWithoutExtension(checkpointFile);
             }
 
+
             return result;
         }
 
@@ -192,13 +197,24 @@ namespace Sandbox.Engine.Networking
 
         public static List<Tuple<string, MyWorldInfo>> GetAvailableMissionInfos()
         {
-            MySandboxGame.Log.WriteLine("Loading available mission - START");
+            return GetAvailableInfosFromDirectory("mission", MissionSessionsPath);
+        }
+
+        public static List<Tuple<string, MyWorldInfo>> GetAvailableAISchoolInfos()
+        {
+            return GetAvailableInfosFromDirectory("AI school scenarios", AISchoolSessionsPath);
+        }
+
+        private static List<Tuple<string, MyWorldInfo>> GetAvailableInfosFromDirectory(string worldCategory, string worldDirectoryPath)
+        {
+            string loadingMessage = "Loading available " + worldCategory;
+            MySandboxGame.Log.WriteLine(loadingMessage + " - START");
             var result = new List<Tuple<string, MyWorldInfo>>();
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
             {
-                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, MissionSessionsPath), result);
+                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, worldDirectoryPath), result);
             }
-            MySandboxGame.Log.WriteLine("Loading available missions - END");
+            MySandboxGame.Log.WriteLine(loadingMessage + " - END");
             return result;
         }
 
@@ -212,10 +228,12 @@ namespace Sandbox.Engine.Networking
                 var basicTutorialsPath = Path.Combine(tutorialsPath, "Basic");
                 var intTutorialsPath = Path.Combine(tutorialsPath, "Intermediate");
                 var advTutorialsPath = Path.Combine(tutorialsPath, "Advanced");
+                var plaTutorialsPath = Path.Combine(tutorialsPath, "Planetary");
 
                 GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, basicTutorialsPath), result);
                 GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, intTutorialsPath), result);
                 GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, advTutorialsPath), result);
+                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, plaTutorialsPath), result);
             }
             MySandboxGame.Log.WriteLine("Loading available tutorials - END");
             return result;

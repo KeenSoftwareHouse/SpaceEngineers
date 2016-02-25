@@ -10,6 +10,7 @@ using SharpDX.Direct3D11;
 using Device = SharpDX.Direct3D11.Device;
 using SharpDX.Direct3D;
 using System.Management;
+using VRage.Utils;
 
 namespace VRageRender
 {
@@ -29,7 +30,7 @@ namespace VRageRender
             return m_factory;
         }
 
-        private static void LogInfoFromWMI()
+        private static void LogInfoFromWMI(MyLog log)
         {
             try
             {
@@ -47,32 +48,32 @@ namespace VRageRender
                 //get collection of WMI objects
                 ManagementObjectCollection queryCollection = searcher.Get();
 
-                MyRender11.Log.WriteLine("WMI {");
-                MyRender11.Log.IncreaseIndent();
+                log.WriteLine("WMI {");
+                log.IncreaseIndent();
 
                 //enumerate the collection.
                 foreach (ManagementObject m in queryCollection)
                 {
-                    MyRender11.Log.WriteLine("{");
-                    MyRender11.Log.IncreaseIndent();
+                    log.WriteLine("{");
+                    log.IncreaseIndent();
 
-                    MyRender11.Log.WriteLine("Caption = " + m["Caption"]);
-                    MyRender11.Log.WriteLine("AdapterRam = " + m["AdapterRam"]);
-                    MyRender11.Log.WriteLine("DriverVersion = " + m["DriverVersion"]);
-                    MyRender11.Log.WriteLine("DriverDate = " + m["DriverDate"]);
-                    MyRender11.Log.WriteLine("Description = " + m["Description"]);
-                    MyRender11.Log.WriteLine("DeviceID = " + m["DeviceID"]);
-                    MyRender11.Log.WriteLine("Name = " + m["Name"]);
-                    MyRender11.Log.WriteLine("VideoProcessor = " + m["VideoProcessor"]);
-                    MyRender11.Log.WriteLine("VideoArchitecture = " + m["VideoArchitecture"]);
-                    MyRender11.Log.WriteLine("PNPDeviceID = " + m["PNPDeviceID"]);
-                    MyRender11.Log.WriteLine("InstalledDisplayDrivers = " + m["InstalledDisplayDrivers"]);
+                    log.WriteLine("Caption = " + m["Caption"]);
+                    log.WriteLine("AdapterRam = " + m["AdapterRam"]);
+                    log.WriteLine("DriverVersion = " + m["DriverVersion"]);
+                    log.WriteLine("DriverDate = " + m["DriverDate"]);
+                    log.WriteLine("Description = " + m["Description"]);
+                    log.WriteLine("DeviceID = " + m["DeviceID"]);
+                    log.WriteLine("Name = " + m["Name"]);
+                    log.WriteLine("VideoProcessor = " + m["VideoProcessor"]);
+                    log.WriteLine("VideoArchitecture = " + m["VideoArchitecture"]);
+                    log.WriteLine("PNPDeviceID = " + m["PNPDeviceID"]);
+                    log.WriteLine("InstalledDisplayDrivers = " + m["InstalledDisplayDrivers"]);
 
-                    MyRender11.Log.DecreaseIndent();
-                    MyRender11.Log.WriteLine("}");
+                    log.DecreaseIndent();
+                    log.WriteLine("}");
                 }
-                MyRender11.Log.DecreaseIndent();
-                MyRender11.Log.WriteLine("}");
+                log.DecreaseIndent();
+                log.WriteLine("}");
             }
             catch
             {
@@ -81,40 +82,41 @@ namespace VRageRender
 
         static void LogAdapterInfoBegin(ref MyAdapterInfo info)
         {
-            MyRender11.Log.WriteLine("AdapterInfo = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("Name = " + info.Name);
-            MyRender11.Log.WriteLine("Device name = " + info.DeviceName);
-            MyRender11.Log.WriteLine("Description = " + info.Description);
-            MyRender11.Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
-            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
-            MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
-            MyRender11.Log.WriteLine("Priority = " + info.Priority);
-            MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
+            Log.WriteLine("AdapterInfo = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("Name = " + info.Name);
+            Log.WriteLine("Device name = " + info.DeviceName);
+            Log.WriteLine("Description = " + info.Description);
+            Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
+            Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
+            Log.WriteLine("VRAM = " + info.VRAM);
+            Log.WriteLine("Priority = " + info.Priority);
+            Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
 
         static void LogAdapterInfoEnd()
         {
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
 
         static void LogOutputDisplayModes(ref MyAdapterInfo info)
         {
-            MyRender11.Log.WriteLine("Display modes = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("DXGIOutput id = " + info.OutputId);
-            for(int i=0; i< info.SupportedDisplayModes.Length; i++)
+            Log.WriteLine("Display modes = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("DXGIOutput id = " + info.OutputId);
+            for (int i = 0; i < info.SupportedDisplayModes.Length; i++)
             {
-                MyRender11.Log.WriteLine(info.SupportedDisplayModes[i].ToString());
+                Log.WriteLine(info.SupportedDisplayModes[i].ToString());
             }
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
+
 
         static int VendorPriority(int vendorId)
         {
-            switch(vendorId)
+            switch (vendorId)
             {
                 case 4098: // amd
                 case 4318: // nvidia
@@ -126,7 +128,7 @@ namespace VRageRender
             }
         }
 
-        unsafe static MyAdapterInfo[] CreateAdaptersList()
+        unsafe static MyAdapterInfo[] GetAdapters()
         {
             List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
 
@@ -135,9 +137,10 @@ namespace VRageRender
 
             int adapterIndex = 0;
 
-            LogInfoFromWMI();
+            LogInfoFromWMI(Log);
+            LogInfoFromWMI(MyLog.Default);
 
-            for(int i=0; i<factory.Adapters.Length; i++)
+            for (int i = 0; i < factory.Adapters.Length; i++)
             {
                 var adapter = factory.Adapters[i];
                 Device adapterTestDevice = null;
@@ -145,7 +148,7 @@ namespace VRageRender
                 {
                     adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
                 }
-                catch(SharpDXException e)
+                catch (SharpDXException)
                 {
 
                 }
@@ -162,9 +165,96 @@ namespace VRageRender
                 // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
                 // DedicatedVideoMemory = discrete graphic video memory
                 // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
-                void * vramptr = ((IntPtr)(adapter.Description.DedicatedSystemMemory != 0 ? adapter.Description.DedicatedSystemMemory : adapter.Description.DedicatedVideoMemory)).ToPointer();
+                void* vramptr =
+                    ((IntPtr)
+                        (adapter.Description.DedicatedSystemMemory != 0
+                            ? adapter.Description.DedicatedSystemMemory
+                            : adapter.Description.DedicatedVideoMemory)).ToPointer();
+                UInt64 vram = (UInt64) vramptr;
+                void* svramptr = ((IntPtr) adapter.Description.SharedSystemMemory).ToPointer();
+                UInt64 svram = (UInt64) svramptr;
+
+                // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
+                supportedDevice = supportedDevice && (vram > 500000000 || svram > 500000000);
+
+                var deviceDesc =
+                    String.Format(
+                        "{0}, dev id: {1}, mem: {2}, shared mem: {3}, Luid: {4}, rev: {5}, subsys id: {6}, vendor id: {7}",
+                        adapter.Description.Description,
+                        adapter.Description.DeviceId,
+                        vram,
+                        svram,
+                        adapter.Description.Luid,
+                        adapter.Description.Revision,
+                        adapter.Description.SubsystemId,
+                        adapter.Description.VendorId
+                        );
+
+                var info = new MyAdapterInfo
+                {
+                    Name = adapter.Description.Description,
+                    DeviceName = adapter.Description.Description,
+                    VendorId = adapter.Description.VendorId,
+                    DeviceId = adapter.Description.DeviceId,
+                    Description = deviceDesc,
+                    IsDx11Supported = supportedDevice,
+                    AdapterDeviceId = i,
+                    Priority = VendorPriority(adapter.Description.VendorId),
+                    HDRSupported = true,
+                    MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
+                    VRAM = vram > 0 ? vram : svram,
+                    Has512MBRam = (vram > 500000000 || svram > 500000000),
+                    MultithreadedRenderingSupported = supportsCommandLists
+                };
+
+                adaptersList.Add(info);
+                adapterIndex++;
+            }
+
+            return adaptersList.ToArray();
+        }
+
+        unsafe static MyAdapterInfo[] CreateAdaptersList()
+        {
+            List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
+
+            var factory = GetFactory();
+            FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
+
+            int adapterIndex = 0;
+
+            LogInfoFromWMI(Log);
+            LogInfoFromWMI(MyLog.Default);
+            
+            for (int i = 0; i < factory.Adapters.Length; i++)
+            {
+                var adapter = factory.Adapters[i];
+                Device adapterTestDevice = null;
+                try
+                {
+                    adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
+                }
+                catch (SharpDXException)
+                {
+
+                }
+
+                bool supportedDevice = adapterTestDevice != null;
+
+                bool supportsConcurrentResources = false;
+                bool supportsCommandLists = false;
+                if (supportedDevice)
+            
+                {
+                    adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
+                }
+
+                // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
+                // DedicatedVideoMemory = discrete graphic video memory
+                // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
+                void* vramptr = ((IntPtr)(adapter.Description.DedicatedSystemMemory != 0 ? adapter.Description.DedicatedSystemMemory : adapter.Description.DedicatedVideoMemory)).ToPointer();
                 UInt64 vram = (UInt64)vramptr;
-                void * svramptr = ((IntPtr)adapter.Description.SharedSystemMemory).ToPointer();
+                void* svramptr = ((IntPtr)adapter.Description.SharedSystemMemory).ToPointer();
                 UInt64 svram = (UInt64)svramptr;
 
                 // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
@@ -185,6 +275,8 @@ namespace VRageRender
                 {
                     Name = adapter.Description.Description,
                     DeviceName = adapter.Description.Description,
+                    VendorId = adapter.Description.VendorId,
+                    DeviceId = adapter.Description.DeviceId,
                     Description = deviceDesc,
                     IsDx11Supported = supportedDevice,
                     AdapterDeviceId = i,
@@ -196,7 +288,7 @@ namespace VRageRender
                     MultithreadedRenderingSupported = supportsCommandLists
                 };
 
-                if(info.VRAM >= 2000000000)
+                if (info.VRAM >= 2000000000)
                 {
                     info.MaxTextureQualitySupported = MyTextureQuality.HIGH;
                 }
@@ -205,7 +297,7 @@ namespace VRageRender
                     info.MaxTextureQualitySupported = MyTextureQuality.MEDIUM;
                 }
                 else
-                { 
+                {
                     info.MaxTextureQualitySupported = MyTextureQuality.LOW;
                 }
 
@@ -228,7 +320,7 @@ namespace VRageRender
 
                 LogAdapterInfoBegin(ref info);
 
-                if(supportedDevice)
+                if (supportedDevice)
                 {
                     bool outputsAttached = adapter.Outputs.Length > 0;
 
@@ -242,7 +334,7 @@ namespace VRageRender
                             info.OutputName = output.Description.DeviceName;
                             info.OutputId = j;
 
-                            var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
+                            var displayModeList = output.GetDisplayModeList(MyRender11Constants.DX11_BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
                             var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
                             for (int k = 0; k < displayModeList.Length; k++)
                             {
@@ -297,6 +389,7 @@ namespace VRageRender
                         };
 
                         info.OutputName = "FallbackOutput";
+            
                         info.Name = String.Format("{0}", adapter.Description.Description);
                         info.OutputId = 0;
                         info.CurrentDisplayMode = fallbackDisplayModes[fallbackDisplayModes.Length - 1];
@@ -314,11 +407,11 @@ namespace VRageRender
                     info.SupportedDisplayModes = new MyDisplayMode[0];
                 }
 
-                MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
+                Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
 
                 LogAdapterInfoEnd();
 
-                if(adapterTestDevice != null)
+                if (adapterTestDevice != null)
                 {
                     adapterTestDevice.Dispose();
                     adapterTestDevice = null;
@@ -328,14 +421,14 @@ namespace VRageRender
             return adaptersList.ToArray();
         }
 
-		internal unsafe static MyAdapterInfo[] GetAdaptersList()
-		{
-            if(m_adapterInfoList == null)
+        public unsafe static MyAdapterInfo[] GetAdaptersList()
+        {
+            if (m_adapterInfoList == null)
             {
                 m_adapterInfoList = CreateAdaptersList();
             }
 
             return m_adapterInfoList;
-		}
+        }
 	}
 }

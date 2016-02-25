@@ -16,6 +16,10 @@ using VRage.Audio;
 using VRage.Utils;
 using VRageMath;
 using VRage.ModAPI;
+using VRage.Game.Components;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game;
 
 
 namespace Sandbox.Game.Entities.Blocks
@@ -30,15 +34,16 @@ namespace Sandbox.Game.Entities.Blocks
 
         #region Fields
 
-        private float m_soundRadius;
-        private float m_volume;
-        private MyCueId m_cueId;
-        private float m_loopPeriod;
+        private readonly Sync<float> m_soundRadius;
+        private readonly Sync<float> m_volume;
+        private readonly Sync<MyCueId> m_cueId;
+        private readonly Sync<float> m_loopPeriod;
         private MySoundPair m_soundPair;
         private bool m_isLoopable;
         private MyEntity3DSoundEmitter[] m_soundEmitters;
         private int m_soundEmitterIndex;
         private long m_startLoopTimeMs;
+        private bool m_willStartSound; // will start sound in updateaftersimulation
 
         static MyTerminalControlButton<MySoundBlock> m_playButton, m_stopButton;
         static MyTerminalControlSlider<MySoundBlock> m_loopableTimeSlider;
@@ -53,10 +58,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (m_soundRadius != value)
                 {
-                    m_soundRadius = value;
-                    for (int i = 0; i < EMITTERS_NUMBER; i++)
-                        m_soundEmitters[i].CustomMaxDistance = m_soundRadius;
-                    RaisePropertiesChanged();
+                    m_soundRadius.Value = value;
                 }
             }
         }
@@ -68,10 +70,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (m_volume != value)
                 {
-                    m_volume = value;
-                    for (int i = 0; i < EMITTERS_NUMBER; i++)
-                        m_soundEmitters[i].CustomVolume = m_volume;
-                    RaisePropertiesChanged();
+                    m_volume.Value = value;
                 }
             }
         }
@@ -79,20 +78,15 @@ namespace Sandbox.Game.Entities.Blocks
         public MyCueId CueId
         {
             get { return m_cueId; }
-            set { m_cueId = value; }
+            set { m_cueId.Value = value; }
         }
 
         public float LoopPeriod
         {
             get { return m_loopPeriod; }
-            set 
+            set
             {
-                if (m_loopPeriod != value)
-                {
-                    m_loopPeriod = value;
-
-                    RaisePropertiesChanged();
-                }
+                m_loopPeriod.Value = value;
             }
         }
 
@@ -117,11 +111,6 @@ namespace Sandbox.Game.Entities.Blocks
             get { return !CueId.IsNull; }
         }
 
-        public new MySyncSoundBlock SyncObject
-        {
-            get { return (MySyncSoundBlock)base.SyncObject; }
-        }
-
         #endregion
 
         #region Init & object builder
@@ -132,7 +121,7 @@ namespace Sandbox.Game.Entities.Blocks
             volumeSlider.SetLimits(0, 1.0f);
             volumeSlider.DefaultValue = 1;
             volumeSlider.Getter = (x) => x.Volume;
-            volumeSlider.Setter = (x, v) => x.SyncObject.SendChangeSoundVolumeRequest(v);
+            volumeSlider.Setter = (x, v) => x.Volume = v;
             volumeSlider.Writer = (x, result) => result.AppendInt32((int)(x.Volume * 100.0)).Append(" %");
             volumeSlider.EnableActions();
             MyTerminalControlFactory.AddControl(volumeSlider);
@@ -141,17 +130,18 @@ namespace Sandbox.Game.Entities.Blocks
             rangeSlider.SetLimits(0, 500);
             rangeSlider.DefaultValue = 50;
             rangeSlider.Getter = (x) => x.Range;
-            rangeSlider.Setter = (x, v) => x.SyncObject.SendChangeSoundRangeRequest(v);
+            rangeSlider.Setter = (x, v) => x.Range = v;
             rangeSlider.Writer = (x, result) => result.AppendInt32((int)x.Range).Append(" m");
             rangeSlider.EnableActions();
             MyTerminalControlFactory.AddControl(rangeSlider);
             
-            m_playButton = new MyTerminalControlButton<MySoundBlock>("PlaySound", MySpaceTexts.BlockPropertyTitle_SoundBlockPlay, MySpaceTexts.Blank, (x) => x.SyncObject.SendPlaySoundRequest());
+            m_playButton = new MyTerminalControlButton<MySoundBlock>("PlaySound", MySpaceTexts.BlockPropertyTitle_SoundBlockPlay, MySpaceTexts.Blank, (x) => MyMultiplayer.RaiseEvent(x, y => y.PlaySound));
             m_playButton.Enabled = (x) => x.IsSoundSelected;
             m_playButton.EnableAction();
             MyTerminalControlFactory.AddControl(m_playButton);
 
-            m_stopButton = new MyTerminalControlButton<MySoundBlock>("StopSound", MySpaceTexts.BlockPropertyTitle_SoundBlockStop, MySpaceTexts.Blank, (x) => x.SyncObject.SendStopSoundRequest());
+            m_stopButton = new MyTerminalControlButton<MySoundBlock>("StopSound", MySpaceTexts.BlockPropertyTitle_SoundBlockStop, MySpaceTexts.Blank,
+                (x) => { MyMultiplayer.RaiseEvent(x, y => y.StopSound); x.m_willStartSound = false; });
             m_stopButton.Enabled = (x) => x.IsSoundSelected;
             m_stopButton.EnableAction();
             MyTerminalControlFactory.AddControl(m_stopButton);
@@ -159,7 +149,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_loopableTimeSlider = new MyTerminalControlSlider<MySoundBlock>("LoopableSlider", MySpaceTexts.BlockPropertyTitle_SoundBlockLoopTime, MySpaceTexts.Blank);
             m_loopableTimeSlider.DefaultValue = 1f;
             m_loopableTimeSlider.Getter = (x) => x.LoopPeriod;
-            m_loopableTimeSlider.Setter = (x, f) => x.SyncObject.SendChangeLoopPeriodRequest(f);
+            m_loopableTimeSlider.Setter = (x, f) => x.LoopPeriod = f;
             m_loopableTimeSlider.Writer = (x, result) => MyValueFormatter.AppendTimeInBestUnit(x.LoopPeriod, result);
             m_loopableTimeSlider.Enabled = (x) => x.IsLoopable;
             m_loopableTimeSlider.Normalizer = (x, f) => x.NormalizeLoopPeriod(f);
@@ -184,11 +174,54 @@ namespace Sandbox.Game.Entities.Blocks
                 m_soundEmitters[i] = new MyEntity3DSoundEmitter(this);
                 m_soundEmitters[i].Force3D = true;
             }
+
+            m_volume.ValueChanged += (x) => VolumeChanged();
+            m_soundRadius.ValueChanged += (x) => RadiusChanged();
+            m_cueId.ValueChanged += (x) => SelectionChanged();
+
+        }
+
+        void SelectionChanged()
+        {
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_soundPair.Init(m_cueId);
+                var soundData = MyAudio.Static.GetCue(m_cueId);
+                if (soundData != null)
+                    IsLoopable = soundData.Loopable;
+            }
+            m_loopableTimeSlider.UpdateVisual();
+            m_playButton.UpdateVisual();
+            m_stopButton.UpdateVisual();
+        }
+
+        void RadiusChanged()
+        {
+            for (int i = 0; i < EMITTERS_NUMBER; i++)
+                m_soundEmitters[i].CustomMaxDistance = m_soundRadius;
+        }
+
+        void VolumeChanged()
+        {
+            for (int i = 0; i < EMITTERS_NUMBER; i++)
+                m_soundEmitters[i].CustomVolume = m_volume;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
+
+            var soundBlockDefinition = BlockDefinition as MySoundBlockDefinition;
+            Debug.Assert(soundBlockDefinition != null);
+
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                soundBlockDefinition.ResourceSinkGroup,
+                MyEnergyConstants.MAX_REQUIRED_POWER_SOUNDBLOCK,
+                UpdateRequiredPowerInput);
+            sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
 
             var builder = (MyObjectBuilder_SoundBlock)objectBuilder;
@@ -196,18 +229,12 @@ namespace Sandbox.Game.Entities.Blocks
             Volume = builder.Volume;
             Range = builder.Range;
             LoopPeriod = builder.LoopPeriod;
+            if (builder.IsPlaying)
+            {
+                m_willStartSound = true;
+            }
             InitCue(builder.CueName);
-
-	        var soundBlockDefinition = BlockDefinition as MySoundBlockDefinition;
-			Debug.Assert(soundBlockDefinition != null);
-
-			var sinkComp = new MyResourceSinkComponent();
-            sinkComp.Init(
-                soundBlockDefinition.ResourceSinkGroup,
-                MyEnergyConstants.MAX_REQUIRED_POWER_SOUNDBLOCK,
-                UpdateRequiredPowerInput);
-            sinkComp.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
-	        ResourceSink = sinkComp;
+	 
             ResourceSink.Update();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -251,6 +278,15 @@ namespace Sandbox.Game.Entities.Blocks
             ob.CueName = CueId.ToString();
             ob.LoopPeriod = LoopPeriod;
 
+            bool isAnyEmitterPlaying = false;
+            for (int i = 0; i < EMITTERS_NUMBER; i++)
+                if (m_soundEmitters[i] != null && m_soundEmitters[i].IsPlaying)
+                {
+                    isAnyEmitterPlaying = true;
+                    break;
+                }
+            ob.IsPlaying = isAnyEmitterPlaying || m_willStartSound;
+
             return ob;
         }
 
@@ -258,6 +294,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         #region Methods - sounds operations
 
+        [Event, Reliable, Server, Broadcast]
         public void PlaySound()
         {
             if (!m_soundPair.SoundId.IsNull)
@@ -314,25 +351,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void SelectSound(MyCueId cueId, bool sync)
         {
-            if (sync)
-            {
-                SyncObject.SendSelectSoundRequest(cueId);
-            }
-            else
-            {
-                CueId = cueId;
-
-                if (!MySandboxGame.IsDedicated)
-                {
-                    m_soundPair.Init(cueId);
-                    var soundData = MyAudio.Static.GetCue(cueId);
-                    if (soundData != null)
-                        IsLoopable = soundData.Loopable;
-                }
-                m_loopableTimeSlider.UpdateVisual();
-                m_playButton.UpdateVisual();
-                m_stopButton.UpdateVisual();
-            }
+            CueId = cueId;        
         }
 
         //public void SelectSound(int cueId, bool sync)
@@ -340,6 +359,7 @@ namespace Sandbox.Game.Entities.Blocks
         //    SelectSound(MyStringId.TryGet(cueId), sync);
         //}
 
+        [Event,Reliable,Server,Broadcast]
         public void StopSound()
         {
             for (int i = 0; i < EMITTERS_NUMBER; i++)
@@ -448,10 +468,6 @@ namespace Sandbox.Game.Entities.Blocks
 
         #endregion
 
-        protected override MySyncEntity OnCreateSync()
-        {
-            return new MySyncSoundBlock(this);
-        }
 
         void PowerReceiver_IsPoweredChanged()
         {
@@ -493,6 +509,14 @@ namespace Sandbox.Game.Entities.Blocks
                 var sound = m_soundEmitters[i].Sound;
                 if (sound != null)
                     sound.Resume();
+            }
+
+            if (m_willStartSound && CubeGrid.Physics != null)
+            {
+                // postponed sound start - here we should know if this.IsWorking == true
+                // otherwise sound request is cancelled inside SendPlaySoundRequest call
+                MyMultiplayer.RaiseEvent(this, x => x.PlaySound); 
+                m_willStartSound = false;
             }
         }
 

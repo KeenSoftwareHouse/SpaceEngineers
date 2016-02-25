@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using VRage.Collections;
+using VRage.Game.Common;
 
 namespace VRage.ObjectBuilders
 {
@@ -26,6 +25,36 @@ namespace VRage.ObjectBuilders
             RegisterFromAssembly(assembly);
         }
 
+        public void RegisterDescriptor(TAttribute descriptor, Type type)
+        {
+            descriptor.ProducedType = type;
+
+            Debug.Assert(
+                typeof(TCreatedObjectBase).IsAssignableFrom(type),
+                "Type " + type + " cannot have factory tag attribute " + typeof(TAttribute) + ", because it's not assignable to " + typeof(TCreatedObjectBase)
+            );
+
+            if (descriptor.IsMain)
+            {
+                Debug.Assert(
+                    !m_attributesByProducedType.ContainsKey(descriptor.ProducedType),
+                    "Duplicate factory tag attribute " + typeof(TAttribute) + " on type " + type +
+                    "\nEither remove the duplicate instances or mark only one of the attributes as the main one main"
+                );
+                m_attributesByProducedType.Add(descriptor.ProducedType, descriptor);
+            }
+
+            if (descriptor.ObjectBuilderType != null)
+            {
+                System.Diagnostics.Debug.Assert(!m_attributesByObjectBuilder.ContainsKey(descriptor.ObjectBuilderType), "Object builder already assigned for another entity, fatal error!");
+                m_attributesByObjectBuilder.Add(descriptor.ObjectBuilderType, descriptor);
+            }
+            else if (typeof(MyObjectBuilder_Base).IsAssignableFrom(descriptor.ProducedType))
+            { // MyObjectBuilder_Base can use itself to convert one type to another
+                m_attributesByObjectBuilder.Add(descriptor.ProducedType, descriptor);
+            }
+        }
+
         public void RegisterFromAssembly(Assembly assembly)
         {
             if (assembly == null)
@@ -36,32 +65,7 @@ namespace VRage.ObjectBuilders
                 var descriptorArray = type.GetCustomAttributes(typeof(TAttribute), false);
                 foreach (TAttribute descriptor in descriptorArray)
                 {
-                    descriptor.ProducedType = type;
-                    
-                    Debug.Assert(
-                        typeof(TCreatedObjectBase).IsAssignableFrom(type),
-                        "Type " + type + " cannot have factory tag attribute " + typeof(TAttribute) + ", because it's not assignable to " + typeof(TCreatedObjectBase)
-                    );
-
-                    if (descriptor.IsMain)
-                    {
-                        Debug.Assert(
-                            !m_attributesByProducedType.ContainsKey(descriptor.ProducedType),
-                            "Duplicate factory tag attribute " + typeof(TAttribute) + " on type " + type +
-                            "\nEither remove the duplicate instances or mark only one of the attributes as the main one main"
-                        );
-                        m_attributesByProducedType.Add(descriptor.ProducedType, descriptor);
-                    }
-
-                    if (descriptor.ObjectBuilderType != null)
-                    {
-                        System.Diagnostics.Debug.Assert(!m_attributesByObjectBuilder.ContainsKey(descriptor.ObjectBuilderType), "Object builder already assigned for another entity, fatal error!");
-                        m_attributesByObjectBuilder.Add(descriptor.ObjectBuilderType, descriptor);                        
-                    }
-                    else if (typeof(MyObjectBuilder_Base).IsAssignableFrom(descriptor.ProducedType))
-                    { // MyObjectBuilder_Base can use itself to convert one type to another
-                        m_attributesByObjectBuilder.Add(descriptor.ProducedType, descriptor);
-                    }
+                    RegisterDescriptor(descriptor, type);
                 }
             }
         }
@@ -109,19 +113,4 @@ namespace VRage.ObjectBuilders
             return MyObjectBuilderSerializer.CreateNewObject(attribute.ObjectBuilderType) as TObjectBuilder;
         }
     }
-
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    public class MyFactoryTagAttribute : System.Attribute
-    {
-        public readonly Type ObjectBuilderType;
-        public Type ProducedType;
-        public bool IsMain;
-
-        public MyFactoryTagAttribute(Type objectBuilderType, bool mainBuilder = true)
-        {
-            ObjectBuilderType = objectBuilderType;
-            IsMain = mainBuilder;
-        }
-    }
-
 }

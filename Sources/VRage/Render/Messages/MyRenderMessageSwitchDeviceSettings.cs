@@ -5,11 +5,11 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageSwitchDeviceSettings : IMyRenderMessage
+    public class MyRenderMessageSwitchDeviceSettings : MyRenderMessageBase
     {
         public MyRenderDeviceSettings Settings;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SwitchDeviceSettings; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SwitchDeviceSettings; } }
     }
 }

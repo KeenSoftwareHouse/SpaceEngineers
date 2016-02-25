@@ -1,11 +1,9 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

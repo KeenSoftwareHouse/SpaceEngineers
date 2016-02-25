@@ -14,13 +14,21 @@ namespace VRageRender
         private readonly MyInterpolationQueue<MatrixD> m_interpolation = new MyInterpolationQueue<MatrixD>(3, MatrixD.Slerp);
         private readonly MyClipmap m_clipmapBase;
         Vector3D m_position;
+        float m_atmosphereRadius = 0.0f;
+        float m_planetRadius = 0.0f;
+        bool m_hasAtmosphere = false;
+        Vector3? m_atmosphereWaveLengths = null;
 
         public MyRenderClipmap(MyRenderMessageCreateClipmap msg)
             : base(msg.ClipmapId, "Clipmap")
         {
-            m_clipmapBase = new MyClipmap(msg.ClipmapId, msg.ScaleGroup, msg.WorldMatrix, msg.SizeLod0, this);
+            m_clipmapBase = new MyClipmap(msg.ClipmapId, msg.ScaleGroup, msg.WorldMatrix, msg.SizeLod0, this, msg.Position, msg.PlanetRadius, msg.PrunningFunc);
             SetDirty();
             m_position = msg.Position;
+            m_atmosphereRadius = msg.AtmosphereRadius;
+            m_planetRadius = msg.PlanetRadius;
+            m_hasAtmosphere = msg.HasAtmosphere;
+            m_atmosphereWaveLengths = msg.AtmosphereWaveLenghts;
         }
 
         public override void UpdateWorldAABB()
@@ -73,7 +81,7 @@ namespace VRageRender
         {
             if (!MyRender.Settings.FreezeTerrainQueries)
             {
-                MyClipmap.UpdateQueued(MyRenderCamera.Position, MyRenderCamera.FAR_PLANE_DISTANCE, MyRenderCamera.FAR_PLANE_FOR_BACKGROUND);
+                MyClipmap.UpdateQueued(MyRenderCamera.Position, MyRenderCamera.ForwardVector, MyRenderCamera.FAR_PLANE_DISTANCE, MyRenderCamera.FAR_PLANE_FOR_BACKGROUND);
             }
         }
 
@@ -83,6 +91,9 @@ namespace VRageRender
             {
                 case MyClipmapScaleEnum.Normal:
                     return new MyRenderVoxelCell(scaleGroup, cellCoord, ref worldMatrix);
+
+                case MyClipmapScaleEnum.Massive:
+                    return new MyRenderVoxelCellBackground(cellCoord, ref worldMatrix, m_position, m_atmosphereRadius, m_planetRadius, m_hasAtmosphere, m_atmosphereWaveLengths.Value);
 
                 default:
                     throw new InvalidBranchException();
@@ -103,5 +114,22 @@ namespace VRageRender
         {
             MyRender.RemoveRenderObject((MyRenderVoxelCell)cell);
         }
+
+        float IMyClipmapCellHandler.GetTime()
+        {
+            return 0;
         }
+
+        public void UpdateMesh(IMyClipmapCell cell, MyRenderMessageUpdateClipmapCell msg)
+        {
+            cell.UpdateMesh(msg);
+        }
+
+        void IMyClipmapCellHandler.DebugDrawMergedCells()
+        {
+
+        }
+
+        public void UpdateMerging() { }
+    }
 }

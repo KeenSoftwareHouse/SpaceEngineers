@@ -1,9 +1,9 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
-using VRage;
 using System.Xml.Serialization;
+using System.ComponentModel;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -29,6 +29,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         /// </summary>
         [ProtoMember]
         public float BaseProductionTimeInSeconds = 1.0f;
-
+        
+        [ProtoMember, DefaultValue(null)]
+        public string ProgressBarSoundCue = null;
     }
 }

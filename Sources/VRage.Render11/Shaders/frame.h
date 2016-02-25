@@ -1,6 +1,7 @@
 #ifndef FRAME_CONSTANTS__
 #define FRAME_CONSTANTS__
 #include <common.h>
+#include <Math/math.h>
 
 struct FrameConstants {
 	//
@@ -55,8 +56,17 @@ struct FrameConstants {
 
 	float3  directionalLightVec;
 	float 	skyboxBlend;
+
 	float3 	directionalLightColor;
 	float 	forwardPassAmbient;
+
+    float3  additionalSunColor;
+    float   additionalSunIntensity;
+
+    float4  additionalSunDirection[MAX_ADDITIONAL_SUNS];
+
+    int     additionalSunsInUse;
+    float3  _padding1;
 
 	float 	tonemapping_A;
 	float 	tonemapping_B;
@@ -99,22 +109,20 @@ float3 get_camera_position()
 	return 0;
 }
 
-#include <math.h>
-
-float3 reconstruct_position(float hwDepth, float2 uv) {
+float3 ReconstructWorldPosition(float hwDepth, float2 uv) {
 	const float ray_x = 1./frame_.projection_matrix._11;
 	const float ray_y = 1./frame_.projection_matrix._22;
 	float3 screen_ray = float3(lerp( -ray_x, ray_x, uv.x ), -lerp( -ray_y, ray_y, uv.y ), -1.);
 	float depth = -linearize_depth(hwDepth, frame_.projection_matrix);
-	float3 V = mul(screen_ray, transpose((float3x3)frame_.view_matrix));
+	float3 viewDirection = mul(screen_ray, transpose((float3x3)frame_.view_matrix));
 
-	return depth * V;
+    return depth * viewDirection;
 }
 
-float2 get_voxel_lod_range(uint lod) 
+float2 get_voxel_lod_range(uint lod, int isMassive)
 {
-	lod = min(lod, 8 + 16 - 1);
-	return (lod % 2) ? frame_.voxel_lod_range[lod/2].zw : frame_.voxel_lod_range[lod/2].xy;
+	lod = min(lod + 8 * isMassive, 8 + 16 - 1);
+	return (lod % 2) ? frame_.voxel_lod_range[lod / 2].zw : frame_.voxel_lod_range[lod / 2].xy;
 }
 
 #endif

@@ -353,7 +353,6 @@ namespace VRage.Input
             //MyRawInput.RegisterDevice(SharpDX.Multimedia.UsagePage.Generic, SharpDX.Multimedia.UsageId.GenericMouse, SharpDX.RawInput.DeviceFlags.None, MySandboxGame.Static.WindowHandle);
             //MyRawInput.MouseInput += MyRawInput_MouseInput;
             MyDirectInput.Initialize(windowHandle);
-            MyWindowsMouse.SetMouseCapture(windowHandle);
 
             InitDevicePluginHandlerCallBack();
 

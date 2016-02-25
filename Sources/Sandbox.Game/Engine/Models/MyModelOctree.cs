@@ -11,7 +11,8 @@ using VRage;
 using Sandbox.ModAPI;
 using VRage.Utils;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Models;
 //  This octreee can be used with MyModel to optimize line intersections.
 //  The idea of octree is that we have root node that has eight child nodes (by splitting the parent to eight boxes).
 //  When building the octree, we check if triangleVertexes can fully fit inside of any child. If yes, we add it to that
@@ -56,7 +57,7 @@ namespace Sandbox.Engine.Models
 
         //  Calculates intersection of line with any triangleVertexes in this model. Closest intersection and intersected triangleVertexes will be returned.
         //  This method is fast, it uses octree.
-        public Sandbox.Common.MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, ref LineD line, IntersectionFlags flags)
+        public VRage.Game.Models.MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, ref LineD line, IntersectionFlags flags)
         {
             BoundingSphereD vol = physObject.WorldVolume;
             //  Check if line intersects phys object's current bounding sphere, and if not, return 'no intersection'
@@ -68,16 +69,16 @@ namespace Sandbox.Engine.Models
             return GetIntersectionWithLine(physObject, ref line, ref worldInv, flags);
         }
 
-        public Sandbox.Common.MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, ref LineD line, ref MatrixD customInvMatrix, IntersectionFlags flags)
+        public VRage.Game.Models.MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(IMyEntity physObject, ref LineD line, ref MatrixD customInvMatrix, IntersectionFlags flags)
         {
             LineD lineInModelSpace = new LineD(Vector3D.Transform(line.From, ref customInvMatrix), Vector3D.Transform(line.To, ref customInvMatrix));
 
-            MyIntersectionResultLineTriangleEx? ret = m_rootNode.GetIntersectionWithLine(physObject, m_model, ref lineInModelSpace, null, flags);
+            VRage.Game.Models.MyIntersectionResultLineTriangleEx? ret = m_rootNode.GetIntersectionWithLine(physObject, m_model, ref lineInModelSpace, null, flags);
 
             return ret;
         }
 
-        public void GetTrianglesIntersectingLine(IMyEntity entity, ref LineD line, IntersectionFlags flags, List<Sandbox.Common.MyIntersectionResultLineTriangleEx> result)
+        public void GetTrianglesIntersectingLine(IMyEntity entity, ref LineD line, IntersectionFlags flags, List<VRage.Game.Models.MyIntersectionResultLineTriangleEx> result)
         {
             MatrixD worldInv = entity.GetWorldMatrixNormalizedInv();
             GetTrianglesIntersectingLine(entity, ref line, ref worldInv, flags, result);

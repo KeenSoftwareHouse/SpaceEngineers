@@ -20,6 +20,7 @@ using Sandbox.Game;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Engine.Networking
@@ -145,7 +146,7 @@ namespace Sandbox.Engine.Networking
 
             string[] ignoredExtensions = { ".sbmi" };
 
-            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localModFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
                 endActionPublish));
@@ -184,7 +185,7 @@ namespace Sandbox.Engine.Networking
 
             string[] ignoredExtensions = { ".xmlcache", ".png" };
 
-            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
                 endActionPublish));
@@ -205,7 +206,7 @@ namespace Sandbox.Engine.Networking
 
             string[] ignoredExtensions = { };
 
-            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
                 endActionPublish));
@@ -226,7 +227,7 @@ namespace Sandbox.Engine.Networking
 
             string[] ignoredExtensions = { };
             string[] tags = { WORKSHOP_SCENARIO_TAG };
-            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
                 endActionPublish));
@@ -247,7 +248,7 @@ namespace Sandbox.Engine.Networking
             string[] tags = { WORKSHOP_INGAMESCRIPT_TAG };
             string[] ignoredExtensions = { ".sbmi",".png",".jpg"};
 
-            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(m_asyncPublishScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishItemResult(localWorldFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions),
                 endActionPublish));
@@ -352,7 +353,7 @@ namespace Sandbox.Engine.Networking
             {
                 // Update item if it has already been published, otherwise publish it.
                 bool publishedFileNotFound = true;
-                if (workshopId.HasValue)
+                if (workshopId.HasValue && workshopId != 0)
                 {
                     MySandboxGame.Log.WriteLine("File appears to be published already. Attempting to update workshop file.");
                     ulong updateHandle = steam.RemoteStorage.CreatePublishedFileUpdateRequest(workshopId.Value);
@@ -455,7 +456,7 @@ namespace Sandbox.Engine.Networking
                 {
                     fileShareSuccess = !ioFailure && data.Result == Result.OK;
                     if (fileShareSuccess)
-                        m_asyncPublishScreen.ProgressText = MySpaceTexts.ProgressTextPublishingWorld;
+                        m_asyncPublishScreen.ProgressText = MyCommonTexts.ProgressTextPublishingWorld;
                     else
                         MySandboxGame.Log.WriteLine(string.Format("Error sharing the file: {0}", GetErrorString(ioFailure, data.Result)));
                     mrEvent.Set();
@@ -902,8 +903,8 @@ namespace Sandbox.Engine.Networking
             if (!Directory.Exists(m_workshopModsPath))
                 Directory.CreateDirectory(m_workshopModsPath);
 
-            m_asyncDownloadScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextCheckingMods,
-                MySpaceTexts.Cancel,
+            m_asyncDownloadScreen = new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextCheckingMods,
+                MyCommonTexts.Cancel,
                 () => new DownloadModsResult(mods, onFinishedCallback),
                 endActionDownloadMods);
 
@@ -1026,7 +1027,6 @@ namespace Sandbox.Engine.Networking
 
         public static bool DownloadScriptBlocking(SubscribedItem item)
         {
-
             if (!MySteam.IsOnline)
                 return false;
 
@@ -1048,6 +1048,41 @@ namespace Sandbox.Engine.Networking
             }
             return true;
         }
+
+        public static bool DownloadBlueprintBlocking(SubscribedItem item,bool check =true)
+        {
+            if (m_stop)
+                return false;
+
+            var localPackedModFullPath = Path.Combine(m_workshopBlueprintsPath, item.PublishedFileId + m_workshopBlueprintSuffix);
+
+            if (check == false || !IsModUpToDateBlocking(localPackedModFullPath, item, true))
+            {
+                if (!DownloadItemBlocking(localPackedModFullPath, item.UGCHandle))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                MySandboxGame.Log.WriteLineAndConsole(string.Format("Up to date mod: Id = {0}, title = '{1}'", item.PublishedFileId, item.Title));
+            }
+            return true;
+        }
+
+        public static bool IsBlueprintUpToDate(SubscribedItem item)
+        {  
+            if (!MySteam.IsOnline)
+                return false;
+
+            if (m_stop)
+                return false;
+
+            var localPackedModFullPath = Path.Combine(m_workshopBlueprintsPath, item.PublishedFileId + m_workshopBlueprintSuffix);
+
+            return IsModUpToDateBlocking(localPackedModFullPath, item, true);
+        }
+
         public static bool DownloadModFromURLStream(string url, ulong publishedFileId, Action<bool> callback)
         {
             uint handle = HTTP.CreateHTTPRequest(HTTPMethod.GET, url);
@@ -1241,9 +1276,9 @@ namespace Sandbox.Engine.Networking
                                     reader.ReadToFollowing("resultcount");
                                     int count = reader.ReadElementContentAsInt();
 
-                                    if (count != publishedFileIds.Count())
+                                    if (count != publishedFileIds.Count)
                                     {
-                                        MySandboxGame.Log.WriteLine(string.Format("Failed to download mods details: Expected {0} results, got {1}", publishedFileIds.Count(), count));
+                                        MySandboxGame.Log.WriteLine(string.Format("Failed to download mods details: Expected {0} results, got {1}", publishedFileIds.Count, count));
                                     }
 
                                     var array = mods.ToArray();
@@ -1253,9 +1288,9 @@ namespace Sandbox.Engine.Networking
                                         array[i].FriendlyName = array[i].Name;
                                     }
 
-                                    var processed = new List<ulong>(publishedFileIds.Count());
+                                    var processed = new List<ulong>(publishedFileIds.Count);
 
-                                    for (int i = 0; i < publishedFileIds.Count(); ++i)
+                                    for (int i = 0; i < publishedFileIds.Count; ++i)
                                     {
                                         mrEvent.Reset();
 
@@ -1391,7 +1426,7 @@ namespace Sandbox.Engine.Networking
                     }
                     else
                     {
-                        m_asyncDownloadScreen.ProgressText = MySpaceTexts.ProgressTextDownloadingMods;
+                        m_asyncDownloadScreen.ProgressText = MyCommonTexts.ProgressTextDownloadingMods;
 
                         if (!DownloadModsBlocking(toGet))
                         {
@@ -1506,7 +1541,7 @@ namespace Sandbox.Engine.Networking
         #region Subscribed world instance creation
         public static void CreateWorldInstanceAsync(SubscribedItem world, MyWorkshopPathInfo pathInfo, bool overwrite, Action<bool, string> callbackOnFinished = null)
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextCreatingWorld,
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextCreatingWorld,
                 null,
                 () => new CreateWorldResult(world, pathInfo, callbackOnFinished, overwrite),
                 endActionCreateWorldInstance));

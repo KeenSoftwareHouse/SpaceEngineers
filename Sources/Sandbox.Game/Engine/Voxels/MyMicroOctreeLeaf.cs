@@ -29,10 +29,10 @@ namespace Sandbox.Engine.Voxels
             m_voxelRangeMin = voxelRangeMin;
         }
 
-        internal void BuildFrom(MyStorageDataCache source)
+        internal void BuildFrom(MyStorageData source)
         {
             Debug.Assert(source.Size3D == new Vector3I(m_octree.TreeWidth));
-            var enumer = new MyStorageDataCache.MortonEnumerator(source, m_dataType);
+            var enumer = new MyStorageData.MortonEnumerator(source, m_dataType);
             m_octree.Build(enumer);
         }
 
@@ -88,17 +88,17 @@ namespace Sandbox.Engine.Voxels
             get { return false; }
         }
 
-        void IMyOctreeLeafNode.ReadRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
+        void IMyOctreeLeafNode.ReadRange(MyStorageData target, MyStorageDataTypeFlags types, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod, ref MyVoxelRequestFlags flags)
         {
             m_octree.ReadRange(target, m_dataType, ref writeOffset, lodIndex, ref minInLod, ref maxInLod);
         }
 
-        void IMyOctreeLeafNode.WriteRange(MyStorageDataCache source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
+        void IMyOctreeLeafNode.WriteRange(MyStorageData source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
         {
             m_octree.WriteRange(source, m_dataType, ref readOffset, ref min, ref max);
             if (DEBUG_WRITES)
             {
-                var tmp = new MyStorageDataCache();
+                var tmp = new MyStorageData();
                 tmp.Resize(min, max);
                 m_octree.ReadRange(tmp, m_dataType, ref Vector3I.Zero, 0, ref min, ref max);
                 Vector3I p = Vector3I.Zero;
@@ -143,6 +143,30 @@ namespace Sandbox.Engine.Voxels
         void IMyOctreeLeafNode.ReplaceValues(Dictionary<byte, byte> oldToNewValueMap)
         {
             m_octree.ReplaceValues(oldToNewValueMap);
+        }
+
+
+        public ContainmentType Intersect(ref BoundingBoxI box, bool lazy)
+        {
+            BoundingBoxI localCoords = box;
+            localCoords.Translate(-m_voxelRangeMin);
+
+            return m_octree.Intersect(ref localCoords, lazy);
+        }
+
+        public bool Intersect(ref LineD line, out double startOffset, out double endOffset)
+        {
+            line.From -= (Vector3D)m_voxelRangeMin;
+            line.To -= (Vector3D)m_voxelRangeMin;
+
+            if (m_octree.Intersect(ref line, out startOffset, out endOffset))
+            {
+                line.From += (Vector3D)m_voxelRangeMin;
+                line.To += (Vector3D)m_voxelRangeMin;
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -1,42 +1,64 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.Entity;
 using VRage.ModAPI;
+using VRage.Network;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Weapons
 {
-    partial class MyLargeTurretBase : Sandbox.ModAPI.Ingame.IMyLargeTurretBase
+    public partial class MyLargeTurretBase : Sandbox.ModAPI.Ingame.IMyLargeTurretBase
     {
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.TrackTarget(IMyEntity entity)
         {
             if (entity != null)
             {
-                SyncObject.SendSetTarget(entity.EntityId,true);
+                MyMultiplayer.RaiseEvent(this, x => x.SetTargetRequest, entity.EntityId, true);
             }          
+        }
+
+        [Event,Reliable,Server,Broadcast]
+        void SetTargetRequest(long entityId, bool usePrediction)
+        {
+            MyEntity target = null;
+            if (entityId != 0)
+            {
+                MyEntities.TryGetEntityById(entityId, out target);
+            }
+
+            ForceTarget(target, usePrediction);
         }
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.TrackTarget(Vector3D pos, Vector3 velocity)
         {
-            SyncObject.SendTargetPosition(pos, velocity);
+            MyMultiplayer.RaiseEvent(this, x => x.SetTargetPosition, pos,velocity, true);
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SetTarget(Vector3D pos)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.SetTargetPosition, pos, Vector3.Zero, false);      
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void SetTargetPosition(Vector3D targetPos, Vector3 velocity,bool usePrediction)
+        {
+            TargetPosition(targetPos, velocity, usePrediction);
         }
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SetTarget(IMyEntity entity)
         {
             if (entity != null)
             {
-                SyncObject.SendSetTarget(entity.EntityId, false);
-            }
-        }
-
-        void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SetTarget(Vector3D pos)
-        {
-            SyncObject.SendTargetPosition(pos);       
+                MyMultiplayer.RaiseEvent(this, x => x.SetTargetRequest, entity.EntityId, false);
+            } 
         }
 
         float Sandbox.ModAPI.Ingame.IMyLargeTurretBase.Elevation 
@@ -100,22 +122,21 @@ namespace Sandbox.Game.Weapons
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.ResetTargetingToDefault()
         {
-            SyncObject.SendResetTargetParams();
+            MyMultiplayer.RaiseEvent(this, x => x.ResetTargetParams);
         }
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SyncEnableIdleRotation()
         {
-            SyncObject.SendIdleRotationChanged(m_enableIdleRotation);
         }
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SyncAzimuth()
         {
-            SyncObject.SendManualAzimutAngle(m_rotation);
+            SyncRotationAndOrientation();
         }
 
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.SyncElevation()
         {
-            SyncObject.SendManualAzimutAngle(m_elevation);
+            SyncRotationAndOrientation();
         }
 
         public MyEntityCameraSettings GetCameraEntitySettings()

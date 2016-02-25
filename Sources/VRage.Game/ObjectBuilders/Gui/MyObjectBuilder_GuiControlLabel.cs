@@ -1,9 +1,7 @@
 ﻿using ProtoBuf;
-using System;
-using VRageMath;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common
+namespace VRage.Game
 {
     public enum MyFontEnum
     {
@@ -27,10 +25,7 @@ namespace Sandbox.Common
         BuildInfo,
         BuildInfoHighlight,
     }
-}
 
-namespace Sandbox.Common.ObjectBuilders.Gui
-{
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlLabel : MyObjectBuilder_GuiControlBase

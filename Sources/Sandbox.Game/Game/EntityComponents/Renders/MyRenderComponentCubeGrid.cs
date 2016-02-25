@@ -19,14 +19,14 @@ using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
 using Sandbox.Common.Components;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
-using VRage.Components;
+using VRage.Game.Components;
 using Sandbox.Game.GameSystems;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
-    public class MyRenderComponentCubeGrid: MyRenderComponent
+    public class MyRenderComponentCubeGrid : MyRenderComponent
     {
         public MyRenderComponentCubeGrid()
         {
@@ -42,14 +42,14 @@ namespace Sandbox.Game.Components
 
         public MyCubeGridRenderData RenderData { get { return m_renderData; } }
 
-		private MyParticleEffect m_atmosphericEffect = null;
-		const float m_atmosphericEffectMinSpeed = 75.0f;
-		const float m_atmosphericEffectMinFade = 0.85f;
+        private MyParticleEffect m_atmosphericEffect = null;
+        const float m_atmosphericEffectMinSpeed = 75.0f;
+        const float m_atmosphericEffectMinFade = 0.85f;
         const int m_atmosphericEffectVoxelContactDelay = 5000;
         private int m_lastVoxelContactTime = 0;
 
-		float m_lastWorkingIntersectDistance = 0.0f;
-		static List<Vector3> m_tmpCornerList = new List<Vector3>();
+        float m_lastWorkingIntersectDistance = 0.0f;
+        static List<Vector3> m_tmpCornerList = new List<Vector3>();
 
         private List<IMyBlockAdditionalModelGenerator> m_additionalModelGenerators = new List<IMyBlockAdditionalModelGenerator>();
         public List<IMyBlockAdditionalModelGenerator> AdditionalModelGenerators { get { return m_additionalModelGenerators; } }
@@ -102,21 +102,21 @@ namespace Sandbox.Game.Components
                 return m_grid.GridSize;
             }
         }
-        public bool IsStatic 
-        { 
-            get 
+        public bool IsStatic
+        {
+            get
             {
                 return m_grid.IsStatic;
-            } 
+            }
         }
 
         public void CloseModelGenerators()
         {
-             foreach (var modelGenerator in AdditionalModelGenerators)
-             {
+            foreach (var modelGenerator in AdditionalModelGenerators)
+            {
                 modelGenerator.Close();
-             }
-             AdditionalModelGenerators.Clear();
+            }
+            AdditionalModelGenerators.Clear();
         }
 
         #endregion
@@ -135,29 +135,74 @@ namespace Sandbox.Game.Components
             m_grid = Container.Entity as MyCubeGrid;
         }
 
-		public override void OnBeforeRemovedFromContainer()
-		{
-			base.OnBeforeRemovedFromContainer();
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
 
-			if(m_atmosphericEffect != null)
-			{
-				MyParticlesManager.RemoveParticleEffect(m_atmosphericEffect);
-				m_atmosphericEffect = null;
-			}
-		}
+            if (m_atmosphericEffect != null)
+            {
+                MyParticlesManager.RemoveParticleEffect(m_atmosphericEffect);
+                m_atmosphericEffect = null;
+            }
+        }
+
+        void DrawTrashAdminView()
+        {
+            float metric;
+            var state = MyTrashRemoval.GetTrashState(m_grid, MyTrashRemoval.PreviewSettings);
+            var color = Color.Green;
+            var aabb = m_grid.PositionComp.WorldAABB;
+
+            if (state != MyTrashRemovalFlags.None)
+            {
+                color = Color.Red;
+                string name = MyTrashRemoval.GetName(state);
+
+                if (state == MyTrashRemovalFlags.WithBlockCount)
+                {
+                    name = string.Format(name, MyTrashRemoval.PreviewSettings.BlockCountThreshold);
+                    if (m_grid.BlocksCount < MyTrashRemoval.PreviewSettings.BlockCountThreshold)
+                        color = Color.Green;
+                }
+                else if (state == MyTrashRemovalFlags.DistanceFromPlayer)
+                {
+                    name = string.Format(name, MyTrashRemoval.PreviewSettings.PlayerDistanceThreshold);
+                }
+
+                MyRenderProxy.DebugDrawText3D(aabb.Center, name, color, 0.7f, false, VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            }
+            MyRenderProxy.DebugDrawAABB(aabb, color, 1, 1, false);
+        }
 
         public override void Draw()
         {
             base.Draw();
-
-            foreach (var block in m_grid.BlocksForDraw)
+            if (MyTrashRemoval.PreviewEnabled && MySession.Static.HasAdminRights)
             {
-                if (MyRenderProxy.VisibleObjectsRead.Contains(block.Render.RenderObjectIDs[0]))
-                {
-                    block.Render.Draw();
-                }
+                DrawTrashAdminView();
             }
 
+            bool visible = false;
+            for (int i = 0; i < RenderObjectIDs.Length; i++ )
+            {
+                if (RenderObjectIDs[i] == MyRenderProxy.RENDER_ID_UNASSIGNED)
+                    break;
+                if(MyRenderProxy.VisibleObjectsRead.Contains(this.RenderObjectIDs[i]))
+                {
+                    visible = true;
+                    break;
+                }
+            }
+            if (visible)
+            {
+                foreach (var block in m_grid.BlocksForDraw)
+                {
+                    if (MyRenderProxy.VisibleObjectsRead.Contains(block.Render.RenderObjectIDs[0]))
+                    {
+                        block.Render.Draw();
+                    }
+                }
+            }
             if (MyCubeGrid.ShowCenterOfMass && !IsStatic && Container.Entity.Physics != null && Container.Entity.Physics.HasRigidBody)
             {
                 var matrix = Container.Entity.Physics.GetWorldMatrix();
@@ -170,7 +215,7 @@ namespace Sandbox.Game.Components
                 else if (dist < 200)
                 {
                     draw = true;
-                    MyPhysics.CastRay(cam, center, m_tmpHitList, MyPhysics.DynamicDoubledCollisionLayer);
+                    MyPhysics.CastRay(cam, center, m_tmpHitList, MyPhysics.CollisionLayers.DynamicDoubledCollisionLayer);
                     foreach (var hit in m_tmpHitList)
                     {
                         if (hit.HkHitInfo.GetHitEntity() != this)
@@ -190,7 +235,7 @@ namespace Sandbox.Game.Components
                     MySimpleObjectDraw.DrawLine(center - matrix.Up * 0.5f * size, center + matrix.Up * 0.5f * size, mat, ref color, thickness);
                     MySimpleObjectDraw.DrawLine(center - matrix.Forward * 0.5f * size, center + matrix.Forward * 0.5f * size, mat, ref color, thickness);
                     MySimpleObjectDraw.DrawLine(center - matrix.Right * 0.5f * size, center + matrix.Right * 0.5f * size, mat, ref color, thickness);
-                    Sandbox.Graphics.TransparentGeometry.MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), center, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
+                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), center, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
                 }
             }
             if (MyCubeGrid.ShowGridPivot)
@@ -205,7 +250,7 @@ namespace Sandbox.Game.Components
                 else if (dist < 200)
                 {
                     draw = true;
-                    MyPhysics.CastRay(cam, pos, m_tmpHitList, MyPhysics.DynamicDoubledCollisionLayer);
+                    MyPhysics.CastRay(cam, pos, m_tmpHitList, MyPhysics.CollisionLayers.DynamicDoubledCollisionLayer);
                     foreach (var hit in m_tmpHitList)
                     {
                         if (hit.HkHitInfo.GetHitEntity() != this)
@@ -227,7 +272,8 @@ namespace Sandbox.Game.Components
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Forward * 0.5f * size, mat, ref color, thickness);
                     color = Color.Red.ToVector4();
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Right * 0.5f * size, mat, ref color, thickness);
-                    Sandbox.Graphics.TransparentGeometry.MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), pos, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
+                    MyTransparentGeometry.AddBillboardOriented("RedDotIgnoreDepth", Color.White.ToVector4(), pos, MySector.MainCamera.LeftVector, MySector.MainCamera.UpVector, 0.1f * size, priority: 1);
+                    MyRenderProxy.DebugDrawAxis(matrix, 0.5f, false);//DX 11 desnt support depthRead false
                 }
             }
 
@@ -238,7 +284,7 @@ namespace Sandbox.Game.Components
                     if (MyFakes.ENABLE_STRUCTURAL_INTEGRITY)
                     {
                         m_grid.CreateStructuralIntegrity();
-                        
+
                         if (m_grid.StructuralIntegrity != null)
                         {
                             m_grid.StructuralIntegrity.EnabledOnlyForDraw = true;
@@ -254,82 +300,83 @@ namespace Sandbox.Game.Components
                     m_grid.CloseStructuralIntegrity();
                 }
 
-			if (MyFakes.ENABLE_ATMOSPHERIC_ENTRYEFFECT)
-			{
-				ProfilerShort.Begin("DrawAtmosphericEntryEffect");
-				DrawAtmosphericEntryEffect();
-				ProfilerShort.End();
-			}
+            if (MyFakes.ENABLE_ATMOSPHERIC_ENTRYEFFECT)
+            {
+                ProfilerShort.Begin("DrawAtmosphericEntryEffect");
+                DrawAtmosphericEntryEffect();
+                ProfilerShort.End();
+            }
         }
 
-		private void DrawAtmosphericEntryEffect()
-		{
-			var naturalGravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.PositionComp.GetPosition());
-			var naturalGravityMagnitude = naturalGravity.Length();
+        private void DrawAtmosphericEntryEffect()
+        {
+            var naturalGravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.PositionComp.GetPosition());
+            var naturalGravityMagnitude = naturalGravity.Length();
 
             bool noPhysics = m_grid.Physics == null;
             bool recentlyHitVoxel = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastVoxelContactTime < m_atmosphericEffectVoxelContactDelay;
+            bool notNearPlanet = naturalGravityMagnitude <= 0;
             bool tooLowSpeed = !noPhysics && (m_grid.Physics.LinearVelocity.Length() < m_atmosphericEffectMinSpeed);
-			if (noPhysics || recentlyHitVoxel || tooLowSpeed)
-			{
-				if (m_atmosphericEffect != null)
-				{
-					MyParticlesManager.RemoveParticleEffect(m_atmosphericEffect);
-					m_atmosphericEffect = null;
-				}
+            if (noPhysics || recentlyHitVoxel || notNearPlanet || tooLowSpeed)
+            {
+                if (m_atmosphericEffect != null)
+                {
+                    MyParticlesManager.RemoveParticleEffect(m_atmosphericEffect);
+                    m_atmosphericEffect = null;
+                }
 
-				return;
-			}
-			var currentVelocity = m_grid.Physics.LinearVelocity;
-			var currentVelocityDirection = Vector3.Normalize(currentVelocity);
-			var currentSpeed = currentVelocity.Length();
+                return;
+            }
+            var currentVelocity = m_grid.Physics.LinearVelocity;
+            var currentVelocityDirection = Vector3.Normalize(currentVelocity);
+            var currentSpeed = currentVelocity.Length();
 
-			if (m_atmosphericEffect == null)
-			{
-				if(!MyParticlesManager.TryCreateParticleEffect(52, out m_atmosphericEffect))
-					return;
-			}
+            if (m_atmosphericEffect == null)
+            {
+                if (!MyParticlesManager.TryCreateParticleEffect(52, out m_atmosphericEffect))
+                    return;
+            }
 
-			BoundingBox worldAABB = (BoundingBox)m_grid.PositionComp.WorldAABB;
-			var aabbCenter = worldAABB.Center;
-			var directionFaceCenter = new Vector3();
-			Debug.Assert(m_tmpCornerList.Count == 0);
-			foreach (var corner in worldAABB.GetCorners())
-			{
-				var centerToCorner = corner - aabbCenter;
-				if (centerToCorner.Dot(currentVelocityDirection) > 0.01f)
-				{
-					m_tmpCornerList.Add(corner);
-					directionFaceCenter += corner;
-					if (m_tmpCornerList.Count == 4)
-						break;
-				}
-			}
-			if(m_tmpCornerList.Count > 0)
-				directionFaceCenter /= m_tmpCornerList.Count;
+            BoundingBox worldAABB = (BoundingBox)m_grid.PositionComp.WorldAABB;
+            var aabbCenter = worldAABB.Center;
+            var directionFaceCenter = new Vector3();
+            Debug.Assert(m_tmpCornerList.Count == 0);
+            foreach (var corner in worldAABB.GetCorners())
+            {
+                var centerToCorner = corner - aabbCenter;
+                if (centerToCorner.Dot(currentVelocityDirection) > 0.01f)
+                {
+                    m_tmpCornerList.Add(corner);
+                    directionFaceCenter += corner;
+                    if (m_tmpCornerList.Count == 4)
+                        break;
+                }
+            }
+            if (m_tmpCornerList.Count > 0)
+                directionFaceCenter /= m_tmpCornerList.Count;
 
-			Plane plane = new Plane(directionFaceCenter, -currentVelocityDirection);
+            Plane plane = new Plane(directionFaceCenter, -currentVelocityDirection);
 
-			m_tmpCornerList.Clear();
-			var startPosition = m_grid.Physics.CenterOfMassWorld;
-			float? intersectDistance = new Ray(startPosition, currentVelocityDirection).Intersects(plane);
-			m_lastWorkingIntersectDistance = intersectDistance ?? m_lastWorkingIntersectDistance;
-			var intersectPoint = startPosition + 0.875f * currentVelocityDirection * m_lastWorkingIntersectDistance;
-	
-			Matrix worldMatrix = Matrix.Identity;
-			worldMatrix.Translation = intersectPoint;
-			worldMatrix.Forward = currentVelocityDirection;
-			var forwardPerpendicular = Vector3.Transform(currentVelocityDirection, Quaternion.CreateFromAxisAngle(m_grid.PositionComp.WorldMatrix.Left, (float)Math.PI / 2.0f));
-			worldMatrix.Up = Vector3.Normalize(Vector3.Reject(m_grid.PositionComp.WorldMatrix.Left, forwardPerpendicular));
-			worldMatrix.Left = worldMatrix.Up.Cross(worldMatrix.Forward);
+            m_tmpCornerList.Clear();
+            var startPosition = m_grid.Physics.CenterOfMassWorld;
+            float? intersectDistance = new Ray(startPosition, currentVelocityDirection).Intersects(plane);
+            m_lastWorkingIntersectDistance = intersectDistance ?? m_lastWorkingIntersectDistance;
+            var intersectPoint = startPosition + 0.875f * currentVelocityDirection * m_lastWorkingIntersectDistance;
 
-			var atmosphericDensityMultiplier = MyGravityProviderSystem.CalculateHighestNaturalGravityMultiplierInPoint(m_grid.PositionComp.GetPosition());
+            Matrix worldMatrix = Matrix.Identity;
+            worldMatrix.Translation = intersectPoint;
+            worldMatrix.Forward = currentVelocityDirection;
+            var forwardPerpendicular = Vector3.Transform(currentVelocityDirection, Quaternion.CreateFromAxisAngle(m_grid.PositionComp.WorldMatrix.Left, (float)Math.PI / 2.0f));
+            worldMatrix.Up = Vector3.Normalize(Vector3.Reject(m_grid.PositionComp.WorldMatrix.Left, forwardPerpendicular));
+            worldMatrix.Left = worldMatrix.Up.Cross(worldMatrix.Forward);
 
-			m_atmosphericEffect.UserScale = (float)worldAABB.ProjectedArea(currentVelocityDirection) / (float)Math.Pow(38.0 * m_grid.GridSize, 2.0);
-			m_atmosphericEffect.UserAxisScale = Vector3.Normalize(new Vector3(1.0f, 1.0f, 1.0f + 1.5f*(m_grid.Physics.LinearVelocity.Length() - m_atmosphericEffectMinSpeed) / (MyGridPhysics.ShipMaxLinearVelocity() - m_atmosphericEffectMinSpeed)));
-			m_atmosphericEffect.WorldMatrix = worldMatrix;
-			m_atmosphericEffect.UserColorMultiplier = new Vector4(MathHelper.Clamp((currentSpeed - m_atmosphericEffectMinSpeed) / (m_atmosphericEffectMinSpeed * 0.5f) * (float)Math.Pow(atmosphericDensityMultiplier, 1.5), 0.0f, m_atmosphericEffectMinFade));
-		}
+            var atmosphericDensityMultiplier = MyGravityProviderSystem.CalculateHighestNaturalGravityMultiplierInPoint(m_grid.PositionComp.GetPosition());
+
+            m_atmosphericEffect.UserScale = (float)worldAABB.ProjectedArea(currentVelocityDirection) / (float)Math.Pow(38.0 * m_grid.GridSize, 2.0);
+            m_atmosphericEffect.UserAxisScale = Vector3.Normalize(new Vector3(1.0f, 1.0f, 1.0f + 1.5f * (m_grid.Physics.LinearVelocity.Length() - m_atmosphericEffectMinSpeed) / (MyGridPhysics.ShipMaxLinearVelocity() - m_atmosphericEffectMinSpeed)));
+            m_atmosphericEffect.WorldMatrix = worldMatrix;
+            m_atmosphericEffect.UserColorMultiplier = new Vector4(MathHelper.Clamp((currentSpeed - m_atmosphericEffectMinSpeed) / (m_atmosphericEffectMinSpeed * 0.5f) * (float)Math.Pow(atmosphericDensityMultiplier, 1.5), 0.0f, m_atmosphericEffectMinFade));
+        }
 
         public void ResetLastVoxelContactTimer()
         {

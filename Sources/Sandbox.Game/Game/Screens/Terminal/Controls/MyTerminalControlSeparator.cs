@@ -10,7 +10,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlSeparator<TBlock> : MyTerminalControl<TBlock>
+    public class MyTerminalControlSeparator<TBlock> : MyTerminalControl<TBlock>
         where TBlock : MyTerminalBlock
     {
         public MyTerminalControlSeparator()

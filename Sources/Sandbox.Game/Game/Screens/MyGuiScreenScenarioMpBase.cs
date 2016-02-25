@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Multiplayer;
@@ -23,6 +22,7 @@ using SteamSDK;
 using Sandbox.Game.GUI.HudViewers;
 using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
 
 namespace Sandbox.Game.Screens
 {
@@ -109,7 +109,7 @@ namespace Sandbox.Game.Screens
             m_connectedPlayers.SetColumnName(0, MyTexts.Get(MySpaceTexts.GuiScenarioPlayerName));
             m_connectedPlayers.SetColumnName(1, MyTexts.Get(MySpaceTexts.GuiScenarioPlayerStatus));
 
-            m_kickPlayerButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Kick), visualStyle: MyGuiControlButtonStyleEnum.Rectangular, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE,
+            m_kickPlayerButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Kick), visualStyle: MyGuiControlButtonStyleEnum.Rectangular, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE,
                 size: new Vector2(190f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE, onButtonClick: OnKick2Clicked);
             m_kickPlayerButton.Enabled = CanKick();
 
@@ -246,7 +246,7 @@ namespace Sandbox.Game.Screens
         /*private void OnKick1Clicked(MyGuiControlButton sender)
         {
             MyPlayer selectedRowPlayer = m_playersFaction1List.SelectedRow != null ? m_playersFaction1List.SelectedRow.UserData as MyPlayer : null;
-            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.LocalPlayerId)
+            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.Static.LocalPlayerId)
                 return;
 
             MyMultiplayer.Static.KickClient(selectedRowPlayer.Id.SteamId);
@@ -257,14 +257,14 @@ namespace Sandbox.Game.Screens
             if (!Sync.IsServer)
                 return false;
             MyPlayer selectedRowPlayer = m_connectedPlayers.SelectedRow != null ? m_connectedPlayers.SelectedRow.UserData as MyPlayer : null;
-            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.LocalPlayerId)
+            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.Static.LocalPlayerId)
                 return false;
             return true;
         }
         private void OnKick2Clicked(MyGuiControlButton sender)
         {
             MyPlayer selectedRowPlayer = m_connectedPlayers.SelectedRow != null ? m_connectedPlayers.SelectedRow.UserData as MyPlayer : null;
-            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.LocalPlayerId)
+            if (selectedRowPlayer == null || selectedRowPlayer.Identity.IdentityId == MySession.Static.LocalPlayerId)
                 return;
 
             MyMultiplayer.Static.KickClient(selectedRowPlayer.Id.SteamId);
@@ -301,16 +301,16 @@ namespace Sandbox.Game.Screens
                 return;
 
             m_kickPlayerButton.Enabled = CanKick();
-            //IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            //IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             UpdatePlayerList(m_connectedPlayers);
             //if (m_hostnameLabel.Text == null || m_hostnameLabel.Text.Length == 0)
             //    m_hostnameLabel.Text = MyMultiplayer.Static.HostName;
 
             /*m_kickFaction1Button.Enabled = !faction1Ready && Sync.IsServer && m_playersFaction1List.SelectedRow != null 
-                && (m_playersFaction1List.SelectedRow.UserData as MyPlayer).Identity.IdentityId != MySession.LocalPlayerId;
+                && (m_playersFaction1List.SelectedRow.UserData as MyPlayer).Identity.IdentityId != MySession.Static.LocalPlayerId;
 
             m_kickFaction2Button.Enabled = !faction2Ready && Sync.IsServer && m_playersFaction2List.SelectedRow != null 
-                && (m_playersFaction2List.SelectedRow.UserData as MyPlayer).Identity.IdentityId != MySession.LocalPlayerId;*/
+                && (m_playersFaction2List.SelectedRow.UserData as MyPlayer).Identity.IdentityId != MySession.Static.LocalPlayerId;*/
 
             /*if (Sync.IsServer)
             {

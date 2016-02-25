@@ -9,6 +9,8 @@ using Sandbox.Game.AI;
 using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.World;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -28,7 +30,7 @@ namespace Sandbox.Game.Screens.Helpers
                 return false;
 
             MyAIComponent.Static.CommandDefinition = Definition as MyAiCommandDefinition;
-            var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
+            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
             if (controlledObject != null)
             {
                 controlledObject.SwitchToWeapon(null);

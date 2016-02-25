@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
@@ -25,6 +24,7 @@ using VRage.FileSystem;
 using VRage.ObjectBuilders;
 using VRage.Collections;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
 
 namespace Sandbox.Game.World
 {
@@ -167,8 +167,7 @@ namespace Sandbox.Game.World
             }
             else
             {
-                var randomStart = playerStarts[MyUtils.GetRandomInt(playerStarts.Length)];
-                randomStart.SetupCharacter(args);
+                Sync.Players.RespawnComponent.SetupCharacterFromStarts(player, playerStarts, args);
             }
 
             // Setup toolbar
@@ -189,7 +188,7 @@ namespace Sandbox.Game.World
         public static void FillInventoryWithDefaults(MyObjectBuilder_Inventory inventory, MyScenarioDefinition scenario)
         {
             if (inventory.Items == null)
-                inventory.Items = new List<MyObjectBuilder_InventoryItem>(15);
+                inventory.Items = new List<MyObjectBuilder_InventoryItem>();
             else
                 inventory.Items.Clear();
 
@@ -201,14 +200,89 @@ namespace Sandbox.Game.World
                 else
                     guns = scenario.SurvivalModeWeapons;// new string[] { "AngleGrinderItem", "HandDrillItem", "WelderItem" };
 
+                uint itemId = 0;
                 if (guns != null)
                 {
-                    uint itemId = 0;
                     foreach (var gun in guns)
                     {
                         var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
                         inventoryItem.Amount = 1;
-                        inventoryItem.Content = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(gun.ToString());
+                        inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(gun.ToString());
+                        inventoryItem.ItemId = itemId++;
+                        inventory.Items.Add(inventoryItem);
+                    }
+                    inventory.nextItemId = itemId;
+                }
+
+                MyScenarioDefinition.StartingItem[] items;
+                if (MySession.Static.CreativeMode)
+                    items = scenario.CreativeModeComponents;
+                else
+                    items = scenario.SurvivalModeComponents;
+
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+                        inventoryItem.Amount = item.amount;
+                        inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>(item.itemName.ToString());
+                        inventoryItem.ItemId = itemId++;
+                        inventory.Items.Add(inventoryItem);
+                    }
+                    inventory.nextItemId = itemId;
+                }
+
+                MyScenarioDefinition.StartingPhysicalItem[] physicalItems;
+                if (MySession.Static.CreativeMode)
+                    physicalItems = scenario.CreativeModePhysicalItems;
+                else
+                    physicalItems = scenario.SurvivalModePhysicalItems;
+
+                if (physicalItems != null)
+                {
+                    foreach (var item in physicalItems)
+                    {
+                        var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+                        inventoryItem.Amount = item.amount;
+                        if (item.itemType.ToString().Equals("Ore"))
+                        {
+                            inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(item.itemName.ToString());
+                        }
+                        else if (item.itemType.ToString().Equals("Ingot"))
+                        {
+                            inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ingot>(item.itemName.ToString());
+                        }
+                        else if (item.itemType.ToString().Equals("OxygenBottle"))
+                        {
+                            inventoryItem.Amount = 1;
+                            inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_OxygenContainerObject>(item.itemName.ToString());
+                            (inventoryItem.PhysicalContent as MyObjectBuilder_GasContainerObject).GasLevel = (float)item.amount;
+                        }
+                        else if (item.itemType.ToString().Equals("GasBottle"))
+                        {
+                            inventoryItem.Amount = 1;
+                            inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GasContainerObject>(item.itemName.ToString());
+                            (inventoryItem.PhysicalContent as MyObjectBuilder_GasContainerObject).GasLevel = (float)item.amount;
+                        }
+                        inventoryItem.ItemId = itemId++;
+                        inventory.Items.Add(inventoryItem);
+                    }
+                    inventory.nextItemId = itemId;
+                }
+
+                if (MySession.Static.CreativeMode)
+                    items = scenario.CreativeModeAmmoItems;
+                else
+                    items = scenario.SurvivalModeAmmoItems;
+
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+                        inventoryItem.Amount = item.amount;
+                        inventoryItem.PhysicalContent = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_AmmoMagazine>(item.itemName.ToString());
                         inventoryItem.ItemId = itemId++;
                         inventory.Items.Add(inventoryItem);
                     }
@@ -266,23 +340,34 @@ namespace Sandbox.Game.World
             return AddVoxelMap(name, storage, position - offset);
         }
 
-        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, Vector3D positionMinCorner, long entityId = 0)
+        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, Vector3D positionMinCorner, long entityId =0)
         {
             var voxelMap = new MyVoxelMap();
-            voxelMap.EntityId = entityId;
+            if (entityId != 0)
+            {
+                voxelMap.EntityId = entityId;
+            }
             voxelMap.Init(storageName, storage, positionMinCorner);
             MyEntities.RaiseEntityCreated(voxelMap);
             MyEntities.Add(voxelMap);
             return voxelMap;
         }
 
-        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, MatrixD worldMatrix, long entityId = 0)
+        public static MyVoxelMap AddVoxelMap(string storageName, MyStorageBase storage, MatrixD worldMatrix, long entityId=0, bool lazyPhysics = false)
         {
+            ProfilerShort.Begin("AddVoxelMap");
+
             var voxelMap = new MyVoxelMap();
-            voxelMap.EntityId = entityId;
+            if (entityId != 0)
+            {
+                voxelMap.EntityId = entityId;
+            }
+            voxelMap.DelayRigidBodyCreation = lazyPhysics;
             voxelMap.Init(storageName, storage, worldMatrix);
             MyEntities.Add(voxelMap);
             MyEntities.RaiseEntityCreated(voxelMap);
+
+            ProfilerShort.End();
             return voxelMap;
         }
 
@@ -301,7 +386,7 @@ namespace Sandbox.Game.World
             }
         }
 
-        private static void SetupBase(string basePrefabName, Vector3 offset, string voxelFilename, string beaconName = null)
+        private static void SetupBase(string basePrefabName, Vector3 offset, string voxelFilename, string beaconName = null, long factionId = 0)
         {
             // Add one inital asteroid underneath the base. The base and the asteroid right now are hardcoded.
             // Maybe we can add some base+asteroid combinations later and select one randomly
@@ -314,11 +399,14 @@ namespace Sandbox.Game.World
                 updateSync: false);
 
             // Small red block on landing gears.
-            MyPrefabManager.Static.AddShipPrefab("SmallShip_SingleBlock", Matrix.CreateTranslation(new Vector3(-5.20818424f, -0.442984432f, -8.31522751f) + offset));
+            MyPrefabManager.Static.AddShipPrefab("SmallShip_SingleBlock", Matrix.CreateTranslation(new Vector3(-5.20818424f, -0.442984432f, -8.31522751f) + offset), factionId);
 
-            var filePath = GetVoxelPrefabPath("VerticalIsland_128x128x128");
-            var storage = LoadRandomizedVoxelMapPrefab(filePath);
-            AddVoxelMap(voxelFilename, storage, new Vector3(-20, -110, -60) + offset);
+            if (voxelFilename != null)
+            {
+                var filePath = GetVoxelPrefabPath("VerticalIsland_128x128x128");
+                var storage = LoadRandomizedVoxelMapPrefab(filePath);
+                AddVoxelMap(voxelFilename, storage, new Vector3(-20, -110, -60) + offset);
+            }
         }
 
         public static MyStorageBase LoadRandomizedVoxelMapPrefab(string prefabFilePath)

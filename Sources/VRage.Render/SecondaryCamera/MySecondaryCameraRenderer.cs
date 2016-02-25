@@ -86,12 +86,6 @@ namespace VRageRender
             m_setup.ShadowRenderer = new MyShadowRenderer(MyRenderConstants.RenderQualityProfile.SecondaryShadowMapCascadeSize, MyRenderTargets.SecondaryShadowMap, MyRenderTargets.SecondaryCameraZBuffer, false);
             m_setup.EnableLights = true;
 
-            // LOW render distances
-            m_setup.LodTransitionNear = 1500;
-            m_setup.LodTransitionFar = 2000;
-            m_setup.LodTransitionBackgroundStart = 6000;
-            m_setup.LodTransitionBackgroundEnd = 6500;
-
             m_setup.FogMultiplierMult = 2.5f; //increases fog in back camera to imitate missing particle dust
 
             MyRenderConstants.OnRenderQualityChange += MyRenderConstants_OnRenderQualityChange;

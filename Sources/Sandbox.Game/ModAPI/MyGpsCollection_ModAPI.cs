@@ -102,7 +102,7 @@ namespace Sandbox.Game.Multiplayer
         void IMyGpsCollection.AddLocalGps(IMyGps gps)
         {
             var internalGps = (MyGps)gps;
-            AddPlayerGps(MySession.LocalPlayerId, ref internalGps);
+            AddPlayerGps(MySession.Static.LocalPlayerId, ref internalGps);
             if (gps.ShowOnHud)
                 MyHud.GpsMarkers.RegisterMarker(internalGps);
         }
@@ -120,7 +120,7 @@ namespace Sandbox.Game.Multiplayer
         private void RemovePlayerGps(int gpsHash)
         {
             Dictionary<int, MyGps> gpsList;
-            if (MySession.Static.Gpss.m_playerGpss.TryGetValue(MySession.LocalPlayerId, out gpsList))
+            if (MySession.Static.Gpss.m_playerGpss.TryGetValue(MySession.Static.LocalPlayerId, out gpsList))
             {
                 MyGps gps;
                 if (gpsList.TryGetValue(gpsHash, out gps))
@@ -130,7 +130,7 @@ namespace Sandbox.Game.Multiplayer
                     gpsList.Remove(gpsHash);
                     var handler = MySession.Static.Gpss.ListChanged;
                     if (handler != null)
-                        handler(MySession.LocalPlayerId);
+                        handler(MySession.Static.LocalPlayerId);
                 }
             }
         }

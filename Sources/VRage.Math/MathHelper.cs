@@ -455,6 +455,22 @@ namespace VRageMath
             return lof2floor_lut[(uint)(value * 0x07C4ACDD) >> 27];
         }
 
+        /**
+         * Based on the above and this discussion:
+         * http://stackoverflow.com/questions/3272424/compute-fast-log-base-2-ceiling
+         * 
+         */
+        public static int Log2Ceiling(int value)
+        {
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            value = lof2floor_lut[(uint)(value * 0x07C4ACDD) >> 27];
+            return (value & (value - 1)) != 0 ? value + 1 : value;
+        }
+
         public static int Log2(int n)
         {
             int r = 0;
@@ -556,6 +572,29 @@ namespace VRageMath
             }
         }
 
-        
+        public static Vector3 CalculateVectorOnSphere(Vector3 northPoleDir, float phi, float theta)
+        {
+            var sinTheta = Math.Sin(theta);
+            return Vector3.TransformNormal(new Vector3(
+               Math.Cos(phi) * sinTheta,
+               Math.Sin(phi) * sinTheta,
+               Math.Cos(theta)), Matrix.CreateFromDir(northPoleDir));
+        }
+
+        public static float MonotonicCosine(float radians)
+        {
+            if (radians > 0)
+                return 2 - (float)Math.Cos(radians);
+            else
+                return (float)Math.Cos(radians);
+        }
+
+        public static float MonotonicAcos(float cos)
+        {
+            if (cos > 1)
+                return (float)Math.Acos(2 - cos);
+            else
+                return (float)-Math.Acos(cos);
+        }
     }
 }

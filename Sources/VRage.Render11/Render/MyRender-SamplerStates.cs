@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SharpDX;
 using SharpDX.Direct3D11;
+using VRage.Utils;
 
 namespace VRageRender
 {
@@ -17,16 +18,20 @@ namespace VRageRender
         internal static SamplerId m_alphamaskSamplerState;
         internal static SamplerId m_alphamaskarraySamplerState;
 
+        private static SamplerState[] StandardSamplerArray;
         internal static SamplerState[] StandardSamplers 
         { 
             get {
-                return new[] { 
-                    MyPipelineStates.GetSampler(m_defaultSamplerState), 
-                    MyPipelineStates.GetSampler(m_pointSamplerState), 
-                    MyPipelineStates.GetSampler(m_linearSamplerState), 
-                    MyPipelineStates.GetSampler(m_textureSamplerState), 
-                    MyPipelineStates.GetSampler(m_alphamaskSamplerState),
-                    MyPipelineStates.GetSampler(m_alphamaskarraySamplerState) }; 
+                Array.Resize(ref StandardSamplerArray, 6);
+                
+                StandardSamplerArray[0] = MyPipelineStates.GetSampler(m_defaultSamplerState);
+                StandardSamplerArray[1] = MyPipelineStates.GetSampler(m_pointSamplerState);
+                StandardSamplerArray[2] = MyPipelineStates.GetSampler(m_linearSamplerState);
+                StandardSamplerArray[3] = MyPipelineStates.GetSampler(m_textureSamplerState);
+                StandardSamplerArray[4] = MyPipelineStates.GetSampler(m_alphamaskSamplerState);
+                StandardSamplerArray[5] = MyPipelineStates.GetSampler(m_alphamaskarraySamplerState);
+
+                return StandardSamplerArray;
             } 
         }
 

@@ -24,18 +24,21 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.Utils;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage;
+using VRage.Game;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SpaceBall))]
-    class MySpaceBall : MyFunctionalBlock, IMySpaceBall, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    class MySpaceBall : MyFunctionalBlock, IMySpaceBall
     {
         #region Properties
 
-        float m_friction;
+        readonly Sync<float> m_friction;
         public float Friction
         {
             get
@@ -45,15 +48,11 @@ namespace Sandbox.Game.Entities
 
             set
             {
-                if (m_friction != value)
-                {
-                    m_friction = value;
-                    RaisePropertiesChanged();
-                }
+                m_friction.Value = value;
             }
         }
 
-        float m_virtualMass;
+        readonly Sync<float> m_virtualMass;
         public float VirtualMass
         {
             get
@@ -62,28 +61,22 @@ namespace Sandbox.Game.Entities
             }
             set
             {
-                if (m_virtualMass != value)
-                {
-                    m_virtualMass = value;
-                    RefreshPhysicsBody();
-                    RaisePropertiesChanged();
-                }
+
+                m_virtualMass.Value = value;
             }
         }
 
-        float m_restitution;
+        readonly Sync<float> m_restitution;
         public float Restitution
         {
             get { return m_restitution; }
             set
             {
-                if (m_restitution != value)
-                {
-                    m_restitution = value;
-                    RaisePropertiesChanged();
-                }
+                m_restitution.Value = value;
             }
         }
+
+        readonly Sync<bool> m_broadcastSync;
 
         private new MySpaceBallDefinition BlockDefinition
         {
@@ -92,15 +85,17 @@ namespace Sandbox.Game.Entities
 
         internal MyRadioBroadcaster RadioBroadcaster
         {
-            get { return m_radioBroadcaster; }
+            get { return (MyRadioBroadcaster)Components.Get<MyDataBroadcaster>(); }
+            private set { Components.Add<MyDataBroadcaster>(value); }
         }
 
         internal MyRadioReceiver RadioReceiver
         {
-            get { return m_radioReceiver; }
+            get { return (MyRadioReceiver)Components.Get<MyDataReceiver>(); }
+            set { Components.Add<MyDataReceiver>(value); }
         }
 
-        public new MySyncSpaceBall SyncObject;
+        bool m_savedBroadcast = false;
 
         #endregion
 
@@ -109,9 +104,6 @@ namespace Sandbox.Game.Entities
         public const float DEFAULT_FRICTION = 0.5f;
         public const float REAL_MAXIMUM_RESTITUTION = 0.9f;
         public const float REAL_MINIMUM_MASS = 0.01f;
-        MyRadioReceiver m_radioReceiver;
-        MyRadioBroadcaster m_radioBroadcaster;
-
 
         static MySpaceBall()
         {
@@ -119,7 +111,7 @@ namespace Sandbox.Game.Entities
 
             var mass = new MyTerminalControlSlider<MySpaceBall>("VirtualMass", MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass, MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass);
             mass.Getter = (x) => x.VirtualMass;
-            mass.Setter = (x, v) => x.SyncObject.SendChangeParamsRequest(v, x.Friction);
+            mass.Setter = (x, v) => x.VirtualMass = v;
             mass.DefaultValueGetter = (x) => DEFAULT_MASS;
             mass.SetLimits(x => 0, x => x.BlockDefinition.MaxVirtualMass);
             mass.Writer = (x, result) => MyValueFormatter.AppendWeightInBestUnit(x.VirtualMass, result);
@@ -130,7 +122,7 @@ namespace Sandbox.Game.Entities
             {
                 var friction = new MyTerminalControlSlider<MySpaceBall>("Friction", MySpaceTexts.BlockPropertyDescription_SpaceBallFriction, MySpaceTexts.BlockPropertyDescription_SpaceBallFriction);
                 friction.Getter = (x) => x.Friction;
-                friction.Setter = (x, v) => x.SyncObject.SendChangeParamsRequest(x.VirtualMass, v);
+                friction.Setter = (x, v) => x.Friction  = v;
                 friction.DefaultValueGetter = (x) => DEFAULT_FRICTION;
                 friction.SetLimits(0, 1.0f);
                 friction.Writer = (x, result) => result.AppendInt32((int)(x.Friction * 100)).Append("%");
@@ -139,7 +131,7 @@ namespace Sandbox.Game.Entities
 
                 var restitution = new MyTerminalControlSlider<MySpaceBall>("Restitution", MySpaceTexts.BlockPropertyDescription_SpaceBallRestitution, MySpaceTexts.BlockPropertyDescription_SpaceBallRestitution);
                 restitution.Getter = (x) => x.Restitution;
-                restitution.Setter = (x, v) => x.SyncObject.SendChangeRestitutionRequest(v);
+                restitution.Setter = (x, v) => x.Restitution = v;
                 restitution.DefaultValueGetter = (x) => DEFAULT_RESTITUTION;
                 restitution.SetLimits(0, 1.0f);
                 restitution.Writer = (x, result) => result.AppendInt32((int)(x.Restitution * 100)).Append("%");
@@ -149,7 +141,7 @@ namespace Sandbox.Game.Entities
 
             var enableBroadcast = new MyTerminalControlCheckbox<MySpaceBall>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
-            enableBroadcast.Setter = (x, v) => x.SyncObject.SendChangeBroadcastRequest(v);
+            enableBroadcast.Setter = (x, v) => x.m_broadcastSync.Value = v;
             enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
         }
@@ -158,35 +150,36 @@ namespace Sandbox.Game.Entities
             : base()
         {
             m_baseIdleSound.Init("BlockArtMass");
+            m_virtualMass.ValueChanged += (x) => RefreshPhysicsBody();
+            m_broadcastSync.ValueChanged += (x) => BroadcastChanged();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
 
+            RadioReceiver = new MyRadioReceiver();
+            RadioBroadcaster = new MyRadioBroadcaster(50);
+
             base.Init(objectBuilder, cubeGrid);
 
             MyObjectBuilder_SpaceBall sphereOb = (MyObjectBuilder_SpaceBall)objectBuilder;
-            m_virtualMass = sphereOb.VirtualMass;
-            m_restitution = sphereOb.Restitution;
+            m_virtualMass.Value = sphereOb.VirtualMass;
+            m_restitution.Value = sphereOb.Restitution;
             Friction = sphereOb.Friction;
-
-            m_radioReceiver = new MyRadioReceiver(this);
-            m_radioBroadcaster = new MyRadioBroadcaster(this, 50);
 
             IsWorkingChanged += MySpaceBall_IsWorkingChanged;
 
             UpdateIsWorking();
             RefreshPhysicsBody();
-            UpdateRadios(sphereOb.EnableBroadcast);
 
-            SyncObject = new MySyncSpaceBall(this);
+            m_savedBroadcast = sphereOb.EnableBroadcast;
 
             ShowOnHUD = false;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -237,7 +230,7 @@ namespace Sandbox.Game.Entities
                 var massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(detectorShape.Radius, VirtualMass != 0 ? VirtualMass : 0.01f);
                 Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_KEYFRAMED_REPORTING);
                 Physics.IsPhantom = false;
-                Physics.CreateFromCollisionObject(detectorShape, Vector3.Zero, WorldMatrix, massProperties, MyPhysics.VirtualMassLayer);
+                Physics.CreateFromCollisionObject(detectorShape, Vector3.Zero, WorldMatrix, massProperties, MyPhysics.CollisionLayers.VirtualMassLayer);
                 UpdateIsWorking();
                 Physics.Enabled = IsWorking && CubeGrid.Physics != null && CubeGrid.Physics.Enabled;
 
@@ -265,16 +258,22 @@ namespace Sandbox.Game.Entities
 
         public void UpdateRadios(bool isTrue)
         {
-            m_radioBroadcaster.Enabled = isTrue;
-            m_radioBroadcaster.WantsToBeEnabled = isTrue;
-            m_radioReceiver.Enabled = isTrue & Enabled;
+           // RadioBroadcaster.Enabled = isTrue;
+            RadioBroadcaster.WantsToBeEnabled = isTrue;
+            RadioReceiver.Enabled = isTrue & Enabled;
+        }
+
+        public override void UpdateOnceBeforeFrame()
+        {
+            base.UpdateOnceBeforeFrame();
+            UpdateRadios(m_savedBroadcast);
         }
 
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
 
-            m_radioReceiver.UpdateBroadcastersInRange();
+            RadioReceiver.UpdateBroadcastersInRange();
         }
 
         public override void OnModelChange()
@@ -287,7 +286,7 @@ namespace Sandbox.Game.Entities
         protected override void OnEnabledChanged()
         {
             base.OnEnabledChanged();
-            m_radioReceiver.UpdateBroadcastersInRange();
+            RadioReceiver.UpdateBroadcastersInRange();
             UpdateEmissivity();
         }
 
@@ -316,28 +315,21 @@ namespace Sandbox.Game.Entities
             }
         }
         
-        bool IMyComponentOwner<MyDataBroadcaster>.GetComponent(out MyDataBroadcaster component)
-        {
-            component = m_radioBroadcaster;
-            return m_radioBroadcaster != null;
-        }
-
-        bool IMyComponentOwner<MyDataReceiver>.GetComponent(out MyDataReceiver component)
-        {
-            component = m_radioReceiver;
-            return m_radioReceiver != null;
-        }
-
         protected override void WorldPositionChanged(object source)
         {
             base.WorldPositionChanged(source);
-            if (m_radioBroadcaster != null)
-                m_radioBroadcaster.MoveBroadcaster();
+            if (RadioBroadcaster != null)
+                RadioBroadcaster.MoveBroadcaster();
         }
 
         internal override float GetMass()
         {
             return VirtualMass > 0 ? VirtualMass : REAL_MINIMUM_MASS;
+        }
+
+        void BroadcastChanged()
+        {
+            RadioBroadcaster.Enabled = m_broadcastSync;
         }
 
         float IMyVirtualMass.VirtualMass
@@ -347,7 +339,7 @@ namespace Sandbox.Game.Entities
 
         bool IMySpaceBall.IsBroadcasting
         {
-            get { return (m_radioBroadcaster == null) ? false : m_radioBroadcaster.Enabled; }
+            get { return (RadioBroadcaster == null) ? false : RadioBroadcaster.Enabled; }
         }
     }
 }

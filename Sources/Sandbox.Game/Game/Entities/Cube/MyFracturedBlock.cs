@@ -15,11 +15,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRageMath;
 using Sandbox.Game.EntityComponents;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Game.Entities.Cube
@@ -31,6 +32,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private static List<HkdShapeInstanceInfo> m_children = new List<HkdShapeInstanceInfo>();
         private static List<HkdShapeInstanceInfo> m_shapeInfos = new List<HkdShapeInstanceInfo>();
+        private static HashSet<Tuple<string, float>> m_tmpNamesAndBuildProgress = new HashSet<Tuple<string, float>>();
 
         public class MultiBlockPartInfo
         {
@@ -138,9 +140,9 @@ namespace Sandbox.Game.Entities.Cube
                 var blockDef = MyDefinitionManager.Static.GetCubeBlockDefinition(def);
 
                 var model = blockDef.Model;
-                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                     MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
-                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                var shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 lst.Add(si);
                 m_children.Add(si);
@@ -150,9 +152,9 @@ namespace Sandbox.Game.Entities.Cube
                     foreach(var progress in blockDef.BuildProgressModels)
                     {
                         model = progress.File;
-                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                        if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
                             MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
-                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                         si = new HkdShapeInstanceInfo(shape, null, null);
                         lst.Add(si);
                         m_children.Add(si);
@@ -419,17 +421,34 @@ namespace Sandbox.Game.Entities.Cube
                 blockBuilder.ComponentContainer = new MyObjectBuilder_ComponentContainer();
 
                 var fractureBuilder = new MyObjectBuilder_FractureComponentCubeBlock();
-                HashSet<string> shapeNames = new HashSet<string>();
-                GetAllBlockBreakableShapeNames(def, shapeNames);
-                ConvertAllShapesToFractureComponentShapeBuilder(Shape, ref Matrix.Identity, orientation, shapeNames, fractureBuilder);
+                m_tmpNamesAndBuildProgress.Clear();
+                GetAllBlockBreakableShapeNames(def, m_tmpNamesAndBuildProgress);
+                float buildProgress;
+                ConvertAllShapesToFractureComponentShapeBuilder(Shape, ref Matrix.Identity, orientation, m_tmpNamesAndBuildProgress, fractureBuilder, out buildProgress);
+                m_tmpNamesAndBuildProgress.Clear();
                 // Count of shapes can be 0!
                 if (fractureBuilder.Shapes.Count == 0)
                     continue;
+
+                float previousBuildRatioUpperBound = 0f;
+                if (def.BuildProgressModels != null)
+                {
+                    foreach (var progress in def.BuildProgressModels)
+                    {
+                        if (progress.BuildRatioUpperBound >= buildProgress)
+                            break;
+
+                        previousBuildRatioUpperBound = progress.BuildRatioUpperBound;
+                    }
+                }
 
                 var componentData = new MyObjectBuilder_ComponentContainer.ComponentData();
                 componentData.TypeId = typeof(MyFractureComponentBase).Name;
                 componentData.Component = fractureBuilder;
                 blockBuilder.ComponentContainer.Components.Add(componentData);
+                blockBuilder.BuildPercent = buildProgress;
+                Debug.Assert(buildProgress > previousBuildRatioUpperBound);
+                blockBuilder.IntegrityPercent = MyDefinitionManager.Static.DestructionDefinition.ConvertedFractureIntegrityRatio * buildProgress;
 
                 if (i == 0 && CubeGrid.GridSizeEnum == MyCubeSize.Small)
                     return blockBuilder;
@@ -446,35 +465,112 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        private static void GetAllBlockBreakableShapeNames(MyCubeBlockDefinition blockDef, HashSet<string> outNames)
+        /// <summary>
+        /// Converts grid builder with fractured blocks to builder with fractured components. Grid entity is created for conversion so it is not light weight.
+        /// Result builder can have remapped entity ids.
+        /// </summary>
+        public static MyObjectBuilder_CubeGrid ConvertFracturedBlocksToComponents(MyObjectBuilder_CubeGrid gridBuilder)
         {
-            var model = blockDef.Model;
-            if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
-                MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+            bool foundFracturedBlock = false;
 
-            var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
-            GetAllBlockBreakableShapeNames(shape, outNames);
+            foreach (var block in gridBuilder.CubeBlocks)
+            {
+                if (block is MyObjectBuilder_FracturedBlock)
+                {
+                    foundFracturedBlock = true;
+                    break;
+                }
+            }
+
+            if (!foundFracturedBlock)
+                return gridBuilder;
+
+            bool origEnableSmallToLargeConnections = gridBuilder.EnableSmallToLargeConnections;
+            gridBuilder.EnableSmallToLargeConnections = false;
+
+            bool origCreatePhysics = gridBuilder.CreatePhysics;
+            gridBuilder.CreatePhysics = true;
+
+            var tempGrid = MyEntities.CreateFromObjectBuilder(gridBuilder) as MyCubeGrid;
+            tempGrid.ConvertFracturedBlocksToComponents();
+
+            var convertedBuilder = (MyObjectBuilder_CubeGrid)tempGrid.GetObjectBuilder();
+
+            gridBuilder.EnableSmallToLargeConnections = origEnableSmallToLargeConnections;
+            convertedBuilder.EnableSmallToLargeConnections = origEnableSmallToLargeConnections;
+
+            gridBuilder.CreatePhysics = origCreatePhysics;
+            convertedBuilder.CreatePhysics = origCreatePhysics;
+
+            tempGrid.Close();
+
+            MyEntities.RemapObjectBuilder(convertedBuilder);
+
+            return convertedBuilder;
         }
 
-        private static void GetAllBlockBreakableShapeNames(HkdBreakableShape shape, HashSet<string> outNames)
+
+        public static void GetAllBlockBreakableShapeNames(MyCubeBlockDefinition blockDef, HashSet<Tuple<string, float>> outNamesAndBuildProgress)
+        {
+            var model = blockDef.Model;
+            if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+
+            var shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+            GetAllBlockBreakableShapeNames(shape, outNamesAndBuildProgress, 1f);
+
+            if (blockDef.BuildProgressModels != null)
+            {
+                float previousBuildRatioUpperBound = 0f;
+
+                foreach (var progress in blockDef.BuildProgressModels)
+                {
+                    model = progress.File;
+                    if (VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                        MyDestructionData.Static.LoadModelDestruction(model, blockDef, Vector3.One);
+
+                    shape = VRage.Game.Models.MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                    Debug.Assert(previousBuildRatioUpperBound < progress.BuildRatioUpperBound);
+                    float progressBuildRatio = 0.5f * (progress.BuildRatioUpperBound + previousBuildRatioUpperBound);
+                    GetAllBlockBreakableShapeNames(shape, outNamesAndBuildProgress, progressBuildRatio);
+
+                    previousBuildRatioUpperBound = progress.BuildRatioUpperBound;
+                }
+            }
+        }
+
+        public static void GetAllBlockBreakableShapeNames(HkdBreakableShape shape, HashSet<Tuple<string, float>> outNamesAndBuildProgress, float buildProgress)
         {
             var name = shape.Name;
             if (!string.IsNullOrEmpty(name))
-                outNames.Add(name);
+                outNamesAndBuildProgress.Add(new Tuple<string, float>(name, buildProgress));
 
             if (shape.GetChildrenCount() > 0)
             {
                 List<HkdShapeInstanceInfo> children = new List<HkdShapeInstanceInfo>();
                 shape.GetChildren(children);
                 foreach (var child in children)
-                    GetAllBlockBreakableShapeNames(child.Shape, outNames);
+                    GetAllBlockBreakableShapeNames(child.Shape, outNamesAndBuildProgress, buildProgress);
             }
         }
 
-        private static void ConvertAllShapesToFractureComponentShapeBuilder(HkdBreakableShape shape, ref Matrix shapeRotation, MyBlockOrientation blockOrientation, HashSet<string> names, MyObjectBuilder_FractureComponentCubeBlock fractureComponentBuilder)
+        private static void ConvertAllShapesToFractureComponentShapeBuilder(HkdBreakableShape shape, ref Matrix shapeRotation, MyBlockOrientation blockOrientation,
+            HashSet<Tuple<string, float>> namesAndBuildProgress, MyObjectBuilder_FractureComponentCubeBlock fractureComponentBuilder, out float buildProgress)
         {
+            buildProgress = 1f;
+
             var name = shape.Name;
-            if (names.Contains(name))
+            Tuple<string, float> foundTuple = null;
+            foreach (var tuple in namesAndBuildProgress)
+            {
+                if (tuple.Item1 == name)
+                {
+                    foundTuple = tuple;
+                    break;
+                }
+            }
+
+            if (foundTuple != null)
             {
                 MyBlockOrientation shapeOrientation = new MyBlockOrientation(ref shapeRotation);
                 if (shapeOrientation == blockOrientation)
@@ -484,6 +580,7 @@ namespace Sandbox.Game.Entities.Cube
                     builderShape.Fixed = MyDestructionHelper.IsFixed(shape);
 
                     fractureComponentBuilder.Shapes.Add(builderShape);
+                    buildProgress = foundTuple.Item2;
                 }
             }
 
@@ -494,7 +591,12 @@ namespace Sandbox.Game.Entities.Cube
                 foreach (var child in children) 
                 {
                     var childShapeRotation = child.GetTransform();
-                    ConvertAllShapesToFractureComponentShapeBuilder(child.Shape, ref childShapeRotation, blockOrientation, names, fractureComponentBuilder);
+                    float localBuildProgress;
+                    ConvertAllShapesToFractureComponentShapeBuilder(child.Shape, ref childShapeRotation, blockOrientation, namesAndBuildProgress, 
+                        fractureComponentBuilder, out localBuildProgress);
+
+                    if (foundTuple == null)
+                        buildProgress = localBuildProgress;
                 }
             }
 

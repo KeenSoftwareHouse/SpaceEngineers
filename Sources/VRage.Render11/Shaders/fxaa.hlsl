@@ -10,7 +10,7 @@
 
 Texture2D	Source	: register( t0 );
 
-float4 fxaa(PostprocessVertex input) : SV_Target0
+float4 __pixel_shader(PostprocessVertex input) : SV_Target0
 {
 	FxaaTex tex = { LinearSampler, Source };
 

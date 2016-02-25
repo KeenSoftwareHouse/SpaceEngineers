@@ -2,6 +2,7 @@
 float4x4 WorldMatrix;
 
 #include "MyEffectVoxelVertex.fxh"
+#include "../MyEffectAtmosphereBase.fxh"
 
 float4x4 ViewMatrix;
 float4x4 ProjectionMatrix;
@@ -10,6 +11,7 @@ float3   Highlight;
 float EnableFog;
 float3 PositionToLefBottomOffset;
 
+bool HasAtmosphere;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define DEBUG_TEX_COORDS 0
@@ -105,6 +107,10 @@ float4 PixelShaderFunctionFar(VertexShaderOutput input, uniform int renderQualit
 
     float3 worldPosition = VoxelVertex_CellRelativeToWorldPosition(input.CellRelativePosition);
     float4 final = CalculateLighting(pixelData, input.ViewDistance, worldPosition);
+    if (HasAtmosphere)
+    {
+        final = CalculateAtmosphere(localPosition, PositionToLefBottomOffset,final.rgb);
+    }
     return final;
 }
 
@@ -125,6 +131,10 @@ float4 PixelShaderFunctionFar_Multimaterial(VertexShaderOutput_Multimaterial mul
     pixelData.DiffuseTexture.rgb = pixelData.DiffuseTexture.rgb* DiffuseColor + Highlight;
     float3 worldPosition = VoxelVertex_CellRelativeToWorldPosition(input.CellRelativePosition);
     float4 final = CalculateLighting(pixelData, input.ViewDistance, worldPosition);
+    if (HasAtmosphere)
+    {
+        final = CalculateAtmosphere(localPosition, PositionToLefBottomOffset, final.rgb);
+    }
     return final;
 }
 

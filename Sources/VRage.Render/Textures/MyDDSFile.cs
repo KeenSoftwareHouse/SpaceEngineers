@@ -106,11 +106,11 @@ namespace VRageRender.Textures
             {
                 if (fileStream != null)
                 {
-                    texture = SharpDX.Direct3D9.Texture.FromFile(device, fileStream.Name, 0, 0, 0, Usage.None, Format.Unknown, Pool.Default, Filter.None, Filter.None, 0);
+                    texture = SharpDX.Direct3D9.Texture.FromFile(device, fileStream.Name, 0, 0, 0, Usage.None, Format.Unknown, Pool.Default, Filter.None, Filter.Linear, 0);
                 }
                 else
                 {
-                    texture = SharpDX.Direct3D9.Texture.FromMemory(device, data, 0, 0, 0, Usage.None, Format.Unknown, Pool.Default, Filter.None, Filter.None, 0);
+                    texture = SharpDX.Direct3D9.Texture.FromMemory(device, data, 0, 0, 0, Usage.None, Format.Unknown, Pool.Default, Filter.None, Filter.Linear, 0);
                 }
             }
             else if (loadMipmapOffset > 0)

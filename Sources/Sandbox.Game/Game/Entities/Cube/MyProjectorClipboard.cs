@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 
@@ -13,10 +15,10 @@ namespace Sandbox.Game.Entities.Cube
 {
     public class MyProjectorClipboard : MyGridClipboard
     {
-        private MyProjector m_projector;
+        private MyProjectorBase m_projector;
 
 
-        public MyProjectorClipboard(MyProjector projector)
+        public MyProjectorClipboard(MyProjectorBase projector)
             : base(MyPerGameSettings.PastingSettings)
         {
             MyDebug.AssertDebug(projector != null);

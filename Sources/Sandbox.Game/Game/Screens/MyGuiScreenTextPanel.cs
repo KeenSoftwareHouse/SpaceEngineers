@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyGuiScreenTextPanel : MyGuiScreenMission
+    public class MyGuiScreenTextPanel : MyGuiScreenText
     {
         public MyGuiScreenTextPanel(
             string missionTitle = null,

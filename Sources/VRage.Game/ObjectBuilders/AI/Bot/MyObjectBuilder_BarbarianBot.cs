@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game.ObjectBuilders.AI.Bot
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

@@ -19,14 +19,45 @@ using System.Diagnostics;
 using Sandbox.Graphics;
 using VRage.Library.Utils;
 using VRage.Data.Audio;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Gui;
+using VRage.Network;
+using VRage.Library.Collections;
+using VRage.Game.Components;
+using VRage.Game;
 
 namespace Sandbox.Game.VoiceChat
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
+    [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation), StaticEventOwner]
     public class MyVoiceChatSessionComponent : MySessionComponentBase
     {
+        class SendBuffer:IBitSerializable
+        {
+            public byte[] CompressedVoiceBuffer;
+            public int NumElements;
+            public long SenderUserId;
+            public bool Serialize(BitStream stream, bool validate)
+            {
+                if (stream.Reading)
+                {
+                    SenderUserId = stream.ReadInt64();
+                    NumElements = stream.ReadInt32();
+                    stream.ReadBytes(CompressedVoiceBuffer, 0,NumElements);
+                }
+                else
+                {
+                    stream.WriteInt64(SenderUserId);
+                    stream.WriteInt32(NumElements);
+                    stream.WriteBytes(CompressedVoiceBuffer, 0, NumElements);
+                }
+                return true;
+            }
+
+            public static implicit operator BitReaderWriter(SendBuffer buffer)
+            {
+                return new BitReaderWriter(buffer);
+            }          
+        }
+
         private struct ReceivedData
         {
             public List<byte> UncompressedBuffer;
@@ -57,6 +88,7 @@ namespace Sandbox.Game.VoiceChat
 
         private IMyVoiceChatLogic m_voiceChatLogic;
 
+
         // MW:TODO probably each client should know about this value so they dont send data mindlessly
         private bool m_enabled;
 
@@ -66,10 +98,14 @@ namespace Sandbox.Game.VoiceChat
         private Dictionary<ulong, bool> m_debugSentVoice = new Dictionary<ulong, bool>();
         private Dictionary<ulong, MyTuple<int, TimeSpan>> m_debugReceivedVoice = new Dictionary<ulong, MyTuple<int, TimeSpan>>();
 
+        private int lastMessageTime = 0;
+
         public bool IsRecording
         {
             get { return m_recording; }
         }
+
+        static SendBuffer Recievebuffer = new SendBuffer() { CompressedVoiceBuffer = new byte[COMPRESSED_SIZE] };
 
         public MyVoiceChatSessionComponent()
         {
@@ -94,8 +130,6 @@ namespace Sandbox.Game.VoiceChat
             m_enabled = MyAudio.Static.EnableVoiceChat;
             MyAudio.Static.VoiceChatEnabled += Static_VoiceChatEnabled;
             MyHud.VoiceChat.VisibilityChanged += VoiceChat_VisibilityChanged;
-
-            MyNetworkReader.SetHandler(MyMultiplayer.VoiceChatChannel, VoiceMessageReceived);
         }
 
         protected override void UnloadData()
@@ -223,7 +257,7 @@ namespace Sandbox.Game.VoiceChat
             if (!m_enabled)
                 return;
 
-            if (!IsCharacterValid(MySession.LocalCharacter))
+            if (!IsCharacterValid(MySession.Static.LocalCharacter))
                 return;
 
             if (m_recording)
@@ -236,17 +270,15 @@ namespace Sandbox.Game.VoiceChat
             return character != null && !character.IsDead && !character.MarkedForClose;
         }
 
-        private void VoiceMessageReceived(byte[] data, int dataSize, ulong sender, TimeSpan timestamp)
+        private void VoiceMessageReceived(ulong sender)
         {
             if (!m_enabled)
                 return;
 
-            if (!IsCharacterValid(MySession.LocalCharacter))
+            if (!IsCharacterValid(MySession.Static.LocalCharacter))
                 return;
 
-            ProcessBuffer(data, dataSize, sender);
-            if (MyFakes.ENABLE_VOICE_CHAT_DEBUGGING)
-                m_debugReceivedVoice[sender] = new MyTuple<int, TimeSpan>(dataSize, timestamp);
+            ProcessBuffer(Recievebuffer.CompressedVoiceBuffer, Recievebuffer.NumElements / sizeof(byte), sender);
         }
 
         private void PlayVoice(byte[] uncompressedBuffer, int uncompressedSize, ulong playerId, MySoundDimensions dimension, float maxDistance)
@@ -259,7 +291,7 @@ namespace Sandbox.Game.VoiceChat
 
             //Debug.Assert(uncompressedSize != 0, "Playing empty buffer");
             var emitter = m_voices[playerId];
-            emitter.PlaySound(uncompressedBuffer, (int)uncompressedSize, m_VoIP.SampleRate, maxDistance: maxDistance, dimension: dimension);
+            emitter.PlaySound(uncompressedBuffer, (int)uncompressedSize, m_VoIP.SampleRate, volume: MyAudio.Static.VolumeVoiceChat, maxDistance: maxDistance, dimension: dimension);
         }
 
         private void ProcessBuffer(byte[] compressedBuffer, int bufferSize, ulong sender)
@@ -289,7 +321,7 @@ namespace Sandbox.Game.VoiceChat
         private void UpdatePlayback()
         {
             var now = MySandboxGame.Static.UpdateTime;
-            var speakerFadeout = MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 60 * 1000;
+            var speakerFadeout = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 60 * 1000;
 
             m_keys.AddRange(m_receivedVoiceData.Keys);
             foreach (var id in m_keys)
@@ -300,11 +332,24 @@ namespace Sandbox.Game.VoiceChat
                 var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(playerId));
                 float maxDistance = 0;
                 MySoundDimensions dimension = MySoundDimensions.D2;
-                if (data.Timestamp != MyTimeSpan.Zero && m_voiceChatLogic.ShouldPlayVoice(player, data.Timestamp, out dimension, out maxDistance))
+                if (data.Timestamp != MyTimeSpan.Zero &&  
+                    m_voiceChatLogic.ShouldPlayVoice(player, data.Timestamp, out dimension, out maxDistance))
                 {
-                    PlayVoice(data.UncompressedBuffer.ToArray(), data.UncompressedBuffer.Count, playerId, dimension, maxDistance);
-                    data.ClearData();
-                    update = true;
+                    if (!MySandboxGame.Config.MutedPlayers.Contains(player.Id.SteamId))
+                    {
+                        PlayVoice(data.UncompressedBuffer.ToArray(), data.UncompressedBuffer.Count, playerId, dimension, maxDistance);
+                        data.ClearData();
+                        update = true;
+                    }
+                    else
+                    {
+                        // this player should be muted - send him a mute message
+                        if (lastMessageTime == 0 || System.Environment.TickCount > lastMessageTime + 5000) // sending of mute messages is diluted
+                        {
+                            MutePlayerRequest(player.Id.SteamId, true);
+                            lastMessageTime = System.Environment.TickCount;
+                        }
+                    }
                 }
 
                 if (data.SpeakerTimestamp != MyTimeSpan.Zero && (now - data.SpeakerTimestamp).Miliseconds > speakerFadeout)
@@ -332,17 +377,30 @@ namespace Sandbox.Game.VoiceChat
 
                 if (MyFakes.ENABLE_VOICE_CHAT_DEBUGGING)
                 {
-                    ProcessBuffer(m_compressedVoiceBuffer, (int)size, MySteam.UserId);
+                    ProcessBuffer(m_compressedVoiceBuffer, (int)size, Sync.MyId);
                 }
 
                 foreach (var player in Sync.Players.GetOnlinePlayers())
                 {
                     if (player.Id.SerialId == 0 
-                        && player.Id.SteamId != MySession.LocalHumanPlayer.Id.SteamId 
+                        && player.Id.SteamId != MySession.Static.LocalHumanPlayer.Id.SteamId 
                         && IsCharacterValid(player.Character) 
-                        && m_voiceChatLogic.ShouldSendVoice(player))
+                        && m_voiceChatLogic.ShouldSendVoice(player)
+                        && !MySandboxGame.Config.DontSendVoicePlayers.Contains(player.Id.SteamId))// check if that user wants messages from this user
                     {
-                        SendVoice(player.Id.SteamId, m_compressedVoiceBuffer, size);
+                        SendBuffer buffer = new SendBuffer { CompressedVoiceBuffer = m_compressedVoiceBuffer,
+                                                             NumElements = (int)(size / sizeof(byte)),
+                                                             SenderUserId = (long)MySession.Static.LocalHumanPlayer.Id.SteamId};
+
+                        if (Sync.IsServer)
+                        {
+                            MyMultiplayer.RaiseStaticEvent(x => SendVoicePlayer, player.Id.SteamId, (BitReaderWriter)buffer, new EndpointId(player.Id.SteamId));
+                        }
+                        else
+                        {
+                            MyMultiplayer.RaiseStaticEvent(x => SendVoice, player.Id.SteamId, (BitReaderWriter)buffer);
+                        }
+
                         if (MyFakes.ENABLE_VOICE_CHAT_DEBUGGING)
                             m_debugSentVoice[player.Id.SteamId] = true;
                     }
@@ -359,7 +417,7 @@ namespace Sandbox.Game.VoiceChat
 
                 if (MyFakes.ENABLE_VOICE_CHAT_DEBUGGING)
                 {
-                    var localUser = MySteam.UserId;
+                    var localUser = Sync.MyId;
                     if (!m_voices.ContainsKey(localUser))
                     {
                         var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(localUser));
@@ -379,9 +437,52 @@ namespace Sandbox.Game.VoiceChat
             }
         }
 
-        private void SendVoice(ulong user, byte[] data, uint dataSize)
+        public static void MutePlayerRequest(ulong mutedPlayerId, bool mute)
         {
-            Peer2Peer.SendPacket(user, data, (int)dataSize, P2PMessageEnum.UnreliableNoDelay, MyMultiplayer.VoiceChatChannel);
+            MyMultiplayer.RaiseStaticEvent(x => MutePlayerRequest_Implementation, mutedPlayerId, mute);
+        }
+
+        [Event, Reliable, Server]
+        private static void MutePlayerRequest_Implementation(ulong mutedPlayerId, bool mute)
+        {
+            // Event now arrived to server, server looks who sent the message (thus sender), and sends this ID to muted player
+            MyMultiplayer.RaiseStaticEvent(x => MutePlayer_Implementation, MyEventContext.Current.Sender.Value, mute, new EndpointId(mutedPlayerId));
+        }
+
+        [Event, Reliable, Broadcast]
+        public static void MutePlayer_Implementation(ulong playerSettingMute, bool mute)
+        {
+            // Event now arrived to client who should no longer send voice to "playerSettingMute"
+            HashSet<ulong> dontSendPlayers = MySandboxGame.Config.DontSendVoicePlayers;
+            if (mute)
+                // that player (with playerId) don't want to receive voice messages from this player (with mutedPlayerId)
+                dontSendPlayers.Add(playerSettingMute);
+            else
+                // that player (with playerId) wants to receive voice messages from this player (with mutedPlayerId)
+                dontSendPlayers.Remove(playerSettingMute);
+            MySandboxGame.Config.DontSendVoicePlayers = dontSendPlayers;
+            MySandboxGame.Config.Save();
+        }
+
+        [Event,Server]
+        private static void SendVoice(ulong user, BitReaderWriter data)
+        {
+            data.ReadData(Recievebuffer, false);
+            if (user != Sync.MyId)
+            {
+                MyMultiplayer.RaiseStaticEvent(x => SendVoicePlayer, user, (BitReaderWriter)Recievebuffer, new EndpointId(user));
+            }
+            else
+            {
+                MyVoiceChatSessionComponent.Static.VoiceMessageReceived((ulong)Recievebuffer.SenderUserId);
+            }           
+        }
+
+        [Event, Client]
+        private static void SendVoicePlayer(ulong user, BitReaderWriter data)
+        {
+            data.ReadData(Recievebuffer, false);
+            MyVoiceChatSessionComponent.Static.VoiceMessageReceived((ulong)Recievebuffer.SenderUserId);
         }
 
         public override void Draw()
@@ -396,9 +497,12 @@ namespace Sandbox.Game.VoiceChat
                 if (pair.Value.SpeakerTimestamp != MyTimeSpan.Zero)
                 {
                     var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(pair.Key, 0));
-                    var position = player.Character.PositionComp.GetPosition() + new Vector3D(0, 2.2, 0);
-                    var color = Color.White;
-                    MyTransparentGeometry.AddPointBillboard("VoiceChatSpeaker", color, position, 0.25f, 0, 0, true);
+                    if (player.Character != null)
+                    {
+                        var position = player.Character.PositionComp.GetPosition() + new Vector3D(0, 2.2, 0);
+                        var color = Color.White;
+                        MyTransparentGeometry.AddPointBillboard("VoiceChatSpeaker", color, position, 0.25f, 0, 0, true);
+                    }
                 }
             }
         }
@@ -435,9 +539,9 @@ namespace Sandbox.Game.VoiceChat
                 initPos.Y += size;
             }
 
-            //if (IsCharacterValid(MySession.LocalCharacter))
+            //if (IsCharacterValid(MySession.Static.LocalCharacter))
             //{
-            //    var worldMatrix = MySession.LocalCharacter.PositionComp.WorldMatrix;
+            //    var worldMatrix = MySession.Static.LocalCharacter.PositionComp.WorldMatrix;
             //    var color = Color.DarkBlue;
             //    color.A = 100;
             //    MySimpleObjectDraw.DrawTransparentSphere(ref worldMatrix, (float)20, ref color, MySimpleObjectRasterizer.SolidAndWireframe, 20);

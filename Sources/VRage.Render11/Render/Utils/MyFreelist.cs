@@ -16,10 +16,13 @@ namespace VRageRender
         internal int Size { get; private set; }
         internal int Capacity { get { return m_sizeLimit; } }
 
+        private T m_defaultValue;
+
         public void Clear()
         {
             for (int i = 0; i < m_sizeLimit; i++)
             {
+                m_entities[i] = m_defaultValue;
                 m_next[i] = i + 1;
             }
 
@@ -27,7 +30,7 @@ namespace VRageRender
             Size = 0;
         }
 
-        public MyFreelist(int sizeLimit)
+        public MyFreelist(int sizeLimit, T defaultValue = default(T))
         {
             m_sizeLimit = sizeLimit;
 
@@ -69,6 +72,7 @@ namespace VRageRender
             Debug.Assert(Size > 0);
             m_next[index] = m_nextFree;
             m_nextFree = index;
+            m_entities[index] = m_defaultValue;
             Size--;
         }
     }

@@ -1,10 +1,10 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.AI.BehaviorTree
@@ -20,6 +20,9 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public int MemoryIndex { get; private set; }
         public Type MemoryType { get; private set; }
+
+        public const string ParentName = "Par_N";
+        public string m_runningActionName = "";
 
         public MyBehaviorTreeNode()
         {

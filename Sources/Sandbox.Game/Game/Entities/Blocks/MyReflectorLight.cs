@@ -5,7 +5,6 @@ using System.Text;
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Lights;

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 
 namespace VRage.Collections
@@ -11,32 +11,32 @@ namespace VRage.Collections
     /// </summary>
     public class MyQueue<T>
     {
-        private T[] m_array;
-        private int m_head;
-        private int m_tail;
-        private int m_size;
+        protected T[] m_array;
+        protected int m_head;
+        protected int m_tail;
+        protected int m_size;
 
         public MyQueue(int capacity)
         {
             if (capacity < 0)
                 throw new ArgumentException("Capacity cannot be < 0", "capacity");
-            this.m_array = new T[capacity];
-            this.m_head = 0;
-            this.m_tail = 0;
-            this.m_size = 0;
+            m_array = new T[capacity];
+            m_head = 0;
+            m_tail = 0;
+            m_size = 0;
         }
 
         public MyQueue(IEnumerable<T> collection)
         {
             if (collection == null)
                 throw new ArgumentException("Collection cannot be empty", "collection");
-            this.m_array = new T[4];
-            this.m_size = 0;
+            m_array = new T[4];
+            m_size = 0;
             foreach (T obj in collection)
-                this.Enqueue(obj);
+                Enqueue(obj);
         }
 
-        public T[] DebugItems
+        public T[] InternalArray
         {
             get
             {
@@ -51,25 +51,26 @@ namespace VRage.Collections
 
         public void Clear()
         {
-            if (this.m_head < this.m_tail)
+            if (m_head < m_tail)
             {
-                Array.Clear((Array)this.m_array, this.m_head, this.m_size);
+                Array.Clear(m_array, m_head, m_size);
             }
             else
             {
-                Array.Clear((Array)this.m_array, this.m_head, this.m_array.Length - this.m_head);
-                Array.Clear((Array)this.m_array, 0, this.m_tail);
+                Array.Clear(m_array, m_head, m_array.Length - m_head);
+                Array.Clear(m_array, 0, m_tail);
             }
-            this.m_head = 0;
-            this.m_tail = 0;
-            this.m_size = 0;
+
+            m_head = 0;
+            m_tail = 0;
+            m_size = 0;
         }
 
         public int Count
         {
             get
             {
-                return this.m_size;
+                return m_size;
             }
         }
 
@@ -79,47 +80,46 @@ namespace VRage.Collections
             {
                 if (index < 0 || index >= Count)
                     throw new ArgumentException("Index must be larger or equal to 0 and smaller than Count");
-                return m_array[(this.m_head + index) % this.m_array.Length];
+                return m_array[(m_head + index) % m_array.Length];
             }
             set
             {
                 if (index < 0 || index >= Count)
                     throw new ArgumentException("Index must be larger or equal to 0 and smaller than Count");
-                m_array[(this.m_head + index) % this.m_array.Length] = value;
+                m_array[(m_head + index) % m_array.Length] = value;
             }
         }
 
         public void Enqueue(T item)
         {
-            if (this.m_size == this.m_array.Length)
+            if (m_size == m_array.Length)
             {
-                int capacity = (int)((long)this.m_array.Length * 200L / 100L);
-                if (capacity < this.m_array.Length + 4)
-                    capacity = this.m_array.Length + 4;
-                this.SetCapacity(capacity);
+                int capacity = (int)(m_array.Length * 200L / 100L);
+                if (capacity < m_array.Length + 4)
+                    capacity = m_array.Length + 4;
+                SetCapacity(capacity);
             }
-            this.m_array[this.m_tail] = item;
-            this.m_tail = (this.m_tail + 1) % this.m_array.Length;
-            ++this.m_size;
+            m_array[m_tail] = item;
+            m_tail = (m_tail + 1) % m_array.Length;
+            ++m_size;
         }
 
         public T Peek()
         {
-            if (this.m_size == 0)
+            if (m_size == 0)
                 throw new InvalidOperationException("Queue is empty");
-            return this.m_array[this.m_head];
+            return m_array[m_head];
         }
 
         public T Dequeue()
         {
-            T obj = this.m_array[this.m_head];
-            this.m_array[this.m_head] = default(T); // Clear item to prevent holding references
-            this.m_head = (this.m_head + 1) % this.m_array.Length;
-            --this.m_size;
+            T obj = m_array[m_head];
+            m_array[m_head] = default(T); // Clear item to prevent holding references
+            m_head = (m_head + 1) % m_array.Length;
+            --m_size;
             return obj;
         }
 
-        // TODO (DI): Those mod operations can be removed to improve performance
         public bool Remove(T item)
         {
             int idx = m_head;
@@ -128,6 +128,17 @@ namespace VRage.Collections
                 if (m_array[idx % m_array.Length].Equals(item))
                     break;
             }
+
+            if (idx == m_size) return false;
+            Remove(idx);
+
+            return true;
+        }
+
+        // TODO (DI): Those mod operations can be removed to improve performance
+        public void Remove(int idx)
+        {
+            Debug.Assert((idx > m_head || idx < m_size) && idx < m_array.Length);
 
             int mod = idx % m_array.Length;
             int next;
@@ -142,34 +153,55 @@ namespace VRage.Collections
 
             m_tail = last;
             --m_size;
-            return false;
         }
 
-        private void SetCapacity(int capacity)
+        protected void SetCapacity(int capacity)
         {
             T[] objArray = new T[capacity];
-            if (this.m_size > 0)
+            if (m_size > 0)
             {
-                if (this.m_head < this.m_tail)
+                if (m_head < m_tail)
                 {
-                    Array.Copy((Array)this.m_array, this.m_head, (Array)objArray, 0, this.m_size);
+                    Array.Copy(m_array, m_head, objArray, 0, m_size);
                 }
                 else
                 {
-                    Array.Copy((Array)this.m_array, this.m_head, (Array)objArray, 0, this.m_array.Length - this.m_head);
-                    Array.Copy((Array)this.m_array, 0, (Array)objArray, this.m_array.Length - this.m_head, this.m_tail);
+                    Array.Copy(m_array, m_head, objArray, 0, m_array.Length - m_head);
+                    Array.Copy(m_array, 0, objArray, m_array.Length - m_head, m_tail);
                 }
             }
-            this.m_array = objArray;
-            this.m_head = 0;
-            this.m_tail = this.m_size == capacity ? 0 : this.m_size;
+            m_array = objArray;
+            m_head = 0;
+            m_tail = m_size == capacity ? 0 : m_size;
         }
 
         public void TrimExcess()
         {
-            if (this.m_size >= (int)((double)this.m_array.Length * 0.9))
+            if (m_size >= (int)(m_array.Length * 0.9))
                 return;
-            this.SetCapacity(this.m_size);
+            SetCapacity(m_size);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append('[');
+
+            if (Count > 0)
+            {
+                sb.Append(this[Count - 1]);
+
+                for (int i = Count - 2; i >= 0; --i)
+                {
+                    sb.Append(", ");
+                    sb.Append(this[i]);
+                }
+            }
+
+            sb.Append(']');
+
+            return sb.ToString();
         }
     }
 }

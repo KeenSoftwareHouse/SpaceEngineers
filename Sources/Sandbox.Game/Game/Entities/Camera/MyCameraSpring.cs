@@ -98,7 +98,7 @@ namespace Sandbox.Game.Entities
 
             if (velocityLength > MyMathConstants.EPSILON)
             {
-                float velocityFactor = MathHelper.Clamp(velocityLength * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 0.5f, 0, 3);
+                float velocityFactor = MathHelper.Clamp(velocityLength * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 0.5f, 0, 3);
          //       m_Ship.IncreaseHeadShake(velocityFactor);
             }
 

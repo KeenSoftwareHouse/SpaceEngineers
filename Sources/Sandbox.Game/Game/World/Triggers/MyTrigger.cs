@@ -10,6 +10,8 @@ using System.Text;
 using VRage.Utils;
 using Sandbox.Graphics.GUI;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -56,7 +58,7 @@ namespace Sandbox.Game.World.Triggers
             return IsTrue;
         }
         //hints are to be displayed during gameplay. This is called on both server&clients.
-        public virtual void DisplayHints(MyPlayer player, Entities.MyEntity me) { }//call this only for triggers belonging to local computer!
+        public virtual void DisplayHints(MyPlayer player, MyEntity me) { }//call this only for triggers belonging to local computer!
 
         //progress is going to be displayed on custom screen:
         public virtual StringBuilder GetProgress()
@@ -86,7 +88,7 @@ namespace Sandbox.Game.World.Triggers
         {}
         public static MyStringId GetCaption()
         {
-            return MySpaceTexts.MessageBoxCaptionError;
+            return MyCommonTexts.MessageBoxCaptionError;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace VRageRender
 {
     class MyRender11Constants
     {
-        public const Format BACKBUFFER_FORMAT = Format.R8G8B8A8_UNorm_SRgb;
+        public const Format DX11_BACKBUFFER_FORMAT = Format.R8G8B8A8_UNorm_SRgb;
         public const int BUFFER_COUNT = 2;
 
         public const int SHADER_MAX_BONES = 60;

@@ -5,6 +5,8 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 
 using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 using VRage.Utils;
 
@@ -114,7 +116,7 @@ namespace Sandbox.Definitions
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    MyDefinitionErrors.Add(Context, errorMessage, ErrorSeverity.Critical);
+                    MyDefinitionErrors.Add(Context, errorMessage, TErrorSeverity.Critical);
                 }
             }
         }

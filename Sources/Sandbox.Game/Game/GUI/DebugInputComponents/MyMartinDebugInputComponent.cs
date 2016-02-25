@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
@@ -18,6 +17,14 @@ using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using Sandbox.Game.AI;
+using Sandbox.Game.AI.Pathfinding;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using System.Collections.Generic;
+using Sandbox.Engine.Physics;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {
@@ -25,6 +32,274 @@ namespace Sandbox.Game.Gui
     {
         //public static long OuterSum;
         //public static long InnerSum;
+
+        public class MyMarker
+        {
+            public MyMarker(Vector3D position, Color color) { this.position = position; this.color = color; }
+            public Vector3D position;
+            public Color color;
+        }
+
+        List<MyMarker> m_markers = new List<MyMarker>();
+
+        public MyMartinInputComponent()
+        {
+            AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Add bots", AddBots);
+            AddShortcut(MyKeys.Z, true, false, false, false, () => "One AI step", OneAIStep);
+            AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "One Voxel step", OneVoxelStep);
+            AddShortcut(MyKeys.Insert, true, false, false, false, () => "Add one bot", AddOneBot);
+            AddShortcut(MyKeys.Home, true, false, false, false, () => "Add one barb", AddOneBarb);
+            AddShortcut(MyKeys.T, true, false, false, false, () => "Do some action", DoSomeAction);
+            AddShortcut(MyKeys.Y, true, false, false, false, () => "Clear some action", ClearSomeAction);
+            AddShortcut(MyKeys.B, true, false, false, false, () => "Add berries", AddBerries);
+            AddShortcut(MyKeys.L, true, false, false, false, () => "return to Last bot memory", ReturnToLastMemory);
+            AddShortcut(MyKeys.N, true, false, false, false, () => "select Next bot", SelectNextBot);
+            AddShortcut(MyKeys.K, true, false, false, false, () => "Kill not selected bots", KillNotSelectedBots);
+            AddShortcut(MyKeys.M, true, false, false, false, () => "Toggle marker", ToggleMarker);
+
+            AddSwitch(MyKeys.NumPad0, SwitchSwitch, new MyRef<bool>(() => MyFakes.DEBUG_BEHAVIOR_TREE, val => { MyFakes.DEBUG_BEHAVIOR_TREE = val; }), "allowed debug beh tree");
+            AddSwitch(MyKeys.NumPad1, SwitchSwitch, new MyRef<bool>(() => MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP, val => { MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP = val; }), "one beh tree step");
+            AddSwitch(MyKeys.H, SwitchSwitch, new MyRef<bool>(() => MyFakes.ENABLE_AUTO_HEAL, val => { MyFakes.ENABLE_AUTO_HEAL = val; }), "enable auto Heal");
+        }
+
+        private bool AddBerries()
+        {
+            AddSomething("Berries", 10);
+            return true;
+        }
+
+        private void AddSomething(string something, int amount)
+        {
+            foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
+            {
+                var physicalItemDef = definition as MyPhysicalItemDefinition;
+                if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
+                    continue;
+
+                if (definition.DisplayNameText == something)
+                {
+                    MyEntity invObject = MySession.Static.ControlledEntity as MyEntity;
+                    MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                    if (inventory != null)
+                    {
+                        var builder = (MyObjectBuilder_PhysicalObject)VRage.ObjectBuilders.MyObjectBuilderSerializer.CreateNewObject(definition.Id);
+                        inventory.DebugAddItems(amount, builder);
+                    }
+                    break;
+                }
+            }
+        }
+        private void ConsumeSomething(string something, int amount)
+        {
+            foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
+            {
+                var physicalItemDef = definition as MyPhysicalItemDefinition;
+                if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
+                    continue;
+
+                if (definition.DisplayNameText == something)
+                {
+                    MyEntity invObject = MySession.Static.ControlledEntity as MyEntity;
+                    MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                    if (inventory != null)
+                    {
+                        var builder = (MyObjectBuilder_PhysicalObject)VRage.ObjectBuilders.MyObjectBuilderSerializer.CreateNewObject(definition.Id);
+                        inventory.ConsumeItem(physicalItemDef.Id, amount, MySession.Static.LocalCharacterEntityId);
+                    }
+                    break;
+                }
+            }
+        }
+
+        private bool ReturnToLastMemory()
+        {
+            if (Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS)
+            {
+                // get active bot
+                MyBotCollection bots = MyAIComponent.Static.Bots;
+                foreach (var entry in MyAIComponent.Static.Bots.GetAllBots())
+                {
+                    var localBot = entry.Value;
+                    var agent = localBot as MyAgentBot;
+
+                    // return to previous bot memory
+                    if ( agent != null && bots.IsBotSelectedForDegugging(agent) )
+                    {
+                        agent.ReturnToLastMemory();
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool ToggleMarker()
+        {
+            Vector3D pos = new Vector3D();
+            if ( GetDirectedPositionOnGround(MySector.MainCamera.Position, MySector.MainCamera.ForwardVector, 1000, out pos) )
+            {
+                MyMarker marker = FindClosestMarkerInArea(pos, 1);
+                if (marker != null)
+                    m_markers.Remove(marker);
+                else
+                    m_markers.Add(new MyMarker(pos, Color.Blue));
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool GetDirectedPositionOnGround(Vector3D initPosition, Vector3D direction, float amount, out Vector3D outPosition, float raycastHeight = 100.0f)
+        {
+            //List<MyPhysics.HitInfo> m_tmpRaycastOutput = new List<MyPhysics.HitInfo>();
+            //MyPhysics.CastRay(initPosition, end, m_tmpRaycastOutput);
+
+            outPosition = default(Vector3D);
+            var voxelMap = MySession.Static.VoxelMaps.TryGetVoxelMapByNameStart("Ground");
+            if (voxelMap == null) return false;
+            Vector3D toPosition = initPosition + direction * amount;
+            LineD raycastLine = new LineD(initPosition, toPosition);
+            Vector3D? groundIntersect = null;
+            voxelMap.GetIntersectionWithLine(ref raycastLine, out groundIntersect);
+
+            if (groundIntersect == null) return false;
+
+            outPosition = (Vector3D)groundIntersect;
+            return true;
+        }
+
+        MyMarker FindClosestMarkerInArea(Vector3D pos, double maxDistance)
+        {
+            double minDist = double.MaxValue;
+            MyMarker closest = null;
+            foreach(MyMarker marker in m_markers)
+            {
+                double dist = (marker.position-pos).Length();
+                if ( dist < minDist )
+                {
+                    closest = marker;
+                    minDist = dist;
+                }
+            }
+            if (minDist < maxDistance)
+                return closest;
+            return null;
+        }
+
+        void AddMarker(MyMarker marker)
+        {
+            m_markers.Add(marker);
+        }
+
+
+
+
+        public bool SelectNextBot()
+        {
+            MyAIComponent.Static.Bots.DebugSelectNextBot();
+            return true;
+        }
+
+        public bool KillNotSelectedBots()
+        {
+            if (Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS)
+            {
+                MyBotCollection bots = MyAIComponent.Static.Bots;
+                foreach (var entry in MyAIComponent.Static.Bots.GetAllBots())
+                {
+                    var localBot = entry.Value;
+                    var agent = localBot as MyAgentBot;
+
+                    // return to previous bot memory
+                    if (agent != null && !bots.IsBotSelectedForDegugging(agent))
+                    {
+                        if (agent.Player.Controller.ControlledEntity is MyCharacter)
+                        {
+                            Sandbox.ModAPI.MyDamageInformation damageInfo = new Sandbox.ModAPI.MyDamageInformation(false, 1000, MyDamageType.Weapon, MySession.Static.LocalPlayerId);
+                            (agent.Player.Controller.ControlledEntity as MyCharacter).Kill(true, damageInfo);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        public bool SwitchSwitch(MyKeys key)
+        {
+            bool value = !GetSwitchValue(key);
+            SetSwitch(key, value);
+            return true;
+        }
+
+        public bool SwitchSwitchDebugBeh(MyKeys key)
+        {
+            MyFakes.DEBUG_BEHAVIOR_TREE = !MyFakes.DEBUG_BEHAVIOR_TREE;
+            SetSwitch(key, MyFakes.DEBUG_BEHAVIOR_TREE);
+            return true;
+        }
+
+        public bool SwitchSwitchOneStep(MyKeys key)
+        {
+            MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP = true;
+            SetSwitch(key, MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP);
+            return true;
+        }
+
+
+        private bool DoSomeAction()
+        {
+            MyFakes.DO_SOME_ACTION = true;
+            return true;
+        }
+
+        private bool ClearSomeAction()
+        {
+            MyFakes.DO_SOME_ACTION = false;
+            return true;
+        }
+
+        private bool AddBots()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "TestingBarbarian")) as MyAgentDefinition;
+                MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
+            }
+            MyPathfindingStopwatch.StartMeasuring();
+            return true;
+        }
+
+        private bool AddOneBot()
+        {
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "TestingBarbarian")) as MyAgentDefinition;
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "SwordBarbarian")) as MyAgentDefinition;
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "NormalWoodcutter")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "NormalPeasant")) as MyAgentDefinition;
+            MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
+            MyPathfindingStopwatch.StartMeasuring();
+            return true;
+        }
+        private bool AddOneBarb()
+        {
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "TestingBarbarian")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "SwordBarbarian")) as MyAgentDefinition;
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "NormalWoodcutter")) as MyAgentDefinition;
+            //var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_HumanoidBot), "NormalPeasant")) as MyAgentDefinition;
+            MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
+            MyPathfindingStopwatch.StartMeasuring();
+            return true;
+        }
+
+        private bool OneAIStep()
+        {
+            MyFakes.DEBUG_ONE_AI_STEP = true;
+            return true;
+        }
+        private bool OneVoxelStep()
+        {
+            MyFakes.DEBUG_ONE_VOXEL_PATHFINDING_STEP = true;
+            return true;
+        }
+
 
         public override string GetName()
         {
@@ -35,6 +310,11 @@ namespace Sandbox.Game.Gui
         {
             bool handled = false;
 
+            if (MySession.Static == null)
+                return false;// game isn't loaded yet
+
+            // check of autoheal
+            CheckAutoHeal();
             //VoxelReading();
             //VoxelPlacement();
             //VoxelCellDrawing();
@@ -43,6 +323,7 @@ namespace Sandbox.Game.Gui
             //Stats.Timing.Write("Sum of inner loops", InnerSum / (float)Stopwatch.Frequency, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 4);
 
             // All of my keypresses require M to be pressed as well.
+#if false
             if (!MyInput.Static.IsKeyPress(MyKeys.M))
                 return handled;
 
@@ -104,13 +385,35 @@ namespace Sandbox.Game.Gui
                 }
 
             }
+#endif
 
-            return handled;
+            return base.HandleInput();
+
+            //return handled;
         }
+
+        private void CheckAutoHeal()
+        {
+            if (MyFakes.ENABLE_AUTO_HEAL)
+            {
+                MyCharacter invObject = MySession.Static.ControlledEntity as MyCharacter;
+                if (invObject != null && invObject.StatComp!=null)
+                {
+                    if (invObject.StatComp.HealthRatio < 1)
+                    {
+                        // eat some berries
+                        AddSomething("Berries", 1);
+                        ConsumeSomething("Berries", 1);
+                    }
+                }
+            }
+        }
+
+
 
         private static void VoxelCellDrawing()
         {
-            var controlledObject = MySession.ControlledEntity;
+            var controlledObject = MySession.Static.ControlledEntity;
             if (controlledObject == null)
                 return;
             var camera = MySector.MainCamera;
@@ -269,7 +572,7 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewLeftMousePressed())
             {
-                var cache = new MyStorageDataCache();
+                var cache = new MyStorageData();
                 cache.Resize(minVoxel, maxVoxel);
                 targetVoxelMap.Storage.ReadRange(cache, MyStorageDataTypeFlags.Content, 0, ref minVoxel, ref maxVoxel);
                 targetVoxelMap.Storage.WriteRange(cache, MyStorageDataTypeFlags.Content, ref minVoxel, ref maxVoxel);
@@ -326,7 +629,7 @@ namespace Sandbox.Game.Gui
         {
             if (MyFakes.FakeTarget == null)
             {
-                var character = MySession.LocalCharacter;
+                var character = MySession.Static.LocalCharacter;
                 if (character != null)
                     MyFakes.FakeTarget = character;
             }
@@ -335,5 +638,24 @@ namespace Sandbox.Game.Gui
                 MyFakes.FakeTarget = null;
             }
         }
+
+        public override void Draw()
+        {
+            base.Draw();
+
+            foreach ( MyMarker marker in m_markers )
+            {
+                VRageRender.MyRenderProxy.DebugDrawSphere(marker.position, 0.5f, marker.color, 0.8f, true, cull: true);
+                VRageRender.MyRenderProxy.DebugDrawSphere(marker.position, 0.1f, marker.color, 1.0f, false, cull: true);
+                Vector3D textpos = marker.position;
+                //textpos.Z += 1;
+                textpos.Y += 0.6f;
+                string str = String.Format("{0:0.0},{1:0.0},{2:0.0}", marker.position.X, marker.position.Y, marker.position.Z);
+                VRageRender.MyRenderProxy.DebugDrawText3D(textpos, str, marker.color, 1, false);
+
+            }
+        }
+
     }
+
 }

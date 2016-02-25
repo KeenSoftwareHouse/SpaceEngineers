@@ -15,6 +15,7 @@ using VRage;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
+using System.Globalization;
 
 
 #endregion
@@ -47,7 +48,7 @@ namespace Sandbox.Game.Gui
             m_searchChangedFunc += RefreshServerGameList;
 
             m_serversPage = m_selectedPage;
-            m_serversPage.SetToolTip(MyTexts.GetString(MySpaceTexts.JoinGame_TabTooltip_Servers));
+            m_serversPage.SetToolTip(MyTexts.GetString(MyCommonTexts.JoinGame_TabTooltip_Servers));
 
             RefreshServerGameList();
         }
@@ -62,27 +63,46 @@ namespace Sandbox.Game.Gui
         void InitServersTable()
         {
             // World name, User name, Player count
-            m_gamesTable.ColumnsCount = 6;
+            m_gamesTable.ColumnsCount = MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME ? 7 : 6;
             m_gamesTable.ItemSelected += OnTableItemSelected;
             m_gamesTable.ItemSelected += OnServerTableItemSelected;
             m_gamesTable.ItemDoubleClicked += OnServerTableItemDoubleClick;
-            m_gamesTable.SetCustomColumnWidths(new float[] { 0.30f, 0.19f, 0.31f, 0.08f, 0.05f, 0.07f });
-            m_gamesTable.SetColumnComparison(0, TextComparisonServers);
-            m_gamesTable.SetColumnComparison(1, TextComparisonServers);
-            m_gamesTable.SetColumnComparison(2, TextComparisonServers);
-            m_gamesTable.SetColumnComparison(3, PlayerCountComparisonServers);
-            m_gamesTable.SetColumnComparison(4, PingComparison);
-            m_gamesTable.SetColumnComparison(5, ModsComparisonServers);
-            //m_gamesTable.SetColumnAlign(1, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
-            m_gamesTable.SetColumnAlign(3, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            m_gamesTable.SetColumnAlign(4, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            m_gamesTable.SetColumnAlign(5, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            //m_gamesTable.SetHeaderColumnAlign(1, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
-            m_gamesTable.SetHeaderColumnAlign(3, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            m_gamesTable.SetHeaderColumnAlign(4, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-            m_gamesTable.SetHeaderColumnAlign(5, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
-            m_gamesTable.SortByColumn(4);
+            if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
+                m_gamesTable.SetCustomColumnWidths(new float[] { 0.26f, 0.18f, 0.20f, 0.16f, 0.08f, 0.05f, 0.07f });
+            else
+                m_gamesTable.SetCustomColumnWidths(new float[] { 0.30f, 0.19f, 0.31f, 0.08f, 0.05f, 0.07f });
+
+            int colCounter = 0;
+            m_gamesTable.SetColumnComparison(colCounter++, TextComparisonServers);
+            m_gamesTable.SetColumnComparison(colCounter++, TextComparisonServers);
+            m_gamesTable.SetColumnComparison(colCounter++, TextComparisonServers);
+
+            if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
+            {
+                m_gamesTable.SetColumnComparison(colCounter, TextComparisonServers);
+                m_gamesTable.SetColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                m_gamesTable.SetHeaderColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                ++colCounter;
+            }
+
+            m_gamesTable.SetColumnComparison(colCounter, PlayerCountComparisonServers);
+            m_gamesTable.SetColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            m_gamesTable.SetHeaderColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            ++colCounter;
+
+            int pingColumn = colCounter;
+            m_gamesTable.SetColumnComparison(colCounter, PingComparison);
+            m_gamesTable.SetColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            m_gamesTable.SetHeaderColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            ++colCounter;
+
+            m_gamesTable.SetColumnComparison(colCounter, ModsComparisonServers);
+            m_gamesTable.SetColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            m_gamesTable.SetHeaderColumnAlign(colCounter, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            ++colCounter;
+
+            m_gamesTable.SortByColumn(pingColumn);
         }
 
         #endregion
@@ -120,10 +140,10 @@ namespace Sandbox.Game.Gui
                 m_contextMenu.CreateNewContextMenu();
                 var action = m_selectedPage == m_favoritesPage ? ContextMenuFavoriteAction.Remove : ContextMenuFavoriteAction.Add;
 
-                var itemText = MySpaceTexts.JoinGame_Favorites_Remove;
+                var itemText = MyCommonTexts.JoinGame_Favorites_Remove;
                 if (action == ContextMenuFavoriteAction.Add)
                 {
-                    itemText = MySpaceTexts.JoinGame_Favorites_Add;
+                    itemText = MyCommonTexts.JoinGame_Favorites_Add;
                 }
 
                 m_contextMenu.AddItem(MyTexts.Get(itemText), userData: new ContextMenuFavoriteActionItem() { Server = server, Action = action });
@@ -211,7 +231,7 @@ namespace Sandbox.Game.Gui
 
                 var text = toolTip.ToolTips[0].Text.Clear();
 
-                text.Append(MyTexts.Get(MySpaceTexts.JoinGame_BadModsListResponse));
+                text.Append(MyTexts.Get(MyCommonTexts.JoinGame_BadModsListResponse));
                 toolTip.RecalculateSize();
             });
         }
@@ -250,7 +270,7 @@ namespace Sandbox.Game.Gui
 
             AddServerItem(serverItem, delegate()
             {
-                m_serversPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Servers).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                m_serversPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Servers).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
             });
         }
 
@@ -268,12 +288,15 @@ namespace Sandbox.Game.Gui
 
         private void AddServerHeaders()
         {
-            m_gamesTable.SetColumnName(0, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_World));
-            m_gamesTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_GameMode));
-            m_gamesTable.SetColumnName(2, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_Server));
-            m_gamesTable.SetColumnName(3, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_Players));
-            m_gamesTable.SetColumnName(4, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_Ping));
-            m_gamesTable.SetColumnName(5, MyTexts.Get(MySpaceTexts.JoinGame_ColumnTitle_Mods));
+            int colCounter = 0;
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_World));
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_GameMode));
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_Server));
+            if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
+                m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_RemainingTime));
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_Players));
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_Ping));
+            m_gamesTable.SetColumnName(colCounter++, MyTexts.Get(MyCommonTexts.JoinGame_ColumnTitle_Mods));
         }
 
         private void RefreshServerGameList()
@@ -287,7 +310,7 @@ namespace Sandbox.Game.Gui
             m_gameTypeText.Clear();
             m_gameTypeToolTip.Clear();
             m_servers.Clear();
-            m_serversPage.TextEnum = MySpaceTexts.JoinGame_TabTitle_Servers;
+            m_serversPage.TextEnum = MyCommonTexts.JoinGame_TabTitle_Servers;
 
             String filterOps = string.Format("gamedir:{0};secure:1", MyPerGameSettings.SteamGameServerGameDir);
             //if (m_showOnlyWithSameMods.IsChecked) filterOps = filterOps + ";gametagsand:datahash" + MyDataIntegrityChecker.GetHashBase64(); // nonsense, datahash is inconsistent
@@ -341,8 +364,8 @@ namespace Sandbox.Game.Gui
             string gamemode = server.GetGameTagByPrefix("gamemode");
             if (gamemode == "C")
             {
-                gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
-                gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
+                gamemodeSB.Append(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeCreative));
+                gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeCreative));
             }
             else if (gamemode == "B")
             {
@@ -365,10 +388,33 @@ namespace Sandbox.Game.Gui
 
                     if (canBeJoined)
                     {
+                        string remainingTimeText = null;
+                        float? remainingTimeSeconds = null;
+                        if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME && rules.TryGetValue(MyMultiplayer.BattleRemainingTimeTag, out remainingTimeText))
+                        {
+                            float remainingTime;
+                            if (float.TryParse(remainingTimeText, NumberStyles.Float, CultureInfo.InvariantCulture, out remainingTime))
+                            {
+                                if (remainingTime >= 0f)
+                                {
+                                    remainingTimeSeconds = remainingTime;
+                                    remainingTimeText = null;
+                                }
+                                else if (remainingTime == -1f)
+                                {
+                                    remainingTimeText = MyTexts.Get(MyCommonTexts.JoinGame_Lobby).ToString();
+                                }
+                                else if (remainingTime == -2f)
+                                {
+                                    remainingTimeText = MyTexts.Get(MyCommonTexts.JoinGame_Waiting).ToString();
+                                }
+                            }
+                        }
+
                         gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
                         gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
 
-                        AddServerItem(server, sessionName, gamemodeSB, gamemodeToolTipSB);
+                        AddServerItem(server, sessionName, gamemodeSB, gamemodeToolTipSB, remainingTimeText: remainingTimeText, remainingTimeSeconds: remainingTimeSeconds);
 
                         if (onAddedServerItem != null)
                             onAddedServerItem();
@@ -385,13 +431,13 @@ namespace Sandbox.Game.Gui
                 //TODO: refactor
                 if (split.Length == 3 && server.AppID == 244850)
                 {
-                    gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival)).Append(" ").Append(multipliers);
-                    gamemodeToolTipSB.AppendFormat(MyTexts.Get(MySpaceTexts.JoinGame_GameTypeToolTip_MultipliersFormat).ToString(), split[0], split[1], split[2]);
+                    gamemodeSB.Append(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival)).Append(" ").Append(multipliers);
+                    gamemodeToolTipSB.AppendFormat(MyTexts.Get(MyCommonTexts.JoinGame_GameTypeToolTip_MultipliersFormat).ToString(), split[0], split[1], split[2]);
                 }
                 else
                 {
-                    gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
-                    gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
+                    gamemodeSB.Append(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));
+                    gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MyCommonTexts.WorldSettings_GameModeSurvival));
                 }
             }
 
@@ -403,7 +449,7 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
-        private void AddServerItem(GameServerItem server, string sessionName, StringBuilder gamemodeSB, StringBuilder gamemodeToolTipSB)
+        private void AddServerItem(GameServerItem server, string sessionName, StringBuilder gamemodeSB, StringBuilder gamemodeToolTipSB, string remainingTimeText = null, float? remainingTimeSeconds = null)
         {
             ulong modCount = server.GetGameTagByPrefixUlong(MyMultiplayer.ModCountTag);
 
@@ -415,16 +461,27 @@ namespace Sandbox.Game.Gui
             if (!String.IsNullOrEmpty(viewDistance) && server.AppID == 244850)
             {
                 gamemodeToolTipSB.AppendLine();
-                gamemodeToolTipSB.AppendFormat(MyTexts.Get(MySpaceTexts.JoinGame_GameTypeToolTip_ViewDistance).ToString(), viewDistance);
+                gamemodeToolTipSB.AppendFormat(MyTexts.Get(MyCommonTexts.JoinGame_GameTypeToolTip_ViewDistance).ToString(), viewDistance);
             }
 
             var row = new MyGuiControlTable.Row(server);
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(sessionName), userData: server.SteamID, toolTip: m_textCache.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: gamemodeSB, toolTip: gamemodeToolTipSB.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(server.Name), toolTip: m_gameTypeToolTip.Clear().AppendLine(server.Name).Append(server.NetAdr.ToString()).ToString()));
+
+            if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
+            {
+                if (remainingTimeText != null)
+                    row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(remainingTimeText)));
+                else if (remainingTimeSeconds != null)
+                    row.AddCell(new CellRemainingTime(remainingTimeSeconds.Value));
+                else
+                    row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear()));
+            }
+
             row.AddCell(new MyGuiControlTable.Cell(text: userCount, toolTip: userCount.ToString()));
             row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(server.Ping), toolTip: m_textCache.ToString()));
-            row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(modCount == 0 ? "---" : modCount.ToString()), toolTip: MyTexts.GetString(MySpaceTexts.JoinGame_SelectServerToShowModList)));
+            row.AddCell(new MyGuiControlTable.Cell(text: m_textCache.Clear().Append(modCount == 0 ? "---" : modCount.ToString()), toolTip: MyTexts.GetString(MyCommonTexts.JoinGame_SelectServerToShowModList)));
             m_gamesTable.Add(row);
 
             var selectedRow = m_gamesTable.SelectedRow;

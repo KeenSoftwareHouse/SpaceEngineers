@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageCreateDecal : IMyRenderMessage
+    public class MyRenderMessageCreateDecal : MyRenderMessageBase
     {
         public uint ID;
         public MyDecalTriangle_Data Triangle;
@@ -17,27 +17,27 @@ namespace VRageRender
         public float LightSize;
         public float Emissivity;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateDecal; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateDecal; } }
     }
 
-    public class MyRenderMessageCreateScreenDecal : IMyRenderMessage
+    public class MyRenderMessageCreateScreenDecal : MyRenderMessageBase
     {
         public uint ID;
         public uint ParentID;
         public Matrix LocalOBB; // transforms unit box centered at 0 to volume relative to object space
         public string DecalMaterial;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateScreenDecal; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateScreenDecal; } }
     }
 
-    public class MyRenderMessageRemoveDecal : IMyRenderMessage
+    public class MyRenderMessageRemoveDecal : MyRenderMessageBase
     {
         public uint ID;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.RemoveDecal; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RemoveDecal; } }
     }
 
     public enum MyScreenDecalType
@@ -59,12 +59,12 @@ namespace VRageRender
         public string AlphamaskTexture;
     }
 
-    public class MyRenderMessageRegisterScreenDecalsMaterials : IMyRenderMessage
+    public class MyRenderMessageRegisterScreenDecalsMaterials : MyRenderMessageBase
     {
         public List<string> MaterialsNames;
         public List<MyDecalMaterialDesc> MaterialsDescriptions;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.RegisterDecalsMaterials; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RegisterDecalsMaterials; } }
     }
 }

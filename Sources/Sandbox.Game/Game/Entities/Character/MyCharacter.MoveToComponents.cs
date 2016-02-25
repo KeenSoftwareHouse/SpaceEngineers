@@ -26,7 +26,6 @@ using Sandbox.Game.Utils;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -35,14 +34,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Animations;
 using VRage.Audio;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.FileSystem;
 using VRage.Game.Entity.UseObject;
 using VRage.Game.ObjectBuilders;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ModAPI;
+using VRage.ModAPI.Ingame;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -74,18 +75,16 @@ namespace Sandbox.Game.Entities.Character
         IMyCameraController, 
         IMyControllableEntity, 
         IMyInventoryOwner, 
-        IMyComponentOwner<MyDataBroadcaster>, 
-        IMyComponentOwner<MyDataReceiver>, 
         IMyUseObject, 
         IMyDestroyableObject, 
         Sandbox.ModAPI.IMyCharacter
     {
         private void UpdateChat()
         {
-            if (MySession.LocalCharacter == this)
+            if (MySession.Static.LocalCharacter == this)
             {
                 MyChatHistory chatHistory;
-                if (MySession.Static.ChatHistory.TryGetValue(MySession.LocalPlayerId, out chatHistory))
+                if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory))
                 {
                     foreach (var chatPlayerHistory in chatHistory.PlayerChatHistory)
                     {
@@ -96,7 +95,7 @@ namespace Sandbox.Game.Entities.Character
                                 MyPlayer.PlayerId playerId;
                                 if (MySession.Static.Players.TryGetPlayerId(chatPlayerHistory.Key, out playerId))
                                 {
-                                    SyncObject.SendNewPlayerMessage(MySession.LocalHumanPlayer.Id, playerId, chatItem.Text, chatItem.Timestamp);
+                                    SyncObject.SendNewPlayerMessage(MySession.Static.LocalHumanPlayer.Id, playerId, chatItem.Text, chatItem.Timestamp);
                                 }
                                 else
                                 {
@@ -122,14 +121,14 @@ namespace Sandbox.Game.Entities.Character
             
         void CalculateHandIK(int startBoneIndex, int endBoneIndex, ref MatrixD targetTransform)
         {
-            MyCharacterBone endBone = Bones[endBoneIndex];
-            MyCharacterBone startBone = Bones[startBoneIndex];
+            MyCharacterBone endBone = AnimationController.CharacterBones[endBoneIndex];
+            MyCharacterBone startBone = AnimationController.CharacterBones[startBoneIndex];
 
             // Solve IK Problem
             List<MyCharacterBone> bones = new List<MyCharacterBone>();
 
             for (int i = startBoneIndex; i <= endBoneIndex; i++)
-                bones.Add(Bones[i]);
+                bones.Add(AnimationController.CharacterBones[i]);
 
             MatrixD invWorld = PositionComp.WorldMatrixNormalizedInv;
             Matrix localFinalTransform = targetTransform * invWorld;
@@ -148,9 +147,10 @@ namespace Sandbox.Game.Entities.Character
 
         void CalculateHandIK(int upperarm, int forearm, int palm, ref MatrixD targetTransform)
         {
-            Debug.Assert(Bones.IsValidIndex(upperarm), "UpperArm index for IK is invalid");
-            Debug.Assert(Bones.IsValidIndex(forearm), "ForeArm index for IK is invalid");
-            Debug.Assert(Bones.IsValidIndex(palm), "Palm index for IK is invalid");
+            var characterBones = AnimationController.CharacterBones;
+            Debug.Assert(characterBones.IsValidIndex(upperarm), "UpperArm index for IK is invalid");
+            Debug.Assert(characterBones.IsValidIndex(forearm), "ForeArm index for IK is invalid");
+            Debug.Assert(characterBones.IsValidIndex(palm), "Palm index for IK is invalid");
 
             MatrixD invWorld = PositionComp.WorldMatrixNormalizedInv;
             Matrix localFinalTransform = targetTransform * invWorld;
@@ -163,9 +163,11 @@ namespace Sandbox.Game.Entities.Character
             }
 
             //MyInverseKinematics.SolveCCDIk(ref finalPos, bones, 0.0005f, 5, 0.5f, ref localFinalTransform, endBone);
-            if (Bones.IsValidIndex(upperarm) && Bones.IsValidIndex(forearm) && Bones.IsValidIndex(palm))
+            if (characterBones.IsValidIndex(upperarm) && characterBones.IsValidIndex(forearm)
+                && characterBones.IsValidIndex(palm))
             {
-                MyInverseKinematics.SolveTwoJointsIkCCD(ref finalPos, Bones[upperarm], Bones[forearm], Bones[palm], ref localFinalTransform, WorldMatrix, Bones[palm], false);
+                MyInverseKinematics.SolveTwoJointsIkCCD(ref finalPos, characterBones[upperarm], 
+                    characterBones[forearm], characterBones[palm], ref localFinalTransform, WorldMatrix, characterBones[palm], false);
             }
 
         }

@@ -1,9 +1,8 @@
 ﻿using ProtoBuf;
 using System.Diagnostics;
-using VRage;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

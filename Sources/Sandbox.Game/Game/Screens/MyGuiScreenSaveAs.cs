@@ -38,7 +38,7 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
 
-            AddCaption(MySpaceTexts.ScreenCaptionSaveAs);
+            AddCaption(MyCommonTexts.ScreenCaptionSaveAs);
 
             float textboxPositionY = -0.02f;
 
@@ -48,11 +48,11 @@ namespace Sandbox.Game.Gui
                 maxLength: 75);
 
             m_okButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Ok),
+                text: MyTexts.Get(MyCommonTexts.Ok),
                 onButtonClick: OnOkButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Cancel),
+                text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
 
@@ -84,7 +84,7 @@ namespace Sandbox.Game.Gui
             m_fromMainMenu = true;
             EnabledBackgroundFade = true;
 
-            AddCaption(MySpaceTexts.ScreenCaptionSaveAs);
+            AddCaption(MyCommonTexts.ScreenCaptionSaveAs);
 
             float textboxPositionY = -0.02f;
 
@@ -94,11 +94,11 @@ namespace Sandbox.Game.Gui
                 maxLength: 75);
 
             m_okButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Ok),
+                text: MyTexts.Get(MyCommonTexts.Ok),
                 onButtonClick: OnOkButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Cancel),
+                text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
 
@@ -143,8 +143,8 @@ namespace Sandbox.Game.Gui
         private bool TrySaveAs()
         {         
             MyStringId? errorType = null;
-            if (m_nameTextbox.Text.Length < 5) errorType = MySpaceTexts.ErrorNameTooShort;
-            else if (m_nameTextbox.Text.Length > 128) errorType = MySpaceTexts.ErrorNameTooLong;
+            if (m_nameTextbox.Text.Length < 5) errorType = MyCommonTexts.ErrorNameTooShort;
+            else if (m_nameTextbox.Text.Length > 128) errorType = MyCommonTexts.ErrorNameTooLong;
 
 
             if (m_existingSessionNames != null)
@@ -153,7 +153,7 @@ namespace Sandbox.Game.Gui
                 {
                     if (name == m_nameTextbox.Text)
                     {
-                        errorType = MySpaceTexts.ErrorNameAlreadyExists;
+                        errorType = MyCommonTexts.ErrorNameAlreadyExists;
                     }
                 }
             }
@@ -162,7 +162,7 @@ namespace Sandbox.Game.Gui
             {
                 var messageBox = MyGuiSandbox.CreateMessageBox(
                     messageText: MyTexts.Get(errorType.Value),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
                 messageBox.SkipTransition = true;
                 messageBox.InstantClose = false;
                 MyGuiSandbox.AddScreen(messageBox);
@@ -183,7 +183,7 @@ namespace Sandbox.Game.Gui
             }
 
             m_copyFrom.SessionName = m_nameTextbox.Text;
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.SavingPleaseWait, null,
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.SavingPleaseWait, null,
                 beginAction: () => new SaveResult(MyUtils.StripInvalidChars(m_nameTextbox.Text), m_sessionPath, m_copyFrom),
                 endAction: (result, screen) => { screen.CloseScreen(); this.CloseScreen(); }));
             return true;

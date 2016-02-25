@@ -39,6 +39,7 @@ namespace VRage.Audio
 
         public void Dispose()
         {
+            m_stream.Dispose();
             m_buffer.Stream.Dispose();
         }
     }

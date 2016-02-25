@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawTextToMaterial : IMyRenderMessage
+    public class MyRenderMessageDrawTextToMaterial : MyRenderMessageBase
     {
         public uint RenderObjectID;
         public string Text;
@@ -18,7 +18,7 @@ namespace VRageRender
         public int TextureAspectRatio;
         public long EntityId;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawTextToMaterial; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawTextToMaterial; } }
     }
 }

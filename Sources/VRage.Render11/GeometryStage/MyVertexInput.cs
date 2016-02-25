@@ -1,17 +1,13 @@
-﻿using SharpDX.D3DCompiler;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-using Buffer = SharpDX.Direct3D11.Buffer;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
-    enum MyVertexInputComponentType
+    public enum MyVertexInputComponentType
     {
         POSITION_PACKED,
         POSITION2,
@@ -86,6 +82,19 @@ namespace VRageRender
         {
             return String.Format("<{0}, {1}, {2}>", Type, Slot, Freq);
         }
+
+        public int CompareTo(MyVertexInputComponent item)
+        {
+            if (Type == item.Type)
+            {
+                if (Slot == item.Slot)
+                {
+                    return Freq - item.Freq;
+                }
+                return Slot - item.Slot;
+            }
+            else return Type - item.Type;
+        }
     }
 
     struct VertexLayoutId
@@ -135,7 +144,7 @@ namespace VRageRender
             return Layouts.Data[id.Index].Elements;
         }
 
-        internal static void Init()
+        static MyVertexLayouts()
         {
             var id = new VertexLayoutId { Index = Layouts.Allocate() };
             HashIndex[0] = id;
@@ -147,6 +156,10 @@ namespace VRageRender
             };
 
             Empty = id;
+        }
+
+        internal static void Init()
+        {
         }
 
         internal static VertexLayoutId GetLayout(params MyVertexInputComponentType[] components)
@@ -177,10 +190,8 @@ namespace VRageRender
                 return HashIndex[hash];
             }
 
-
             var id = new VertexLayoutId { Index = Layouts.Allocate() };
             HashIndex[hash] = id;
-
 
             var declarationBuilder = new StringBuilder();
             var sourceBuilder = new StringBuilder();
@@ -235,10 +246,7 @@ namespace VRageRender
 
         }
 
-        internal static MyVertexInputLayout Empty()
-        {
-            return m_cached[0];
-        }
+        internal static MyVertexInputLayout Empty { get { return m_cached[0]; } }
 
         internal MyVertexInputLayout Append(MyVertexInputLayout other)
         {

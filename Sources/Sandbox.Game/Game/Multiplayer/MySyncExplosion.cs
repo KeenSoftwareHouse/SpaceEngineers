@@ -7,7 +7,7 @@ using VRageMath;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncExplosions
+    public class MySyncExplosions
     {
         [MessageId(35, P2PMessageEnum.Reliable)]
         protected struct ProxyExplosionMsg 
@@ -50,7 +50,7 @@ namespace Sandbox.Game.Multiplayer
         static void ProxyExplosionSuccess(ref ProxyExplosionMsg msg, MyNetworkClient sender)
         {
             //Dont create explosion particles if message is bufferred, it is useless to create hundred explosion after scene load
-            if (MySession.Ready)
+            if (MySession.Static.Ready)
             {
                 //  Create explosion
                 MyExplosionInfo info = new MyExplosionInfo()

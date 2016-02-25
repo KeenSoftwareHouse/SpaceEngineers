@@ -8,6 +8,7 @@ using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
+using VRage.Game.Entity;
 using VRageMath;
 using VRageRender;
 
@@ -153,13 +154,19 @@ namespace Sandbox.Game.AI.Pathfinding
             Invalidate();
         }
 
-        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out Entities.MyEntity relativeEntity)
+        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out MyEntity relativeEntity)
         {
             bool shouldReinit = false;
 
             targetWorld = default(Vector3D);
             radius = 1.0f;
             relativeEntity = null;
+
+            if (m_pathNodePosition > 1)
+            {
+                // clearing of node on the begin of path
+                ClearFirstPathNode();
+            }
 
             if (m_expandedPathPosition >= m_expandedPath.Count)
             {
@@ -239,14 +246,14 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private void ExpandPath(Vector3D currentPosition)
         {
-            if (m_pathNodePosition >= m_pathNodes.Count() - 1)
+            if (m_pathNodePosition >= m_pathNodes.Count - 1)
             {
                 ProfilerShort.Begin("GenerateHighLevelPath");
                 GenerateHighLevelPath();
                 ProfilerShort.End();
             }
 
-            if (m_pathNodePosition >= m_pathNodes.Count())
+            if (m_pathNodePosition >= m_pathNodes.Count)
             {
                 return;
             }
@@ -287,8 +294,8 @@ namespace Sandbox.Game.AI.Pathfinding
                     // If the last primitive of the found path is not in the last high level component, add that component to the goal's ignore list
                     IMyHighLevelComponent component = m_pathNodes[m_pathNodePosition].GetComponent();
 
-                    ProfilerShort.Begin("FindPath to goal or other component");
-                    path = m_pathfinding.FindPath(m_currentPrimitive, m_goal.PathfindingHeuristic, (prim) => component.Contains(prim) ? m_goal.TerminationCriterion(prim) : 30.0f);
+                    ProfilerShort.Begin("FindPath to goal in the last component");
+                    path = m_pathfinding.FindPath(m_currentPrimitive, m_goal.PathfindingHeuristic, (prim) => component.Contains(prim) ? m_goal.TerminationCriterion(prim) : 30.0f, (prim) => component.Contains(prim));
                     ProfilerShort.End();
 
                     if (path != null)
@@ -331,6 +338,17 @@ namespace Sandbox.Game.AI.Pathfinding
             }
             
             RefineFoundPath(ref currentPosition, ref end, path);
+
+            // If the path is too short, don't use it to prevent jerking in stuck situations
+            if (m_pathNodes.Count <= 1 && isLastPath && m_expandedPath.Count > 0 && path.Count <= 2 && !m_goal.ShouldReinitPath())
+            {
+                Vector4D end4D = m_expandedPath[m_expandedPath.Count - 1];
+                // Here, 256 is just a small enough value to catch most false-positives
+                if (Vector3D.DistanceSquared(currentPosition, end) < end4D.W * end4D.W / 256)
+                {
+                     m_expandedPath.Clear();
+                }
+            }
         }
 
         private bool ShouldReinitPath()
@@ -478,6 +496,18 @@ namespace Sandbox.Game.AI.Pathfinding
             m_pathNodePosition = 0;
         }
 
+        private void ClearFirstPathNode()
+        {
+            foreach (var pathNode in m_pathNodes)
+            {
+                if (pathNode == m_hlBegin) break; ;
+                pathNode.Parent.StopObservingPrimitive(pathNode, this);
+                break;
+            }
+            m_pathNodes.RemoveAt(0);
+            m_pathNodePosition--;
+        }
+
         public void DebugDraw()
         {
             var matrix = Sandbox.Game.World.MySector.MainCamera.ViewMatrix;
@@ -485,7 +515,10 @@ namespace Sandbox.Game.AI.Pathfinding
             Vector3D? prevPosition = null;
             foreach (var node in m_pathNodes)
             {
-                Vector3D position = node.WorldPosition + new Vector3D(0.0f, 10.0f, 0.0f);
+                Vector3D down = Sandbox.Game.GameSystems.MyGravityProviderSystem.CalculateTotalGravityInPoint(node.WorldPosition);
+                if (Vector3D.IsZero(down, 0.001)) down = Vector3D.Down;
+                down.Normalize();
+                Vector3D position = node.WorldPosition + down * -10.0;
                 MyRenderProxy.DebugDrawSphere(position, 1.0f, Color.IndianRed, 1.0f, false);
                 MyRenderProxy.DebugDrawLine3D(node.WorldPosition, position, Color.IndianRed, Color.IndianRed, false);
                 if (prevPosition.HasValue)

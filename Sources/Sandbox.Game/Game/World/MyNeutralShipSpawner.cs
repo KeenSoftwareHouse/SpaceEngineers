@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -15,6 +14,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -131,7 +132,7 @@ namespace Sandbox.Game.World
         private static MySpawnGroupDefinition PickRandomSpawnGroup()
         {
             ProfilerShort.Begin("Pick spawn group");
-            if (m_spawnGroupCumulativeFrequencies.Count() == 0)
+            if (m_spawnGroupCumulativeFrequencies.Count == 0)
             {
                 ProfilerShort.End();
                 return null;
@@ -139,7 +140,7 @@ namespace Sandbox.Game.World
 
             float rnd = MyUtils.GetRandomFloat(0.0f, m_spawnGroupTotalFrequencies);
             int i = 0;
-            while (i < m_spawnGroupCumulativeFrequencies.Count())
+            while (i < m_spawnGroupCumulativeFrequencies.Count)
             {
                 if (rnd <= m_spawnGroupCumulativeFrequencies[i])
                     break;
@@ -147,9 +148,9 @@ namespace Sandbox.Game.World
                 ++i;
             }
 
-            Debug.Assert(i < m_spawnGroupCumulativeFrequencies.Count(), "Could not sample a spawn group");
-            if (i >= m_spawnGroupCumulativeFrequencies.Count())
-                i = m_spawnGroupCumulativeFrequencies.Count() - 1;
+            Debug.Assert(i < m_spawnGroupCumulativeFrequencies.Count, "Could not sample a spawn group");
+            if (i >= m_spawnGroupCumulativeFrequencies.Count)
+                i = m_spawnGroupCumulativeFrequencies.Count - 1;
 
             ProfilerShort.End();
             return m_spawnGroups[i];
@@ -328,8 +329,8 @@ namespace Sandbox.Game.World
                 Vector3D shipDestination = shipPosition + directionMult;
                 float radius = prefabDef == null ? 10.0f : prefabDef.BoundingSphere.Radius;
 
-                MyPhysics.CastRay(shipPosition, shipDestination, m_raycastHits, MyPhysics.ObjectDetectionCollisionLayer);
-                if (m_raycastHits.Count() > 0)
+                MyPhysics.CastRay(shipPosition, shipDestination, m_raycastHits, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
+                if (m_raycastHits.Count > 0)
                 {
                     MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
                     MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
@@ -340,9 +341,9 @@ namespace Sandbox.Game.World
                 for (int i = 0; i < 4; ++i)
                 {
                     Vector3D shiftVector = upVector * m_upVecMultipliers[i] * radius + rightVector * m_rightVecMultipliers[i] * radius;
-                    MyPhysics.CastRay(shipPosition + shiftVector, shipDestination + shiftVector, m_raycastHits, MyPhysics.ObjectDetectionCollisionLayer);
+                    MyPhysics.CastRay(shipPosition + shiftVector, shipDestination + shiftVector, m_raycastHits, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
 
-                    if (m_raycastHits.Count() > 0)
+                    if (m_raycastHits.Count > 0)
                     {
                         MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
                         MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);

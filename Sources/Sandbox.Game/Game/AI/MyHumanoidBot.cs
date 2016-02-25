@@ -13,13 +13,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.ObjectBuilders.AI.Bot;
+using VRageRender;
 
 namespace Sandbox.Game.AI
 {
-    [BehaviorType(typeof(MyObjectBuilder_HumanoidBotDefinition))]
+    [MyBotType(typeof(MyObjectBuilder_HumanoidBot))]
     public class MyHumanoidBot : MyAgentBot
     {
         public MyCharacter HumanoidEntity { get { return AgentEntity; } }
@@ -52,44 +55,6 @@ namespace Sandbox.Game.AI
             Debug.Assert(botDefinition is MyHumanoidBotDefinition, "Provided bot definition is not of humanoid type");
         }
 
-        protected override void AddItems(MyCharacter character)
-        {
-            base.AddItems(character);
-
-            var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(StartingWeaponId.SubtypeName);
-            if (character.WeaponTakesBuilderFromInventory(StartingWeaponId))
-            {
-                character.GetInventory(0).AddItems(1, ob);
-            }
-
-            // else // allowing the inventory items to be added
-            {
-                foreach (var weaponDef in HumanoidDefinition.InventoryItems)
-                {
-                    ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(weaponDef.SubtypeName);
-                    character.GetInventory(0).AddItems(1, ob);
-                }
-            }
-
-            character.SwitchToWeapon(StartingWeaponId);
-
-            {
-                MyDefinitionId weaponDefinitionId;
-                weaponDefinitionId = new MyDefinitionId(typeof(MyObjectBuilder_WeaponDefinition), StartingWeaponId.SubtypeName);
-
-                MyWeaponDefinition weaponDefinition;
-
-                if (MyDefinitionManager.Static.TryGetWeaponDefinition(weaponDefinitionId, out weaponDefinition)) //GetWeaponDefinition(StartingWeaponId);
-                {
-                    if (weaponDefinition.HasAmmoMagazines())
-                    {
-                        var ammo = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_AmmoMagazine>(weaponDefinition.AmmoMagazinesId[0].SubtypeName);
-                        character.GetInventory(0).AddItems(3, ammo);
-                    }
-                }
-            }
-        }
-
         public override void DebugDraw()
         {
             base.DebugDraw();
@@ -100,7 +65,21 @@ namespace Sandbox.Game.AI
 
             var headMatrix = HumanoidEntity.GetHeadMatrix(true, true, false, true);
         //    VRageRender.MyRenderProxy.DebugDrawAxis(headMatrix, 1.0f, false);
-            VRageRender.MyRenderProxy.DebugDrawLine3D(headMatrix.Translation, headMatrix.Translation + headMatrix.Forward * 30, Color.HotPink, Color.HotPink, false);
+            //VRageRender.MyRenderProxy.DebugDrawLine3D(headMatrix.Translation, headMatrix.Translation + headMatrix.Forward * 30, Color.HotPink, Color.HotPink, false);
+            if (HumanoidActions.AiTargetBase.HasTarget())
+            {
+                HumanoidActions.AiTargetBase.DrawLineToTarget(headMatrix.Translation);
+
+                Vector3D targetPos;
+                float radius;
+                HumanoidActions.AiTargetBase.GetTargetPosition(headMatrix.Translation, out targetPos, out radius);
+                if (targetPos != Vector3D.Zero)
+                {
+                    MyRenderProxy.DebugDrawSphere(targetPos, 0.3f, Color.Red, 0.4f, false);
+                    VRageRender.MyRenderProxy.DebugDrawText3D(targetPos, "GetTargetPosition", Color.Red, 1, false);
+                }
+            }
+
             VRageRender.MyRenderProxy.DebugDrawAxis(HumanoidEntity.PositionComp.WorldMatrix, 1.0f, false);
             var invHeadMatrix = headMatrix;
             invHeadMatrix.Translation = Vector3.Zero;

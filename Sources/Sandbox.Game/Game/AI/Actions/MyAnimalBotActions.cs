@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Game;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.Actions;
@@ -12,6 +11,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.Library.Utils;
 using VRageMath;
 
 namespace Medieval.AI
@@ -21,7 +23,6 @@ namespace Medieval.AI
     public class MyAnimalBotActions : MyAgentActions
     {
         private MyAnimalBot m_bot;
-        private MyAiTargetAnimal m_target;
 
         private long m_eatTimeInS = 10;
         private long m_eatCounter;
@@ -30,8 +31,6 @@ namespace Medieval.AI
 
         private static readonly double COS15 = Math.Cos(MathHelper.ToRadians(15));
 
-        public override MyAiTargetBase AiTargetBase { get { return m_target; } }
-
         private MyAnimalBotLogic AnimalLogic { get { return m_bot.BotLogic as MyAnimalBotLogic; } }
 
         public MyAnimalBotActions(MyAnimalBot bot)
@@ -39,12 +38,17 @@ namespace Medieval.AI
             base(bot)
         { 
             m_bot = bot;
-            m_target = CreateTarget(bot);
         }
 
-        public virtual MyAiTargetAnimal CreateTarget(MyAnimalBot bot)
+        /// <summary>
+        /// Changes the state to an idle state sensing danger
+        /// </summary>
+        [MyBehaviorTreeAction("IdleDanger", ReturnsRunning = false)]
+        protected MyBehaviorTreeState IdleDanger()
         {
-            return new MyAiTargetAnimal(bot);
+            // TODO: animate deer to idle danger
+            m_bot.AgentEntity.SoundComp.StartSecondarySound("BotDeerBark", sync: true);
+            return MyBehaviorTreeState.SUCCESS;
         }
 
         protected override void Init_Idle()
@@ -69,7 +73,10 @@ namespace Medieval.AI
             var timestamp = Stopwatch.GetTimestamp();
             if (m_soundCounter != 0 && m_soundCounter < timestamp)
             {
-                m_bot.AgentEntity.SoundComp.StartSecondarySound("BotDeerRoar", sync: true);
+                if (MyRandom.Instance.NextFloat() > 0.7f)
+                    m_bot.AgentEntity.SoundComp.StartSecondarySound("BotDeerRoar", sync: true);
+                else
+                    m_bot.AgentEntity.SoundComp.StartSecondarySound("BotDeerBark", sync: true);
                 m_soundCounter = 0;
             }
             if (m_eatCounter > timestamp)
@@ -80,9 +87,9 @@ namespace Medieval.AI
 
         protected override void Init_GotoTarget()
         {
-            if (m_target.HasTarget())
+            if (AiTargetBase.HasTarget())
             {
-                m_target.GotoTargetNoPath(0.0f);
+                AiTargetBase.GotoTargetNoPath(0.0f);
                 m_bot.Navigation.AimWithMovement();
             }
         }
@@ -106,6 +113,31 @@ namespace Medieval.AI
             {
                 return MyBehaviorTreeState.FAILURE;
             }
+        }
+
+        [MyBehaviorTreeAction("AmIBeingFollowed", ReturnsRunning = false)]
+        protected MyBehaviorTreeState AmIBeingFollowed([BTIn] ref MyBBMemoryTarget inTarget)
+        {
+            if(inTarget != null)
+                return MyBehaviorTreeState.SUCCESS;
+            else
+                return MyBehaviorTreeState.FAILURE;
+        }
+
+        [MyBehaviorTreeAction("IsHumanNotInArea", ReturnsRunning = false)]
+        protected MyBehaviorTreeState IsHumanNotInArea([BTParam] int standingRadius, [BTParam] int crouchingRadius, [BTOut] ref MyBBMemoryTarget outTarget)
+        {
+            return InvertState(IsHumanInArea(standingRadius, crouchingRadius, ref outTarget));
+        }
+
+        private MyBehaviorTreeState InvertState(MyBehaviorTreeState state)
+        {
+            if (state == MyBehaviorTreeState.SUCCESS)
+                return MyBehaviorTreeState.FAILURE;
+            else if (state == MyBehaviorTreeState.FAILURE)
+                return MyBehaviorTreeState.SUCCESS;
+
+            return state;
         }
 
         private bool TryFindValidHumanInArea(int standingRadius, int crouchingRadius, out MyCharacter foundCharacter)
@@ -167,7 +199,7 @@ namespace Medieval.AI
                 directionToBot.Normalize();
 
                 Vector3D safeLocation = default(Vector3D);
-                if (!m_target.GetRandomDirectedPosition(botPosition, directionToBot, out safeLocation))
+                if (!AiTargetBase.GetRandomDirectedPosition(botPosition, directionToBot, out safeLocation))
                 {
                     safeLocation = botPosition + directionToBot * 30;
                 }
@@ -185,7 +217,8 @@ namespace Medieval.AI
         protected void Init_RunAway()
         {
             AnimalLogic.EnableCharacterAvoidance(true);
-            m_target.GotoTargetNoPath(0.0f);
+            m_bot.Navigation.AimWithMovement();
+            AiTargetBase.GotoTargetNoPath(0.0f);
         }
 
         [MyBehaviorTreeAction("RunAway")]
@@ -203,7 +236,7 @@ namespace Medieval.AI
                     {
                         m_usingPathfinding = true;
                         AnimalLogic.EnableCharacterAvoidance(false);
-                        m_target.GotoTarget();
+                        AiTargetBase.GotoTarget();
                         return MyBehaviorTreeState.RUNNING;
                     }
                 }
@@ -223,6 +256,14 @@ namespace Medieval.AI
         {
             m_usingPathfinding = false;
             m_bot.Navigation.StopImmediate(true);
+        }
+
+
+        [MyBehaviorTreeAction("PlaySound", ReturnsRunning = false)]
+        protected MyBehaviorTreeState PlaySound([BTParam] string soundtrack)
+        {
+            m_bot.AgentEntity.SoundComp.StartSecondarySound(soundtrack, sync: true);
+            return MyBehaviorTreeState.SUCCESS;
         }
     }
 }

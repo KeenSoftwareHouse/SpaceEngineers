@@ -14,6 +14,12 @@ namespace VRageRender
         Draw,
 
         /// <summary>
+        /// Debug Draw message, in render11 this messages are queued internally 
+        /// Draw sprite, debug draw...
+        /// </summary>
+        DebugDraw,
+
+        /// <summary>
         /// State change which can be applied only once, not applied when rendering same frame second time or more
         /// Add render object, remove render object...
         /// </summary>

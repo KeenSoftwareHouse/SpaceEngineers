@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -55,10 +57,10 @@ namespace Sandbox.Game.World
                 float headLocalYAngle = old.HeadLocalYAngle;
 
                 old.Entity.OnClosing -= m_controlledEntityClosing;
-                ControlledEntity = null;
                 old.ControllerInfo.Controller = null; // This will call OnControlReleased
+                ControlledEntity = null;
 
-                bool firstPerson = entityCameraSettings != null? entityCameraSettings.IsFirstPerson : (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
+                bool firstPerson = entityCameraSettings != null? entityCameraSettings.IsFirstPerson : (MySession.Static.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
 
                 if (!MySandboxGame.IsDedicated)
                 {
@@ -80,7 +82,7 @@ namespace Sandbox.Game.World
 
                 if (!MySandboxGame.IsDedicated && ControlledEntity.Entity is Sandbox.ModAPI.Interfaces.IMyCameraController)
                 {
-                    MySession.SetEntityCameraPosition(Player.Id, ControlledEntity.Entity);
+                    MySession.Static.SetEntityCameraPosition(Player.Id, ControlledEntity.Entity);
                 }
             }
 
@@ -119,11 +121,10 @@ namespace Sandbox.Game.World
                 {
                     if (m_controller != null)
                     {
-                        var old = m_controller;
-                        m_controller = null;
-
                         var handler = ControlReleased;
-                        if (handler != null) handler(old);
+                        if (handler != null) handler(m_controller);
+
+                        m_controller = null;
                     }
 
                     if (value != null)

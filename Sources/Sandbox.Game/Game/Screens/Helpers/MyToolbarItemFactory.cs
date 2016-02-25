@@ -10,8 +10,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
+using VRage.Game.Common;
+using VRage.Game.Definitions;
+using VRage.Game.Definitions.Animation;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -109,7 +113,14 @@ namespace Sandbox.Game.Screens.Helpers
 				var acData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAreaMarker>();
 				acData.DefinitionId = defBase.Id;
 				return acData;
-			}
+            }
+            else if (defBase is MyGridCreateToolDefinition)
+            {
+                var gctool = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemCreateGrid>();
+                gctool.DefinitionId = defBase.Id;
+                return gctool;
+
+            }
             return new MyObjectBuilder_ToolbarItemEmpty();
         }
 

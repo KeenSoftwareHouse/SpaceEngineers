@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -11,6 +10,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -154,6 +155,13 @@ namespace Sandbox.Game.AI.BehaviorTree
                     var bot = data.Bot;
                     if (bot.IsValidForUpdate && ++data.UpdateCounter > UPDATE_COUNTER)
                     {
+                        if ( MyFakes.DEBUG_BEHAVIOR_TREE )
+                        {
+                            if (!MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP)
+                                continue;
+                            MyFakes.DEBUG_BEHAVIOR_TREE_ONE_STEP = false;
+                        }
+
                         data.UpdateCounter = 0;
                         bot.BotMemory.PreTickClear();
                         behaviorTree.Tick(bot);

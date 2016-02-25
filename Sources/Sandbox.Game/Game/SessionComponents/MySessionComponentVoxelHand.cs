@@ -1,6 +1,8 @@
-﻿using Sandbox.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -8,33 +10,38 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using VRage;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
 using VRage.Voxels;
-using VRage.Utils;
 using VRageMath;
-using VRage.Library.Utils;
+using Sandbox.Game.GameSystems;
+using System.Diagnostics;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.SessionComponents
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
     public class MySessionComponentVoxelHand : MySessionComponentBase
     {
+
+        #region Static members
+
+        private IMyVoxelBrush[] m_brushes;
+
+        #endregion
+
         public override Type[] Dependencies
         {
             get
             {
-                return new Type[] { typeof(MyToolbarComponent) };
+                return new[] { typeof(MyToolbarComponent) };
             }
         }
 
@@ -54,7 +61,7 @@ namespace Sandbox.Game.SessionComponents
         private byte    m_selectedMaterial;
         private int     m_materialCount;
         private float   m_position;
-        private MatrixD m_rotation;
+        public MatrixD m_rotation;
 
         private MyVoxelBase m_currentVoxelMap;
 
@@ -87,24 +94,27 @@ namespace Sandbox.Game.SessionComponents
                 if (m_enabled != value)
                 {
                     if (value)
-                        ActivateHudNotifications();
+                    {
+                        this.Activate();
+                    }
                     else
-                        DeactivateHudNotifications();
+                    {
+                        this.Deactivate();
+                    }
+
+                    m_enabled = value;
                 }
 
-                m_enabled = value;
-
-                if (!m_enabled)
-                {
-                    CurrentShape = null;
-                    BuildMode = false;
-                }
+                
             }
         }
         public bool SnapToVoxel { get; set; }
         public bool ProjectToVoxel { get; set; }
         public bool ShowGizmos { get; set; }
         public bool ScreenVisible { get; set; }
+        public bool FreezePhysics { get; set; }
+
+        private bool m_editing;
 
         public IMyVoxelBrush CurrentShape { get; set; }
         public MyVoxelHandDefinition CurrentDefinition { get; set; }
@@ -129,7 +139,7 @@ namespace Sandbox.Game.SessionComponents
             m_rotation  = MatrixD.Identity;
 
             m_texture = new MyGuiCompositeTexture();
-            m_texture.Center = new MyGuiSizedTexture()
+            m_texture.Center = new MyGuiSizedTexture
             {
                 Texture = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_selectedMaterial).DiffuseY
             };
@@ -158,20 +168,20 @@ namespace Sandbox.Game.SessionComponents
             { // keyboard mouse hints
                 var next = MyInput.Static.GetGameControl(MyControlsSpace.SWITCH_LEFT);
                 var prev = MyInput.Static.GetGameControl(MyControlsSpace.SWITCH_RIGHT);
-                var voxelHandSettings = MyInput.Static.GetGameControl(MyControlsSpace.VOXEL_HAND_SETTINGS);
+                //var voxelHandSettings = MyInput.Static.GetGameControl(MyControlsSpace.VOXEL_HAND_SETTINGS);
                 
-                m_voxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelMaterialFormat, next, prev);
-                m_voxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelHandSettings);
+                m_voxelMaterialHint = MyHudNotifications.CreateControlNotification(MyCommonTexts.NotificationVoxelMaterialFormat, next, prev);
+                m_voxelSettingsHint = MyHudNotifications.CreateControlNotification(MyCommonTexts.NotificationVoxelHandHintFormat, "Ctrl + H");
             }
 
             { // joystick hints
                 var cx_voxel = MySpaceBindingCreator.CX_VOXEL;
                 var voxelNextMaterialCode = MyControllerHelper.GetCodeForControl(cx_voxel, MyControlsSpace.SWITCH_LEFT);
-                var voxelSettingsCode = MyControllerHelper.GetCodeForControl(cx_voxel, MyControlsSpace.VOXEL_HAND_SETTINGS);
+                //var voxelSettingsCode = MyControllerHelper.GetCodeForControl(cx_voxel, MyControlsSpace.VOXEL_HAND_SETTINGS);
                 var buildModeCode = MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.BUILD_MODE);
-                m_joystickVoxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationJoystickVoxelMaterialFormat, voxelNextMaterialCode);
-                m_joystickVoxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelSettingsCode);
-                m_buildModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationHintPressToOpenBuildMode, buildModeCode);
+                m_joystickVoxelMaterialHint = MyHudNotifications.CreateControlNotification(MyCommonTexts.NotificationJoystickVoxelMaterialFormat, voxelNextMaterialCode);
+                m_joystickVoxelSettingsHint = MyHudNotifications.CreateControlNotification(MyCommonTexts.NotificationVoxelHandHintFormat, "Ctrl + H");
+                m_buildModeHint = MyHudNotifications.CreateControlNotification(MyCommonTexts.NotificationHintPressToOpenBuildMode, buildModeCode);
             }
         }
 
@@ -216,34 +226,34 @@ namespace Sandbox.Game.SessionComponents
             base.HandleInput();
 
             var context = BuildMode ? MySpaceBindingCreator.CX_VOXEL : MySpaceBindingCreator.CX_CHARACTER;
-
-            if (MyControllerHelper.IsControl(context, MyControlsSpace.VOXEL_HAND_SETTINGS, MyControlStateType.NEW_PRESSED))
+          
+            if (MyInput.Static.IsNewKeyPressed(MyKeys.H) && MyInput.Static.IsAnyCtrlKeyPressed())
                 MyScreenManager.AddScreen(new MyGuiScreenVoxelHandSetting());
-
+         
             // rotation
             if      (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationX(DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Forward, DEG_IN_RADIANS);
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationX(-DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Forward, -DEG_IN_RADIANS);
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationY(-DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Up, -DEG_IN_RADIANS);
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationY(DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Up, DEG_IN_RADIANS);
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationZ(-DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Right, - DEG_IN_RADIANS);
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, MyControlStateType.PRESSED))
-                m_rotation *= MatrixD.CreateRotationZ(DEG_IN_RADIANS);
+                m_rotation *= MatrixD.CreateFromAxisAngle(m_rotation.Right, DEG_IN_RADIANS);
 
             CurrentShape.SetRotation(ref m_rotation);
 
             // voxel editing
             if (MyControllerHelper.IsControl(context, MyControlsSpace.SWITCH_LEFT, MyControlStateType.NEW_PRESSED))
             {
-                SetMaterial(--m_selectedMaterial);
+                SetMaterial(m_selectedMaterial, false);
             }
             else if (MyControllerHelper.IsControl(context, MyControlsSpace.SWITCH_RIGHT, MyControlStateType.NEW_PRESSED))
             {
-                SetMaterial(++m_selectedMaterial);
+                SetMaterial(m_selectedMaterial, true);
 
             }
 
@@ -265,10 +275,29 @@ namespace Sandbox.Game.SessionComponents
                 }
             }
 
-            if      (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.PRESSED)) CurrentShape.Fill(m_currentVoxelMap, m_selectedMaterial);
-            else if (MyInput.Static.IsMiddleMousePressed() || MyControllerHelper.IsControl(context, MyControlsSpace.VOXEL_PAINT, MyControlStateType.PRESSED)) 
+            bool edited = false;
+
+            var phys = (MyVoxelPhysicsBody)m_currentVoxelMap.Physics;
+            if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.PRESSED))
+            {
+                if (phys != null) phys.QueueInvalidate = edited = FreezePhysics;
+                CurrentShape.Fill(m_currentVoxelMap, m_selectedMaterial);
+            }
+            else if (MyInput.Static.IsMiddleMousePressed() || MyControllerHelper.IsControl(context, MyControlsSpace.VOXEL_PAINT, MyControlStateType.PRESSED))
+            {
                 CurrentShape.Paint(m_currentVoxelMap, m_selectedMaterial);
-            else if (MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.PRESSED)) CurrentShape.CutOut(m_currentVoxelMap);
+            }
+            else if (MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.PRESSED))
+            {
+                if (phys != null) phys.QueueInvalidate = edited = FreezePhysics;
+                CurrentShape.CutOut(m_currentVoxelMap);
+            }
+
+            if (phys != null && m_editing != edited)
+            {
+                phys.QueueInvalidate = edited;
+                m_editing = edited;
+            }
         }
 
         public float GetBrushZoom()
@@ -281,16 +310,24 @@ namespace Sandbox.Game.SessionComponents
             m_position = MathHelper.Clamp(value, MIN_BRUSH_ZOOM, MAX_BRUSH_ZOOM);
         }
 
-        private void SetMaterial(byte idx)
+        private void SetMaterial(byte idx, bool next = true)
         {
+            idx = next ? ++idx : --idx;
             if (idx == byte.MaxValue)
-            {
                 idx = (byte)(m_materialCount - 1);
-            }
+
             m_selectedMaterial = (byte)(idx % m_materialCount);
-            m_texture.Center = new MyGuiSizedTexture()
+
+            var definition = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_selectedMaterial);
+            if (definition.Id.SubtypeName == "BrownMaterial" || definition.Id.SubtypeName == "DebugMaterial")
             {
-                Texture = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_selectedMaterial).DiffuseXZ
+                SetMaterial(idx, next);
+                return;
+            }
+
+            m_texture.Center = new MyGuiSizedTexture
+            {
+                Texture = definition.DiffuseXZ
             };
         }
 
@@ -301,7 +338,7 @@ namespace Sandbox.Game.SessionComponents
 
             base.UpdateBeforeSimulation();
 
-            var character = MySession.LocalCharacter;
+            var character = MySession.Static.LocalCharacter;
             if (character == null)
                 return;
 
@@ -315,31 +352,26 @@ namespace Sandbox.Game.SessionComponents
             if (camera == null)
                 return;
 
-            var position = MySession.IsCameraUserControlledSpectator() ? camera.Position : character.GetHeadMatrix(true).Translation;
+            var position = MySession.Static.IsCameraUserControlledSpectator() ? camera.Position : character.GetHeadMatrix(true).Translation;
             var targetPosition = position + (Vector3D)camera.ForwardVector * Math.Max(2 * CurrentShape.GetBoundaries().Transform(camera.ViewMatrix).HalfExtents.Z, m_position);
+
+            var vmap = m_currentVoxelMap;
 
             var boundingBox = CurrentShape.PeekWorldBoundingBox(ref targetPosition);
             m_currentVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref boundingBox, null);
 
-            if (m_currentVoxelMap == null)
+            if (ProjectToVoxel && m_currentVoxelMap != null)
             {
-                return;
-            }
-            if (this.ProjectToVoxel)
-            {
-                var hitList = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>();
-                MyPhysics.CastRay(position, position + camera.ForwardVector *m_currentVoxelMap.SizeInMetres, hitList);
+                var hitList = new List<MyPhysics.HitInfo>();
+                MyPhysics.CastRay(position, position + camera.ForwardVector * m_currentVoxelMap.SizeInMetres, hitList, MyPhysics.CollisionLayers.VoxelLod1CollisionLayer);
                 bool found = false;
                 foreach (var hit in hitList)
                 {
                     var entity = hit.HkHitInfo.GetHitEntity();
-                    if (entity == this.m_currentVoxelMap)
+                    if (entity is MyVoxelBase && ((MyVoxelBase)entity).RootVoxel == m_currentVoxelMap.RootVoxel)
                     {
-                        Vector3D pos = hit.Position;
-                        if (CurrentShape.GetBoundaries().Contains(pos) == ContainmentType.Disjoint)
-                        {
-                            CurrentShape.SetPosition(ref pos);                           
-                        }
+                        targetPosition = hit.Position;
+                        m_currentVoxelMap = (MyVoxelBase)entity;
                         found = true;
                         break;
                     }
@@ -348,8 +380,17 @@ namespace Sandbox.Game.SessionComponents
                 {
                     m_currentVoxelMap = null;
                 }
-            }                 
-            else  if (SnapToVoxel)
+            }
+
+            if (vmap != m_currentVoxelMap && vmap != null && vmap.Physics != null)
+            {
+                ((MyVoxelPhysicsBody)vmap.Physics).QueueInvalidate = false;
+            }
+
+            if (m_currentVoxelMap == null) return;
+            else m_currentVoxelMap = m_currentVoxelMap.RootVoxel;
+
+            if (SnapToVoxel)
             {
                 // snap to voxel
                 // voxel positions are floored, but we want to aim at approx. center of the shape, so offset target by half to turn this into rounding.
@@ -363,7 +404,7 @@ namespace Sandbox.Game.SessionComponents
             {
                 CurrentShape.SetPosition(ref targetPosition);
             }
-           
+
         }
 
         static List<MyEntity> m_foundElements = new List<MyEntity>();
@@ -375,7 +416,7 @@ namespace Sandbox.Game.SessionComponents
             base.Draw();
 
             m_foundElements.Clear();
-            BoundingBoxD box = (BoundingBoxD)m_currentVoxelMap.PositionComp.WorldAABB;
+            BoundingBoxD box = m_currentVoxelMap.PositionComp.WorldAABB;
             Color color = new Color(0.2f, 0.0f, 0, 0.1f);
             MatrixD worldMatrix;
 
@@ -391,7 +432,7 @@ namespace Sandbox.Game.SessionComponents
                         {
                             worldMatrix = entity.PositionComp.WorldMatrix;
                             box = (BoundingBoxD)entity.PositionComp.LocalAABB;
-                            Graphics.MySimpleObjectDraw.DrawTransparentBox(ref worldMatrix, ref box, ref color, Graphics.MySimpleObjectRasterizer.SolidAndWireframe, 0);
+                            MySimpleObjectDraw.DrawTransparentBox(ref worldMatrix, ref box, ref color, MySimpleObjectRasterizer.SolidAndWireframe, 0);
                         }
                     }
                 }
@@ -401,7 +442,7 @@ namespace Sandbox.Game.SessionComponents
                     box = (BoundingBoxD)m_currentVoxelMap.PositionComp.LocalAABB;
                     color = new Vector4(0.0f, 0.2f, 0, 0.1f);
                     worldMatrix = m_currentVoxelMap.PositionComp.WorldMatrix;
-                    Graphics.MySimpleObjectDraw.DrawTransparentBox(ref worldMatrix, ref box, ref color, Graphics.MySimpleObjectRasterizer.Solid, 0);
+                    MySimpleObjectDraw.DrawTransparentBox(ref worldMatrix, ref box, ref color, MySimpleObjectRasterizer.Solid, 0);
                 }
             }
             CurrentShape.Draw(ref ShapeColor);
@@ -421,7 +462,7 @@ namespace Sandbox.Game.SessionComponents
             
             pos.X += 0.06f;
 
-            var text    = MyTexts.GetString(MySpaceTexts.VoxelHandSettingScreen_HandMaterial);
+            var text    = MyTexts.GetString(MyCommonTexts.VoxelHandSettingScreen_HandMaterial);
             var matName = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_selectedMaterial).Id.SubtypeName;
             MyGuiManager.DrawString(MyFontEnum.White, new StringBuilder(string.Format("{0}: {1}", text, matName)), pos, 1f);
         }
@@ -475,6 +516,73 @@ namespace Sandbox.Game.SessionComponents
                     MyHud.Notifications.Add(m_buildModeHint);
             }
         }
+
+        private void Activate()
+        {
+            this.AlignToGravity();
+            ActivateHudNotifications();
+        }
+
+        private void Deactivate()
+        {
+            DeactivateHudNotifications();
+            CurrentShape = null;
+            BuildMode = false;
+        }
+
+        private void AlignToGravity()
+        {
+            if (CurrentShape.AutoRotate)
+            {
+                Vector3D gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(MySector.MainCamera.Position);
+                if (!gravity.Equals(Vector3.Zero))
+                {
+                    gravity.Normalize();
+                    Vector3D perpGrav = gravity;
+                    gravity.CalculatePerpendicularVector(out perpGrav);
+                    MatrixD rotation = MatrixD.CreateFromDir(perpGrav, -gravity);
+                    //rotation = MatrixD.CreateRotationZ(-MathHelper.PiOver2) * rotation;
+
+                    CurrentShape.SetRotation(ref rotation);
+                    m_rotation = rotation;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tries to set the brush on voxel hand.
+        /// </summary>
+        /// <param name="brushSubtypeName">Brush subtype name.</param>
+        /// <returns>False if brush with given name does not exist.</returns>
+        public bool TrySetBrush(string brushSubtypeName)
+        {
+            // If brushes not yet initialized, do it now.
+            if(m_brushes == null)
+            {
+                m_brushes = new IMyVoxelBrush[]
+                {
+                    MyBrushBox.Static,
+                    MyBrushCapsule.Static,
+                    MyBrushRamp.Static,
+                    MyBrushSphere.Static,
+                    MyBrushAutoLevel.Static,
+                    MyBrushEllipsoid.Static,
+                };
+            }
+
+            foreach (var brush in m_brushes)
+            {
+                if(brushSubtypeName == brush.SubtypeName)
+                {
+                    CurrentShape = brush;
+                    return true;
+                }
+            }
+
+            Debug.Fail("Brush '" + brushSubtypeName+ "' does not exist");
+
+            return false;
+        }
     }
 
     public enum MyVoxelBrushGUIPropertyOrder
@@ -516,7 +624,7 @@ namespace Sandbox.Game.SessionComponents
                     break;
             }
 
-            m_label = new MyGuiControlLabel() { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_label = new MyGuiControlLabel { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
             m_combo = new MyGuiControlCombobox();
             m_combo.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_combo.Position = comboPos;
@@ -597,10 +705,10 @@ namespace Sandbox.Game.SessionComponents
             ValueMax  = valueMax;
             ValueStep = valueStep;
 
-            m_label      = new MyGuiControlLabel()  { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
-            m_lowerValue = new MyGuiControlButton() { Position = lowerPos, VisualStyle = MyGuiControlButtonStyleEnum.ArrowLeft, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
-            m_upperValue = new MyGuiControlButton() { Position = upperPos, VisualStyle = MyGuiControlButtonStyleEnum.ArrowRight, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
-            m_labelValue = new MyGuiControlLabel()  { Position = valuePos, Text = Value.ToString(), OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_label      = new MyGuiControlLabel { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_lowerValue = new MyGuiControlButton { Position = lowerPos, VisualStyle = MyGuiControlButtonStyleEnum.ArrowLeft, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_upperValue = new MyGuiControlButton { Position = upperPos, VisualStyle = MyGuiControlButtonStyleEnum.ArrowRight, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_labelValue = new MyGuiControlLabel { Position = valuePos, Text = Value.ToString(), OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
 
             m_lowerValue.ButtonClicked += LowerClicked;
             m_upperValue.ButtonClicked += UpperClicked;
@@ -675,9 +783,9 @@ namespace Sandbox.Game.SessionComponents
             ValueMax = valueMax;
             ValueStep = valueStep;
 
-            m_label       = new MyGuiControlLabel()  { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
-            m_labelValue  = new MyGuiControlLabel()  { Position = valuePos, Text = Value.ToString(), OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
-            m_sliderValue = new MyGuiControlSlider() { Position = sliderPos,  OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_label       = new MyGuiControlLabel { Position = labelPos, TextEnum = labelText, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_labelValue  = new MyGuiControlLabel { Position = valuePos, Text = Value.ToString(), OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
+            m_sliderValue = new MyGuiControlSlider { Position = sliderPos,  OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP };
             m_sliderValue.Size = new Vector2(0.212f, 0.1f);
             m_sliderValue.MaxValue = ValueMax;
             m_sliderValue.Value = Value;
@@ -709,6 +817,7 @@ namespace Sandbox.Game.SessionComponents
         // settings
         float MinScale { get; }
         float MaxScale { get; }
+        bool AutoRotate { get; }
 
         // voxel
         void Fill(MyVoxelBase map, byte matId);
@@ -725,7 +834,10 @@ namespace Sandbox.Game.SessionComponents
         BoundingBoxD GetWorldBoundaries();
         void Draw(ref Color color);
         List<MyGuiControlBase> GetGuiControls();
-    };
+
+        // Other properties
+        string SubtypeName { get; }
+    }
     
     public class MyBrushBox : IMyVoxelBrush
     {
@@ -747,21 +859,21 @@ namespace Sandbox.Game.SessionComponents
             m_width = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.First, MySpaceTexts.VoxelHandProperty_Box_Width
+                MyVoxelBrushGUIPropertyOrder.First, MyCommonTexts.VoxelHandProperty_Box_Width
             );
             m_width.ValueChanged += RecomputeShape;
 
             m_height = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Second, MySpaceTexts.VoxelHandProperty_Box_Height
+                MyVoxelBrushGUIPropertyOrder.Second, MyCommonTexts.VoxelHandProperty_Box_Height
             );
             m_height.ValueChanged += RecomputeShape;
 
             m_depth = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Third, MySpaceTexts.VoxelHandProperty_Box_Depth
+                MyVoxelBrushGUIPropertyOrder.Third, MyCommonTexts.VoxelHandProperty_Box_Depth
             );
             m_depth.ValueChanged += RecomputeShape;
 
@@ -784,6 +896,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public bool AutoRotate { get { return true; } }
+        public string SubtypeName { get { return "Box"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -806,7 +920,24 @@ namespace Sandbox.Game.SessionComponents
             m_shape.Transformation = m_transform;
         }
 
-        public void SetRotation(ref MatrixD rotationMat) {}
+        public void SetRotation(ref MatrixD rotationMat) {
+            if (!rotationMat.IsRotation())
+                return;
+
+            m_transform.M11 = rotationMat.M11;
+            m_transform.M12 = rotationMat.M12;
+            m_transform.M13 = rotationMat.M13;
+
+            m_transform.M21 = rotationMat.M21;
+            m_transform.M22 = rotationMat.M22;
+            m_transform.M23 = rotationMat.M23;
+
+            m_transform.M31 = rotationMat.M31;
+            m_transform.M32 = rotationMat.M32;
+            m_transform.M33 = rotationMat.M33;
+
+            m_shape.Transformation = m_transform;
+        }
 
         public BoundingBoxD GetBoundaries()
         {
@@ -853,14 +984,14 @@ namespace Sandbox.Game.SessionComponents
             m_radius = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.First, MySpaceTexts.VoxelHandProperty_Capsule_Radius
+                MyVoxelBrushGUIPropertyOrder.First, MyCommonTexts.VoxelHandProperty_Capsule_Radius
             );
             m_radius.ValueChanged += RecomputeShape;
 
             m_length = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Second, MySpaceTexts.VoxelHandProperty_Capsule_Length
+                MyVoxelBrushGUIPropertyOrder.Second, MyCommonTexts.VoxelHandProperty_Capsule_Length
             );
             m_length.ValueChanged += RecomputeShape;
 
@@ -886,6 +1017,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public bool AutoRotate { get { return true; } }
+        public string SubtypeName { get { return "Capsule"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -974,21 +1107,21 @@ namespace Sandbox.Game.SessionComponents
             m_width = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.First, MySpaceTexts.VoxelHandProperty_Box_Width
+                MyVoxelBrushGUIPropertyOrder.First, MyCommonTexts.VoxelHandProperty_Box_Width
             );
             m_width.ValueChanged += RecomputeShape;
 
             m_height = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Second, MySpaceTexts.VoxelHandProperty_Box_Height
+                MyVoxelBrushGUIPropertyOrder.Second, MyCommonTexts.VoxelHandProperty_Box_Height
             );
             m_height.ValueChanged += RecomputeShape;
 
             m_depth = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Third, MySpaceTexts.VoxelHandProperty_Box_Depth
+                MyVoxelBrushGUIPropertyOrder.Third, MyCommonTexts.VoxelHandProperty_Box_Depth
             );
             m_depth.ValueChanged += RecomputeShape;
 
@@ -1018,6 +1151,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE * 4.5f; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public bool AutoRotate { get { return true; } }
+        public string SubtypeName { get { return "Ramp"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -1104,7 +1239,7 @@ namespace Sandbox.Game.SessionComponents
             m_radius = new MyBrushGUIPropertyNumberSlider(
                 m_shape.Radius, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.First, MySpaceTexts.VoxelHandProperty_Sphere_Radius
+                MyVoxelBrushGUIPropertyOrder.First, MyCommonTexts.VoxelHandProperty_Sphere_Radius
             );
             m_radius.ValueChanged += RadiusChanged;
 
@@ -1121,6 +1256,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public bool AutoRotate { get { return false; } }
+        public string SubtypeName { get { return "Sphere"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -1229,6 +1366,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE/4; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public bool AutoRotate { get { return false; } }
+        public string SubtypeName { get { return "Ellipsoid"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -1298,7 +1437,6 @@ namespace Sandbox.Game.SessionComponents
         #endregion
     }
 
-
     public class MyBrushAutoLevel : IMyVoxelBrush
     {
         public static MyBrushAutoLevel Static = new MyBrushAutoLevel();
@@ -1326,24 +1464,24 @@ namespace Sandbox.Game.SessionComponents
             m_transform = MatrixD.Identity;
 
             m_axis = new MyBrushGUIPropertyNumberCombo(
-                MyVoxelBrushGUIPropertyOrder.First, MySpaceTexts.VoxelHandProperty_AutoLevel_Axis
+                MyVoxelBrushGUIPropertyOrder.First, MyCommonTexts.VoxelHandProperty_AutoLevel_Axis
             );
-            m_axis.AddItem(X_ASIS, MySpaceTexts.VoxelHandProperty_AutoLevel_AxisX);
-            m_axis.AddItem(Y_ASIS, MySpaceTexts.VoxelHandProperty_AutoLevel_AxisY);
-            m_axis.AddItem(Z_ASIS, MySpaceTexts.VoxelHandProperty_AutoLevel_AxisZ);
+            m_axis.AddItem(X_ASIS, MyCommonTexts.VoxelHandProperty_AutoLevel_AxisX);
+            m_axis.AddItem(Y_ASIS, MyCommonTexts.VoxelHandProperty_AutoLevel_AxisY);
+            m_axis.AddItem(Z_ASIS, MyCommonTexts.VoxelHandProperty_AutoLevel_AxisZ);
             m_axis.SelectItem(Y_ASIS);
 
             m_area = new MyBrushGUIPropertyNumberSlider(
                 MinScale*2f, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Second, MySpaceTexts.VoxelHandProperty_AutoLevel_Area
+                MyVoxelBrushGUIPropertyOrder.Second, MyCommonTexts.VoxelHandProperty_AutoLevel_Area
             );
             m_area.ValueChanged += RecomputeShape;
 
             m_height = new MyBrushGUIPropertyNumberSlider(
                 MinScale, MinScale, MaxScale,
                 MySessionComponentVoxelHand.VOXEL_HALF,
-                MyVoxelBrushGUIPropertyOrder.Third, MySpaceTexts.VoxelHandProperty_Box_Height
+                MyVoxelBrushGUIPropertyOrder.Third, MyCommonTexts.VoxelHandProperty_Box_Height
             );
             m_height.ValueChanged += RecomputeShape;
 
@@ -1391,6 +1529,8 @@ namespace Sandbox.Game.SessionComponents
 
         public float MinScale { get { return MySessionComponentVoxelHand.GRID_SIZE; } }
         public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 10f; } }
+        public bool AutoRotate { get { return true; } }
+        public string SubtypeName { get { return "AutoLevel"; } }
 
         public void Fill(MyVoxelBase map, byte matId)
         {
@@ -1418,7 +1558,24 @@ namespace Sandbox.Game.SessionComponents
             m_shape.Transformation = m_transform;
         }
 
-        public void SetRotation(ref MatrixD rotationMat) {}
+        public void SetRotation(ref MatrixD rotationMat) {
+            if (!rotationMat.IsRotation())
+                return;
+
+            m_transform.M11 = rotationMat.M11;
+            m_transform.M12 = rotationMat.M12;
+            m_transform.M13 = rotationMat.M13;
+
+            m_transform.M21 = rotationMat.M21;
+            m_transform.M22 = rotationMat.M22;
+            m_transform.M23 = rotationMat.M23;
+
+            m_transform.M31 = rotationMat.M31;
+            m_transform.M32 = rotationMat.M32;
+            m_transform.M33 = rotationMat.M33;
+
+            m_shape.Transformation = m_transform;
+        }
 
         public BoundingBoxD GetBoundaries()
         {

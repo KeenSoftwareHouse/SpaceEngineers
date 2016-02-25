@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Generics;
 using VRageMath;
 using VRageRender;

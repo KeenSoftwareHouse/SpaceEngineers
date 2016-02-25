@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element msdata:IsDataSet="true" name="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
-                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
-              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
-              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -124,66 +124,8 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Juoksu</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
-    <value>Oletko varma, että haluat poistua?</value>
-  </data>
-  <data name="AssignControlKeyboard" xml:space="preserve">
-    <value>Paina jotain näppäintä</value>
-  </data>
-  <data name="AssignControlMouse" xml:space="preserve">
-    <value>Paina hiiren näppäintä</value>
-  </data>
-  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
-    <value>Ääni</value>
-  </data>
-  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
-    <value>Ääniasetukset</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Peruuta</value>
-  </data>
-  <data name="CanNotAssignControl" xml:space="preserve">
-    <value>TOIMINTOA EI VOIDA ASETTAA</value>
-  </data>
-  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
-    <value>Jatka viimeisimmästä</value>
-  </data>
-  <data name="ControlAlreadyAssigned" xml:space="preserve">
-    <value>{0} on jo yhdistetty toimintoon {1}.
-Haluatko poistaa alkuperäisen toiminnon?</value>
-  </data>
-  <data name="ControlIsNotValid" xml:space="preserve">
-    <value>Painettua näppäintä ei voi yhdistää toimintoihin.</value>
-  </data>
-  <data name="ScreenCaptionControls" xml:space="preserve">
-    <value>Ohjaus</value>
-  </data>
-  <data name="ScreenMenuButtonCredits" xml:space="preserve">
-    <value>Tekijät</value>
-  </data>
-  <data name="KeysDelete" xml:space="preserve">
-    <value>Poista</value>
-  </data>
-  <data name="KeysDown" xml:space="preserve">
-    <value>Alas</value>
-  </data>
-  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
-    <value>Haluatko säilyttää nämä asetukset? {0} sekuntia jäljellä.</value>
-  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Pora</value>
-  </data>
-  <data name="KeysEnd" xml:space="preserve">
-    <value>End</value>
-  </data>
-  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
-    <value>Palaa päävalikkoon</value>
-  </data>
-  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
-    <value>Poistu Windowsiin</value>
-  </data>
-  <data name="FieldOfView" xml:space="preserve">
-    <value>Näkökenttä</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Käytä työkalua / Laukaise ase</value>
@@ -191,176 +133,11 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>Toissijainen tila</value>
   </data>
-  <data name="ScreenOptionsButtonGame" xml:space="preserve">
-    <value>Peli</value>
-  </data>
-  <data name="ScreenCaptionGameOptions" xml:space="preserve">
-    <value>Pelin asetukset</value>
-  </data>
-  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
-    <value>Peliohjain</value>
-  </data>
-  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
-    <value>Analoginen</value>
-  </data>
-  <data name="GameVolume" xml:space="preserve">
-    <value>Äänenvoimakkuus</value>
-  </data>
-  <data name="ControlTypeGeneral" xml:space="preserve">
-    <value>Yleiset</value>
-  </data>
-  <data name="HardwareCursor" xml:space="preserve">
-    <value>Laitteistokursori</value>
-  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Valot päälle / pois</value>
   </data>
-  <data name="ControlName_Help" xml:space="preserve">
-    <value>Apua</value>
-  </data>
-  <data name="KeysHome" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="KeysInsert" xml:space="preserve">
-    <value>Insert</value>
-  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Tavaraluettelo</value>
-  </data>
-  <data name="InvertMouseX" xml:space="preserve">
-    <value>Käännä hiiren X-akseli päinvastaiseksi</value>
-  </data>
-  <data name="InvertMouseY" xml:space="preserve">
-    <value>Käännä hiiren Y-akseli päinvastaiseksi</value>
-  </data>
-  <data name="Joystick" xml:space="preserve">
-    <value>Sauva- tai peliohjain</value>
-  </data>
-  <data name="JoystickButtonLeft" xml:space="preserve">
-    <value>JDVasen</value>
-  </data>
-  <data name="JoystickButtonRight" xml:space="preserve">
-    <value>JDOikea</value>
-  </data>
-  <data name="JoystickButtonUp" xml:space="preserve">
-    <value>JDYlös</value>
-  </data>
-  <data name="JoystickButtonDown" xml:space="preserve">
-    <value>JDAlas</value>
-  </data>
-  <data name="JoystickDeadzone" xml:space="preserve">
-    <value>Sauvaohjaimen kuolleen alueen leveys</value>
-  </data>
-  <data name="JoystickExponent" xml:space="preserve">
-    <value>Sauvaohjaimen asteittainen tarkkuus</value>
-  </data>
-  <data name="JoystickSensitivity" xml:space="preserve">
-    <value>Sauvaohjaimen herkkyys</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
-    <value>Näppäimistö</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Kieli</value>
-  </data>
-  <data name="KeysLeft" xml:space="preserve">
-    <value>Vasen</value>
-  </data>
-  <data name="KeysLeftAlt" xml:space="preserve">
-    <value>Vasen ALT</value>
-  </data>
-  <data name="KeysLeftControl" xml:space="preserve">
-    <value>Vasen Ctrl</value>
-  </data>
-  <data name="LeftMouseButton" xml:space="preserve">
-    <value>Vasen Hiiren Näppäin</value>
-  </data>
-  <data name="KeysLeftShift" xml:space="preserve">
-    <value>Vasen Vaihto</value>
-  </data>
-  <data name="LoadScreenButtonLoad" xml:space="preserve">
-    <value>Lataa</value>
-  </data>
-  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
-    <value>LADATAAN ... ODOTA HETKI</value>
-  </data>
-  <data name="MessageBoxCaptionError" xml:space="preserve">
-    <value>VIRHE</value>
-  </data>
-  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
-    <value>VAHVISTA</value>
-  </data>
-  <data name="MessageBoxCaptionExit" xml:space="preserve">
-    <value>POISTU</value>
-  </data>
-  <data name="MiddleMouseButton" xml:space="preserve">
-    <value>Hiiren keskipainike</value>
-  </data>
-  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
-    <value>Hiiri</value>
-  </data>
-  <data name="MouseSensitivity" xml:space="preserve">
-    <value>Hiiren herkkyys</value>
-  </data>
-  <data name="MouseXButton1" xml:space="preserve">
-    <value>MXB1</value>
-  </data>
-  <data name="MouseXButton2" xml:space="preserve">
-    <value>MXB2</value>
-  </data>
-  <data name="ControlTypeNavigation" xml:space="preserve">
-    <value>Navigointi</value>
-  </data>
-  <data name="ScreenCaptionNewWorld" xml:space="preserve">
-    <value>Uusi maailma</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>Ei</value>
-  </data>
-  <data name="KeysNumPad0" xml:space="preserve">
-    <value>Num 0</value>
-  </data>
-  <data name="KeysNumPad1" xml:space="preserve">
-    <value>Num 1</value>
-  </data>
-  <data name="KeysNumPad2" xml:space="preserve">
-    <value>Num 2</value>
-  </data>
-  <data name="KeysNumPad3" xml:space="preserve">
-    <value>Num 3</value>
-  </data>
-  <data name="KeysNumPad4" xml:space="preserve">
-    <value>Num 4</value>
-  </data>
-  <data name="KeysNumPad5" xml:space="preserve">
-    <value>Num 5</value>
-  </data>
-  <data name="KeysNumPad6" xml:space="preserve">
-    <value>Num 6</value>
-  </data>
-  <data name="KeysNumPad7" xml:space="preserve">
-    <value>Num 7</value>
-  </data>
-  <data name="KeysNumPad8" xml:space="preserve">
-    <value>Num 8</value>
-  </data>
-  <data name="KeysNumPad9" xml:space="preserve">
-    <value>Num 9</value>
-  </data>
-  <data name="Ok" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ScreenCaptionOptions" xml:space="preserve">
-    <value>Asetukset</value>
-  </data>
-  <data name="KeysPageDown" xml:space="preserve">
-    <value>PgDown</value>
-  </data>
-  <data name="KeysPageUp" xml:space="preserve">
-    <value>PgUp</value>
-  </data>
-  <data name="RecommendedAspectRatio" xml:space="preserve">
-    <value>Suositeltu kuvasuhde: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Renderöinnin laatu</value>
@@ -373,24 +150,6 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normaali</value>
-  </data>
-  <data name="Revert" xml:space="preserve">
-    <value>Oletukset</value>
-  </data>
-  <data name="KeysRight" xml:space="preserve">
-    <value>Oikea</value>
-  </data>
-  <data name="KeysRightAlt" xml:space="preserve">
-    <value>Oikea Alt</value>
-  </data>
-  <data name="KeysRightControl" xml:space="preserve">
-    <value>Oikea Ctrl</value>
-  </data>
-  <data name="RightMouseButton" xml:space="preserve">
-    <value>Oikea Hiiren Painike</value>
-  </data>
-  <data name="KeysRightShift" xml:space="preserve">
-    <value>Oikea Vaihto</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Pyöritä vasemmalle (alus / rakettireppu)</value>
@@ -410,188 +169,14 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Käännä ylös</value>
   </data>
-  <data name="SelectControl" xml:space="preserve">
-    <value>VALITSE TOIMINTO</value>
-  </data>
-  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
-    <value>AJOITETTU PALVELIMEN SAMMUTUS</value>
-  </data>
-  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
-    <value>Olemme pahoillamme, mutta valitsemasi asetukset eivät ole yhteensopivia laitteistosi kanssa.</value>
-  </data>
-  <data name="KeysSpace" xml:space="preserve">
-    <value>Välilyönti</value>
-  </data>
-  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
-    <value>Aloitetaan peliä ... odota hetki</value>
-  </data>
-  <data name="ControlName_StrafeLeft" xml:space="preserve">
-    <value>Liiku vasemmalle</value>
-  </data>
-  <data name="ControlName_StrafeRight" xml:space="preserve">
-    <value>Liiku oikealle</value>
-  </data>
-  <data name="ControlTypeSystems1" xml:space="preserve">
-    <value>Järjestelmät 1</value>
-  </data>
-  <data name="ControlTypeSystems2" xml:space="preserve">
-    <value>Järjestelmät 2</value>
-  </data>
-  <data name="KeysTab" xml:space="preserve">
-    <value>Tab</value>
-  </data>
-  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
-    <value>Selaimen avaaminen epäonnistui.</value>
-  </data>
-  <data name="UnknownControl_None" xml:space="preserve">
-    <value>ei mitään</value>
-  </data>
-  <data name="KeysUp" xml:space="preserve">
-    <value>Ylös</value>
-  </data>
-  <data name="ControlName_UseOrInteract" xml:space="preserve">
-    <value>Käytä</value>
-  </data>
-  <data name="VerticalSync" xml:space="preserve">
-    <value>Pystysuuntainen tahdistus</value>
-  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Kuva</value>
-  </data>
-  <data name="VideoMode" xml:space="preserve">
-    <value>Videotila</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Videoasetukset</value>
   </data>
-  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
-    <value>Työkalut / Aseet</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Kyllä</value>
-  </data>
-  <data name="Disabled" xml:space="preserve">
-    <value>Ei käytössä</value>
-  </data>
-  <data name="JoystickRotationXpos" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYpos" xml:space="preserve">
-    <value>JRY+</value>
-  </data>
-  <data name="JoystickRotationZpos" xml:space="preserve">
-    <value>JRZ+</value>
-  </data>
-  <data name="JoystickSlider1pos" xml:space="preserve">
-    <value>JS1+</value>
-  </data>
-  <data name="JoystickSlider2pos" xml:space="preserve">
-    <value>JS2+</value>
-  </data>
-  <data name="JoystickRotationXneg" xml:space="preserve">
-    <value>JRX-</value>
-  </data>
-  <data name="JoystickRotationYneg" xml:space="preserve">
-    <value>JRY-</value>
-  </data>
-  <data name="JoystickRotationZneg" xml:space="preserve">
-    <value>JRZ-</value>
-  </data>
-  <data name="JoystickSlider1neg" xml:space="preserve">
-    <value>JS1-</value>
-  </data>
-  <data name="JoystickSlider2neg" xml:space="preserve">
-    <value>JS2-</value>
-  </data>
-  <data name="KeysDecimal" xml:space="preserve">
-    <value>Num .</value>
-  </data>
-  <data name="KeysBackslash" xml:space="preserve">
-    <value>Kenoviiva</value>
-  </data>
-  <data name="KeysComma" xml:space="preserve">
-    <value>Pilkku</value>
-  </data>
-  <data name="KeysMinus" xml:space="preserve">
-    <value>Miinus</value>
-  </data>
-  <data name="KeysOpenBracket" xml:space="preserve">
-    <value>[</value>
-  </data>
-  <data name="KeysCloseBracket" xml:space="preserve">
-    <value>]</value>
-  </data>
-  <data name="KeysPeriod" xml:space="preserve">
-    <value>Piste</value>
-  </data>
-  <data name="KeysPipe" xml:space="preserve">
-    <value>Putki</value>
-  </data>
-  <data name="KeysPlus" xml:space="preserve">
-    <value>Plus</value>
-  </data>
-  <data name="KeysQuestion" xml:space="preserve">
-    <value>Kenoviiva</value>
-  </data>
-  <data name="KeysQuotes" xml:space="preserve">
-    <value>Lainausmerkki</value>
-  </data>
-  <data name="KeysSemicolon" xml:space="preserve">
-    <value>Puolipiste</value>
-  </data>
-  <data name="KeysTilde" xml:space="preserve">
-    <value>~</value>
-  </data>
-  <data name="KeysMultiply" xml:space="preserve">
-    <value>Num *</value>
-  </data>
-  <data name="KeysDivide" xml:space="preserve">
-    <value>Num /</value>
-  </data>
-  <data name="KeysAdd" xml:space="preserve">
-    <value>Num +</value>
-  </data>
-  <data name="KeysSubtract" xml:space="preserve">
-    <value>Num -</value>
-  </data>
-  <data name="KeysCapsLock" xml:space="preserve">
-    <value>Caps Lock</value>
-  </data>
-  <data name="KeysEnter" xml:space="preserve">
-    <value>Enter</value>
-  </data>
-  <data name="KeysBackspace" xml:space="preserve">
-    <value>Askelpalaut.</value>
-  </data>
-  <data name="ApplyingPleaseWait" xml:space="preserve">
-    <value>Vaihdetaan asetuksia ... Ole hyvä ja odota</value>
-  </data>
-  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
-    <value>Sinut on tapettu</value>
-  </data>
-  <data name="MusicVolume" xml:space="preserve">
-    <value>Musiikin äänenvoimakkuus</value>
-  </data>
-  <data name="VideoAdapter" xml:space="preserve">
-    <value>Videoadapteri</value>
-  </data>
-  <data name="DefaultFOV" xml:space="preserve">
-    <value>Oletus: {0:F1}</value>
-  </data>
-  <data name="WorldLoaded" xml:space="preserve">
-    <value>Maailma {0} ladattu</value>
-  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Keskustelunäyttö</value>
-  </data>
-  <data name="ControlName_Screenshot" xml:space="preserve">
-    <value>Kuvankaappaus</value>
-  </data>
-  <data name="ControlName_PreviousColor" xml:space="preserve">
-    <value>Edel. väri tai kamera</value>
-  </data>
-  <data name="ControlName_NextColor" xml:space="preserve">
-    <value>Seur. väri tai kamera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminaali / Tavaraluettelo</value>
@@ -599,23 +184,14 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Hitsaustyökalu</value>
   </data>
-  <data name="WorldSaved" xml:space="preserve">
-    <value>Maailma {0} tallennettu</value>
-  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>Paina {0} purkaaksesi kohteen</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>Paina {0} hitsataksesi kohteen</value>
   </data>
-  <data name="Blueprints" xml:space="preserve">
-    <value>Pohjapiirustukset</value>
-  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Ohjauspaneeli</value>
-  </data>
-  <data name="Factions" xml:space="preserve">
-    <value>Ryhmät</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Kokooja</value>
@@ -891,23 +467,11 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>Valkoinen</value>
   </data>
-  <data name="BlueprintMaterials" xml:space="preserve">
-    <value>Pohjapiirustuksen materiaalit</value>
-  </data>
-  <data name="ProductionQueue" xml:space="preserve">
-    <value>Tuotantojono</value>
-  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reaktori</value>
   </data>
-  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
-    <value>Muokkaa asetuksia</value>
-  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Automaattiparannus</value>
-  </data>
-  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Mukautettu maailma</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Kuvaus</value>
@@ -924,12 +488,6 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Turvallinen</value>
   </data>
-  <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Nimi on liian pitkä (enintään 128 merkkiä sallittu)</value>
-  </data>
-  <data name="ErrorNameTooShort" xml:space="preserve">
-    <value>Nimi on liian lyhyt (vähintään 5 merkkiä vaadittu)</value>
-  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Oma tuli</value>
   </data>
@@ -939,35 +497,11 @@ Haluatko poistaa alkuperäisen toiminnon?</value>
   <data name="WorldSettings_GameMode" xml:space="preserve">
     <value>Pelimuoto</value>
   </data>
-  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
-    <value>Selviytyminen</value>
-  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Realistinen x10</value>
   </data>
-  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
-    <value>Liity Maailmaan</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Nimi</value>
-  </data>
-  <data name="WorldSettings_OnlineMode" xml:space="preserve">
-    <value>Online-tila</value>
-  </data>
-  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
-    <value>Offline</value>
-  </data>
-  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
-    <value>Yksityinen</value>
-  </data>
-  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
-    <value>	Julkinen</value>
-  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Salasana</value>
-  </data>
-  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
-    <value>Pika-aloitus</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Äänet avaruudessa</value>
@@ -1000,9 +534,6 @@ uudessa aluksessa sektorin rajalla
 Selviytyminen x3: sama kuin Selviytymistila mutta kolminkertainen tavaraluettelo
 Selviytyminen x10: sama kuin Selviytymistila mutta kymmenkertainen tavaraluettelo</value>
   </data>
-  <data name="ToolTipWorldSettingsName" xml:space="preserve">
-    <value>Nimessä täytyy olla {0}-{1} aakkosnumeerista merkkiä.</value>
-  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>Pelin näkyvyys
 Offline: Peli on offline-tilassa ja et tarvitse nettiyhteyttä
@@ -1016,18 +547,6 @@ Julkinen: Kuka tahansa Steam-pelaaja voi liittyä</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>Avaruudessa ei ole ääntä. Laita se päälle simuloidaksesi Maapallon kaltaisia olosuhteita (vaikka se ei olekaan realistista). Laita se pois päältä jos haluat realistisen tilan jossa voit kuulla vain ääniä joita astronauttihahmosikin voi kuulla.</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
-    <value>Oletko varma, että haluat poistaa tallennuksen '{0}'?</value>
-  </data>
-  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
-    <value>Lataa Maailma</value>
-  </data>
-  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
-    <value>Tallenna nimellä</value>
-  </data>
-  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
-    <value>Luova</value>
-  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Skenaario</value>
   </data>
@@ -1037,146 +556,14 @@ Julkinen: Kuka tahansa Steam-pelaaja voi liittyä</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Yksinäinen Selviytyjä</value>
   </data>
-  <data name="PlayerCharacter" xml:space="preserve">
-    <value>Pelaajahahmo</value>
-  </data>
-  <data name="WorldSettings_AutoSave" xml:space="preserve">
-    <value>Automaat. tallennus</value>
-  </data>
-  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
-    <value>Automaattinen tallennus tallentaa maailmasi {0}n minuutin välein tai kun lopetat pelaamisen</value>
-  </data>
-  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
-    <value>Haluatko tallentaa edistymisesi?</value>
-  </data>
-  <data name="SaveWorld" xml:space="preserve">
-    <value>Tallenna maailma</value>
-  </data>
-  <data name="ScreenMenuButtonSave" xml:space="preserve">
-    <value>Tallenna</value>
-  </data>
-  <data name="SavingPleaseWait" xml:space="preserve">
-    <value>Tallennetaan ... odota hetki</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>Edistynyt</value>
-  </data>
-  <data name="AdvancedControls" xml:space="preserve">
-    <value>Lisäohjaimet</value>
-  </data>
-  <data name="ControlName_Backward" xml:space="preserve">
-    <value>Taaksepäin</value>
-  </data>
-  <data name="BasicControls" xml:space="preserve">
-    <value>Perusohjaimet</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Sulje</value>
-  </data>
-  <data name="ControlName_DownOrCrouch" xml:space="preserve">
-    <value>Alas tai kyykkyyn</value>
-  </data>
-  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
-    <value>Ensimmäisen persoonan näkymä / Kolmannen persoonan näkymä</value>
-  </data>
-  <data name="ControlName_Forward" xml:space="preserve">
-    <value>Eteenpäin</value>
-  </data>
-  <data name="NextPage" xml:space="preserve">
-    <value>Seuraava sivu</value>
-  </data>
-  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Paina {0} jos tarvitset apua tai opastusta</value>
-  </data>
-  <data name="PreviousPage" xml:space="preserve">
-    <value>Edellinen sivu</value>
-  </data>
-  <data name="ShowControlsHints" xml:space="preserve">
-    <value>Näytä näppäinohjeet</value>
-  </data>
-  <data name="SteamGuide" xml:space="preserve">
-    <value>Oppaat</value>
-  </data>
-  <data name="ControlName_UpOrJump" xml:space="preserve">
-    <value>Ylös tai Hyppy</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
-    <value>Käännä kappaletta pystytasossa -</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
-    <value>Käännä kappaletta pystytasossa +</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
-    <value>Käännä kappaletta vaakatasossa -</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
-    <value>Käännä kappaletta vaakatasossa +</value>
-  </data>
-  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
-    <value>Vieritä kappaletta  -</value>
-  </data>
-  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
-    <value>Vieritä kappaletta +</value>
-  </data>
-  <data name="ControlName_Slot0" xml:space="preserve">
-    <value>Poista käytöstä</value>
-  </data>
-  <data name="ControlName_Slot1" xml:space="preserve">
-    <value>Ota käyttöön esine 1</value>
-  </data>
-  <data name="ControlName_Slot2" xml:space="preserve">
-    <value>Ota käyttöön esine 2</value>
-  </data>
-  <data name="ControlName_Slot3" xml:space="preserve">
-    <value>Ota käyttöön esine 3</value>
-  </data>
-  <data name="ControlName_Slot4" xml:space="preserve">
-    <value>Ota käyttöön esine 4</value>
-  </data>
-  <data name="ControlName_Slot5" xml:space="preserve">
-    <value>Ota käyttöön esine 5</value>
-  </data>
-  <data name="ControlName_Slot6" xml:space="preserve">
-    <value>Ota käyttöön esine 6</value>
-  </data>
-  <data name="ControlName_Slot7" xml:space="preserve">
-    <value>Ota käyttöön esine 7</value>
-  </data>
-  <data name="ControlName_Slot8" xml:space="preserve">
-    <value>Ota käyttöön esine 8</value>
-  </data>
-  <data name="ControlName_Slot9" xml:space="preserve">
-    <value>Ota käyttöön esine 9</value>
-  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reaktorit päälle / pois päältä</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Tyhjä Maailma</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
-    <value>Oletko varma, että haluat käyttää pikalatausta?</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
-    <value>Oletko varma, että haluat käyttää pikatallennusta?</value>
-  </data>
-  <data name="ControlName_ToolbarConfig" xml:space="preserve">
-    <value>Työkalupalkin mukautus</value>
-  </data>
-  <data name="ControlName_HoldToLookAround" xml:space="preserve">
-    <value>Pidä pohjassa katsoaksesi ympärillesi</value>
-  </data>
-  <data name="ControlName_HoldToSprint" xml:space="preserve">
-    <value>Pidä pohjassa juostaksesi</value>
-  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Rakettireppu päälle / pois</value>
-  </data>
-  <data name="LoadingPleaseWait" xml:space="preserve">
-    <value>Ladataan ... odota hetki</value>
-  </data>
-  <data name="NoPlaceToCreateGrid" xml:space="preserve">
-    <value>Uudelle kappaleelle ei ole tilaa. Osoita näkymäsi tyhjään tilaan.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Ei tarpeeksi materiaaleja uuteen kappaleeseen. Tarvitaan ainakin yksi teräslaatta.</value>
@@ -1186,28 +573,6 @@ Julkinen: Kuka tahansa Steam-pelaaja voi liittyä</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Kuljetin</value>
-  </data>
-  <data name="ControlName_HudOnOff" xml:space="preserve">
-    <value>HUD pois / päälle</value>
-  </data>
-  <data name="ScreenCubeBuilderHint" xml:space="preserve">
-    <value>Vinkki: Vedä tavara työkaluriville, ja ota käyttöön painamalla numeronäppäintä</value>
-  </data>
-  <data name="Saved" xml:space="preserve">
-    <value>Tallennettu</value>
-  </data>
-  <data name="HideWeapon" xml:space="preserve">
-    <value>Piilota ase</value>
-  </data>
-  <data name="Thrust" xml:space="preserve">
-    <value>Työntö</value>
-  </data>
-  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
-    <value>Jokin maailma/tallennustiedosto on vioittunut eikä sitä voi ladata.
-Tarkista loki jos haluat lisätietoja.</value>
-  </data>
-  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
-    <value>Maailman tiedosto on vioittunut, eikä sitä voitu ladata.</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminaali</value>
@@ -1638,53 +1003,11 @@ Tarkista loki jos haluat lisätietoja.</value>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>Ei painovoimaa</value>
   </data>
-  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
-    <value>Luo uusi maailma mukautetuilla asetuksilla</value>
-  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Luo uusi maailma oletusasetuksilla:
 Pelimuoto: Luova tila
 Skenaario: Helppo Aloitus 1
 Automaattinen tallennus: Päällä</value>
-  </data>
-  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
-    <value>Korkeampi renderöintilaatu tarkoittaa parempaa visuaalista laatua, suurempaa näköetäisyyttä ja enemmän 
-erikoisefektejä - kuitenkin, se on paljon vaativampaa tietokoneesi suorituskyvylle (CPU ja GPU). Jos peli
-ei pyöri sulavasti, laske renderöintilaatua.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Valitse näytönohjain ja/tai näyttö</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
-    <value>Valitse näytön resoluutio. Suosittelemme käyttämään kuvasuhdetta, jota näyttösi tukee.
-Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
-  </data>
-  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
-    <value>Laitteistohiiren kursori on riippumaton pelin kuvanopeudesta. Suosittelemme laittamaan sen päälle.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
-    <value>Peli synkronoi näytön ruudunpäivityksen kanssa. Suosittelemme laittamaan tämän pois päältä.</value>
-  </data>
-  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
-    <value>Vaakasuoran näkökentän kulma</value>
-  </data>
-  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
-    <value>Näytä vihjeitä ruudulla pelin aikana</value>
-  </data>
-  <data name="WorldNotSaved" xml:space="preserve">
-    <value>Maailman {0} tallennus epäonnistui.</value>
-  </data>
-  <data name="NotificationMemoryOverload" xml:space="preserve">
-    <value>Ei tarpeeksi muistia uusien kappaleiden lisäämiseen</value>
-  </data>
-  <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>Olemme havainneet paremman näytönohjaimen tietokoneessasi kuin se jolla peli pyörii. Tarkista NVIDIA/AMD Ohjauspaneeli-asetuksesi.</value>
-  </data>
-  <data name="MessageBoxCaptionWarning" xml:space="preserve">
-    <value>VAROITUS</value>
-  </data>
-  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
-    <value>Tämä avaa kohteen {0} nettiselaimessasi. Peliä ei sammuteta. Haluatko jatkaa?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Kyykistyneenä</value>
@@ -1758,48 +1081,6 @@ Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Haluatko aloittaa katsomalla opastusvideon? Muista: voit aina tulla takaisin painamalla "Oppaat" "Apua"-valikossa (Paina F1).</value>
   </data>
-  <data name="Loaded" xml:space="preserve">
-    <value>Ladattu</value>
-  </data>
-  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
-    <value>Tallennettuja maailmoja ei vielä ole. Aloita tekemällä uusi maailma.</value>
-  </data>
-  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
-    <value>Video-opas</value>
-  </data>
-  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
-    <value>Tallenna muutokset ennen lopettamista?</value>
-  </data>
-  <data name="ErrorNameAlreadyExists" xml:space="preserve">
-    <value>Valitsemasi nimi on jo käytössä. Ole hyvä ja valitse toinen nimi.</value>
-  </data>
-  <data name="NotificationBuildingFormat" xml:space="preserve">
-    <value>Paina {0} asettaaksesi kuution</value>
-  </data>
-  <data name="NotificationColorFormat" xml:space="preserve">
-    <value>Paina {0} tai {1} vaihtaaksesi väriä. Pidä {2} pohjassa hyväksyäksesi värin. Pidä {3} tai {4} pohjassa nostaaksesi siveltimen kokoa.</value>
-  </data>
-  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
-    <value>Voit piilottaa nämä vinkit pelin asetuksista</value>
-  </data>
-  <data name="NotificationHudHideFormat" xml:space="preserve">
-    <value>Paina {0} piilottaaksesi/näyttääksesi HUD-elementit.</value>
-  </data>
-  <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>Paina {0}, {1}, {2}, {3}, {4}, {5} kääntääksesi</value>
-  </data>
-  <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Paina {0} konfiguroidaksesi työkalupalkkia tai luodaksesi uusia objekteja.</value>
-  </data>
-  <data name="NotificationSlotEquipFormat" xml:space="preserve">
-    <value>Paina {0}, {1}, {2}, ... ottaaksesi esine käyttöön</value>
-  </data>
-  <data name="NotificationToolDisabled" xml:space="preserve">
-    <value>Tämä työkalu/ase ei ole käytössä</value>
-  </data>
-  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Paina {0} lisätäksesi kappale, paina {1} poistaaksesi kappale. Pidä {2} pohjassa rakentaaksesi nopeasti.</value>
-  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Pidä pohjassa värittääksesi kappaleen (luova tila)</value>
   </data>
@@ -1809,23 +1090,8 @@ Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Laaja värisiveltimen koko (luova tila)</value>
   </data>
-  <data name="ControlDescQuickLoad" xml:space="preserve">
-    <value>Pikalataus</value>
-  </data>
-  <data name="ControlDescQuickSave" xml:space="preserve">
-    <value>Pikatallennus</value>
-  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Zoomaa kolmannen persoonan näkymässä</value>
-  </data>
-  <data name="MouseWheel" xml:space="preserve">
-    <value>Hiiren rulla</value>
-  </data>
-  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Välilehden sisältö:</value>
-  </data>
-  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
-    <value>Luova tila</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>Uusi suuri alus</value>
@@ -1835,15 +1101,6 @@ Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>Uusi asema</value>
-  </data>
-  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
-    <value>Muokkaa työkalupalkkiasi (lisää rakennusosia, työkaluja ja aseita)</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
-    <value>Työkalupalkki</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
-    <value>Työkalupalkin muokkaus</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Lataa</value>
@@ -1869,46 +1126,10 @@ Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Hyöty</value>
   </data>
-  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
-    <value>Pelinsisäinen Steam-yhteisö on pois käytöstä</value>
-  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Pelinsisäisen Steam-yhteisön saat päälle Steamista: Mene asetuksiin, Pelissä, Ota käyttöön Steam-
 yhteisö pelin aikana. Steam kokoelmassasi: Space Engineers, Ominaisuudet, Ota käyttöön Steam-
 yhteisö pelin aikana</value>
-  </data>
-  <data name="LoadScreenButtonPublish" xml:space="preserve">
-    <value>Julkaise</value>
-  </data>
-  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
-    <value>Julkaisu onnistui. Jos sinulla on Steam Overlay käytössä, sivu avautuu ja voit muokata tietoja kuten otsikko, kuvaus ja näkyvyys (näkyvyys on oletuksena julkinen).</value>
-  </data>
-  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
-    <value>Julkaiseminen Steam Workshopissa epäonnistui</value>
-  </data>
-  <data name="MessageBoxTextModPublished" xml:space="preserve">
-    <value>Julkaisu on onnistunut. Jos sinulla on Steam Overlay käytössä, sivu aukeaa ja voit muokata ominaisuuksia kuten otsikkoa, kuvausta ja näkyvyyttä (julkinen oletuksena).</value>
-  </data>
-  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
-    <value>Julkaisu Steam Workshopissa epäonnistui</value>
-  </data>
-  <data name="ProgressTextPublishingWorld" xml:space="preserve">
-    <value>Julkaistaan ... ole hyvä ja odota.</value>
-  </data>
-  <data name="ProgressTextUploadingWorld" xml:space="preserve">
-    <value>Lähetetään ... ole hyvä ja odota.</value>
-  </data>
-  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
-    <value>Tilatut maailmat</value>
-  </data>
-  <data name="ProgressTextCreatingWorld" xml:space="preserve">
-    <value>Maailmaa luodaan ... odota hetki.</value>
-  </data>
-  <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Lataa tilattu maailma</value>
-  </data>
-  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
-    <value>Suosittele</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>Jos pidät Space Engineersistä, voit suositella sitä Steam-kavereillesi seuraavalla sivulla.
@@ -1916,52 +1137,6 @@ Suositukset auttavat yhteisön kasvamisessa. Kiitos!</value>
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Suosittele Space Engineersiä</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
-    <value>MAAILMA JULKAISTU</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
-    <value>MAAILMAN JULKAISU EPÄONNISTUI</value>
-  </data>
-  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
-    <value>MUUNNOS JULKAISTU</value>
-  </data>
-  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
-    <value>MUUNNOKSEN JULKAISU EPÄONNISTUI</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Kopioi ja lataa</value>
-  </data>
-  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
-    <value>Julkaise valittu maailma Steam Workshoppiin</value>
-  </data>
-  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
-    <value>Näytä lista Steam Workshopista tilatuista maailmoista</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
-    <value>JULKAISE MAAILMA</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>PÄIVITÄ MAAILMA</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
-    <value>Oletko varma, että haluat ladata ja julkaista valitun maailman Steam Workshop:iin.</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>Oletko varma, että haluat ladata ja ylikirjoittaa valitsemasi maailman Steam Workshop:iin.</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
-    <value>JULKAISE MUUNNOS</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
-    <value>PÄIVITÄ MUUNNOS</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
-    <value>Oletko varma että haluat ladata ja julkaista valitun muunnoksen Steam Workshopissa?
-Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (katso http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
-    <value>Oletko varma, että haluat ladata ja päällekirjoittaa valitsemasi muunnoksen Steam Workshop:iin?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Paina {0} poistuaksesi ohjaamosta</value>
@@ -1990,12 +1165,6 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0} ei ole saatavilla {1}</value>
   </data>
-  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
-    <value>Selaa Workshop:ia</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
-    <value>Päivitä</value>
-  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Kulmahiomakone</value>
   </data>
@@ -2010,12 +1179,6 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Hitsaaja</value>
-  </data>
-  <data name="NotificationNoWeaponSelected" xml:space="preserve">
-    <value>Ei asetta valittuna</value>
-  </data>
-  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
-    <value>Vaihdettu asetyyppiin '{0}'</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Paina {0} tai {1} kiivetäksesi ylös tai alas</value>
@@ -2044,39 +1207,6 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Vaimentimet</value>
   </data>
-  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
-    <value>Inertiavaimentimet pois päältä</value>
-  </data>
-  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
-    <value>Inertiavaimentimet päällä</value>
-  </data>
-  <data name="LoadScreenButtonDelete" xml:space="preserve">
-    <value>Poista</value>
-  </data>
-  <data name="ScreenCaptionEditSettings" xml:space="preserve">
-    <value>Muokkaa Asetuksia</value>
-  </data>
-  <data name="ScreenCaptionSaveAs" xml:space="preserve">
-    <value>Tallenna nimellä</value>
-  </data>
-  <data name="ScreenMenuButtonHelp" xml:space="preserve">
-    <value>Apua</value>
-  </data>
-  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
-    <value>Lataa Maailma</value>
-  </data>
-  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
-    <value>Uusi Maailma</value>
-  </data>
-  <data name="ScreenMenuButtonOptions" xml:space="preserve">
-    <value>Asetukset</value>
-  </data>
-  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
-    <value>Mukautettu Maailma</value>
-  </data>
-  <data name="ScreenOptionsButtonControls" xml:space="preserve">
-    <value>Hallinta</value>
-  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>Laskutelineet</value>
   </data>
@@ -2085,39 +1215,6 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Lukittu:</value>
-  </data>
-  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
-    <value>PALAUTA NÄPPÄINASETUKSET</value>
-  </data>
-  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
-    <value>Oletko varma, että haluat palauttaa näppäinasetukset oletustilaan?</value>
-  </data>
-  <data name="ScreenshotFailed" xml:space="preserve">
-    <value>Kuvankaappaus epäonnistui</value>
-  </data>
-  <data name="ScreenshotSaved" xml:space="preserve">
-    <value>Kuvankaappaus {0} tallennettu</value>
-  </data>
-  <data name="ExportToObjComplete" xml:space="preserve">
-    <value>Viety kohteeseen: {0}</value>
-  </data>
-  <data name="ExportToObjFailed" xml:space="preserve">
-    <value>Obj-tiedostoon vienti epäonnistui</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
-    <value>Avaa Workshopissa</value>
-  </data>
-  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
-    <value>Avaa Steam Overlay Workshop-näytöllä</value>
-  </data>
-  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Lataa valittu maailma tietokoneellesi ja lataa</value>
-  </data>
-  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
-    <value>Avaa valittu maailma Workshopissa Steam Overlayn kautta</value>
-  </data>
-  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
-    <value>Päivitä tilattujen maailmoiden lista</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>Laskuteline / Värinvalitsin</value>
@@ -2163,29 +1260,8 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
 Massa: {1} kg
 Tilavuus: {2} L</value>
   </data>
-  <data name="SettingSymmetryX" xml:space="preserve">
-    <value>Symmetrian X taso: {0} aseta, {1} poista</value>
-  </data>
-  <data name="SettingSymmetryXOffset" xml:space="preserve">
-    <value>Symmetrian X taso (etäisyys): {0} asettamiseen, {1} nollaamiseen</value>
-  </data>
-  <data name="SettingSymmetryY" xml:space="preserve">
-    <value>Symmetrian Y taso: {0} asettamiseen, {1} nollaamiseen</value>
-  </data>
-  <data name="SettingSymmetryYOffset" xml:space="preserve">
-    <value>Symmetrian Y taso (etäisyys): {0} asettamiseen, {1} nollaamiseen</value>
-  </data>
-  <data name="SettingSymmetryZ" xml:space="preserve">
-    <value>Symmetrian Z taso: {0} asettamiseen, {1} nollaamiseen</value>
-  </data>
-  <data name="SettingSymmetryZOffset" xml:space="preserve">
-    <value>Symmetrian Z taso (etäisyys): {0} asettamiseen, {1} nollaamiseen</value>
-  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Inertian vaimentimet</value>
-  </data>
-  <data name="NotificationPickupObject" xml:space="preserve">
-    <value>Paina {0} poimiaksesi {1}n</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Käytä symmetriaa</value>
@@ -2193,66 +1269,14 @@ Tilavuus: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>Majakka</value>
   </data>
-  <data name="CubeBuilderPasteNotification" xml:space="preserve">
-    <value>Paina hiiren oikeaa nappäintä tai Ctrl+V littääksesi kappaleen</value>
-  </data>
-  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
-    <value>Yhden tai usemman objektin lisäämisessä tapahtui virhe. Tarkista lokitiedosto jos haluat lisätietoja.</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
-    <value>Oletko varma että haluat poistaa valitun esineen? (kopio säilyy leikepöydällä)</value>
-  </data>
-  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
-    <value>Muisti täyttyi maailmaa ladattaessa eikä kaikkia objekteja voitu lisätä. Jos käytit Large World -korjausta ja peli on juuri päivitetty, se voi olla pois käytöstä.</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
-    <value>Näppäimistö 2</value>
-  </data>
-  <data name="DialogTextDownloadingWorld" xml:space="preserve">
-    <value>Ladataan maailmaa: {0}%
-Maailman koko: {1}</value>
-  </data>
-  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
-    <value>Maailman lataus epäonnistui!</value>
-  </data>
-  <data name="DialogTextJoiningWorld" xml:space="preserve">
-    <value>Liitytään maailmaan</value>
-  </data>
-  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
-    <value>Maailmaan liittyminen epäonnistui, syy: {0}</value>
-  </data>
-  <data name="GpuUnderMinimumNotification" xml:space="preserve">
-    <value>Olemme havainneet, että grafiikkakorttisi on vähimmäisvaatimusten alapuolella, joka voi aiheuttaa suorituskykyongelmia tai kaatumisia. Kiitos ymmärryksestä.</value>
-  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Mikä tahansa malmi</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Uraaniharkko</value>
   </data>
-  <data name="ShowRotationHints" xml:space="preserve">
-    <value>Näytä kääntövihjeet</value>
-  </data>
-  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
-    <value>Näytä HUD-kääntövihjeet rakentamisen aikana</value>
-  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Moottori</value>
-  </data>
-  <data name="UnknownControl_Unassigned" xml:space="preserve">
-    <value>[määrittämätön]</value>
-  </data>
-  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
-    <value>Rakennustila</value>
-  </data>
-  <data name="ScreenOptionsGame_Line" xml:space="preserve">
-    <value>Jono</value>
-  </data>
-  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
-    <value>Taso</value>
-  </data>
-  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
-    <value>Yksittäinen kappale</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Vääntövoima</value>
@@ -2348,9 +1372,6 @@ Maailman koko: {1}</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Roottorin kohdenopeus; roottori kiihdyttää kunnes kohdenopeus on saavutettu</value>
   </data>
-  <data name="ControlName_Suicide" xml:space="preserve">
-    <value>Itsemurha</value>
-  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Palkki</value>
   </data>
@@ -2410,14 +1431,8 @@ Maailman koko: {1}</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Valon intensiteetti</value>
   </data>
-  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
-    <value>Moninpelipalvelinta ei voi käynnistää, virhe: {0}</value>
-  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>Paina {0} avataksesi oven</value>
-  </data>
-  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
-    <value>Esine on jonkun muun käytössä</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Pois</value>
@@ -2427,113 +1442,20 @@ Maailman koko: {1}</value>
     <value>Päälle</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
-  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
-    <value>Ystävien pelit</value>
-  </data>
-  <data name="ScreenCaptionPlayers" xml:space="preserve">
-    <value>Pelaajat</value>
-  </data>
-  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
-    <value>Kaverit</value>
-  </data>
-  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
-    <value>Yksityinen</value>
-  </data>
-  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
-    <value>Julkinen</value>
-  </data>
-  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
-    <value>Pelin omistaja</value>
-  </data>
-  <data name="ScreenPlayers_Invite" xml:space="preserve">
-    <value>Kutsu</value>
-  </data>
-  <data name="ScreenPlayers_Kick" xml:space="preserve">
-    <value>Potki</value>
-  </data>
-  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
-    <value>Pelaajan nimi</value>
-  </data>
-  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
-    <value>Peli ei ole enää tavoitettavissa.</value>
-  </data>
-  <data name="MessageBoxCaptionKicked" xml:space="preserve">
-    <value>POTKITTU</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
-    <value>Sinut on potkittu pois pelistä omistajan toimesta.</value>
-  </data>
-  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
-    <value>Ystävät</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
-    <value>Oletko varma että haluat uudelleenyhdistää nykyiseeen peliin?</value>
-  </data>
-  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
-    <value>Olet offline-tilassa ja moninpeli on poistettu käytöstä. Sinun täytyy muokata asetuksia päävalikosta.</value>
-  </data>
-  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
-    <value>Steam on offline-tilassa. Suorita Steam normaalitilassa tai käynnistä Steam uudelleen jos ongelma säilyy</value>
-  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>Kopioi/liitä sallii uuden aluksen tai aseman luomisen suoraan leikepöydältä</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Salli kopioiminen/liittäminen</value>
   </data>
-  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
-    <value>Yhteensopivat versiot</value>
-  </data>
-  <data name="MaxPlayers" xml:space="preserve">
-    <value>Pelaajien maksimimäärä</value>
-  </data>
-  <data name="DialogWaitingForWorldData" xml:space="preserve">
-    <value>Odotetaan maailman dataa</value>
-  </data>
-  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
-    <value>Palvelimeen yhdistäminen epäonnistui: {0}</value>
-  </data>
-  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
-    <value>Yhdistetään palvelimeen</value>
-  </data>
-  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
-    <value>Odotetaan palvelimen vastausta</value>
-  </data>
-  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
-    <value>Valittu pelimuoto on rajoitetumpi kuin alkuperäinen.  Se tarkoittaa että tavaraluetteloasi pienennetään ja saatat menettää joitain esineitä! Oletko varma että haluat vaihtaa pelimuotoa?</value>
-  </data>
-  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
-    <value>Ystävien maailmat</value>
-  </data>
-  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
-    <value>Julkiset maailmat</value>
-  </data>
-  <data name="ControlName_CubeColorChange" xml:space="preserve">
-    <value>Vaihda väriä / aseen tilaa</value>
-  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Aseet käytössä</value>
-  </data>
-  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
-    <value>Tämä ase on poistettu käytöstä maailman asetuksissa</value>
-  </data>
-  <data name="ControlDescPlayersList" xml:space="preserve">
-    <value>Näytä pelaajat (vain moninpeli)</value>
-  </data>
-  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
-    <value>Pelaajat</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>Kokoaja on vahingoittunut tai purettu</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Käytävä</value>
-  </data>
-  <data name="ItemDamagedDescription" xml:space="preserve">
-    <value>(Vahingoittunut)</value>
-  </data>
-  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
-    <value>Palvelin ei vastaa</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>Generaattorin painovoiman kiihtyvyys.</value>
@@ -2565,44 +1487,17 @@ Maailman koko: {1}</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Pidä {0} pohjassa latautuaksesi ja parantuaksesi</value>
   </data>
-  <data name="UnsupportedAspectRatio" xml:space="preserve">
-    <value>Tukematon kuvasuhde</value>
-  </data>
-  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
-    <value>Vain ystävät voivat liittyä tähän peliin</value>
-  </data>
-  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
-    <value>Maailman kuvaus</value>
-  </data>
-  <data name="CompressSaveGames" xml:space="preserve">
-    <value>Pakkaa tallennukset</value>
-  </data>
-  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
-    <value>Pakataanko tallennetut pelit levylle tilan säästämiseksi</value>
-  </data>
-  <data name="Headbob" xml:space="preserve">
-    <value>Poista näkymän heiluminen</value>
-  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Kun käytössä, pelaajat voivat nähdä toistensa nimet heidän päänsä päällä.</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Näytä pelaajien nimet</value>
   </data>
-  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
-    <value>Näytä pelaajien nimet</value>
-  </data>
-  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
-    <value>Näytä pelaajien nimet heidän päänsä päällä. Tämä ominaisuus täytyy myös ottaa käyttöön maailman asetuksissa.</value>
-  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Pudota esine</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Varoitus: Puvun energia on vähissä. Hengissäpitojärjestelmät saattavat pettää.</value>
-  </data>
-  <data name="NotificationInventoryFull" xml:space="preserve">
-    <value>Tavaraluettelo on täysi</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Varoitus: Puvun energiataso vaarallisen alhaalla. Hengissäpitojärjestelmät pettävät pian.</value>
@@ -2614,17 +1509,11 @@ Maailman koko: {1}</value>
     <value>Maksimimäärä avaruudessa leijuvia objekteja (malmi, harkot, osat)
 Varoitus - yli 64:n arvot voivat vaikuttaa merkittävästi suorituskykyyn!</value>
   </data>
-  <data name="OutOfAmmo" xml:space="preserve">
-    <value>{0}sta ovat ammukset loppu</value>
-  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>200mm ohjus</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm</value>
-  </data>
-  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
-    <value>Tarvitset {0} rakentaaksesi {1}n</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Asteroidit</value>
@@ -2662,21 +1551,6 @@ Suuri: 7 isoa asteroidia, 35 pientä asteroidia
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Kantama</value>
   </data>
-  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Pelimuoto</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
-    <value>Pelaajat</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
-    <value>Käyttäjänimi</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
-    <value>Maailma</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
-    <value>Maailman koko</value>
-  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Mikä tahansa kokoajan tuottama esine.</value>
   </data>
@@ -2713,9 +1587,6 @@ Suuri: 7 isoa asteroidia, 35 pientä asteroidia
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Aloita hylätyltä asteroiditasanteelta ilman aluksia, sinun täytyy aloittaa tyhjästä</value>
   </data>
-  <data name="MessageBoxTextSuicide" xml:space="preserve">
-    <value>Oletko varma, että haluat tehdä itsemurhan?</value>
-  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Törmännyt Punainen Alus</value>
   </data>
@@ -2730,15 +1601,6 @@ Suuri: 7 isoa asteroidia, 35 pientä asteroidia
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Romumetalli</value>
-  </data>
-  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
-    <value>Palvelimen isäntä on jättänyt pelin</value>
-  </data>
-  <data name="NotificationRespawn" xml:space="preserve">
-    <value>Sinä kuolit. Uudelleensyntyminen {0} sekunnissa</value>
-  </data>
-  <data name="HudBlockInfo_Required" xml:space="preserve">
-    <value>Tarvittu</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Suuri Alus / Asema</value>
@@ -2857,17 +1719,6 @@ Suuri: 7 isoa asteroidia, 35 pientä asteroidia
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Kytke toistomoodi päälle tai pois</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
-    <value>Tavaraluettelon koko {0}x
-Kokoojan teho {1}x
-Jalostamon nopeus {2}x</value>
-  </data>
-  <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Pelaaja liittynyt: {0}</value>
-  </data>
-  <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Pelaaja lähtenyt: {0}</value>
-  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>Rakettimoottorin vahinko</value>
   </data>
@@ -2880,29 +1731,17 @@ Jalostamon nopeus {2}x</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Rahtialukset</value>
   </data>
-  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Palvelimella on eri versio pelistä. Sinun versiosi: {0}; Palvelimen versio: {1}</value>
-  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Maailmanloppu (epärealistinen)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>Aprillipäivä! Älä kerro kenellekään!</value>
   </data>
-  <data name="ShowCrosshair" xml:space="preserve">
-    <value>Näytä tähtäin</value>
-  </data>
-  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
-    <value>Näytetäänkö aseen tähtäin</value>
-  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Keinotekoinen massa</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Ohjauspaneeli</value>
-  </data>
-  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
-    <value>Peli tallentaa jo.</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Keräin</value>
@@ -2949,12 +1788,6 @@ Jalostamon nopeus {2}x</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>Ikkuna 3x3 Litteä</value>
   </data>
-  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
-    <value>* Yhteisön lokalisoima</value>
-  </data>
-  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
-    <value>Klikkaa saadaksesi lisätietoa</value>
-  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Yksittäinen / Kaikki aseet (ohjaamo)</value>
   </data>
@@ -2985,14 +1818,8 @@ Jalostamon nopeus {2}x</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>Ikkuna 3x3 Litteä Käänt.</value>
   </data>
-  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
-    <value>Suoraa yhteyttä ei saatavilla.</value>
-  </data>
   <data name="Multiplayer_LastMsg" xml:space="preserve">
     <value>Palvelimelta ei ole saatu vastausta {0} sekuntiin.</value>
-  </data>
-  <data name="Multiplayer_NoConnection" xml:space="preserve">
-    <value>Ei yhteyttä palvelimeen.</value>
   </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Paina {0} vaihtaaksesi yhden/kaikkien aseiden välillä.</value>
@@ -3003,9 +1830,6 @@ Jalostamon nopeus {2}x</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
-  <data name="GamePaused" xml:space="preserve">
-    <value>Peli keskeytetty</value>
-  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>Rengas 1x1</value>
   </data>
@@ -3014,9 +1838,6 @@ Jalostamon nopeus {2}x</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Rengas 5x5</value>
-  </data>
-  <data name="ControlDescPauseGame" xml:space="preserve">
-    <value>Pysäytä peli (vain offline-tila)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Hiomakone</value>
@@ -3030,18 +1851,8 @@ Jalostamon nopeus {2}x</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Harhautus</value>
   </data>
-  <data name="ControlName_PauseGame" xml:space="preserve">
-    <value>Pysäytä peli</value>
-  </data>
-  <data name="KeysPause" xml:space="preserve">
-    <value>Pause</value>
-    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
-  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Tallenna</value>
-  </data>
-  <data name="NotificationWeaponNotWorking" xml:space="preserve">
-    <value>{0} ei toimi</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Lukitse</value>
@@ -3103,12 +1914,6 @@ Jalostamon nopeus {2}x</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Tähtää liikkuviin kohteisiin</value>
   </data>
-  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
-    <value>Lisättävä määrä</value>
-  </data>
-  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
-    <value>Asetettava arvo</value>
-  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argumentti</value>
   </data>
@@ -3136,12 +1941,6 @@ Jalostamon nopeus {2}x</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>Ei Polttoainetta</value>
   </data>
-  <data name="NotificationHealthCritical" xml:space="preserve">
-    <value>Terveys on kriittinen. Etsi välittömästi ensiapua.</value>
-  </data>
-  <data name="NotificationHealthLow" xml:space="preserve">
-    <value>Terveys vähissä.</value>
-  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Meteoriparvi lähestyy.</value>
   </data>
@@ -3165,12 +1964,6 @@ Jalostamon nopeus {2}x</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Paina {0} avataksesi tavaraluettelon</value>
-  </data>
-  <data name="MultiplayerError_DifferentData" xml:space="preserve">
-    <value>Palvelimella on erilainen pelidata kuin sinulla</value>
-  </data>
-  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
-    <value>*:lla merkityissä peleissä on yhteensopimatonta pelidataa</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>Info</value>
@@ -3212,108 +2005,17 @@ Jalostamon nopeus {2}x</value>
     <value>Kolmioiden määrä piirtämiseen. Teknistä tietoa.
 Korkeammat numerot vaikuttavat suorituskykyyn.</value>
   </data>
-  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
-    <value>Pelin ylläpitäjä</value>
-  </data>
-  <data name="MultiplayerJoinServers" xml:space="preserve">
-    <value>Vain omistautuneet</value>
-  </data>
-  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
-    <value>Käyttäjä on jo liittynyt</value>
-  </data>
-  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
-    <value>Et ole ryhmässä {0}. Haluatko käydä ryhmän verkkosivulla?</value>
-  </data>
-  <data name="MultiplayerErrorServerFull" xml:space="preserve">
-    <value>Palvelin on täynnä.</value>
-  </data>
-  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
-    <value>Steam-palvelimet offline-tilassa tai palvelinryhmää ei ole olemassa</value>
-  </data>
-  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
-    <value>Epäkelpo lippu</value>
-  </data>
-  <data name="MultiplayerJoinLANServers" xml:space="preserve">
-    <value>Vain LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
-    <value>Ystävät</value>
-  </data>
-  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
-    <value>LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
-    <value>Pelit</value>
-  </data>
-  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
-    <value>Palvelimet</value>
-  </data>
-  <data name="JoinGame_Title" xml:space="preserve">
-    <value>Liity maailmaan</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
-    <value>Ping</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
-    <value>Palvelin</value>
-  </data>
-  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
-    <value>Kirjautunut sisään toisaalla</value>
-  </data>
-  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
-    <value>Ei lisenssiä tai lisenssi vanhentunut</value>
-  </data>
-  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
-    <value>Lippu jo käytetty</value>
-  </data>
-  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
-    <value>Lippu kumottu</value>
-  </data>
-  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
-    <value>Käyttäjä ei yhteydessä</value>
-  </data>
-  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
-    <value>VAC-kiellossa</value>
-  </data>
-  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
-    <value>VAC-tarkistuksen aikakatkaisu</value>
-  </data>
-  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
-    <value>Sallitut ryhmät</value>
-  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Yhdistyskappale</value>
   </data>
-  <data name="NewsDownloadingFailed" xml:space="preserve">
-    <value>Uutisten lataus epäonnistui</value>
-  </data>
-  <data name="MessageBoxCaptionInfo" xml:space="preserve">
-    <value>INFO</value>
-  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>Space Engineers:in uusi versio on saatavilla!</value>
-  </data>
-  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
-    <value>Palvelinryhmän ID on epäkelpo, palvelimen ylläpitäjän pitäisi asettaa oikea ryhmä-ID serverin asetuksissa
-(tai nollata poistaakseen ryhmätarkistuksen)</value>
-  </data>
-  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
-    <value>Lista paikallisista omistautuneista palvelimista</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
-    <value>Lista pelaajien luomista peleistä</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
-    <value>Lista verkon omistautuneista palvelimista</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>Salli katsojat maailmassa</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>Salli katsoja</value>
-  </data>
-  <data name="PlayerCharacterColor" xml:space="preserve">
-    <value>Pelaajan väri</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Musta</value>
@@ -3336,9 +2038,6 @@ Korkeammat numerot vaikuttavat suorituskykyyn.</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Keltainen</value>
   </data>
-  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
-    <value>Paina {0} muuttaaksesi ulkonäköäsi</value>
-  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>Ohjaa rakettimoottoreja</value>
   </data>
@@ -3354,60 +2053,20 @@ Korkeammat numerot vaikuttavat suorituskykyyn.</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Roottorit:</value>
   </data>
-  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
-    <value>Ikkunatila</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
-    <value>Koko näyttö</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
-    <value>Näytön kokoinen ikkuna</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
-    <value>Ikkuna</value>
-  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Hajoamisvoima</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Automaattilukko</value>
   </data>
-  <data name="SpectatorControls" xml:space="preserve">
-    <value>Katsojaohjaimet</value>
-  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Mene takaisin ohjattuun hahmoon/ohjaamoon</value>
-  </data>
-  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Katsoja jolla on kiinteä näkymä ohjattuun esineeseen</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Vapaa katsoja. Voit silti ampua ja tehdä asioita ohjatulla esineellä</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Paikallaan oleva katsoja. Ohjaat hahmoa/ohjaamoa mutta kamera pysyy paikoillaan</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
-    <value>Sinulla on porttikielto tältä palvelimelta</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
-    <value>Sinulla on porttikielto tältä palvelimelta.
-Avaa ylläpitoprofiili?</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
-    <value>Sinulle on annettu porttikielto tältä palvelimelta ylläpitäjän toimesta.</value>
-  </data>
-  <data name="ScreenPlayers_Ban" xml:space="preserve">
-    <value>Porttikielto</value>
-  </data>
-  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
-    <value>Palaa pelialueelle!</value>
-  </data>
-  <data name="NotificationLeavingWorld" xml:space="preserve">
-    <value>Varoitus: Kuolet {0:F1} metrin päästä!</value>
-  </data>
-  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
-    <value>Edistyneet maailma-asetukset</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Edistynyt</value>
@@ -3463,59 +2122,14 @@ Avaa ylläpitoprofiili?</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Ryhmän nimike (täytyy olla 3 merkkiä)</value>
   </data>
-  <data name="Spectator" xml:space="preserve">
-    <value>Katsoja</value>
-  </data>
-  <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta-katsoja</value>
-  </data>
-  <data name="SpectatorControls_Free" xml:space="preserve">
-    <value>Vapaa katsoja</value>
-  </data>
-  <data name="SpectatorControls_None" xml:space="preserve">
-    <value>Pelaajan ohjaus</value>
-  </data>
-  <data name="SpectatorControls_Static" xml:space="preserve">
-    <value>Staattinen katsoja</value>
-  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Näytä massan keskipiste</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
-    <value>Annettu ryhmän nimi on jo olemassa</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
     <value>Ryhmän lyhenteen täytyy olla täsmälleen 3 merkkiä pitkä</value>
   </data>
-  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Annettu ryhmän lyhenne on jo olemassa</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>Ryhmän nimen täytyy olla vähintään 4 merkkiä pitkä</value>
-  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>Sinun täytyy lähteä ryhmästäsi ennen kuin voit luoda uuden</value>
-  </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Muokkaa</value>
-  </data>
-  <data name="Kick" xml:space="preserve">
-    <value>Potki</value>
-  </data>
-  <data name="Leader" xml:space="preserve">
-    <value>Johtaja</value>
-  </data>
-  <data name="Member" xml:space="preserve">
-    <value>Jäsen</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
-    <value>Oletko varma että haluat potkia pelaajan '{0}' ryhmästäsi?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
-    <value>Oletko varma että haluat jättää ryhmän '{0}'?</value>
-  </data>
-  <data name="Promote" xml:space="preserve">
-    <value>Ylennä</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>Jos valittu, alukset jotka luokitellaan roskaksi poistetaan pelin nopeuttamiseksi.
@@ -3528,41 +2142,14 @@ ohjaamaton, ilman lääkintähuonetta ja niin kaukana pelaajista että he tuskin
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Roskan autom. poisto</value>
   </data>
-  <data name="Demote" xml:space="preserve">
-    <value>Alenna</value>
-  </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Pääsy kielletty</value>
-  </data>
-  <data name="Founder" xml:space="preserve">
-    <value>Perustaja</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Yksityinen info (näkyvissä vain jäsenille):</value>
-  </data>
-  <data name="Accept" xml:space="preserve">
-    <value>Hyväksy</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value>(pääsy kielletty)</value>
   </data>
-  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
-    <value>Oletko varma että haluat hyväksyä pelaajan '{0}' ryhmääsi?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
-    <value>Oletko varma että haluat alentaa pelaajan '{0}' jäseneksi?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
-    <value>Oletko varma että haluat ylentää pelaajan '{0}' johtajaksi?</value>
-  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Muokkaa ryhmää</value>
-  </data>
-  <data name="Applicant" xml:space="preserve">
-    <value>Hakija</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Väliaikainen alus. Se poistetaan kun jätät pelin tai synnyt uudessa sellaisessa.</value>
@@ -3572,9 +2159,6 @@ ohjaamaton, ilman lääkintähuonetta ja niin kaukana pelaajista että he tuskin
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Poista uudelleensyntymisalus</value>
-  </data>
-  <data name="Tag" xml:space="preserve">
-    <value>Nimike</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>Tämä ryhmä ehdottaa rauhansopimusta ryhmällesi</value>
@@ -3639,18 +2223,6 @@ ohjaamaton, ilman lääkintähuonetta ja niin kaukana pelaajista että he tuskin
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Palauta kaikkien kappaleiden omistus ei keneenkään</value>
-  </data>
-  <data name="SessionDeleteFailed" xml:space="preserve">
-    <value>Istunnon poistaminen epäonnistui</value>
-  </data>
-  <data name="Medicals_Title" xml:space="preserve">
-    <value>Lääkintähuoneet</value>
-  </data>
-  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
-    <value>Oletko varma että haluat vaihtaa omistajaksi pelaajan {0}?</value>
-  </data>
-  <data name="Respawn" xml:space="preserve">
-    <value>Uudelleensynny</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Akku</value>
@@ -3732,9 +2304,6 @@ ohjaamaton, ilman lääkintähuonetta ja niin kaukana pelaajista että he tuskin
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>Aktiivisen antennin täytyy olla kytkettynä.</value>
   </data>
-  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
-    <value>Sama pelidata</value>
-  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Hyväksy rauha</value>
   </data>
@@ -3744,39 +2313,6 @@ Uudelleensynny?</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Uudelleensyntymisalus</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Päivitä</value>
-  </data>
-  <data name="PlayerInfo_Dead" xml:space="preserve">
-    <value>kuollut</value>
-  </data>
-  <data name="ScreenMods_ActiveMods" xml:space="preserve">
-    <value>Aktiiviset muunnokset</value>
-  </data>
-  <data name="ScreenMods_AvailableMods" xml:space="preserve">
-    <value>Saatavilla olevat muunnokset</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
-    <value>Deaktivoi muunnos</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
-    <value>Deaktivoi kaikki muunnokset</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
-    <value>Aktivoi muunnos</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
-    <value>Aktivoi kaikki muunnokset</value>
-  </data>
-  <data name="WorldSettings_Mods" xml:space="preserve">
-    <value>Muunnokset</value>
-  </data>
-  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
-    <value>Avaa valittu muunnos Workshopissa Steam Overlayn kautta</value>
-  </data>
-  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
-    <value>Päivitä tilattujen muunnosten lista</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Vihollisryhmä</value>
@@ -3805,17 +2341,8 @@ Uudelleensynny?</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Loputon</value>
   </data>
-  <data name="JoinGame_SearchLabel" xml:space="preserve">
-    <value>Etsi peliä</value>
-  </data>
-  <data name="JoinGame_SearchTooltip" xml:space="preserve">
-    <value>Sinun täytyy kirjoittaa vähintään 3 merkkiä aloittaaksesi haun</value>
-  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>Asiakkaat voivat tallentaa</value>
-  </data>
-  <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Ladataan muunnoksia ... odota hetki.</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>Onko rengas liikutettavissa.</value>
@@ -3828,9 +2355,6 @@ Uudelleensynny?</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Ohjaus</value>
-  </data>
-  <data name="NotificationClientCannotSave" xml:space="preserve">
-    <value>Asiakkaan tallennus ei ole saatavilla tällä palvelimella</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>Säätelee renkaan kitkaa vaihtamalla renkaan painetta.</value>
@@ -3849,18 +2373,6 @@ Uudelleensynny?</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Rengasta ei voitu asettaa.</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
-    <value>Siirrä muunnos alas</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
-    <value>Siirrä muunnos ylös</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
-    <value>Siirrä muunnos alimmaiseksi</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
-    <value>Siirrä muunnos päällimmäiseksi</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Sinun kappaleesi (ei ryhmää)</value>
@@ -3922,12 +2434,6 @@ Uudelleensynny?</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Nopeus</value>
   </data>
-  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
-    <value>Et voi luoda ryhmää, joka sisältää kappaleita joihin sinulla ei ole oikeutta.</value>
-  </data>
-  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
-    <value>Et voi poistaa ryhmää, joka sisältää kappaleita joihin sinulla ei ole oikeutta.</value>
-  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Käytössä olevien akkujen määrä:</value>
   </data>
@@ -3988,12 +2494,6 @@ Uudelleensynny?</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Työnnön ohitus</value>
   </data>
-  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>Sinut on poistettu ryhmästä.</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>Sinut on hyväksytty ryhmään.</value>
-  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Vaihda</value>
   </data>
@@ -4036,12 +2536,6 @@ Uudelleensynny?</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Kierron ohitus</value>
   </data>
-  <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Edellinen työkalupalkki</value>
-  </data>
-  <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Seuraava työkalupalkki</value>
-  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Nykyinen sijainti:</value>
   </data>
@@ -4056,33 +2550,6 @@ Uudelleensynny?</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
     <value>Heilutusanimaatio</value>
-  </data>
-  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>Muunnoksen lataus epäonnistui! Tarkista muunnokset maailman asetuksissa.</value>
-  </data>
-  <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Etsitään muunnospäivityksiä ... odota hetki.</value>
-  </data>
-  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Testipiirto</value>
-  </data>
-  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Salli testipiirto</value>
-  </data>
-  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Ladataan virhelokia:</value>
-  </data>
-  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
-    <value>Mallinuket</value>
-  </data>
-  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Kiinnityspisteet</value>
-  </data>
-  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>Latausvirheitä ei ollut</value>
-  </data>
-  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Fysiikkaprimitiivit</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Näytä aluksen nimi</value>
@@ -4108,53 +2575,14 @@ Uudelleensynny?</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Pieni alus</value>
   </data>
-  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Avaa uudessa ikkunassa</value>
-  </data>
-  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Lataa tekstuurit uudelleen</value>
-  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Suora yhteys</value>
-  </data>
-  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Paikalliset muunnokset eivät ole hyväksyttyjä moninpelissä. Käytä sen sijaan workshopin muunnoksia.</value>
-  </data>
-  <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Paikallinen muunnos</value>
-  </data>
-  <data name="ScreenMods_MissingDetails" xml:space="preserve">
-    <value>Muunnoksen tietoja ei saatu Steamista</value>
-  </data>
-  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Puuttuva paikallinen muunnos</value>
-  </data>
-  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Workshop-muunnos</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Tuntematon</value>
   </data>
-  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Lataa mallit uudelleen</value>
-  </data>
-  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Kopioi loki leikepöydälle</value>
-  </data>
-  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Varoitus: Kaikki alukset poistetaan {0:F1}:n metrin sisällä!</value>
-  </data>
-  <data name="PlayerCharacterModel" xml:space="preserve">
-    <value>Pelaajan malli</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
-    <value>Muunnokset</value>
-  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Paina {0} asettaaksesi paneelin näppäimet</value>
-  </data>
-  <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>Paina {0} käyttääksesi esinettä {1}</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Painovoimakentän kantomatka</value>
@@ -4187,41 +2615,14 @@ Uudelleensynny?</value>
     <value>Kappaleen {0} määritelmä sisältää tietokoneen, mutta sen TypeId ei ole terminaalikappale. Tämä tarkoittaa että kappaleen voi omistaa, mutta sen omistusta ei voi muuttaa terminaalin kautta.
 Vinkki: Yritä TypeId:n asettamista mihin tahansa kappaleeseen joka on terminaalissa - yksinkertaisin tapaus on pelkkä TerminalBlock</value>
   </data>
-  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Valitse palvelin näyttääksesi muunnoslistan</value>
-  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Näppäinpaneeli</value>
-  </data>
-  <data name="ScreenMods_SearchLabel" xml:space="preserve">
-    <value>Etsi</value>
-  </data>
-  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Palvelimelta ei saatu muunnoslistaa</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Avaruuspuku</value>
   </data>
-  <data name="HudWarnings" xml:space="preserve">
-    <value>Hud-varoitukset</value>
-  </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
     <value>Lisättiin {0}:n identiteetti</value>
-  </data>
-  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>Maailmaa ei voitu ladata. Se on luotu pelin uudemmassa versiossa.</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>Tämä workshop-kohde ei vaikuta kuuluvan sinulle. Varmista, että olet kirjautunut sisään oikealla käyttäjätilillä.</value>
-  </data>
-  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Muuta leikepöytä tiedostoksi</value>
-  </data>
-  <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Tallenna leikepöydän alukset tiedostoksi</value>
-  </data>
-  <data name="AddNewNPC" xml:space="preserve">
-    <value>Lisää uusi vihollisidentiteetti</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Osat</value>
@@ -4232,35 +2633,11 @@ Vinkki: Yritä TypeId:n asettamista mihin tahansa kappaleeseen joka on terminaal
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
     <value>Pienet kappaleet</value>
   </data>
-  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
-    <value>Työkalut</value>
-  </data>
-  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Valitse avainsanat</value>
-  </data>
-  <data name="WorkshopTag_Animation" xml:space="preserve">
-    <value>Animaatio</value>
-  </data>
-  <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Kappale</value>
-  </data>
-  <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Hahmo</value>
-  </data>
-  <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Muu</value>
-  </data>
-  <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
-  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>Näytä</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Kamera</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Päivitys epäonnistui sillä et ole tämän muunnoksen omistaja.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Virhe alkuperäisen pelisisällön lataamisessa, seuraavaa tiedostoa ei voi ladata:
@@ -4271,20 +2648,11 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Lähetä antenneilla</value>
   </data>
-  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Joitain muunnoksia ei voitu ladata virheiden takia. Tarkista lokitiedosto jos haluat lisätietoja tai pelaa yksinpeliä avataksesi testinäytön.</value>
-  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>Mikä tahansa {0}:n hyväksymä esine</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>Mikä tahansa {0}:n tuottama esine</value>
-  </data>
-  <data name="RenderIterpolation" xml:space="preserve">
-    <value>Piirrä interpolaatio</value>
-  </data>
-  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Vähentää tökkimistä ja tekee pelistä sujuvamman.</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Tuotanto</value>
@@ -4294,9 +2662,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Paina {0} poistuaksesi kameran näkymästä</value>
-  </data>
-  <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Muunnospaketti</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Kaariuuni</value>
@@ -4409,9 +2774,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>Tunnista asemat</value>
   </data>
-  <data name="CustomText" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Näytä painovoiman kantama</value>
   </data>
@@ -4444,12 +2806,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Aikaa laukaisuun:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Työkalujen ja objektien välilehdet:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
-    <value>Etsi:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Ladattava raketinheitin</value>
@@ -4556,9 +2912,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Oletus x 50</value>
   </data>
-  <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Liikuta liitettyä kappaletta</value>
-  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Jäähtymisaika pois päältä</value>
   </data>
@@ -4570,21 +2923,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Ohjaamokappaleet</value>
-  </data>
-  <data name="WorkshopTag_Script" xml:space="preserve">
-    <value>Koodi</value>
-  </data>
-  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>Jotkin leikepöydällä olevat kappaleet eivät ole saatavilla tässä maailmassa</value>
-  </data>
-  <data name="ConvertingObjs" xml:space="preserve">
-    <value>Muunnetaan malleja. Odota hetki.</value>
-  </data>
-  <data name="ConvertToObjDone" xml:space="preserve">
-    <value>Kaikki mallit muunnettu.</value>
-  </data>
-  <data name="ExportingToObj" xml:space="preserve">
-    <value>Viedään mallia. Odota hetki.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Energiakappaleet</value>
@@ -4601,17 +2939,11 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>Luo objekti</value>
   </data>
-  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>Liitetty alus sisältää kappaleita jotka eivät ole saatavilla tässä maailmassa. Näitä kappaleita ei liitetä, joka saattaa aiheuttaa aluksen katkeamisen. Haluatko todella liittää tämän aluksen?</value>
-  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Asteroidit</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Esineet</value>
-  </data>
-  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
-    <value>Esine ei ole saatavilla tässä maailmassa</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Asteroidi</value>
@@ -4627,9 +2959,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Yhteistyötila</value>
-  </data>
-  <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Auta muita</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Ammuskokooja</value>
@@ -4718,12 +3047,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Epäkelpo määrä</value>
   </data>
-  <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Asetetaan esineitä maailmaan. Odota hetki.</value>
-  </data>
-  <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Järjestelmät 3</value>
-  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Kytke yhteistyötila päälle tai pois</value>
   </data>
@@ -4742,9 +3065,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Valitse asteroidityyppi</value>
   </data>
-  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>Vaihdettu aseeseen: {0}</value>
-  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>Mikä tahansa ammuslipas jonka {0} hyväksyy</value>
   </data>
@@ -4753,24 +3073,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Kiinnitä</value>
-  </data>
-  <data name="Thrust_Back" xml:space="preserve">
-    <value>Taaksepäin</value>
-  </data>
-  <data name="Thrust_Down" xml:space="preserve">
-    <value>Alas</value>
-  </data>
-  <data name="Thrust_Forward" xml:space="preserve">
-    <value>Eteenpäin</value>
-  </data>
-  <data name="Thrust_Left" xml:space="preserve">
-    <value>Vasemmalle</value>
-  </data>
-  <data name="Thrust_Right" xml:space="preserve">
-    <value>Oikealle</value>
-  </data>
-  <data name="Thrust_Up" xml:space="preserve">
-    <value>Ylös</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Joku muu käyttää tätä alusta!</value>
@@ -4808,14 +3110,8 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Useita ruudukoita ei tueta. Vain suurinta ruudukkoa käytetään.</value>
   </data>
-  <data name="SelectBlueprint" xml:space="preserve">
-    <value>Valitse</value>
-  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Näytä ruudukon sarana</value>
-  </data>
-  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Yläpeukku</value>
@@ -4834,9 +3130,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Kaksipuolinen terästaso</value>
-  </data>
-  <data name="AvailableBlueprints" xml:space="preserve">
-    <value>Saatavilla olevat pohjapiirustukset</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Säilytä heijastus</value>
@@ -4886,18 +3179,6 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Pallo</value>
   </data>
-  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
-    <value>Säde</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
-    <value>Leveys</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
-    <value>Syvyys</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
-    <value>Korkeus</value>
-  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>Kun asetettu, pelialue rajataan kuutioksi jonka sivun pituus on valittu koko.
 Kaikki esineet jotka jättävät alueen poistetaan pelistä.
@@ -4921,9 +3202,6 @@ Hahmot kuolevat ylittäessään rajan.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Mukautettu</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
-    <value>Etäisyys</value>
-  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Toistoaika</value>
   </data>
@@ -4939,26 +3217,11 @@ Hahmot kuolevat ylittäessään rajan.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Toiston ajastin:</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Harja-asetukset</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Läpinäkyvyys</value>
-  </data>
-  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Muodon asetukset</value>
-  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Maaston autom. tasaus</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Kapseli</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Pituus</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
-    <value>Säde</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Hälytys 1</value>
@@ -4993,32 +3256,8 @@ Hahmot kuolevat ylittäessään rajan.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Suorita</value>
   </data>
-  <data name="ExportToObjModded" xml:space="preserve">
-    <value>Malli sisältää muunnoskappaleita. Vain mallit jotka eivät käytä muunnoksia voidaan viedä.</value>
-  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Ramppi</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Kiinnity vokseliruudukkoon</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Alue</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Valitse akseli</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X-akseli</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y-akseli</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z-akseli</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Materiaali</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Loputon: Suuri tiheys</value>
@@ -5126,7 +3365,7 @@ Hahmot kuolevat ylittäessään rajan.</value>
     <value>Syötä uusi nimi</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
-    <value/>
+    <value />
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
     <value>Haluatko julkaista tämän ohjelman?</value>
@@ -5182,26 +3421,11 @@ Hahmot kuolevat ylittäessään rajan.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>Ohjelmoitavan kappaleen omistusoikeus muuttui. Ole hyvä ja käännä ohjelma uudelleen.</value>
   </data>
-  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>Uusi viesti ryhmän {0} keskustelussa</value>
-  </data>
-  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>Uusi viesti yleiskeskustelussa</value>
-  </data>
-  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>Uusi viesti pelaajalta {0}</value>
-  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Lähetys-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Viestintä</value>
-  </data>
-  <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Kuvaus on liian pitkä (enintään 8000 merkkiä sallittu)</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Kuvaus</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>Näköetäisyys</value>
@@ -5270,9 +3494,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
-  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Valitse kategoria</value>
-  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Kuvaus</value>
   </data>
@@ -5315,9 +3536,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Varoitus: laitonta dataa. Muokkauksia ei tallenneta.</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>Näköetäisyys: {0}m</value>
-  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Vain ryhmän jäsenet voivat käyttää ryhmältä-ryhmälle-viestintää</value>
   </data>
@@ -5345,9 +3563,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Nykyinen</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Projekti vokseliksi</value>
-  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Muokkaa yksityistä tekstiä</value>
   </data>
@@ -5365,15 +3580,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Ammu kerran</value>
-  </data>
-  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Seuraava vokselimateriaali</value>
-  </data>
-  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Avaa vokselikäden asetukset</value>
-  </data>
-  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Edellinen vokselimateriaali</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Vain omistaja</value>
@@ -5393,15 +3599,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Käyttötyyppi</value>
   </data>
-  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Oletko varma että haluat korvata tämän pohjapiirustuksen leikepöydällä?</value>
-  </data>
-  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Korvaa</value>
-  </data>
-  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Tekstipaneeli on vain luku-tilassa</value>
-  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Generoidut kappaleet</value>
   </data>
@@ -5420,17 +3617,8 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Salli työkalujen tärinä</value>
   </data>
-  <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Teksti on liian pitkä. Haluatko lyhentää sitä?</value>
-  </data>
-  <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Vie malli</value>
-  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>Teksti on liian pitkä. Sitä ei tallenneta.</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Näytä rajalaatikko</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Konsoli</value>
@@ -5561,19 +3749,6 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Pyöreän Panssarin Luiskakappale</value>
   </data>
-  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>Tämä avaa kohteen {0} nettiselaimessasi, koska Steam Overlay on joko pois päältä tai ei käynnistynyt. Peliä ei sammuteta.
-Haluatko jatkaa?</value>
-  </data>
-  <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Paina {0} kääntääksesi kappaletta</value>
-  </data>
-  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Paina {0} tai {1} vaihtaaksesi yhdistelmärakentamiseen</value>
-  </data>
-  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Paina {0} vaihtaaksesi dynaamiseen rakentamiseen</value>
-  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Raskaan Panssarin Pyöreä Kulmakappale</value>
   </data>
@@ -5582,9 +3757,6 @@ Haluatko jatkaa?</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Raskaan Panssarin Pyöreä Luiskakappale</value>
-  </data>
-  <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Vaihda kävelyä</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Yhdistetty kohteeseen</value>
@@ -5600,21 +3772,6 @@ Haluatko jatkaa?</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>Etsitään laseria GPS:n koordinaateilla</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>Lista suosikkipalvelimista</value>
-  </data>
-  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Suosikit</value>
-  </data>
-  <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>Historia</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>Lista ystävien palvelimista</value>
-  </data>
-  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>Lista viimeksi käydyistä palvelimista</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Kevyen Panssarin Kulmakappale 2x1x1</value>
@@ -5651,12 +3808,6 @@ Haluatko jatkaa?</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Kevyen Panssarin Sileä Luiskakappale 3x1x1</value>
-  </data>
-  <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Lisää palvelin suosikkeihin</value>
-  </data>
-  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Poista palvelin suosikeista</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Kevyen Panssarin Kulmakappale 2x1x1 Pohja</value>
@@ -5748,15 +3899,6 @@ Haluatko jatkaa?</value>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Raskaan Panssarin Sileä Luiskakappale 2x1x1 Kärki</value>
   </data>
-  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Avaa vokselikäden asetukset</value>
-  </data>
-  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>Paina {0} avataksesi vokselikäden asetukset</value>
-  </data>
-  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>Paina {0} tai {1} vaihtaaksesi vokselin materiaalia</value>
-  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>Nämä vastaanottimet ovat radioetäisyydellä ja voivat ilmoittaa sijaintinsa.
 Niiden nykyinen tila ja kohde on sulkeissa:
@@ -5777,18 +3919,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Kopioi kohteen nykyinen tai viimeksi tunnettu sijainti leikepöydälle</value>
-  </data>
-  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Salli bottien testaustila</value>
-  </data>
-  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Seuraava botti</value>
-  </data>
-  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Edellinen botti</value>
-  </data>
-  <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bottien asetukset</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Mustalista</value>
@@ -5825,9 +3955,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Poista</value>
-  </data>
-  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bottien asetukset</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Pieni Kuljetinlajittelija</value>
@@ -5949,9 +4076,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Selaa Workshoppia</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Luo uusi</value>
-  </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Avaa Workshopissa</value>
   </data>
@@ -5991,9 +4115,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Tämän puvun kypärää ei voi ottaa pois.</value>
   </data>
-  <data name="ReportBug" xml:space="preserve">
-    <value>Ilmoita virheestä</value>
-  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Kypärä</value>
   </data>
@@ -6030,15 +4151,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Aktivoi kolmannen persoonan tila</value>
   </data>
-  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
-    <value>Seuraava työkalupalkin esine</value>
-  </data>
-  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
-    <value>Edellinen työkalupalkin esine</value>
-  </data>
-  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
-    <value>Työkalut / Aseet 2</value>
-  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Hapen tuotanto:</value>
   </data>
@@ -6047,12 +4159,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Satunnaiset kohtaamiset</value>
-  </data>
-  <data name="ControlName_BuildMode" xml:space="preserve">
-    <value>Rakennustila</value>
-  </data>
-  <data name="ScreenControlMenu_Title" xml:space="preserve">
-    <value>Ohjausvalikko</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Näytä vihollisantennien etäisyys</value>
@@ -6066,9 +4172,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Taistelu</value>
   </data>
-  <data name="ControlName_ControlMenu" xml:space="preserve">
-    <value>Avaa ohjausvalikko</value>
-  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Kryokammio</value>
   </data>
@@ -6077,21 +4180,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Näytä terminaali</value>
-  </data>
-  <data name="ControlMenuItemValue_Off" xml:space="preserve">
-    <value>Pois</value>
-  </data>
-  <data name="ControlMenuItemValue_On" xml:space="preserve">
-    <value>Päälle</value>
-  </data>
-  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
-    <value>Kameratila</value>
-  </data>
-  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
-    <value>FPP</value>
-  </data>
-  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
-    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Skenaarion asetukset</value>
@@ -6159,32 +4247,8 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Lähetykset</value>
   </data>
-  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
-    <value>Itsemurha</value>
-  </data>
-  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
-    <value>Nopea lataus / uudelleenyhdistäminen</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
-    <value>Näytä värinvalitsin</value>
-  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Näytä terminaali</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
-    <value>Näytä työkalupalkin näyttö</value>
-  </data>
-  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
-    <value>Vaihda HUD</value>
-  </data>
-  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
-    <value>Pysäytä peli</value>
-  </data>
-  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
-    <value>Ominaisuus ei vielä saatavilla</value>
-  </data>
-  <data name="NotificationMaximumNumberBots" xml:space="preserve">
-    <value>Bottien maksimimäärä saavutettu</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Tehokkuusmoduuli</value>
@@ -6198,38 +4262,11 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Taistelu</value>
   </data>
-  <data name="Hud_BuildMode" xml:space="preserve">
-    <value>Rakennustila</value>
-  </data>
-  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
-    <value>Paina {0} vaihtaaksesi yhdistelmärakentamiseen</value>
-  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Laajenna</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Vedä sisään</value>
-  </data>
-  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
-    <value>Paina {0} avataksesi ohjausvalikon</value>
-  </data>
-  <data name="NotificationJoystickMenus" xml:space="preserve">
-    <value>Jos tarvit apua tai haluat muokata työkalupalkkia, avaa ohjausvalikko</value>
-  </data>
-  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
-    <value>Paina {0} tai {1} valitaksesi työkalupalkin paikkoja</value>
-  </data>
-  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Paina {0} lisätäksesi kappaleen, paina {1} poistaaksesi kappaleen</value>
-  </data>
-  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
-    <value>Paina {0} vaihtaaksesi vokselin materiaalia</value>
-  </data>
-  <data name="Notification_GameplayOptions" xml:space="preserve">
-    <value>Paina {0} muuttaaksesi pelattavuusasetuksia</value>
-  </data>
-  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
-    <value>Muuta ulkonäköä</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Avaa ohjausvalikko avataksesi kohteen {0} ohjauspaneelin</value>
@@ -6248,18 +4285,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Avaa ohjausvalikko asettaaksesi paneelin painikkeet</value>
-  </data>
-  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
-    <value>Avaa ohjausvalikko avataksesi kohteen {0} tavaraluettelon</value>
-  </data>
-  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
-    <value>Paina {0} siirtyäksesi rakennustilaan</value>
-  </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Liitytään taisteluaulaan</value>
-  </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Taisteluaulaan liittyminen epäonnistui, syy: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Paina {0} siirtyäksesi kryokammioon</value>
@@ -6312,92 +4337,11 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilotti päällä</value>
   </data>
-  <data name="WorldSettings_Physics" xml:space="preserve">
-    <value>Fysiikka</value>
-  </data>
-  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
-    <value>Nopea</value>
-  </data>
-  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
-    <value>Normaali</value>
-  </data>
-  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
-    <value>Tarkka</value>
-  </data>
-  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
-    <value>Korkeammat asetukset parantavat simulaatiota MUTTA vaikuttavat suoraan suorituskykyyn.</value>
-  </data>
-  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
-    <value>Grafiikka-asetukset</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
-    <value>Anisotrooppinen suodattaminen</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
-    <value>Pois</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
-    <value>Anti-aliasing</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
-    <value>Ei mitään</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
-    <value>Lehtien yksityiskohdat</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
-    <value>Ei käytössä</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
-    <value>Korkea</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
-    <value>Matala</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
-    <value>Keskitaso</value>
-  </data>
-  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
-    <value>Monisäikeinen renderöinti</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
-    <value>Laadun esiasetus</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
-    <value>Mukautettu</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
-    <value>Korkea</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
-    <value>Matala</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
-    <value>Keskitaso</value>
-  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderöijä</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Varjokartan resoluutio</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
-    <value>Korkea</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
-    <value>Matala</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
-    <value>Tekstuurien laatu</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
-    <value>Korkea</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
-    <value>Matala</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
-    <value>Keskitaso</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Renderöijän vaihtaminen vaatii pelin uudelleenkäynnistämisen.</value>
@@ -6410,12 +4354,6 @@ Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordin
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
-  </data>
-  <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
-  </data>
-  <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>

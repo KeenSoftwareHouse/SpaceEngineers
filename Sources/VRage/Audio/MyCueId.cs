@@ -10,7 +10,7 @@ namespace VRage.Audio
     public struct MyCueId
     {
         [ProtoBuf.ProtoMember]
-        public readonly MyStringHash Hash;
+        public MyStringHash Hash;
 
         public MyCueId(MyStringHash hash)
         {

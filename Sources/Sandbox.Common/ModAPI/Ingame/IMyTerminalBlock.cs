@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
-
+using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
 namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyTerminalBlock : IMyCubeBlock
@@ -44,13 +44,13 @@ namespace Sandbox.ModAPI.Ingame
         }
         public static bool HasInventory(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block)
         {
-            return block is Sandbox.ModAPI.Interfaces.IMyInventoryOwner;
+            return ((IMyInventoryOwner)block).HasInventory;
         }
-        public static Sandbox.ModAPI.Interfaces.IMyInventory GetInventory(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block, int index)
+        public static VRage.ModAPI.Ingame.IMyInventory GetInventory(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block, int index)
         {
-            if (block.HasInventory())
+            if (block is IMyInventoryOwner)
             {
-                return ((Sandbox.ModAPI.Interfaces.IMyInventoryOwner)block).GetInventory(index);
+                return ((IMyInventoryOwner)block).GetInventory(index);
             }
             else
             {
@@ -59,9 +59,9 @@ namespace Sandbox.ModAPI.Ingame
         }
         public static int GetInventoryCount(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block)
         {
-            if (block.HasInventory())
+            if (block is IMyInventoryOwner)
             {
-                return ((Sandbox.ModAPI.Interfaces.IMyInventoryOwner)block).InventoryCount;
+                return ((IMyInventoryOwner)block).InventoryCount;
             }
             else
             {
@@ -70,9 +70,9 @@ namespace Sandbox.ModAPI.Ingame
         }
         public static bool GetUseConveyorSystem(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block)
         {
-            if (block.HasInventory())
+            if (block is IMyInventoryOwner)
             {
-                return ((Sandbox.ModAPI.Interfaces.IMyInventoryOwner)block).UseConveyorSystem;
+                return ((IMyInventoryOwner)block).UseConveyorSystem;
             }
             else
             {
@@ -81,9 +81,9 @@ namespace Sandbox.ModAPI.Ingame
         }
         public static void SetUseConveyorSystem(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block, bool use)
         {
-            if (block.HasInventory())
+            if (block is IMyInventoryOwner)
             {
-                ((Sandbox.ModAPI.Interfaces.IMyInventoryOwner)block).UseConveyorSystem = use;
+                ((IMyInventoryOwner)block).UseConveyorSystem = use;
             }
         }
     }

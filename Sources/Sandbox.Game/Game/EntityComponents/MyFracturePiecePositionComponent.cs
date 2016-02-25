@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRageMath;
 
 namespace Sandbox.Game.Components
@@ -34,6 +34,12 @@ namespace Sandbox.Game.Components
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("FP.Volume+InvalidateRender");
             UpdateWorldVolume();
+
+            if (Entity.Physics != null && Entity.Physics.Enabled && Entity.Physics != source)
+            {
+                Entity.Physics.OnWorldPositionChanged(source);
+            }
+
             //ProfilerShort.BeginNextBlock("FP.Prunning.Move");
             //MyGamePruningStructure.Move(Entity as MyEntity);
             ProfilerShort.End();

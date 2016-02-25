@@ -5,11 +5,11 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateDistantImpostors : IMyRenderMessage
+    public class MyRenderMessageUpdateDistantImpostors : MyRenderMessageBase
     {
         public MyImpostorProperties[] ImpostorProperties;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateDistantImpostors; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateDistantImpostors; } }
     }
 }

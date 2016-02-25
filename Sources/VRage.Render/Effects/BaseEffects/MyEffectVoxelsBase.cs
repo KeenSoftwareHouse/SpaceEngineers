@@ -6,7 +6,7 @@ namespace VRageRender.Effects
     using VRage;
     using Matrix = VRageMath.Matrix;
 
-    abstract class MyEffectVoxelsBase : MyEffectBase
+    abstract class MyEffectVoxelsBase : MyEffectAtmosphereBase
     {
         readonly EffectHandle m_projectionMatrix;
 

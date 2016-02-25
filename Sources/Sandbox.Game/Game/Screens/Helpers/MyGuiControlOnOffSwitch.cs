@@ -1,11 +1,11 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Diagnostics;
 using VRage;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;

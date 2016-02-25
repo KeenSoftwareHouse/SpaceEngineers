@@ -119,23 +119,23 @@ namespace VRageRender
 
         internal void Begin()
         {
-            MyRender11.Context.Begin(m_query);
+            MyRender11.DeviceContext.Begin(m_query);
         }
 
         internal void End()
         {
-            MyRender11.Context.End(m_query);
+            MyRender11.DeviceContext.End(m_query);
         }
 
         internal bool GetResult(out int num, bool stalling = false)
         {
             if (!stalling)
             {
-                return MyRender11.Context.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
+                return MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
             }
             else
             {
-                while (!MyRender11.Context.GetData(m_query, AsynchronousFlags.None, out num))
+                while (!MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.None, out num))
                 {
                     System.Threading.Thread.Sleep(1);
                 }

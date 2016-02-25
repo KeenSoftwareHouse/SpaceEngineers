@@ -215,14 +215,14 @@ namespace Sandbox.Game.Gui
             // TODO: we don't support 'undefined' value in GUI, we just show first block values
             base.OnUpdateVisual();
             var first = FirstBlock;
-            if (first != null)
+            if (first != null && m_slider != null)
             {
                 m_slider.ValueChanged = null;
                 m_slider.DefaultValue = DefaultValueGetter != null ? Normalizer(first, DefaultValueGetter(first)) : default(float?);
                 m_slider.Value = Normalizer(first, GetValue(first));
                 m_slider.ValueChanged = m_valueChanged;
 
-                m_control.SetDetailedInfo(Writer, first);
+                if(Writer != null)m_control.SetDetailedInfo(Writer, first);
             }
         }
 
@@ -259,7 +259,7 @@ namespace Sandbox.Game.Gui
                 float val = Denormalizer(first, arg.Value);
 
                 // TODO: allocations, needs GUI redo
-                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, defaultAmount: val, caption: MySpaceTexts.DialogAmount_SetValueCaption);
+                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, defaultAmount: val, caption: MyCommonTexts.DialogAmount_SetValueCaption);
                 dialog.OnConfirmed += m_amountConfirmed;
                 MyGuiSandbox.AddScreen(dialog);
                 return true;
@@ -295,10 +295,10 @@ namespace Sandbox.Game.Gui
             Actions = actions;
         }
 
-        public void EnableActions(string increaseIcon, string decreaseIcon, StringBuilder increaseName, StringBuilder decreaseName, float step, string resetIcon = null, StringBuilder resetName = null)
+        public void EnableActions(string increaseIcon, string decreaseIcon, StringBuilder increaseName, StringBuilder decreaseName, float step, string resetIcon = null, StringBuilder resetName = null, Func<TBlock, bool> enabled = null)
         {
-            var increase = new MyTerminalAction<TBlock>("Increase" + Id, increaseName, (b) => IncreaseAction(b, step), ActionWriter, increaseIcon);
-            var decrease = new MyTerminalAction<TBlock>("Decrease" + Id, decreaseName, (b) => DecreaseAction(b, step), ActionWriter, decreaseIcon);
+            var increase = new MyTerminalAction<TBlock>("Increase" + Id, increaseName, (b) => IncreaseAction(b, step), ActionWriter, increaseIcon, enabled);
+            var decrease = new MyTerminalAction<TBlock>("Decrease" + Id, decreaseName, (b) => DecreaseAction(b, step), ActionWriter, decreaseIcon, enabled);
             if (resetIcon != null)
                 SetActions(increase, decrease, new MyTerminalAction<TBlock>("Reset" + Id, resetName, ResetAction, ActionWriter, resetIcon));
             else

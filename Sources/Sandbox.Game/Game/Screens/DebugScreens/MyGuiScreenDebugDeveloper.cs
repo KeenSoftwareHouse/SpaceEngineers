@@ -1,17 +1,23 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Plugins;
 using VRage.Utils;
 using VRageMath;
 
+[Flags]
+public enum MyDirectXSupport : byte
+{
+    DX9 = 1,
+    DX11 = 2,
+    ALL = DX9|DX11
+}
 
 namespace Sandbox.Game.Gui
 {
@@ -20,11 +26,20 @@ namespace Sandbox.Game.Gui
     {
         public readonly string Group;
         public readonly string Name;
+        public readonly MyDirectXSupport DirectXSupport;
+
+        public MyDebugScreenAttribute(string group, string name, MyDirectXSupport directXSupport)
+        {
+            Group = group;
+            Name = name;
+            DirectXSupport = directXSupport;
+        }
 
         public MyDebugScreenAttribute(string group, string name)
         {
             Group = group;
             Name = name;
+            DirectXSupport = MyDirectXSupport.ALL;
         }
     }
 
@@ -57,6 +72,18 @@ namespace Sandbox.Game.Gui
             public List<MyGuiControlBase> ControlList;
         };
 
+        class MyDevelopGroupTypes
+        {
+            public Type Name;
+            public MyDirectXSupport DirectXSupport;
+            public MyDevelopGroupTypes(Type name, MyDirectXSupport directXSupport)
+            {
+                Name = name;
+                DirectXSupport = directXSupport;
+            }
+            
+        };
+
         //Main groups
         static MyDevelopGroup s_debugDrawGroup = new MyDevelopGroup("Debug draw");
         static MyDevelopGroup s_performanceGroup = new MyDevelopGroup("Performance");
@@ -67,11 +94,35 @@ namespace Sandbox.Game.Gui
         };
         static MyDevelopGroup s_activeMainGroup = s_debugDrawGroup;
 
+        class DevelopGroupComparer : IComparer<string>
+        {
+            public int Compare(string x, string y)
+            {
+                if (x == "Game" && y == "Game")
+                    return 0;
+                if (x == "Game")
+                    return -1;
+                if (y == "Game")
+                    return 1;
+
+                if (x == "Render" && y == "Render")
+                    return 0;
+                if (x == "Render")
+                    return -1;
+                if (y == "Render")
+                    return 1;
+
+
+                return x.CompareTo(y); ;
+            }
+        }
+
+
         //Develop groups
         static MyDevelopGroup s_debugInputGroup = new MyDevelopGroup("Debug Input");
         static MyDevelopGroup s_activeDevelopGroup;
-        static Dictionary<string, MyDevelopGroup> s_developGroups = new Dictionary<string, MyDevelopGroup>();
-        static Dictionary<string, SortedDictionary<string, Type>> s_developScreenTypes = new Dictionary<string, SortedDictionary<string, Type>>();
+        static SortedDictionary<string, MyDevelopGroup> s_developGroups = new SortedDictionary<string, MyDevelopGroup>(new DevelopGroupComparer());
+        static Dictionary<string, SortedDictionary<string, MyDevelopGroupTypes>> s_developScreenTypes = new Dictionary<string, SortedDictionary<string, MyDevelopGroupTypes>>();
 
         static bool m_profilerEnabled = false;
 
@@ -103,15 +154,15 @@ namespace Sandbox.Game.Gui
                     continue;
 
                 var attribute = (MyDebugScreenAttribute)attributes[0];
-                SortedDictionary<string, Type> typesInGroup;
+                SortedDictionary<string, MyDevelopGroupTypes> typesInGroup;
                 if (!s_developScreenTypes.TryGetValue(attribute.Group, out typesInGroup))
                 {
-                    typesInGroup = new SortedDictionary<string, Type>();
+                    typesInGroup = new SortedDictionary<string, MyDevelopGroupTypes>();
                     s_developScreenTypes.Add(attribute.Group, typesInGroup);
                     s_developGroups.Add(attribute.Group, new MyDevelopGroup(attribute.Group));
                 }
-
-                typesInGroup.Add(attribute.Name, type);
+                MyDevelopGroupTypes val = new MyDevelopGroupTypes(type, attribute.DirectXSupport);
+                typesInGroup.Add(attribute.Name, val);
             }
         }
 
@@ -234,12 +285,18 @@ namespace Sandbox.Game.Gui
 
             float groupStartPosition = m_currentPosition.Y;
 
+            bool rendererIsDirectX11 = MySandboxGame.Config.GraphicsRenderer.ToString().Equals("DirectX 11");
+
             foreach (var groupEntry in s_developScreenTypes)
             {
                 var group = s_developGroups[groupEntry.Key];
+
                 foreach (var typeEntry in groupEntry.Value)
                 {
-                    AddGroupBox(typeEntry.Key, typeEntry.Value, group.ControlList);
+                    //check for incompatible checkboxes (DirectX9/DirectX11)
+                    if (typeEntry.Value.DirectXSupport == MyDirectXSupport.DX9 && rendererIsDirectX11) continue;
+                    if (typeEntry.Value.DirectXSupport == MyDirectXSupport.DX11 && !rendererIsDirectX11) continue;
+                    AddGroupBox(typeEntry.Key, typeEntry.Value.Name, group.ControlList);
                 }
                 m_currentPosition.Y = groupStartPosition;
             }

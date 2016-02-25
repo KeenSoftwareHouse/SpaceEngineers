@@ -1,9 +1,9 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Game.Localization;
+﻿using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System;
 using System.IO;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Input;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -26,7 +26,7 @@ namespace Sandbox.Game.Screens
             m_value = initialValue ?? string.Empty;
             CanHideOthers = false;
             EnabledBackgroundFade = true;
-            m_caption = caption ?? MySpaceTexts.DialogAmount_SetValueCaption;
+            m_caption = caption ?? MyCommonTexts.DialogAmount_SetValueCaption;
             RecreateControls(true);
         }
         

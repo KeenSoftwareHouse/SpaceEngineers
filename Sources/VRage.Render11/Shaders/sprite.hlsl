@@ -1,8 +1,9 @@
 ﻿Texture2D	SpriteTexture	: register( t0 );
 
-#include <math.h>
+#include <Math/Color.h>
 #include <common.h>
 #include <frame.h>
+#include <gbuffer_write.h>
 
 struct TargetConstants {
 	float2 resolution;
@@ -28,7 +29,7 @@ struct ProcessedVertex
 	float2 texcoord0 : TEXCOORD0;
 };
 
-void vs(
+void __vertex_shader(
 	uint vertex_id : SV_VertexID, 
 	uint instance_id : SV_InstanceID, 
 	VertexInput input,
@@ -48,9 +49,8 @@ void vs(
 	output.color = input.color;
 }
 
-#include <gbuffer_write.h>
 
-void ps(ProcessedVertex input, out float4 output : SV_Target0) {
+void __pixel_shader(ProcessedVertex input, out float4 output : SV_Target0) {
 	float4 sample = SpriteTexture.Sample(TextureSampler, input.texcoord0);
 	output = float4(sample.xyz * srgb_to_rgb(input.color.xyz), sample.w * input.color.w);
 }

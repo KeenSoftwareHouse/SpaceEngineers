@@ -54,7 +54,7 @@ namespace VRage.Network
                     m_typeLookup.Add(type, result);
                     m_staticEventTable.AddStaticEvents(type);
                 }
-                else if(baseType != null) // Base type has some events
+                else if (baseType != null) // Base type has some events
                 {
                     result = baseType;
                     m_typeLookup.Add(type, result);
@@ -74,7 +74,7 @@ namespace VRage.Network
 
         static bool IsReplicated(Type type)
         {
-            return !type.IsAbstract && typeof(IMyReplicable).IsAssignableFrom(type);
+            return !type.IsAbstract && typeof(IMyReplicable).IsAssignableFrom(type) && !type.HasAttribute<NotReplicableAttribute>();
         }
 
         static bool CanHaveEvents(Type type)

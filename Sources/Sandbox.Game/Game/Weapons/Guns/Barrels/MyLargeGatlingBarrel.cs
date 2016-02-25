@@ -5,13 +5,14 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Engine.Utils;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Common;
 using Sandbox.Game.Entities;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {
@@ -57,7 +58,7 @@ namespace Sandbox.Game.Weapons
             //  Cannon is rotating while shoting. After that, it will slow-down.
             float normalizedRotationSpeed = 1.0f - MathHelper.Clamp((float)(MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot) / m_rotationTimeout, 0, 1);
             normalizedRotationSpeed = MathHelper.SmoothStep(0, 1, normalizedRotationSpeed);
-            float rotationAngle = normalizedRotationSpeed * MyGatlingConstants.ROTATION_SPEED_PER_SECOND * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            float rotationAngle = normalizedRotationSpeed * MyGatlingConstants.ROTATION_SPEED_PER_SECOND * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             if (rotationAngle != 0)
                 Entity.PositionComp.LocalMatrix = Matrix.CreateRotationZ(rotationAngle) * Entity.PositionComp.LocalMatrix;
@@ -70,7 +71,7 @@ namespace Sandbox.Game.Weapons
             if (dt <= m_gunBase.MuzzleFlashLifeSpan && m_muzzleFlashLength > 0)
             {
                 var worldToLocal = MatrixD.Invert(m_entity.WorldMatrix);
-                MyParticleEffects.GenerateMuzzleFlash(m_muzzleFlashPosition, (Vector3)m_entity.WorldMatrix.Forward, m_entity.Render.GetRenderObjectID(), ref worldToLocal, m_muzzleFlashRadius, m_muzzleFlashLength);
+                MyParticleEffects.GenerateMuzzleFlash(m_gunBase.GetMuzzleWorldPosition(), (Vector3)m_entity.WorldMatrix.Forward, m_entity.Render.GetRenderObjectID(), ref worldToLocal, m_muzzleFlashRadius, m_muzzleFlashLength);
             }
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
@@ -121,6 +122,7 @@ namespace Sandbox.Game.Weapons
                 m_shotSmoke.AutoDelete = false;
                 m_shotSmoke.UserEmitterScale = m_smokeToGenerate;
                 m_shotSmoke.WorldMatrix = MatrixD.CreateTranslation(m_muzzleFlashPosition);
+                m_shotSmoke.Velocity = m_turretBase.Parent.Physics.LinearVelocity;
                 m_shotSmoke.UserScale = 5;
             }
 

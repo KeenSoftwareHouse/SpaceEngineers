@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game.Entity;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Navigation
@@ -110,7 +111,9 @@ namespace Sandbox.Game.AI.Navigation
                 }
 
                 ProfilerShort.Begin("MySmartPath.GetNextTarget");
+                MyPathfindingStopwatch.Start();
                 bool result = m_path.GetNextTarget(Parent.PositionAndOrientation.Translation, out targetWorld, out radius, out relativeEntity);
+                MyPathfindingStopwatch.Stop();
                 ProfilerShort.End();
 
                 if (result)

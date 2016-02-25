@@ -16,7 +16,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -55,7 +57,7 @@ namespace Sandbox.Game.World.Triggers
             return new MyTriggerNoSpawn(this);
         }
 
-        public override bool Update(MyPlayer player, Entities.MyEntity me)
+        public override bool Update(MyPlayer player, MyEntity me)
         {
             if (player.Identity.IsDead)
             {
@@ -82,7 +84,7 @@ namespace Sandbox.Game.World.Triggers
 
         private int m_lastSeconds;
         private StringBuilder m_guiText = new StringBuilder();
-        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
+        public override void DisplayHints(MyPlayer player, MyEntity me)
         {
             if (!MySession.Static.IsScenario)
                 return;

@@ -11,9 +11,11 @@ namespace VRage.Replication
     {
         void SendServerData(BitStream stream, EndpointId endpoint);
         void SendReplicationCreate(BitStream stream, EndpointId endpoint);
+        void SendReplicationCreateStreamed(BitStream stream, EndpointId endpoint);
         void SendReplicationDestroy(BitStream stream, EndpointId endpoint);
-        void SendStateSync(BitStream stream, EndpointId endpoint);
+        void SendStateSync(BitStream stream, EndpointId endpoint,bool reliable);
         void SendEvent(BitStream stream, bool reliable, EndpointId endpoint);
         int GetMTUSize(EndpointId clientId);
+        int GetMTRSize(EndpointId clientId);
     }
 }

@@ -281,9 +281,10 @@ namespace VRageMath
                                             Orientation * rotation);
         }
 
-        public MyOrientedBoundingBox Transform(Matrix matrix)
+        public void Transform(Matrix matrix)
         {
-            return Transform(Quaternion.CreateFromRotationMatrix(matrix), matrix.Translation);
+            Center = Vector3.Transform(Center, matrix);
+            Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(Orientation) * matrix);
         }
 
         #endregion
@@ -797,23 +798,23 @@ namespace VRageMath
             // of the tests and products simplify away.
 
             // Check for separation along the axes of box A
-            if (mB_TA.X >= hA.X + Math.Abs(hx_B.X) + Math.Abs(hy_B.X) + Math.Abs(hz_B.X))
+            if (mB_TA.X > hA.X + Math.Abs(hx_B.X) + Math.Abs(hy_B.X) + Math.Abs(hz_B.X))
                 return ContainmentType.Disjoint;
 
-            if (mB_TA.Y >= hA.Y + Math.Abs(hx_B.Y) + Math.Abs(hy_B.Y) + Math.Abs(hz_B.Y))
+            if (mB_TA.Y > hA.Y + Math.Abs(hx_B.Y) + Math.Abs(hy_B.Y) + Math.Abs(hz_B.Y))
                 return ContainmentType.Disjoint;
 
-            if (mB_TA.Z >= hA.Z + Math.Abs(hx_B.Z) + Math.Abs(hy_B.Z) + Math.Abs(hz_B.Z))
+            if (mB_TA.Z > hA.Z + Math.Abs(hx_B.Z) + Math.Abs(hy_B.Z) + Math.Abs(hz_B.Z))
                 return ContainmentType.Disjoint;
 
             // Check for separation along the axes box B, hx_B/hy_B/hz_B
-            if (Math.Abs(Vector3.Dot(mB_T, bX)) >= Math.Abs(hA.X * bX.X) + Math.Abs(hA.Y * bX.Y) + Math.Abs(hA.Z * bX.Z) + hB.X)
+            if (Math.Abs(Vector3.Dot(mB_T, bX)) > Math.Abs(hA.X * bX.X) + Math.Abs(hA.Y * bX.Y) + Math.Abs(hA.Z * bX.Z) + hB.X)
                 return ContainmentType.Disjoint;
 
-            if (Math.Abs(Vector3.Dot(mB_T, bY)) >= Math.Abs(hA.X * bY.X) + Math.Abs(hA.Y * bY.Y) + Math.Abs(hA.Z * bY.Z) + hB.Y)
+            if (Math.Abs(Vector3.Dot(mB_T, bY)) > Math.Abs(hA.X * bY.X) + Math.Abs(hA.Y * bY.Y) + Math.Abs(hA.Z * bY.Z) + hB.Y)
                 return ContainmentType.Disjoint;
 
-            if (Math.Abs(Vector3.Dot(mB_T, bZ)) >= Math.Abs(hA.X * bZ.X) + Math.Abs(hA.Y * bZ.Y) + Math.Abs(hA.Z * bZ.Z) + hB.Z)
+            if (Math.Abs(Vector3.Dot(mB_T, bZ)) > Math.Abs(hA.X * bZ.X) + Math.Abs(hA.Y * bZ.Y) + Math.Abs(hA.Z * bZ.Z) + hB.Z)
                 return ContainmentType.Disjoint;
 
             // Check for separation in plane containing an axis of box A and and axis of box B
@@ -821,52 +822,52 @@ namespace VRageMath
             // We need to compute all 9 cross products to find them, but a lot of terms drop out
             // since we're working in A's local space. Also, since each such plane is parallel
             // to the defining axis in each box, we know those dot products will be 0 and can
-            // omit them.
+            // omit them. Note that axis can be zero vector!
             Vector3 axis;
 
             // a.X ^ b.X = (1,0,0) ^ bX
             axis = new Vector3(0, -bX.Z, bX.Y);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
                 return ContainmentType.Disjoint;
 
             // a.X ^ b.Y = (1,0,0) ^ bY
             axis = new Vector3(0, -bY.Z, bY.Y);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
                 return ContainmentType.Disjoint;
 
             // a.X ^ b.Z = (1,0,0) ^ bZ
             axis = new Vector3(0, -bZ.Z, bZ.Y);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Y * axis.Y) + Math.Abs(hA.Z * axis.Z) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
                 return ContainmentType.Disjoint;
 
             // a.Y ^ b.X = (0,1,0) ^ bX
             axis = new Vector3(bX.Z, 0, -bX.X);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
                 return ContainmentType.Disjoint;
 
             // a.Y ^ b.Y = (0,1,0) ^ bY
             axis = new Vector3(bY.Z, 0, -bY.X);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
                 return ContainmentType.Disjoint;
 
             // a.Y ^ b.Z = (0,1,0) ^ bZ
             axis = new Vector3(bZ.Z, 0, -bZ.X);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.Z * axis.Z) + Math.Abs(hA.X * axis.X) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
                 return ContainmentType.Disjoint;
 
             // a.Z ^ b.X = (0,0,1) ^ bX
             axis = new Vector3(-bX.Y, bX.X, 0);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hy_B)) + Math.Abs(Vector3.Dot(axis, hz_B)))
                 return ContainmentType.Disjoint;
 
             // a.Z ^ b.Y = (0,0,1) ^ bY
             axis = new Vector3(-bY.Y, bY.X, 0);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hz_B)) + Math.Abs(Vector3.Dot(axis, hx_B)))
                 return ContainmentType.Disjoint;
 
             // a.Z ^ b.Z = (0,0,1) ^ bZ
             axis = new Vector3(-bZ.Y, bZ.X, 0);
-            if (Math.Abs(Vector3.Dot(mB_T, axis)) >= Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
+            if (Math.Abs(Vector3.Dot(mB_T, axis)) > Math.Abs(hA.X * axis.X) + Math.Abs(hA.Y * axis.Y) + Math.Abs(Vector3.Dot(axis, hx_B)) + Math.Abs(Vector3.Dot(axis, hy_B)))
                 return ContainmentType.Disjoint;
 
             return ContainmentType.Intersects;
@@ -904,8 +905,9 @@ namespace VRageMath
 
         public static MyOrientedBoundingBox Create(BoundingBox boundingBox, Matrix matrix)
         {
-            BoundingBox centeredBox = new BoundingBox(-boundingBox.Size / 2f, boundingBox.Size / 2f);
-            return MyOrientedBoundingBox.CreateFromBoundingBox(centeredBox).Transform(matrix);
+            MyOrientedBoundingBox bb = new MyOrientedBoundingBox(boundingBox.Center, boundingBox.HalfExtents, Quaternion.Identity);
+            bb.Transform(matrix);
+            return bb;
         }
 
         #endregion

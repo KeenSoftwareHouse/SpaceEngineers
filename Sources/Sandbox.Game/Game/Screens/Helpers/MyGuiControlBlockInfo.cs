@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -259,9 +260,14 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        void Reposition()
+        public void RecalculateSize()
         {
             this.Size = new Vector2(this.Size.X, 0.12f * baseScale + itemHeight * BlockInfo.Components.Count);
+        }
+
+        void Reposition()
+        {
+            RecalculateSize();
 
             //BackgroundTexture =  @"Textures\GUI\Screens\aa";
             var topleft = -this.Size / 2;

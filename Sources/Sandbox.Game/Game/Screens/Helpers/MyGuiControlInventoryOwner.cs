@@ -8,7 +8,6 @@ using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
@@ -23,6 +22,10 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -40,8 +43,8 @@ namespace Sandbox.Game.Screens.Helpers
         private List<MyGuiControlLabel> m_volumeLabels;
         private List<MyGuiControlGrid> m_inventoryGrids;
 
-        private IMyInventoryOwner m_inventoryOwner;
-        public IMyInventoryOwner InventoryOwner
+        private MyEntity m_inventoryOwner;
+        public MyEntity InventoryOwner
         {
             get { return m_inventoryOwner; }
             set
@@ -58,7 +61,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public event Action<MyGuiControlInventoryOwner> InventoryContentsChanged;
 
-        public MyGuiControlInventoryOwner(IMyInventoryOwner owner, Vector4 labelColorMask)
+        public MyGuiControlInventoryOwner(MyEntity owner, Vector4 labelColorMask)
             : base(backgroundTexture: new MyGuiCompositeTexture() { Center = new MyGuiSizedTexture() { Texture = @"Textures\GUI\Controls\item_highlight_dark.dds" } },
                     canHaveFocus: true,
                     allowFocusingElements: true,
@@ -144,7 +147,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override void Update()
         {
-            m_nameLabel.Text = m_inventoryOwner.DisplayNameText.ToString();
+            m_nameLabel.Text = (m_inventoryOwner as MyEntity).DisplayNameText;
             m_nameLabel.Size = new Vector2(Size.X - m_internalPadding.X * 2, m_nameLabel.Size.Y);
             base.Update();
         }
@@ -179,12 +182,20 @@ namespace Sandbox.Game.Screens.Helpers
 
         private void RefreshInventoryContents()
         {
+            if (m_inventoryOwner == null)
+            {
+                Debug.Fail("m_inventoryOwner==null");
+                return;
+            }
             Debug.Assert(m_inventoryOwner.InventoryCount == m_inventoryGrids.Count);
             Debug.Assert(m_inventoryOwner.InventoryCount == m_massLabels.Count);
             Debug.Assert(m_inventoryOwner.InventoryCount == m_volumeLabels.Count);
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i);
+                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+                if (inventory == null) continue;
+
                 var inventoryGrid = m_inventoryGrids[i];
                 var massLabel = m_massLabels[i];
                 var volumeLabel = m_volumeLabels[i];
@@ -268,7 +279,7 @@ namespace Sandbox.Game.Screens.Helpers
             return res;
         }
 
-        private void ReplaceCurrentInventoryOwner(IMyInventoryOwner owner)
+        private void ReplaceCurrentInventoryOwner(MyEntity owner)
         {
             DetachOwner();
             AttachOwner(owner);
@@ -295,16 +306,22 @@ namespace Sandbox.Game.Screens.Helpers
             return new Vector2(Size.X, sizeY);
         }
 
-        private void AttachOwner(IMyInventoryOwner owner)
+        private void AttachOwner(MyEntity owner)
         {
             if (owner == null)
+            {
+                Debug.Fail("Attaching null owner!");
                 return;
+            }
 
-            m_nameLabel.Text = owner.DisplayNameText.ToString();
-
+            m_nameLabel.Text = (owner as MyEntity).DisplayNameText;
+            Debug.Assert(m_nameLabel.Text != null, "DisplayNameText text!");
+            
             for (int i = 0; i < owner.InventoryCount; ++i)
             {
-                var inventory = owner.GetInventory(i);
+                var inventory = owner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                 inventory.UserData = this;
                 inventory.ContentsChanged += inventory_OnContentsChanged;
 
@@ -333,7 +350,9 @@ namespace Sandbox.Game.Screens.Helpers
 
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i);
+                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                 if (inventory.UserData == this)
                 {
                     inventory.UserData = null;
@@ -356,44 +375,49 @@ namespace Sandbox.Game.Screens.Helpers
 
         public static void FormatItemAmount(MyPhysicalInventoryItem item, StringBuilder text)
         {
+            var typeId = item.Content.GetType();
+            double amount = (double)item.Amount;
+            if (item.Content.GetType() == typeof(MyObjectBuilder_GasContainerObject) || item.Content.GetType().BaseType == typeof(MyObjectBuilder_GasContainerObject)) amount = ((MyObjectBuilder_GasContainerObject)item.Content).GasLevel * 100f;
+
+            FormatItemAmount(typeId, amount, text);
+        }
+
+        public static void FormatItemAmount(Type typeId, double amount, StringBuilder text)
+        {
             try
-            {
-                var typeId = item.Content.GetType();
+            {                
                 if (typeId == typeof(MyObjectBuilder_Ore) ||
                     typeId == typeof(MyObjectBuilder_Ingot))
-                {
-                    double amount = (double)item.Amount;
+                {                  
 
                     if (amount < 0.01)
                         text.Append(amount.ToString("<0.01", CultureInfo.InvariantCulture));
-                    else if (item.Amount < 10)
+                    else if (amount < 10)
                         text.Append(amount.ToString("0.##", CultureInfo.InvariantCulture));
-                    else if (item.Amount < 100)
+                    else if (amount < 100)
                         text.Append(amount.ToString("0.#", CultureInfo.InvariantCulture));
-                    else if (item.Amount < 1000)
+                    else if (amount < 1000)
                         text.Append(amount.ToString("0.", CultureInfo.InvariantCulture));
-                    else if (item.Amount < 10000)
+                    else if (amount < 10000)
                         text.Append((amount / 1000.0).ToString("0.##k", CultureInfo.InvariantCulture));
-                    else if (item.Amount < 100000)
+                    else if (amount < 100000)
                         text.Append((amount / 1000.0).ToString("0.#k", CultureInfo.InvariantCulture));
                     else
                         text.Append((amount / 1000.0).ToString("#,##0.k", CultureInfo.InvariantCulture));
                 }
                 else if (typeId == typeof(MyObjectBuilder_PhysicalGunObject))
                 {
-                    Debug.Assert(item.Amount == 1, "There should only be one gun in a single slot. This is safe to ignore.");
+                    Debug.Assert(amount == 1, "There should only be one gun in a single slot. This is safe to ignore.");
                 }
-                else if (typeId == typeof(MyObjectBuilder_GasContainerObject) || typeId == typeof(MyObjectBuilder_OxygenContainerObject))
+                else if (typeId == typeof(MyObjectBuilder_GasContainerObject) || typeId.BaseType == typeof(MyObjectBuilder_GasContainerObject))
                 {
-                    Debug.Assert(item.Amount == 1, "There should only be one oxygen bottle in a single slot. This is safe to ignore.");
-
-                    var oxygenContainer = item.Content as MyObjectBuilder_GasContainerObject;
-					text.Append((oxygenContainer.GasLevel * 100f).ToString("F0") + "%");
-                }
+                    int integerPart = (int)amount;
+                    text.Append(integerPart.ToString()+"%");
+                } 
                 else
                 {
-                    int integerPart = (int)item.Amount;
-                    var decimalPart = item.Amount - integerPart;
+                    int integerPart = (int)amount;
+                    var decimalPart = amount - integerPart;
                     if (decimalPart > 0)
                         text.Append('~'); // used for half empty magazines and such
                     text.Append(integerPart.ToString("#,##0.x", CultureInfo.InvariantCulture));
@@ -419,7 +443,9 @@ namespace Sandbox.Game.Screens.Helpers
                     definition.DisplayNameText,
                     (itemMass < 0.01) ? "<0.01" : itemMass.ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture),
                     (itemVolume < 0.01) ? "<0.01" : itemVolume.ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture),
-                    (item.Content.Flags == MyItemFlags.Damaged ? MyTexts.Get(MySpaceTexts.ItemDamagedDescription) : MyTexts.Get(MySpaceTexts.Blank))).ToString());
+                    (item.Content.Flags == MyItemFlags.Damaged ? MyTexts.Get(MyCommonTexts.ItemDamagedDescription) : MyTexts.Get(MySpaceTexts.Blank)),
+                    (definition.ExtraInventoryTooltipLine != null ? (definition.ExtraInventoryTooltipLine) : MyTexts.Get(MySpaceTexts.Blank))
+                    ).ToString());
             if (MyFakes.SHOW_INVENTORY_ITEM_IDS)
             {
                 gridItem.ToolTip.AddToolTip(new StringBuilder().AppendFormat("ItemID: {0}", item.ItemId).ToString());
@@ -437,7 +463,9 @@ namespace Sandbox.Game.Screens.Helpers
         {
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i);
+                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                 inventory.UserData = this;
                 inventory.ContentsChanged += inventory_OnContentsChanged;
             }
@@ -447,7 +475,9 @@ namespace Sandbox.Game.Screens.Helpers
         {
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i);
+                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
                 inventory.ContentsChanged -= inventory_OnContentsChanged;
             }
         }

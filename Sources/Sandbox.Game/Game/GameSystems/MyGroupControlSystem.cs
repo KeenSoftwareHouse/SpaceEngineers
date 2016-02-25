@@ -102,7 +102,11 @@ namespace Sandbox.Game.GameSystems
         public void AddControllerBlock(MyShipController controllerBlock)
         {
             bool result = m_groupControllers.Add(controllerBlock);
-            Debug.Assert(result, "Controller block was already present in the control group's controller list!");
+            //Debug.Assert(result, "Controller block was already present in the control group's controller list!");
+            if (m_groupControllers.Count == 1 && controllerBlock != m_currentShipController)
+            {
+                m_currentShipController = null;
+            }
 
             bool newControllerHasPriority = m_currentShipController == null || MyShipController.HasPriorityOver(controllerBlock, m_currentShipController);
 

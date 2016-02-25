@@ -12,6 +12,9 @@ namespace VRage.Replication
         public MyTimeSpan SleepTime;
 
         public bool IsPending = true;
+        public bool IsStreaming = false;
+
+        public float Priority;
 
         /// <summary>
         /// When replicable is sleeping, it should not receive state updates. But it has to receive events.

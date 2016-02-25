@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageSetInstanceBuffer : IMyRenderMessage
+    public class MyRenderMessageSetInstanceBuffer : MyRenderMessageBase
     {
         public uint ID;
         public uint InstanceBufferId;
@@ -14,7 +14,7 @@ namespace VRageRender
         public int InstanceCount;
         public BoundingBox LocalAabb;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SetInstanceBuffer; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetInstanceBuffer; } }
     }
 }

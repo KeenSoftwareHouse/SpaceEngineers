@@ -1,6 +1,7 @@
 ﻿using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.ModAPI

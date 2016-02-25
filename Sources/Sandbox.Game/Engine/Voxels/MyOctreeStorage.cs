@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Voxels;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using VRage;
 using VRage.Voxels;
 using VRageMath;
@@ -14,6 +14,7 @@ using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.World;
 using Sandbox.Game.Entities.Character;
+using VRage.Game;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -61,8 +62,8 @@ namespace Sandbox.Engine.Voxels
         public const int LeafSizeInVoxels = 1 << LeafLodCount;
 
         private static readonly Dictionary<byte, byte> m_oldToNewIndexMap = new Dictionary<byte, byte>();
-        private static readonly MyStorageDataCache m_temporaryCache = new MyStorageDataCache();
-        private static readonly MyStorageDataCache m_temporaryCache2 = new MyStorageDataCache();
+        private static readonly MyStorageData m_temporaryCache = new MyStorageData();
+        private static readonly MyStorageData m_temporaryCache2 = new MyStorageData();
 
         private int m_treeHeight;
 
@@ -98,10 +99,7 @@ namespace Sandbox.Engine.Voxels
         {
             {
                 int tmp = MathHelper.Max(size.X, size.Y, size.Z);
-                tmp = MathHelper.GetNearestBiggerPowerOfTwo(tmp);
-                if (tmp < LeafSizeInVoxels)
-                    tmp = LeafSizeInVoxels;
-                Size = new Vector3I(tmp);
+                Size = new Vector3I(MathHelper.GetNearestBiggerPowerOfTwo(tmp));
             }
             m_dataProvider = dataProvider;
 
@@ -122,6 +120,8 @@ namespace Sandbox.Engine.Voxels
                 lodSize >>= 1;
                 ++m_treeHeight;
             }
+
+            if (m_treeHeight < 0) m_treeHeight = 1;
         }
 
         protected override void ResetInternal(MyStorageDataTypeFlags dataToReset)
@@ -285,7 +285,6 @@ namespace Sandbox.Engine.Voxels
                 }
                 m_oldToNewIndexMap.Clear();
             }
-
         }
 
         protected override void SaveInternal(Stream stream)
@@ -304,29 +303,52 @@ namespace Sandbox.Engine.Voxels
             }.WriteTo(stream);
         }
 
-        protected override void ReadRangeInternal(MyStorageDataCache target, ref Vector3I targetWriteOffset,
-            MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelCoordStart, ref Vector3I lodVoxelCoordEnd)
+        public override IMyStorage Copy()
+        {
+            if (m_compressedData == null)
+            {
+                SaveCompressedData(out m_compressedData);
+            }
+
+            return MyStorageBase.Load(m_compressedData);;
+        }
+
+
+        protected override void ReadRangeInternal(MyStorageData target, ref Vector3I targetWriteOffset,
+            MyStorageDataTypeFlags dataToRead, int lodIndex, ref Vector3I lodVoxelCoordStart, ref Vector3I lodVoxelCoordEnd, ref MyVoxelRequestFlags flags)
         {
             bool hasLod = lodIndex <= (m_treeHeight + LeafLodCount);
             Debug.Assert(dataToRead != MyStorageDataTypeFlags.None);
+
+            MyVoxelRequestFlags cflags = 0;
+            MyVoxelRequestFlags mflags = 0;
+
             if ((dataToRead & MyStorageDataTypeFlags.Content) != 0)
             {
                 if (hasLod)
                 {
-                    ReadRange(target, ref targetWriteOffset, MyStorageDataTypeEnum.Content, m_treeHeight, m_contentNodes, m_contentLeaves, lodIndex, ref lodVoxelCoordStart, ref lodVoxelCoordEnd);
+                    cflags = flags;
+                    ReadRange(target, ref targetWriteOffset, MyStorageDataTypeFlags.Content,
+                        m_treeHeight, m_contentNodes, m_contentLeaves, lodIndex, ref lodVoxelCoordStart, ref lodVoxelCoordEnd, ref cflags);
                 }
             }
 
-            if ((dataToRead & MyStorageDataTypeFlags.Material) != 0)
+            if ((dataToRead.Requests(MyStorageDataTypeEnum.Material) || dataToRead.Requests(MyStorageDataTypeEnum.Occlusion))
+                && !cflags.HasFlag(MyVoxelRequestFlags.MaterialForContent | MyVoxelRequestFlags.EmptyContent))
             {
                 if (hasLod)
                 {
-                    ReadRange(target, ref targetWriteOffset, MyStorageDataTypeEnum.Material, m_treeHeight, m_materialNodes, m_materialLeaves, lodIndex, ref lodVoxelCoordStart, ref lodVoxelCoordEnd);
+                    mflags = flags;
+                    ReadRange(target, ref targetWriteOffset, dataToRead.Without(MyStorageDataTypeEnum.Content),
+                        m_treeHeight, m_materialNodes, m_materialLeaves, lodIndex, ref lodVoxelCoordStart, ref lodVoxelCoordEnd, ref mflags);
                 }
             }
+
+            // Material and content flags are safe to merge
+            flags = cflags | mflags;
         }
 
-        protected override void WriteRangeInternal(MyStorageDataCache source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax)
+        protected override void WriteRangeInternal(MyStorageData source, MyStorageDataTypeFlags dataToWrite, ref Vector3I voxelRangeMin, ref Vector3I voxelRangeMax)
         {
             ProfilerShort.Begin("MyOctreeStorage.WriteRange");
 
@@ -406,7 +428,7 @@ namespace Sandbox.Engine.Voxels
                     break;
                 case MyVoxelDebugDrawMode.FullCells:
                     {
-                        //MyStorageDataCache m_cache = new MyStorageDataCache();
+                        //MyStorageData m_cache = new MyStorageData();
                         var size = referenceVoxelMap.Storage.Size;
                         //m_temporaryCache.Resize(Vector3I.Zero, size);
                         //referenceVoxelMap.Storage.ReadRange(m_temporaryCache, MyStorageDataTypeFlags.Content, 0, ref Vector3I.Zero, ref size);
@@ -467,7 +489,8 @@ namespace Sandbox.Engine.Voxels
         /// </summary>
         public void Voxelize(MyStorageDataTypeFlags data)
         {
-            var cache = new MyStorageDataCache();
+            MyVoxelRequestFlags flags = 0;
+            var cache = new MyStorageData();
 
             cache.Resize(new Vector3I(LeafSizeInVoxels));
             var leafCount = (Size / LeafSizeInVoxels);
@@ -480,13 +503,14 @@ namespace Sandbox.Engine.Voxels
                 Debug.WriteLine("Processing {0} / {1}", leaf, end);
                 var min = leaf * LeafSizeInVoxels;
                 var max = min + (LeafSizeInVoxels - 1);
-                ReadRangeInternal(cache, ref Vector3I.Zero, data, 0, ref min, ref max);
+                ReadRangeInternal(cache, ref Vector3I.Zero, data, 0, ref min, ref max, ref flags);
                 WriteRangeInternal(cache, data, ref min, ref max);
             }
 
             OnRangeChanged(Vector3I.Zero, Size - 1, data);
         }
 
+#if false
         /// <summary>
         /// Returns count of changed voxels amount according to the given base storage. This storage is simply modified data of the base storage
         /// (note that premodified base storage is not supported - base storage must be default unganged one).
@@ -515,7 +539,8 @@ namespace Sandbox.Engine.Voxels
                     // Read data from leaf
                     var rangeEnd = new Vector3I(LeafSizeInVoxels - 1);
                     m_temporaryCache.Resize(Vector3I.Zero, rangeEnd);
-                    leaf.ReadRange(m_temporaryCache, ref Vector3I.Zero, 0, ref Vector3I.Zero, ref rangeEnd);
+                    MyVoxelRequestFlags flags = 0;
+                    leaf.ReadRange(m_temporaryCache, ref Vector3I.Zero, 0, ref Vector3I.Zero, ref rangeEnd, ref flags);
 
                     // Read data from base storage
                     var minLeafVoxel = currentCell.CoordInLod * LeafSizeInVoxels;
@@ -575,7 +600,7 @@ namespace Sandbox.Engine.Voxels
 
             return 0;
         }
-
+#endif
 
         /// <summary>
         /// Resets aabbb outside area of the given voxel map to default. Area inside aabb (inclusive) stays the same.
@@ -737,16 +762,19 @@ namespace Sandbox.Engine.Voxels
             return changed;
         }
 
-        private static unsafe void ReadRange(
-            MyStorageDataCache target,
+        private static MyVoxelRequestFlags CONTENT_CHECKS = MyVoxelRequestFlags.EmptyContent | MyVoxelRequestFlags.FullContent;
+
+        private unsafe void ReadRange(
+            MyStorageData target,
             ref Vector3I targetWriteOffset,
-            MyStorageDataTypeEnum type,
+            MyStorageDataTypeFlags types,
             int treeHeight,
             Dictionary<UInt64, MyOctreeNode> nodes,
             Dictionary<UInt64, IMyOctreeLeafNode> leaves,
             int lodIndex,
             ref Vector3I minInLod,
-            ref Vector3I maxInLod)
+            ref Vector3I maxInLod,
+            ref MyVoxelRequestFlags flags)
         {
             int stackIdx = 0;
             int stackSize = MySparseOctree.EstimateStackSize(treeHeight);
@@ -755,12 +783,16 @@ namespace Sandbox.Engine.Voxels
             stack[stackIdx++] = data;
             MyCellCoord cell = new MyCellCoord();
 
+            var octreeType = types.Requests(MyStorageDataTypeEnum.Content) ? MyStorageDataTypeEnum.Content : MyStorageDataTypeEnum.Material;
+
+            FillOutOfBounds(target, octreeType, ref targetWriteOffset, lodIndex, minInLod, maxInLod);
+
             while (stackIdx > 0)
             {
                 Debug.Assert(stackIdx <= stackSize);
                 data = stack[--stackIdx];
 
-                cell.Lod = data.Lod - LeafLodCount;
+                cell.Lod = Math.Max(data.Lod - LeafLodCount, 0);
                 cell.CoordInLod = data.CoordInLod;
 
                 int lodDiff;
@@ -777,17 +809,39 @@ namespace Sandbox.Engine.Voxels
                         Vector3I.Max(ref writeOffset, ref Vector3I.Zero, out writeOffset);
                         writeOffset += targetWriteOffset;
                         var lodSizeMinusOne = new Vector3I((1 << lodDiff) - 1);
-                        var minInLeaf = Vector3I.Clamp(minInLod - nodePosInLod, Vector3I.Zero, lodSizeMinusOne);
-                        var maxInLeaf = Vector3I.Clamp(maxInLod - nodePosInLod, Vector3I.Zero, lodSizeMinusOne);
-                        leaf.ReadRange(target, ref writeOffset, lodIndex, ref minInLeaf, ref maxInLeaf);
+
+                        Vector3I minInLeaf = minInLod - nodePosInLod;
+                        Vector3I maxInLeaf = maxInLod - nodePosInLod;
+                        if (!minInLeaf.IsInsideInclusive(Vector3I.Zero, lodSizeMinusOne) || !maxInLeaf.IsInsideInclusive(Vector3I.Zero, lodSizeMinusOne))
+                        {
+                            minInLeaf = Vector3I.Clamp(minInLod - nodePosInLod, Vector3I.Zero, lodSizeMinusOne);
+                            maxInLeaf = Vector3I.Clamp(maxInLod - nodePosInLod, Vector3I.Zero, lodSizeMinusOne);
+                            // No Optimizations when not reading entirelly from the provider because the octree can't take it.
+                            flags &= MyVoxelRequestFlags.SurfaceMaterial;
+                        }
+
+
+                        leaf.ReadRange(target, types, ref writeOffset, lodIndex, ref minInLeaf, ref maxInLeaf, ref flags);
+                        // Occlusion is not stored in tree, we just read from provider
+                        if (!leaf.ReadOnly && types.Requests(MyStorageDataTypeEnum.Occlusion))
+                        {
+                            minInLeaf += nodePosInLod;
+                            maxInLeaf += nodePosInLod;
+                            ReadFromProvider(target, MyStorageDataTypeFlags.Occlusion, ref writeOffset, lodIndex, ref minInLeaf, ref maxInLeaf, ref flags);
+                        }
                     }
                     continue;
                 }
 
                 cell.Lod -= 1;
                 lodDiff = data.Lod - 1 - lodIndex;
-                var node = nodes[cell.PackId64()];
 
+                MyOctreeNode node;
+                if (nodes.TryGetValue(cell.PackId64(), out node) == false)
+                {
+                    Debug.Fail("invalid querry for node");
+                    continue;
+                }
                 var min = minInLod >> lodDiff;
                 var max = maxInLod >> lodDiff;
                 var nodePositionInChild = data.CoordInLod << 1;
@@ -806,6 +860,9 @@ namespace Sandbox.Engine.Voxels
                     }
                     else
                     {
+                        // No Optimizations when not reading entirelly from the provider because the octree can't take it.
+                        flags &= MyVoxelRequestFlags.SurfaceMaterial;
+
                         var childMin = nodePositionInChild + childPosRelative;
                         childMin <<= lodDiff;
                         var writeOffset = childMin - minInLod;
@@ -814,7 +871,7 @@ namespace Sandbox.Engine.Voxels
                         var nodeData = node.GetData(i);
                         if (lodDiff == 0)
                         {
-                            target.Set(type, ref writeOffset, nodeData);
+                            target.Set(octreeType, ref writeOffset, nodeData);
                         }
                         else
                         {
@@ -829,12 +886,120 @@ namespace Sandbox.Engine.Voxels
                                 write.X += x - childMin.X;
                                 write.Y += y - childMin.Y;
                                 write.Z += z - childMin.Z;
-                                target.Set(type, ref write, nodeData);
+                                target.Set(octreeType, ref write, nodeData);
                             }
                         }
                     }
                 }
             }
+        }
+
+        private void FillOutOfBounds(MyStorageData target, MyStorageDataTypeEnum type, ref Vector3I woffset, int lodIndex, Vector3I minInLod, Vector3I maxInLod)
+        {
+            var value = MyVoxelConstants.DefaultValue(type);
+            var size = new Vector3I((1 << (m_treeHeight + LeafLodCount - lodIndex)) - 1);
+
+            var offset = woffset - minInLod;
+
+            var req = new BoundingBoxI(minInLod, maxInLod);
+            var tree = new BoundingBoxI(Vector3I.Zero, size);
+
+            if (req.Intersects(ref tree) != true)
+            {
+                target.BlockFill(type, offset + minInLod, offset + maxInLod, value);
+                return;
+            }
+
+            // Left
+            if (minInLod.X < 0)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                max.X = -1;
+                minInLod.X = 0;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+
+            // Right
+            if (maxInLod.X > size.X)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                min.X = size.X+1;
+                minInLod.X = size.X;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+
+            // Top
+            if (minInLod.Y < 0)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                max.Y = -1;
+                minInLod.Y = 0;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+
+            // Bottom
+            if (maxInLod.Y > size.Y)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                min.Y = size.Y + 1;
+                minInLod.Y = size.Y;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+
+            // Back
+            if (minInLod.Y < 0)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                max.Y = -1;
+                minInLod.Y = 0;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+
+            // Front
+            if (maxInLod.Y > size.Y)
+            {
+                var min = minInLod;
+                var max = maxInLod;
+
+                min.Y = size.Y + 1;
+                minInLod.Y = size.Y;
+
+                target.BlockFill(type, min + offset, max + offset, value);
+            }
+        }
+
+        private void ReadFromProvider(MyStorageData target, MyStorageDataTypeFlags types, ref Vector3I writeOffset, int lodIndex, ref Vector3I min, ref Vector3I max, ref MyVoxelRequestFlags flags)
+        {
+            ProfilerShort.Begin("MyProviderLeaf.ReadRange");
+            MyVoxelDataRequest req = new MyVoxelDataRequest()
+            {
+                Target = target,
+                Offset = writeOffset,
+                Lod = lodIndex,
+                minInLod = min,
+                maxInLod = max,
+                RequestFlags = flags,
+                RequestedData = types
+            };
+
+            DataProvider.ReadRange(ref req);
+            flags = req.Flags;
+            ProfilerShort.End();
         }
 
         private static void WriteRange(
@@ -849,7 +1014,7 @@ namespace Sandbox.Engine.Voxels
             {
                 MyCellCoord leaf = new MyCellCoord(lodIdx - LeafLodCount, ref lodCoord);
                 var leafKey = leaf.PackId64();
-                if (args.Leaves.ContainsKey(leafKey))
+                if (args.Leaves.ContainsKey(leafKey) && leaf.Lod > 0)
                 {
                     args.Leaves.Remove(leafKey);
                     var childBase = lodCoord << 1;
@@ -882,7 +1047,7 @@ namespace Sandbox.Engine.Voxels
                 }
             }
 
-            if (lodIdx == (LeafLodCount + 1))
+            if (lodIdx <= (LeafLodCount + 1))
             {
                 MyCellCoord child = new MyCellCoord();
                 Vector3I childBase = lodCoord << 1;
@@ -890,6 +1055,8 @@ namespace Sandbox.Engine.Voxels
                 Vector3I maxInLod = max >> LeafLodCount;
                 Vector3I leafSizeMinusOne = new Vector3I(LeafSizeInVoxels - 1);
                 Vector3I childOffset;
+                var rangeEnd = new Vector3I(LeafSizeInVoxels - 1);
+                m_temporaryCache.Resize(Vector3I.Zero, rangeEnd);
                 for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
                 {
                     ComputeChildCoord(i, out childOffset);
@@ -925,9 +1092,9 @@ namespace Sandbox.Engine.Voxels
 
                         if (leaf.ReadOnly)
                         {
-                            var rangeEnd = new Vector3I(LeafSizeInVoxels - 1);
-                            m_temporaryCache.Resize(Vector3I.Zero, rangeEnd);
-                            leaf.ReadRange(m_temporaryCache, ref Vector3I.Zero, 0, ref Vector3I.Zero, ref rangeEnd);
+                            MyVoxelRequestFlags flags = 0;
+                            if (startInChild != Vector3I.Zero || endInChild != rangeEnd) //if write is aligned you dont need to read (make write aligned everywhere possible)
+                                leaf.ReadRange(m_temporaryCache, args.DataType.ToFlags(),ref Vector3I.Zero, 0, ref Vector3I.Zero, ref rangeEnd, ref flags);
                             var inCell = startInChild;
                             for (var it2 = new Vector3I.RangeIterator(ref startInChild, ref endInChild);
                                 it2.IsValid(); it2.GetNext(out inCell))
@@ -935,9 +1102,8 @@ namespace Sandbox.Engine.Voxels
                                 var read = readOffset + (inCell - startInChild);
                                 m_temporaryCache.Set(args.DataType, ref inCell, args.Source.Get(args.DataType, ref read));
                             }
-
                             var octree = new MyMicroOctreeLeaf(args.DataType, LeafLodCount, child.CoordInLod << (child.Lod + LeafLodCount));
-                            octree.BuildFrom(m_temporaryCache);
+                            octree.BuildFrom(m_temporaryCache); //TODO: Optimize the building
                             leaf = octree;
                         }
                         else
@@ -1116,12 +1282,206 @@ namespace Sandbox.Engine.Voxels
         struct WriteRangeArgs
         {
             public IMyStorageDataProvider Provider;
-            public MyStorageDataCache Source;
+            public MyStorageData Source;
             public Dictionary<UInt64, MyOctreeNode> Nodes;
             public Dictionary<UInt64, IMyOctreeLeafNode> Leaves;
             public MyOctreeNode.FilterFunction DataFilter;
             public MyStorageDataTypeEnum DataType;
         }
 
+
+        public override unsafe ContainmentType IntersectInternal(ref BoundingBox box, bool lazy)
+        {
+            int stackIdx = 0;
+            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+            MyCellCoord data = new MyCellCoord(m_treeHeight + LeafLodCount, ref Vector3I.Zero);
+            stack[stackIdx++] = data;
+            MyCellCoord cell = new MyCellCoord();
+
+            BoundingBoxI bb = new BoundingBoxI(new Vector3I(box.Min), new Vector3I(Vector3.Ceiling(box.Max)));
+
+            const ContainmentType invalid = (ContainmentType)(-1);
+
+            ContainmentType inter = invalid;
+
+            while (stackIdx > 0)
+            {
+                Debug.Assert(stackIdx <= stackSize);
+                data = stack[--stackIdx];
+
+                cell.Lod = Math.Max(data.Lod - LeafLodCount, 0);
+                cell.CoordInLod = data.CoordInLod;
+
+                int lodDiff;
+                IMyOctreeLeafNode leaf;
+                if (m_contentLeaves.TryGetValue(cell.PackId64(), out leaf))
+                {
+                    lodDiff = data.Lod;
+                    var rangeMinInDataLod = bb.Min >> lodDiff;
+                    var rangeMaxInDataLod = bb.Max >> lodDiff;
+                    if (data.CoordInLod.IsInsideInclusive(ref rangeMinInDataLod, ref rangeMaxInDataLod))
+                    {
+                        var leafMin = cell.CoordInLod << lodDiff;
+                        BoundingBoxI localBox = new BoundingBoxI(leafMin, leafMin + (1 << lodDiff));
+
+                        localBox.IntersectWith(ref bb);
+                        var lint = leaf.Intersect(ref localBox);
+
+                        if (inter == invalid) inter = lint;
+                        if (lint == ContainmentType.Intersects) return ContainmentType.Intersects;
+                        if (lint != inter || (inter == ContainmentType.Contains && lazy)) return ContainmentType.Intersects;
+                    }
+                    continue;
+                }
+
+                cell.Lod -= 1;
+                lodDiff = data.Lod - 1;
+                var node = m_contentNodes[cell.PackId64()];
+
+                var min = bb.Min >> lodDiff;
+                var max = bb.Max >> lodDiff;
+                var nodePositionInChild = data.CoordInLod << 1;
+                min -= nodePositionInChild;
+                max -= nodePositionInChild;
+                for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
+                {
+                    Vector3I childPosRelative;
+                    ComputeChildCoord(i, out childPosRelative);
+                    if (!childPosRelative.IsInsideInclusive(ref min, ref max))
+                        continue;
+                    if (data.Lod == 0)
+                    {
+                        //if(node.AllDataSame(0)) return 
+                        return ContainmentType.Intersects;
+                    }
+                    else if (node.HasChild(i))
+                    {
+                        Debug.Assert(stackIdx < stackSize);
+                        stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
+                    }
+                }
+            }
+            if (inter == invalid) inter = ContainmentType.Disjoint;
+
+            return inter;
+        }
+
+
+        public override unsafe bool IntersectInternal(ref LineD line)
+        {
+#if DEBUG
+            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+
+            return IntersectInternalWStack(ref line, stack, stackSize);
+        }
+
+        // To help debug even when using stackalloc
+        public unsafe bool IntersectInternalWStack(ref LineD line, MyCellCoord * stack, int stackSize) {
+#else
+
+            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+#endif
+            var finalB = BoundingBoxD.CreateInvalid();
+
+            LineD result;
+            result.From = line.To;
+            result.To = line.From;
+
+            MyCellCoord data = new MyCellCoord(m_treeHeight + LeafLodCount, ref Vector3I.Zero);
+            int stackIdx = 0;
+            stack[stackIdx++] = data;
+            MyCellCoord cell = new MyCellCoord();
+
+            BoundingBoxI bb = new BoundingBoxI(new Vector3I(Vector3.Min(line.From, line.To)), new Vector3I(Vector3.Ceiling(Vector3.Max(line.From, line.To))));
+
+            double startOfft, endOfft;
+
+            while (stackIdx > 0)
+            {
+                Debug.Assert(stackIdx <= stackSize);
+                data = stack[--stackIdx];
+
+                cell.Lod = Math.Max(data.Lod - LeafLodCount, 0);
+                cell.CoordInLod = data.CoordInLod;
+
+                int lodDiff;
+                IMyOctreeLeafNode leaf;
+                if (m_contentLeaves.TryGetValue(cell.PackId64(), out leaf))
+                {
+                    lodDiff = data.Lod;
+                    var rangeMinInDataLod = bb.Min >> lodDiff;
+                    var rangeMaxInDataLod = bb.Max >> lodDiff;
+                    if (data.CoordInLod.IsInsideInclusive(ref rangeMinInDataLod, ref rangeMaxInDataLod))
+                    {
+                        var start = rangeMinInDataLod << data.Lod;
+                        var end = (rangeMaxInDataLod) << data.Lod;
+
+                        var leafBounds = new BoundingBoxD(start, end);
+                        
+                        LineD ll;
+                        leafBounds.Intersect(ref line, out ll);
+
+
+
+                        if (leaf.Intersect(ref ll, out startOfft, out endOfft))
+                        {
+                            if (finalB.Contains(ll.From) == ContainmentType.Disjoint)
+                            {
+                                result.From = ll.From;
+                                finalB.Include(ll.From);
+                            }
+                            if (finalB.Contains(ll.To) == ContainmentType.Disjoint)
+                            {
+                                result.To = ll.To;
+                                finalB.Include(ll.To);
+                            }
+                        }
+                    }
+                    continue;
+                }
+
+                cell.Lod -= 1;
+                lodDiff = data.Lod - 1;
+                var node = m_contentNodes[cell.PackId64()];
+
+                var min = bb.Min >> lodDiff;
+                var max = bb.Max >> lodDiff;
+                var nodePositionInChild = data.CoordInLod << 1;
+                min -= nodePositionInChild;
+                max -= nodePositionInChild;
+                for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
+                {
+                    Vector3I childPosRelative;
+                    ComputeChildCoord(i, out childPosRelative);
+                    if (!childPosRelative.IsInsideInclusive(ref min, ref max))
+                        continue;
+
+                    BoundingBoxD nodeBounds;
+                    nodeBounds.Min = childPosRelative + cell.CoordInLod << lodDiff;
+                    nodeBounds.Max = nodeBounds.Min + (1 << data.Lod);
+
+                    if (finalB.Contains(nodeBounds) == ContainmentType.Contains) continue;
+
+                    if (!nodeBounds.Intersects(ref line))
+                        continue;
+
+                    if (node.HasChild(i))
+                    {
+                        Debug.Assert(stackIdx < stackSize);
+                        stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
+                    }
+                }
+            }
+
+            if (!finalB.Valid) return false;
+
+            line.To = result.To;
+            line.From = result.From;
+            line.Length = (result.To - result.From).Length();
+            return true;
+        }
     }
 }

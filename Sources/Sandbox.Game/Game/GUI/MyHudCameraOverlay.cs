@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.GUI
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, 400)]    
-    class MyHudCameraOverlay : MySessionComponentBase
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, 400)]
+    class MyHudCameraOverlay : VRage.Game.Components.MySessionComponentBase
     {
         private static string m_textureName;
         public static string TextureName

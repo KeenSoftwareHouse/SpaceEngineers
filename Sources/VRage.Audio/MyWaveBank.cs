@@ -22,7 +22,7 @@ namespace VRage.Audio
             foreach (var waveFilename in files)
             {
                 i++;
-                if (string.IsNullOrEmpty(waveFilename))
+                if (string.IsNullOrEmpty(waveFilename) || m_waves.ContainsKey(waveFilename))
                     continue;
 
                 var fsPath = Path.IsPathRooted(waveFilename) ? waveFilename : Path.Combine(MyFileSystem.ContentPath, "Audio", waveFilename);
@@ -116,6 +116,7 @@ namespace VRage.Audio
             {
                 wave.Value.Dispose();
             }
+            m_waves.Clear();
         }
 
         public MyInMemoryWave GetWave(string filename)

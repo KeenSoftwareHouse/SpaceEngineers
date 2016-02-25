@@ -12,11 +12,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemTerminalGroup))]
-    class MyToolbarItemTerminalGroup : MyToolbarItemActions
+    class MyToolbarItemTerminalGroup : MyToolbarItemActions, IMyToolbarItemEntity
     {
         private static HashSet<Type> tmpBlockTypes = new HashSet<Type>();
         private static List<MyTerminalBlock> m_tmpBlocks = new List<MyTerminalBlock>();
@@ -58,7 +60,7 @@ namespace Sandbox.Game.Screens.Helpers
                 if (tmpBlockTypes.Count == 1)
                 {
                     genericType = false;
-                    return GetValidActions(blocks.ItemAt(0).GetType());
+                    return GetValidActions(blocks.ItemAt(0).GetType(), blocks);
                 }
                 else if (tmpBlockTypes.Count == 0 || !allFunctional)
                 {
@@ -68,7 +70,7 @@ namespace Sandbox.Game.Screens.Helpers
                 else
                 {
                     genericType = true;
-                    return GetValidActions(typeof(MyFunctionalBlock));
+                    return GetValidActions(typeof(MyFunctionalBlock), blocks);
                 }
             }
             finally
@@ -77,7 +79,8 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
-        private ListReader<ITerminalAction> GetValidActions(Type blockType)
+        
+        private ListReader<ITerminalAction> GetValidActions(Type blockType, ListReader<MyTerminalBlock> blocks )
         {
             var allActions = MyTerminalControlFactory.GetActions(blockType);
             var validActions = new List<ITerminalAction>();
@@ -85,7 +88,15 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 if (action.IsValidForGroups())
                 {
-                    validActions.Add(action);
+                    bool found=false;
+                    foreach (var block in blocks)
+                        if (action.IsEnabled(block))
+                        {
+                            found = true;
+                            break;
+                        }
+                    if (found)
+                        validActions.Add(action);
                 }
             }
             return validActions;
@@ -197,6 +208,11 @@ namespace Sandbox.Game.Screens.Helpers
                 m_tmpStringBuilder.Clear();
             }
             return changed;
+        }
+
+        public bool CompareEntityIds(long id)
+        {
+            return m_blockEntityId == id;
         }
 
         public override bool Equals(object obj)

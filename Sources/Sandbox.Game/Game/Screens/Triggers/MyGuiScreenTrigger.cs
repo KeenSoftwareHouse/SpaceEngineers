@@ -87,13 +87,13 @@ namespace Sandbox.Game.Screens.Triggers
             Vector2 buttonOffset = new Vector2(0.01f, 0f); 
             
             m_okButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Ok),
+                text: MyTexts.Get(MyCommonTexts.Ok),
                 onButtonClick: OnOkButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_okButton.Position = buttonOrigin - buttonOffset;
 
             m_cancelButton = new MyGuiControlButton(
-                text: MyTexts.Get(MySpaceTexts.Cancel),
+                text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelButtonClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
             m_cancelButton.Position = buttonOrigin + buttonOffset;

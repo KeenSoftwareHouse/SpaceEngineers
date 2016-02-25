@@ -10,7 +10,10 @@ using Sandbox.Game.World;
 using VRage.Utils;
 using VRage.ObjectBuilders;
 using VRageMath;
-using VRage.Components;
+using VRage.Game.Components;
+using System;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
@@ -30,6 +33,8 @@ namespace Sandbox.Game.GameSystems.Electricity
 
         public const float EnergyCriticalThreshold = 0.10f;
         public const float EnergyLowThreshold = 0.25f;
+
+        private const int m_productionUpdateInterval = 100;
 
         public bool IsEnergyCritical { get { return (ResourceSource.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < EnergyCriticalThreshold; } }
         public bool IsEnergyLow { get { return (ResourceSource.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) < EnergyLowThreshold; } }
@@ -61,7 +66,7 @@ namespace Sandbox.Game.GameSystems.Electricity
             {
                 MaxRequiredInput = MyEnergyConstants.BATTERY_MAX_POWER_INPUT,
                 ResourceTypeId = MyResourceDistributorComponent.ElectricityId,
-                RequiredInputFunc = () => (ResourceSource.RemainingCapacity < MyEnergyConstants.BATTERY_MAX_CAPACITY) ? MyEnergyConstants.BATTERY_MAX_POWER_INPUT : 0f,
+                RequiredInputFunc = Sink_ComputeRequiredPower,
             };
 
             if (additionalSinks != null)
@@ -119,7 +124,15 @@ namespace Sandbox.Game.GameSystems.Electricity
 			return builder;
 		}
 
-		public void UpdateOnServer()
+        public float Sink_ComputeRequiredPower()
+        {
+            float inputRequiredToFillIn100Updates = (MyEnergyConstants.BATTERY_MAX_CAPACITY - ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId)) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_productionUpdateInterval * ResourceSource.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId);
+            float currentOutput = ResourceSource.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId);
+            currentOutput *= MySession.Static.CreativeMode ? 0f : 1f;
+            return Math.Min(inputRequiredToFillIn100Updates + currentOutput, MyEnergyConstants.BATTERY_MAX_POWER_INPUT);
+        }
+
+		public void UpdateOnServer100()
 		{
 			if (!Sync.IsServer)
 				return;
@@ -134,7 +147,7 @@ namespace Sandbox.Game.GameSystems.Electricity
 
 		    if (ResourceSource.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId) || ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId) > 0.0f)
 			{
-                float secondsSinceLastUpdate = (MySession.Static.GameplayFrameCounter - m_lastUpdateTime)*MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                float secondsSinceLastUpdate = (MySession.Static.GameplayFrameCounter - m_lastUpdateTime) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 m_lastUpdateTime = MySession.Static.GameplayFrameCounter;
                 var productionToCapacity = ResourceSource.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId);
                 float consumptionPerSecond = ResourceSource.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId) / productionToCapacity;

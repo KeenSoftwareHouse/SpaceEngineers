@@ -1,14 +1,12 @@
 ﻿#region Using
 
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using VRageMath;
 using VRage.ObjectBuilders;
 
 #endregion
 
-namespace Sandbox.Common.ObjectBuilders.Gui
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

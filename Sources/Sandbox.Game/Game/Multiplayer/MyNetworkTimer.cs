@@ -111,7 +111,7 @@ namespace Sandbox.Game.Multiplayer
             if (m_lastTick == TimeSpan.Zero)
             {
                 // Initialization
-                m_lastFrameMs = MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
+                m_lastFrameMs = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
                 m_lastTick += dt;
             }
             else

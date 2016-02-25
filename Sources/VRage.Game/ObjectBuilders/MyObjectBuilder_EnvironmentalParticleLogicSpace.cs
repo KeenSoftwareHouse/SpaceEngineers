@@ -1,6 +1,4 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.ObjectBuilders

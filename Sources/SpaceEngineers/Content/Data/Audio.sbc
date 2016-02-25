@@ -573,24 +573,133 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusicMenu</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\se_mainmenu1.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>NoRandom</TransitionCategory>
+      <MusicCategory>MusicMenu</MusicCategory>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusEarthlike</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track2.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track3.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track4.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track8.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track13.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track16.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusEarthlike\se_track17.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>EarthLike</TransitionCategory>
+      <MusicCategory>EarthLike</MusicCategory>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusAlien</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track6.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track7.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track12.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusAlien\se_track15.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>Alien</TransitionCategory>
+      <MusicCategory>Alien</MusicCategory>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>MusPlanet</SubtypeId>
+      </Id>
+      <Category>Music</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.5</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track1.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track5.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track9.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track10.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track11.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track14.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>MUS\MusPlanet\se_track18.xwm</Start>
+        </Wave>
+      </Waves>
+      <TransitionCategory>OtherPlanet</TransitionCategory>
+      <MusicCategory>OtherPlanet</MusicCategory>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcPlayJet</SubtypeId>
       </Id>
       <Category>PLAYER_JET</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.886259258</Volume>
+      <Volume>0.3</Volume>
       <VolumeVariation>1.92830074</VolumeVariation>
       <PitchVariation>13.8767748</PitchVariation>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\PLAYER\ArcPlayJetStart2d.xwm</Start>
-          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop2d.xwm</Loop>
-          <End>ARC\PLAYER\ArcPlayJetEnd2d.xwm</End>
+          <Start>ARC\PLAYER\ArcPlayJetStart2d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop2d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetEnd2d.wav</End>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayJetStart3d.xwm</Start>
-          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop3d.xwm</Loop>
-          <End>ARC\PLAYER\ArcPlayJetEnd3d.xwm</End>
+          <Start>ARC\PLAYER\ArcPlayJetStart3d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetIdleLoop3d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -620,18 +729,18 @@
       </Id>
       <Category>PLAYER_JET</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.886259258</Volume>
+      <Volume>0.55</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayJetRunStart3d.xwm</Start>
-          <Loop>ARC\PLAYER\ArcPlayJetRunLoop3d.xwm</Loop>
-          <End>ARC\PLAYER\ArcPlayJetRunEnd3d.xwm</End>
+          <Start>ARC\PLAYER\ArcPlayJetRunStart3d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetRunLoop3d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetRunEnd3d.wav</End>
         </Wave>
         <Wave Type="D2">
-          <Start>ARC\PLAYER\ArcPlayJetRunStart2d.xwm</Start>
-          <Loop>ARC\PLAYER\ArcPlayJetRunLoop2d.xwm</Loop>
-          <End>ARC\PLAYER\ArcPlayJetRunEnd2d.xwm</End>
+          <Start>ARC\PLAYER\ArcPlayJetRunStart2d.wav</Start>
+          <Loop>ARC\PLAYER\ArcPlayJetRunLoop2d.wav</Loop>
+          <End>ARC\PLAYER\ArcPlayJetRunEnd2d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -994,7 +1103,7 @@
       </Id>
       <Category>HUD</Category>
       <MaxDistance>2000</MaxDistance>
-      <Volume>0.426035553</Volume>
+      <Volume>0.3</Volume>
       <VolumeVariation>1.6392</VolumeVariation>
       <PitchVariation>31.9456253</PitchVariation>
       <Waves>
@@ -1022,6 +1131,25 @@
         </Wave>
         <Wave Type="D2">
           <Start>ARC\HUD\HudUse03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudItem</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <MaxDistance>2000</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1.5</VolumeVariation>
+      <PitchVariation>33</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudInventoryObjClick2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\HUD\HudInventoryObjClick3d01.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -1117,7 +1245,7 @@
       </Id>
       <Category>HUD</Category>
       <MaxDistance>2000</MaxDistance>
-      <Volume>0.278106421</Volume>
+      <Volume>0.2</Volume>
       <VolumeVariation>1.06099844</VolumeVariation>
       <PitchVariation>12.0699205</PitchVariation>
       <Waves>
@@ -1133,7 +1261,7 @@
       </Id>
       <Category>HUD</Category>
       <MaxDistance>2000</MaxDistance>
-      <Volume>0.179487154</Volume>
+      <Volume>0.1</Volume>
       <Waves>
         <Wave Type="D2">
           <Start>ARC\HUD\HudMouseOver.xwm</Start>
@@ -1160,29 +1288,72 @@
         <SubtypeId>ArcWepPlayRifleShot</SubtypeId>
       </Id>
       <Category>WEP_PLAY</Category>
-      <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.7</Volume>
-      <Loopable>true</Loopable>
+      <MaxDistance>150</MaxDistance>
+      <!--<DistantSounds>
+        <DistantSound distance="100" sound="ArcWepRifleDist01" />
+      </DistantSounds>-->
+      <Volume>0.8</Volume>
       <Waves>
-        <Wave Type="D2">
-          <Start>ARC\WEP\ArcWepPlayRifleShotStart2d.wav</Start>
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop2d.wav</Loop>
-          <End>ARC\WEP\ArcWepPlayRifleShotEnd2d.wav</End>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d01.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepPlayRifleShotStart3d.wav</Start>
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop3d.wav</Loop>
-          <End>ARC\WEP\ArcWepPlayRifleShotEnd3d.wav</End>
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d08.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d09.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d010.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d011.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepPlayRifleStart3d012.wav</Start>
         </Wave>
       </Waves>
     </Sound>
+    <!--<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepRifleDist01</SubtypeId>
+      </Id>
+      <Category>WEP_PLAY</Category>
+      <MaxDistance>300</MaxDistance>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\WEP\ArcWepRifleDist01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>-->
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcWepPlayRifleNoAmmo</SubtypeId>
       </Id>
       <Category>WEP_PLAY</Category>
-      <MaxDistance>46.6797371</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.602728665</Volume>
       <Waves>
         <Wave Type="D3">
@@ -1196,7 +1367,7 @@
         <SubtypeId>ArcToolPlayDrillIdle</SubtypeId>
       </Id>
       <Category>TOOL_PLAY_DRILL</Category>
-      <MaxDistance>46.6797371</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.6890203</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -1218,19 +1389,19 @@
         <SubtypeId>ArcToolPlayDrillMetal</SubtypeId>
       </Id>
       <Category>TOOL_PLAY_DRILL</Category>
-      <MaxDistance>46.6797371</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.6890203</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart2d.xwm</Start>
-          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop2d.xwm</Loop>
-          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd2d.xwm</End>
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart2d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart3d.xwm</Start>
-          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop3d.xwm</Loop>
-          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd3d.xwm</End>
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart3d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillMetalLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -1240,19 +1411,119 @@
         <SubtypeId>ArcToolPlayDrillRock</SubtypeId>
       </Id>
       <Category>TOOL_PLAY_DRILL</Category>
-      <MaxDistance>46.6797371</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.6890203</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart2d.xwm</Start>
-          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop2d.xwm</Loop>
-          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd2d.xwm</End>
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart2d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\TOOL\ArcToolPlayDrillIdleStart3d.xwm</Start>
-          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop3d.xwm</Loop>
-          <End>ARC\TOOL\ArcToolPlayDrillIdleEnd3d.xwm</End>
+          <!--<Start>ARC\TOOL\ArcToolPlayDrillSurfaceStart3d.wav</Start>-->
+          <Loop>ARC\TOOL\ArcToolPlayDrillRockLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillGrass</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillGrassLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillGrassLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSoil</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSoilLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSoilLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSand</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSandLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSandLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillSnow</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSnowLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillSnowLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcToolPlayDrillIce</SubtypeId>
+      </Id>
+      <Category>TOOL_PLAY_DRILL</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\TOOL\ArcToolPlayDrillIceLoop2d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd2d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\TOOL\ArcToolPlayDrillIceLoop3d.wav</Loop>
+          <End>ARC\TOOL\ArcToolPlayDrillSurfaceEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -1262,17 +1533,17 @@
         <SubtypeId>ArcWepShipGatlingShot</SubtypeId>
       </Id>
       <Category>WEP_SHIP</Category>
-      <MaxDistance>104.207764</MaxDistance>
-      <Volume>0.380835</Volume>
+      <MaxDistance>90</MaxDistance>
+      <Volume>0.680835</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\WEP\ArcWepShipGatlingShotLoop2d.xwm</Loop>
-          <End>ARC\WEP\ArcWepShipGatlingShotEnd2d.xwm</End>
+          <Loop>ARC\WEP\ArcWepShipGatlingShotLoop2d.wav</Loop>
+          <End>ARC\WEP\ArcWepShipGatlingShotEnd2d.wav</End>
         </Wave>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepShipGatlingShotLoop3d.xwm</Loop>
-          <End>ARC\WEP\ArcWepShipGatlingShotEnd3d.xwm</End>
+          <Loop>ARC\WEP\ArcWepShipGatlingShotLoop3d.wav</Loop>
+          <End>ARC\WEP\ArcWepShipGatlingShotEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -1282,7 +1553,7 @@
         <SubtypeId>ArcWepShipGatlingNoAmmo</SubtypeId>
       </Id>
       <Category>WEP_SHIP</Category>
-      <MaxDistance>104.207764</MaxDistance>
+      <MaxDistance>80</MaxDistance>
       <Volume>0.380835</Volume>
       <Waves>
         <Wave Type="D3">
@@ -1418,7 +1689,7 @@
         <SubtypeId>ArcWepShipSmallMissileShot</SubtypeId>
       </Id>
       <Category>WEP_SHIP</Category>
-      <MaxDistance>104.207764</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.380835</Volume>
       <Waves>
         <Wave Type="D2">
@@ -1484,13 +1755,13 @@
         <SubtypeId>ArcWepTurretGatlingFire</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>30</MaxDistance>
-      <Volume>0.7</Volume>
+      <MaxDistance>90</MaxDistance>
+      <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepTurretGatlingFireLoop3d.xwm</Loop>
-          <End>ARC\WEP\ArcWepTurretGatlingFireEnd3d.xwm</End>
+          <Loop>ARC\WEP\ArcWepTurretGatlingFireLoop3d.wav</Loop>
+          <End>ARC\WEP\ArcWepTurretGatlingFireEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -1500,23 +1771,23 @@
         <SubtypeId>ArcWepTurretMissileShot</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>25</MaxDistance>
       <Volume>0.7</Volume>
       <Waves>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepTurretMissileShot3d01.xwm</Start>
+          <Start>ARC\WEP\ArcWepTurretMissileShot3d01.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepTurretMissileShot3d02.xwm</Start>
+          <Start>ARC\WEP\ArcWepTurretMissileShot3d02.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepTurretMissileShot3d03.xwm</Start>
+          <Start>ARC\WEP\ArcWepTurretMissileShot3d03.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepTurretMissileShot3d04.xwm</Start>
+          <Start>ARC\WEP\ArcWepTurretMissileShot3d04.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\WEP\ArcWepTurretMissileShot3d05.xwm</Start>
+          <Start>ARC\WEP\ArcWepTurretMissileShot3d05.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -1526,7 +1797,7 @@
         <SubtypeId>ArcWepTurretGatlingRotate</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -1542,13 +1813,13 @@
         <SubtypeId>ArcWepTurretInteriorFire</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>25</MaxDistance>
       <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepTurretInteriorFireLoop3d.xwm</Loop>
-          <End>ARC\WEP\ArcWepTurretInteriorFireEnd3d.xwm</End>
+          <Loop>ARC\WEP\ArcWepTurretInteriorFireLoop3d.wav</Loop>
+          <End>ARC\WEP\ArcWepTurretInteriorFireEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -1558,8 +1829,8 @@
         <SubtypeId>ArcWepTurretInteriorRotate</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>30</MaxDistance>
-      <Volume>0.6</Volume>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -1665,7 +1936,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.7</Volume>
+      <Volume>0.2</Volume>
       <VolumeVariation>4.424721</VolumeVariation>
       <PitchVariation>108.563423</PitchVariation>
       <Waves>
@@ -1747,19 +2018,47 @@
       <PitchVariation>94.18148</PitchVariation>
       <Waves>
         <Wave Type="D3">
-          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d01.xwm</Start>
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d01.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d02.xwm</Start>
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d02.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d03.xwm</Start>
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d03.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d04.xwm</Start>
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d04.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d05.xwm</Start>
+          <Start>ARC\IMP\ArcWepPlayRifleImpPlay3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepShipGatlingImpPlay</SubtypeId>
+      </Id>
+      <Category>IMP_PLAY</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.2</Volume>
+      <!--<VolumeVariation>20</VolumeVariation>-->
+      <PitchVariation>200</PitchVariation>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepShipGatlingImpPlay3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepShipGatlingImpPlay3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepShipGatlingImpPlay3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepShipGatlingImpPlay3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\IMP\ArcWepShipGatlingImpPlay3d05.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -1798,7 +2097,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.4</Volume>
       <VolumeVariation>3.479619</VolumeVariation>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
@@ -1838,7 +2137,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -1874,7 +2173,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -1910,7 +2209,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -1946,7 +2245,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -1982,7 +2281,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2018,7 +2317,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2054,7 +2353,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2090,7 +2389,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2126,7 +2425,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2162,7 +2461,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -2198,7 +2497,7 @@
       </Id>
       <Category>IMP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.5</Volume>
       <VolumeVariation>3.479619</VolumeVariation>
       <PitchVariation>86.99048</PitchVariation>
       <Waves>
@@ -2293,8 +2592,8 @@
         <SubtypeId>ArcWepShipGatlingImpRock</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>95.9891357</MaxDistance>
-      <Volume>0.322925627</Volume>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.3</Volume>
       <VolumeVariation>2.50650215</VolumeVariation>
       <PitchVariation>84.3452148</PitchVariation>
       <Waves>
@@ -2333,7 +2632,7 @@
         <SubtypeId>ArcWepShipGatlingImpWood</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2369,7 +2668,7 @@
         <SubtypeId>ArcWepShipGatlingImpSnow</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2405,7 +2704,7 @@
         <SubtypeId>ArcWepShipGatlingImpIce</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2441,7 +2740,7 @@
           <SubtypeId>ArcWepShipGatlingImpGrass</SubtypeId>
         </Id>
         <Category>IMP_SHIP</Category>
-        <MaxDistance>80</MaxDistance>
+        <MaxDistance>50</MaxDistance>
         <Volume>0.4</Volume>
         <PitchVariation>100</PitchVariation>
         <Waves>
@@ -2477,7 +2776,7 @@
           <SubtypeId>ArcWepShipGatlingImpGrassDry</SubtypeId>
         </Id>
         <Category>IMP_SHIP</Category>
-        <MaxDistance>80</MaxDistance>
+        <MaxDistance>50</MaxDistance>
         <Volume>0.4</Volume>
         <PitchVariation>100</PitchVariation>
         <Waves>
@@ -2513,7 +2812,7 @@
         <SubtypeId>ArcWepShipGatlingImpSand</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2549,7 +2848,7 @@
         <SubtypeId>ArcWepShipGatlingImpSoil</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2585,7 +2884,7 @@
         <SubtypeId>ArcWepShipGatlingImpSoilMoon</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2621,7 +2920,7 @@
         <SubtypeId>ArcWepShipGatlingImpSoilMars</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2657,7 +2956,7 @@
         <SubtypeId>ArcWepShipGatlingImpSoilDry</SubtypeId>
       </Id>
       <Category>IMP_SHIP</Category>
-      <MaxDistance>80</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
@@ -2735,8 +3034,8 @@
         <SubtypeId>ArcShipSmNuclearSm</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>30</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.1</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -2757,8 +3056,8 @@
         <SubtypeId>ArcShipSmNuclearLrg</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>30</MaxDistance>
-      <Volume>0.602728665</Volume>
+      <MaxDistance>12</MaxDistance>
+      <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -2779,7 +3078,7 @@
         <SubtypeId>RealShipSmNuclearSm</SubtypeId>
       </Id>
       <Category>REAL_SHIP_NUCLEAR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2813,7 +3112,7 @@
         <SubtypeId>ArcShipLrgNuclearSm</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>11</MaxDistance>
       <Volume>0.602728665</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2835,7 +3134,7 @@
         <SubtypeId>ArcShipLrgNuclearLrg</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>13</MaxDistance>
       <Volume>0.602728665</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2892,7 +3191,7 @@
       </Id>
       <Category>PLAYER_RUNS</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.491781741</Volume>
+      <Volume>0.41</Volume>
       <VolumeVariation>2.2174015</VolumeVariation>
       <PitchVariation>127.710335</PitchVariation>
       <Waves>
@@ -2941,7 +3240,7 @@
       </Id>
       <Category>PLAYER_RUNS</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.491781741</Volume>
+      <Volume>0.4</Volume>
       <!--<VolumeVariation>1.78375232</VolumeVariation>
       <PitchVariation>125.903481</PitchVariation>-->
       <Loopable>false</Loopable>
@@ -3229,7 +3528,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.8</Volume>
+      <Volume>0.4</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3261,11 +3560,47 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayStepsGlass</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d05.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d06.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d07.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\PLAYER\ArcPlayStepsGlass3d08.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcPlayStepsRock</SubtypeId>
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.4</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3301,7 +3636,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.25</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3337,7 +3672,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.25</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3373,7 +3708,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.25</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3409,7 +3744,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3445,7 +3780,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3481,7 +3816,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3517,7 +3852,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3553,7 +3888,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3589,7 +3924,7 @@
       </Id>
       <Category>R_PLAYER_RUNS</Category>
       <MaxDistance>35</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.3</Volume>
       <Loopable>false</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3630,10 +3965,10 @@
       <PitchVariation>20</PitchVariation>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\PLAYER\ArcPlayJump2d.xwm</Start>
+          <Start>ARC\PLAYER\ArcPlayJump2d.wav</Start>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayJump3d.xwm</Start>
+          <Start>ARC\PLAYER\ArcPlayJump3d.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -3665,7 +4000,16 @@
       <PitchVariation>35.5593338</PitchVariation>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\PLAYER\ArcPlayFallMetal2d01.xwm</Start>
+          <Start>ARC\PLAYER\ArcPlayFallMetal2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayFallMetal2d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayFallMetal3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayFallMetal3d02.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -3681,7 +4025,7 @@
       <PitchVariation>35.5593338</PitchVariation>
       <Waves>
         <Wave Type="D2">
-          <Start>Real\PLAYER\RealPlayFallMetal2d01.wav</Start>
+          <!--<Start>Real\PLAYER\RealPlayFallMetal2d01.wav</Start>-->
         </Wave>
       </Waves>
     </Sound>
@@ -3697,7 +4041,10 @@
       <PitchVariation>62.6625557</PitchVariation>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\PLAYER\ArcPlayFallRock2d01.xwm</Start>
+          <Start>ARC\PLAYER\ArcPlayFallRock2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayFallRock3d01.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -3713,7 +4060,7 @@
       <PitchVariation>62.6625557</PitchVariation>
       <Waves>
         <Wave Type="D2">
-          <Start>Real\PLAYER\RealPlayFallRock2d01.wav</Start>
+          <!--<Start>Real\PLAYER\RealPlayFallRock2d01.wav</Start>-->
         </Wave>
       </Waves>
     </Sound>
@@ -3724,7 +4071,7 @@
       </Id>
       <Category>PLAYER_RUNS</Category>
       <MaxDistance>45</MaxDistance>
-      <Volume>0.6</Volume>
+      <Volume>0.4</Volume>
       <PitchVariation>100</PitchVariation>
       <Waves>
         <Wave Type="D3">
@@ -4032,25 +4379,31 @@
         <SubtypeId>ArcSmShipSmJet</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.25</Volume>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.15</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\SHIP\ArcSmShipSmJetStart2d.xwm</Start>
-          <Loop>ARC\SHIP\ArcSmShipSmJetLoop2d.xwm</Loop>
-          <End>ARC\SHIP\ArcSmShipSmJetEnd2d.xwm</End>
+          <!--<Start>ARC\SHIP\ArcSmShipSmJetStart2d.wav</Start>-->
+          <Loop>ARC\SHIP\ArcSmShipSmJetStart2d.wav</Loop>
+          <!--<Loop>ARC\SHIP\ArcSmShipSmJetLoop2d.wav</Loop>-->
+          <!--<End>ARC\SHIP\ArcSmShipSmJetEnd2d.xwm</End>-->
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\SHIP\ArcSmShipSmJetStart3d.xwm</Start>
-          <Loop>ARC\SHIP\ArcSmShipSmJetLoop3d01.xwm</Loop>
+          <Start>ARC\SHIP\ArcLrgShipSmJetStart3d.xwm</Start>
+          <Loop>ARC\SHIP\ArcLrgShipSmJetLoop3d.xwm</Loop>
+        </Wave>
+        <!--
+        <Wave Type="D3">
+          <Start>ARC\SHIP\ArcSmShipSmJetStart3d01.wav</Start>
+          <Loop>ARC\SHIP\ArcSmShipSmJetLoop3d01.wav</Loop>
           <End>ARC\SHIP\ArcSmShipSmJetEnd3d.xwm</End>
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\SHIP\ArcSmShipSmJetStart3d.xwm</Start>
-          <Loop>ARC\SHIP\ArcSmShipSmJetLoop3d.xwm</Loop>
+          <Start>ARC\SHIP\ArcSmShipSmJetStart3d.wav</Start>
+          <Loop>ARC\SHIP\ArcSmShipSmJetLoop3d.wav</Loop>
           <End>ARC\SHIP\ArcSmShipSmJetEnd3d.xwm</End>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -4059,19 +4412,19 @@
         <SubtypeId>ArcSmShipLrgJet</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.25</Volume>
+      <MaxDistance>11</MaxDistance>
+      <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Start>ARC\SHIP\ArcSmShipLrgJetStart2d.xwm</Start>
-          <Loop>ARC\SHIP\ArcSmShipLrgJetLoop2d.xwm</Loop>
-          <End>ARC\SHIP\ArcSmShipLrgJetEnd2d.xwm</End>
+          <!--<Start>ARC\SHIP\ArcSmShipLrgJetStart2d.xwm</Start>-->
+          <Loop>ARC\SHIP\ArcSmShipLrgJetLoop2d.wav</Loop>
+          <!--<End>ARC\SHIP\ArcSmShipLrgJetEnd2d.xwm</End>-->
         </Wave>
         <Wave Type="D3">
-          <Start>ARC\SHIP\ArcSmShipLrgJetStart3d.xwm</Start>
-          <Loop>ARC\SHIP\ArcSmShipLrgJetLoop3d.xwm</Loop>
-          <End>ARC\SHIP\ArcSmShipLrgJetEnd3d.xwm</End>
+          <!--<Start>ARC\SHIP\ArcSmShipLrgJetStart3d.xwm</Start>-->
+          <Loop>ARC\SHIP\ArcSmShipLrgJetLoop3d.wav</Loop>
+          <!--<End>ARC\SHIP\ArcSmShipLrgJetEnd3d.xwm</End>-->
         </Wave>
       </Waves>
     </Sound>
@@ -4111,8 +4464,8 @@
         <SubtypeId>ArcLrgShipSmJet</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.30</Volume>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.2</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4127,8 +4480,8 @@
         <SubtypeId>ArcLrgShipLrgJet</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.30</Volume>
+      <MaxDistance>50</MaxDistance>
+      <Volume>0.2</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4143,8 +4496,8 @@
         <SubtypeId>ArcSmShipSmJetHydrogen</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4160,8 +4513,8 @@
         <SubtypeId>ArcSmShipLrgJetHydrogen</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>21</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4177,8 +4530,8 @@
         <SubtypeId>ArcLrgShipSmJetHydrogen</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4194,8 +4547,8 @@
         <SubtypeId>ArcLrgShipLrgJetHydrogen</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>23</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4211,8 +4564,8 @@
         <SubtypeId>ArcSmShipSmJetAtmo</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4228,8 +4581,8 @@
         <SubtypeId>ArcSmShipLrgJetAtmo</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4245,8 +4598,8 @@
         <SubtypeId>ArcLrgShipSmJetAtmo</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4262,8 +4615,8 @@
         <SubtypeId>ArcLrgShipLrgJetAtmo</SubtypeId>
       </Id>
       <Category>SHIP_JET</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.5</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4279,7 +4632,7 @@
         <SubtypeId>ArcShipLandGearOn</SubtypeId>
       </Id>
       <Category>SHIP</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>17</MaxDistance>
       <Volume>0.610946834</Volume>
       <Waves>
         <Wave Type="D3">
@@ -4299,7 +4652,7 @@
         <SubtypeId>ArcShipLandGearOff</SubtypeId>
       </Id>
       <Category>SHIP</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>17</MaxDistance>
       <Volume>0.610946834</Volume>
       <Waves>
         <Wave Type="D3">
@@ -4319,7 +4672,7 @@
         <SubtypeId>ArcShipLandGearNothing01</SubtypeId>
       </Id>
       <Category>SHIP</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>17</MaxDistance>
       <Volume>0.610946834</Volume>
       <Waves>
         <Wave Type="D3">
@@ -4381,7 +4734,7 @@
         <SubtypeId>ArcToolShipDrillIdle</SubtypeId>
       </Id>
       <Category>TOOL_SHIP</Category>
-      <MaxDistance>40</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.4342537</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4403,7 +4756,7 @@
         <SubtypeId>ArcToolShipDrillMetal</SubtypeId>
       </Id>
       <Category>TOOL_SHIP</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -4424,7 +4777,7 @@
         <SubtypeId>ArcToolShipDrillRock</SubtypeId>
       </Id>
       <Category>TOOL_SHIP</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.742122352</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4523,7 +4876,10 @@
         <SubtypeId>ArcWepSmallMissileExpl</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>260.355042</MaxDistance>
+      <MaxDistance>200</MaxDistance>
+      <DistantSounds>
+        <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
+      </DistantSounds>
       <Volume>0.6150559</Volume>
       <Waves>
         <Wave Type="D2">
@@ -4561,10 +4917,10 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcWepExplOnPlay</SubtypeId>
-      </Id>
+        <SubtypeId>ArcWepExplOnPlayUnused</SubtypeId>
+      </Id> 
       <Category>WEP_EXPL</Category>
-      <MaxDistance>260.355042</MaxDistance>
+      <MaxDistance>100</MaxDistance>
       <Volume>0.6150559</Volume>
       <Waves>
         <Wave Type="D2">
@@ -4587,7 +4943,10 @@
         <SubtypeId>ArcWepSmallMissileExplShip</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>260.355042</MaxDistance>
+      <MaxDistance>200</MaxDistance>
+      <DistantSounds>
+        <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
+      </DistantSounds>
       <Volume>0.6150559</Volume>
       <VolumeVariation>1.78375232</VolumeVariation>
       <PitchVariation>53.62818</PitchVariation>
@@ -4658,7 +5017,10 @@
         <SubtypeId>ArcWepSmallWarheadExpl</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>200</MaxDistance>
+      <DistantSounds>
+        <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
+      </DistantSounds>
       <Volume>0.7</Volume>
       <Waves>
         <Wave Type="D2">
@@ -4699,7 +5061,10 @@
         <SubtypeId>ArcWepLrgWarheadExpl</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>200</MaxDistance>
+      <DistantSounds>
+        <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
+      </DistantSounds>
       <Volume>0.7</Volume>
       <Waves>
         <Wave Type="D2">
@@ -4737,10 +5102,24 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepLrgWarheadExplDist01</SubtypeId>
+      </Id>
+      <Category>WEP_EXPL</Category>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\EXPL\ArcExpDistanceTest3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcImpGeneric</SubtypeId>
       </Id>
       <Category>IMP_GENERIC</Category>
-      <MaxDistance>50</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>Arc\IMP\ArcImpGeneric3d.wav</Start>
@@ -5086,7 +5465,7 @@
         <SubtypeId>ArcToolPlayGrindIdle</SubtypeId>
       </Id>
       <Category>TOOL_PLAY</Category>
-      <MaxDistance>30.2429581</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5108,7 +5487,7 @@
         <SubtypeId>ArcToolPlayGrindMetal</SubtypeId>
       </Id>
       <Category>TOOL_PLAY</Category>
-      <MaxDistance>30.2429581</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -5129,7 +5508,7 @@
         <SubtypeId>ArcToolPlayWeldIdle</SubtypeId>
       </Id>
       <Category>TOOL_PLAY</Category>
-      <MaxDistance>30.2429581</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.7095661</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5147,7 +5526,7 @@
         <SubtypeId>ArcToolLrgGrindIdle</SubtypeId>
       </Id>
       <Category>TOOL_LRG</Category>
-      <MaxDistance>30.2429581</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.85</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5164,7 +5543,7 @@
         <SubtypeId>ArcToolLrgGrindMetal</SubtypeId>
       </Id>
       <Category>TOOL_LRG</Category>
-      <MaxDistance>38.461113</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.94</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5212,7 +5591,7 @@
         <SubtypeId>ArcToolPlayWeldMetal</SubtypeId>
       </Id>
       <Category>TOOL_PLAY</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.7095661</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5230,7 +5609,7 @@
         <SubtypeId>ArcToolLrgWeldIdle</SubtypeId>
       </Id>
       <Category>TOOL_LRG</Category>
-      <MaxDistance>30.2429581</MaxDistance>
+      <MaxDistance>25</MaxDistance>
       <Volume>0.8</Volume>
       <Waves>
         <Wave Type="D3">
@@ -5244,7 +5623,7 @@
         <SubtypeId>ArcToolLrgWeldMetal</SubtypeId>
       </Id>
       <Category>TOOL_LRG</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>25</MaxDistance>
       <Volume>0.8</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5349,8 +5728,8 @@
         <SubtypeId>ArcBlockGravityGen</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
-      <Volume>0.845168</Volume>
+      <MaxDistance>12</MaxDistance>
+      <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -5393,7 +5772,7 @@
         <SubtypeId>ArcBlockRafinery</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5432,7 +5811,7 @@
         <SubtypeId>ArcBlockAssembler</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5476,7 +5855,7 @@
         <SubtypeId>ArcBlockMedical</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>13</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5496,9 +5875,7 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-            <Start>Real\BLOCK\RealBlockMedicalLoop3d.wav</Start>
             <Loop>Real\BLOCK\RealBlockMedicalLoop3d.wav</Loop>
-            <End>Real\BLOCK\RealBlockMedicalEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -5508,7 +5885,7 @@
         <SubtypeId>ArcBlockMedicalProgress</SubtypeId>
       </Id>
       <Category>BLOCK_PROGRESS</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>13</MaxDistance>
       <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5547,7 +5924,7 @@
         <SubtypeId>ArcBlockReactorLrg</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>12</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5591,7 +5968,7 @@
         <SubtypeId>ArcBlockReactorSm</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>09</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5630,14 +6007,14 @@
         <SubtypeId>ArcBlockRotor</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\BLOCK\ArcBlockRotorStart3d.xwm</Start>
           <Loop>ARC\BLOCK\ArcBlockRotorLoop3d.xwm</Loop>
-          <End>ARC\BLOCK\ArcBlockRotorIEnd3d.xwm</End>
+          <End>ARC\BLOCK\ArcBlockRotorEnd3d.xwm</End>
         </Wave>
       </Waves>
     </Sound>
@@ -5669,7 +6046,7 @@
         <SubtypeId>ArcBlockRotorSmall</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.845168</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5705,10 +6082,85 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockPiston</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>15</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BLOCK\ArcBlockPistonStart3d.wav</Start>
+          <Loop>ARC\BLOCK\ArcBlockPistonLoop3d.wav</Loop>
+          <End>ARC\BLOCK\ArcBlockPistonEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockProjectorOn</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BLOCK\ArcBlockProjectHologramStart3d.wav</Start>
+          <Loop>ARC\BLOCK\ArcBlockProjectHologramLoop3d.wav</Loop>
+          <End>ARC\BLOCK\ArcBlockProjectHologramEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockProjectorOff</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>15</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BLOCK\ArcBlockProjectorIdleStart3d.wav</Start>
+          <Loop>ARC\BLOCK\ArcBlockProjectorIdleLoop3d.wav</Loop>
+          <End>ARC\BLOCK\ArcBlockProjectorIdleEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockGyroscope</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>13</MaxDistance>
+      <Volume>0.75</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\BLOCK\ArcBlockGyroscope2d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\BLOCK\ArcBlockGyroscope3d01.wav</Loop>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\BLOCK\RealBlockRotorSmallStart2d.xwm</Start>
+          <Loop>Real\BLOCK\RealBlockRotorSmallLoop2d.xwm</Loop>
+          <End>Real\BLOCK\RealBlockRotorSmallEnd2d.xwm</End>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockRafineryProcess</SubtypeId>
       </Id>
       <Category>BLOCK_PROGRESS</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>15</MaxDistance>
+      <Volume>0.4041087</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -5751,7 +6203,8 @@
         <SubtypeId>ArcBlockAssemblerProcess</SubtypeId>
       </Id>
       <Category>BLOCK_PROGRESS</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>15</MaxDistance>
+      <Volume>0.8</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -5793,8 +6246,8 @@
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockArtMass</SubtypeId>
       </Id>
-      <Category>BLOCK_PROGRESS</Category>
-      <MaxDistance>20</MaxDistance>
+      <Category>BLOCK</Category>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.8</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -5833,7 +6286,7 @@
         <SubtypeId>ArcBlockDoorSmallClose</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.8</Volume>
       <Waves>
         <Wave Type="D3">
@@ -5844,11 +6297,25 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockDoorSlidingClose</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>15</MaxDistance>
+      <Volume>1</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BLOCK\ArcBlockDoorSlidingClose3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockDoorHangar</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>35</MaxDistance>
-      <Volume>0.8</Volume>
+      <MaxDistance>17</MaxDistance>
+      <Volume>0.3</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -5864,7 +6331,7 @@
         <SubtypeId>ArcBlockDoorSmallOpen</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>12</MaxDistance>
       <Volume>0.845168</Volume>
       <Waves>
         <Wave Type="D3">
@@ -5922,18 +6389,18 @@
       </Id>
       <Category>PLAYER</Category>
       <MaxDistance>20</MaxDistance>
-      <Volume>0.821624756</Volume>
+      <Volume>0.6</Volume>
       <VolumeVariation>3.4385283</VolumeVariation>
       <PitchVariation>84.93588</PitchVariation>
       <Waves>
-        <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayTakeItem3d01.xwm</Start>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d01.wav</Start>
         </Wave>
-        <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayTakeItem3d02.xwm</Start>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d02.wav</Start>
         </Wave>
-        <Wave Type="D3">
-          <Start>ARC\PLAYER\ArcPlayTakeItem3d03.xwm</Start>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d03.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -5962,15 +6429,15 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>BlockCockpitLrg</SubtypeId>
+        <SubtypeId>ArcBlockCockpitLrg</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22</MaxDistance>
-      <Volume>0.9</Volume>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.1</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
+          <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop2d.wav</Loop>
         </Wave>
         <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop3d.xwm</Loop>
@@ -5980,15 +6447,33 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>BlockCockpitSm</SubtypeId>
+        <SubtypeId>ArcBlockCockpitFlightSeat</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22</MaxDistance>
-      <Volume>0.9</Volume>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
+          <Loop>ARC\BLOCK\ArcBlockCockpitFlightSeat2d01.wav</Loop>
+        </Wave>
+        <!--<Wave Type="D3">
+          <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop3d.xwm</Loop>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockCockpitSm</SubtypeId>
+      </Id>
+      <Category>BLOCK</Category>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.1</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop2d.wav</Loop>
         </Wave>
         <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop3d.xwm</Loop>
@@ -6001,12 +6486,12 @@
         <SubtypeId>ArcBlockWheel1x1</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>30.0248051</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>10</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\BLOCK\ArcBlockWheel1x1Loop3d.xwm</Loop>
+          <Loop>ARC\BLOCK\ArcBlockWheel1x1Loop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -6016,12 +6501,12 @@
         <SubtypeId>ArcBlockWheel3x3</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>30.0248051</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>12</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\BLOCK\ArcBlockWheel3x3Loop3d.xwm</Loop>
+          <Loop>ARC\BLOCK\ArcBlockWheel3x3Loop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -6031,12 +6516,12 @@
         <SubtypeId>ArcBlockWheel5x5</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>30.0248051</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>14</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\BLOCK\ArcBlockWheel5x5Loop3d.xwm</Loop>
+          <Loop>ARC\BLOCK\ArcBlockWheel5x5Loop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -6560,7 +7045,7 @@
         <SubtypeId>ArcBlockAirVentDepressurize</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>17</MaxDistance>
       <Volume>0.8</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6577,7 +7062,7 @@
         <SubtypeId>ArcBlockAirVentExhale</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>17</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6594,7 +7079,7 @@
         <SubtypeId>ArcBlockAirVentIdle</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>30</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6611,7 +7096,7 @@
         <SubtypeId>ArcBlockOxyGenProcess</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6628,7 +7113,7 @@
         <SubtypeId>ArcBlockOxyGenIdle</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6686,7 +7171,7 @@
         <SubtypeId>ArcBlockCryoIn</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6704,7 +7189,7 @@
         <SubtypeId>ArcBlockCryoOut</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6752,7 +7237,7 @@
         <SubtypeId>ArcParticleElectrical</SubtypeId>
       </Id>
       <Category>Particle</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>18</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6776,7 +7261,7 @@
         <SubtypeId>ArcParticleHeavyMech</SubtypeId>
       </Id>
       <Category>Particle</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6791,7 +7276,7 @@
         <SubtypeId>ArcParticleReactor</SubtypeId>
       </Id>
       <Category>Particle</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6806,7 +7291,7 @@
         <SubtypeId>ArcParticleWeapExpl</SubtypeId>
       </Id>
       <Category>Particle</Category>
-      <MaxDistance>25</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -6890,7 +7375,7 @@
         <SubtypeId>ArcBlockModuleProductivity</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.3</Volume>
       <VolumeVariation>50</VolumeVariation>
       <PitchVariation>200</PitchVariation>
@@ -6907,7 +7392,7 @@
         <SubtypeId>ArcBlockModuleEffectiveness</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.3</Volume>
       <VolumeVariation>50</VolumeVariation>
       <PitchVariation>200</PitchVariation>
@@ -6924,7 +7409,7 @@
         <SubtypeId>ArcBlockModuleEfficiency</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>20</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <Volume>0.3</Volume>
       <VolumeVariation>50</VolumeVariation>
       <PitchVariation>200</PitchVariation>
@@ -6968,7 +7453,7 @@
       </Id>
       <Category>BLOCK</Category>
       <Volume>0.7</Volume>
-      <MaxDistance>200</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\BLOCK\ArcBlockCollect3d01.wav</Start>
@@ -6982,6 +7467,7 @@
       </Id>
       <Category>BLOCK</Category>
       <Volume>0.7</Volume>
+      <MaxDistance>15</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\BLOCK\ArcBlockEject3d01.wav</Start>
@@ -7021,7 +7507,7 @@
       </Id>
       <Category>SHIP</Category>
       <Volume>0.7</Volume>
-      <MaxDistance>3000</MaxDistance>
+      <MaxDistance>500</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\SHIP\ArcShipJumpDriveCharging3d01.wav</Start>
@@ -7035,7 +7521,7 @@
       </Id>
       <Category>SHIP</Category>
       <Volume>1.7</Volume>
-      <MaxDistance>3000</MaxDistance>
+      <MaxDistance>500</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\SHIP\ArcShipJumpDriveJumpIn3d01.wav</Start>
@@ -7049,7 +7535,7 @@
       </Id>
       <Category>SHIP</Category>
       <Volume>1.7</Volume>
-      <MaxDistance>3000</MaxDistance>
+      <MaxDistance>500</MaxDistance>
       <Waves>
         <Wave Type="D3">
           <Start>ARC\SHIP\ArcShipJumpDriveJumpOut3d01.wav</Start>
@@ -7063,6 +7549,7 @@
       </Id>
       <Category>SHIP</Category>
       <Volume>0.7</Volume>
+      <MaxDistance>500</MaxDistance>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -7120,6 +7607,642 @@
       <Waves>
         <Wave Type="D3">
           <Loop>REAL\SHIP\RealShipJumpDriveRechargeLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB Earhtlike planet -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbDesertDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbDesertDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbDesertNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbDesertDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbForestDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.4</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbForestDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbForestNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbForestNightLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbIcelandDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbIcelandDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbPoleDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.35</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbPoleDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB Alien planet -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienDesertDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienDesertDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienDesertNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienDesertNightLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienForestDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.2</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienForestDayLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienForestNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>1.2</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienForestNightLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienIceland</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.9</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienIcelandLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienPole</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.35</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienPoleLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB high for Alien -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbAlienHigh</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>1.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbAlienHighLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB high for Earthlike -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbHigh</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>1.6</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbHighLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB Mars -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbMarsLoop</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>2.5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbMarsLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    
+    <!-- AMB Earth Moon -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbMoonDayLoop</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>6</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbEarthMoonDayLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbMoonNightLoop</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbEarthMoonNightLoop2d.xwm</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    
+    <!-- AMB Europa moon -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbEuropaMoonDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>5</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbEuropaMoonDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbEuropaMoonNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbEuropaMoonNightLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+
+    <!-- AMB Titan moon -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbTitanMoonDay</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.45</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbTitanMoonDayLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>AmbTitanMoonNight</SubtypeId>
+      </Id>
+      <Category>AMB</Category>
+      <MaxDistance>100</MaxDistance>
+      <Volume>0.45</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\AMB\AmbTitanMoonNightLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <!-- AMB Planets/moons end -->
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcShipWindSpeed</SubtypeId>
+      </Id>
+      <Category>SHIP</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.3</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>ARC\SHIP\ArcShipWindSpeed2d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderAttackBite</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderAttackBite3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderAttackBite3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderAttackClaw</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderAttackClaw3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+      <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderAttackSting</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderAttackSting3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderAttackSting3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderBurrowIn</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderBurrowIn3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderBurrowOut</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderBurrowOut3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderDeath</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderDeath3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderEat</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderEat3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderRoar</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderRoar3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderWalk</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotSpiderWalkLoop3d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderWaveInitial</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderWaveInitial3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotSpiderWaveRetreat</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotSpiderWaveRetreat3d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberhoundAttack</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.6</Volume>
+      <PitchVariation>150</PitchVariation>
+      <VolumeVariation>3</VolumeVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotCyberhoundAttack3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotCyberhoundAttack3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotCyberhoundAttack3d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberhoundDeath</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>1</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotCyberhoundDeath3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\BOT\ArcBotCyberhoundDeath3d02.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberhoundRun</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>1</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotCyberhoundRunLoop3d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotCyberhoundRunLoop3d02.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberhoundWalk</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotCyberhoundWalkLoop3d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotCyberhoundWalkLoop3d02.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberhoundWaveInt</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\BOT\ArcBotCyberhoundWaveInt2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+	<Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBotCyberSelfActDestr</SubtypeId>
+      </Id>
+      <Category>BOT</Category>
+      <MaxDistance>40</MaxDistance>
+      <Volume>0.9</Volume>
+      <PitchVariation>100</PitchVariation>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>ARC\BOT\ArcBotCyberSelfActDestrLoop3d01.wav</Loop>
         </Wave>
       </Waves>
     </Sound>

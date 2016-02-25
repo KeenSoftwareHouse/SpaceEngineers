@@ -3,6 +3,7 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -12,33 +13,34 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("cockpit")]
-    class MyUseObjectCockpitDoor : IMyUseObject
+    class MyUseObjectCockpitDoor : MyUseObjectBase
     {
         public readonly IMyEntity Cockpit;
         public readonly Matrix LocalMatrix;
 
         public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
+            : base(owner, dummyData)
         {
             Cockpit = owner;
             LocalMatrix = dummyData.Matrix;
         }
 
-        float IMyUseObject.InteractiveDistance
+        public override float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
 
-        MatrixD IMyUseObject.ActivationMatrix
+        public override MatrixD ActivationMatrix
         {
             get { return LocalMatrix * Cockpit.WorldMatrix; }
         }
 
-        MatrixD IMyUseObject.WorldMatrix
+        public override MatrixD WorldMatrix
         {
             get { return Cockpit.WorldMatrix; }
         }
 
-        int IMyUseObject.RenderObjectID
+        public override int RenderObjectID
         {
             get
             {
@@ -46,17 +48,17 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyUseObject.ShowOverlay
+        public override bool ShowOverlay
         {
             get { return true; }
         }
 
-        UseActionEnum IMyUseObject.SupportedActions
+        public override UseActionEnum SupportedActions
         {
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
+        public override void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             // How to distinct between server sending message?
             // - it's response...always
@@ -74,7 +76,7 @@ namespace Sandbox.Game.Entities.Cube
                 (Cockpit as MyCockpit).RequestUse(actionEnum, user);
         }
 
-        MyActionDescription IMyUseObject.GetActionInfo(UseActionEnum actionEnum)
+        public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
             return new MyActionDescription()
             {
@@ -85,16 +87,16 @@ namespace Sandbox.Game.Entities.Cube
             };
         }
 
-        bool IMyUseObject.ContinuousUsage
+        public override bool ContinuousUsage
         {
             get { return false; }
         }
 
-        bool IMyUseObject.HandleInput() { return false; }
+        public override bool HandleInput() { return false; }
 
-        void IMyUseObject.OnSelectionLost() { }
+        public override void OnSelectionLost() { }
 
-        bool IMyUseObject.PlayIndicatorSound
+        public override bool PlayIndicatorSound
         {
             get { return true; }
         }

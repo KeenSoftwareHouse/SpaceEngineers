@@ -363,6 +363,8 @@ namespace Sandbox.Game.AI.Pathfinding
         // original triangles.
         //
         // When the method returns, edgeAB, edgeBC and edgeCA will contain the indices for the new edges.
+        // The positions of vertices A, B and C will be unmodified and might not correspond to the real positions of the resulting
+        // triangle's vertices (because the positions of the original edge vertices will sometimes be used due to edge merging).
         //
         // Note: The triangle's vertices and edges must be ordered clockwise:
         //                 B
@@ -471,7 +473,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (sharedVertex == -1)
             {
                 int formerSucc = succ;
-                Vector3 extrudePos = m_mesh.GetVertex(edgeSucc.GetFacePredVertex(-1));
+                Vector3 extrudePos = m_mesh.GetVertexPosition(edgeSucc.GetFacePredVertex(-1));
                 int faceIndex = m_mesh.ExtrudeTriangleFromEdge(ref extrudePos, pred, newTri, out newEdge, out succ);
                 m_mesh.MergeEdges(formerSucc, succ);
                 return faceIndex;
@@ -582,7 +584,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES != MyWEMDebugDrawMode.NONE)
             {
                 m_mesh.DebugDraw(ref drawMatrix, MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES);
-                m_mesh.CustomDebugDrawFaces(ref drawMatrix, MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES, (obj) => (obj as MyNavigationTriangle).ComponentIndex.ToString());
+                m_mesh.CustomDebugDrawFaces(ref drawMatrix, MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES, (obj) => (obj as MyNavigationTriangle).Index.ToString());
             }
 
             //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Navmesh size approximation: " + ApproximateMemoryFootprint() + "B", Color.Yellow, 1.0f);

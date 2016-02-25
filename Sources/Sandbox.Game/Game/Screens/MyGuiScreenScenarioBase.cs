@@ -12,12 +12,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Screens
 {
-    abstract class MyGuiScreenScenarioBase : MyGuiScreenBase
+    public abstract class MyGuiScreenScenarioBase : MyGuiScreenBase
     {
         protected enum StateEnum
         {
@@ -54,8 +55,7 @@ namespace Sandbox.Game.Screens
             float height = checkpoint == null ? 1.24f : 0.97f;
             if (checkpoint != null)
                 height -= 0.05f;
-            if (MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
-                height -= 0.27f;
+            height -= 0.27f;
 
             return new Vector2(width, height);
         }
@@ -74,8 +74,8 @@ namespace Sandbox.Game.Screens
 
             // side menu
             {
-                var nameLabel = MakeLabel(MySpaceTexts.Name);
-                var descriptionLabel = MakeLabel(MySpaceTexts.Description);
+                var nameLabel = MakeLabel(MyCommonTexts.Name);
+                var descriptionLabel = MakeLabel(MyCommonTexts.Description);
 
                 m_nameTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_NAME_LENGTH);
                 m_nameTextbox.Enabled = false;
@@ -105,24 +105,28 @@ namespace Sandbox.Game.Screens
 
             // briefing
             {
-                MyGuiControlParent briefing = new MyGuiControlParent();
-
-                var briefingScrollableArea = new MyGuiControlScrollablePanel(
-                    scrolledControl: briefing)
+                var briefingPanel = new MyGuiControlPanel()
                 {
-                    Name = "BriefingScrollableArea",
-                    ScrollbarVEnabled = true,
+                    Name = "BriefingPanel",
                     Position = new Vector2(-0.02f, -0.12f),
                     Size = new Vector2(0.43f, 0.422f),
                     OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                    BackgroundTexture = MyGuiConstants.TEXTURE_SCROLLABLE_LIST,
-                    ScrolledAreaPadding = new MyGuiBorderThickness(0.005f),
+                    BackgroundTexture = MyGuiConstants.TEXTURE_SCROLLABLE_LIST
                 };
+                Controls.Add(briefingPanel);
 
-                Controls.Add(briefingScrollableArea);
-                //inside scrollable area:
-                m_descriptionBox = AddMultilineText(offset: new Vector2(-0.287f, 5f), size: new Vector2(briefingScrollableArea.Size.X - 0.02f, 11f), selectable: false);
-                briefing.Controls.Add(m_descriptionBox);
+                m_descriptionBox = new MyGuiControlMultilineText(
+                    selectable: false,
+                    font: MyFontEnum.Blue)
+                {
+                    Name = "BriefingMultilineText",
+                    Position = new Vector2(-0.009f, -0.115f),
+                    Size = new Vector2(0.419f, 0.412f),
+                    OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                    TextAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                    TextBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                };
+                Controls.Add(m_descriptionBox);
             }
 
             // buttons
@@ -140,8 +144,8 @@ namespace Sandbox.Game.Screens
                 float[] rowHeights = Enumerable.Repeat(buttonSize.Y + buttonOffset.Y, buttonRowCount).ToArray();
                 m_buttonsLayout.SetRowHeightsNormalized(rowHeights);
 
-                m_okButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OnOkButtonClick);
-                m_cancelButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: OnCancelButtonClick);
+                m_okButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkButtonClick);
+                m_cancelButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelButtonClick);
 
                 m_buttonsLayout.Add(m_okButton, MyAlignH.Left, MyAlignV.Top, 1, 2);
                 m_buttonsLayout.Add(m_cancelButton, MyAlignH.Left, MyAlignV.Top, 1, 3);
@@ -163,7 +167,7 @@ namespace Sandbox.Game.Screens
             scenarioTable.VisibleRowsCount = 20;
             scenarioTable.ColumnsCount = 2;
             scenarioTable.SetCustomColumnWidths(new float[] { 0.085f, 0.905f });
-            scenarioTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
+            scenarioTable.SetColumnName(1, MyTexts.Get(MyCommonTexts.Name));
             scenarioTable.ItemSelected += OnTableItemSelected;
 
             return scenarioTable;
@@ -172,20 +176,6 @@ namespace Sandbox.Game.Screens
         protected MyGuiControlLabel MakeLabel(MyStringId textEnum)
         {
             return new MyGuiControlLabel(text: MyTexts.GetString(textEnum), originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
-        }
-
-        private MyGuiControlMultilineText AddMultilineText(Vector2? size = null, Vector2? offset = null, float textScale = 1.0f, bool selectable = false)
-        {
-            Vector2 textboxSize = size ?? this.Size ?? new Vector2(0.5f, 0.5f);
-
-            MyGuiControlMultilineText textbox = new MyGuiControlMultilineText(
-                position: offset ?? Vector2.Zero,
-                size: textboxSize,
-                textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                selectable: selectable,
-                font: MyFontEnum.Blue);
-            return textbox;
         }
 
         protected abstract MyStringId ScreenCaption { get; }
@@ -202,11 +192,11 @@ namespace Sandbox.Game.Screens
             if (m_nameTextbox.Text.Length < MySession.MIN_NAME_LENGTH || m_nameTextbox.Text.Length > MySession.MAX_NAME_LENGTH)
             {
                 MyStringId errorType;
-                if (m_nameTextbox.Text.Length < MySession.MIN_NAME_LENGTH) errorType = MySpaceTexts.ErrorNameTooShort;
-                else errorType = MySpaceTexts.ErrorNameTooLong;
+                if (m_nameTextbox.Text.Length < MySession.MIN_NAME_LENGTH) errorType = MyCommonTexts.ErrorNameTooShort;
+                else errorType = MyCommonTexts.ErrorNameTooLong;
                 var messageBox = MyGuiSandbox.CreateMessageBox(
                     messageText: MyTexts.Get(errorType),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
                 messageBox.SkipTransition = true;
                 messageBox.InstantClose = false;
                 MyGuiSandbox.AddScreen(messageBox);
@@ -216,8 +206,8 @@ namespace Sandbox.Game.Screens
             if (m_descriptionTextbox.Text.Length > MySession.MAX_DESCRIPTION_LENGTH)
             {
                 var messageBox = MyGuiSandbox.CreateMessageBox(
-                    messageText: MyTexts.Get(MySpaceTexts.ErrorDescriptionTooLong),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                    messageText: MyTexts.Get(MyCommonTexts.ErrorDescriptionTooLong),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
                 messageBox.SkipTransition = true;
                 messageBox.InstantClose = false;
                 MyGuiSandbox.AddScreen(messageBox);
@@ -283,9 +273,9 @@ namespace Sandbox.Game.Screens
             else
             {
                 Tuple<string, MyWorldInfo> t = FindSave(m_scenarioTable.SelectedRow);
-                m_nameTextbox.SetText(new StringBuilder(t.Item2.SessionName));
+                m_nameTextbox.SetText(new StringBuilder(MyTexts.GetString(t.Item2.SessionName)));// translation of session name
                 m_descriptionTextbox.SetText(new StringBuilder(t.Item2.Description));
-                m_descriptionBox.Text = new StringBuilder(t.Item2.Briefing);
+                m_descriptionBox.Text = new StringBuilder(MyTexts.GetString(t.Item2.Briefing)); // translation of checkpoint briefing
             }
 
         }
@@ -310,19 +300,23 @@ namespace Sandbox.Game.Screens
             m_availableSaves.Clear();
         }
 
-        protected void RefreshGameList()
+        protected void RefreshGameList(bool tutorials = false)
         {
             int selectedIndex = m_scenarioTable.SelectedRowIndex ?? -1;
             m_scenarioTable.Clear();
-
+            Color? color = null;
             for (int index = 0; index < m_availableSaves.Count; index++)
             {
                 var checkpoint = m_availableSaves[index].Item2;
                 var name = new StringBuilder(checkpoint.SessionName);
-
+                if (tutorials)
+                    if (MyTutorialHelper.IsUnlocked(checkpoint.SessionName) || MyFakes.DEVELOPMENT_PRESET)
+                        color = null;
+                    else
+                        color = Color.Gray;
                 var row = new MyGuiControlTable.Row(m_availableSaves[index]);
-                row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: GetIcon(m_availableSaves[index])));
-                row.AddCell(new MyGuiControlTable.Cell(text: name, userData: name));
+                row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, textColor : color, icon: GetIcon(m_availableSaves[index])));
+                row.AddCell(new MyGuiControlTable.Cell(text: name, textColor: color, userData: name));
                 m_scenarioTable.Add(row);
 
                 // Select row with same world ID as we had before refresh.

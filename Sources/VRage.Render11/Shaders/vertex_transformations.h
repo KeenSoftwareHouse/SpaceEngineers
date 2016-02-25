@@ -15,7 +15,9 @@ float voxel_morphing(float3 position_a, float2 bounds, float3 local_viewer)
 {
 	float3 diff = abs(position_a - local_viewer);
 	float dist = max(diff.x, max(diff.y, diff.z));
-	return saturate(((dist - bounds.x) / (bounds.y - bounds.x) - 0.35f)*10.0f);
+	return saturate(((dist - bounds.x) / (bounds.y - bounds.x) - 0.35f)*2.0f);
+	//return saturate((dist - bounds.x) / (bounds.y - bounds.x));
+	//return 1;
 }
 
 float3 unpack_voxel_weights(float weights)

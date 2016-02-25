@@ -4,8 +4,9 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
+    // MZ: Move to medieval? Currently referenced by MyObjectBuilder_Definitions, cannot move.
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CuttingDefinition : MyObjectBuilder_DefinitionBase
@@ -47,5 +48,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("CuttingPrefab")]
         [ProtoMember, DefaultValue(null)]
         public MyCuttingPrefab[] CuttingPrefabs = null;
+
+        [ProtoMember]
+        public bool DestroySourceAfterCrafting = true;
+
+        [ProtoMember]
+        public float CraftingTimeInSeconds = 0.5f;
     }
 }

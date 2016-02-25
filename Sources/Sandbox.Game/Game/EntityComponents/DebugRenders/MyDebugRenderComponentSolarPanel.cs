@@ -11,7 +11,8 @@ using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -48,11 +49,11 @@ namespace Sandbox.Game.Components
                 pivot += ((i % 4 - 1.5f) * unit * scale * (m_solarBlock.BlockDefinition.Size.X / 4f)) * WorldMatrix.Left;
                 pivot += ((i / 4 - 0.5f) * unit * scale * (m_solarBlock.BlockDefinition.Size.Y / 2f)) * WorldMatrix.Up;
                 pivot += unit * scale * (m_solarBlock.BlockDefinition.Size.Z / 2f) * Vector3.Transform(m_solarComponent.PanelOrientation, rot) * m_solarComponent.PanelOffset;
-                if (m_solarComponent.PivotInSun[i])
+                if (m_solarComponent.DebugIsPivotInSun[i])
                     MyRenderProxy.DebugDrawLine3D(pivot, pivot + MySector.DirectionToSunNormalized * 5, Color.Red, Color.Red, false);
                 else
                     MyRenderProxy.DebugDrawLine3D(pivot, pivot + MySector.DirectionToSunNormalized * 5, Color.Green, Color.Green, false);
-                if (i == m_solarComponent.CurrentPivot)
+                if (i == m_solarComponent.DebugCurrentPivot)
                     MyRenderProxy.DebugDrawLine3D(pivot, pivot + MySector.DirectionToSunNormalized * 7, Color.Yellow, Color.Yellow, false);
             }
             return true;

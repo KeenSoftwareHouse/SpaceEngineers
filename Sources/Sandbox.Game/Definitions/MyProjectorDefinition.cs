@@ -1,4 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -8,6 +11,7 @@ namespace Sandbox.Definitions
     {
 	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
+        public MySoundPair IdleSound;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -17,6 +21,7 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(obProjector != null, "Initializing camera definition using wrong object builder.!");
 	        ResourceSinkGroup = MyStringHash.GetOrCompute(obProjector.ResourceSinkGroup);
             RequiredPowerInput = obProjector.RequiredPowerInput;
+            IdleSound = new MySoundPair(obProjector.IdleSound);
         }
 
     }

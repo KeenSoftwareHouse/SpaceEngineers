@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element msdata:IsDataSet="true" name="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
-                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
-              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
-              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -124,66 +124,8 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Šprint</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
-    <value>Jeste li sigurn da želite izaći?</value>
-  </data>
-  <data name="AssignControlKeyboard" xml:space="preserve">
-    <value>Molimo pritisnite tipku</value>
-  </data>
-  <data name="AssignControlMouse" xml:space="preserve">
-    <value>Molimo pritisnite tipku miša</value>
-  </data>
-  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
-    <value>Zvuk</value>
-  </data>
-  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
-    <value>Opcije zvuka</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Odustani</value>
-  </data>
-  <data name="CanNotAssignControl" xml:space="preserve">
-    <value>NEMOGUĆE DODIJELITI KONTROLU</value>
-  </data>
-  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
-    <value>Nastavi zadnje</value>
-  </data>
-  <data name="ControlAlreadyAssigned" xml:space="preserve">
-    <value>{0} je već dodijeljen na {1}. Želite li promijeniti kontrolu?
-</value>
-  </data>
-  <data name="ControlIsNotValid" xml:space="preserve">
-    <value>Pritisnutom gumbu možda nije dodijeljena kontrola.</value>
-  </data>
-  <data name="ScreenCaptionControls" xml:space="preserve">
-    <value>Kontrole</value>
-  </data>
-  <data name="ScreenMenuButtonCredits" xml:space="preserve">
-    <value>Zasluge</value>
-  </data>
-  <data name="KeysDelete" xml:space="preserve">
-    <value>Obriši</value>
-  </data>
-  <data name="KeysDown" xml:space="preserve">
-    <value>Dolje</value>
-  </data>
-  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
-    <value>Želite li zadržati ove postavke? {0} sekundi preostalo.</value>
-  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Bušilica</value>
-  </data>
-  <data name="KeysEnd" xml:space="preserve">
-    <value>Kraj</value>
-  </data>
-  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
-    <value>Izađi u glavni izbornik</value>
-  </data>
-  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
-    <value>Izađi u Windowse</value>
-  </data>
-  <data name="FieldOfView" xml:space="preserve">
-    <value>Vidno polje</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Koristi alat / Pucaj</value>
@@ -191,176 +133,11 @@
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>Sekundarni mod</value>
   </data>
-  <data name="ScreenOptionsButtonGame" xml:space="preserve">
-    <value>Igra</value>
-  </data>
-  <data name="ScreenCaptionGameOptions" xml:space="preserve">
-    <value>Opcije igre</value>
-  </data>
-  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
-    <value>Gamepad</value>
-  </data>
-  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
-    <value>Analogno</value>
-  </data>
-  <data name="GameVolume" xml:space="preserve">
-    <value>Glasnoća</value>
-  </data>
-  <data name="ControlTypeGeneral" xml:space="preserve">
-    <value>Općenito</value>
-  </data>
-  <data name="HardwareCursor" xml:space="preserve">
-    <value>Hardverski kursor</value>
-  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Svjetla uključi / isključi</value>
   </data>
-  <data name="ControlName_Help" xml:space="preserve">
-    <value>Pomoć</value>
-  </data>
-  <data name="KeysHome" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="KeysInsert" xml:space="preserve">
-    <value>Insert</value>
-  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Inventar</value>
-  </data>
-  <data name="InvertMouseX" xml:space="preserve">
-    <value>Izokreni X os miša</value>
-  </data>
-  <data name="InvertMouseY" xml:space="preserve">
-    <value>Izokreni Y os miša</value>
-  </data>
-  <data name="Joystick" xml:space="preserve">
-    <value>Joystick ili gamepad</value>
-  </data>
-  <data name="JoystickButtonLeft" xml:space="preserve">
-    <value>JDLijevo</value>
-  </data>
-  <data name="JoystickButtonRight" xml:space="preserve">
-    <value>JDDesno</value>
-  </data>
-  <data name="JoystickButtonUp" xml:space="preserve">
-    <value>JDGore</value>
-  </data>
-  <data name="JoystickButtonDown" xml:space="preserve">
-    <value>JDDolje</value>
-  </data>
-  <data name="JoystickDeadzone" xml:space="preserve">
-    <value>Širina praznog hoda na Joysticku</value>
-  </data>
-  <data name="JoystickExponent" xml:space="preserve">
-    <value>Postepena preciznost na Joysticku</value>
-  </data>
-  <data name="JoystickSensitivity" xml:space="preserve">
-    <value>Osjetljivost Joysticka</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
-    <value>Tipkovnica</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Jezik</value>
-  </data>
-  <data name="KeysLeft" xml:space="preserve">
-    <value>Lijevo</value>
-  </data>
-  <data name="KeysLeftAlt" xml:space="preserve">
-    <value>LAlt</value>
-  </data>
-  <data name="KeysLeftControl" xml:space="preserve">
-    <value>LCtrl</value>
-  </data>
-  <data name="LeftMouseButton" xml:space="preserve">
-    <value>LMB</value>
-  </data>
-  <data name="KeysLeftShift" xml:space="preserve">
-    <value>LShift</value>
-  </data>
-  <data name="LoadScreenButtonLoad" xml:space="preserve">
-    <value>Učitaj</value>
-  </data>
-  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
-    <value>UČITAVANJE ... MOLIMO PRIČEKAJTE</value>
-  </data>
-  <data name="MessageBoxCaptionError" xml:space="preserve">
-    <value>GREŠKA</value>
-  </data>
-  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
-    <value>MOLIMO POTVRDITE</value>
-  </data>
-  <data name="MessageBoxCaptionExit" xml:space="preserve">
-    <value>IZAĐI</value>
-  </data>
-  <data name="MiddleMouseButton" xml:space="preserve">
-    <value>MMB</value>
-  </data>
-  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
-    <value>Miš</value>
-  </data>
-  <data name="MouseSensitivity" xml:space="preserve">
-    <value>Osjetljivost miša</value>
-  </data>
-  <data name="MouseXButton1" xml:space="preserve">
-    <value>MXB1</value>
-  </data>
-  <data name="MouseXButton2" xml:space="preserve">
-    <value>MXB2</value>
-  </data>
-  <data name="ControlTypeNavigation" xml:space="preserve">
-    <value>Navigacija</value>
-  </data>
-  <data name="ScreenCaptionNewWorld" xml:space="preserve">
-    <value>Novi svijet</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>Ne</value>
-  </data>
-  <data name="KeysNumPad0" xml:space="preserve">
-    <value>Num 0</value>
-  </data>
-  <data name="KeysNumPad1" xml:space="preserve">
-    <value>Num 1</value>
-  </data>
-  <data name="KeysNumPad2" xml:space="preserve">
-    <value>Num 2</value>
-  </data>
-  <data name="KeysNumPad3" xml:space="preserve">
-    <value>Num 3</value>
-  </data>
-  <data name="KeysNumPad4" xml:space="preserve">
-    <value>Num 4</value>
-  </data>
-  <data name="KeysNumPad5" xml:space="preserve">
-    <value>Num 5</value>
-  </data>
-  <data name="KeysNumPad6" xml:space="preserve">
-    <value>Num 6</value>
-  </data>
-  <data name="KeysNumPad7" xml:space="preserve">
-    <value>Num 7</value>
-  </data>
-  <data name="KeysNumPad8" xml:space="preserve">
-    <value>Num 8</value>
-  </data>
-  <data name="KeysNumPad9" xml:space="preserve">
-    <value>Num 9</value>
-  </data>
-  <data name="Ok" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ScreenCaptionOptions" xml:space="preserve">
-    <value>Opcije</value>
-  </data>
-  <data name="KeysPageDown" xml:space="preserve">
-    <value>PgDown</value>
-  </data>
-  <data name="KeysPageUp" xml:space="preserve">
-    <value>PgUp</value>
-  </data>
-  <data name="RecommendedAspectRatio" xml:space="preserve">
-    <value>Preporučeni omjer: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Kvaliteta prikaza</value>
@@ -373,24 +150,6 @@
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normalna</value>
-  </data>
-  <data name="Revert" xml:space="preserve">
-    <value>Zadano</value>
-  </data>
-  <data name="KeysRight" xml:space="preserve">
-    <value>Desno</value>
-  </data>
-  <data name="KeysRightAlt" xml:space="preserve">
-    <value>RAlt</value>
-  </data>
-  <data name="KeysRightControl" xml:space="preserve">
-    <value>RCtrl</value>
-  </data>
-  <data name="RightMouseButton" xml:space="preserve">
-    <value>RMB</value>
-  </data>
-  <data name="KeysRightShift" xml:space="preserve">
-    <value>RShift</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Kotrljati lijevo (brod / jetpack)</value>
@@ -410,188 +169,14 @@
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Rotiraj gore</value>
   </data>
-  <data name="SelectControl" xml:space="preserve">
-    <value>IZABERI KONTROLU</value>
-  </data>
-  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
-    <value>PLANIRANO GAŠENJE SERVERA</value>
-  </data>
-  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
-    <value>Žao nam je, ali postavke koje ste izabrali nisu podržane od strane vašeg hardvera.</value>
-  </data>
-  <data name="KeysSpace" xml:space="preserve">
-    <value>Razmak</value>
-  </data>
-  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
-    <value>Početak igre ... molimo pričekajte.</value>
-  </data>
-  <data name="ControlName_StrafeLeft" xml:space="preserve">
-    <value>Mitrljiranje lijevo</value>
-  </data>
-  <data name="ControlName_StrafeRight" xml:space="preserve">
-    <value>Mitrljiranje desno</value>
-  </data>
-  <data name="ControlTypeSystems1" xml:space="preserve">
-    <value>Sistemi 1</value>
-  </data>
-  <data name="ControlTypeSystems2" xml:space="preserve">
-    <value>Sistemi 2</value>
-  </data>
-  <data name="KeysTab" xml:space="preserve">
-    <value>Tab</value>
-  </data>
-  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
-    <value>Neuspjelo pokretanje pretražnika.</value>
-  </data>
-  <data name="UnknownControl_None" xml:space="preserve">
-    <value>nijedan</value>
-  </data>
-  <data name="KeysUp" xml:space="preserve">
-    <value>Gore</value>
-  </data>
-  <data name="ControlName_UseOrInteract" xml:space="preserve">
-    <value>Koristi </value>
-  </data>
-  <data name="VerticalSync" xml:space="preserve">
-    <value>Vertical sync</value>
-  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Video</value>
-  </data>
-  <data name="VideoMode" xml:space="preserve">
-    <value>Video mod</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Video opcije</value>
   </data>
-  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
-    <value>Alati / Oružja</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Da</value>
-  </data>
-  <data name="Disabled" xml:space="preserve">
-    <value>Onemogućeno</value>
-  </data>
-  <data name="JoystickRotationXpos" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYpos" xml:space="preserve">
-    <value>JRY+</value>
-  </data>
-  <data name="JoystickRotationZpos" xml:space="preserve">
-    <value>JRZ+</value>
-  </data>
-  <data name="JoystickSlider1pos" xml:space="preserve">
-    <value>JS1+</value>
-  </data>
-  <data name="JoystickSlider2pos" xml:space="preserve">
-    <value>JS2+</value>
-  </data>
-  <data name="JoystickRotationXneg" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYneg" xml:space="preserve">
-    <value>JRY-</value>
-  </data>
-  <data name="JoystickRotationZneg" xml:space="preserve">
-    <value>JRZ-</value>
-  </data>
-  <data name="JoystickSlider1neg" xml:space="preserve">
-    <value>JS1-</value>
-  </data>
-  <data name="JoystickSlider2neg" xml:space="preserve">
-    <value>JS2-</value>
-  </data>
-  <data name="KeysDecimal" xml:space="preserve">
-    <value>Num</value>
-  </data>
-  <data name="KeysBackslash" xml:space="preserve">
-    <value>Bkslash</value>
-  </data>
-  <data name="KeysComma" xml:space="preserve">
-    <value>Zarez</value>
-  </data>
-  <data name="KeysMinus" xml:space="preserve">
-    <value>Minus</value>
-  </data>
-  <data name="KeysOpenBracket" xml:space="preserve">
-    <value>[</value>
-  </data>
-  <data name="KeysCloseBracket" xml:space="preserve">
-    <value>]</value>
-  </data>
-  <data name="KeysPeriod" xml:space="preserve">
-    <value>Točka</value>
-  </data>
-  <data name="KeysPipe" xml:space="preserve">
-    <value>Pipe</value>
-  </data>
-  <data name="KeysPlus" xml:space="preserve">
-    <value>Plus</value>
-  </data>
-  <data name="KeysQuestion" xml:space="preserve">
-    <value>Kosa Crta</value>
-  </data>
-  <data name="KeysQuotes" xml:space="preserve">
-    <value>Navodnici</value>
-  </data>
-  <data name="KeysSemicolon" xml:space="preserve">
-    <value>Dvotočka</value>
-  </data>
-  <data name="KeysTilde" xml:space="preserve">
-    <value>Tilda</value>
-  </data>
-  <data name="KeysMultiply" xml:space="preserve">
-    <value>Num *</value>
-  </data>
-  <data name="KeysDivide" xml:space="preserve">
-    <value>Num /</value>
-  </data>
-  <data name="KeysAdd" xml:space="preserve">
-    <value>Num +</value>
-  </data>
-  <data name="KeysSubtract" xml:space="preserve">
-    <value>Num -</value>
-  </data>
-  <data name="KeysCapsLock" xml:space="preserve">
-    <value>Caps Lock</value>
-  </data>
-  <data name="KeysEnter" xml:space="preserve">
-    <value>Enter</value>
-  </data>
-  <data name="KeysBackspace" xml:space="preserve">
-    <value>Backsp.</value>
-  </data>
-  <data name="ApplyingPleaseWait" xml:space="preserve">
-    <value>Primjena postavki ... Molimo čekajte</value>
-  </data>
-  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
-    <value>Ubijen si</value>
-  </data>
-  <data name="MusicVolume" xml:space="preserve">
-    <value>Glasnoća glazbe</value>
-  </data>
-  <data name="VideoAdapter" xml:space="preserve">
-    <value>Video adapter</value>
-  </data>
-  <data name="DefaultFOV" xml:space="preserve">
-    <value>Zadano {0.F1}</value>
-  </data>
-  <data name="WorldLoaded" xml:space="preserve">
-    <value>Svijet {0} učitan</value>
-  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Zaslon za chat</value>
-  </data>
-  <data name="ControlName_Screenshot" xml:space="preserve">
-    <value>Screenshot</value>
-  </data>
-  <data name="ControlName_PreviousColor" xml:space="preserve">
-    <value>Prev. Color or Camera</value>
-  </data>
-  <data name="ControlName_NextColor" xml:space="preserve">
-    <value>Next Color or Camera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminal / Inventar </value>
@@ -599,23 +184,14 @@
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Varilica</value>
   </data>
-  <data name="WorldSaved" xml:space="preserve">
-    <value>Svijet {0} spremljen</value>
-  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>Pritisni {0} da izađeš iz odabranog</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>Pritisni {0} da zavariš odabrano</value>
   </data>
-  <data name="Blueprints" xml:space="preserve">
-    <value>Nacrti</value>
-  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Kontrolna ploča</value>
-  </data>
-  <data name="Factions" xml:space="preserve">
-    <value>Fakcije</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Montažer</value>
@@ -891,23 +467,11 @@
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>Bijelo</value>
   </data>
-  <data name="BlueprintMaterials" xml:space="preserve">
-    <value>Materijali za Nacrt</value>
-  </data>
-  <data name="ProductionQueue" xml:space="preserve">
-    <value>Red Proizvodnje</value>
-  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reaktor</value>
   </data>
-  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
-    <value>Promjeni Postavke</value>
-  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Samoliječenje</value>
-  </data>
-  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Custom Svijet</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Opis</value>
@@ -924,12 +488,6 @@
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Sigurno</value>
   </data>
-  <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Name is too long (max 128 characters allowed)</value>
-  </data>
-  <data name="ErrorNameTooShort" xml:space="preserve">
-    <value>Ime je pre kratko (min 5 znakova je potrebno)</value>
-  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Prijateljska vatra</value>
   </data>
@@ -939,35 +497,11 @@
   <data name="WorldSettings_GameMode" xml:space="preserve">
     <value>Mod igre</value>
   </data>
-  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
-    <value>Preživljavanje</value>
-  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Realistično x 10</value>
   </data>
-  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
-    <value>Pridružite se Svijetu</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Naziv</value>
-  </data>
-  <data name="WorldSettings_OnlineMode" xml:space="preserve">
-    <value>Mrežni mod</value>
-  </data>
-  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
-    <value>Offline</value>
-  </data>
-  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
-    <value>Privatno</value>
-  </data>
-  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
-    <value>Javno</value>
-  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Lozinka</value>
-  </data>
-  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
-    <value>Brzi Start</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Zvuk u svemiru</value>
@@ -1000,9 +534,6 @@ kao novi igrač na granici sektora.
 Preživljavanje x3: isto kao "Preživljavanje", ali 3 puta veći kapacitet inventara
 Preživljavanje x10: isto kao "Preživljavanje", ali 3 puta veći kapacitet inventara</value>
   </data>
-  <data name="ToolTipWorldSettingsName" xml:space="preserve">
-    <value>Ime mora biti {0} do {1} alfa-numeričkih znakova</value>
-  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>Vidljivost vaše igre
 Offline: Igra se pokreće u offline modu i ne zahtijeva internetsku vezu
@@ -1016,18 +547,6 @@ Javno: Bilo koji Steam igrače se može pridružiti</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>U svemiru nema zvuka. Uključite ga kako biste simulirali zvučne uvjete poput onih na Zemlji (iako to nije realistično). Ugasite ga ako želite realistično iskustvo u kojemu ćete čuti samo zvukove koje vaš lik može čuti.</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
-    <value>Jeste li sigurni da želite obrisati '{0}'?</value>
-  </data>
-  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
-    <value>Učitaj Svijet</value>
-  </data>
-  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
-    <value>Spremi Kao</value>
-  </data>
-  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
-    <value>Kreativno</value>
-  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Scenarij</value>
   </data>
@@ -1037,146 +556,14 @@ Javno: Bilo koji Steam igrače se može pridružiti</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Osamljeni preživjeli</value>
   </data>
-  <data name="PlayerCharacter" xml:space="preserve">
-    <value>Igračev Lik</value>
-  </data>
-  <data name="WorldSettings_AutoSave" xml:space="preserve">
-    <value>Automatsko spremanje</value>
-  </data>
-  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
-    <value>Automatsko snimanje snima stanje vašeg svijeta svakih {0} minuta ili prilikom izlaska iz igre.</value>
-  </data>
-  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
-    <value>Želite li spremiti svoj napredak?</value>
-  </data>
-  <data name="SaveWorld" xml:space="preserve">
-    <value>Sačuvaj Svijet</value>
-  </data>
-  <data name="ScreenMenuButtonSave" xml:space="preserve">
-    <value>Spremi</value>
-  </data>
-  <data name="SavingPleaseWait" xml:space="preserve">
-    <value>Spremam ... molimo pričekajte</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>Napredno</value>
-  </data>
-  <data name="AdvancedControls" xml:space="preserve">
-    <value>Napredne Kontrole</value>
-  </data>
-  <data name="ControlName_Backward" xml:space="preserve">
-    <value>Unatrag</value>
-  </data>
-  <data name="BasicControls" xml:space="preserve">
-    <value>Osnovne Kontrole</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Zatvori</value>
-  </data>
-  <data name="ControlName_DownOrCrouch" xml:space="preserve">
-    <value>Dolje i Čučni</value>
-  </data>
-  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
-    <value>Prvo-lice / Treće-lice</value>
-  </data>
-  <data name="ControlName_Forward" xml:space="preserve">
-    <value>Naprijed</value>
-  </data>
-  <data name="NextPage" xml:space="preserve">
-    <value>Iduća Stranica</value>
-  </data>
-  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Pritisni {0} za pomoć i tutorijale</value>
-  </data>
-  <data name="PreviousPage" xml:space="preserve">
-    <value>Prijašnja Stranica</value>
-  </data>
-  <data name="ShowControlsHints" xml:space="preserve">
-    <value>Pokaži natuknice kontrola</value>
-  </data>
-  <data name="SteamGuide" xml:space="preserve">
-    <value>Tutorijali</value>
-  </data>
-  <data name="ControlName_UpOrJump" xml:space="preserve">
-    <value>Gore ili Skok</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
-    <value>Rotiraj blok vertikalno -</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
-    <value>Rotiraj blok vertikalno +</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
-    <value>Rotiraj blok horizontalno -</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
-    <value>Rotiraj blok horizontalno +</value>
-  </data>
-  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
-    <value>Rotiraj blok kotrljanjem -</value>
-  </data>
-  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
-    <value>Rotiraj blok kotrljanjem +</value>
-  </data>
-  <data name="ControlName_Slot0" xml:space="preserve">
-    <value>Pusti</value>
-  </data>
-  <data name="ControlName_Slot1" xml:space="preserve">
-    <value>Uzmi predmet iz utora 1</value>
-  </data>
-  <data name="ControlName_Slot2" xml:space="preserve">
-    <value>Uzmi predmet iz utora 2</value>
-  </data>
-  <data name="ControlName_Slot3" xml:space="preserve">
-    <value>Uzmi predmet iz utora 3</value>
-  </data>
-  <data name="ControlName_Slot4" xml:space="preserve">
-    <value>Uzmi predmet iz utora 4</value>
-  </data>
-  <data name="ControlName_Slot5" xml:space="preserve">
-    <value>Uzmi predmet iz utora 5</value>
-  </data>
-  <data name="ControlName_Slot6" xml:space="preserve">
-    <value>Uzmi predmet iz utora 6</value>
-  </data>
-  <data name="ControlName_Slot7" xml:space="preserve">
-    <value>Uzmi predmet iz utora 7</value>
-  </data>
-  <data name="ControlName_Slot8" xml:space="preserve">
-    <value>Uzmi predmet iz utora 8</value>
-  </data>
-  <data name="ControlName_Slot9" xml:space="preserve">
-    <value>Uzmi predmet iz utora 9</value>
-  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reaktori Upali / Ugasi</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Prazan Svijet</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
-    <value>Jeste li sigurni da želite koristiti brzo učitavanje?</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
-    <value>Jeste li sigurni da želite koristiti brzo spremanje?</value>
-  </data>
-  <data name="ControlName_ToolbarConfig" xml:space="preserve">
-    <value>Konfiguracija alatne trake</value>
-  </data>
-  <data name="ControlName_HoldToLookAround" xml:space="preserve">
-    <value>Drži za gledanje okolo</value>
-  </data>
-  <data name="ControlName_HoldToSprint" xml:space="preserve">
-    <value>Drži za šprint</value>
-  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Jetpack isključen/uključen</value>
-  </data>
-  <data name="LoadingPleaseWait" xml:space="preserve">
-    <value>Učitavanje ... Molimo Pričekajte</value>
-  </data>
-  <data name="NoPlaceToCreateGrid" xml:space="preserve">
-    <value>Nema mjesta za novi blok. Okrenite pogled prema praznom prostoru.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Nedovoljno materijala za novi blok. Potrebna je barem jedna čelična ploča.</value>
@@ -1186,28 +573,6 @@ Javno: Bilo koji Steam igrače se može pridružiti</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Konvejer</value>
-  </data>
-  <data name="ControlName_HudOnOff" xml:space="preserve">
-    <value>HUD Upali / Ugasi</value>
-  </data>
-  <data name="ScreenCubeBuilderHint" xml:space="preserve">
-    <value>Natuknica: Povuci ikonu do utora alatne trake i aktiviraj ju numeričkom tipkom</value>
-  </data>
-  <data name="Saved" xml:space="preserve">
-    <value>Spremljeno</value>
-  </data>
-  <data name="HideWeapon" xml:space="preserve">
-    <value>Sakrij Oružje</value>
-  </data>
-  <data name="Thrust" xml:space="preserve">
-    <value>Potisak</value>
-  </data>
-  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
-    <value>Jedan od svjetova/save datoteka je koruptiran i ne može biti učitan.
-Vidi "log" za detalje. </value>
-  </data>
-  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
-    <value>Datoteka svijeta je oštećena i ne može se učitati.</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1645,52 +1010,11 @@ smjerovima.
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>Nema Gravitacije</value>
   </data>
-  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
-    <value>Stvori novi svijet sa prilagođenim postavkama</value>
-  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Stvori novi svijet sa standardnim postavkama:
 Tip igre: Kreativni mod
 Scenarij: Lagani početak 1
 Auto-snimanje: UKLJUČENO</value>
-  </data>
-  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
-    <value>Veća kvaliteta prikaza znači bolji vizualni dojam, veći doseg vidljivog i više specijalnih efekata - No, zahtjevnije je u vidu računalnih performansi (CPU i GPU). 
-Ako igra ne teče glatko, smanjite ih.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Odaberi grafičku karticu i/ili monitor</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
-    <value>Odaberite razlučivost ekrana. Preporučamo koristiti omjer slike kompatibilan sa Vašim monitorom.
-Ako igra ne teče glatko, smanjite razlučivost ekrana.</value>
-  </data>
-  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
-    <value>Hardverski pokazivač miša ne ovisi o broju sličica. Predlažemo da ovo uključite.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
-    <value>Igra će se sinhronizirati sa brzinom osvježenja monitora. Predlažemo da to isključite. (Vsync)</value>
-  </data>
-  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
-    <value>Horizontalno vidno polje</value>
-  </data>
-  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
-    <value>Prikaži savjete za upravljanje prilikom igranja</value>
-  </data>
-  <data name="WorldNotSaved" xml:space="preserve">
-    <value>Svijet {0} se nije spremio.</value>
-  </data>
-  <data name="NotificationMemoryOverload" xml:space="preserve">
-    <value>Nedovoljno memorije za dodavanje novih objekata</value>
-  </data>
-  <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>Detektirali smo bolju grafičku karticu u vašem računalu od one na kojoj igra trenutačno radi. Molimo provjerite vaše NVIDIA/AMD postavke.</value>
-  </data>
-  <data name="MessageBoxCaptionWarning" xml:space="preserve">
-    <value>UPOZORENJE</value>
-  </data>
-  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
-    <value>Otvoriti će se {0} u vašem internet pregledniku. Igra će se i dalje odvijati. Želite li nastaviti?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Čučanje</value>
@@ -1764,48 +1088,6 @@ Ako igra ne teče glatko, smanjite razlučivost ekrana.</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Želite li započeti gledajući video tutorijal? Prisjetite se: uvijek se možete vratiti tako da kliknete "Tutorijali" u zaslonu za pomoć (pritisnite F1).</value>
   </data>
-  <data name="Loaded" xml:space="preserve">
-    <value>Učitano</value>
-  </data>
-  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
-    <value>Nema sačuvanih svijetova još. Molimo započnite stvarajući novi svijet.</value>
-  </data>
-  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
-    <value>Cideo Tutorijal</value>
-  </data>
-  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
-    <value>Spremi promjene prije izlaska?</value>
-  </data>
-  <data name="ErrorNameAlreadyExists" xml:space="preserve">
-    <value>Ime se koristi. Molimo izaberite drugo ime.</value>
-  </data>
-  <data name="NotificationBuildingFormat" xml:space="preserve">
-    <value>Pritisni {0} da staviš kocku</value>
-  </data>
-  <data name="NotificationColorFormat" xml:space="preserve">
-    <value>Pritisni {0} ili {1} da promijeniš boju. Drži {2} da naneseš boju. Drži {3} ili {4} da uvećaš kist.</value>
-  </data>
-  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
-    <value>Možete sakriti pomoć u Postavkama Igre</value>
-  </data>
-  <data name="NotificationHudHideFormat" xml:space="preserve">
-    <value>Pritisnite {0} kako biste sakrili/prikazali sučelje.</value>
-  </data>
-  <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>Pritisni {0}, {1}, {2}, {3}, {4}, {5} za rotaciju</value>
-  </data>
-  <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Pritisnite {0} za konfiguriranje alatne traku ili stvaranje novih predmeta.</value>
-  </data>
-  <data name="NotificationSlotEquipFormat" xml:space="preserve">
-    <value>Pritisni {0}, {1}, {2}, ... za preuzimanje iz utora</value>
-  </data>
-  <data name="NotificationToolDisabled" xml:space="preserve">
-    <value>Ovaj alat/oružje je isključeno</value>
-  </data>
-  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Pritisni {0} da dodaš blok, pritisni {1} da ga ukloniš. Drži {2} za bržu gradnju.</value>
-  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Kako obojati kocku (kreativni mod)</value>
   </data>
@@ -1815,23 +1097,8 @@ Ako igra ne teče glatko, smanjite razlučivost ekrana.</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Kist za bojanje osrednje veličine (kreativni mod)</value>
   </data>
-  <data name="ControlDescQuickLoad" xml:space="preserve">
-    <value>Brzo Učitavanje</value>
-  </data>
-  <data name="ControlDescQuickSave" xml:space="preserve">
-    <value>Brzo Spremanje</value>
-  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Zumiraj u modu trećeg lica</value>
-  </data>
-  <data name="MouseWheel" xml:space="preserve">
-    <value>Kotačić miša</value>
-  </data>
-  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Tab content:</value>
-  </data>
-  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
-    <value>Kreativni Mod</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>Novi Veliki Brod</value>
@@ -1841,15 +1108,6 @@ Ako igra ne teče glatko, smanjite razlučivost ekrana.</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>Nova Svemirska Stanica</value>
-  </data>
-  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
-    <value>Konfiguriraj alatnu traku (dodijeli građevne blokove, oruđa i oružja)</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
-    <value>Alatna traka</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
-    <value>Konfiguracija alatne trake</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Punjenje</value>
@@ -1875,46 +1133,10 @@ Ako igra ne teče glatko, smanjite razlučivost ekrana.</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Korisnost</value>
   </data>
-  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
-    <value>Steam Overlay je onemogućen</value>
-  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Molimo uključite "Steam Overlay" u "Steam" klijentu: odite na "Settings", "In-game" tab, "Enable Steam
 Community In-game" pa u "Steam Library", "Space Engineers", "Properties", "Enable Steam
 Community In-Game"</value>
-  </data>
-  <data name="LoadScreenButtonPublish" xml:space="preserve">
-    <value>Objavi</value>
-  </data>
-  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
-    <value>Uspješno objavljeno. Ako imate Steam Overlay uključen, stranica će se otvoriti te možete urediti svojstva poput naslova, opisa ili vidljivosti (zadano je kao javno).</value>
-  </data>
-  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
-    <value>Nije uspjelo objavljivanje na Steam Workshop</value>
-  </data>
-  <data name="MessageBoxTextModPublished" xml:space="preserve">
-    <value>Uspješno objavljeno. Ako imate Steam Overlay uključen, stranica će se otvoriti te možete urediti svojstva poput naslova, opisa ili vidljivosti (zadano je kao javno).</value>
-  </data>
-  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
-    <value>Nije uspjelo objavljivanje na Steam Workshop</value>
-  </data>
-  <data name="ProgressTextPublishingWorld" xml:space="preserve">
-    <value>Objavljujem ... molimo pričekajte.</value>
-  </data>
-  <data name="ProgressTextUploadingWorld" xml:space="preserve">
-    <value>Prenosim... molimo pričekajte.</value>
-  </data>
-  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
-    <value>Radionica</value>
-  </data>
-  <data name="ProgressTextCreatingWorld" xml:space="preserve">
-    <value>Stvaranje svijeta ... molimo pričekajte.</value>
-  </data>
-  <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Radionica</value>
-  </data>
-  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
-    <value>Preporuči</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>Ako vam se sviđa Space Engineers, možete ga preporučiti svojim prijateljima na Steam na sljedećoj stranici.
@@ -1922,52 +1144,6 @@ Preporuke pomažu da zajednica raste. Hvala vam!</value>
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Preporuči Space Engineers</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
-    <value>SVIJET OBJAVLJEN</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
-    <value>OBJAVA SVIJETA NIJE USPJELA</value>
-  </data>
-  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
-    <value>MOD OBJAVLJEN</value>
-  </data>
-  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
-    <value>OBJAVA MODA NIJE USPJELA</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Kopiraj i Učitaj</value>
-  </data>
-  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
-    <value>Objavi odabrani svijet na Steam Workshop</value>
-  </data>
-  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
-    <value>Pogledaj popis svjetova upisanih na "Steam Workshop"</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
-    <value>OBJAVI SVIJET</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>AŽURIRAJ SVIJET</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
-    <value>Jeste li sigurni da želite prenijeti i objaviti odabrane svjetove na Steam Workshop?</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>Jeste li sigurni da želite prenijeti i prepisati preko odabranog svijeta na Steam Workshop-u?</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
-    <value>Objavi mod</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
-    <value>AŽURIRAJTE MOD</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
-    <value>Jeste li sigurni da želite prenijeti i objaviti odabrane svjetove na Steam Workshop?
-Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (pročitajte http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
-    <value>Jeste li sigurni da želite prenijeti i prepisati preko odabranog svijeta na Steam Workshop-u?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Pritisni {0} za napuštanje kabine</value>
@@ -1996,12 +1172,6 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0} nije dostupan za {1}</value>
   </data>
-  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
-    <value>Pregledaj Workshop</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
-    <value>Osvježi</value>
-  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Kutni brus</value>
   </data>
@@ -2016,12 +1186,6 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Varilica</value>
-  </data>
-  <data name="NotificationNoWeaponSelected" xml:space="preserve">
-    <value>Nijedno oružje nije odabrano</value>
-  </data>
-  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
-    <value>Odabran tip oružja '{0}'</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Pritisni {0} ili {1} kako bi išao gore ili dolje.</value>
@@ -2050,39 +1214,6 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Prigušivači:</value>
   </data>
-  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
-    <value>Inercijski Prigušivači Isključeni</value>
-  </data>
-  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
-    <value>Inercijski Prigušivači Uključeni</value>
-  </data>
-  <data name="LoadScreenButtonDelete" xml:space="preserve">
-    <value>Izbriši</value>
-  </data>
-  <data name="ScreenCaptionEditSettings" xml:space="preserve">
-    <value>Promjeni Postavke</value>
-  </data>
-  <data name="ScreenCaptionSaveAs" xml:space="preserve">
-    <value>Spremi Kao</value>
-  </data>
-  <data name="ScreenMenuButtonHelp" xml:space="preserve">
-    <value>Pomoć</value>
-  </data>
-  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
-    <value>Učitaj Svijet</value>
-  </data>
-  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
-    <value>Novi svijet</value>
-  </data>
-  <data name="ScreenMenuButtonOptions" xml:space="preserve">
-    <value>Postavke</value>
-  </data>
-  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
-    <value>Custom Svijet</value>
-  </data>
-  <data name="ScreenOptionsButtonControls" xml:space="preserve">
-    <value>Kontrole</value>
-  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>Stajni trap:</value>
   </data>
@@ -2091,39 +1222,6 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Zaključano:</value>
-  </data>
-  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
-    <value>RESETIRAJ KONTROLE</value>
-  </data>
-  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
-    <value>Jeste li sigurni da želite vratiti kontrole na zadane postavke?</value>
-  </data>
-  <data name="ScreenshotFailed" xml:space="preserve">
-    <value>Screenshot nije uspjeo</value>
-  </data>
-  <data name="ScreenshotSaved" xml:space="preserve">
-    <value>Screenshot {0} spremljen</value>
-  </data>
-  <data name="ExportToObjComplete" xml:space="preserve">
-    <value>Izvezeno u: {0}</value>
-  </data>
-  <data name="ExportToObjFailed" xml:space="preserve">
-    <value>Izvoženje u datoteku objekta neuspjelo</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
-    <value>Otvoreno u Workshop-u.</value>
-  </data>
-  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
-    <value>Otvoreno u Steam Overlay-u sa zaslonom Workshop-a.</value>
-  </data>
-  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Preuzmi odabrani svijet na računalo i učitaj.</value>
-  </data>
-  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
-    <value>Otvori zadani svijet u Workshop Steam Overlay-u.</value>
-  </data>
-  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
-    <value>Osvježi listu upisanih svjetova.</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>Stajni trap / Izbor boje</value>
@@ -2169,29 +1267,8 @@ Imajte na umu kako objavljujući ovo, pristajene na uvjete i pravila workshopa (
 Masa: {1} kg
 Volumen: {2} L</value>
   </data>
-  <data name="SettingSymmetryX" xml:space="preserve">
-    <value>центрировать X плоскость:{0} установить, {1} сбросить</value>
-  </data>
-  <data name="SettingSymmetryXOffset" xml:space="preserve">
-    <value>центрировать X плоскость(по умолчанию):{0} установить, {1} сбросить</value>
-  </data>
-  <data name="SettingSymmetryY" xml:space="preserve">
-    <value>центрировать Y плоскость:{0} установить, {1} сбросить</value>
-  </data>
-  <data name="SettingSymmetryYOffset" xml:space="preserve">
-    <value>центрировать Y плоскость(по умолчанию):{0} установить, {1} сбросить</value>
-  </data>
-  <data name="SettingSymmetryZ" xml:space="preserve">
-    <value>центрировать Z плоскость:{0} установить, {1} сбросить</value>
-  </data>
-  <data name="SettingSymmetryZOffset" xml:space="preserve">
-    <value>центрировать Z плоскость(изначально):{0} установить, {1} сбросить</value>
-  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Inercijski prigušivači.</value>
-  </data>
-  <data name="NotificationPickupObject" xml:space="preserve">
-    <value>Pritisni {0} za pokupljanje {1}</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Koristi simetriju</value>
@@ -2199,65 +1276,14 @@ Volumen: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>Svjetionik</value>
   </data>
-  <data name="CubeBuilderPasteNotification" xml:space="preserve">
-    <value>Pritisni LMB ili Ctrl+V  za zaljepiti objekt</value>
-  </data>
-  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
-    <value>Dogodila se greška prilikom dodavanja jednog ili više objekata. Vidi "log" za još detalja.</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
-    <value>Jeste li sigurni da želite obrisati odabrani objekt? (kopija će biti pohranjena u clipboard-u)</value>
-  </data>
-  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
-    <value>Memorijski limit je dosegnut prilikom učitavanja svijeta i neki objekti nisu dodani. Ako ste koristili zakrpu za Veliki Svijet i igra je nedavno bila ažurirana, postoji šansa da je onemogućen.</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
-    <value>Tipkovnica 2</value>
-  </data>
-  <data name="DialogTextDownloadingWorld" xml:space="preserve">
-    <value>Preuzimanje svijeta: {0}%</value>
-  </data>
-  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
-    <value>Preuzimanje svijet je neuspiješno!</value>
-  </data>
-  <data name="DialogTextJoiningWorld" xml:space="preserve">
-    <value>Priključivanje svijetu</value>
-  </data>
-  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
-    <value>Priključivanje svijetu neuspješno, razlog: {0}</value>
-  </data>
-  <data name="GpuUnderMinimumNotification" xml:space="preserve">
-    <value>Otkrili smo da vaša grafička kartica je ispod minimalnih zahtjeva, a to može dovesti do problema s performansama ili rušenja igre. Hvala vam na razumijevanju.</value>
-  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Bilo kakva ruda</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Poluga Uranija</value>
   </data>
-  <data name="ShowRotationHints" xml:space="preserve">
-    <value>Pokaži savjete rotacije</value>
-  </data>
-  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
-    <value>Pokaži savjete rotacije na HUD prikom gradnje</value>
-  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Motor</value>
-  </data>
-  <data name="UnknownControl_Unassigned" xml:space="preserve">
-    <value>Neraspoređeni</value>
-  </data>
-  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
-    <value>Mod građenja</value>
-  </data>
-  <data name="ScreenOptionsGame_Line" xml:space="preserve">
-    <value>Linija</value>
-  </data>
-  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
-    <value>Razina</value>
-  </data>
-  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
-    <value>Jedan blok</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Okretna sila</value>
@@ -2353,9 +1379,6 @@ Volumen: {2} L</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Ciljana brzina rotora, rotoće se ubrzavati dok ne postigne ciljanu brzinu.</value>
   </data>
-  <data name="ControlName_Suicide" xml:space="preserve">
-    <value>Samoubojstvo</value>
-  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Nosač</value>
   </data>
@@ -2415,14 +1438,8 @@ Volumen: {2} L</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Intenzitet svijetla</value>
   </data>
-  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
-    <value>Multiplayer server se nemože pokrenuti, error: {0}</value>
-  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>Pritisni {0} za otvaranje Vrata</value>
-  </data>
-  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
-    <value>Objekt koristi netko drugi</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Isključeno</value>
@@ -2432,113 +1449,20 @@ Volumen: {2} L</value>
     <value>Uključeno</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
-  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
-    <value>Igre prijatelja</value>
-  </data>
-  <data name="ScreenCaptionPlayers" xml:space="preserve">
-    <value>Igrači</value>
-  </data>
-  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
-    <value>Prijatelji</value>
-  </data>
-  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
-    <value>Privatno</value>
-  </data>
-  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
-    <value>Javno</value>
-  </data>
-  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
-    <value>Vlasnik igre</value>
-  </data>
-  <data name="ScreenPlayers_Invite" xml:space="preserve">
-    <value>Pozovi</value>
-  </data>
-  <data name="ScreenPlayers_Kick" xml:space="preserve">
-    <value>Izbaci</value>
-  </data>
-  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
-    <value>Ime igrača</value>
-  </data>
-  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
-    <value>Igra više ne postoji</value>
-  </data>
-  <data name="MessageBoxCaptionKicked" xml:space="preserve">
-    <value>IZBAČEN</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
-    <value>Vlasnik igre vas je izbacio.</value>
-  </data>
-  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
-    <value>Prijatelji</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
-    <value>Jeste li sigurni kako se želite ponovno spojiti na mrežnu igru?</value>
-  </data>
-  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
-    <value>Vi ste u samostalnom modu i mrežna igra je onemogućena. Morate promjeniti postavke sa glavnog izbornika.</value>
-  </data>
-  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
-    <value>Steam je offline. Molimo pokrenite Steam u normalnom modu ili ponovno pokrenite Steam ako problem i dalje postoji</value>
-  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>Kopiraj-lijepi vam omogućava stvaranje novih brodova ili postaja direktno iz međuspremnika</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Omogući kopiranje/lijepljenje</value>
   </data>
-  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
-    <value>Kompatibilne verzije</value>
-  </data>
-  <data name="MaxPlayers" xml:space="preserve">
-    <value>Maksimalni broj igrača</value>
-  </data>
-  <data name="DialogWaitingForWorldData" xml:space="preserve">
-    <value>Čekam na podatke o svijetu</value>
-  </data>
-  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
-    <value>Veza sa serverom neuspjela: {0}</value>
-  </data>
-  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
-    <value>Spajanje na poslužitelj</value>
-  </data>
-  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
-    <value>Čekanje na odgovor poslužitelja</value>
-  </data>
-  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
-    <value>Odabrani tip igre je ograničeniji od originalnog. To znači da vaš inventar može biti smanjen i možete izgubiti neke stvari! Jeste li sigurni kako želite promjeniti tip igre?</value>
-  </data>
-  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
-    <value>Prijateljski svjetovi</value>
-  </data>
-  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
-    <value>Javni svijetovi</value>
-  </data>
-  <data name="ControlName_CubeColorChange" xml:space="preserve">
-    <value>Promjeni boju / mod oružja</value>
-  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Oružja omogućena</value>
-  </data>
-  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
-    <value>Oružje onemogućeno u postavkama svijeta</value>
-  </data>
-  <data name="ControlDescPlayersList" xml:space="preserve">
-    <value>Pokaži igrače (samo za zajedničke igre)</value>
-  </data>
-  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
-    <value>Igrači</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>Sastavljač oštećen ili otpojen</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Prolaz</value>
-  </data>
-  <data name="ItemDamagedDescription" xml:space="preserve">
-    <value>(Oštećeno)</value>
-  </data>
-  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
-    <value>Server ne reagira</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>Gravitacijsko ubrzanje generatora.</value>
@@ -2570,44 +1494,17 @@ Volumen: {2} L</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Držite {0} kako bi ponovno napunili energiju i ozdravili</value>
   </data>
-  <data name="UnsupportedAspectRatio" xml:space="preserve">
-    <value>Nepodržani omjer prikaza</value>
-  </data>
-  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
-    <value>Samo prijatelji se mogu pridružiti igri</value>
-  </data>
-  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
-    <value>Opis svijeta</value>
-  </data>
-  <data name="CompressSaveGames" xml:space="preserve">
-    <value>Kompresiraj snimljene igre</value>
-  </data>
-  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
-    <value>Trebaju li snimljene igre biti kompresirane na disku radi štednje prostora</value>
-  </data>
-  <data name="Headbob" xml:space="preserve">
-    <value>Onemogući trzanje glavom</value>
-  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Kada omogućeno, svaki igrač može vidjeti ime drugih igrača iznad njihovih modela</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Prikaži imena igrača</value>
   </data>
-  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
-    <value>Prikaži imena igrača</value>
-  </data>
-  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
-    <value>Prikaži imena igrača iznad modela. Ova značajka mora također biti označena u postavkama svijeta.</value>
-  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Izbaci predmet</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Upozorenje: Energija odlijela je niska. Životni sustavi mogu prestati djelovati.</value>
-  </data>
-  <data name="NotificationInventoryFull" xml:space="preserve">
-    <value>Inventar je pun</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Pozor: Energija odijela je kritično niska. Gubitak vitalnih sustava tranutačan.</value>
@@ -2619,17 +1516,11 @@ Volumen: {2} L</value>
     <value>Maksimalni broj malih objekata koji plutaju u svemiru (rude, šipke, komponente)
 Upozorenje - vrijednosti iznad 64 mogu značajno utjecati na izvedbu!</value>
   </data>
-  <data name="OutOfAmmo" xml:space="preserve">
-    <value>{0} je bez streljiva</value>
-  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>Raketa 200 mm</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm</value>
-  </data>
-  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
-    <value>Potrebno je {0} da bi izgradili {1}</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Asteroidi</value>
@@ -2667,21 +1558,6 @@ Ekstremni: 16 velikih asteroida, 80 malih asteroida, samo za 64-bit</value>
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Domet</value>
   </data>
-  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Vrsta igre</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
-    <value>Igrači</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
-    <value>Korisničko ime</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
-    <value>Svijet</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
-    <value>Veličina svijeta</value>
-  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Bilo koja komponenta proizvedena od sastavljača.</value>
   </data>
@@ -2718,9 +1594,6 @@ Ekstremni: 16 velikih asteroida, 80 malih asteroida, samo za 64-bit</value>
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Započni na napuštenoj platformi asteroida bez brodova, morate započeti od početka.</value>
   </data>
-  <data name="MessageBoxTextSuicide" xml:space="preserve">
-    <value>Jeste li sigurni da želite počiniti samoubojstvo?</value>
-  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Srušeni crveni brod</value>
   </data>
@@ -2735,15 +1608,6 @@ Ekstremni: 16 velikih asteroida, 80 malih asteroida, samo za 64-bit</value>
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Stari metal</value>
-  </data>
-  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
-    <value>Domaćin servera je napustio igru</value>
-  </data>
-  <data name="NotificationRespawn" xml:space="preserve">
-    <value>Umro si. Oživljavanje za {0} sekundi.</value>
-  </data>
-  <data name="HudBlockInfo_Required" xml:space="preserve">
-    <value>Potrebno</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Veliki Brod / Postaja</value>
@@ -2862,17 +1726,6 @@ Ekstremni: 16 velikih asteroida, 80 malih asteroida, samo za 64-bit</value>
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Omogući ili ne omogući mod ponavljanja</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
-    <value>Veličina inventara {0}x
-Efikasnost sastavljaća {1}x
-Brzina rafinerije {2}x</value>
-  </data>
-  <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Player connected: {0}</value>
-  </data>
-  <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Player disconnected: {0}</value>
-  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>щети от двигателите</value>
   </data>
@@ -2885,29 +1738,17 @@ Brzina rafinerije {2}x</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Teretni brodovi</value>
   </data>
-  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Server ima drugu verziju igre. Vaša verzija: {0}; verzija servera: {1}</value>
-  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Armagedon (nerelistično)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>1. April! Nemoj nikome reći!</value>
   </data>
-  <data name="ShowCrosshair" xml:space="preserve">
-    <value>Prikaži ciljnik</value>
-  </data>
-  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
-    <value>Hoće li se ciljnik oružja vidjeti</value>
-  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Umjetna Masa</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Upravljačka postaja</value>
-  </data>
-  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
-    <value>Igra već snima.</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Sakupljač</value>
@@ -2954,12 +1795,6 @@ Brzina rafinerije {2}x</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>Prozor 3x3 Ravni</value>
   </data>
-  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
-    <value>* Lokalizirano od igrača</value>
-  </data>
-  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
-    <value>Kliknite za više podataka</value>
-  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Pojedinačno / Sva mod oružja (pilotska kabina)</value>
   </data>
@@ -2990,14 +1825,8 @@ Brzina rafinerije {2}x</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>Prozor 3x3 Ravni Obrnuti</value>
   </data>
-  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
-    <value>No direct connection available.</value>
-  </data>
   <data name="Multiplayer_LastMsg" xml:space="preserve">
     <value>Nikakava poruka nije primljena od servera već {0} sekundi.</value>
-  </data>
-  <data name="Multiplayer_NoConnection" xml:space="preserve">
-    <value>Nepostojeća veza sa poslužiteljem.</value>
   </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Pritisni {0} kako bi mijenjao između pojedinačnog / svi moda oružja.</value>
@@ -3008,9 +1837,6 @@ Brzina rafinerije {2}x</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
-  <data name="GamePaused" xml:space="preserve">
-    <value>Igra pauzirana</value>
-  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>Kotač 1x1</value>
   </data>
@@ -3019,9 +1845,6 @@ Brzina rafinerije {2}x</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Kotač 5x5</value>
-  </data>
-  <data name="ControlDescPauseGame" xml:space="preserve">
-    <value>Pauziraj igru (samo offline)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Brusilica</value>
@@ -3035,18 +1858,8 @@ Brzina rafinerije {2}x</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Mamac</value>
   </data>
-  <data name="ControlName_PauseGame" xml:space="preserve">
-    <value>Pauziraj igru</value>
-  </data>
-  <data name="KeysPause" xml:space="preserve">
-    <value>Pauza</value>
-    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
-  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Spremi</value>
-  </data>
-  <data name="NotificationWeaponNotWorking" xml:space="preserve">
-    <value>{0} ne radi</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Zaključati</value>
@@ -3108,12 +1921,6 @@ Brzina rafinerije {2}x</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Napadni pokretne objekte</value>
   </data>
-  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
-    <value>Količina za dodavanje</value>
-  </data>
-  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
-    <value>Vrijednost za odrediti</value>
-  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argument</value>
   </data>
@@ -3141,12 +1948,6 @@ Brzina rafinerije {2}x</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>Nema goriva</value>
   </data>
-  <data name="NotificationHealthCritical" xml:space="preserve">
-    <value>Zdravlje je kritično loše. Tražite trenutačnu medicinsku pomoć.</value>
-  </data>
-  <data name="NotificationHealthLow" xml:space="preserve">
-    <value>Ozlijeđeni ste.</value>
-  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Kiša meteora nailazi.</value>
   </data>
@@ -3170,12 +1971,6 @@ Brzina rafinerije {2}x</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Pritisni {0} za otvaranje inventara</value>
-  </data>
-  <data name="MultiplayerError_DifferentData" xml:space="preserve">
-    <value>Ovaj poslužitelj ima drugačije podatke o igri od vas</value>
-  </data>
-  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
-    <value>Igre označene sa * imaju nekompatibilne podatke</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>O</value>
@@ -3217,108 +2012,17 @@ Brzina rafinerije {2}x</value>
     <value>Broj nacrtanih trokuta. Tehnička informacija.
 Veliki broj utječe na izvođenje.</value>
   </data>
-  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
-    <value>Administrator igre</value>
-  </data>
-  <data name="MultiplayerJoinServers" xml:space="preserve">
-    <value>Samo rezervirani</value>
-  </data>
-  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
-    <value>Korisnik se već pridružio</value>
-  </data>
-  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
-    <value>Niste u grupi {0}. Želite li posjetiti internet stranicu te grupe?</value>
-  </data>
-  <data name="MultiplayerErrorServerFull" xml:space="preserve">
-    <value>Poslužitelj je pun</value>
-  </data>
-  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
-    <value>Steam serveri nisu dostupni ili serverska grupa ne postoji</value>
-  </data>
-  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
-    <value>Karta nevažeća</value>
-  </data>
-  <data name="MultiplayerJoinLANServers" xml:space="preserve">
-    <value>Samo LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
-    <value>Prijatelji</value>
-  </data>
-  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
-    <value>LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
-    <value>Igre</value>
-  </data>
-  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
-    <value>Poslužitelji</value>
-  </data>
-  <data name="JoinGame_Title" xml:space="preserve">
-    <value>Pridružite se svijetu</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
-    <value>Ping</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
-    <value>Poslužitelj</value>
-  </data>
-  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
-    <value>Već prijavljen drugdje</value>
-  </data>
-  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
-    <value>Nepostojeća ili istekla dozvola</value>
-  </data>
-  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
-    <value>Karta već iskorištena</value>
-  </data>
-  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
-    <value>Karta otkazana</value>
-  </data>
-  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
-    <value>Igrač nije spojen</value>
-  </data>
-  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
-    <value>VAC zabranjen</value>
-  </data>
-  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
-    <value>VAC provjera istekla</value>
-  </data>
-  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
-    <value>Dopuštene grupe</value>
-  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Spoji blokove</value>
   </data>
-  <data name="NewsDownloadingFailed" xml:space="preserve">
-    <value>Skidanje vijesti nije uspjelo</value>
-  </data>
-  <data name="MessageBoxCaptionInfo" xml:space="preserve">
-    <value>INFO</value>
-  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>Nova verzija Space Engineers je dostupna!</value>
-  </data>
-  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
-    <value>ID serverske grupe je nevaljan, administrator servera bi trebao postaviti valjani grupni ID u konfiguraciji servera.
-(ili postaviti nulu za onemogućavanje provjere grupe)</value>
-  </data>
-  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
-    <value>Lista lokalnih rezerviranih servera</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
-    <value>Lista igara kreiranih od igrača</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
-    <value>Lista rezerviranih servera</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>Omogući promatrača u svijetu</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>Omogući promatrača</value>
-  </data>
-  <data name="PlayerCharacterColor" xml:space="preserve">
-    <value>Boja igrača</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Crno</value>
@@ -3341,9 +2045,6 @@ Veliki broj utječe na izvođenje.</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Žuto</value>
   </data>
-  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
-    <value>Pritisni {0} kako bi izmjenili svoj izgled</value>
-  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>Kontrola potisnika</value>
   </data>
@@ -3359,60 +2060,20 @@ Veliki broj utječe na izvođenje.</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Rotors:</value>
   </data>
-  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
-    <value>Mod prozora:</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
-    <value>Cijeli ekran</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
-    <value>Prozor preko cijelog ekrana</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
-    <value>Prozor</value>
-  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Sila lomljenja</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Autozaključavanje</value>
   </data>
-  <data name="SpectatorControls" xml:space="preserve">
-    <value>Kontrole Promatrača</value>
-  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Vraćanje natragu u kontroliranog igrača / pilotsku kabinu</value>
-  </data>
-  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Promatrač sa fiksnim pogledom na kontrolirani objekt</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Slobodni promatrač. Možete još uvijek pucati i činiti akcije sa kontroliranim objektom</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Nepomični promatrač. Kontrolirate igrača / pilotsku kabinu, ali kamera je nepomična.</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
-    <value>Zabranjen vam je pristup ovom serveru</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
-    <value>Zabranjen vam je pristup ovom serveru.
-Želite li otvoriti profil administratora?</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
-    <value>Zabranjen vam je pristup ovom serveru od strane administratora.</value>
-  </data>
-  <data name="ScreenPlayers_Ban" xml:space="preserve">
-    <value>Zabrani</value>
-  </data>
-  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
-    <value>Vratite se u područje igre!</value>
-  </data>
-  <data name="NotificationLeavingWorld" xml:space="preserve">
-    <value>Upozorenje: Umrijeti ćete za {0:F1} metara!</value>
-  </data>
-  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
-    <value>Napredne postavke svijeta</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Napredno</value>
@@ -3468,59 +2129,14 @@ Veliki broj utječe na izvođenje.</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Oznaka fakcije (3 slova moraju biti unešena)</value>
   </data>
-  <data name="Spectator" xml:space="preserve">
-    <value>Promatrač</value>
-  </data>
-  <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta promatrač</value>
-  </data>
-  <data name="SpectatorControls_Free" xml:space="preserve">
-    <value>Slobodni promatrač</value>
-  </data>
-  <data name="SpectatorControls_None" xml:space="preserve">
-    <value>Kontrola igrača</value>
-  </data>
-  <data name="SpectatorControls_Static" xml:space="preserve">
-    <value>Nepomični promatrač</value>
-  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Prikaži centar mase</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
-    <value>Dano ime fakcije već postoji</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
     <value>Faction tag must be exactly 3 characters long</value>
   </data>
-  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Given faction tag already exists</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>Faction name must be at least 4 characters long</value>
-  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>Morate napustiti vašu fakciju kako bi kreirali novu</value>
-  </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Uredi</value>
-  </data>
-  <data name="Kick" xml:space="preserve">
-    <value>Izbaci</value>
-  </data>
-  <data name="Leader" xml:space="preserve">
-    <value>Vođa</value>
-  </data>
-  <data name="Member" xml:space="preserve">
-    <value>Član</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
-    <value>Jeste li sigurni kako želite izbaciti igrača '{0}' iz vaše fakcije?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
-    <value>Jeste li sigurni kako želite napustiti fakciju '{0}'?</value>
-  </data>
-  <data name="Promote" xml:space="preserve">
-    <value>Unaprijedi</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>Ako označeno, brodovi koji se smatraju smećem će biti uklonjeni iz igre radi bolje izvedbe.
@@ -3533,41 +2149,14 @@ nekontrolirana, bez medicinske sobe i dovoljno daleko od svih igrača tako da ga
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Automatsko čišćenje smeća</value>
   </data>
-  <data name="Demote" xml:space="preserve">
-    <value>Degradiraj</value>
-  </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Pristup zabranjen</value>
-  </data>
-  <data name="Founder" xml:space="preserve">
-    <value>Osnivač</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Private info (visible to members only):</value>
-  </data>
-  <data name="Accept" xml:space="preserve">
-    <value>Prihvati</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value>(pristup odbijen)</value>
   </data>
-  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
-    <value>Jeste li sigurni kako želite primiti igrača '{0}' u vašu fakciju?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
-    <value>Jeste li sigurni kako želite degradirati  '{0}' na razinu člana?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
-    <value>Jeste li sigurni kako želite promovirati '{0}' u vođu?</value>
-  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Uredi fakciju</value>
-  </data>
-  <data name="Applicant" xml:space="preserve">
-    <value>Pristupnik</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Privremeni brod. Biti će uklonjen kada napustite igru ili kada se stvorite u novom.</value>
@@ -3577,9 +2166,6 @@ nekontrolirana, bez medicinske sobe i dovoljno daleko od svih igrača tako da ga
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Brisanje početnog broda</value>
-  </data>
-  <data name="Tag" xml:space="preserve">
-    <value>Oznaka</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>Fakcija predlaže mir sa tvojom fakcijom</value>
@@ -3645,18 +2231,6 @@ nekontrolirana, bez medicinske sobe i dovoljno daleko od svih igrača tako da ga
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Namjesti da niti jedan blok nema vlasnika</value>
-  </data>
-  <data name="SessionDeleteFailed" xml:space="preserve">
-    <value>Brisanje sesije nije uspjelo</value>
-  </data>
-  <data name="Medicals_Title" xml:space="preserve">
-    <value>Medicinske sobe</value>
-  </data>
-  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
-    <value>Jeste li sigurni da želite promjeniti vlasnika u {0}?</value>
-  </data>
-  <data name="Respawn" xml:space="preserve">
-    <value>Oživi</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Baterija</value>
@@ -3738,9 +2312,6 @@ nekontrolirana, bez medicinske sobe i dovoljno daleko od svih igrača tako da ga
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>Morate imati spojenu aktivnu antenu</value>
   </data>
-  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
-    <value>Isti podaci o igri</value>
-  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Accept peace</value>
   </data>
@@ -3750,39 +2321,6 @@ U redu!</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Ponovno postavi brod</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Osviježi</value>
-  </data>
-  <data name="PlayerInfo_Dead" xml:space="preserve">
-    <value>mrtav</value>
-  </data>
-  <data name="ScreenMods_ActiveMods" xml:space="preserve">
-    <value>Aktivni modovi</value>
-  </data>
-  <data name="ScreenMods_AvailableMods" xml:space="preserve">
-    <value>Available mods</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
-    <value>Deactivate mod</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
-    <value>Deactivate all mods</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
-    <value>Aktiviraj mod</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
-    <value>Aktiviraj sve modove</value>
-  </data>
-  <data name="WorldSettings_Mods" xml:space="preserve">
-    <value>Modovi</value>
-  </data>
-  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
-    <value>Otvori odabrani mod u sučelju Steam Workshop-a</value>
-  </data>
-  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
-    <value>Osviježi listu pretplaćenih modova</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Neprijateljska fakcija</value>
@@ -3811,17 +2349,8 @@ U redu!</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Beskonačno</value>
   </data>
-  <data name="JoinGame_SearchLabel" xml:space="preserve">
-    <value>Pretraživač</value>
-  </data>
-  <data name="JoinGame_SearchTooltip" xml:space="preserve">
-    <value>Najmanje tri znaka trebaju biti unesena kako bi se započelo pretraživanje</value>
-  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>Klijenti mogu spremati</value>
-  </data>
-  <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Preuzimanje modova ... molimo pričekajte</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>Ako je kotač pogonjen</value>
@@ -3834,9 +2363,6 @@ U redu!</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Skretanje</value>
-  </data>
-  <data name="NotificationClientCannotSave" xml:space="preserve">
-    <value>Snimanje klijenta je onemogućeno na ovom serveru</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>Određuje trenje kotača promjenom pritiska u gumi</value>
@@ -3855,18 +2381,6 @@ U redu!</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Nije bilo moguće postaviti kotač</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
-    <value>Pomaki mod dolje</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
-    <value>Pomakni mod gore</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
-    <value>Pomakni mod na dno</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
-    <value>Pomakni mod na vrh</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Tvoj blok (bez fakcije)</value>
@@ -3928,12 +2442,6 @@ U redu!</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Brzina</value>
   </data>
-  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
-    <value>Nemožete napraviti grupu sa blokovima za koje nemate prava pristupa.</value>
-  </data>
-  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
-    <value>Nemožete obrisati grupu sa blokovima za koje nemate prava pristupa.</value>
-  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Broj korištenih baterija</value>
   </data>
@@ -3994,12 +2502,6 @@ U redu!</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Thrust override</value>
   </data>
-  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>You have been kicked from the faction.</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>You have been accepted to faction.</value>
-  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Switch</value>
   </data>
@@ -4042,12 +2544,6 @@ U redu!</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Yaw override</value>
   </data>
-  <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Previous toolbar</value>
-  </data>
-  <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Next toolbar</value>
-  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Current position: </value>
   </data>
@@ -4062,33 +2558,6 @@ U redu!</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
     <value>Wave animation</value>
-  </data>
-  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>Downloading mods has failed! Please check mods in world settings.</value>
-  </data>
-  <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Checking for mod updates ... please wait.</value>
-  </data>
-  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Enable debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Loading error log:</value>
-  </data>
-  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
-    <value>Model dummies</value>
-  </data>
-  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Mount points</value>
-  </data>
-  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>There were no loading errors</value>
-  </data>
-  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Physics primitives</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Show ship name</value>
@@ -4114,53 +2583,14 @@ U redu!</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Small Ship</value>
   </data>
-  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Open in new window</value>
-  </data>
-  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Reload textures</value>
-  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Direct access</value>
-  </data>
-  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Local mods are not allowed in multiplayer. Use workshop mods instead.</value>
-  </data>
-  <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Local mod</value>
-  </data>
-  <data name="ScreenMods_MissingDetails" xml:space="preserve">
-    <value>Dohvaćanje podataka o mod-u sa Steam-a nije uspjelo</value>
-  </data>
-  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Missing local mod</value>
-  </data>
-  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Workshop mod</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
-  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Reload models</value>
-  </data>
-  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Copy log to system clipboard</value>
-  </data>
-  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Warning: All ships will be removed in {0:F1} meters!</value>
-  </data>
-  <data name="PlayerCharacterModel" xml:space="preserve">
-    <value>Player model</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
-    <value>Mods</value>
-  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Press {0} to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>Press {0} to use {1}</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Radius of the gravity field</value>
@@ -4193,41 +2623,14 @@ U redu!</value>
     <value>Definition for {0} contains computer, but the block's TypeId is not a terminal block. This means that the block can be owned, but the ownership cannot be changed via terminal.
 Hint: Try setting the TypeId to any block that is in the terminal - the simplest case being just TerminalBlock</value>
   </data>
-  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Select server to show mod list</value>
-  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Button Panel</value>
-  </data>
-  <data name="ScreenMods_SearchLabel" xml:space="preserve">
-    <value>Search</value>
-  </data>
-  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Could not get mod list from the server</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Space Suit</value>
   </data>
-  <data name="HudWarnings" xml:space="preserve">
-    <value>Hud Warnings</value>
-  </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
     <value>{0} identity was added</value>
-  </data>
-  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>This world can not be loaded. It has been created in newer version of the game.</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
-  </data>
-  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Export clipboard to file</value>
-  </data>
-  <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Save ships from clipboard to file</value>
-  </data>
-  <data name="AddNewNPC" xml:space="preserve">
-    <value>Add New Enemy Identity</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Komponente</value>
@@ -4238,35 +2641,11 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
     <value>Small Blocks</value>
   </data>
-  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
-    <value>Alati</value>
-  </data>
-  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Select tags</value>
-  </data>
-  <data name="WorkshopTag_Animation" xml:space="preserve">
-    <value>Animation</value>
-  </data>
-  <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Block</value>
-  </data>
-  <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Character</value>
-  </data>
-  <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Other</value>
-  </data>
-  <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
-  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>View</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Camera</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Could not update because you are not the owner of this mod.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Error loading original game content, cannot load file:
@@ -4279,20 +2658,11 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Prikazuj preko antena</value>
   </data>
-  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Neki modovi nisu učitani zbog pogreški. Provjerite log datoteku za detalje ili pokrenite igru u single player-u za pristup zaslonu za debugiranje.</value>
-  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>Any item accepted by {0}</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>Any item produced by {0}</value>
-  </data>
-  <data name="RenderIterpolation" xml:space="preserve">
-    <value>Render interpolacija</value>
-  </data>
-  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Smanjuje zastajkivanje i čini tok igre glađim</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Proizvodnja</value>
@@ -4302,9 +2672,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Pritisni {0} za izlaz iz pogleda kamere</value>
-  </data>
-  <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Paket mod-ova</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Elektrolučna peć</value>
@@ -4417,9 +2784,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>Očitaj postaje</value>
   </data>
-  <data name="CustomText" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Prikaži domet gravitacijskog polja</value>
   </data>
@@ -4452,12 +2816,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Time to trigger: </value>
-  </data>
-  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Tabs of tools and objects:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
-    <value>Search:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Reloadable Rocket Launcher</value>
@@ -4564,9 +2922,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Default x 50</value>
   </data>
-  <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Move pasted object</value>
-  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Cooldowns disabled</value>
   </data>
@@ -4578,21 +2933,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Cockpit Blocks</value>
-  </data>
-  <data name="WorkshopTag_Script" xml:space="preserve">
-    <value>Script</value>
-  </data>
-  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>Some blocks in the pasted grid are not available in this world</value>
-  </data>
-  <data name="ConvertingObjs" xml:space="preserve">
-    <value>Converting models. Please wait.</value>
-  </data>
-  <data name="ConvertToObjDone" xml:space="preserve">
-    <value>All models converted.</value>
-  </data>
-  <data name="ExportingToObj" xml:space="preserve">
-    <value>Exporting model. Please wait.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Power Blocks</value>
@@ -4609,17 +2949,11 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>Spawn Object</value>
   </data>
-  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?</value>
-  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Asteroids</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Items</value>
-  </data>
-  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
-    <value>Item is not available in this world</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Asteroid</value>
@@ -4635,9 +2969,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Cooperative Mode</value>
-  </data>
-  <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Help Others</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Ammo Assembler</value>
@@ -4726,12 +3057,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Invalid amount</value>
   </data>
-  <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Placing objects to world. Please wait.</value>
-  </data>
-  <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Systems 3</value>
-  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Enable or disable cooperative mode</value>
   </data>
@@ -4750,9 +3075,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Select Asteroid Type</value>
   </data>
-  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>Switched to weapon: {0}</value>
-  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>Any ammo magazine accepted by {0}</value>
   </data>
@@ -4761,24 +3083,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Attach</value>
-  </data>
-  <data name="Thrust_Back" xml:space="preserve">
-    <value>Backward</value>
-  </data>
-  <data name="Thrust_Down" xml:space="preserve">
-    <value>Down</value>
-  </data>
-  <data name="Thrust_Forward" xml:space="preserve">
-    <value>Forward</value>
-  </data>
-  <data name="Thrust_Left" xml:space="preserve">
-    <value>Left</value>
-  </data>
-  <data name="Thrust_Right" xml:space="preserve">
-    <value>Right</value>
-  </data>
-  <data name="Thrust_Up" xml:space="preserve">
-    <value>Up</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Someone else is using this ship!</value>
@@ -4816,14 +3120,8 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Multiple grids are not supported. Only the largest grid will be used.</value>
   </data>
-  <data name="SelectBlueprint" xml:space="preserve">
-    <value>Select</value>
-  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Show grid pivot</value>
-  </data>
-  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Thumb-Up</value>
@@ -4842,9 +3140,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Steel Catwalk Two Sides</value>
-  </data>
-  <data name="AvailableBlueprints" xml:space="preserve">
-    <value>Dostupni Nacrti</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Zadrži projekciju</value>
@@ -4894,18 +3189,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Sphere</value>
   </data>
-  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
-    <value>Radius</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
-    <value>Širina</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
-    <value>Dubina</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
-    <value>Visina</value>
-  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>Kada postavljeno, područje igre je ograničeno na kocku sa dužinom stranice prema odabranoj veličini.
 Svi objekti koji napuste područje igre biti će uklonjeni.
@@ -4929,9 +3212,6 @@ Igrači koji napuste područje igre će biti ubijeni.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Custom</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
-    <value>Udaljenost</value>
-  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Loop time</value>
   </data>
@@ -4947,26 +3227,11 @@ Igrači koji napuste područje igre će biti ubijeni.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Loop timer: </value>
   </data>
-  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Brush Settings</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Transparency</value>
-  </data>
-  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Shape Settings</value>
-  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Terrain auto level</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Capsule</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Length</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
-    <value>Radius</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Zvuk za uzbunu 1</value>
@@ -5001,32 +3266,8 @@ Igrači koji napuste područje igre će biti ubijeni.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Run</value>
   </data>
-  <data name="ExportToObjModded" xml:space="preserve">
-    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
-  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Ramp</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Snap to voxel grid</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Area</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Choose axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z axis</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Material</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Infinite: High density</value>
@@ -5134,7 +3375,7 @@ Igrači koji napuste područje igre će biti ubijeni.</value>
     <value>Enter new name</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
-    <value/>
+    <value />
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
     <value>Do you want to publish this script?</value>
@@ -5190,26 +3431,11 @@ Igrači koji napuste područje igre će biti ubijeni.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>Ownership of programmable block changed. Please recompile program.</value>
   </data>
-  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>New message in {0} faction chat</value>
-  </data>
-  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>New global chat message</value>
-  </data>
-  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>New message from {0}</value>
-  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Broadcast-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Comms</value>
-  </data>
-  <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Description is too long (max 8000 characters allowed)</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Opis</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>View distance</value>
@@ -5278,9 +3504,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
-  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Select categories</value>
-  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Description</value>
   </data>
@@ -5323,9 +3546,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Warning: illegal data. Modifications will not be saved.</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>View distance: {0}m</value>
-  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Only faction members can use faction-to-faction communications</value>
   </data>
@@ -5353,9 +3573,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Current</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Project to voxel</value>
-  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Edit private text</value>
   </data>
@@ -5373,15 +3590,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Shoot once</value>
-  </data>
-  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Next voxel material</value>
-  </data>
-  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Previous voxel material</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Only owner</value>
@@ -5401,15 +3609,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Access type</value>
   </data>
-  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Are you sure you want to replace this blueprint with clipboard?</value>
-  </data>
-  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Replace</value>
-  </data>
-  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Text panel is read-only</value>
-  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Generated Blocks</value>
   </data>
@@ -5428,17 +3627,8 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Enable tools shake</value>
   </data>
-  <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Text is too long. Do you want to truncate it?</value>
-  </data>
-  <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Export model</value>
-  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>Text is too long. It won't be saved.</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Show bounding box</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Console</value>
@@ -5569,19 +3759,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Round Armor Slope</value>
   </data>
-  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
-Do you want to continue?</value>
-  </data>
-  <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Press {0} to rotate the block</value>
-  </data>
-  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} or {1} to toggle compound building</value>
-  </data>
-  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Press {0} to toggle dynamic building</value>
-  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Heavy Armor Round Corner</value>
   </data>
@@ -5590,9 +3767,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Heavy Armor Round Slope</value>
-  </data>
-  <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Switch walk</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Connected to </value>
@@ -5608,21 +3782,6 @@ Do you want to continue?</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>Searching for a laser at GPS coordinates </value>
-  </data>
-  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>The list of favorite servers</value>
-  </data>
-  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Favorites</value>
-  </data>
-  <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>History</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>The list of friends servers</value>
-  </data>
-  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>The list of previously visited servers</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Light Armor Corner 2x1x1</value>
@@ -5659,12 +3818,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Light Armor Slope 3x1x1 Smooth</value>
-  </data>
-  <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Add server to favorites</value>
-  </data>
-  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Remove server from favorites</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Light Armor Corner 2x1x1 Base</value>
@@ -5756,15 +3909,6 @@ Do you want to continue?</value>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
   </data>
-  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>Press {0} to open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} or {1} to change voxel material</value>
-  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>These receivers are in radio range and can report their position.
 Their current state and target is in parenthesis:
@@ -5785,18 +3929,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Copy target's current or last known position into clipboard</value>
-  </data>
-  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
-  </data>
-  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
-  </data>
-  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
-  </data>
-  <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Blacklist</value>
@@ -5833,9 +3965,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Remove</value>
-  </data>
-  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Small Conveyor Sorter</value>
@@ -5957,9 +4086,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
-  </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
   </data>
@@ -5999,9 +4125,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Cannot remove helmet on this suit.</value>
   </data>
-  <data name="ReportBug" xml:space="preserve">
-    <value>Report a Bug</value>
-  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Helmet</value>
   </data>
@@ -6038,15 +4161,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
-  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
-    <value>Next toolbar item</value>
-  </data>
-  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
-    <value>Previous toolbar item</value>
-  </data>
-  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
-    <value>Tools / Weapons 2</value>
-  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Oxygen Output: </value>
   </data>
@@ -6055,12 +4169,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Random encounters</value>
-  </data>
-  <data name="ControlName_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="ScreenControlMenu_Title" xml:space="preserve">
-    <value>Control menu</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Show distance for enemy antennas</value>
@@ -6074,9 +4182,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="ControlName_ControlMenu" xml:space="preserve">
-    <value>Open control menu</value>
-  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Cryo Chamber</value>
   </data>
@@ -6085,21 +4190,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemValue_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ControlMenuItemValue_On" xml:space="preserve">
-    <value>On</value>
-  </data>
-  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
-    <value>Camera mode</value>
-  </data>
-  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
-    <value>FPP</value>
-  </data>
-  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
-    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Scenario Settings</value>
@@ -6167,32 +4257,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
-  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
-    <value>Suicide</value>
-  </data>
-  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
-    <value>Quick load / reconnect</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
-    <value>Show color picker</value>
-  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
-    <value>Show toolbar screen</value>
-  </data>
-  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
-    <value>Toggle HUD</value>
-  </data>
-  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
-    <value>Pause game</value>
-  </data>
-  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
-    <value>Feature is not available yet</value>
-  </data>
-  <data name="NotificationMaximumNumberBots" xml:space="preserve">
-    <value>Maximum number of bots has been reached</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Effectiveness Module</value>
@@ -6206,38 +4272,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="Hud_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} to toggle compound building</value>
-  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Extend</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Retract</value>
-  </data>
-  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
-    <value>Press {0} to access control menu</value>
-  </data>
-  <data name="NotificationJoystickMenus" xml:space="preserve">
-    <value>In order to show help or modify toolbar, open control menu</value>
-  </data>
-  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
-    <value>Press {0} or {1} to select toolbar slots</value>
-  </data>
-  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Press {0} to add block, press {1} to remove block</value>
-  </data>
-  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} to change voxel material</value>
-  </data>
-  <data name="Notification_GameplayOptions" xml:space="preserve">
-    <value>Press {0} to change Gameplay options</value>
-  </data>
-  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
-    <value>Change appearance</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Access control menu to open control panel of {0}</value>
@@ -6256,18 +4295,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
-    <value>Access control menu to open inventory of {0}</value>
-  </data>
-  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
-    <value>Press {0} to enter build mode</value>
-  </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
-  </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6320,92 +4347,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
   </data>
-  <data name="WorldSettings_Physics" xml:space="preserve">
-    <value>Physics</value>
-  </data>
-  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
-    <value>Fast</value>
-  </data>
-  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
-    <value>Precise</value>
-  </data>
-  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
-    <value>Higher settings improve simulation BUT directly affects performance.</value>
-  </data>
-  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
-    <value>Graphics options</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
-    <value>Anisotropic filtering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
-    <value>Anti-aliasing</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
-    <value>None</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
-    <value>Foliage details</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
-    <value>Disabled</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
-    <value>Multi-threaded rendering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
-    <value>Quality preset</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Shadow map resolution</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
-    <value>Texture quality</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
-    <value>Medium</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
@@ -6418,12 +4364,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
-  </data>
-  <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
-  </data>
-  <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>

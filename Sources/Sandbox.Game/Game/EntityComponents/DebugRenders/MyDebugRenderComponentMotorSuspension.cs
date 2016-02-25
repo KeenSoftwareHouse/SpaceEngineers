@@ -20,9 +20,9 @@ namespace Sandbox.Game.Components
 
         public override bool DebugDraw()
         {
-            if (MySession.ControlledEntity != null)
+            if (MySession.Static.ControlledEntity != null)
             {
-                var m = MySession.ControlledEntity.Entity.WorldMatrix;
+                var m = MySession.Static.ControlledEntity.Entity.WorldMatrix;
                 VRageRender.MyRenderProxy.DebugDrawLine3D(m.Translation, m.Translation + m.Forward * 2, Color.Red, Color.Yellow, false);
 
             }

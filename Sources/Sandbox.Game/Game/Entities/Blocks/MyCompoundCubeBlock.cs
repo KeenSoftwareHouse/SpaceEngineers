@@ -11,11 +11,17 @@ using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
 using Sandbox.Common.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage;
 using Sandbox.Common;
 using VRage.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Engine.Utils;
+using Sandbox.Engine.Models;
+using VRage.Game;
+using VRage.Import;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.Entities
 {
@@ -43,17 +49,25 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private static string COMPOUND_DUMMY = "compound_";
         // IDentifier of local block ids.
-        private static ushort BLOCK_IN_COMPOUND_LOCAL_ID = 0xF000;
+        private static ushort BLOCK_IN_COMPOUND_LOCAL_ID = 0x8000;
+        private static ushort BLOCK_IN_COMPOUND_LOCAL_MAX_VALUE = 0x7FFF;
 
-        private static readonly string BUILD_TYPE_ANY = "any";
+        private static readonly MyStringId BUILD_TYPE_ANY = MyStringId.GetOrCompute("any");
 
         // Common compound block subtype name
         private static readonly string COMPOUND_BLOCK_SUBTYPE_NAME = "CompoundBlock";
 
-        private static HashSet<string> m_tmpTemplates = new HashSet<string>();
+        private static readonly HashSet<string> m_tmpTemplates = new HashSet<string>();
+        private static readonly List<MyModelDummy> m_tmpDummies = new List<MyModelDummy>();
+        private static readonly List<MyModelDummy> m_tmpOtherDummies = new List<MyModelDummy>();
 
-        private readonly Dictionary<ushort, MySlimBlock> m_blocks = new Dictionary<ushort, MySlimBlock>();
+
+        private readonly Dictionary<ushort, MySlimBlock> m_mapIdToBlock = new Dictionary<ushort, MySlimBlock>();
+        // Duplicated array of blocks for getting them as list without allocation.
+        private readonly List<MySlimBlock> m_blocks = new List<MySlimBlock>();
+
         // Server next id;
         private ushort m_nextId;
         // Local next id identifier of blocks which are set directly (not through server - i.e. generated blocks).
@@ -61,6 +75,26 @@ namespace Sandbox.Game.Entities
 
         // Refreshed set of shared templates between all blocks.
         private HashSet<string> m_templates = new HashSet<string>();
+
+        private class MyDebugRenderComponentCompoundBlock : MyDebugRenderComponent
+        {
+            MyCompoundCubeBlock m_compoundBlock = null;
+
+            public MyDebugRenderComponentCompoundBlock(MyCompoundCubeBlock compoundBlock)
+                : base(compoundBlock)
+            {
+                m_compoundBlock = compoundBlock;
+            }
+
+            public override bool DebugDraw()
+            {
+                foreach (var block in m_compoundBlock.GetBlocks())
+                    if (block.FatBlock != null)
+                        block.FatBlock.DebugDraw();
+
+                return true;
+            }
+        }
 
 
         public MyCompoundCubeBlock() 
@@ -84,7 +118,7 @@ namespace Sandbox.Game.Entities
                     for (int i = 0; i < ob.Blocks.Length; ++i)
                     {
                         ushort id = ob.BlockIds[i];
-                        if (m_blocks.ContainsKey(id))
+                        if (m_mapIdToBlock.ContainsKey(id))
                         {
                             Debug.Fail("Block with the same id found");
                             continue;
@@ -98,8 +132,14 @@ namespace Sandbox.Game.Entities
 
                         cubeBlock.Init(blockBuilder, cubeGrid, objectBlock as MyCubeBlock);
 
-                        cubeBlock.FatBlock.Hierarchy.Parent = Hierarchy;
-                        m_blocks.Add(id, cubeBlock);
+                        if (cubeBlock.FatBlock != null)
+                        {
+                            cubeBlock.FatBlock.HookMultiplayer();
+
+                            cubeBlock.FatBlock.Hierarchy.Parent = Hierarchy;
+                            m_mapIdToBlock.Add(id, cubeBlock);
+                            m_blocks.Add(cubeBlock);
+                        }
                     }
 
                     RefreshNextId();
@@ -115,27 +155,33 @@ namespace Sandbox.Game.Entities
                             cubeBlock = new MySlimBlock();
 
                         cubeBlock.Init(blockBuilder, cubeGrid, objectBlock as MyCubeBlock);
+                        cubeBlock.FatBlock.HookMultiplayer();
 
                         cubeBlock.FatBlock.Hierarchy.Parent = Hierarchy;
                         ushort id = CreateId(cubeBlock);
-                        m_blocks.Add(id, cubeBlock);
+                        m_mapIdToBlock.Add(id, cubeBlock);
+                        m_blocks.Add(cubeBlock);
                     }
                 }
-             }
+            }
+
+            Debug.Assert(m_mapIdToBlock.Count == m_blocks.Count);
 
             RefreshTemplates();
+
+            AddDebugRenderComponent(new MyDebugRenderComponentCompoundBlock(this));
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             MyObjectBuilder_CompoundCubeBlock objectBuilder = (MyObjectBuilder_CompoundCubeBlock)base.GetObjectBuilderCubeBlock(copy);
-            if (m_blocks.Count > 0) 
+            if (m_mapIdToBlock.Count > 0) 
             {
-                objectBuilder.Blocks = new MyObjectBuilder_CubeBlock[m_blocks.Count];
-                objectBuilder.BlockIds = new ushort[m_blocks.Count];
+                objectBuilder.Blocks = new MyObjectBuilder_CubeBlock[m_mapIdToBlock.Count];
+                objectBuilder.BlockIds = new ushort[m_mapIdToBlock.Count];
 
                 int counter = 0;
-                foreach (var pair in m_blocks)
+                foreach (var pair in m_mapIdToBlock)
                 {
                     objectBuilder.BlockIds[counter] = pair.Key;
                     objectBuilder.Blocks[counter] = pair.Value.GetObjectBuilder();
@@ -150,7 +196,7 @@ namespace Sandbox.Game.Entities
 
         public override void OnAddedToScene(object source)
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                     pair.Value.FatBlock.OnAddedToScene(source);
@@ -163,7 +209,7 @@ namespace Sandbox.Game.Entities
 
         public override void OnRemovedFromScene(object source)
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                     pair.Value.FatBlock.OnRemovedFromScene(source);
@@ -176,7 +222,7 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateVisual()
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                     pair.Value.FatBlock.UpdateVisual();
@@ -190,7 +236,7 @@ namespace Sandbox.Game.Entities
         internal override float GetMass()
         {
             float mass = 0f;
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
                 mass += pair.Value.GetMass();
             return mass;
         }
@@ -198,7 +244,7 @@ namespace Sandbox.Game.Entities
         private void UpdateBlocksWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
             MatrixD localMatrix = MatrixD.Identity;
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                 {
@@ -215,7 +261,7 @@ namespace Sandbox.Game.Entities
 
         protected override void Closing()
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                     pair.Value.FatBlock.Close();
@@ -230,32 +276,15 @@ namespace Sandbox.Game.Entities
         {
             base.OnCubeGridChanged(oldGrid);
 
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 pair.Value.CubeGrid = CubeGrid;
             }
         }
 
-        internal override void OnAddedNeighbours()
-        {
-            //foreach (var block in m_blocks)
-            //{
-            //    block.RemoveNeighbours();
-            //    block.AddNeighbours();
-            //}
-        }
-
-        internal override void OnRemovedNeighbours()
-        {
-            //foreach (var block in m_blocks)
-            //{
-            //    block.RemoveNeighbours();
-            //}
-        }
-
         internal override void OnTransformed(ref MatrixI transform)
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 pair.Value.Transform(ref transform);
             }
@@ -265,7 +294,7 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateWorldMatrix();
 
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                     pair.Value.FatBlock.UpdateWorldMatrix();
@@ -274,7 +303,7 @@ namespace Sandbox.Game.Entities
 
         public override bool ConnectionAllowed(ref Vector3I otherBlockPos, ref Vector3I faceNormal, MyCubeBlockDefinition def)
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                 {
@@ -287,7 +316,7 @@ namespace Sandbox.Game.Entities
 
         public override bool ConnectionAllowed(ref Vector3I otherBlockMinPos, ref Vector3I otherBlockMaxPos, ref Vector3I faceNormal, MyCubeBlockDefinition def)
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 if (pair.Value.FatBlock != null)
                 {
@@ -317,16 +346,18 @@ namespace Sandbox.Game.Entities
             if (!CanAddBlock(block))
                 return false;
 
-            // block.AddNeighbours();
+            Debug.Assert(block.BlockDefinition.Size == Vector3I.One, "Only blocks with size=1 are supported inside compound block!");
+            Debug.Assert(block.BlockDefinition.CubeSize == MyCubeSize.Large, "Only large blocks are supported inside compound block!");
 
-            Debug.Assert(block.BlockDefinition.Size == Vector3I.One, "Only blocks with size=1 are supported!");
-            if (m_blocks.ContainsKey(id))
+            if (m_mapIdToBlock.ContainsKey(id))
             {
                 Debug.Fail("Cannot add block with existing id to compound block!");
                 return false;
             }
 
-            m_blocks.Add(id, block);
+            m_mapIdToBlock.Add(id, block);
+            m_blocks.Add(block);
+            Debug.Assert(m_mapIdToBlock.Count == m_blocks.Count);
 
             MatrixD parentWorldMatrix = this.Parent.WorldMatrix;
             MatrixD blockLocalMatrix = MatrixD.Identity;
@@ -334,35 +365,45 @@ namespace Sandbox.Game.Entities
             MatrixD worldMatrix = blockLocalMatrix * parentWorldMatrix;
             block.FatBlock.PositionComp.SetWorldMatrix(worldMatrix, this, true);
 
-            block.FatBlock.OnAddedToScene(this);
-
+            // Set parent before OnAddedToScene otherwise chhild block will be added to pruning structure
             block.FatBlock.Hierarchy.Parent = Hierarchy;
+
+            block.FatBlock.OnAddedToScene(this);
 
             CubeGrid.UpdateBlockNeighbours(SlimBlock);
 
             RefreshTemplates();
 
+            if (block.IsMultiBlockPart)
+                CubeGrid.AddMultiBlockInfo(block);
+
             return true;
         }
 
-        public bool Remove(MySlimBlock block, bool removeFromScene = true)
+        public bool Remove(MySlimBlock block, bool merged = false)
         {
-            var pair = m_blocks.FirstOrDefault(p => p.Value == block);
+            var pair = m_mapIdToBlock.FirstOrDefault(p => p.Value == block);
             if (pair.Value == block)
-                return Remove(pair.Key, removeFromScene);
+                return Remove(pair.Key, merged: merged);
 
             Debug.Fail("Cannot remove block from compound");
             return false;
         }
 
-        public bool Remove(ushort blockId, bool removeFromScene = true)
+        public bool Remove(ushort blockId, bool merged = false)
         {
             MySlimBlock block;
-            if (m_blocks.TryGetValue(blockId, out block))
+            if (m_mapIdToBlock.TryGetValue(blockId, out block))
             {
-                m_blocks.Remove(blockId);
-                if (removeFromScene)
+                m_mapIdToBlock.Remove(blockId);
+                m_blocks.Remove(block);
+                Debug.Assert(m_mapIdToBlock.Count == m_blocks.Count);
+
+                if (!merged)
                 {
+                    if (block.IsMultiBlockPart)
+                        CubeGrid.RemoveMultiBlockInfo(block);
+
                     block.FatBlock.OnRemovedFromScene(this);
                     block.FatBlock.Close();
                 }
@@ -370,7 +411,8 @@ namespace Sandbox.Game.Entities
                 if (block.FatBlock.Hierarchy.Parent == Hierarchy)
                     block.FatBlock.Hierarchy.Parent = null;
 
-                CubeGrid.UpdateBlockNeighbours(SlimBlock);
+                if (!merged)
+                    CubeGrid.UpdateBlockNeighbours(SlimBlock);
 
                 RefreshTemplates();
                 return true;
@@ -385,7 +427,7 @@ namespace Sandbox.Game.Entities
             if (block == null || block.FatBlock == null)
                 return false;
 
-            if (m_blocks.ContainsValue(block))
+            if (m_mapIdToBlock.ContainsValue(block))
                 return false;
 
             if (block.FatBlock is MyCompoundCubeBlock)
@@ -393,35 +435,79 @@ namespace Sandbox.Game.Entities
                 MyCompoundCubeBlock otherCompound = block.FatBlock as MyCompoundCubeBlock;
                 foreach (var otherBlockInCompound in otherCompound.GetBlocks())
                 {
-                    if (!CanAddBlock(otherBlockInCompound.BlockDefinition, otherBlockInCompound.Orientation))
+                    if (!CanAddBlock(otherBlockInCompound.BlockDefinition, otherBlockInCompound.Orientation, multiBlockId: otherBlockInCompound.MultiBlockId))
                         return false;
                 }
                 return true;
             }
             else
             {
-                return CanAddBlock(block.BlockDefinition, block.Orientation);
+                return CanAddBlock(block.BlockDefinition, block.Orientation, multiBlockId: block.MultiBlockId);
             }
         }
 
-        public bool CanAddBlock(MyCubeBlockDefinition definition, MyBlockOrientation? orientation)
+        public bool CanAddBlock(MyCubeBlockDefinition definition, MyBlockOrientation? orientation, int multiBlockId = 0, bool ignoreSame = false)
         {
             Debug.Assert(definition != GetCompoundCubeBlockDefinition());
 
-            if (definition == null || definition.CompoundTemplates == null || definition.CompoundTemplates.Length == 0)
+            if (!IsCompoundEnabled(definition))
                 return false;
 
-            // Only blocks with size 1 are supported now
-            if (definition.Size != Vector3I.One)
+            if (MyFakes.ENABLE_COMPOUND_BLOCK_COLLISION_DUMMIES)
             {
-                Debug.Assert(definition.Size == Vector3I.One, "Only blocks with size=1 are supported!");
-                return false;
+                if (orientation == null)
+                    return false;
+
+                if (m_blocks.Count == 0)
+                    return true;
+
+                Matrix otherRotation, thisRotation;
+                orientation.Value.GetMatrix(out otherRotation);
+
+                m_tmpOtherDummies.Clear();
+                GetCompoundCollisionDummies(definition, m_tmpOtherDummies);
+
+                foreach (var block in m_blocks)
+                {
+                    // The same block with the same orientation
+                    if (block.BlockDefinition.Id.SubtypeId == definition.Id.SubtypeId && block.Orientation == orientation.Value)
+                    {
+                        if (ignoreSame)
+                            continue;
+                        else
+                            return false;
+                    }
+
+                    // Blocks from the same multiblock can be added to one compound
+                    if (multiBlockId != 0 && block.MultiBlockId == multiBlockId)
+                        continue;
+
+                    if (block.BlockDefinition.IsGeneratedBlock)
+                        continue;
+
+                    m_tmpDummies.Clear();
+                    GetCompoundCollisionDummies(block.BlockDefinition, m_tmpDummies);
+
+                    block.Orientation.GetMatrix(out thisRotation);
+
+                    if (CompoundDummiesIntersect(ref thisRotation, ref otherRotation, m_tmpDummies, m_tmpOtherDummies))
+                    {
+                        m_tmpDummies.Clear();
+                        m_tmpOtherDummies.Clear();
+                        return false;
+                    }
+                }
+
+                m_tmpDummies.Clear();
+                m_tmpOtherDummies.Clear();
+
+                return true;
             }
 
             // Check the same block with the same orientation or same build type.
             if (orientation != null)
             {
-                foreach (var pair in m_blocks)
+                foreach (var pair in m_mapIdToBlock)
                 {
                     if (pair.Value.BlockDefinition.Id.SubtypeId == definition.Id.SubtypeId && pair.Value.Orientation == orientation)
                         return false;
@@ -453,7 +539,7 @@ namespace Sandbox.Game.Entities
                     {
                         bool continueNextTemplate = false;
 
-                        foreach (var pair in m_blocks)
+                        foreach (var pair in m_mapIdToBlock)
                         {
                             if (pair.Value.BlockDefinition.BuildType == definition.BuildType) 
                             {
@@ -471,7 +557,7 @@ namespace Sandbox.Game.Entities
                     {
                         bool continueNextTemplate = false;
 
-                        foreach (var pair in m_blocks)
+                        foreach (var pair in m_mapIdToBlock)
                         {
                             MyCompoundBlockTemplateDefinition.MyCompoundBlockBinding existingBlockBinding = GetTemplateDefinitionBinding(templateDefinition, pair.Value.BlockDefinition);
                             if (existingBlockBinding == null) 
@@ -521,6 +607,103 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
+        public static bool CanAddBlocks(MyCubeBlockDefinition definition, MyBlockOrientation orientation, MyCubeBlockDefinition otherDefinition, MyBlockOrientation otherOrientation)
+        {
+            Debug.Assert(MyFakes.ENABLE_COMPOUND_BLOCK_COLLISION_DUMMIES);
+
+            if (!IsCompoundEnabled(definition) || !IsCompoundEnabled(otherDefinition))
+                return false;
+
+            if (MyFakes.ENABLE_COMPOUND_BLOCK_COLLISION_DUMMIES)
+            {
+                Matrix thisRotation;
+                orientation.GetMatrix(out thisRotation);
+
+                m_tmpDummies.Clear();
+                GetCompoundCollisionDummies(definition, m_tmpDummies);
+
+                Matrix otherRotation;
+                otherOrientation.GetMatrix(out otherRotation);
+
+                m_tmpOtherDummies.Clear();
+                GetCompoundCollisionDummies(otherDefinition, m_tmpOtherDummies);
+
+                bool intersect = CompoundDummiesIntersect(ref thisRotation, ref otherRotation, m_tmpDummies, m_tmpOtherDummies);
+                m_tmpDummies.Clear();
+                m_tmpOtherDummies.Clear();
+                return !intersect;
+            }
+
+            // Note that this part (compound templates) is not implemented, because it will not be used in future (only dummies).
+            return true;
+        }
+
+        private static bool CompoundDummiesIntersect(ref Matrix thisRotation, ref Matrix otherRotation, List<MyModelDummy> thisDummies, List<MyModelDummy> otherDummies)
+        {
+            foreach (var dummy in thisDummies)
+            {
+                //TODO: thisBoxHalfExtends should be dummy.Matrix.Scale * 0.5 but Scale in Matrix is bad.
+                Vector3 thisBoxHalfExtends = new Vector3(dummy.Matrix.Right.Length(), dummy.Matrix.Up.Length(), dummy.Matrix.Forward.Length()) * 0.5f;
+                BoundingBox thisAABB = new BoundingBox(-thisBoxHalfExtends, thisBoxHalfExtends);
+
+                // Normalize this dummy, use inverse matrix as temporary.
+                Matrix thisDummyMatrixInv = Matrix.Normalize(dummy.Matrix);
+
+                // Rotate this dummy
+                Matrix thisDummyMatrix;
+                Matrix.Multiply(ref thisDummyMatrixInv, ref thisRotation, out thisDummyMatrix);
+                // Create trasform to this dummy (inverse).
+                Matrix.Invert(ref thisDummyMatrix, out thisDummyMatrixInv);
+
+                //DebugDrawAABB(thisAABB, thisDummyMatrix);
+
+                foreach (var otherDummy in otherDummies)
+                {
+                    //TODO: otherBoxHalfExtends should be otherDummy.Matrix.Scale * 0.5 but Scale in Matrix is bad.
+                    Vector3 otherBoxHalfExtends = new Vector3(otherDummy.Matrix.Right.Length(), otherDummy.Matrix.Up.Length(), otherDummy.Matrix.Forward.Length()) * 0.5f;
+                    BoundingBox otherAABB = new BoundingBox(-otherBoxHalfExtends, otherBoxHalfExtends);
+
+                    // Store normalized dummy matrix as temporary
+                    Matrix otherDummyMatrixInThis = Matrix.Normalize(otherDummy.Matrix);
+
+                    // Rotate other dummy
+                    Matrix otherDummyMatrix;
+                    Matrix.Multiply(ref otherDummyMatrixInThis, ref otherRotation, out otherDummyMatrix);
+                    // Transform other dummy to this dummy
+                    Matrix.Multiply(ref otherDummyMatrix, ref thisDummyMatrixInv, out otherDummyMatrixInThis);
+
+                    MyOrientedBoundingBox obb = MyOrientedBoundingBox.Create(otherAABB, otherDummyMatrixInThis);
+                    //DebugDrawOBB(obb, thisDummyMatrix);
+                    if (obb.Intersects(ref thisAABB))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void DebugDrawAABB(BoundingBox aabb, Matrix localMatrix) 
+        {
+            Matrix obbTransform = Matrix.CreateScale(2 * aabb.HalfExtents);
+
+            MatrixD worldMatrix = obbTransform * (MatrixD)localMatrix;
+            worldMatrix *= PositionComp.WorldMatrix;
+
+            VRageRender.MyRenderProxy.DebugDrawAxis(MatrixD.Normalize(worldMatrix), 0.1f, false);
+            VRageRender.MyRenderProxy.DebugDrawOBB(worldMatrix, Color.Green, 0.1f, false, false);
+        }
+
+        private void DebugDrawOBB(MyOrientedBoundingBox obb, Matrix localMatrix)
+        {
+            Matrix obbTransform = Matrix.CreateFromTransformScale(obb.Orientation, obb.Center, 2 * obb.HalfExtent);
+
+            MatrixD worldMatrix = obbTransform * (MatrixD)localMatrix;
+            worldMatrix *= PositionComp.WorldMatrix;
+
+            VRageRender.MyRenderProxy.DebugDrawAxis(MatrixD.Normalize(worldMatrix), 0.1f, false);
+            VRageRender.MyRenderProxy.DebugDrawOBB(worldMatrix, Vector3.One, 0.1f, false, false);
+        }
+
         private bool IsRotationValid(MyBlockOrientation refOrientation, MyBlockOrientation orientation, MyBlockOrientation[] validRotations)
         {
             Debug.Assert(validRotations != null);
@@ -547,34 +730,28 @@ namespace Sandbox.Game.Entities
         public MySlimBlock GetBlock(ushort id)
         {
             MySlimBlock block;
-            if (m_blocks.TryGetValue(id, out block))
+            if (m_mapIdToBlock.TryGetValue(id, out block))
                 return block;
             return null;
         }
 
         public ushort? GetBlockId(MySlimBlock block)
         {
-            var pair = m_blocks.FirstOrDefault(p => p.Value == block);
+            var pair = m_mapIdToBlock.FirstOrDefault(p => p.Value == block);
             if (pair.Value == block)
                 return pair.Key;
             return null;
         }
 
-        public List<MySlimBlock> GetBlocks()
+        public ListReader<MySlimBlock> GetBlocks()
         {
-            return m_blocks.Values.ToList();
-        }
-
-        public List<MySlimBlock> GetBlocks(List<MySlimBlock> blocks)
-        {
-            foreach (var pair in m_blocks)
-                blocks.Add(pair.Value);
-
-            return blocks;
+			Debug.Assert(m_mapIdToBlock.Count == m_blocks.Count);
+            return m_blocks;
         }
 
         public int GetBlocksCount()
         {
+            Debug.Assert(m_mapIdToBlock.Count == m_blocks.Count);
             return m_blocks.Count;
         }
 
@@ -633,7 +810,7 @@ namespace Sandbox.Game.Entities
 
             foreach (var binding in templateDefinition.Bindings)
             {
-                if (binding.BuildType == blockDefinition.BuildType && blockDefinition.BuildType != null)
+                if (binding.BuildType == blockDefinition.BuildType && blockDefinition.BuildType != MyStringId.NullOrEmpty)
                     return binding;
             }
 
@@ -676,7 +853,11 @@ namespace Sandbox.Game.Entities
         private void RefreshTemplates()
         {
             m_templates.Clear();
-            foreach (var pair in m_blocks) {
+
+            if (MyFakes.ENABLE_COMPOUND_BLOCK_COLLISION_DUMMIES)
+                return;
+
+            foreach (var pair in m_mapIdToBlock) {
                 Debug.Assert(pair.Value.BlockDefinition.CompoundTemplates != null);
                 if (pair.Value.BlockDefinition.CompoundTemplates == null)
                     continue;
@@ -716,7 +897,7 @@ namespace Sandbox.Game.Entities
 
         private void RefreshNextId()
         {
-            foreach (var pair in m_blocks)
+            foreach (var pair in m_mapIdToBlock)
             {
                 bool isLocal = (pair.Key & BLOCK_IN_COMPOUND_LOCAL_ID) == BLOCK_IN_COMPOUND_LOCAL_ID;
                 if (isLocal)
@@ -731,12 +912,12 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            if (m_nextId == 0xEFFF)
+            if (m_nextId == BLOCK_IN_COMPOUND_LOCAL_MAX_VALUE)
                 m_nextId = 0;
             else
                 ++m_nextId;
 
-            if (m_localNextId == 0x0FFF)
+            if (m_localNextId == BLOCK_IN_COMPOUND_LOCAL_MAX_VALUE)
                 m_localNextId = 0;
             else
                 ++m_localNextId;
@@ -752,9 +933,9 @@ namespace Sandbox.Game.Entities
             {
                 id = (ushort)(m_localNextId | BLOCK_IN_COMPOUND_LOCAL_ID);
 
-                while (m_blocks.ContainsKey(id))
+                while (m_mapIdToBlock.ContainsKey(id))
                 {
-                    if (m_localNextId == 0x0FFF)
+                    if (m_localNextId == BLOCK_IN_COMPOUND_LOCAL_MAX_VALUE)
                         m_localNextId = 0;
                     else
                         ++m_localNextId;
@@ -767,9 +948,9 @@ namespace Sandbox.Game.Entities
             {
                 id = m_nextId;
 
-                while (m_blocks.ContainsKey(id))
+                while (m_mapIdToBlock.ContainsKey(id))
                 {
-                    if (m_nextId == 0xEFFF)
+                    if (m_nextId == BLOCK_IN_COMPOUND_LOCAL_MAX_VALUE)
                         m_nextId = 0;
                     else
                         ++m_nextId;
@@ -785,25 +966,25 @@ namespace Sandbox.Game.Entities
         internal void DoDamage(float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
         {
             float integrity = 0;
-            foreach(var block in m_blocks)
+            foreach(var block in m_mapIdToBlock)
             {
                 integrity += block.Value.MaxIntegrity;
             }
 
             if (hitInfo.HasValue)
             {
-                Debug.Assert(m_blocks.Count > 0);
+                Debug.Assert(m_mapIdToBlock.Count > 0);
                 CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
-                    Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), m_blocks.First().Value.BlockDefinition.PhysicalMaterial.DamageDecal);
+                    Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), m_mapIdToBlock.First().Value.BlockDefinition.PhysicalMaterial.DamageDecal);
             }
 
-            foreach (var block in m_blocks)
+            foreach (var block in m_mapIdToBlock)
             {
                 block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false, attackerId);
             }
         }
 
-        public bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)
+        public bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)
         {
             t = null;
             blockId = 0;
@@ -812,14 +993,14 @@ namespace Sandbox.Game.Entities
 
             bool foundIntersection = false;
 
-            foreach (var blockPair in m_blocks)
+            foreach (var blockPair in m_mapIdToBlock)
             {
                 MySlimBlock cmpSlimBlock = blockPair.Value;
 
 				if (ignoreGenerated && cmpSlimBlock.BlockDefinition.IsGeneratedBlock)
 					continue;
 
-                MyIntersectionResultLineTriangleEx? intersectionTriResult;
+                VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersectionTriResult;
                 if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
                 {
                     Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - line.From;
@@ -840,6 +1021,52 @@ namespace Sandbox.Game.Entities
             return foundIntersection;
         }
 
+        /// <summary>
+        /// Calculates intersected block with all models replaced by final models. Useful for construction/deconstruction when models are made from wooden construction.
+        /// </summary>
+        public bool GetIntersectionWithLine_FullyBuiltProgressModels(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)
+        {
+            t = null;
+            blockId = 0;
+
+            double distanceSquaredInCompound = double.MaxValue;
+
+            bool foundIntersection = false;
+
+            foreach (var blockPair in m_mapIdToBlock)
+            {
+                MySlimBlock cmpSlimBlock = blockPair.Value;
+
+                if (ignoreGenerated && cmpSlimBlock.BlockDefinition.IsGeneratedBlock)
+                    continue;
+
+                MyModel collisionModel = MyModels.GetModelOnlyData(cmpSlimBlock.BlockDefinition.Model);
+                if (collisionModel != null)
+                {
+                    VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersectionTriResult = collisionModel.GetTrianglePruningStructure().GetIntersectionWithLine(
+                        cmpSlimBlock.FatBlock, ref line, flags);
+
+                    if (intersectionTriResult != null)
+                    {
+                        Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - line.From;
+                        double instrDistanceSq = startToIntersection.LengthSquared();
+                        if (instrDistanceSq < distanceSquaredInCompound)
+                        {
+                            if (checkZFight && distanceSquaredInCompound < instrDistanceSq + 0.001f)
+                                continue;
+
+                            distanceSquaredInCompound = instrDistanceSq;
+                            t = intersectionTriResult;
+                            blockId = blockPair.Key;
+                            foundIntersection = true;
+                        }
+                    }
+                }
+            }
+
+            return foundIntersection;
+        }
+
         private static void GetBlockLocalMatrixFromGridPositionAndOrientation(MySlimBlock block, ref MatrixD localMatrix)
         {
             Matrix orientation;
@@ -847,6 +1074,39 @@ namespace Sandbox.Game.Entities
 
             localMatrix = orientation;
             localMatrix.Translation = block.CubeGrid.GridSize * block.Position;
+        }
+
+        private static void GetCompoundCollisionDummies(MyCubeBlockDefinition definition, List<MyModelDummy> outDummies)
+        {
+            var model = VRage.Game.Models.MyModels.GetModelOnlyDummies(definition.Model);
+            if (model != null)
+            {
+                foreach (var pair in model.Dummies)
+                {
+                    if (pair.Key.ToLower().StartsWith(COMPOUND_DUMMY))
+                        outDummies.Add(pair.Value);
+                }
+            }
+        }
+
+        public static bool IsCompoundEnabled(MyCubeBlockDefinition blockDefinition)
+        {
+            if (!MyFakes.ENABLE_COMPOUND_BLOCKS)
+                return false;
+
+            if (blockDefinition == null)
+                return false;
+
+            if (blockDefinition.CubeSize != MyCubeSize.Large)
+                return false;
+
+            if (blockDefinition.Size != Vector3I.One)
+                return false;
+
+            if (MyFakes.ENABLE_COMPOUND_BLOCK_COLLISION_DUMMIES)
+                return blockDefinition.CompoundEnabled;
+
+            return blockDefinition.CompoundTemplates != null && blockDefinition.CompoundTemplates.Length != 0;
         }
     }
 }

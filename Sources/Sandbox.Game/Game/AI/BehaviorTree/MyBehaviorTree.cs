@@ -9,7 +9,6 @@ using System.Text;
 using VRageMath;
 using VRage.Win32;
 using VRage.Utils;
-using Sandbox.Common.ObjectBuilders.AI;
 using VRage.Utils;
 using VRage.Library.Utils;
 

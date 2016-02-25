@@ -2,7 +2,7 @@
 using ProtoBuf;
 using VRage.ObjectBuilders;
 using VRage;
-using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
 
 namespace Medieval.ObjectBuilders
 {

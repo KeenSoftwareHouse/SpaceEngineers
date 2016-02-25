@@ -13,9 +13,11 @@ using System.Diagnostics;
 using System.ServiceModel.Syndication;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.EntityComponents;
+using VRage.Game;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Character.Components
 {
@@ -28,10 +30,17 @@ namespace Sandbox.Game.Entities.Character.Components
             public float MaxCapacity;
             public float Throughput;
 
+            public float NextGasTransfer;
+
+            public int LastOutputTime;
+            public int LastInputTime;
+            public int NextGasRefill = -1;
+
             public override string ToString() { return string.Format("Subtype: {0}, FillLevel: {1}, CurrentCapacity: {2}, MaxCapacity: {3}", Id.SubtypeName, FillLevel, FillLevel*MaxCapacity, MaxCapacity); }
         }
 
         public static readonly float LOW_OXYGEN_RATIO = 0.2f;
+        public static readonly float GAS_REFILL_RATION = 0.3f;
 
         private Dictionary<MyDefinitionId, int> m_gasIdToIndex; 
         private GasData[] m_storedGases;
@@ -39,10 +48,13 @@ namespace Sandbox.Game.Entities.Character.Components
         public float EnvironmentOxygenLevel;
 
         private float m_oldSuitOxygenLevel;
-        private float m_suitOxygenAmount;
         private bool m_needsOxygen;
 
-        private float m_gasOutputTime = 0f;
+        private const int m_gasRefillInterval = 5;
+
+        private int m_lastOxygenUpdateTime;
+
+        private const int m_updateInterval = 100;
 
         private MyResourceSinkComponent m_characterGasSink;
         private MyResourceSourceComponent m_characterGasSource;
@@ -55,39 +67,44 @@ namespace Sandbox.Game.Entities.Character.Components
         MyHudNotification m_lowOxygenNotification;
         MyHudNotification m_criticalOxygenNotification;
         MyHudNotification m_oxygenBottleRefillNotification;
+        MyHudNotification m_gasBottleRefillNotification;
         MyHudNotification m_helmetToggleNotification;
 
         #region Properties
         private MyCharacterDefinition Definition { get { return Character.Definition; } }
 
+        public float OxygenCapacity { get {
+            int gasIndex = -1;
+            MyDefinitionId oxygenID = OxygenId;
+            if (!TryGetTypeIndex(ref oxygenID, out gasIndex)) return 0f;
+            return m_storedGases[gasIndex].MaxCapacity;
+        } }
+
         public float SuitOxygenAmount
         {
-            get { return m_suitOxygenAmount; }
-            set
-            {
-                m_suitOxygenAmount = value;
-                if (m_suitOxygenAmount > Definition.OxygenCapacity)
-                {
-                    m_suitOxygenAmount = Definition.OxygenCapacity;
-                }
+            get { return GetGasFillLevel(OxygenId) * OxygenCapacity; }
+            set {
+                MyDefinitionId oxygenID = OxygenId;
+                UpdateStoredGasLevel(ref oxygenID, MyMath.Clamp(value / OxygenCapacity, 0f, 1f)); 
             }
         }
 
-        public float SuitOxygenAmountMissing {  get { return Definition.OxygenCapacity - SuitOxygenAmount; } }
+        public float SuitOxygenAmountMissing { get { return OxygenCapacity - GetGasFillLevel(OxygenId) * OxygenCapacity; } }
 
         public float SuitOxygenLevel
         {
             get
             {
-                if (Definition.OxygenCapacity == 0)
+                if (OxygenCapacity == 0)
                 {
                     return 0;
                 }
-                return m_suitOxygenAmount / Definition.OxygenCapacity;
+                return GetGasFillLevel(OxygenId);
             }
             set
             {
-                m_suitOxygenAmount = value * Definition.OxygenCapacity;
+                MyDefinitionId oxygenID = OxygenId;
+                UpdateStoredGasLevel(ref oxygenID, value);
             }
         }
 
@@ -100,15 +117,7 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public virtual void Init(MyObjectBuilder_Character characterOb)
         {
-            if (MySession.Static.SurvivalMode)
-            {
-                m_suitOxygenAmount = characterOb.OxygenLevel * Definition.OxygenCapacity;
-            }
-            else
-            {
-                m_suitOxygenAmount = Definition.OxygenCapacity;
-            }
-            m_oldSuitOxygenLevel = SuitOxygenLevel;
+            m_lastOxygenUpdateTime = MySession.Static.GameplayFrameCounter;
 
             m_gasIdToIndex = new Dictionary<MyDefinitionId, int>(); 
             if (MyFakes.ENABLE_HYDROGEN_FUEL && Definition.SuitResourceStorage != null)
@@ -122,38 +131,59 @@ namespace Sandbox.Game.Entities.Character.Components
                         Id = gasInfo.Id,
                         FillLevel = 1f,
                         MaxCapacity = gasInfo.MaxCapacity,
-                        Throughput = gasInfo.Throughput
+                        Throughput = gasInfo.Throughput,
+                        LastOutputTime = MySession.Static.GameplayFrameCounter,
+                        LastInputTime = MySession.Static.GameplayFrameCounter
                     };
                     m_gasIdToIndex.Add(gasInfo.Id, gasIndex);
                 }
 
                 if (characterOb.StoredGases != null)
                 {
-                    foreach (var gasInfo in characterOb.StoredGases)
+                    if (!MySession.Static.CreativeMode)
                     {
-                        int gasIndex;
-                        if (!m_gasIdToIndex.TryGetValue(gasInfo.Id, out gasIndex))
-                            continue;
-                        m_storedGases[gasIndex].FillLevel = gasInfo.FillLevel;
+                        foreach (var gasInfo in characterOb.StoredGases)
+                        {
+                            int gasIndex;
+                            if (!m_gasIdToIndex.TryGetValue(gasInfo.Id, out gasIndex))
+                                continue;
+
+                            m_storedGases[gasIndex].FillLevel = gasInfo.FillLevel;
+                        }
                     }
                 }
             }
             if(m_storedGases == null)
                 m_storedGases = new GasData[0];
 
+            Debug.Assert(ContainsGasStorage(OxygenId), characterOb.SubtypeName + " is missing Oxygen resource.");
+            Debug.Assert(ContainsGasStorage(HydrogenId), characterOb.SubtypeName + " is missing Hydrogen resource.");
+
+
+            if (MySession.Static.Settings.EnableOxygen)
+            {
+                float oxygenFillLevel = GetGasFillLevel(OxygenId);
+                m_oldSuitOxygenLevel = oxygenFillLevel == 0f ? OxygenCapacity : oxygenFillLevel;
+            }
+
+            EnvironmentOxygenLevel = characterOb.EnvironmentOxygenLevel;
+
             m_oxygenBottleRefillNotification = new MyHudNotification(text: MySpaceTexts.NotificationBottleRefill, level: MyNotificationLevel.Important);
+            m_gasBottleRefillNotification = new MyHudNotification(text: MySpaceTexts.NotificationGasBottleRefill, level: MyNotificationLevel.Important);
             m_lowOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenLow, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
             m_criticalOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenCritical, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
             m_helmetToggleNotification = m_helmetToggleNotification ?? new MyHudNotification(); // Init() is called when toggling helmet so this check is required
 
             m_needsOxygen = Definition.NeedsOxygen;
 
+            NeedsUpdateBeforeSimulation = true;
             NeedsUpdateBeforeSimulation100 = true;
         }
 
         public virtual void GetObjectBuilder(MyObjectBuilder_Character objectBuilder)
         {
             objectBuilder.OxygenLevel = SuitOxygenLevel;
+            objectBuilder.EnvironmentOxygenLevel = EnvironmentOxygenLevel;
 
             if (m_storedGases != null && m_storedGases.Length > 0)
             {
@@ -181,40 +211,52 @@ namespace Sandbox.Game.Entities.Character.Components
             // Try to find grids that might contain oxygen
             var entities = new List<MyEntity>();
             var aabb = Character.PositionComp.WorldAABB;
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref aabb, entities);
+
             bool lowOxygenDamage = MySession.Static.Settings.EnableOxygen;
             bool noOxygenDamage = MySession.Static.Settings.EnableOxygen;
             bool isInEnvironment = true;
+            bool oxygenReplenished = false;
 
             EnvironmentOxygenLevel = MyOxygenProviderSystem.GetOxygenInPoint(Character.PositionComp.GetPosition());
 
-            bool oxygenReplenished = false;
-
             if (Sync.IsServer)
             {
+                // Check for possibility that we are replenishing oxygen
                 if (MySession.Static.Settings.EnableOxygen)
                 {
-                    float oxygenInput = CharacterGasSink.CurrentInputByType(OxygenId);
-                    if (oxygenInput > 0 && !Definition.NeedsOxygen)
+                    GasData oxygenData;
+                    if (TryGetGasData(OxygenId, out oxygenData))
                     {
-                        var oxygenInputPer100Frames = oxygenInput * 100f / MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-                        SuitOxygenAmount += oxygenInputPer100Frames;
+                        float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - oxygenData.LastOutputTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
-                        if (oxygenInputPer100Frames >= Definition.OxygenConsumption)
+                        oxygenReplenished = CharacterGasSink.CurrentInputByType(OxygenId) * timeSinceLastUpdateSeconds > Definition.OxygenConsumption;
+
+                        if (oxygenReplenished)
                         {
-                            oxygenReplenished = true;
                             noOxygenDamage = false;
                             lowOxygenDamage = false;
-                        }
-                    }
+                        } 
+                    } 
                 }
 
+                // Update Gases fill levels and capacity amounts
                 foreach (GasData gasInfo in m_storedGases)
                 {
-                    float gasInputPer100Frames = Math.Min(gasInfo.Throughput, CharacterGasSink.CurrentInputByType(gasInfo.Id))*100f/MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-                    float gasOutputPer100Frames = Math.Min(gasInfo.Throughput, CharacterGasSource.CurrentOutputByType(gasInfo.Id))*100f/MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-                    TransferSuitGas(gasInfo.Id, gasInputPer100Frames, gasOutputPer100Frames);
-                    m_gasOutputTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                    var timeSinceLastOutputSeconds = (MySession.Static.GameplayFrameCounter - gasInfo.LastOutputTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    var timeSinceLastInputSeconds = (MySession.Static.GameplayFrameCounter - gasInfo.LastInputTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+                    gasInfo.LastOutputTime = MySession.Static.GameplayFrameCounter;
+                    gasInfo.LastInputTime = MySession.Static.GameplayFrameCounter;
+
+                    float gasOutputAmount = CharacterGasSource.CurrentOutputByType(gasInfo.Id) * timeSinceLastOutputSeconds;
+                    float gasInputAmount = CharacterGasSink.CurrentInputByType(gasInfo.Id) * timeSinceLastInputSeconds;
+
+                    // Values that are not in distribution system yet and happend to inc/dec between updates
+                    float outTransfer = -MathHelper.Clamp(gasInfo.NextGasTransfer, float.NegativeInfinity, 0f); 
+                    float inTransfer = MathHelper.Clamp(gasInfo.NextGasTransfer, 0f, float.PositiveInfinity);
+                    gasInfo.NextGasTransfer = 0f;
+
+                    TransferSuitGas(ref gasInfo.Id, gasInputAmount + inTransfer, gasOutputAmount + outTransfer);
                 }
             }
 
@@ -225,29 +267,14 @@ namespace Sandbox.Game.Entities.Character.Components
                 {
                     if (Sync.IsServer && MySession.Static.SurvivalMode && !oxygenReplenished)
                     {
-                        if (!Definition.NeedsOxygen)
-                        {
-                            if (cockpit.OxygenAmount >= Definition.OxygenConsumption)
-                            {
-                                cockpit.OxygenAmount -= Definition.OxygenConsumption;
-
-                                noOxygenDamage = false;
-                                lowOxygenDamage = false;
-                            }
-                            else if (m_suitOxygenAmount >= Definition.OxygenConsumption)
-                            {
-                                m_suitOxygenAmount -= Definition.OxygenConsumption;
-                                noOxygenDamage = false;
-                                lowOxygenDamage = false;
-                            }
-                        }
-                        else if (Definition.NeedsOxygen)
+                        // Character is in pressurized room
+                        if (!EnabledHelmet)
                         {
                             if (cockpit.OxygenFillLevel > 0f)
                             {
-                                if (cockpit.OxygenAmount >= Definition.OxygenConsumption)
+                                if (cockpit.OxygenAmount >= Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier)
                                 {
-                                    cockpit.OxygenAmount -= Definition.OxygenConsumption;
+                                    cockpit.OxygenAmount -= Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier;
 
                                     noOxygenDamage = false;
                                     lowOxygenDamage = false;
@@ -261,6 +288,8 @@ namespace Sandbox.Game.Entities.Character.Components
                 else
                 {
                     Vector3D pos = Character.GetHeadMatrix(true, true, false, true).Translation;
+
+                    MyGamePruningStructure.GetTopMostEntitiesInBox(ref aabb, entities);
                     foreach (var entity in entities)
                     {
                         var grid = entity as MyCubeGrid;
@@ -272,7 +301,7 @@ namespace Sandbox.Game.Entities.Character.Components
                             {
                                 if (oxygenBlock.Room.OxygenLevel(grid.GridSize) > Definition.PressureLevelForLowDamage)
                                 {
-                                    if (Definition.NeedsOxygen)
+                                    if (!EnabledHelmet)
                                     {
                                         lowOxygenDamage = false;
                                     }
@@ -281,16 +310,16 @@ namespace Sandbox.Game.Entities.Character.Components
                                 if (oxygenBlock.Room.IsPressurized)
                                 {
                                     EnvironmentOxygenLevel = oxygenBlock.Room.OxygenLevel(grid.GridSize);
-                                    if (oxygenBlock.Room.OxygenAmount > Definition.OxygenConsumption)
+                                    if (oxygenBlock.Room.OxygenAmount > Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier)
                                     {
-                                        if (Definition.NeedsOxygen)
+                                        if (!EnabledHelmet)
                                         {
                                             noOxygenDamage = false;
-                                            oxygenBlock.PreviousOxygenAmount = oxygenBlock.OxygenAmount() - Definition.OxygenConsumption;
+                                            oxygenBlock.PreviousOxygenAmount = oxygenBlock.OxygenAmount() - Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier;
                                             oxygenBlock.OxygenChangeTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
                                             if (!oxygenReplenished)
-                                                oxygenBlock.Room.OxygenAmount -= Definition.OxygenConsumption;
+                                                oxygenBlock.Room.OxygenAmount -= Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier;
                                         }
                                         break;
                                     }
@@ -298,12 +327,9 @@ namespace Sandbox.Game.Entities.Character.Components
                                 else
                                 {
                                     EnvironmentOxygenLevel = oxygenBlock.Room.EnvironmentOxygen;
-                                    if (EnvironmentOxygenLevel > Definition.OxygenConsumption)
+                                    if (!EnabledHelmet && EnvironmentOxygenLevel > Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier)
                                     {
-                                        if (Definition.NeedsOxygen)
-                                        {
-                                            noOxygenDamage = false;
-                                        }
+                                        noOxygenDamage = false;
                                         break;
                                     }
                                 }
@@ -315,7 +341,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 }
 
 
-                if (MySession.LocalCharacter == Character)
+                if (MySession.Static.LocalCharacter == Character)
                 {
                     if (m_oldSuitOxygenLevel >= 0.25f && SuitOxygenLevel < 0.25f)
                     {
@@ -334,66 +360,18 @@ namespace Sandbox.Game.Entities.Character.Components
             if (!Sync.IsServer || MySession.Static.CreativeMode || !MySession.Static.Settings.EnableOxygen)
                 return;
 
-            //Try to refill the suit from bottles in inventory
-            if (SuitOxygenLevel < 0.3f && !Definition.NeedsOxygen)
-            {
-                var items = Character.Inventory.GetItems();
-                bool bottlesUsed = false;
-                foreach (var item in items)
-                {
-                    var oxygenContainer = item.Content as MyObjectBuilder_GasContainerObject;
-                    if (oxygenContainer != null)
-                    {
-						if (oxygenContainer.GasLevel == 0f)
-                            continue;
-
-                        var physicalItem = MyDefinitionManager.Static.GetPhysicalItemDefinition(oxygenContainer) as MyOxygenContainerDefinition;
-	                    if (physicalItem.StoredGasId != OxygenId)
-		                    continue;
-						float oxygenAmount = oxygenContainer.GasLevel * physicalItem.Capacity;
-
-                        float transferredAmount = Math.Min(oxygenAmount, SuitOxygenAmountMissing);
-						oxygenContainer.GasLevel = (oxygenAmount - transferredAmount) / physicalItem.Capacity;
-
-						if (oxygenContainer.GasLevel < 0f)
-                        {
-							oxygenContainer.GasLevel = 0f;
-                        }
-
-						if (oxygenContainer.GasLevel > 1f)
-                        {
-                            Debug.Fail("Incorrect value");
-                        }
-
-                        Character.Inventory.UpdateGasAmount();
-
-                        bottlesUsed = true;
-
-                        SuitOxygenAmount += transferredAmount;
-                        if (SuitOxygenLevel == 1f)
-                        {
-                            break;
-                        }
-                    }
-                }
-                if (bottlesUsed)
-                {
-                    if (MySession.LocalCharacter == Character)
-                    {
-                        ShowRefillFromBottleNotification();
-                    }
-                    else
-                    {
-                        Character.SyncObject.SendRefillFromBottle();
-                    }
-                }
-            }
-
             foreach (var gasInfo in m_storedGases)
             {
-                if (gasInfo.FillLevel < 0.3f) // Get rid of the specific oxygen version of this 
+                if (gasInfo.FillLevel < GAS_REFILL_RATION) // Get rid of the specific oxygen version of this 
                 {
-                    var items = Character.Inventory.GetItems();
+                    if (gasInfo.NextGasRefill == -1)
+                        gasInfo.NextGasRefill = MySandboxGame.TotalGamePlayTimeInMilliseconds + m_gasRefillInterval * 1000;
+                    if (MySandboxGame.TotalGamePlayTimeInMilliseconds < gasInfo.NextGasRefill)
+                        continue;
+
+                    gasInfo.NextGasRefill = -1;
+
+                    var items = Character.GetInventory().GetItems();
                     bool bottlesUsed = false;
                     foreach (var item in items)
                     {
@@ -406,71 +384,84 @@ namespace Sandbox.Game.Entities.Character.Components
                             var physicalItem = MyDefinitionManager.Static.GetPhysicalItemDefinition(gasContainer) as MyOxygenContainerDefinition;
                             if (physicalItem.StoredGasId != gasInfo.Id)
                                 continue;
-                            float gasAmount = gasContainer.GasLevel*physicalItem.Capacity;
+                            float gasAmount = gasContainer.GasLevel * physicalItem.Capacity;
 
-                            float transferredAmount = Math.Min(gasAmount, (1f - gasInfo.FillLevel)*gasInfo.MaxCapacity);
-                            gasContainer.GasLevel = Math.Max((gasAmount - transferredAmount)/physicalItem.Capacity, 0f);
+                            float transferredAmount = Math.Min(gasAmount, (1f - gasInfo.FillLevel) * gasInfo.MaxCapacity);
+                            gasContainer.GasLevel = Math.Max((gasAmount - transferredAmount) / physicalItem.Capacity, 0f);
 
                             if (gasContainer.GasLevel > 1f)
                                 Debug.Fail("Incorrect value");
 
-                            Character.Inventory.UpdateGasAmount();
+                            Character.GetInventory().UpdateGasAmount();
 
                             bottlesUsed = true;
 
-                            gasInfo.FillLevel = Math.Min(gasInfo.FillLevel + transferredAmount/gasInfo.MaxCapacity, 1f);
+                            TransferSuitGas(ref gasInfo.Id, transferredAmount, 0);
                             if (gasInfo.FillLevel == 1f)
                                 break;
                         }
                     }
                     if (bottlesUsed)
                     {
-                        if (MySession.LocalCharacter == Character)
-                            ShowRefillFromBottleNotification();
+                        if (MySession.Static.LocalCharacter == Character)
+                            ShowRefillFromBottleNotification(gasInfo.Id);
                         else
-                            Character.SyncObject.SendRefillFromBottle();
+                            Character.SyncObject.SendRefillFromBottle(gasInfo.Id);
+                    }
+
+                    var jetpack = Character.JetpackComp;
+                    if (jetpack != null && jetpack.TurnedOn && jetpack.FuelDefinition.Id == gasInfo.Id
+                        && gasInfo.FillLevel <= 0 && (MySession.Static.IsAdminModeEnabled == false || MySession.Static.LocalCharacter != Character))
+                    {
+                        jetpack.SwitchThrusts();
                     }
                 }
+                else
+                    gasInfo.NextGasRefill = -1;
             }
 
-            // No oxygen found in room, try to get it from suit
-            if (noOxygenDamage || lowOxygenDamage)
+            // No oxygen or low oxygen found in room, try to get it from suit
+            if (MySession.Static.Settings.EnableOxygen)
             {
-                if (!Definition.NeedsOxygen && m_suitOxygenAmount > Definition.OxygenConsumption)
+                if (noOxygenDamage || lowOxygenDamage)
                 {
-                    if (!oxygenReplenished)
-                        m_suitOxygenAmount -= Definition.OxygenConsumption;
-                    if (m_suitOxygenAmount < 0f)
-                    {
-                        m_suitOxygenAmount = 0f;
-                    }
-                    noOxygenDamage = false;
-                    lowOxygenDamage = false;
-                }
-
-                if (isInEnvironment)
-                {
-                    if (EnvironmentOxygenLevel > Definition.PressureLevelForLowDamage)
-                    {
-                        lowOxygenDamage = false;
-                    }
-                    if (EnvironmentOxygenLevel > 0f)
+                    if (EnabledHelmet && SuitOxygenAmount > Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier)
                     {
                         noOxygenDamage = false;
+                        lowOxygenDamage = false;
+                    }
+
+                    if (isInEnvironment && !EnabledHelmet)
+                    {
+                        if (EnvironmentOxygenLevel > Definition.PressureLevelForLowDamage)
+                        {
+                            lowOxygenDamage = false;
+                        }
+                        if (EnvironmentOxygenLevel > 0f)
+                        {
+                            noOxygenDamage = false;
+                        }
                     }
                 }
-            }
 
-            if (noOxygenDamage)
-            {
-                Character.DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.LowPressure, true);
-            }
-            else if (lowOxygenDamage)
-            {
-                Character.DoDamage(1f, MyDamageType.Asphyxia, true);
+                m_oldSuitOxygenLevel = SuitOxygenLevel;
+
+                if (noOxygenDamage)
+                {
+                    Character.DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.LowPressure, true);
+                }
+                else if (lowOxygenDamage)
+                {
+                    Character.DoDamage(1f, MyDamageType.Asphyxia, true);
+                } 
             }
 
             Character.SyncObject.UpdateOxygen(SuitOxygenAmount);
+
+            foreach(var gasInfo in m_storedGases)
+            {
+                Character.SyncObject.UpdateStoredGas(gasInfo.Id, gasInfo.FillLevel);
+            }
         }
 
         public void SwitchHelmet()
@@ -485,12 +476,15 @@ namespace Sandbox.Game.Entities.Character.Components
             {
                 bool variationExists = false;
                 var characters = MyDefinitionManager.Static.Characters;
-                foreach (var character in characters)
+                if (Definition.Name != Definition.HelmetVariation)
                 {
-                    if (character.Name == Definition.HelmetVariation)
+                    foreach (var character in characters)
                     {
-                        variationExists = true;
-                        break;
+                        if (character.Name == Definition.HelmetVariation)
+                        {
+                            variationExists = true;
+                            break;
+                        }
                     }
                 }
 
@@ -514,9 +508,12 @@ namespace Sandbox.Game.Entities.Character.Components
             MyHud.Notifications.Add(m_helmetToggleNotification);
         }
 
-        public void ShowRefillFromBottleNotification()
+        public void ShowRefillFromBottleNotification(MyDefinitionId gasType)
         {
-            MyHud.Notifications.Add(m_oxygenBottleRefillNotification);
+            if (gasType == OxygenId)
+                MyHud.Notifications.Add(m_oxygenBottleRefillNotification);
+            else
+                MyHud.Notifications.Add(m_gasBottleRefillNotification);
         }
 
         public bool ContainsGasStorage(MyDefinitionId gasId)
@@ -524,29 +521,43 @@ namespace Sandbox.Game.Entities.Character.Components
             return m_gasIdToIndex.ContainsKey(gasId);
         }
 
+        private bool TryGetGasData(MyDefinitionId gasId, out GasData data)
+        {
+            int index = -1;
+            data = null;
+
+            if (TryGetTypeIndex(ref gasId, out index))
+            {
+                data = m_storedGases[index];
+                return true;
+            }
+
+            return false;
+        }
+
         public float GetGasFillLevel(MyDefinitionId gasId)
         {
             int gasIndex = -1;
-            if (!m_gasIdToIndex.TryGetValue(gasId, out gasIndex))
+            if (!TryGetTypeIndex(ref gasId, out gasIndex))
                 return 0f;
 
             return m_storedGases[gasIndex].FillLevel;
         }
 
-        public void UpdateStoredGasLevel(MyDefinitionId gasId, float fillLevel)
+        public void UpdateStoredGasLevel(ref MyDefinitionId gasId, float fillLevel)
         {
             int gasIndex = -1;
-            if (!m_gasIdToIndex.TryGetValue(gasId, out gasIndex))
+            if (!TryGetTypeIndex(ref gasId, out gasIndex))
                 return;
 
             m_storedGases[gasIndex].FillLevel = fillLevel;
+            CharacterGasSource.SetRemainingCapacityByType(gasId, fillLevel * m_storedGases[gasIndex].MaxCapacity);
+            CharacterGasSource.SetProductionEnabledByType(gasId, fillLevel > 0);
         }
 
-        private void TransferSuitGas(MyDefinitionId gasId, float gasInput, float gasOutput)
+        private void TransferSuitGas(ref MyDefinitionId gasId, float gasInput, float gasOutput)
         {
-            int gasIndex = -1;
-            if (!m_gasIdToIndex.TryGetValue(gasId, out gasIndex))
-                return;
+            int gasIndex = GetTypeIndex(ref gasId);
 
             float gasTransfer = gasInput - gasOutput;
 
@@ -559,39 +570,75 @@ namespace Sandbox.Game.Entities.Character.Components
             var gasInfo = m_storedGases[gasIndex];
             gasInfo.FillLevel = MathHelper.Clamp(gasInfo.FillLevel + gasTransfer / gasInfo.MaxCapacity, 0f, 1f);
             CharacterGasSource.SetRemainingCapacityByType(gasInfo.Id, gasInfo.FillLevel * gasInfo.MaxCapacity);
-
-            if(gasOutput != 0f)
-                m_gasOutputTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            CharacterGasSource.SetProductionEnabledByType(gasInfo.Id, gasInfo.FillLevel > 0);
         }
 
         private void Source_CurrentOutputChanged(MyDefinitionId changedResourceId, float oldOutput, MyResourceSourceComponent source)
         {
-            float timeSinceLastOutputSeconds = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_gasOutputTime)/1000f;
+            int typeIndex;
+            if (!TryGetTypeIndex(ref changedResourceId, out typeIndex))
+                return;
+
+            float timeSinceLastOutputSeconds = (MySession.Static.GameplayFrameCounter - m_storedGases[typeIndex].LastOutputTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_storedGases[typeIndex].LastOutputTime = MySession.Static.GameplayFrameCounter;
             float outputAmount = oldOutput*timeSinceLastOutputSeconds;
-            TransferSuitGas(changedResourceId, 0f, outputAmount);
+
+            m_storedGases[typeIndex].NextGasTransfer -= outputAmount;
+        }
+
+        private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
+        {
+            int typeIndex;
+            if (!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
+                return;
+
+            float timeSinceLastInputSeconds = (MySession.Static.GameplayFrameCounter - m_storedGases[typeIndex].LastInputTime) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_storedGases[typeIndex].LastInputTime = MySession.Static.GameplayFrameCounter;
+            float inputAmount = oldInput * timeSinceLastInputSeconds;
+
+            m_storedGases[typeIndex].NextGasTransfer += inputAmount;
         }
 
         private void SetGasSink(MyResourceSinkComponent characterSinkComponent)
         {
+            foreach(var gasInfo in m_storedGases)
+            {
+                gasInfo.LastInputTime = MySession.Static.GameplayFrameCounter;
+                if (!Sync.IsServer)
+                    continue;
+
+                if( m_characterGasSink != null )
+                {
+                    m_characterGasSink.CurrentInputChanged -= Sink_CurrentInputChanged;
+                }
+
+                if(characterSinkComponent != null)
+                {
+                    characterSinkComponent.CurrentInputChanged += Sink_CurrentInputChanged;
+                }
+            }
             m_characterGasSink = characterSinkComponent;
         }
 
         private void SetGasSource(MyResourceSourceComponent characterSourceComponent)
         {
-            m_gasOutputTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             foreach (var gasInfo in m_storedGases)
             {
+                gasInfo.LastOutputTime = MySession.Static.GameplayFrameCounter;
                 if (m_characterGasSource != null)
                 {
                     m_characterGasSource.SetRemainingCapacityByType(gasInfo.Id, 0);
-                    m_characterGasSource.OutputChanged -= Source_CurrentOutputChanged;
+
+                    if(Sync.IsServer)
+                        m_characterGasSource.OutputChanged -= Source_CurrentOutputChanged;
                 }
 
                 if (characterSourceComponent != null)
                 {
                     characterSourceComponent.SetRemainingCapacityByType(gasInfo.Id, gasInfo.FillLevel*gasInfo.MaxCapacity);
                     characterSourceComponent.SetProductionEnabledByType(gasInfo.Id, gasInfo.FillLevel > 0);
-                    characterSourceComponent.OutputChanged += Source_CurrentOutputChanged;
+                    if(Sync.IsServer)
+                        characterSourceComponent.OutputChanged += Source_CurrentOutputChanged;
                 }
             }
             m_characterGasSource = characterSourceComponent;
@@ -602,12 +649,12 @@ namespace Sandbox.Game.Entities.Character.Components
             Debug.Assert(sinkData != null, "AppendSinkData called with null list!");
             for(int gasIndex = 0; gasIndex < m_storedGases.Length; ++gasIndex)
             {
-                int tmpIndex = gasIndex;
+                int captureIndex = gasIndex;
                 sinkData.Add(new MyResourceSinkInfo
                 {
                     ResourceTypeId = m_storedGases[gasIndex].Id,
                     MaxRequiredInput = m_storedGases[gasIndex].Throughput,
-                    RequiredInputFunc = () => Math.Min((1 - m_storedGases[tmpIndex].FillLevel) * m_storedGases[tmpIndex].MaxCapacity, m_storedGases[tmpIndex].Throughput),
+                    RequiredInputFunc = () => Sink_ComputeRequiredGas(m_storedGases[captureIndex]),
                 });
             }
         }
@@ -625,6 +672,25 @@ namespace Sandbox.Game.Entities.Character.Components
                     IsInfiniteCapacity = false,
                 });
             }
+        }
+
+        private float Sink_ComputeRequiredGas(GasData gas)
+        {
+            float inputToFillInUpdateInterval = ((1 - gas.FillLevel) * gas.MaxCapacity + (gas.Id == OxygenId ? Definition.OxygenConsumption * Definition.OxygenConsumptionMultiplier : 0f)) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND * m_updateInterval;
+            return Math.Min(inputToFillInUpdateInterval, gas.Throughput);
+        }
+
+        private int GetTypeIndex(ref MyDefinitionId gasId)
+        {
+            int typeIndex = 0;
+            if (m_gasIdToIndex.Count > 1)
+                typeIndex = m_gasIdToIndex[gasId];
+            return typeIndex;
+        }
+
+        private bool TryGetTypeIndex(ref MyDefinitionId gasId, out int typeIndex)
+        {
+            return m_gasIdToIndex.TryGetValue(gasId, out typeIndex);
         }
     }
 }

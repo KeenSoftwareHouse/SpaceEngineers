@@ -23,23 +23,29 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRageRender;
-using VRage.Components;
+using VRage.Game.Components;
+using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using Sandbox.Engine.Utils;
+using VRage.Game.Entity;
+using VRage.Game;
+using VRage.ModAPI.Ingame;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
-    class MyGasTank : MyFunctionalBlock, IMyInventoryOwner, IMyGasBlock, IMyOxygenTank
+    class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.ModAPI.Ingame.IMyInventoryOwner
     {
         private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
         
         private Color m_prevColor = Color.White;
         private int m_prevFillCount = -1;
-	    private MyInventory m_inventory;
         private bool m_autoRefill;
-	    private int m_updateCounter = 0;
 	    private int m_lastOutputUpdateTime;
 	    private int m_lastInputUpdateTime;
 	    private float m_nextGasTransfer = 0f;
+        private const float m_maxFillPerSecond = 0.05f;
+        private const int m_updateInterval = 100;
 
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
         public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
@@ -62,8 +68,8 @@ namespace Sandbox.Game.Entities.Blocks
 
 		private float GasOutputPerSecond { get { return (SourceComp.ProductionEnabledByType(BlockDefinition.StoredGasId) ? SourceComp.CurrentOutputByType(BlockDefinition.StoredGasId) : 0f); } }
 		private float GasInputPerSecond { get { return ResourceSink.CurrentInputByType(BlockDefinition.StoredGasId); } }
-		private float GasOutputPerUpdate { get { return GasOutputPerSecond*MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
-		private float GasInputPerUpdate { get { return GasInputPerSecond*MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
+		private float GasOutputPerUpdate { get { return GasOutputPerSecond * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
+		private float GasInputPerUpdate { get { return GasInputPerSecond * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
 
         public float Capacity { get { return BlockDefinition.Capacity; } }
         public float FilledRatio { get; private set; }
@@ -78,7 +84,7 @@ namespace Sandbox.Game.Entities.Blocks
 	        var isStockpiling = new MyTerminalControlOnOffSwitch<MyGasTank>("Stockpile", MySpaceTexts.BlockPropertyTitle_Stockpile, MySpaceTexts.BlockPropertyDescription_Stockpile)
 	        {
 		        Getter = (x) => x.IsStockpiling,
-		        Setter = (x, v) => x.SyncObject.ChangeStockpileMode(v)
+		        Setter = (x, v) => x.ChangeStockpileMode(v)
 	        };
 	        isStockpiling.EnableToggleAction();
             isStockpiling.EnableOnOffActions();
@@ -94,7 +100,7 @@ namespace Sandbox.Game.Entities.Blocks
 	        var autoRefill = new MyTerminalControlCheckbox<MyGasTank>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill)
 	        {
 		        Getter = (x) => x.m_autoRefill,
-		        Setter = (x, v) => x.SyncObject.ChangeAutoRefill(v)
+		        Setter = (x, v) => x.ChangeAutoRefill(v)
 	        };
 	        autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
@@ -118,18 +124,30 @@ namespace Sandbox.Game.Entities.Blocks
 
 			InitializeConveyorEndpoint();
 
-			NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-			m_inventory = new MyInventory(
-				BlockDefinition.InventoryMaxVolume,
-					BlockDefinition.InventorySize,
-					MyInventoryFlags.CanReceive,
-					this)
-			{
-				Constraint = BlockDefinition.InputInventoryConstraint
-			};
-			m_inventory.Init(builder.Inventory);
-			m_inventory.ContentsChanged += m_inventory_ContentsChanged;
+			NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
+            if (MyFakes.ENABLE_INVENTORY_FIX)
+            {
+                FixSingleInventory();
+
+                if (this.GetInventory() != null)
+                    this.GetInventory().Constraint = BlockDefinition.InputInventoryConstraint;
+            }
+
+            if (this.GetInventory() == null)
+            {
+                Components.Add<MyInventoryBase>( new MyInventory(
+                    BlockDefinition.InventoryMaxVolume,
+                        BlockDefinition.InventorySize,
+                        MyInventoryFlags.CanReceive,
+                        this)
+                {
+                    Constraint = BlockDefinition.InputInventoryConstraint
+                });
+                this.GetInventory().Init(builder.Inventory);
+            }
+            Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
+            
 			m_autoRefill = builder.AutoRefill;
 
 			var sourceDataList = new List<MyResourceSourceInfo>
@@ -138,6 +156,8 @@ namespace Sandbox.Game.Entities.Blocks
 			};
 			SourceComp.Init(BlockDefinition.ResourceSourceGroup, sourceDataList);
 			SourceComp.OutputChanged += Source_OutputChanged;
+
+            SourceComp.Enabled = Enabled;
 
 			var sinkDataList = new List<MyResourceSinkInfo>
 	        {
@@ -151,8 +171,8 @@ namespace Sandbox.Game.Entities.Blocks
 			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
 			ResourceSink.CurrentInputChanged += Sink_CurrentInputChanged;
 
-			m_lastOutputUpdateTime = m_updateCounter;
-			m_lastInputUpdateTime = m_updateCounter;
+            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
+            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
 			m_nextGasTransfer = 0f;
 
 			ChangeFilledRatio(builder.FilledRatio);
@@ -171,14 +191,14 @@ namespace Sandbox.Game.Entities.Blocks
 			builder.IsStockpiling = IsStockpiling;
 			builder.FilledRatio = FilledRatio;
 			builder.AutoRefill = m_autoRefill;
-			builder.Inventory = m_inventory.GetObjectBuilder();
+			builder.Inventory = this.GetInventory().GetObjectBuilder();
 
 			return builder;
 		}
 
         public void RefillBottles()
         {
-            var items = m_inventory.GetItems();
+            var items = this.GetInventory().GetItems();
             bool changed = false;
             float newFilledRatio = FilledRatio;
             foreach (var item in items)
@@ -201,7 +221,7 @@ namespace Sandbox.Game.Entities.Blocks
                         
 	            newFilledRatio = Math.Max(FilledRatio - transferredAmount / Capacity, 0f);
 
-				m_inventory.UpdateGasAmount();
+				this.GetInventory().UpdateGasAmount();
 	            changed = true;
             }
 
@@ -212,7 +232,7 @@ namespace Sandbox.Game.Entities.Blocks
         private static void OnRefillButtonPressed(MyGasTank tank)
         {
             if (tank.IsWorking)
-                tank.SyncObject.SendRefillRequest();
+                tank.SendRefillRequest();
         }
 
         private bool CanRefill()
@@ -220,7 +240,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (!CanStore || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) || FilledRatio == 0)
                 return false;
 
-            var items = m_inventory.GetItems();
+            var items = this.GetInventory().GetItems();
             foreach (var item in items)
             {
                 var gasContainer = item.Content as MyObjectBuilder_GasContainerObject;
@@ -234,53 +254,42 @@ namespace Sandbox.Game.Entities.Blocks
             return false;
         }
 
-        public override void UpdateAfterSimulation()
-        {
-            base.UpdateAfterSimulation();
-
-            ++m_updateCounter;
-
-			int sourceUpdateFrames = (m_updateCounter - m_lastOutputUpdateTime);
-			int sinkUpdateFrames = (m_updateCounter - m_lastInputUpdateTime);
-
-			float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
-			float gasInput = GasInputPerUpdate * sinkUpdateFrames;
-
-	        float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
-	        if (CheckTransfer(totalTransfer))
-	        {
-		        Transfer(totalTransfer);
-				m_updateCounter = 0;
-				m_lastOutputUpdateTime = m_updateCounter;
-				m_lastInputUpdateTime = m_updateCounter;
-	        }
-        }
-
         public override void UpdateAfterSimulation100()
         {
             base.UpdateAfterSimulation100();
 
-	        if (!Sync.IsServer || !IsWorking)
+	        if (!Sync.IsServer)
 				return;
 
-	        if (FilledRatio > 0f && UseConveyorSystem && m_inventory.VolumeFillFactor < 0.6f)
-		        MyGridConveyorSystem.PullAllRequest(this, m_inventory, OwnerId, m_inventory.Constraint);
+            if(!IsWorking)
+            {
+                if(m_nextGasTransfer != 0f)
+                    ExecuteGasTransfer();
+                return;
+            }
+
+	        if (FilledRatio > 0f && UseConveyorSystem && this.GetInventory().VolumeFillFactor < 0.6f)
+		        MyGridConveyorSystem.PullAllRequest(this, this.GetInventory(), OwnerId, this.GetInventory().Constraint);
 
 	        if (m_autoRefill && CanRefill())
 		        RefillBottles();
 
-			int sinkUpdateFrames = (m_updateCounter - m_lastInputUpdateTime);
-			int sourceUpdateFrames = (m_updateCounter - m_lastOutputUpdateTime);
+            ExecuteGasTransfer();
+        }
 
-			float gasInput = GasInputPerUpdate * sinkUpdateFrames;
-			float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
-	        float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
-			Transfer(totalTransfer);
+        private void ExecuteGasTransfer()
+        {
+            int sinkUpdateFrames = (MySession.Static.GameplayFrameCounter - m_lastInputUpdateTime);
+            int sourceUpdateFrames = (MySession.Static.GameplayFrameCounter - m_lastOutputUpdateTime);
+            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
+            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
 
-			m_updateCounter = 0;
-			m_lastOutputUpdateTime = m_updateCounter;
-			m_lastInputUpdateTime = m_updateCounter;
-			ResourceSink.Update();
+            float gasInput = GasInputPerUpdate * sinkUpdateFrames;
+            float gasOutput = GasOutputPerUpdate * sourceUpdateFrames;
+            float totalTransfer = gasInput - gasOutput + m_nextGasTransfer;
+            Transfer(totalTransfer);
+
+            ResourceSink.Update();
         }
 
         protected override bool CheckIsWorking()
@@ -302,8 +311,9 @@ namespace Sandbox.Game.Entities.Blocks
 	        if (!CanStore)
 	            return 0f;
 
-	        float neededRatioToFillInUpdate = (1 - FilledRatio)*MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-            return Math.Min(neededRatioToFillInUpdate, 0.05f) * Capacity;
+	        float neededRatioToFillInUpdateInterval = (1 - FilledRatio)*MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_updateInterval * SourceComp.ProductionToCapacityMultiplierByType(BlockDefinition.StoredGasId);
+            float currentOutput = SourceComp.CurrentOutputByType(BlockDefinition.StoredGasId);
+            return Math.Min(neededRatioToFillInUpdateInterval * Capacity + currentOutput, m_maxFillPerSecond * Capacity);
 	    }
 
         void m_inventory_ContentsChanged(MyInventoryBase obj)
@@ -329,13 +339,24 @@ namespace Sandbox.Game.Entities.Blocks
         {
             SourceComp.Enabled = CanStore;
             ResourceSink.Update();
-			ChangeFilledRatio(0f, Sync.IsServer);
+            FilledRatio = 0;
+
+            if (MySession.Static.CreativeMode)
+                SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, Capacity);
+            else
+                SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, FilledRatio * Capacity);
+    
+            // ResourceDistributor could be null if the grid is falling apart for whatever reason (collisions, explosions, etc)
+            if (CubeGrid != null && CubeGrid.GridSystems != null && CubeGrid.GridSystems.ResourceDistributor != null)
+                CubeGrid.GridSystems.ResourceDistributor.ConveyorSystem_OnPoweredChanged(); // Hotfix TODO
+
+            UdpateText();
         }
 
         void MyOxygenTank_IsWorkingChanged(MyCubeBlock obj)
         {
-			SourceComp.Enabled = CanStore;
-            ResourceSink.Update();
+            SourceComp.Enabled = CanStore;
+
             UpdateEmissivity();
         }
 
@@ -352,10 +373,10 @@ namespace Sandbox.Game.Entities.Blocks
 			if (changedResourceId != BlockDefinition.StoredGasId)
 				return;
 
-			float timeSinceLastUpdateSeconds = (m_updateCounter - m_lastOutputUpdateTime) / MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - m_lastOutputUpdateTime) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
 			float outputAmount = oldOutput*timeSinceLastUpdateSeconds;
 			m_nextGasTransfer -= outputAmount;
-			m_lastOutputUpdateTime = m_updateCounter;
 		}
 
 		private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
@@ -363,21 +384,10 @@ namespace Sandbox.Game.Entities.Blocks
 			if (resourceTypeId != BlockDefinition.StoredGasId)
 				return;
 
-			float timeSinceLastUpdateSeconds = (m_updateCounter - m_lastInputUpdateTime) / MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - m_lastInputUpdateTime) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+            m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
 			float inputAmount = oldInput*timeSinceLastUpdateSeconds;
 			m_nextGasTransfer += inputAmount;
-			m_lastInputUpdateTime = m_updateCounter;
-	    }
-
-	    private bool CheckTransfer(float testTransfer)
-	    {
-			if(testTransfer == 0f)
-				return false;
-
-		    float remainingCapacity = SourceComp.RemainingCapacityByType(BlockDefinition.StoredGasId);
-			float nextCapacity = remainingCapacity + testTransfer;
-			float gasTransferPerUpdate = GasInputPerUpdate - GasOutputPerUpdate;
-			return (nextCapacity + gasTransferPerUpdate * 10 <= 0f || nextCapacity + gasTransferPerUpdate * 10 >= Capacity);
 	    }
 
         public override void UpdateVisual()
@@ -398,7 +408,7 @@ namespace Sandbox.Game.Entities.Blocks
         private void UdpateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
@@ -425,7 +435,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 	        for (int nameIndex = 0; nameIndex < m_emissiveNames.Length; ++nameIndex)
 	        {
-		        MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[nameIndex], nameIndex < fillCount ? color : Color.Black, 0);
+		        MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[nameIndex], nameIndex < fillCount ? color : Color.Black, 1);
 	        }
 	        m_prevColor = color;
 	        m_prevFillCount = fillCount;
@@ -439,35 +449,51 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         #region Inventory
-        public int InventoryCount { get { return 1; } }
-        public MyInventory GetInventory(int index)
-        {
-            return m_inventory;
-        }
 
-        Sandbox.ModAPI.Interfaces.IMyInventory Sandbox.ModAPI.Interfaces.IMyInventoryOwner.GetInventory(int index)
-        {
-            return GetInventory(index);
-        }
-
-        public MyInventoryOwnerTypeEnum InventoryOwnerType { get { return MyInventoryOwnerTypeEnum.System; } }
         public bool UseConveyorSystem { get; set; }
 
 	    public override void OnRemovedByCubeBuilder()
         {
-            ReleaseInventory(m_inventory);
+            ReleaseInventory(this.GetInventory());
             base.OnRemovedByCubeBuilder();
         }
 
         public override void OnDestroy()
         {
-            ReleaseInventory(m_inventory, true);
+            ReleaseInventory(this.GetInventory(), true);
             base.OnDestroy();
         }
 
         public void SetInventory(Sandbox.Game.MyInventory inventory, int index)
         {
             throw new NotImplementedException("TODO Dusan inventory sync");
+        }
+
+        protected override void OnInventoryComponentAdded(MyInventoryBase inventory)
+        {
+            base.OnInventoryComponentAdded(inventory);
+            Debug.Assert(this.GetInventory() != null, "Added inventory to collector, but different type than MyInventory?! Check this.");
+            if (this.GetInventory() != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    this.GetInventory().ContentsChanged += m_inventory_ContentsChanged;
+                }
+            }
+        }
+
+        protected override void OnInventoryComponentRemoved(MyInventoryBase inventory)
+        {
+            base.OnInventoryComponentRemoved(inventory);
+            var removedInventory = inventory as MyInventory;
+            Debug.Assert(removedInventory != null, "Removed inventory is not MyInventory type? Check this.");
+            if (removedInventory != null)
+            {
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    removedInventory.ContentsChanged -= m_inventory_ContentsChanged;
+                }
+            }
         }
 
         #endregion
@@ -513,12 +539,21 @@ namespace Sandbox.Game.Entities.Blocks
 	        m_nextGasTransfer = 0f;
             float oldFilledRatio = FilledRatio;
 
-			if (oldFilledRatio != newFilledRatio)
+			if (oldFilledRatio != newFilledRatio || MySession.Static.CreativeMode)
 			{
-				if(updateSync)
-					SyncObject.ChangeFillRatioAmount(newFilledRatio);
-				FilledRatio = newFilledRatio;
-				SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, FilledRatio*Capacity);
+                if (!MySession.Static.CreativeMode || newFilledRatio > oldFilledRatio)
+                {
+                    if (updateSync)
+                        this.ChangeFillRatioAmount(newFilledRatio);
+
+                    FilledRatio = newFilledRatio;
+                }
+
+                if (MySession.Static.CreativeMode)
+                    SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, Capacity);
+                else
+                    SourceComp.SetRemainingCapacityByType(BlockDefinition.StoredGasId, FilledRatio * Capacity);
+
 				ResourceSink.Update();
 				UpdateEmissivity();
 				UdpateText();
@@ -531,136 +566,88 @@ namespace Sandbox.Game.Entities.Blocks
             return FilledRatio;
         }
 
-        #region Sync
-        protected override MySyncEntity OnCreateSync()
+        #region Multiplayer events
+
+        public void ChangeStockpileMode(bool newStockpileMode)
         {
-            return new MySyncOxygenTank(this);
+            MyMultiplayer.RaiseEvent(this, x => x.OnStockipleModeCallback, newStockpileMode);
         }
 
-        internal new MySyncOxygenTank SyncObject { get { return (MySyncOxygenTank)base.SyncObject; } }
-
-        [PreloadRequired]
-        internal class MySyncOxygenTank : MySyncEntity
+        [Event, Reliable, Server, Broadcast]
+        private void OnStockipleModeCallback(bool newStockpileMode)
         {
-            [MessageIdAttribute(7700, P2PMessageEnum.Reliable)]
-            protected struct ChangeStockpileModeMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
+            this.IsStockpiling = newStockpileMode;
+        }
 
-                public BoolBlit IsStockpiling;
+        public void ChangeAutoRefill(bool newAutoRefill)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnAutoRefillCallback, newAutoRefill);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnAutoRefillCallback(bool newAutoRefill)
+        {
+            this.m_autoRefill = newAutoRefill;
+        }
+
+        public void ChangeFillRatioAmount(float newFilledRatio)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnFilledRatioCallback, newFilledRatio);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnFilledRatioCallback(float newFilledRatio)
+        {
+            this.ChangeFilledRatio(newFilledRatio);
+        }
+
+        public void SendRefillRequest()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRefillCallback);
+        }
+
+        [Event, Reliable, Server]
+        private void OnRefillCallback()
+        {
+            this.RefillBottles();
+        }
+
+        #endregion
+
+        #region IMyInventoryOwner implementation
+
+        int IMyInventoryOwner.InventoryCount
+        {
+            get { return InventoryCount; }
+        }
+
+        long IMyInventoryOwner.EntityId
+        {
+            get { return EntityId; }
+        }
+
+        bool IMyInventoryOwner.HasInventory
+        {
+            get { return HasInventory; }
+        }
+
+        bool IMyInventoryOwner.UseConveyorSystem
+        {
+            get
+            {
+                return UseConveyorSystem;
             }
-
-            [MessageIdAttribute(7701, P2PMessageEnum.Unreliable)]
-            protected struct FilledRatioMsg : IEntityMessage
+            set
             {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public float FilledRatio;
-            }
-            [MessageIdAttribute(7702, P2PMessageEnum.Reliable)]
-            protected struct ChangeAutoRefillMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit AutoRefill;
-            }
-
-            [MessageIdAttribute(7703, P2PMessageEnum.Reliable)]
-            protected struct RefillRequestMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            private readonly MyGasTank m_tank;
-
-            static MySyncOxygenTank()
-            {
-                //MySyncLayer.RegisterEntityMessage<MySyncOxygenTank, ChangeStockpileModeMsg>(OnStockipleModeChanged, MyMessagePermissions.Any);
-                //MySyncLayer.RegisterEntityMessage<MySyncOxygenTank, ChangeAutoRefillMsg>(OnAutoRefillChanged, MyMessagePermissions.Any);
-                MySyncLayer.RegisterEntityMessage<MySyncOxygenTank, FilledRatioMsg>(OnFilledRatioChanged, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncOxygenTank, RefillRequestMsg>(OnRefillRequest, MyMessagePermissions.ToServer);
-            }
-
-            public MySyncOxygenTank(MyGasTank tank)
-                : base(tank)
-            {
-                m_tank = tank;
-            }
-
-            public void ChangeStockpileMode(bool newStockpileMode)
-            {
-                var msg = new ChangeStockpileModeMsg();
-                msg.EntityId = m_tank.EntityId;
-                msg.IsStockpiling = newStockpileMode;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            public void ChangeFillRatioAmount(float newFilledRatio)
-            {
-                var msg = new FilledRatioMsg();
-                msg.EntityId = m_tank.EntityId;
-                msg.FilledRatio = newFilledRatio;
-
-                Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-            public void ChangeAutoRefill(bool newAutoRefill)
-            {
-                var msg = new ChangeAutoRefillMsg();
-                msg.EntityId = m_tank.EntityId;
-                msg.AutoRefill = newAutoRefill;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            public void SendRefillRequest()
-            {
-                if (Sync.IsServer)
-                {
-                    m_tank.RefillBottles();
-                }
-                else
-                {
-                    var msg = new RefillRequestMsg();
-                    msg.EntityId = m_tank.EntityId;
-
-                    Sync.Layer.SendMessageToServer(ref msg);
-                }
-            }
-
-            private static void OnStockipleModeChanged(MySyncOxygenTank syncObject, ref ChangeStockpileModeMsg message, World.MyNetworkClient sender)
-            {
-                syncObject.m_tank.IsStockpiling = message.IsStockpiling;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref message, sender.SteamUserId);
-                }
-            }
-
-            private static void OnFilledRatioChanged(MySyncOxygenTank syncObject, ref FilledRatioMsg message, World.MyNetworkClient sender)
-            {
-                syncObject.m_tank.ChangeFilledRatio(message.FilledRatio);
-            }
-
-            private static void OnAutoRefillChanged(MySyncOxygenTank syncObject, ref ChangeAutoRefillMsg message, World.MyNetworkClient sender)
-            {
-                syncObject.m_tank.m_autoRefill = message.AutoRefill;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref message, sender.SteamUserId);
-                }
-            }
-
-            private static void OnRefillRequest(MySyncOxygenTank syncObject, ref RefillRequestMsg message, MyNetworkClient sender)
-            {
-                syncObject.m_tank.RefillBottles();
+                UseConveyorSystem = value;
             }
         }
+
+        IMyInventory IMyInventoryOwner.GetInventory(int index)
+        {
+            return this.GetInventory(index);
+        }
+
         #endregion
     }
 }

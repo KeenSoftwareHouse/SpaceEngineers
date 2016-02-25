@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.ObjectBuilders.ComponentSystem

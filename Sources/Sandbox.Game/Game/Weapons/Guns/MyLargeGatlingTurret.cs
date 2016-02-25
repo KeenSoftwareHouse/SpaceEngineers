@@ -12,6 +12,7 @@ using Sandbox.Graphics;
 using VRage.Utils;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {
@@ -25,8 +26,6 @@ namespace Sandbox.Game.Weapons
             base.Init(objectBuilder, cubeGrid);
 
             if (!MyFakes.ENABLE_GATLING_TURRETS)
-                return;
-            if (MyFakes.OCTOBER_RELEASE_DISABLE_WEAPONS_AND_TOOLS)
                 return;
 
             // User settings:
@@ -46,8 +45,8 @@ namespace Sandbox.Game.Weapons
         {
             if (action != MyShootActionEnum.PrimaryAction)
                 return;
-    
-            m_gunBase.Shoot(Vector3.Zero);
+
+            m_gunBase.Shoot(Parent.Physics.LinearVelocity);
         }
 
         public override void OnModelChange()
@@ -74,7 +73,7 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateAfterSimulation()
         {
-            if (!MyFakes.ENABLE_GATLING_TURRETS || MyFakes.OCTOBER_RELEASE_DISABLE_WEAPONS_AND_TOOLS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
+            if (!MyFakes.ENABLE_GATLING_TURRETS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
             {
                 RotateModels();
                 return;

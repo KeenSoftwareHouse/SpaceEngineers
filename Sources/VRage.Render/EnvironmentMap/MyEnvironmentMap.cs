@@ -51,34 +51,6 @@ namespace VRageRender
         /// </summary>
         public static float Hysteresis = 4;
 
-        public static float NearDistance
-        {
-            get
-            {
-                return m_environmentMapRendererMain.NearDistance;
-            }
-            set
-            {
-                m_environmentMapRendererMain.NearDistance = value;
-                m_environmentMapRendererAux.NearDistance = value;
-                Reset();
-            }
-        }
-
-        public static float FarDistance
-        {
-            get
-            {
-                return m_environmentMapRendererMain.FarDistance;
-            }
-            set
-            {
-                if (value < NearDistance) value = NearDistance;
-                m_environmentMapRendererMain.FarDistance = value;
-                m_environmentMapRendererAux.FarDistance = value;
-                Reset();
-            }
-        }
 
         public static Vector3D? MainMapPosition { get; private set; }
         public static CubeTexture EnvironmentMainMap

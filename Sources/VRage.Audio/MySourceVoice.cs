@@ -8,6 +8,14 @@ using VRage.Utils;
 
 namespace VRage.Audio
 {
+    public static class VoiceExtensions
+    {
+        public static bool IsValid(this SourceVoice self)
+        {
+            return !self.IsDisposed && self.NativePointer != IntPtr.Zero;
+        }
+    }
+
     class MySourceVoice : IMySourceVoice
     {
         public Action StoppedPlaying { get; set; }
@@ -17,34 +25,36 @@ namespace VRage.Audio
         MyInMemoryWave[] m_loopBuffers = new MyInMemoryWave[3];
         float m_frequencyRatio = 1f;
         VoiceSendDescriptor[] m_currentDescriptor;
-        Queue<DataStream> m_dataStreams = new Queue<DataStream>();
+        Queue<DataStream> m_dataStreams;// = new Queue<DataStream>();
 
         bool m_isPlaying;
         bool m_isPaused;
         bool m_isLoopable;
+        static private readonly object theLock = new Object();
         private bool m_valid;
         private bool m_buffered;
 
-        public SourceVoice Voice { get { return m_voice; }}
+        public SourceVoice Voice { get { return m_voice; } }
         public MyCueId CueEnum { get { return m_cueId; } }
         public bool IsPlaying { get { return m_isPlaying; } }
         public bool IsPaused { get { return m_isPaused; } }
         public bool IsLoopable { get { return m_isLoopable; } }
-        public bool IsValid { get { return m_valid && m_voice != null && !m_voice.IsDisposed; } }
+        public bool IsValid { get { return m_valid && m_voice != null && m_voice.IsValid(); } }
         public MySourceVoicePool Owner { get { return m_owner; } }
         public float FrequencyRatio
         {
             get { return m_frequencyRatio; }
             set { m_frequencyRatio = value; }
         }
-        public float Volume { get { return Voice != null ? Voice.Volume : 0; } }
+        public float Volume { get { return IsValid ? Voice.Volume : 0; } }
         public bool IsBuffered { get { return m_buffered; } }
 
         public MySourceVoice(XAudio2 device, WaveFormat sourceFormat)
         {
             m_voice = new SourceVoice(device, sourceFormat, true);
-            m_voice.BufferEnd += OnStopPlaying;
+            m_voice.BufferEnd += OnStopPlayingBuffered;
             m_valid = true;
+            m_dataStreams = new Queue<DataStream>();
 
             Flush();
         }
@@ -107,7 +117,7 @@ namespace VRage.Audio
             if (!skipIntro)
                 SubmitSourceBuffer(m_loopBuffers[(int)MyCueBank.CuePart.Start]);
             else
-                Debug.Assert(m_isLoopable, "Only loops should skip intro");
+                Debug.Assert(m_isLoopable, "Only loops should skip intro. Make sure cue has <Loop> defined in sbc");
 
             if (m_isLoopable)
             {
@@ -140,6 +150,7 @@ namespace VRage.Audio
 
         public void SubmitBuffer(byte[] buffer, int size)
         {
+            Debug.Assert(m_dataStreams != null, "SourceVoice wasnt created with buffer support");
             var dataStream = DataStream.Create(buffer, true, false);
             AudioBuffer buff = new AudioBuffer(dataStream);
             buff.Flags = BufferFlags.None;
@@ -148,13 +159,19 @@ namespace VRage.Audio
             m_voice.SubmitSourceBuffer(buff, null);
         }
 
-        private void OnStopPlaying(IntPtr context)
+        private void OnStopPlayingBuffered(IntPtr context)
         {
+            Debug.Assert(m_dataStreams != null, "SourceVoice wasnt created with buffer support");
             if (m_dataStreams.Count > 0)
             {
                 var dataStream = m_dataStreams.Dequeue();
                 dataStream.Dispose();
             }
+            OnStopPlaying(context);
+        }
+
+        private void OnStopPlaying(IntPtr context)
+        {
             if (m_voice.State.BuffersQueued == 0)
             {
                 m_buffered = false;
@@ -220,18 +237,54 @@ namespace VRage.Audio
             return string.Format(m_cueId.ToString());
         }
 
+        public void Dispose()
+        {
+            if (m_voice == null)
+                return;
+            m_voice.DestroyVoice();
+            m_voice.Dispose();
+            m_voice = null;
+        }
+
         internal void DestroyVoice()
         {
-            m_voice.DestroyVoice();
-            m_voice = null;
+            m_valid = false;
+            m_currentDescriptor = null;
+            StoppedPlaying = null;
+            m_owner = null;
+            m_loopBuffers = null;
+
+            if (m_voice == null && m_dataStreams==null)
+                return;
+
+            lock (theLock)
+            {
+                if (m_voice != null && !m_voice.IsDisposed)
+                {
+                    if (m_voice.NativePointer != IntPtr.Zero)
+                    {
+                        if(IsValid)
+                            m_voice.Stop();
+                    }
+                    if (m_dataStreams != null)
+                        m_voice.BufferEnd -= OnStopPlayingBuffered;
+                    else
+                        m_voice.BufferEnd -= OnStopPlaying;
+                }
+
+                if (m_dataStreams != null)
+                {
+                    foreach (var dataStream in m_dataStreams)
+                        dataStream.Dispose();
+                    m_dataStreams.Clear();
+                }
+                m_dataStreams = null;
+            }
         }
 
         public void Cleanup()
         {
             DestroyVoice();
-            foreach (var dataStream in m_dataStreams)
-                dataStream.Dispose();
-            m_dataStreams.Clear();
         }
     }
 }

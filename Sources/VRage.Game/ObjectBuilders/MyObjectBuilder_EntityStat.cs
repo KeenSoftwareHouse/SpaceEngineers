@@ -1,9 +1,4 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 
@@ -18,6 +13,12 @@ namespace VRage.Game.ObjectBuilders
 
 		[ProtoMember]
 		public float MaxValue = 1.0f;
+
+        [ProtoMember]
+        public float StatRegenAmountMultiplier = 1.0f;
+
+        [ProtoMember]
+        public float StatRegenAmountMultiplierDuration = 0.0f;
 
 		[ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]

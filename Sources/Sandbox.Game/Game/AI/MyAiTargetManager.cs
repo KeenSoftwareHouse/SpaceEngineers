@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -21,7 +23,6 @@ namespace Sandbox.Game.AI
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class MyAiTargetManager : MySessionComponentBase
     {
-
 		#region Sync Messages
 		[MessageId(4657, P2PMessageEnum.Reliable)]
 		struct ReserveEntityMsg
@@ -497,7 +498,8 @@ namespace Sandbox.Game.AI
         {
             Static = this;
 
-			if (Sync.IsServer)
+            //This is otherwise crashing on clients because of NULL
+			//if (Sync.IsServer)
 			{
 				m_reservedEntities = new Dictionary<KeyValuePair<long, long>, ReservedEntityData>();
 				m_removeReservedEntities = new Queue<KeyValuePair<long, long>>();

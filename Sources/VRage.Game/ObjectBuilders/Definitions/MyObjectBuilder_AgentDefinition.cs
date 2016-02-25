@@ -1,7 +1,8 @@
 ﻿using ProtoBuf;
+using System.ComponentModel;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -9,6 +10,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     { // used for humanoids
         [ProtoMember]
         public string BotModel = "";
+
+        [ProtoMember, DefaultValue("")]
+        public string TargetType = "";
 
         [ProtoMember]
         public bool InventoryContentGenerated = false;
@@ -24,5 +28,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public int RemoveTimeMs = 30000;
+
+        [ProtoMember]
+        public string FactionTag = null;
     }
 }

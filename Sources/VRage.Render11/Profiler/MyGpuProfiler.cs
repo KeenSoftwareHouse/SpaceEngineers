@@ -43,7 +43,7 @@ namespace VRageRender
 
         internal bool IsFinished()
         {
-            return MyImmediateRC.RC.Context.IsDataAvailable(m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
+            return MyImmediateRC.RC.DeviceContext.IsDataAvailable(m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
         }
 
         internal void Clear()
@@ -83,7 +83,7 @@ namespace VRageRender
             }
 
             var front = m_frames.ElementAt(0);
-            while (!MyImmediateRC.RC.Context.IsDataAvailable(front.m_disjoint.m_query))
+            while (!MyImmediateRC.RC.DeviceContext.IsDataAvailable(front.m_disjoint.m_query))
             {
                 Thread.Sleep(1);
             }
@@ -113,7 +113,7 @@ namespace VRageRender
 
         static void GatherFrame(MyFrameProfiling frame)
         {
-            QueryDataTimestampDisjoint disjoint = MyImmediateRC.RC.Context.GetData<QueryDataTimestampDisjoint>(frame.m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
+            QueryDataTimestampDisjoint disjoint = MyImmediateRC.RC.DeviceContext.GetData<QueryDataTimestampDisjoint>(frame.m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
 
             if (!disjoint.Disjoint)
             {
@@ -129,7 +129,7 @@ namespace VRageRender
                     var q = frame.m_issued.Dequeue();
 
                     ulong timestamp;
-                    MyImmediateRC.RC.Context.GetData<ulong>(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
+                    MyImmediateRC.RC.DeviceContext.GetData<ulong>(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
 
                     if (q.m_info == MyIssuedQueryEnum.BlockStart)
                     {

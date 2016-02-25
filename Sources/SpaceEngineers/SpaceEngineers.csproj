@@ -163,6 +163,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
+    <None Include="Content\Data\Characters_animals.sbc" />
+    <None Include="Content\Data\EntityComponents.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\EntityContainers.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\GoodAIControlHandTools.sbc" />
     <None Include="Content\Data\AmmoMagazines.sbc" />
     <None Include="Content\Data\Ammos.sbc" />
     <None Include="Content\Data\Animations.sbc" />
@@ -180,9 +188,13 @@
     <None Include="Content\Data\Characters.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Components.sbc" />
+    <None Include="Content\Data\Components.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Configuration.sbc" />
-    <None Include="Content\Data\ContainerTypes.sbc" />
+    <None Include="Content\Data\ContainerTypes.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\CubeBlocks.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -191,8 +203,12 @@
     <None Include="Content\Data\Environment.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\EnvironmentItemClasses.sbc" />
-    <None Include="Content\Data\GasProperties.sbc" />
+    <None Include="Content\Data\EnvironmentItemClasses.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\GasProperties.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\GlobalEvents.sbc" />
     <None Include="Content\Data\HandItems.sbc">
       <SubType>Designer</SubType>
@@ -205,6 +221,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\Data\PhysicalMaterials.sbc" />
+    <None Include="Content\Data\PlanetGeneratorDefinitions.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Prefabs\Base1.sbc" />
     <None Include="Content\Data\Prefabs\Base4.sbc" />
     <None Include="Content\Data\Prefabs\BaseEasyStart1.sbc" />
@@ -263,11 +282,18 @@
     <None Include="Content\Data\SpawnGroups.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Stats.sbc" />
+    <None Include="Content\Data\Stats.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\TransparentMaterials.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Trees.sbc" />
+    <None Include="Content\Data\Trees.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\VoxelMaterialChanges.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\VoxelMaterials.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -375,6 +401,9 @@
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
+    <!-- This will create link for common texts -->
+    <RemoveDir Directories="$(OutDir)..\Content\Data\Localization\Common" ContinueOnError="true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; $(ProjectDir)..\VRage.Game\Content\Data\Localization" IgnoreExitCode="true" />
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
     <ItemGroup>
       <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />
@@ -385,9 +414,11 @@
     <ItemGroup>
       <Redists86 Include="$(ProjectDir)Redists\x86\*.*" />
       <Redists64 Include="$(ProjectDir)Redists\x64\*.*" />
+      <BrainSimulatorBinaries Include="$(ProjectDir)..\..\3rd\BrainSimulator\**\*.*" />
     </ItemGroup>
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(Redists64)" DestinationFolder="$(OutDir)" />
+    <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(BrainSimulatorBinaries)" DestinationFolder="$(OutDir)%(RecursiveDir)" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>xcopy /y /s "$(ProjectDir)..\..\3rd\SQLite\*.*" "$(TargetDir)"

@@ -19,6 +19,8 @@ namespace VRage
 
         void BeforeDraw();
 
+        void SetMouseCapture(bool capture);
+
         /// <summary>
         /// Called by render when display mode has changed
         /// </summary>

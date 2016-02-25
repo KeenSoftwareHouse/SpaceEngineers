@@ -25,6 +25,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.ObjectBuilders;
 
 
@@ -142,7 +143,7 @@ namespace Sandbox.Game.Multiplayer
             gps.UpdateHash();
             if (MySession.Static.Gpss.AddPlayerGps(msg.IdentityId, ref gps))
             {//new entry succesfully added
-                if (gps.ShowOnHud && msg.IdentityId == MySession.LocalPlayerId)
+                if (gps.ShowOnHud && msg.IdentityId == MySession.Static.LocalPlayerId)
                     MyHud.GpsMarkers.RegisterMarker(gps);
             }
 
@@ -259,7 +260,7 @@ namespace Sandbox.Game.Multiplayer
                     else
                         gpsList.Add(gps.Hash, gps);//new key
 
-                    if (msg.IdentityId == MySession.LocalPlayerId && gps.ShowOnHud)
+                    if (msg.IdentityId == MySession.Static.LocalPlayerId && gps.ShowOnHud)
                         MyHud.GpsMarkers.RegisterMarker(gps);
                 }
             }
@@ -313,7 +314,7 @@ namespace Sandbox.Game.Multiplayer
                     if (handler != null)
                         handler(msg.IdentityId,msg.Hash);
 
-                    if (msg.IdentityId == MySession.LocalPlayerId)
+                    if (msg.IdentityId == MySession.Static.LocalPlayerId)
                     {
                         if (gps.ShowOnHud)
                             MyHud.GpsMarkers.RegisterMarker(gps);
@@ -376,9 +377,9 @@ namespace Sandbox.Game.Multiplayer
             Dictionary<int, MyGps> result;
             int number=0;
             name.Clear()
-                .Append(MySession.LocalHumanPlayer.DisplayName)
+                .Append(MySession.Static.LocalHumanPlayer.DisplayName)
                 .Append(" #");
-            if (m_playerGpss.TryGetValue(MySession.LocalPlayerId, out result))
+            if (m_playerGpss.TryGetValue(MySession.Static.LocalPlayerId, out result))
             {
                 foreach (var gpsList in result)
                 {
@@ -420,20 +421,20 @@ namespace Sandbox.Game.Multiplayer
                             m_playerGpss.Add(entry.Key, playersGpss);
                         }
                         playersGpss.Add(gps.GetHashCode(), gps);
-                        if (gps.ShowOnHud && entry.Key == MySession.LocalPlayerId && MySession.LocalPlayerId!=0)// LocalPlayerId=0 => loading MP game and not yet initialized. Or server, which does not matter
+                        if (gps.ShowOnHud && entry.Key == MySession.Static.LocalPlayerId && MySession.Static.LocalPlayerId!=0)// LocalPlayerId=0 => loading MP game and not yet initialized. Or server, which does not matter
                             MyHud.GpsMarkers.RegisterMarker(gps);
                     }
                 }
         }
         public void updateForHud()
         {//unfortunately, when loading MP game, local identity is not initialized, we need register hud markers later. =now
-            if (lastPlayerId != MySession.LocalPlayerId)
+            if (lastPlayerId != MySession.Static.LocalPlayerId)
             {
                 Dictionary<int, MyGps> playersGpss;
                 if (m_playerGpss.TryGetValue(lastPlayerId, out playersGpss))
                     foreach (var gps in playersGpss)
                         MyHud.GpsMarkers.UnregisterMarker(gps.Value);
-                lastPlayerId = MySession.LocalPlayerId;
+                lastPlayerId = MySession.Static.LocalPlayerId;
                 if (m_playerGpss.TryGetValue(lastPlayerId, out playersGpss))
                     foreach (var gps in playersGpss)
                         if (gps.Value.ShowOnHud)
@@ -586,7 +587,7 @@ namespace Sandbox.Game.Multiplayer
                     ShowOnHud = false
                 };
                 newGps.UpdateHash();
-                MySession.Static.Gpss.SendAddGps(MySession.LocalPlayerId, ref newGps);
+                MySession.Static.Gpss.SendAddGps(MySession.Static.LocalPlayerId, ref newGps);
                 ++count;
                 if (count == PARSE_MAX_COUNT)
                     break;

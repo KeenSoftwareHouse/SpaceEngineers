@@ -4,6 +4,8 @@ using Sandbox.Game.Localization;
 using System.Collections.Generic;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 using VRageMath;
 

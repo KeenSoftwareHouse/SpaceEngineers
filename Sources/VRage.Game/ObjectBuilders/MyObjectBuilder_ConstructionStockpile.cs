@@ -1,14 +1,15 @@
 ﻿using ProtoBuf;
-using System.Collections.Generic;
+using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConstructionStockpile : MyObjectBuilder_Base
     {
         [ProtoMember]
-        public List<MyObjectBuilder_StockpileItem> Items = new List<MyObjectBuilder_StockpileItem>();
+        [XmlElement(Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_StockpileItem>))]
+        public MyObjectBuilder_StockpileItem[] Items = new MyObjectBuilder_StockpileItem[0];
     }
 }

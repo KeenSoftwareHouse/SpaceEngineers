@@ -1,8 +1,7 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Game.Weapons
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

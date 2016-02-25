@@ -8,10 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.ObjectBuilders.AI.Bot;
 
 namespace Sandbox.Game.AI
 {
-    [BehaviorType(typeof(MyObjectBuilder_AnimalBotDefinition))]
+    [MyBotType(typeof(MyObjectBuilder_AnimalBot))]
     public class MyAnimalBot : MyAgentBot
     {
         public MyCharacter AnimalEntity { get { return AgentEntity; } }

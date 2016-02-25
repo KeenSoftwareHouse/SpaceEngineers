@@ -1,8 +1,8 @@
-﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using System;
 using System.Collections.Generic;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public class MyComponentContainer
     {
@@ -23,9 +23,26 @@ namespace VRage.Components
         {
             System.Diagnostics.Debug.Assert(typeof(MyComponentBase).IsAssignableFrom(type), "Unsupported type of component!");
             if (!typeof(MyComponentBase).IsAssignableFrom(type))
-            {
                 return;
+
+            if (component != null)
+            {
+                System.Diagnostics.Debug.Assert(type.IsAssignableFrom(component.GetType()), "Component added with wrong type!");
+                if (!type.IsAssignableFrom(component.GetType()))
+                    return;
             }
+
+            {
+                //TODO: componentTypeFromAttribute cannot be null when all components has [MyComponentType(typeof(...))] attribute.
+                var componentTypeFromAttribute = MyComponentTypeFactory.GetComponentType(type);
+                if (componentTypeFromAttribute != null && componentTypeFromAttribute != type)
+                {
+                    // Failed when component type from attribute is not the same as the given type. Means that [MyComponentType(typeof(...))]
+                    // should be specified for the component class (it is probably used for base class now).
+                    System.Diagnostics.Debug.Fail("Component: " + component.GetType() + " is set to container as type: " + type + " but type from attribute is: " + componentTypeFromAttribute);
+                }
+            }
+
             MyComponentBase containedComponent;
             if (m_components.TryGetValue(type, out containedComponent))
             {
@@ -51,7 +68,7 @@ namespace VRage.Components
                 m_components[type] = component;
                 component.SetContainer(this);
                 OnComponentAdded(type, component);
-            }       
+            }
         }
 
         public void Remove<T>() where T : MyComponentBase
@@ -62,7 +79,7 @@ namespace VRage.Components
             }
         }
 
-        private void Remove(Type t)
+        public void Remove(Type t)
         {
             MyComponentBase c;
             if (m_components.TryGetValue(t, out c))
@@ -88,6 +105,11 @@ namespace VRage.Components
             var retVal = m_components.TryGetValue(typeof(T), out c);
             component = (T)c;
             return retVal;
+        }
+
+        public bool TryGet(Type type, out MyComponentBase component)
+        {            
+            return m_components.TryGetValue(type, out component);
         }
 
         public bool Has<T>() where T : MyComponentBase
@@ -154,6 +176,8 @@ namespace VRage.Components
             }
         }
 
+        public virtual void Init(MyContainerDefinition definition) { }
+
         protected virtual void OnComponentAdded(Type t, MyComponentBase component) {}
 
         protected virtual void OnComponentRemoved(Type t, MyComponentBase component) { }
@@ -198,16 +222,46 @@ namespace VRage.Components
 
             foreach (var data in builder.Components)
 			{
-				var instance = MyComponentFactory.CreateInstance(data.Component.GetType());
-				instance.Deserialize(data.Component);
-				var dictType = MyComponentTypeFactory.GetType(data.TypeId);
-				Add(dictType, instance);
+                MyComponentBase instance = null;
+                var createdInstanceType = MyComponentFactory.GetCreatedInstanceType(data.Component.TypeId);
+
+                // Old component deserialized type.
+                var dictType = MyComponentTypeFactory.GetType(data.TypeId);
+                // Component type can be set as attribute now
+                var dictTypeFromAttr = MyComponentTypeFactory.GetComponentType(createdInstanceType);
+                if (dictTypeFromAttr != null)
+                    dictType = dictTypeFromAttr;
+
+                bool hasComponent = TryGet(dictType, out instance);
+                if (hasComponent)
+                {
+                    // If component is found then check also type because some components have default instances (MyNullGameLogicComponent)
+                    if (createdInstanceType != instance.GetType())
+                        hasComponent = false;
+                }
+                
+                if (!hasComponent)
+                {
+                    instance = MyComponentFactory.CreateInstanceByTypeId(data.Component.TypeId);
+                }
+				
+                instance.Deserialize(data.Component);
+
+                if (!hasComponent)
+                {
+                    Add(dictType, instance);
+                }
 			}
 		}
 
         public Dictionary<Type, MyComponentBase>.ValueCollection.Enumerator GetEnumerator()
         {
             return m_components.Values.GetEnumerator();
+        }
+
+        public Dictionary<Type, MyComponentBase>.KeyCollection GetComponentTypes()
+        {
+            return m_components.Keys;
         }
 	}
 }

@@ -14,34 +14,35 @@ namespace Sandbox.Game.Entities.Cube
 {
     class MyRadioReceiver : MyDataReceiver
     {
-        public MyRadioReceiver(MyEntity parent):base(parent)
+        public override void OnAddedToContainer()
         {
+            base.OnAddedToContainer();
             Enabled = true;
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+            Enabled = false;
         }
 
         protected override void GetAllBroadcastersInMyRange(ref HashSet<MyDataBroadcaster> relayedBroadcasters, long localPlayerId, HashSet<long> gridsQueued)
         {
-            var sphere = new BoundingSphere(Parent.PositionComp.GetPosition(), 0.5f);
+            var sphere = new BoundingSphere(Entity.PositionComp.GetPosition(), 0.5f);
 
             MyRadioBroadcasters.GetAllBroadcastersInSphere(sphere, m_broadcastersInRange);
 
             foreach (var broadcaster in m_broadcastersInRange)
             {
-                if (relayedBroadcasters.Contains(broadcaster))
+                if (relayedBroadcasters.Add(broadcaster) == false)
                     continue;
-
-                relayedBroadcasters.Add(broadcaster);
 
                 if (!CanIUseIt(broadcaster, localPlayerId))
                     continue;
-
-                if (broadcaster.Parent is IMyComponentOwner<MyDataReceiver>)
+                MyDataReceiver radioReceiver;
+                if (broadcaster.Container.TryGet<MyDataReceiver>(out radioReceiver))
                 {
-                    MyDataReceiver radioReceiver;
-                    if ((broadcaster.Parent as IMyComponentOwner<MyDataReceiver>).GetComponent(out radioReceiver))
-                    {
-                        radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
-                    }
+                    radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
                 }
             }
         }

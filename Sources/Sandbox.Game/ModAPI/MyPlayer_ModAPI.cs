@@ -15,7 +15,7 @@ namespace Sandbox.Game.World
             get { return Client; }
         }
 
-        Common.MyRelationsBetweenPlayerAndBlock IMyPlayer.GetRelationTo(long playerId)
+        VRage.Game.MyRelationsBetweenPlayerAndBlock IMyPlayer.GetRelationTo(long playerId)
         {
             return GetRelationTo(playerId);
         }
@@ -52,7 +52,7 @@ namespace Sandbox.Game.World
         }
 
 
-        VRageMath.Vector3 IMyPlayer.GetPosition()
+        VRageMath.Vector3D IMyPlayer.GetPosition()
         {
             return GetPosition();
         }

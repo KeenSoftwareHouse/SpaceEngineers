@@ -21,12 +21,9 @@ namespace VRage.Animations
         void SerializeValue(XmlWriter writer, object value);
         void DeserializeValue(XmlReader reader, out object value);
         void SetValue(object val);
+        object GetValue();
         IMyConstProperty Duplicate();       
-        Type GetValueType();
-        /// <summary>
-        /// Warning, this does allocation, use only in editor!
-        /// </summary>
-        object EditorGetValue();
+        Type GetValueType();        
     }
 
     #endregion
@@ -58,7 +55,7 @@ namespace VRage.Animations
         {
         }
 
-        object IMyConstProperty.EditorGetValue()
+        object IMyConstProperty.GetValue()
         {
             return m_value;
         }             

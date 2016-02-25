@@ -486,9 +486,21 @@
     <Entry Class="ConstructionComponents" BlueprintSubtypeId="RadioCommunicationComponent" />
 
     <Entry Class="Tools" BlueprintSubtypeId="AutomaticRifle" />
+    <Entry Class="Tools" BlueprintSubtypeId="RapidFireAutomaticRifle" />
+    <Entry Class="Tools" BlueprintSubtypeId="PreciseAutomaticRifle" />
+    <Entry Class="Tools" BlueprintSubtypeId="UltimateAutomaticRifle" />
     <Entry Class="Tools" BlueprintSubtypeId="Welder" />
+    <Entry Class="Tools" BlueprintSubtypeId="Welder2" />
+    <Entry Class="Tools" BlueprintSubtypeId="Welder3" />
+    <Entry Class="Tools" BlueprintSubtypeId="Welder4" />
     <Entry Class="Tools" BlueprintSubtypeId="AngleGrinder" />
+    <Entry Class="Tools" BlueprintSubtypeId="AngleGrinder2" />
+    <Entry Class="Tools" BlueprintSubtypeId="AngleGrinder3" />
+    <Entry Class="Tools" BlueprintSubtypeId="AngleGrinder4" />
     <Entry Class="Tools" BlueprintSubtypeId="HandDrill" />
+    <Entry Class="Tools" BlueprintSubtypeId="HandDrill2" />
+    <Entry Class="Tools" BlueprintSubtypeId="HandDrill3" />
+    <Entry Class="Tools" BlueprintSubtypeId="HandDrill4" />
     <Entry Class="Tools" BlueprintSubtypeId="OxygenBottle" />
     <Entry Class="Tools" BlueprintSubtypeId="HydrogenBottle" />
 

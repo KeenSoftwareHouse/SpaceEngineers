@@ -218,5 +218,30 @@ namespace System.Collections.Generic
 
             return ret;
         }
+
+        public static void InsertInOrder<T>(this List<T> self, T value, IComparer<T> comparer)
+        {
+            int index = self.BinarySearch(value, comparer);
+            if (index < 0)
+            {
+                index = ~index;
+            }
+            self.Insert(index, value);
+        }
+
+        public static void InsertInOrder<T>(this List<T> self, T value) where T : IComparable<T>
+        {
+            self.InsertInOrder(value, Comparer<T>.Default);
+        }
+
+        public static bool IsSorted<T>(this List<T> self, IComparer<T> comparer)
+        {
+            for (int i = 1; i < self.Count; ++i)
+            {
+                if (comparer.Compare(self[i - 1], self[i]) > 0) return false;
+            }
+            return true;
+        }
+
     }
 }

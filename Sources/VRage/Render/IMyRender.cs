@@ -3,6 +3,7 @@ using System;
 using VRage.Library.Utils;
 using VRageMath;
 using VRageRender.Profiler;
+using VRage.Utils;
 
 namespace VRageRender
 {
@@ -28,6 +29,8 @@ namespace VRageRender
     {
     }
 
+    public delegate void OnShaderCacheProgressDelegate(float percents, string file, string profile, string vertexLayout, string macros, string message, bool importantMessage);
+
     public interface IMyRender
     {
         /// <summary>
@@ -44,6 +47,8 @@ namespace VRageRender
         MySharedData SharedData { get; }
         MyTimeSpan CurrentDrawTime { set; get; }
 
+        MyLog Log { get; }
+        
         MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry);
         void DisposeDevice();
         long GetAvailableTextureMemory();
@@ -68,9 +73,9 @@ namespace VRageRender
 
         MyMessageQueue OutputQueue { get; }
         uint GlobalMessageCounter { get; set; }
-        void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize);
+        void EnqueueMessage(MyRenderMessageBase message, bool limitMaxQueueSize);
         void ProcessMessages();
-        void EnqueueOutputMessage(IMyRenderMessage message);
+        void EnqueueOutputMessage(MyRenderMessageBase message);
 
         void ResetEnvironmentProbes();
 
@@ -82,5 +87,7 @@ namespace VRageRender
         VideoState GetVideoState(uint id);
 
         void HandleFocusMessage(MyWindowFocusMessage msg);
+
+        void GenerateShaderCache(bool clean, OnShaderCacheProgressDelegate onShaderCacheProgress);
     }
 }

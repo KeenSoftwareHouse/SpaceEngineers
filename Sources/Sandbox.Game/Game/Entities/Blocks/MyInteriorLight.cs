@@ -17,6 +17,7 @@ using Sandbox.Common;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.ModAPI.Ingame;
+using VRage.Game;
 
 #endregion
 

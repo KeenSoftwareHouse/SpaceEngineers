@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using VRage.ModAPI;
+using VRageMath;
 
 namespace Sandbox.ModAPI
 {
@@ -13,14 +15,50 @@ namespace Sandbox.ModAPI
     /// </summary>
     public static class MyAPIGateway
     {
+
+        /// <summary>
+        /// Event triggered on gui control created.
+        /// </summary>
+        public static Action<object> GuiControlCreated;
+
         /// <summary>
         /// IMySession represents session object e.g. current world and its settings
         /// </summary>
-        public static IMySession Session;
+        public static IMySession Session
+        {
+            get
+            {
+                return m_sessionStorage;
+            }
+            set
+            {
+                m_sessionStorage = value;
+            }
+        }
         /// <summary>
         /// IMyEntities represents all objects that currently in world 
         /// </summary>
-        public static IMyEntities Entities;
+        public static IMyEntities Entities
+        {
+            get
+            {
+                return m_entitiesStorage;
+            }
+            set
+            {
+                m_entitiesStorage = value;
+                if (Entities != null)
+                {
+                    MyAPIGatewayShortcuts.RegisterEntityUpdate = Entities.RegisterForUpdate;
+                    MyAPIGatewayShortcuts.UnregisterEntityUpdate = Entities.UnregisterForUpdate;
+                }
+                else
+                {
+                    MyAPIGatewayShortcuts.RegisterEntityUpdate = null;
+                    MyAPIGatewayShortcuts.UnregisterEntityUpdate = null;
+                }
+            }
+        }
         /// <summary>
         /// IMyPlayerCollection contains all players that are in world 
         /// </summary>
@@ -48,6 +86,11 @@ namespace Sandbox.ModAPI
 
         public static IMyPrefabManager PrefabManager;
 
+        // Storage for property Entities.
+        private static IMyEntities m_entitiesStorage;
+        // Storage for property Session.
+        private static IMySession m_sessionStorage;
+
         [Conditional("DEBUG")] 
         public static void GetMessageBoxPointer(ref IntPtr pointer)
         {
@@ -61,5 +104,18 @@ namespace Sandbox.ModAPI
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetProcAddress(IntPtr hModule, String procname);
+
+        public static void Clean()
+        {
+            Session = null;
+            Entities = null;
+            Players = null;
+            CubeBuilder = null;
+            TerminalActionsHelper = null;
+            Utilities = null;
+            Parallel = null;
+            Multiplayer = null;
+            PrefabManager = null;
+        }
     }
 }

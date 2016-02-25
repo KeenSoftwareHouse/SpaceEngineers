@@ -21,6 +21,7 @@ namespace Sandbox.Game
         public static readonly MyStringId TERMINAL = MyStringId.GetOrCompute("TERMINAL");
         public static readonly MyStringId HELP_SCREEN = MyStringId.GetOrCompute("HELP_SCREEN");
         public static readonly MyStringId CONTROL_MENU = MyStringId.GetOrCompute("CONTROL_MENU");
+        public static readonly MyStringId FACTIONS_MENU = MyStringId.GetOrCompute("FACTIONS_MENU");
 
         //Advanced controls
         public static readonly MyStringId ROTATION_LEFT = MyStringId.GetOrCompute("ROTATION_LEFT");
@@ -49,6 +50,7 @@ namespace Sandbox.Game
         public static readonly MyStringId SWITCH_BUILDING_MODE = MyStringId.GetOrCompute("SWITCH_BUILDING_MODE");
         public static readonly MyStringId VOXEL_HAND_SETTINGS = MyStringId.GetOrCompute("VOXEL_HAND_SETTINGS");
         public static readonly MyStringId MISSION_SETTINGS = MyStringId.GetOrCompute("MISSION_SETTINGS");
+        public static readonly MyStringId COCKPIT_BUILD_MODE = MyStringId.GetOrCompute("COCKPIT_BUILD_MODE");
 
         // Weapon selection slots
         public static readonly MyStringId SLOT1 = MyStringId.GetOrCompute("SLOT1");

@@ -34,10 +34,14 @@ using Sandbox.Game.GameSystems.StructuralIntegrity;
 using VRage.Library.Utils;
 using VRage.Import;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Character;
+using VRage.Game;
 using VRage.Network;
+using VRage.Render.Models;
+using VRage.Game.Models;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
@@ -100,11 +104,16 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        // Empty function, but forces static variable preload during game load
+        public static void Preload() { }
+
         private const double GRID_PLACING_AREA_FIX_VALUE = 0.11;
         const string EXPORT_DIRECTORY = "ExportedModels";
         const string SOURCE_DIRECTORY = "SourceModels";
         private static List<MyObjectBuilder_CubeGrid[]> m_prefabs = new List<MyObjectBuilder_CubeGrid[]>();
         private static List<MyEntity> m_tmpResultList = new List<MyEntity>();
+        private static List<MyVoxelBase> m_tmpVoxelList = new List<MyVoxelBase>();
+
         static int materialID = 0;
         static Vector2 tumbnailMultiplier = new Vector2();
 
@@ -119,7 +128,6 @@ namespace Sandbox.Game.Entities
         public static bool ShowAntennaGizmos { get; set; }
         public static bool ShowStructuralIntegrity { get; set; }
 
-        public static HashSet<MyCubeGrid> StaticGrids                                   = new HashSet<MyCubeGrid>();
         private static List<MyLineSegmentOverlapResult<MyEntity>> m_lineOverlapList = new List<MyLineSegmentOverlapResult<MyEntity>>();
         private static List<HkBodyCollision> m_physicsBoxQueryList                  = new List<HkBodyCollision>();
         private static Dictionary<Vector3I, MySlimBlock> m_tmpBoneSet               = new Dictionary<Vector3I, MySlimBlock>(Vector3I.Comparer);
@@ -132,7 +140,9 @@ namespace Sandbox.Game.Entities
 
         // Caching structures to avoid allocations in functions.
 
-        private static readonly List<Vector3I> m_cacheRayCastCells = new List<Vector3I>();
+        [ThreadStatic]
+        private static List<Vector3I> m_cacheRayCastCellsPerThread;
+        private static List<Vector3I> m_cacheRayCastCells { get { return MyUtils.Init(ref m_cacheRayCastCellsPerThread); } }
 
         [ThreadStatic]
         private static Dictionary<Vector3I, ConnectivityResult> m_cacheNeighborBlocksPerThread;
@@ -148,14 +158,23 @@ namespace Sandbox.Game.Entities
 
         static private MyComponentList m_buildComponents = new MyComponentList();
 
-        private static readonly List<MyPhysics.HitInfo> m_tmpHitList = new List<MyPhysics.HitInfo>();
+        [ThreadStatic]
+        private static List<MyPhysics.HitInfo> m_tmpHitListPerThread;
+        private static List<MyPhysics.HitInfo> m_tmpHitList { get { return MyUtils.Init(ref m_tmpHitListPerThread); } }
 
         private static readonly HashSet<Vector3UByte> m_tmpAreaMountpointPass = new HashSet<Vector3UByte>();
         private static AreaConnectivityTest m_areaOverlapTest = new AreaConnectivityTest();
 
-        private static readonly List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
-        private static List<MySlimBlock> m_tmpSlimBlocks = new List<MySlimBlock>();
-        private static HashSet<Tuple<MySlimBlock, ushort?>> m_tmpBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
+        [ThreadStatic]
+        private static List<Vector3I> m_tmpCubeNeighboursPerThread;
+        private static List<Vector3I> m_tmpCubeNeighbours { get { return MyUtils.Init(ref m_tmpCubeNeighboursPerThread); } }
+
+        private static readonly HashSet<Tuple<MySlimBlock, ushort?>> m_tmpBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
+        private static readonly List<MySlimBlock> m_tmpSlimBlocks = new List<MySlimBlock>();
+
+        [ThreadStatic]
+        private static List<int> m_tmpMultiBlockIndicesPerThread;
+        private static List<int> m_tmpMultiBlockIndices { get { return MyUtils.Init(ref m_tmpMultiBlockIndicesPerThread); } }
 
         private static readonly Type m_gridSystemsType = ChooseGridSystemsType();
 
@@ -164,6 +183,7 @@ namespace Sandbox.Game.Entities
         private static HkBoxShape m_lastQueryBox = new HkBoxShape(Vector3.One);
         private static MatrixD m_lastQueryTransform;
 
+        private const double ROTATION_PRECISION = 0.001f;
 
         public static void GetCubeParts(
             MyCubeBlockDefinition block,
@@ -666,7 +686,7 @@ namespace Sandbox.Game.Entities
 			Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyCubeBlockDefinition.MountPoint[] neighborMountPoints, MyBlockOrientation neighborOrientation, 
             List<MyCubeBlockDefinition.MountPoint> otherMountPoints)
         {
-			if (!thisMountPoint.Enabled || thisDefinition.IsGeneratedBlock)
+			if (!thisMountPoint.Enabled)
 				return false;
 
             var currentBox = new BoundingBox(currentMin - neighborPosition, currentMax - neighborPosition);
@@ -678,7 +698,7 @@ namespace Sandbox.Game.Entities
                 // Skip mount points which exclude themselves (are not allowed to touch).
                 if ((((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
                       (thisMountPoint.PropertiesMask & otherMountPoint.ExclusionMask) != 0) &&
-                    thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled || neighborDefinition.IsGeneratedBlock)
+                    thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled)
                     continue;
 
                 if (MyFakes.ENABLE_TEST_BLOCK_CONNECTIVITY_CHECK && (thisMountPointTransformedNormal + otherMountPoint.Normal != Vector3I.Zero))
@@ -697,7 +717,7 @@ namespace Sandbox.Game.Entities
 			Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyCubeBlockDefinition.MountPoint[] neighborMountPoints, MyBlockOrientation neighborOrientation,
 			List<MyCubeBlockDefinition.MountPoint> otherMountPoints)
         {
-			if (!thisMountPoint.Enabled || thisDefinition.IsGeneratedBlock)
+			if (!thisMountPoint.Enabled)
 				return false;
 
             var currentBox = new BoundingBox(currentMin - neighborPosition, currentMax - neighborPosition);
@@ -709,7 +729,7 @@ namespace Sandbox.Game.Entities
                 // Skip mount points which exclude themselves (are not allowed to touch).
                 if ((((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
                       (thisMountPoint.PropertiesMask & otherMountPoint.ExclusionMask) != 0) &&
-					thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled || neighborDefinition.IsGeneratedBlock)
+					thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled)
                     continue;
 
                 // Check normals on compound side with the same direction (we are in the same block)
@@ -733,9 +753,6 @@ namespace Sandbox.Game.Entities
         public static bool CheckMountPointsForSide(MyCubeBlockDefinition defA, MyCubeBlockDefinition.MountPoint[] mountPointsA, ref MyBlockOrientation orientationA, ref Vector3I positionA, ref Vector3I normalA,
                                                    MyCubeBlockDefinition defB, MyCubeBlockDefinition.MountPoint[] mountPointsB, ref MyBlockOrientation orientationB, ref Vector3I positionB)
         {
-			if (defA.IsGeneratedBlock || defB.IsGeneratedBlock)
-				return false;
-
             TransformMountPoints(m_cacheMountPointsA, defA, mountPointsA, ref orientationA);
             TransformMountPoints(m_cacheMountPointsB, defB, mountPointsB, ref orientationB);
             return CheckMountPointsForSide(m_cacheMountPointsA, ref orientationA, ref positionA, defA.Id, ref normalA, m_cacheMountPointsB, ref orientationB, ref positionB, defB.Id);
@@ -798,7 +815,7 @@ namespace Sandbox.Game.Entities
                   timeoutInMiliseconds: 1000,
                   styleEnum: MyMessageBoxStyleEnum.Info,
                   buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
-                  messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.ConvertingObjs)),
+                  messageText: new StringBuilder(MyTexts.GetString(MyCommonTexts.ConvertingObjs)),
                   callback: (result) =>
                   {
                       ConvertNextPrefab(m_prefabs, placeOnly);
@@ -851,7 +868,7 @@ namespace Sandbox.Game.Entities
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                          styleEnum: MyMessageBoxStyleEnum.Info,
                                          buttonType: MyMessageBoxButtonsType.OK,
-                                         messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.ConvertToObjDone))));
+                                         messageText: new StringBuilder(MyTexts.GetString(MyCommonTexts.ConvertToObjDone))));
             }
         }
 
@@ -900,7 +917,7 @@ namespace Sandbox.Game.Entities
                     timeoutInMiliseconds: 1000,
                     styleEnum: MyMessageBoxStyleEnum.Info,
                     buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
-                    messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.ConvertingObjs)),
+                    messageText: new StringBuilder(MyTexts.GetString(MyCommonTexts.ConvertingObjs)),
                     callback: (result) =>
                     {
                         StartConverting(false);
@@ -914,7 +931,7 @@ namespace Sandbox.Game.Entities
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     styleEnum: MyMessageBoxStyleEnum.Error,
                     buttonType: MyMessageBoxButtonsType.OK,
-                    messageText: new StringBuilder(string.Format(MyTexts.GetString(MySpaceTexts.ExportToObjFailed), path))));
+                    messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjFailed), path))));
                 return;
             }
             using (var arc = VRage.Compression.MyZipArchive.OpenOnFile(Path.Combine(path, objectName + "_objFiles.zip"), FileMode.Create, FileAccess.ReadWrite, FileShare.None))
@@ -965,7 +982,7 @@ namespace Sandbox.Game.Entities
                    timeoutInMiliseconds: 1000,
                    styleEnum: MyMessageBoxStyleEnum.Info,
                    buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
-                   messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.ExportingToObj)),
+                   messageText: new StringBuilder(MyTexts.GetString(MyCommonTexts.ExportingToObj)),
                    callback: (result) =>
                    {
                        List<MyCubeGrid> gridsToExport = new List<MyCubeGrid>();
@@ -1025,7 +1042,7 @@ namespace Sandbox.Game.Entities
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                     styleEnum: MyMessageBoxStyleEnum.Info,
                                     buttonType: MyMessageBoxButtonsType.OK,
-                                    messageText: new StringBuilder(string.Format(MyTexts.GetString(MySpaceTexts.ExportToObjComplete), folder)),
+                                    messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjComplete), folder)),
                                     callback: (result) =>
                                     {
                                         PackFiles(folder, name);
@@ -1036,7 +1053,7 @@ namespace Sandbox.Game.Entities
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                         styleEnum: MyMessageBoxStyleEnum.Error,
                                                      buttonType: MyMessageBoxButtonsType.OK,
-                                                     messageText: new StringBuilder(string.Format(MyTexts.GetString(MySpaceTexts.ExportToObjModded), folder))));
+                                                     messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjModded), folder))));
                 }
             }
 
@@ -1070,7 +1087,7 @@ namespace Sandbox.Game.Entities
                    timeoutInMiliseconds: 1000,
                    styleEnum: MyMessageBoxStyleEnum.Info,
                    buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
-                   messageText: new StringBuilder(string.Format(MyTexts.GetString(MySpaceTexts.ExportToObjComplete), folder)),
+                   messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjComplete), folder)),
                    callback: (result) =>
                    {
                        ConvertNextGrid(false);
@@ -1084,7 +1101,7 @@ namespace Sandbox.Game.Entities
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                         styleEnum: MyMessageBoxStyleEnum.Error,
                         buttonType: MyMessageBoxButtonsType.OK,
-                        messageText: new StringBuilder(string.Format(MyTexts.GetString(MySpaceTexts.ExportToObjFailed), folder))));
+                        messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjFailed), folder))));
                 }
             }
         }
@@ -1255,12 +1272,12 @@ namespace Sandbox.Game.Entities
 
         public static void PlacePrefabsToWorld()
         {
-            m_newPositionForPlacedObject = MySession.ControlledEntity.Entity.PositionComp.GetPosition();
+            m_newPositionForPlacedObject = MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition();
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                               timeoutInMiliseconds: 1000,
                               styleEnum: MyMessageBoxStyleEnum.Info,
                               buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
-                              messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.PlacingObjectsToScene)),
+                              messageText: new StringBuilder(MyTexts.GetString(MyCommonTexts.PlacingObjectsToScene)),
                               callback: (result) =>
                               {
                                   StartConverting(true);
@@ -1332,11 +1349,11 @@ namespace Sandbox.Game.Entities
             var line = new LineD(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 10000);
 
             m_tmpHitList.Clear();
-            MyPhysics.CastRay(line.From, line.To, m_tmpHitList, MyPhysics.DefaultCollisionLayer);
+            MyPhysics.CastRay(line.From, line.To, m_tmpHitList, MyPhysics.CollisionLayers.DefaultCollisionLayer);
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
@@ -1397,15 +1414,23 @@ namespace Sandbox.Game.Entities
             ref Vector3 halfExtents,
             ref BoundingBoxD localAabb,
             out MyCubeGrid touchingGrid,
-            MyEntity ignoredEntity = null)
+            MyEntity ignoredEntity = null,
+            bool ignoreFracturedPieces = false)
         {
             touchingGrid = null;
 
+            ProfilerShort.Begin("UseModelIntersection");
             if (blockDefinition != null && blockDefinition.UseModelIntersection)
             {
-                var model = MyModels.GetModelOnlyData(blockDefinition.Model);
-                if(model != null)
-                    model.CheckLoadingErrors(blockDefinition.Context);
+                var model = VRage.Game.Models.MyModels.GetModelOnlyData(blockDefinition.Model);
+                if (model != null)
+                {
+                    bool newErrorFound;
+                    model.CheckLoadingErrors(blockDefinition.Context, out newErrorFound);
+                    if (newErrorFound)
+                        MyDefinitionErrors.Add(blockDefinition.Context,
+                            "There was error during loading of model, please check log file.", TErrorSeverity.Error);
+                }
 
                 if (model != null && model.HavokCollisionShapes != null)
                 {
@@ -1420,27 +1445,30 @@ namespace Sandbox.Game.Entities
 
                     Quaternion q2 = Quaternion.CreateFromForwardUp(Base6Directions.GetVector(blockOrientation.Forward), Base6Directions.GetVector(blockOrientation.Up));
                     rotation = rotation * q2;
-                    MyPhysics.GetPenetrationsShape(shape, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+                    MyPhysics.GetPenetrationsShape(shape, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
 
                     shape.Base.RemoveReference();
                 }
                 else
                 {
                     Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-                    MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+                    MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
                 }
             }
             else
             {
                 Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-                MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+                MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
             }
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(rotation);
             m_lastQueryTransform.Translation = translation;
 
             var worldMatrix = targetGrid != null ? targetGrid.WorldMatrix : MatrixD.Identity;
-            return TestPlacementAreaInternal(targetGrid, ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid);
+            ProfilerShort.BeginNextBlock("TestPlacementAreaInternal");
+            bool result = TestPlacementAreaInternal(targetGrid, ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, ignoreFracturedPieces: ignoreFracturedPieces);
+            ProfilerShort.End();
+            return result;
         }
 
         public static bool TestPlacementAreaCube(
@@ -1450,10 +1478,11 @@ namespace Sandbox.Game.Entities
             Vector3I max,
             MyBlockOrientation blockOrientation,
             MyCubeBlockDefinition blockDefinition,
-            MyEntity ignoredEntity = null)
+            MyEntity ignoredEntity = null,
+            bool ignoreFracturedPieces = false)
         {
             MyCubeGrid touchingGrid = null;
-            return TestPlacementAreaCube(targetGrid, ref settings, min, max, blockOrientation, blockDefinition, out touchingGrid, ignoredEntity: ignoredEntity);
+            return TestPlacementAreaCube(targetGrid, ref settings, min, max, blockOrientation, blockDefinition, out touchingGrid, ignoredEntity: ignoredEntity, ignoreFracturedPieces: ignoreFracturedPieces);
         }
 
         /// <summary>
@@ -1467,10 +1496,12 @@ namespace Sandbox.Game.Entities
             MyBlockOrientation blockOrientation,
             MyCubeBlockDefinition blockDefinition,
             out MyCubeGrid touchingGrid,
-            MyEntity ignoredEntity = null)
+            MyEntity ignoredEntity = null,
+            bool ignoreFracturedPieces = false)
         {
             touchingGrid = null;
 
+            ProfilerShort.Begin("Math");
             var worldMatrix = targetGrid != null ? targetGrid.WorldMatrix : MatrixD.Identity;
             var gridSize = targetGrid != null ? targetGrid.GridSize : MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large);
 
@@ -1487,7 +1518,13 @@ namespace Sandbox.Game.Entities
             Vector3D translation = matrix.Translation;
             Quaternion rotation = Quaternion.CreateFromRotationMatrix(matrix);
 
-            return TestBlockPlacementArea(targetGrid, ref settings, blockOrientation, blockDefinition, ref translation, ref rotation, ref halfExtents, ref localAabb, out touchingGrid, ignoredEntity);
+            ProfilerShort.BeginNextBlock("TestBlockPlacementArea");
+            bool result = TestBlockPlacementArea(targetGrid, ref settings, blockOrientation, blockDefinition, ref translation, ref rotation, ref halfExtents, ref localAabb, out touchingGrid, ignoredEntity: ignoredEntity, 
+                ignoreFracturedPieces: ignoreFracturedPieces);
+
+            ProfilerShort.End();
+
+            return result;
         }
 
         public static bool TestPlacementAreaCubeNoAABBInflate(
@@ -1533,7 +1570,7 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
             m_lastQueryTransform.Translation = translation;
@@ -1561,13 +1598,13 @@ namespace Sandbox.Game.Entities
 
             m_tmpResultList.Clear();
             BoundingBoxD box = targetGrid.PositionComp.WorldAABB;
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref box, m_tmpResultList);
+            MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_tmpResultList);
             ProfilerShort.End();
 
             return TestPlacementAreaInternalWithEntities(targetGrid, targetGridIsStatic, ref settings, ref localAabb, ignoredEntity, ref worldMatrix, dynamicBuildMode: dynamicBuildMode);
         }
 
-        public static bool TestPlacementArea(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null)
+        public static bool TestPlacementArea(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null, bool testVoxels = true)
         {
             ProfilerShort.Begin("TestStart");
             var worldMatrix = targetGrid.WorldMatrix;
@@ -1584,14 +1621,14 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
 
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
             m_lastQueryTransform.Translation = translation;
             ProfilerShort.End();
 
             MyCubeGrid touchingGrid;
-            return TestPlacementAreaInternal(targetGrid, targetGridIsStatic, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
+            return TestPlacementAreaInternal(targetGrid, targetGridIsStatic, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode, testVoxels: testVoxels);
         }
 
         public static bool TestBlockPlacementArea(MyCubeBlockDefinition blockDefinition, MyBlockOrientation? blockOrientation, MatrixD worldMatrix, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode,
@@ -1609,7 +1646,7 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
-            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
+            MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
             m_lastQueryBox.HalfExtents = halfExtents;
             m_lastQueryTransform = MatrixD.CreateFromQuaternion(quaternion);
             m_lastQueryTransform.Translation = translation;
@@ -1769,7 +1806,7 @@ namespace Sandbox.Game.Entities
             for (int i = 0; i < parts.Length; i++)
             {
                 var part = new MyCubePart();
-                part.Init(MyModels.GetModelOnlyData(models[i]), matrices[i]);
+                part.Init(VRage.Game.Models.MyModels.GetModelOnlyData(models[i]), matrices[i]);
                 part.InstanceData.SetTextureOffset(patternOffsets[i]);
                 parts[i] = part;
             }
@@ -1785,10 +1822,11 @@ namespace Sandbox.Game.Entities
            MyEntity ignoredEntity,
            ref MatrixD worldMatrix,
            out MyCubeGrid touchingGrid,
-           bool dynamicBuildMode = false)
+           bool dynamicBuildMode = false,
+           bool ignoreFracturedPieces = false)
         {
             return TestPlacementAreaInternal(targetGrid, targetGrid != null ? targetGrid.IsStatic : !dynamicBuildMode,
-                ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
+                ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode, ignoreFracturedPieces: ignoreFracturedPieces);
         }
 
         private static bool TestPlacementAreaInternalWithEntities(MyCubeGrid targetGrid,
@@ -1834,7 +1872,7 @@ namespace Sandbox.Game.Entities
                     if (isStatic == grid.IsStatic && gridSize != grid.GridSize)
                         continue;
 
-                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref worldAabb, null, null, ref entityOverlap, ref touchingStaticGrid, grid);
+                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref localAabb, null, null, ref entityOverlap, ref touchingStaticGrid, grid);
 
                     if (entityOverlap)
                     {
@@ -1863,19 +1901,34 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+            ProfilerShort.Begin("TestVoxelOverlap");
+            bool result = TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+            ProfilerShort.End();
+
+            return result;
         }
 
-        private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD worldAabb, MyCubeBlockDefinition blockDefinition,
+        private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD localAABB, MyCubeBlockDefinition blockDefinition,
            MyBlockOrientation? blockOrientation, ref bool entityOverlap, ref bool touchingStaticGrid, MyCubeGrid grid)
         {
+            var worldAabb = localAABB.Transform(ref worldMatrix);
             var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
             var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
 
-            var scaledMin = (otherLocalAabb.Min + gridSize / 2) / grid.GridSize;
-            var scaledMax = (otherLocalAabb.Max - gridSize / 2) / grid.GridSize;
-            var min = Vector3I.Round(scaledMin);
-            var max = Vector3I.Round(scaledMax);
+            Vector3D minToWorld = Vector3D.Transform(localAABB.Min, worldMatrix);
+            Vector3D maxToWorld = Vector3D.Transform(localAABB.Max, worldMatrix);
+            Vector3D tempMinLocal = Vector3D.Transform(minToWorld, invWorldMatrix);
+            Vector3D tempMaxLocal = Vector3D.Transform(maxToWorld, invWorldMatrix);
+
+            Vector3D otherMinLocal = Vector3D.Min(tempMinLocal, tempMaxLocal);
+            Vector3D otherMaxLocal = Vector3D.Max(tempMinLocal, tempMaxLocal);
+
+            var scaledMin = (otherMinLocal + gridSize / 2) / grid.GridSize;
+            var scaledMax = (otherMaxLocal - gridSize / 2) / grid.GridSize;
+            var tempMin = Vector3I.Round(scaledMin);
+            var tempMax = Vector3I.Round(scaledMax);
+            var min = Vector3I.Min(tempMin, tempMax);
+            var max = Vector3I.Max(tempMin, tempMax);
 
             MyBlockOrientation? gridBlockOrientation = null;
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && isStatic && grid.IsStatic && blockOrientation != null)
@@ -1915,7 +1968,9 @@ namespace Sandbox.Game.Entities
            MyEntity ignoredEntity,
            ref MatrixD worldMatrix,
            out MyCubeGrid touchingGrid,
-           bool dynamicBuildMode = false)
+           bool dynamicBuildMode = false,
+           bool ignoreFracturedPieces = false,
+           bool testVoxels = true)
         {
             ProfilerShort.Begin("TestPlacementAreaInternal");
 
@@ -1935,7 +1990,10 @@ namespace Sandbox.Game.Entities
                 if (entity == null)
                     continue;
 
-                if (entity.Physics.WeldInfo.Children.Count == 0 && ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
+                if (ignoreFracturedPieces && (entity is MyFracturedPiece))
+                    continue;
+
+                if (entity.GetPhysicsBody().WeldInfo.Children.Count == 0 && ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
                     continue;
 
                 var body = entity.Physics;
@@ -1959,7 +2017,7 @@ namespace Sandbox.Game.Entities
 					}
 				}
 
-                if(entity.Physics.WeldInfo.Children.Count > 0)
+                if(entity.GetPhysicsBody().WeldInfo.Children.Count > 0)
                 {
                     if(entity != ignoredEntity)
                     {
@@ -1969,7 +2027,7 @@ namespace Sandbox.Game.Entities
                         //MyRenderProxy.DebugDrawOBB(obb, Color.Green, 0.5f, false, false);
                         //obb = new MyOrientedBoundingBoxD(new BoundingBoxD(-m_lastQueryBox.HalfExtents, m_lastQueryBox.HalfExtents), m_lastQueryTransform);
                         //MyRenderProxy.DebugDrawOBB(obb, Color.Red, 0.5f, false, false);
-                        if (TestQueryIntersection(entity.Physics.GetShape(), entity.WorldMatrix))
+                        if (TestQueryIntersection(entity.GetPhysicsBody().GetShape(), entity.WorldMatrix))
                         {
                             entityOverlap = true;
                             if(touchingGrid == null)
@@ -1978,7 +2036,7 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
-                    foreach(var child in entity.Physics.WeldInfo.Children)
+                    foreach(var child in entity.GetPhysicsBody().WeldInfo.Children)
                     {
                         if(child.Entity == ignoredEntity)
                             continue;
@@ -2003,7 +2061,14 @@ namespace Sandbox.Game.Entities
                     if (isStatic == grid.IsStatic && gridSize != grid.GridSize)
                         continue;
 
-                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref worldAabb, blockDefinition, blockOrientation, ref entityOverlap, ref touchingStaticGrid, grid);
+                    // first check if world orientation is correct.
+                    if(!IsOrientationsAligned(grid.WorldMatrix, worldMatrix))
+                    {
+                        entityOverlap = true;
+                        continue;
+                    }
+
+                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref localAabb, blockDefinition, blockOrientation, ref entityOverlap, ref touchingStaticGrid, grid);
                     if (entityOverlap)
                     {
                         break;
@@ -2021,8 +2086,35 @@ namespace Sandbox.Game.Entities
 
             if (entityOverlap)
                 return false;
+            if (testVoxels)
+                return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+            return true;
+        }
 
-            return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+        private static bool IsOrientationsAligned(MatrixD transform1, MatrixD transform2)
+        {
+            double dotForward = Vector3D.Dot(transform1.Forward, transform2.Forward);
+            if ((dotForward > ROTATION_PRECISION && dotForward < 1.0 - ROTATION_PRECISION) ||
+                (dotForward < -ROTATION_PRECISION && dotForward > ROTATION_PRECISION - 1.0))
+            {
+                return false;
+            }
+
+            double dotUp = Vector3D.Dot(transform1.Up, transform2.Up);
+            if ((dotUp > ROTATION_PRECISION && dotUp < 1.0 - ROTATION_PRECISION) ||
+                (dotUp < -ROTATION_PRECISION && dotUp > ROTATION_PRECISION - 1.0))
+            {
+                return false;
+            }
+
+            double dotRight = Vector3D.Dot(transform1.Right, transform2.Right);
+            if ((dotRight > ROTATION_PRECISION && dotRight < 1.0 - ROTATION_PRECISION) ||
+                (dotRight < -ROTATION_PRECISION && dotRight > ROTATION_PRECISION - 1.0))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static bool TestQueryIntersection(HkShape shape, MatrixD transform)
@@ -2041,6 +2133,8 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("VoxelOverlap");
             try
             {
+                if (MyFakes.GRID_IGNORE_VOXEL_OVERLAP) return true;
+
                 if (MyFakes.ENABLE_VOXEL_MAP_AABB_CORNER_TEST)
                 {
                     return TestPlacementVoxelMapOverlap(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
@@ -2349,88 +2443,36 @@ namespace Sandbox.Game.Entities
             if (block.CubeGrid.Physics == null && checkForPhysics)
                return false;
 
-            if (MyPerGameSettings.Destruction && block.CubeGrid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
+            if (MyPerGameSettings.Destruction && block.CubeGrid.GridSizeEnum == MyCubeSize.Large)
                 return block.CubeGrid.Physics.Shape.BlocksConnectedToWorld.Contains(block.Position);
 
             BoundingBoxD blockWorldAABB;
             block.GetWorldBoundingBox(out blockWorldAABB);
 
-            var voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref blockWorldAABB, null);
-            if (voxelMap == null)
-                return false;
-
+            m_tmpVoxelList.Clear();
+            MyGamePruningStructure.GetAllVoxelMapsInBox(ref blockWorldAABB, m_tmpVoxelList);
             var cubeSize = block.CubeGrid.GridSize;
             BoundingBoxD localAAABB = new BoundingBoxD(cubeSize * ((Vector3D)block.Min - 0.5), cubeSize * ((Vector3D)block.Max + 0.5));
             var gridWorldMatrix = block.CubeGrid.WorldMatrix;
-
-            return voxelMap.IsAnyAabbCornerInside(ref gridWorldMatrix, localAAABB);
-        }
-
-        public static void GetBlocksInMultiBlock(MyCubeGrid grid, Vector3I position, MyMultiBlockDefinition multiBlockDefinition, int multiBlockId, 
-            HashSet<Tuple<MySlimBlock, ushort?>> outMultiBlocks)
-        {
-            Debug.Assert(multiBlockId != 0);
-            if (multiBlockId == 0)
-                return;
-
-            int maxSize = multiBlockDefinition.GetMaxSize();
-
-            Vector3I minPos = position - maxSize;
-            Vector3I maxPos = position + maxSize;
-            GetBlocksInMultiBlock(grid, minPos, maxPos, multiBlockDefinition, multiBlockId, outMultiBlocks);
-        }
-
-        /// <summary>
-        /// Writes multiblocks (compound block and block ID) to outMultiBlocks collection with the same multiblockId.
-        /// </summary>
-        public static void GetBlocksInMultiBlock(MyCubeGrid grid, Vector3I minPosition, Vector3I maxPosition, MyMultiBlockDefinition multiBlockDefinition, int multiBlockId,
-            HashSet<Tuple<MySlimBlock, ushort?>> outMultiBlocks)
-        {
-            Debug.Assert(multiBlockId != 0);
-            if (multiBlockId == 0)
-                return;
-
-            Vector3I cube = minPosition;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref minPosition, ref maxPosition); it.IsValid(); it.GetNext(out cube))
+            foreach(var map in m_tmpVoxelList)
             {
-                MySlimBlock slimBlock = grid.GetCubeBlock(cube);
-                if (slimBlock == null)
-                    continue;
-
-                MyCompoundCubeBlock compound = slimBlock.FatBlock as MyCompoundCubeBlock;
-
-                if (compound != null)
+                if (map.IsAnyAabbCornerInside(ref gridWorldMatrix, localAAABB))
                 {
-                    m_tmpSlimBlocks.Clear();
-
-                    foreach (var blockInCompound in compound.GetBlocks(m_tmpSlimBlocks))
-                    {
-                        if (blockInCompound.MultiBlockDefinition == multiBlockDefinition && blockInCompound.MultiBlockId == multiBlockId)
-                        {
-                            ushort? blockInCompoundId = compound.GetBlockId(blockInCompound);
-                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, blockInCompoundId));
-                        }
-                    }
-
-                    m_tmpSlimBlocks.Clear();
-                }
-                else
-                {
-                    MyFracturedBlock fracturedBlock = slimBlock.FatBlock as MyFracturedBlock;
-                    if (fracturedBlock != null)
-                    {
-                        if (fracturedBlock.IsMultiBlockPart(multiBlockDefinition.Id, multiBlockId))
-                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, null));
-                    }
-                    else
-                    {
-                        if (slimBlock.MultiBlockDefinition == multiBlockDefinition && slimBlock.MultiBlockId == multiBlockId)
-                            outMultiBlocks.Add(new Tuple<MySlimBlock, ushort?>(slimBlock, null));
-                    }
+                    return true;
                 }
             }
+            return false;
         }
 
+        public static void CreateGridGroupLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child)
+        {
+            MyCubeGridGroups.Static.CreateLink(type, linkId, parent, child);
+        }
+
+        public static bool BreakGridGroupLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child)
+        {
+            return MyCubeGridGroups.Static.BreakLink(type, linkId, parent, child);
+        }
     }
 
     struct BlockMaterial

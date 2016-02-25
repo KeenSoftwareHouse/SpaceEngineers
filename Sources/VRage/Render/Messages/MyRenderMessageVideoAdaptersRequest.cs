@@ -5,9 +5,9 @@ using System.Text;
 
 namespace VRageRender
 {
-    class MyRenderMessageVideoAdaptersRequest : IMyRenderMessage
+    class MyRenderMessageVideoAdaptersRequest : MyRenderMessageBase
     {
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.VideoAdaptersRequest; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.VideoAdaptersRequest; } }
     }
 }

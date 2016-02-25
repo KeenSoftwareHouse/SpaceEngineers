@@ -74,6 +74,11 @@ namespace Sandbox.Game.AI.Pathfinding
             Debug.Assert(success, "Could not find the high-level primitive neighbor!");
         }
 
+        public void UpdatePosition(Vector3 position)
+        {
+            m_position = position;
+        }
+
         public IMyHighLevelComponent GetComponent()
         {
             return m_parent.LowLevelGroup.GetComponent(this);

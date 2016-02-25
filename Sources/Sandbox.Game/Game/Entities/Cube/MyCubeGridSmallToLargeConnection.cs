@@ -34,9 +34,18 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.EntityComponents;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Models;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Cube
 {
+    /// <summary>
+    /// Class which handles small block to large one connection. Such connection creates block and grid groups so connected grids can be copied together.
+    /// It is done on server and client, but client uses it only for groups (copying of all grids together), dynamic grid testing is processed on server only.
+    /// </summary>
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class MyCubeGridSmallToLargeConnection : MySessionComponentBase
     {
@@ -80,7 +89,23 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyCubeGridSmallToLargeConnection()
         {
+        }
+
+        public override bool IsRequiredByGame
+        {
+            get { return base.IsRequiredByGame && MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS; }
+        }
+
+        public override void LoadData()
+        {
+            base.LoadData();
             Static = this;
+        }
+
+        protected override void UnloadData()
+        {
+            base.UnloadData();
+            Static = null;
         }
 
         /// <summary>
@@ -93,8 +118,12 @@ namespace Sandbox.Game.Entities.Cube
             BoundingBoxD aabb = new BoundingBoxD(block.Min * block.CubeGrid.GridSize - block.CubeGrid.GridSize / 2, block.Max * block.CubeGrid.GridSize + block.CubeGrid.GridSize / 2);
             if (block.FatBlock != null)
             {
+                var aabbCenter = aabb.Center;
                 aabb = (BoundingBoxD)block.FatBlock.Model.BoundingBox;
-                aabb.Translate(block.Position * block.CubeGrid.GridSize);
+                Matrix m;
+                block.FatBlock.Orientation.GetMatrix(out m);
+                aabb = aabb.Transform(m);
+                aabb.Translate(aabbCenter);
             }
 
             aabb = aabb.Transform(block.CubeGrid.WorldMatrix);
@@ -105,58 +134,29 @@ namespace Sandbox.Game.Entities.Cube
 
             for (int i = 0; i < boxOverlapList.Count; i++)
             {
-                var otherGrid = boxOverlapList[i] as MyCubeGrid;
-                if (otherGrid != null)
+                var otherBlock = boxOverlapList[i] as MyCubeBlock;
+                if (otherBlock != null && otherBlock.SlimBlock != block 
+                    && otherBlock.CubeGrid.IsStatic && otherBlock.CubeGrid.EnableSmallToLargeConnections && otherBlock.CubeGrid.SmallToLargeConnectionsInitialized 
+                    && otherBlock.CubeGrid != block.CubeGrid && otherBlock.CubeGrid.GridSizeEnum == cubeSizeEnum && !(otherBlock is MyFracturedBlock)
+                    && !(otherBlock.Components.Has<MyFractureComponentBase>()))
                 {
-                    foreach (var gridBlock in otherGrid.CubeBlocks)
+                    var compound = otherBlock as MyCompoundCubeBlock;
+                    if (compound != null)
                     {
-                        if (IsValidForConnection(gridBlock.FatBlock, block, cubeSizeEnum))
+                        foreach (var blockInCompound in compound.GetBlocks())
                         {
-                            if (!IsCompoundAndProcessed(gridBlock.FatBlock, block, outBlocks))
-                            {
-                                outBlocks.Add(gridBlock.FatBlock);
-                            }
+                            if (blockInCompound != block && !(blockInCompound.FatBlock.Components.Has<MyFractureComponentBase>()))
+                                outBlocks.Add(blockInCompound.FatBlock);
                         }
                     }
-                }
-                else
-                {
-                    var otherBlock = boxOverlapList[i] as MyCubeBlock;
-                    if (IsValidForConnection(otherBlock, block, cubeSizeEnum))
+                    else
                     {
-                        if (!IsCompoundAndProcessed(otherBlock, block, outBlocks))
-                        {
-                            outBlocks.Add(otherBlock);
-                        }                      
+                        outBlocks.Add(otherBlock);
                     }
                 }
             }
 
             boxOverlapList.Clear();
-        }
-
-        private bool IsCompoundAndProcessed(MyCubeBlock otherBlock, MySlimBlock connectingBlock, HashSet<MyCubeBlock> outBlocks)
-        {
-            var compound = otherBlock as MyCompoundCubeBlock;
-            if (compound != null)
-            {
-                foreach (var blockInCompound in compound.GetBlocks())
-                {
-                    if (blockInCompound != connectingBlock && !(blockInCompound.FatBlock.Components.Has<MyFractureComponentBase>()))
-                        outBlocks.Add(blockInCompound.FatBlock);
-                }
-                return true;
-            }
-            return false;
-        }
-
-        public bool IsValidForConnection(MyCubeBlock otherBlock, MySlimBlock connectingBlock, MyCubeSize cubeSizeEnumFilter)
-        {
-            bool result = otherBlock != null && otherBlock.SlimBlock != connectingBlock && otherBlock.CubeGrid.IsStatic && otherBlock.CubeGrid.EnableSmallToLargeConnections
-                    && otherBlock.CubeGrid != connectingBlock.CubeGrid && otherBlock.CubeGrid.GridSizeEnum == cubeSizeEnumFilter && !(otherBlock is MyFracturedBlock)
-                    && !(otherBlock.Components.Has<MyFractureComponentBase>());
-
-            return result;
         }
 
         /// <summary>
@@ -197,6 +197,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     slimBlockPairs = new HashSet<MySlimBlockPair>();
                     m_mapLargeGridToConnectedBlocks.Add(largeBlock.CubeGrid, slimBlockPairs);
+                    largeBlock.CubeGrid.OnClosing += CubeGrid_OnClosing;
                 }
                 slimBlockPairs.Add(pair);
             }
@@ -207,6 +208,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     slimBlockPairs = new HashSet<MySlimBlockPair>();
                     m_mapSmallGridToConnectedBlocks.Add(smallBlock.CubeGrid, slimBlockPairs);
+                    smallBlock.CubeGrid.OnClosing += CubeGrid_OnClosing;
                 }
                 slimBlockPairs.Add(pair);
             }
@@ -250,7 +252,10 @@ namespace Sandbox.Game.Entities.Cube
                     bool removed = slimBlockPairs.Remove(pair);
                     Debug.Assert(removed);
                     if (slimBlockPairs.Count == 0)
+                    {
                         m_mapLargeGridToConnectedBlocks.Remove(largeGrid);
+                        largeGrid.OnClosing -= CubeGrid_OnClosing;
+                    }
                 }
                 else
                 {
@@ -265,7 +270,10 @@ namespace Sandbox.Game.Entities.Cube
                     bool removed = slimBlockPairs.Remove(pair);
                     Debug.Assert(removed);
                     if (slimBlockPairs.Count == 0)
+                    {
                         m_mapSmallGridToConnectedBlocks.Remove(smallGrid);
+                        smallGrid.OnClosing -= CubeGrid_OnClosing;
+                    }
                 }
                 else
                 {
@@ -290,10 +298,10 @@ namespace Sandbox.Game.Entities.Cube
         /// <returns>Returns true when small/large block connection has been added otherwise false.</returns>
         internal bool AddGridSmallToLargeConnection(MyCubeGrid grid)
         {
-            if (!Sync.IsServer)
+            if (!grid.IsStatic)
                 return false;
 
-            if (!grid.IsStatic)
+            if (!grid.EnableSmallToLargeConnections || !grid.SmallToLargeConnectionsInitialized)
                 return false;
 
             bool retval = false;
@@ -314,13 +322,11 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         public bool AddBlockSmallToLargeConnection(MySlimBlock block)
         {
-            if (!Sync.IsServer)
-                return false;
-
             if (!m_smallToLargeCheckEnabled)
                 return true;
 
-            if (!block.CubeGrid.IsStatic || block.FatBlock == null || block.FatBlock.Components.Has<MyFractureComponentBase>())
+            if (!block.CubeGrid.IsStatic || !block.CubeGrid.EnableSmallToLargeConnections || !block.CubeGrid.SmallToLargeConnectionsInitialized 
+                || block.FatBlock == null || block.FatBlock.Components.Has<MyFractureComponentBase>())
                 return false;
 
             bool retval = false;
@@ -397,9 +403,6 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void RemoveBlockSmallToLargeConnection(MySlimBlock block)
         {
-            if (!Sync.IsServer)
-                return;
-
             if (!m_smallToLargeCheckEnabled)
                 return;
 
@@ -421,11 +424,14 @@ namespace Sandbox.Game.Entities.Cube
             {
                 RemoveChangedLargeBlockConnectionToSmallBlocks(block, m_tmpGrids);
 
-                // Convert free small grids to dynamic
-                foreach (var smallGrid in m_tmpGrids)
+                if (Sync.IsServer)
                 {
-                    if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                        smallGrid.TestDynamic = true;
+                    // Convert free small grids to dynamic
+                    foreach (var smallGrid in m_tmpGrids)
+                    {
+                        if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
+                            smallGrid.TestDynamic = true;
+                    }
                 }
 
                 m_tmpGrids.Clear();
@@ -437,7 +443,7 @@ namespace Sandbox.Game.Entities.Cube
                 var group = MyCubeGridGroups.Static.SmallToLargeBlockConnections.GetGroup(block);
                 if (group == null)
                 {
-                    if (block.CubeGrid.GetBlocks().Count > 0)
+                    if (Sync.IsServer && block.CubeGrid.GetBlocks().Count > 0)
                     {
                         // Convert free small grid to dynamic
                         if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
@@ -471,7 +477,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_tmpSlimBlocks.Clear();
 
                 HashSet<MySlimBlockPair> connections;
-                if (!m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
+                if (Sync.IsServer && !m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
                 {
                     // Convert free small grid to dynamic
                     if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
@@ -486,12 +492,21 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void GridConvertedToDynamic(MyCubeGrid grid)
         {
-            if (!Sync.IsServer)
-                return;
+            if (grid.GridSizeEnum == MyCubeSize.Small) 
+            {
+                RemoveSmallGridConnections(grid);
+                if (Sync.IsServer) 
+                    MyMultiplayer.RaiseEvent(grid, x => x.RequestConvertToDynamic);
+            }
+            else
+            {
+                RemoveLargeGridConnections(grid);
+            }
+        }
 
-            if (grid.GridSizeEnum == MyCubeSize.Small)
-                return;
-
+        private void RemoveLargeGridConnections(MyCubeGrid grid)
+        {
+            Debug.Assert(grid.GridSizeEnum == MyCubeSize.Large);
             Debug.Assert(m_tmpGrids.Count == 0);
             m_tmpGrids.Clear();
 
@@ -500,7 +515,7 @@ namespace Sandbox.Game.Entities.Cube
                 return;
 
             m_tmpBlockConnections.Clear();
-            m_tmpBlockConnections.AddList(connections.ToList());
+            m_tmpBlockConnections.AddRange(connections);
 
             foreach (var connection in m_tmpBlockConnections)
             {
@@ -510,34 +525,57 @@ namespace Sandbox.Game.Entities.Cube
 
             m_tmpBlockConnections.Clear();
 
-            Debug.Assert(m_tmpGridList.Count == 0);
-            m_tmpGridList.Clear();
-
-            // Remove small grids with some connections
-            foreach (var smallGrid in m_tmpGrids)
+            if (Sync.IsServer)
             {
-                Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
-                if (m_mapSmallGridToConnectedBlocks.TryGetValue(smallGrid, out connections))
-                    m_tmpGridList.Add(smallGrid);
-            }
+                Debug.Assert(m_tmpGridList.Count == 0);
+                m_tmpGridList.Clear();
 
-            foreach (var smallgGrid in m_tmpGridList)
-                m_tmpGrids.Remove(smallgGrid);
+                // Remove small grids with some connections
+                foreach (var smallGrid in m_tmpGrids)
+                {
+                    Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
+                    if (m_mapSmallGridToConnectedBlocks.ContainsKey(smallGrid))
+                        m_tmpGridList.Add(smallGrid);
+                }
 
-            m_tmpGridList.Clear();
+                foreach (var smallgGrid in m_tmpGridList)
+                    m_tmpGrids.Remove(smallgGrid);
 
-            // Convert free small grids to dynamic
-            foreach (var smallGrid in m_tmpGrids)
-            {
-                if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                    smallGrid.TestDynamic = true;
+                m_tmpGridList.Clear();
+
+                // Convert free small grids to dynamic
+                foreach (var smallGrid in m_tmpGrids)
+                {
+                    if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
+                        smallGrid.TestDynamic = true;
+                }
             }
 
             m_tmpGrids.Clear();
         }
 
+        private void RemoveSmallGridConnections(MyCubeGrid grid)
+        {
+            Debug.Assert(grid.GridSizeEnum == MyCubeSize.Small);
+
+            HashSet<MySlimBlockPair> connections;
+            if (!m_mapSmallGridToConnectedBlocks.TryGetValue(grid, out connections))
+                return;
+
+            m_tmpBlockConnections.Clear();
+            m_tmpBlockConnections.AddRange(connections);
+
+            foreach (var connection in m_tmpBlockConnections)
+            {
+                DisconnectSmallToLargeBlock(connection.Child, connection.Parent);
+            }
+
+            m_tmpBlockConnections.Clear();
+        }
+
+
         /// <summary>
-        /// Tests whether the given small grid connect to any large tatic block.
+        /// Tests whether the given small grid connects to any large static block.
         /// </summary>
         /// <returns>true if small grid connects to a latge grid otherwise false</returns>
         public bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
@@ -546,6 +584,10 @@ namespace Sandbox.Game.Entities.Cube
 
             if (!smallGrid.IsStatic)
                 return false;
+
+            // On clients all static grids are connected. Only server calculates connections.
+            if (!Sync.IsServer)
+                return true;
 
             // Any connection in grid
             HashSet<MySlimBlockPair> connections;
@@ -744,9 +786,6 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void BeforeGridSplit_SmallToLargeGridConnectivity(MyCubeGrid originalGrid)
         {
-            if (!Sync.IsServer)
-                return;
-
             m_smallToLargeCheckEnabled = false;
         }
 
@@ -755,9 +794,6 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void AfterGridSplit_SmallToLargeGridConnectivity(MyCubeGrid originalGrid, List<MyCubeGrid> gridSplits)
         {
-            if (!Sync.IsServer)
-                return;
-
             m_smallToLargeCheckEnabled = true;
 
             if (originalGrid.GridSizeEnum == MyCubeSize.Small)
@@ -798,14 +834,17 @@ namespace Sandbox.Game.Entities.Cube
 
             }
 
-            // Test dynamic
-            if (!m_mapSmallGridToConnectedBlocks.TryGetValue(originalGrid, out connections) || connections.Count == 0)
-                originalGrid.TestDynamic = true;
-
-            foreach (var split in gridSplits)
+            if (Sync.IsServer)
             {
-                if (!m_mapSmallGridToConnectedBlocks.TryGetValue(split, out connections) || connections.Count == 0)
-                    split.TestDynamic = true;
+                // Test dynamic
+                if (!m_mapSmallGridToConnectedBlocks.TryGetValue(originalGrid, out connections) || connections.Count == 0)
+                    originalGrid.TestDynamic = true;
+
+                foreach (var split in gridSplits)
+                {
+                    if (!m_mapSmallGridToConnectedBlocks.TryGetValue(split, out connections) || connections.Count == 0)
+                        split.TestDynamic = true;
+                }
             }
         }
 
@@ -849,9 +888,6 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void BeforeGridMerge_SmallToLargeGridConnectivity(MyCubeGrid originalGrid, MyCubeGrid mergedGrid)
         {
-            if (!Sync.IsServer)
-                return;
-
             Debug.Assert(m_tmpGrids.Count == 0);
             m_tmpGrids.Clear();
 
@@ -868,9 +904,6 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         internal void AfterGridMerge_SmallToLargeGridConnectivity(MyCubeGrid originalGrid)
         {
-            if (!Sync.IsServer)
-                return;
-
             m_smallToLargeCheckEnabled = true;
 
             if (m_tmpGrids.Count == 0)
@@ -889,7 +922,7 @@ namespace Sandbox.Game.Entities.Cube
                         continue;
 
                     m_tmpBlockConnections.Clear();
-                    m_tmpBlockConnections.AddList(connections.ToList());
+                    m_tmpBlockConnections.AddRange(connections);
 
                     //Debug.WriteLine("AfterGridMerge:Restored connections: " + m_tmpBlockConnections.Count);
 
@@ -914,7 +947,7 @@ namespace Sandbox.Game.Entities.Cube
                         continue;
 
                     m_tmpBlockConnections.Clear();
-                    m_tmpBlockConnections.AddList(connections.ToList());
+                    m_tmpBlockConnections.AddRange(connections);
 
                     foreach (var connection in m_tmpBlockConnections)
                     {
@@ -931,6 +964,15 @@ namespace Sandbox.Game.Entities.Cube
 
             m_tmpGrids.Clear();
             m_tmpBlockConnections.Clear();
+        }
+
+        private void CubeGrid_OnClosing(MyEntity entity)
+        {
+            MyCubeGrid grid = (MyCubeGrid)entity;
+            if (grid.GridSizeEnum == MyCubeSize.Small)
+                RemoveSmallGridConnections(grid);
+            else
+                RemoveLargeGridConnections(grid);
         }
 
         private static MyCubeSize GetCubeSize(MySlimBlock block)

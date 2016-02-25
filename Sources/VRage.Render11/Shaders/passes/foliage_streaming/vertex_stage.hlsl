@@ -1,12 +1,6 @@
-struct VertexStageOutput
-{
-    float3 position : POSITION;
-    float3 position_world : POSITION1;
-    float3 normal : NORMAL;
-    float3 weights  : TEXCOORD0;
-};
+#include <Foliage/foliage.h>
 
-void __vertex_shader(__VertexInput input, out VertexStageOutput output)
+void __vertex_shader(__VertexInput input, out FoliageStreamVertex output)
 {
     VertexShaderInterface vertex = __prepare_interface(input);
 

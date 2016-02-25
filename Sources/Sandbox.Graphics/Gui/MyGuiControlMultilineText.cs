@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -34,6 +34,7 @@ namespace Sandbox.Graphics.GUI
 
         private bool m_drawScrollbar;
         private float m_scrollbarOffset;
+        private bool m_showTextShadow;
 
         private bool m_selectable;
 
@@ -147,7 +148,8 @@ namespace Sandbox.Graphics.GUI
             StringBuilder contents = null,
             bool drawScrollbar = true,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
-            bool selectable = false)
+            bool selectable = false,
+            bool showTextShadow = false)
             : base(position: position,
                     size: size,
                     colorMask: backgroundColor,
@@ -164,7 +166,7 @@ namespace Sandbox.Graphics.GUI
             m_scrollbarSize = new Vector2(0.0334f, MyGuiConstants.COMBOBOX_VSCROLLBAR_SIZE.Y);
             m_scrollbarSize = MyGuiConstants.COMBOBOX_VSCROLLBAR_SIZE;
             float minLineHeight = MyGuiManager.MeasureString(Font, m_lineHeightMeasure, TextScaleWithLanguage).Y;
-            m_label = new MyRichLabel(ComputeRichLabelWidth(), minLineHeight);
+            m_label = new MyRichLabel(ComputeRichLabelWidth(), minLineHeight) { ShowTextShadow = showTextShadow };
             m_label.TextAlign = textAlign;
             m_text = new StringBuilder();
             m_selection = new MyGuiControlMultilineSelection();
@@ -610,6 +612,11 @@ namespace Sandbox.Graphics.GUI
         {
             get { return m_textScaleWithLanguage; }
             private set { m_textScaleWithLanguage = value; }
+        }
+
+        public bool ShowTextShadow
+        {
+            get { return m_showTextShadow; }
         }
 
         /// <summary>

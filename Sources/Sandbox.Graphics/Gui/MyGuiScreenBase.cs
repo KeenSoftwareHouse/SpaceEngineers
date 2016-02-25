@@ -1,13 +1,13 @@
 ﻿#region Using
 
 using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
@@ -557,6 +557,9 @@ namespace Sandbox.Graphics.GUI
 
         public virtual void HandleInput(bool receivedFocusInThisUpdate)
         {
+            //  Dont allow any input when the screen is not in OPENED state
+            if (!IsLoaded || State != MyGuiScreenState.OPENED) return;
+
             //  Here we can make some one-time initialization hidden in update
             bool isThisFirstHandleInput = !m_firstUpdateServed;
 
@@ -1202,6 +1205,16 @@ namespace Sandbox.Graphics.GUI
         public string DebugNamePath
         {
             get { return GetFriendlyName(); }
+        }
+
+        public string Name
+        {
+            get { return GetFriendlyName(); }
+        }
+
+        public IMyGuiControlsOwner Owner
+        {
+            get { return null; }
         }
 
         #endregion

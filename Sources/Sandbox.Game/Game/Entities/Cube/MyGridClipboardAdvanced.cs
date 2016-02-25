@@ -17,6 +17,8 @@ using VRageRender;
 using VRage.ModAPI;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -25,9 +27,9 @@ namespace Sandbox.Game.Entities.Cube
     /// </summary>
     class MyGridClipboardAdvanced : MyGridClipboard
     {
-        private static List<Vector3> m_tmpCollisionPoints = new List<Vector3>();
+        private static List<Vector3D> m_tmpCollisionPoints = new List<Vector3D>();
 
-        private List<MyCubeGrid> m_touchingGrids = new List<MyCubeGrid>();
+        protected List<MyCubeGrid> m_touchingGrids = new List<MyCubeGrid>();
 
         protected bool m_dynamicBuildAllowed;
 
@@ -44,7 +46,6 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyGridClipboardAdvanced(MyPlacementSettings settings, bool calculateVelocity = true) : base(settings, calculateVelocity)
         {
-            EnableGridChangeToDynamic = false;
             m_useDynamicPreviews = false;
             m_dragDistance = 0;
         }
@@ -54,7 +55,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!IsActive || !m_visible)
                 return;
 
-            UpdateHitEntity();
+            UpdateHitEntity(false);
 
             if (!m_visible)
             {
@@ -72,7 +73,7 @@ namespace Sandbox.Game.Entities.Cube
                 FixSnapTransformationBase6();
 
             if (m_calculateVelocity)
-                m_objectVelocity = (m_pastePosition - m_pastePositionPrevious) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_objectVelocity = (m_pastePosition - m_pastePositionPrevious) / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             m_canBePlaced = TestPlacement();
 
@@ -91,45 +92,6 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.Activate();
             SetupDragDistance();
-        }
-
-        private void UpdateHitEntity()
-        {
-            Debug.Assert(m_raycastCollisionResults.Count == 0);
-
-            MatrixD pasteMatrix = GetPasteMatrix();
-            MyPhysics.CastRay(pasteMatrix.Translation, pasteMatrix.Translation + pasteMatrix.Forward * m_dragDistance, m_raycastCollisionResults);
-
-            m_closestHitDistSq = float.MaxValue;
-            m_hitPos = new Vector3(0.0f, 0.0f, 0.0f);
-            m_hitNormal = new Vector3(1.0f, 0.0f, 0.0f);
-            m_hitEntity = null;
-
-            foreach (var hit in m_raycastCollisionResults)
-            {
-                if (hit.HkHitInfo.Body == null)
-                    continue;
-                MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
-                if (body == null)
-                    continue;
-                IMyEntity entity = body.Entity;
-                if ((entity is MyVoxelMap) || (entity is MyCubeGrid && entity.EntityId != PreviewGrids[0].EntityId))
-                {
-                    if (PreviewGrids[0].GridSizeEnum == MyCubeSize.Large && (entity is MyCubeGrid) && (entity as MyCubeGrid).GridSizeEnum == MyCubeSize.Small)
-                        continue;
-
-                    float distSq = (float)(hit.Position - pasteMatrix.Translation).LengthSquared();
-                    if (distSq < m_closestHitDistSq)
-                    {
-                        m_closestHitDistSq = distSq;
-                        m_hitPos = hit.Position;
-                        m_hitNormal = hit.HkHitInfo.Normal;
-                        m_hitEntity = entity;
-                    }
-                }
-            }
-
-            m_raycastCollisionResults.Clear();
         }
 
         /// <summary>
@@ -188,16 +150,13 @@ namespace Sandbox.Game.Entities.Cube
                 return false;
 
             bool result;
-
-            bool isSnappedOnGrid = (m_hitEntity is MyCubeGrid) && IsSnapped && SnapMode == MyGridPlacementSettings.SnapMode.Base6Directions;
-            bool placingDynamicGrid = !CopiedGrids[0].IsStatic && !isSnappedOnGrid;
             bool placingOnDynamicGrid = (m_hitEntity is MyCubeGrid) && !((MyCubeGrid)m_hitEntity).IsStatic && !MyCubeBuilder.Static.DynamicMode;
 
             if (MyCubeBuilder.Static.DynamicMode)
             {
                 result = PasteGridsInDynamicMode(buildInventory, deactivate);
             }
-            else if (placingDynamicGrid || placingOnDynamicGrid)
+            else if (placingOnDynamicGrid)
             {
                 result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate);
             }
@@ -468,7 +427,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 try
                 {
-                    float? dist = MyPhysics.CastShape(rayEnd, shape, ref matrix, MyPhysics.CollisionLayerWithoutCharacter);
+                    float? dist = MyPhysics.CastShape(rayEnd, shape, ref matrix, MyPhysics.CollisionLayers.CollisionLayerWithoutCharacter);
                     if (dist.HasValue && dist.Value != 0f)
                     {
                         Vector3D intersectionPoint = rayStart + dist.Value * (rayEnd - rayStart);
@@ -568,7 +527,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 try
                 {
-                    float? dist = MyPhysics.CastShape(rayEnd, shape, ref matrix, MyPhysics.CollisionLayerWithoutCharacter);
+                    float? dist = MyPhysics.CastShape(rayEnd, shape, ref matrix, MyPhysics.CollisionLayers.CollisionLayerWithoutCharacter);
                     if (dist.HasValue && dist.Value != 0f)
                     {
                         Vector3D intersectionPoint = rayStart + dist.Value * (rayEnd - rayStart);
@@ -839,7 +798,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 BoundingBoxD aabb = (BoundingBoxD)grid.PositionComp.LocalAABB;
-                MatrixD invGridWorlMatrix = grid.PositionComp.GetWorldMatrixNormalizedInv();
+                MatrixD invGridWorlMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
 
                 // Character collisions.
                 if (MySector.MainCamera != null)
@@ -948,9 +907,9 @@ namespace Sandbox.Game.Entities.Cube
             Vector3I position;
             Vector3I.Transform(ref block.Position, ref transform, out position);
 
-            Vector3I forward = Base6Directions.GetIntVector(transform.GetDirection(block.Orientation.Forward));
-            Vector3I up = Base6Directions.GetIntVector(transform.GetDirection(block.Orientation.Up));
-            MyBlockOrientation blockOrientation = new MyBlockOrientation(Base6Directions.GetDirection(forward), Base6Directions.GetDirection(up));
+            var forward = transform.GetDirection(block.Orientation.Forward);
+            var up = transform.GetDirection(block.Orientation.Up);
+            MyBlockOrientation blockOrientation = new MyBlockOrientation(forward, up);
             Quaternion rotation;
             blockOrientation.GetQuaternion(out rotation);
 			var blockDefinition = block.BlockDefinition;
@@ -966,15 +925,10 @@ namespace Sandbox.Game.Entities.Cube
             Vector3I min = Vector3I.Min(positionMin, positionMax);
             Vector3I max = Vector3I.Max(positionMin, positionMax);
 
-            Vector3I forward = Base6Directions.GetIntVector(transform.GetDirection(block.Orientation.Forward));
-            Vector3I up = Base6Directions.GetIntVector(transform.GetDirection(block.Orientation.Up));
-
-            MyBlockOrientation blockOrientation = new MyBlockOrientation(Base6Directions.GetDirection(forward), Base6Directions.GetDirection(up));
-
-            if (!hitGrid.CanAddCubes(min, max, blockOrientation, block.BlockDefinition))
-                return false;
-
-            return MyCubeGrid.TestPlacementAreaCube(hitGrid, ref settings, min, max, blockOrientation, block.BlockDefinition, ignoredEntity: hitGrid);
+            var forward = transform.GetDirection(block.Orientation.Forward);
+            var up = transform.GetDirection(block.Orientation.Up);
+            MyBlockOrientation blockOrientation = new MyBlockOrientation(forward, up);
+            return hitGrid.CanPlaceBlock(min, max, blockOrientation, block.BlockDefinition, ref settings);
         }
 
         protected static bool TestBlockPlacement(MySlimBlock block, ref MyGridPlacementSettings settings)

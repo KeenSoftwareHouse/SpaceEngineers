@@ -42,32 +42,6 @@ namespace VRageRender
             }
         }
 
-        public float NearDistance 
-        {
-            get
-            {
-                return m_setup.LodTransitionNear.Value; 
-            }
-            set 
-            { 
-                m_setup.LodTransitionNear = value;
-                m_setup.LodTransitionFar = value;
-            }
-        }
-
-        public float FarDistance 
-        {
-            get 
-            { 
-                return m_setup.LodTransitionBackgroundStart.Value; 
-            } 
-            set 
-            { 
-                m_setup.LodTransitionBackgroundStart = value;
-                m_setup.LodTransitionBackgroundEnd = value;
-            }
-        }
-
         public MyEnvironmentMapRenderer()
         {
             SetRenderSetup();
@@ -245,11 +219,6 @@ namespace VRageRender
             m_setup.EnableEnvironmentMapping = false;
             m_setup.EnableOcclusionQueries = false;
             m_setup.EnableNear = false;
-
-            m_setup.LodTransitionNear = MyRenderConstants.RenderQualityProfile.EnvironmentLodTransitionDistance;
-            m_setup.LodTransitionFar = MyRenderConstants.RenderQualityProfile.EnvironmentLodTransitionDistance;
-            m_setup.LodTransitionBackgroundStart = MyRenderConstants.RenderQualityProfile.EnvironmentLodTransitionDistanceBackground;
-            m_setup.LodTransitionBackgroundEnd = MyRenderConstants.RenderQualityProfile.EnvironmentLodTransitionDistanceBackground;
         }
 
         public void UpdateFace(Vector3D position, int faceIndex)
@@ -264,7 +233,7 @@ namespace VRageRender
             m_setup.Viewport = new Viewport(0, 0, (int)m_environmentRT.GetLevelDescription(0).Width, (int)m_environmentRT.GetLevelDescription(0).Width);
             m_setup.ViewMatrix = CreateViewMatrix(face, position);
             m_setup.Fov = MathHelper.PiOver2;
-            m_setup.ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(m_setup.Fov.Value, m_setup.AspectRatio.Value, NearClip, m_setup.LodTransitionBackgroundEnd.Value);
+            m_setup.ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(m_setup.Fov.Value, m_setup.AspectRatio.Value, NearClip, MyRenderCamera.NEAR_PLANE_FOR_BACKGROUND);
             m_setup.DepthToAlpha = true;
 
             MyRender.GetRenderProfiler().StartProfilingBlock("Draw environmental maps");

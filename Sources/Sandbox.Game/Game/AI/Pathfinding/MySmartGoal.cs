@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
+using VRage.Game.Entity;
 using VRageMath;
 using VRageRender;
 
@@ -110,6 +111,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (m_endEntity != null)
             {
                 m_destination.UpdateWorldTransform(m_endEntity.WorldMatrix);
+                m_destinationCenter = m_destination.GetDestination();
             }
         }
 

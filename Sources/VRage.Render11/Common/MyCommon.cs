@@ -1,6 +1,7 @@
 ﻿using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -44,7 +45,6 @@ namespace VRageRender
         // samplers
         internal const int SHADOW_SAMPLER_SLOT = 15;
 
-
         internal static ConstantsBufferId FrameConstants { get; set; }
         internal static ConstantsBufferId ProjectionConstants { get; set; }
         internal static ConstantsBufferId ObjectConstants { get; set; }
@@ -54,8 +54,6 @@ namespace VRageRender
         internal static ConstantsBufferId AlphamaskViewsConstants { get; set; }
 
         internal static UInt64 FrameCounter = 0;
-
-        internal static MyRenderContext RC { get { return MyRenderContextPool.Immediate; } }
 
         internal unsafe static void Init()
         {
@@ -113,40 +111,63 @@ namespace VRageRender
              internal Matrix InvViewProjection;
              internal Matrix ViewProjectionWorld;
              internal Vector4 WorldOffset;
+
              internal Vector2 Resolution;
              internal float Time;
              internal float TimeDelta;
+
              internal Vector4 TerrainTextureDistances;
+
              internal Vector2 TerrainDetailRange;
              internal uint TilesNum;
              internal uint TilesX;
+
              internal Vector4 FoliageClippingScaling;
              internal Vector3 WindVector;
              internal float Tau;
+
              internal float BacklightMult;
              internal float EnvMult;
              internal float Contrast;
              internal float Brightness;
+
              internal float MiddleGrey;
              internal float LuminanceExposure;
              internal float BloomExposure;
              internal float BloomMult;
+
              internal float MiddleGreyCurveSharpness;
              internal float MiddleGreyAt0;
              internal float BlueShiftRapidness;
              internal float BlueShiftScale;
+
              internal float FogDensity;
              internal float FogMult;
              internal float FogYOffset;
              internal uint FogColor;
+
              internal Vector3 DirectionalLightDir;
              internal float SkyboxBlend;
+
              internal Vector3 DirectionalLightColor;
              internal float ForwardPassAmbient;
+
+             internal Vector3 AdditionalSunColor;
+             internal float AdditionalSunIntensity;
+
+             internal Vector4 SecondarySunDirection1;
+             internal Vector4 SecondarySunDirection2;
+             internal Vector4 SecondarySunDirection3;
+             internal Vector4 SecondarySunDirection4;
+             internal Vector4 SecondarySunDirection5;
+             internal int AdditionalSunCount;
+             internal Vector3 _Padding1;
+
              internal float Tonemapping_A;
              internal float Tonemapping_B;
              internal float Tonemapping_C;
              internal float Tonemapping_D;
+
              internal float Tonemapping_E;
              internal float Tonemapping_F;
              internal float LogLumThreshold;
@@ -183,6 +204,9 @@ namespace VRageRender
             FrameCounter++;
         }
 
+        static int m_lastGameplayFrame;
+        static int m_lastFrameGameplayUpdate;
+
         internal static void UpdateFrameConstants()
         {
             MyFrameConstantsLayout constants = new MyFrameConstantsLayout();
@@ -204,8 +228,17 @@ namespace VRageRender
             
             constants.TerrainDetailRange.X = 0;
             constants.TerrainDetailRange.Y = 0;
-            constants.Time = (float) ( MyRender11.CurrentDrawTime.Seconds - Math.Truncate(MyRender11.CurrentDrawTime.Seconds / 1000.0) * 1000 );
-            constants.TimeDelta = (float)(MyRender11.TimeDelta.Seconds);
+
+            var currentGameplayFrame = MyRender11.Settings.GameplayFrame;
+            constants.Time = (float) (currentGameplayFrame) / 60.0f;
+            constants.TimeDelta = (float)(currentGameplayFrame - m_lastGameplayFrame) / 60.0f;
+
+            if ((int)FrameCounter != m_lastFrameGameplayUpdate)
+            {
+                m_lastGameplayFrame = currentGameplayFrame;
+                m_lastFrameGameplayUpdate = (int)FrameCounter;
+            }
+
             constants.FoliageClippingScaling = new Vector4(
                 //MyRender.Settings.GrassGeometryClippingDistance,
                 MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance(),
@@ -267,8 +300,35 @@ namespace VRageRender
 
             constants.DirectionalLightColor = MyEnvironment.DirectionalLightIntensity;
             constants.DirectionalLightDir = MyEnvironment.DirectionalLightDir;
+
+            int lightIndex = 0;
+            if (MyEnvironment.AdditionalSunDirections != null && MyEnvironment.AdditionalSunDirections.Length > 0)
+            {
+                constants.AdditionalSunColor = MyEnvironment.AdditionalSunColors[0];
+                constants.AdditionalSunIntensity = MyEnvironment.AdditionalSunIntensities[0];
+
+                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
+                    constants.SecondarySunDirection1 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
+                ++lightIndex;
+                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
+                    constants.SecondarySunDirection2 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
+                ++lightIndex;
+                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
+                    constants.SecondarySunDirection3 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
+                ++lightIndex;
+                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
+                    constants.SecondarySunDirection4 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
+                ++lightIndex;
+                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
+                    constants.SecondarySunDirection5 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
+                ++lightIndex;
+                constants.AdditionalSunCount = MyEnvironment.AdditionalSunDirections.Length;
+            }
+            else
+                constants.AdditionalSunCount = 0;
+
             constants.SkyboxBlend = 1 - 2 * (float)(Math.Abs(-MyEnvironment.DayTime + 0.5));
-            constants.SkyboxBrightness = 1;
+            constants.SkyboxBrightness = MathHelper.Lerp(1.0f, 0.01f, MyEnvironment.PlanetFactor);
 			constants.ShadowFadeout = MyRender11.Settings.ShadowFadeoutMultiplier;
 
             constants.DebugVoxelLod = MyRenderSettings.DebugClipmapLodColor ? 1.0f : 0.0f;
@@ -289,8 +349,30 @@ namespace VRageRender
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 6, out constants.VoxelLodRange3.X, out constants.VoxelLodRange3.Y);
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 7, out constants.VoxelLodRange3.Z, out constants.VoxelLodRange3.W);
 
+            //
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 0, out constants.VoxelMassiveLodRange0.X, out constants.VoxelMassiveLodRange0.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 1, out constants.VoxelMassiveLodRange0.Z, out constants.VoxelMassiveLodRange0.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 2, out constants.VoxelMassiveLodRange1.X, out constants.VoxelMassiveLodRange1.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 3, out constants.VoxelMassiveLodRange1.Z, out constants.VoxelMassiveLodRange1.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 4, out constants.VoxelMassiveLodRange2.X, out constants.VoxelMassiveLodRange2.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 5, out constants.VoxelMassiveLodRange2.Z, out constants.VoxelMassiveLodRange2.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 6, out constants.VoxelMassiveLodRange3.X, out constants.VoxelMassiveLodRange3.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 7, out constants.VoxelMassiveLodRange3.Z, out constants.VoxelMassiveLodRange3.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 8, out constants.VoxelMassiveLodRange4.X, out constants.VoxelMassiveLodRange4.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 9, out constants.VoxelMassiveLodRange4.Z, out constants.VoxelMassiveLodRange4.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 10, out constants.VoxelMassiveLodRange5.X, out constants.VoxelMassiveLodRange5.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 11, out constants.VoxelMassiveLodRange5.Z, out constants.VoxelMassiveLodRange5.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 12, out constants.VoxelMassiveLodRange6.X, out constants.VoxelMassiveLodRange6.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 13, out constants.VoxelMassiveLodRange6.Z, out constants.VoxelMassiveLodRange6.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 14, out constants.VoxelMassiveLodRange7.X, out constants.VoxelMassiveLodRange7.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 15, out constants.VoxelMassiveLodRange7.Z, out constants.VoxelMassiveLodRange7.W);
+            
+
             var mapping = MyMapping.MapDiscard(MyCommon.FrameConstants);
-            mapping.stream.Write(constants);
+            mapping.WriteAndPosition(ref constants);
             mapping.Unmap();
         }
 
@@ -481,11 +563,11 @@ namespace VRageRender
         };
 
 
-        internal static void UpdateAlphamaskViewsConstants()
+        internal unsafe static void UpdateAlphamaskViewsConstants()
         {
             System.Diagnostics.Debug.Assert(s_viewVectorData.Length == 181, "Only supported scheme of views for now");
 
-            var viewVectors = new Matrix[s_viewVectorData.Length];
+            Matrix* viewVectors = stackalloc Matrix[s_viewVectorData.Length];
             for (int i = 0; i < s_viewVectorData.Length; i++)
             {
                 Matrix mm = Matrix.Identity;
@@ -506,10 +588,8 @@ namespace VRageRender
             }
 
             var mapping = MyMapping.MapDiscard(MyCommon.AlphamaskViewsConstants);
-            for (int i = 0; i < 181; i++)
-            {
-                mapping.stream.Write(viewVectors[i]);
-            }
+            for (int vectorIndex = 0; vectorIndex < s_viewVectorData.Length; ++vectorIndex)
+                mapping.WriteAndPosition(ref viewVectors[vectorIndex]);
             mapping.Unmap();
         }
     }

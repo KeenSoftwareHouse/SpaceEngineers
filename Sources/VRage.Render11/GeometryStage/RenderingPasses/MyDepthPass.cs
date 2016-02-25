@@ -1,11 +1,9 @@
 ﻿using SharpDX.Direct3D11;
-using System;
 using System.Diagnostics;
-
-using Matrix = VRageMath.Matrix;
 
 namespace VRageRender
 {
+    [PooledObject]
     class MyDepthPass : MyRenderingPass
     {
         internal DepthStencilView DSV;
@@ -13,13 +11,14 @@ namespace VRageRender
 
         internal sealed override void Begin()
         {
-            RC.BeginProfilingBlock("depth pass " + DebugName);
+            RC.BeginProfilingBlock("MyDepthPass");
 
             base.Begin();
 
             RC.SetRS(DefaultRasterizer);
             
-            Context.OutputMerger.SetTargets(DSV);
+            // Only write depth
+            Context.OutputMerger.SetTargets(DSV, (RenderTargetView)null);
 
             RC.SetPS(null);
             RC.SetDS(null);
@@ -32,18 +31,26 @@ namespace VRageRender
             RC.EndProfilingBlock();
         }
 
-        internal unsafe override sealed void RecordCommands(MyRenderableProxy proxy)
+        private bool IsProxyValidForDraw(MyRenderableProxy proxy)
         {
-			if (proxy.Mesh.Buffers.IB == IndexBufferId.NULL || proxy.DrawSubmesh.IndexCount == 0 || proxy.SkipIfTooSmall())
+            return proxy.DepthShaders != MyMaterialShadersBundleId.NULL && proxy.DrawSubmesh.BaseVertex >= 0 && proxy.DrawSubmesh.StartIndex >= 0 &&
+                proxy.DrawSubmesh.IndexCount > 0;
+        }
+
+        protected sealed override void RecordCommandsInternal(MyRenderableProxy proxy, int section)
+        {
+			if ((proxy.Mesh.Buffers == MyMeshBuffers.Empty && proxy.MergedMesh.Buffers == MyMeshBuffers.Empty))
             { 
                 return;
             }
 
+            if (!IsProxyValidForDraw(proxy))
+                return;
 
             Stats.Meshes++;
 
             SetProxyConstants(proxy);
-            BindProxyGeometry(proxy);
+            BindProxyGeometry(proxy, RC);
 
             Debug.Assert(proxy.DepthShaders.VS != null);
 
@@ -54,72 +61,30 @@ namespace VRageRender
             else
                 RC.SetRS(DefaultRasterizer);
 
-
-            //for (int i = 0; i < proxy.depthOnlySubmeshes.Length; i++)
-            //{
-            //    Stats.Submeshes++;
-
-            //    var submesh = proxy.depthOnlySubmeshes[i];
-
             var submesh = proxy.DrawSubmesh;
+            if (submesh.MaterialId != Locals.matTexturesID && (!((proxy.Flags & MyRenderableProxyFlags.DepthSkipTextures) > 0)))
+            {
+                Stats.MaterialConstantsChanges++;
 
-                if (submesh.MaterialId != Locals.matTexturesID && (!((proxy.Flags & MyRenderableProxyFlags.DepthSkipTextures) > 0)))
-                {
-                    Stats.MaterialConstantsChanges++;
+                Locals.matTexturesID = submesh.MaterialId;
+                var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
+                RC.MoveConstants(ref material.MaterialConstants);
+                RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
+                RC.SetSRVs(ref material.MaterialSRVs);
+            }
 
-                    Locals.matTexturesID = submesh.MaterialId;
-                    var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
-                    RC.MoveConstants(ref material.MaterialConstants);
-                    RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
-                    RC.SetSRVs(ref material.MaterialSRVs);
-                }
-
-                if (proxy.SkinningMatrices != null)
-                {
-                    Stats.ObjectConstantsChanges++;
-
-                    MyObjectData objectData = proxy.ObjectData;
-                    //objectData.Translate(-MyEnvironment.CameraPosition);
-
-                    MyMapping mapping;
-                    mapping = MyMapping.MapDiscard(RC.Context, proxy.ObjectBuffer);
-                    void* ptr = &objectData;
-                    mapping.stream.Write(new IntPtr(ptr), 0, sizeof(MyObjectData));
-
-                    if (proxy.SkinningMatrices != null)
-                    {
-                        if (submesh.BonesMapping == null)
-                        {
-                            for (int j = 0; j < Math.Min(MyRender11Constants.SHADER_MAX_BONES, proxy.SkinningMatrices.Length); j++)
-                            { 
-                                mapping.stream.Write(Matrix.Transpose(proxy.SkinningMatrices[j]));
-                            }
-                        }
-                        else
-                        {
-                            for (int j = 0; j < submesh.BonesMapping.Length; j++)
-                            {
-                                mapping.stream.Write(Matrix.Transpose(proxy.SkinningMatrices[submesh.BonesMapping[j]]));
-                            }
-                        }
-                    }
-
-                    mapping.Unmap();
-                }
-
-                if (proxy.InstanceCount == 0) {
-                    RC.Context.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
-                    RC.Stats.DrawIndexed++;
-                    Stats.Instances++;
-                    Stats.Triangles += submesh.IndexCount / 3;
-                }
-                else { 
-                    RC.Context.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
-                    RC.Stats.DrawIndexedInstanced++;
-                    Stats.Instances += proxy.InstanceCount;
-                    Stats.Triangles += proxy.InstanceCount * submesh.IndexCount / 3;
-                }
-            //}
+            if (proxy.InstanceCount == 0) 
+            {
+                RC.DeviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+                ++Stats.Instances;
+                ++RC.Stats.ShadowDrawIndexed;
+            }
+            else
+            {
+                RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                Stats.Instances += proxy.InstanceCount;
+                ++RC.Stats.ShadowDrawIndexedInstanced;
+            }
         }
 
         internal override void RecordCommands(ref MyRenderableProxy_2 proxy)
@@ -132,21 +97,19 @@ namespace VRageRender
             RC.SetRS(DefaultRasterizer);
 
             RC.BindShaders(proxy.DepthShaders);
-
             for (int i = 0; i < proxy.SubmeshesDepthOnly.Length; i++)
             {
                 var submesh = proxy.SubmeshesDepthOnly[i];
-                //RC.SetSRVs(ref proxy.Submeshes[i].MaterialProxy.MaterialSRVs);
 
                 if (proxy.InstanceCount == 0)
                 {
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
-                            RC.Context.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                            RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.Context.Draw(submesh.Count, submesh.Start);
+                            RC.DeviceContext.Draw(submesh.Count, submesh.Start);
                             break;
                         default:
                             break;
@@ -157,10 +120,10 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
-                            RC.Context.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                            RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.Context.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                            RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
                             break;
                         default:
                             break;
@@ -169,6 +132,30 @@ namespace VRageRender
             }
 
             base.RecordCommands(ref proxy);
+        }
+
+        [PooledObjectCleaner]
+        public static void Cleanup(MyDepthPass renderPass)
+        {
+            renderPass.Cleanup();
+        }
+
+        internal override void Cleanup()
+        {
+            base.Cleanup();
+
+            DSV = null;
+            DefaultRasterizer = null;
+        }
+
+        internal override MyRenderingPass Fork()
+        {
+            var renderPass = base.Fork() as MyDepthPass;
+
+            renderPass.DSV = DSV;
+            renderPass.DefaultRasterizer = DefaultRasterizer;
+
+            return renderPass;
         }
     }
 }

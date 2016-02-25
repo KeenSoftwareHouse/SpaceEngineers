@@ -183,12 +183,10 @@ namespace VRageMath
         /// Creates a BoundingSphereD that can contain a specified list of points.
         /// </summary>
         /// <param name="points">List of points the BoundingSphereD must contain.</param>
-        public static BoundingSphereD CreateFromPoints(IEnumerable<Vector3D> points)
+        public static BoundingSphereD CreateFromPoints(Vector3D[] points)
         {
-            IEnumerator<Vector3D> enumerator = points.GetEnumerator();
-            enumerator.MoveNext();
             Vector3D current;
-            Vector3D Vector3D_1 = current = enumerator.Current;
+            Vector3D Vector3D_1 = current = points[0];
             Vector3D Vector3D_2 = current;
             Vector3D Vector3D_3 = current;
             Vector3D Vector3D_4 = current;
@@ -268,7 +266,7 @@ namespace VRageMath
             if (frustum == (BoundingFrustumD)null)
                 throw new ArgumentNullException("frustum");
             else
-                return BoundingSphereD.CreateFromPoints((IEnumerable<Vector3D>)frustum.cornerArray);
+                return BoundingSphereD.CreateFromPoints(frustum.cornerArray);
         }
 
         /// <summary>

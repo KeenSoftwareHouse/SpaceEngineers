@@ -55,6 +55,16 @@ namespace VRage.Collections
             };
         }
 
+        public bool Contains(T value)
+        {
+            bool isContained = false;
+            using (m_lock.Acquire())
+            {
+                isContained = m_set.Contains(value);
+            };
+            return isContained;
+        }
+
         struct MyConcurrentHashSetEnumerator : IEnumerator<T>
         {
             IEnumerator<T> setEnumerator;

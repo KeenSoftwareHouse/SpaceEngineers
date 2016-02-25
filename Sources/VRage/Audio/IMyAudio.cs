@@ -61,6 +61,12 @@ namespace VRage.Audio
             set;
         }
 
+        float VolumeVoiceChat
+        {
+            get;
+            set;
+        }
+
         void Pause();
         void Resume();
         void PauseGameSounds();
@@ -91,11 +97,13 @@ namespace VRage.Audio
 
         event Action<bool> VoiceChatEnabled;
 
-        void PlayMusic(MyMusicTrack? track = null);
+        void PlayMusic(MyMusicTrack? track = null, int priorityForRandom = 0);
         void StopMusic();
         void MuteHud(bool mute);
         
         bool HasAnyTransition();
+
+        bool IsValidTransitionCategory(MyStringId transitionCategory, MyStringId musicCategory);
 
         void LoadData(MyAudioInitParams initParams, ListReader<MySoundData> cues, ListReader<MyAudioEffect> effects);
         void UnloadData();

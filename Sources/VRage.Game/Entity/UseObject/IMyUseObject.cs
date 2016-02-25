@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Import;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
@@ -37,6 +38,10 @@ namespace VRage.Game.Entity.UseObject
 
     public interface IMyUseObject
     {
+        IMyEntity Owner { get; }
+
+        MyModelDummy Dummy { get; }
+
         /// <summary>
         /// Consider object as being in interactive range only if distance from character is smaller or equal to this value
         /// </summary>

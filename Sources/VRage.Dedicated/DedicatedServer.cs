@@ -1,12 +1,12 @@
 ﻿using Microsoft.Win32;
 using Sandbox;
 using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,6 +14,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
+using VRage.Game;
+using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Service;
 using VRage.Utils;
@@ -43,10 +45,15 @@ namespace VRage.Dedicated
             if (Environment.UserInteractive)
             {
                 MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+                MyPlugins.RegisterGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModObjBuildersAssembly);
                 MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
                 MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
                 MyPlugins.RegisterFromArgs(args);
                 MyPlugins.Load();
+                bool resultRegisterAssemblies = MyObjectBuilderType.RegisterAssemblies();
+                Debug.Assert(resultRegisterAssemblies,"Registering object builders types from assemblies failed.");
+                resultRegisterAssemblies = MyObjectBuilderSerializer.RegisterAssembliesAndLoadSerializers();
+                Debug.Assert(resultRegisterAssemblies, "Registering object builders serializers from assemblies failed.");
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
                 MyConfigurator.Start<T>();
                 MyPlugins.Unload();
@@ -169,7 +176,7 @@ namespace VRage.Dedicated
 
             if (args.Contains("-report"))
             {
-                if (args.Count() > 1)
+                if (args.Length > 1)
                     MyErrorReporter.ReportNotInteractive(args[1], "SEDS");
                 return true;
             }

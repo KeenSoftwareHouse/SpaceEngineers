@@ -1,5 +1,5 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
@@ -10,15 +10,21 @@ using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
+using VRage.Game.Entity;
+using VRage;
+using Sandbox.Game.EntityComponents;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
 	[PreloadRequired]
-	[MyComponentBuilder(typeof(MyObjectBuilder_EntityStatComponent))]
+    [MyComponentType(typeof(MyEntityStatComponent))]
+    [MyComponentBuilder(typeof(MyObjectBuilder_EntityStatComponent))]
 	public class MyEntityStatComponent : MyEntityComponentBase
 	{
 		#region Sync
@@ -180,7 +186,8 @@ namespace Sandbox.Game.Components
 			{
 				foreach(var actionPair in script.StatActions)
 				{
-					actionMsg.StatActions.Add(actionPair.Key, actionPair.Value);
+                    if (!actionMsg.StatActions.ContainsKey(actionPair.Key))
+					    actionMsg.StatActions.Add(actionPair.Key, actionPair.Value);
 				}
 			}
 
@@ -220,6 +227,7 @@ namespace Sandbox.Game.Components
 		private static List<MyEntityStat> m_statSyncList = new List<MyEntityStat>();
 
 		private int m_updateCounter = 0;
+        private bool m_statActionsRequested = false;
 
 		public MyEntityStatComponent()
 		{
@@ -266,6 +274,14 @@ namespace Sandbox.Game.Components
 		public override void Deserialize(MyObjectBuilder_ComponentBase objectBuilder)
 		{
 			var builder = objectBuilder as MyObjectBuilder_CharacterStatComponent;
+
+            // Because of switching helmet on/off
+            foreach (var script in m_scripts)
+            {
+                script.Close();
+            }
+            m_scripts.Clear();
+
 			if (builder != null)
 			{
 				if (builder.Stats != null)
@@ -277,12 +293,16 @@ namespace Sandbox.Game.Components
 							&& statDefinition.Enabled
 							&& ((statDefinition.EnabledInCreative && MySession.Static.CreativeMode)
 							|| (statDefinition.AvailableInSurvival && MySession.Static.SurvivalMode)))
-							AddStat(stat.SubtypeId, stat);
+							AddStat(MyStringHash.GetOrCompute(statDefinition.Name), stat, true);
 					}
 				}
 
 				if (builder.ScriptNames != null && Sync.IsServer)
 				{
+                    // Should fix broken saves
+                    // I assume that StatComponent should hold only once instance per script
+                    builder.ScriptNames = builder.ScriptNames.Distinct().ToArray();
+
 					foreach (var scriptName in builder.ScriptNames)
 					{
 						InitScript(scriptName);
@@ -300,59 +320,61 @@ namespace Sandbox.Game.Components
 
 		#endregion
 
-		public void InitStats(MyStatsDefinition definition)
-		{
-			if (definition == null || !definition.Enabled || (!definition.AvailableInSurvival && MySession.Static.SurvivalMode))
-				return;
+        public override void Init(MyComponentDefinitionBase definition)
+        {
+            base.Init(definition);
 
-			foreach (var statId in definition.Stats)
-			{
-				MyEntityStatDefinition statDefinition = null;
-				if (!MyDefinitionManager.Static.TryGetDefinition(statId, out statDefinition))
-					continue;
+            MyEntityStatComponentDefinition entityStatDefinition = definition as MyEntityStatComponentDefinition;
+            Debug.Assert(entityStatDefinition != null);
 
-				if (!statDefinition.Enabled
-					|| (!statDefinition.EnabledInCreative && MySession.Static.CreativeMode)
-					|| (!statDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
-					continue;
+            if (entityStatDefinition == null || !entityStatDefinition.Enabled || MySession.Static == null || (!entityStatDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
+                return;
 
-				var nameHash = MyStringHash.GetOrCompute(statDefinition.Name);
-				MyEntityStat existingStat = null;
-				if (m_stats.TryGetValue(statId.SubtypeId, out existingStat) && existingStat.StatId == nameHash)
-					continue;
+            foreach (var statId in entityStatDefinition.Stats)
+            {
+                MyEntityStatDefinition statDefinition = null;
+                if (!MyDefinitionManager.Static.TryGetDefinition(statId, out statDefinition))
+                    continue;
 
-				var builder = new MyObjectBuilder_EntityStat();
-				builder.SubtypeName = statId.SubtypeName;
-				builder.MaxValue = 1.0f;
-				builder.Value = statDefinition.DefaultValue / statDefinition.MaxValue;
-				AddStat(nameHash, builder);
-			}
+                if (!statDefinition.Enabled
+                    || (!statDefinition.EnabledInCreative && MySession.Static.CreativeMode)
+                    || (!statDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
+                    continue;
 
-			if (Sync.IsServer)	// Only init scripts on server
-			{
-                // MW: remove all scripts because of the broken saves (Medieval character has multiple scripts (peasant's and player's))
-                foreach (var script in m_scripts)
+                var nameHash = MyStringHash.GetOrCompute(statDefinition.Name);
+                MyEntityStat existingStat = null;
+                if (m_stats.TryGetValue(nameHash, out existingStat) && existingStat.StatDefinition.Id.SubtypeId == statDefinition.Id.SubtypeId)
+                    continue;
+
+                var builder = new MyObjectBuilder_EntityStat();
+                builder.SubtypeName = statId.SubtypeName;
+                builder.MaxValue = 1.0f;
+                builder.Value = statDefinition.DefaultValue / statDefinition.MaxValue;
+                AddStat(nameHash, builder);
+            }
+
+            if (Sync.IsServer)	// Only init scripts on server
+            {
+                Debug.Assert(m_scripts.Count == 0);
+                foreach (var scriptName in entityStatDefinition.Scripts)
                 {
-                    script.Close();
+                    InitScript(scriptName);
                 }
-                m_scripts.Clear();
-
-				foreach (var scriptName in definition.Scripts)
-				{
-					InitScript(scriptName);
-				}
-			}
-			else
-			{
-				RequestStatActions();	// Only request the stat actions from the server
-			}
-		}
+                m_statActionsRequested = true;
+            }
+        }
 
 		public virtual void Update()
 		{
 			var entity = Container.Entity;
 			if (entity == null)
 				return;
+
+            if(!m_statActionsRequested)
+            {
+                RequestStatActions();   // Only request the stat actions from the server
+                m_statActionsRequested = true;
+            }
 
 			foreach (var script in m_scripts)
 			{
@@ -406,17 +428,22 @@ namespace Sandbox.Game.Components
 			base.OnBeforeRemovedFromContainer();
 		}
 
-		public bool CanDoAction(string actionId)
-		{
-			if (m_scripts == null || m_scripts.Count == 0)
-				return true;
+        public bool CanDoAction(string actionId, out MyTuple<ushort, MyStringHash> message, bool continuous = false)
+        {
+            message = new MyTuple<ushort, MyStringHash>(0, MyStringHash.NullOrEmpty);
+
+            if (m_scripts == null || m_scripts.Count == 0)
+                return true;
 
 			bool cannotPerformAction = true;
 			foreach (var script in m_scripts)
 			{
-				cannotPerformAction &= !script.CanDoAction(actionId);
+                MyTuple<ushort, MyStringHash> msg;
+                cannotPerformAction &= !script.CanDoAction(actionId, continuous, out msg);
+                if (msg.Item1 != 0)
+                    message = msg;
 			}
-
+            
 			return !cannotPerformAction;
 		}
 
@@ -430,6 +457,24 @@ namespace Sandbox.Game.Components
 			}
 			return actionPerformed;
 		}
+
+        public void ApplyModifier(string modifierId)
+        {
+            foreach (var script in m_scripts)
+            {
+                script.ApplyModifier(modifierId);
+            }
+        }
+
+        public float GetEfficiencyModifier(string modifierId)
+        {
+            float result = 1.0f;
+            foreach (var script in m_scripts)
+            {
+                result *= script.GetEfficiencyModifier(modifierId);
+            }
+            return result;
+        }
 
 		#region Private helper methods
 
@@ -448,21 +493,25 @@ namespace Sandbox.Game.Components
 			}
 		}
 
-		private MyEntityStat AddStat(MyStringHash statId, MyObjectBuilder_EntityStat objectBuilder)
+		private MyEntityStat AddStat(MyStringHash statId, MyObjectBuilder_EntityStat objectBuilder, bool forceNewValues = false)
 		{
 			MyEntityStat stat = null;
 
-			if (!m_stats.TryGetValue(statId, out stat))
-			{
-				stat = new MyEntityStat();
-				stat.Init(objectBuilder);
+            if (m_stats.TryGetValue(statId, out stat))
+            {
+                if(!forceNewValues)
+                    objectBuilder.Value = stat.CurrentRatio;
 
-				m_stats.Add(statId, stat);
-			}
-			else
-				stat.ClearEffects();
+                stat.ClearEffects();
+                m_stats.Remove(statId);
+            }
 
-			return stat;
+            stat = new MyEntityStat();
+            stat.Init(objectBuilder);
+
+            m_stats.Add(statId, stat);
+
+            return stat;
 		}
 
 		#endregion
