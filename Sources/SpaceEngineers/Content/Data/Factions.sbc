@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<!--
+  Template for fraction:
+  <Faction Tag="insert_tagName"(use more than 3 letters. With 3 it is possible to conflict with player tags) Founder="insert_founderName">
+     <Id>
+       <TypeId>MyObjectBuilder_FactionDefinition</TypeId>
+       <SubtypeId>Insert_SubTypeName</SubtypeId>
+     </Id>
+    <DisplayName>Insert_KeyToFractionDisplayName</DisplayName>
+    <AcceptHumans>true or false</AcceptHumans>
+    <AutoAcceptMember>true or false</AutoAcceptMember>
+    <EnableFriendlyFire>true or false</EnableFriendlyFire> (this one does not work fully. Ask Cestmir for more details)
+    <IsDefault>true or false</IsDefault> (Indicates if faction should be created in the world by default. Its owner will be visible in Ownership dropdown.
+    <DefaultRelation>Enemies | Neutral</DefaultRelation> (Indicates default state of the faction to everyone else. If faction is enemies by default, it will ignore peace(which is neutral in code) of 
+                                                          other factions). PS. If not set than default setting from game config will be used (per game setting).
+                                                          WARNING: in code currently Neutral state is Peace state in gameplay sense.   
+  </Faction>
+    -->
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Factions>
+    <Faction Tag="SPID" Founder="The Great Tarantula">
+      <Id>
+        <TypeId>MyObjectBuilder_FactionDefinition</TypeId>
+        <SubtypeId>Spiders</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Faction_SpaceSpiders</DisplayName>
+    </Faction>
+    <Faction Tag="SPRT" Founder="Space Pirates">
+      <Id>
+        <TypeId>MyObjectBuilder_FactionDefinition</TypeId>
+        <SubtypeId>SpacePirates</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Faction_SpacePirates</DisplayName>
+      <IsDefault>true</IsDefault>
+    </Faction>
+    <Faction Tag="FSTC" Founder="First Colonist">
+      <Id>
+        <TypeId>MyObjectBuilder_FactionDefinition</TypeId>
+        <SubtypeId>FirstColonist</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Faction_FirstColonyFaction</DisplayName>
+      <IsDefault>false</IsDefault>
+      <AcceptHumans>true</AcceptHumans>
+      <AutoAcceptMember>true</AutoAcceptMember>
+      <EnableFriendlyFire>true</EnableFriendlyFire>
+    </Faction>
+  </Factions>
+</Definitions>

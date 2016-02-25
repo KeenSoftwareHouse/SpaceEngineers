@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnvironmentItemsDefinitions>
+   
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_Trees</TypeId>
+    <SubtypeId>LeafTree</SubtypeId>
+  </Id>
+  <Channel>101</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_Trees</TypeId>
+        <SubtypeId>LeafTreeMedium</SubtypeId>
+      </Id>
+      <Channel>102</Channel>
+      <MaxViewDistance>800</MaxViewDistance>
+      <SectorSize>2000</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>20</ItemSize>
+    </Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_Trees</TypeId>
+    <SubtypeId>PineTree</SubtypeId>
+  </Id>
+  <Channel>103</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_Trees</TypeId>
+    <SubtypeId>DesertTree</SubtypeId>
+  </Id>
+  <Channel>104</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_Trees</TypeId>
+        <SubtypeId>DesertTreeMedium</SubtypeId>
+      </Id>
+      <Channel>105</Channel>
+      <MaxViewDistance>800</MaxViewDistance>
+      <SectorSize>2000</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>20</ItemSize>
+    </Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_Trees</TypeId>
+    <SubtypeId>DesertTreeDead</SubtypeId>
+  </Id>
+  <Channel>106</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_Trees</TypeId>
+        <SubtypeId>DesertTreeDeadMedium</SubtypeId>
+      </Id>
+      <Channel>107</Channel>
+      <MaxViewDistance>800</MaxViewDistance>
+      <SectorSize>2000</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>20</ItemSize>
+    </Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_Trees</TypeId>
+    <SubtypeId>PineTreeSnow</SubtypeId>
+  </Id>
+  <Channel>108</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_DestroyableItems</TypeId>
+    <SubtypeId>DeadBushSmall</SubtypeId>
+  </Id>
+  <Channel>109</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_DestroyableItems</TypeId>
+    <SubtypeId>PineBushSmall</SubtypeId>
+  </Id>
+  <Channel>110</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+<Definition>
+  <Id>
+    <TypeId>MyObjectBuilder_DestroyableItems</TypeId>
+    <SubtypeId>SnowPineBushSmall</SubtypeId>
+  </Id>
+  <Channel>111</Channel>
+  <MaxViewDistance>800</MaxViewDistance>
+  <SectorSize>2000</SectorSize>
+  <PhysicalMaterial>Wood</PhysicalMaterial>
+  <ItemSize>20</ItemSize>
+</Definition>
+
+  </EnvironmentItemsDefinitions>
+  <EnvironmentItemsEntries>
+  <Entry Type="MyObjectBuilder_Trees" Subtype="LeafTree" ItemSubtype="LeafTree" />    
+  <Entry Type="MyObjectBuilder_Trees" Subtype="LeafTreeMedium" ItemSubtype="LeafTreeMedium" />    
+	<Entry Type="MyObjectBuilder_Trees" Subtype="PineTree" ItemSubtype="PineTree" />
+	<Entry Type="MyObjectBuilder_Trees" Subtype="DesertTree" ItemSubtype="DesertTree" />
+  <Entry Type="MyObjectBuilder_Trees" Subtype="DesertTreeMedium" ItemSubtype="DesertTreeMedium" />
+	<Entry Type="MyObjectBuilder_Trees" Subtype="DesertTreeDead" ItemSubtype="DesertTreeDead" />
+  <Entry Type="MyObjectBuilder_Trees" Subtype="DesertTreeDeadMedium" ItemSubtype="DesertTreeDeadMedium" />
+	<Entry Type="MyObjectBuilder_Trees" Subtype="PineTreeSnow" ItemSubtype="PineTreeSnow" />
+	<Entry Type="MyObjectBuilder_DestroyableItems" Subtype="DeadBushSmall" ItemSubtype="DeadBushSmall" />
+	<Entry Type="MyObjectBuilder_DestroyableItems" Subtype="PineBushSmall" ItemSubtype="PineBushSmall" />
+	<Entry Type="MyObjectBuilder_DestroyableItems" Subtype="SnowPineBushSmall" ItemSubtype="SnowPineBushSmall" />
+  </EnvironmentItemsEntries>
+</Definitions>
