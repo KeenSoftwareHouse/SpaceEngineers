@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using Sandbox.Definitions;
 using VRage.Compiler;
 using VRageMath;
@@ -98,6 +99,7 @@ namespace Sandbox.Game.Entities.Blocks
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
         private new MySyncProgrammableBlock SyncObject;
+        private JToken mPublicStorage;
 
         public string TerminalRunArgument
         {
@@ -124,6 +126,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (result == ScriptTerminationReason.InstructionOverflow)
                 throw new ScriptOutOfRangeException();
             return result == ScriptTerminationReason.None;
+        }
+
+        public JToken PublicStorage
+        {
+            get { return this.mPublicStorage; }
+            set { this.mPublicStorage = value; }
         }
 
         public ulong UserId

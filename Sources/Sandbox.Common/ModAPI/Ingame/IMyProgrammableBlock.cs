@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -25,5 +26,11 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="argument"></param>
         /// <returns><c>true</c> if the action was applied, <c>false</c> otherwise</returns>
         bool TryRun(string argument);
+
+        /// <summary>
+        /// Provides access to the public storage of this programmable block. This storage
+        /// is a JToken for easy access.
+        /// </summary>
+        JToken PublicStorage { get; set; }
     }
 }

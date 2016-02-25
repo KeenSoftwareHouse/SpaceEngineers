@@ -23,7 +23,7 @@ namespace Sandbox.ModAPI.Ingame
     /// </example>
     public abstract class MyGridProgram : IMyGridProgram
     {
-        private JToken m_storage = "";
+        private string m_storage = "";
         private readonly Action<string> m_main;
 
         protected MyGridProgram()
@@ -70,7 +70,7 @@ namespace Sandbox.ModAPI.Ingame
         ///     var storedValue = (string)this.Storage;
         /// </example>
         /// </summary>
-        public virtual JToken Storage
+        public virtual string Storage
         {
             get { return this.m_storage; }
             protected set { this.m_storage = value ?? ""; }
@@ -101,26 +101,8 @@ namespace Sandbox.ModAPI.Ingame
 
         string IMyGridProgram.Storage
         {
-            get
-            {
-                if (Storage == null)
-                    return string.Empty;
-                return Storage.ToString(Formatting.None);
-            }
-            set
-            {
-                // To be backwards compatible, we simply fall back to a simple string if we can't
-                // parse the current storage variable. Next time the value should be valid JSON and we
-                // won't get an exception.
-                try
-                {
-                    this.Storage = JToken.Parse(value);
-                }
-                catch (JsonException)
-                {
-                    this.Storage = value;
-                }
-            }
+            get { return Storage; }
+            set { Storage = value; }
         }
 
         Action<string> IMyGridProgram.Echo
