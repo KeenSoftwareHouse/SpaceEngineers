@@ -24,10 +24,17 @@ namespace Sandbox.Game.Weapons
         private int m_burstFireTime_ms = 0;
         private int m_burstFireTimeLoadingIntervalConst_ms = 2000;
         private bool m_burstFinish = false;
-        private const int m_burstFireCount = 4;
         private int m_burstToFire = 0;
 
         private MyEntity3DSoundEmitter m_soundEmitter;
+
+        private int BurstFireRate
+        {
+            get
+            {
+                return this.GunBase.BurstFireRate;
+            }
+        }
 
         public MyLargeMissileBarrel()
         {
@@ -49,7 +56,7 @@ namespace Sandbox.Game.Weapons
 
         public void Init(Matrix localMatrix, MyLargeTurretBase parentObject)
         {
-            m_burstToFire = m_burstFireCount;
+            m_burstToFire = BurstFireRate;
             m_burstFireTime_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
             m_burstFireTime_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -90,7 +97,7 @@ namespace Sandbox.Game.Weapons
                     MyHud.Notifications.Add(reloadingNotification);
                 }
                 m_burstFireTime_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                m_burstToFire = m_burstFireCount;
+                m_burstToFire = BurstFireRate;
                 m_burstFinish = true;
             }
             if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_burstFireTime_ms) > m_burstFireTimeLoadingIntervalConst_ms)
