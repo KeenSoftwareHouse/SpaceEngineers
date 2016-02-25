@@ -2,6 +2,7 @@
 using VRage;
 using VRage.Serialization;
 using VRageRender;
+using VRage.Utils;
 
 namespace Sandbox.ModAPI
 {
@@ -31,6 +32,7 @@ namespace Sandbox.ModAPI
         int RefreshRate { get; }
         bool RenderInterpolation { get; }
         MyRenderQualityEnum? RenderQuality { get; }
+        MyGraphicsRenderer GraphicsRenderer { get; }
         bool RotationHints { get; }
         int? ScreenHeight { get; }
         int? ScreenWidth { get; }

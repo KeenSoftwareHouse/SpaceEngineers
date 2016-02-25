@@ -1048,6 +1048,22 @@ namespace Sandbox.Engine.Utils
             get { return Dx9RenderQuality; }
         }
 
+        MyGraphicsRenderer ModAPI.IMyConfig.GraphicsRenderer
+        {
+            get
+            {
+                var renderer = GraphicsRenderer;
+                if(renderer.HasValue)
+                {
+                    if (renderer.Value == MyStringId.GetOrCompute("DirectX 11"))
+                        return MyGraphicsRenderer.DX11;
+                    else if(renderer.Value == MyStringId.GetOrCompute("DirectX 9"))
+                        return MyGraphicsRenderer.DX9;
+                }
+                return MyGraphicsRenderer.NONE;
+            }
+        }
+
         bool ModAPI.IMyConfig.RotationHints
         {
             get { return RotationHints; }
