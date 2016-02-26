@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--
+  Usage:
+  
+  All entity component definitions (not components used in assemblers in game) have base class MyComponentDefinitionBase.
+  
+  You can define default definition for all components of same type, if you ommit the SubtypeId:
+  
+  <EntityComponents>
+    <EntityComponent xsi:type="MyObjectBuilder_CraftingComponentBlockDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_CraftingComponentBlock</TypeId>        
+      </Id>      
+    </EntityComponent>
+  </EntityComponents>
+  
+  You need to define type of the definition for deserializer - xsi:type="MyObjectBuilder_CraftingComponentBlockDefinition"
+  
+  When container on init of the components will look for component definition, it will first look for the same SubtypeId,
+  when it's not found, it will look for the definition with empty SubtypeId, if it doesn't find either, it will not call 
+  Init(MyComponentDefinitionBase definition) on component. If definition is found, it will pass the definition and call that method.
+  
+  See EntityContainers.sbc for defining default components in containers.
+  
+  -->
+  <EntityComponents>
+
+    <EntityComponent xsi:type="MyObjectBuilder_TimerComponentDefinition">
+      <Id>
+        <TypeId>TimerComponent</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <TimeToRemoveMin>5</TimeToRemoveMin>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <Volume>1</Volume>
+      <RemoveEntityOnEmpty>true</RemoveEntityOnEmpty>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_UseObjectsComponentDefinition">
+      <Id>
+        <TypeId>UseObjectsComponent</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <UseObjectFromModelBBox>inventory</UseObjectFromModelBBox>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_ModelComponentDefinition">
+      <Id>
+        <TypeId>ModelComponent</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <Model>Models\Characters\Astronaut\AstronautBackpack.mwm</Model>
+      <DisplayName>DisplayName_AstronautBackpack</DisplayName>
+      <Icon>Textures\GUI\Icons\AstronautBackpack.dds</Icon>
+      <Size>
+        <X>0.3</X>
+        <Y>1.0</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>5</Mass>
+      <Volume>60</Volume>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_PhysicsBodyComponentDefinition">
+      <Id>
+        <TypeId>PhysicsBodyComponent</TypeId>
+        <SubtypeId>AstronautBackpack</SubtypeId>
+      </Id>
+      <RigidBodyFlags>RBF_DEFAULT</RigidBodyFlags>
+      <CollisionLayer>FloatingObjectCollisionLayer</CollisionLayer>
+      <MassPropertiesComputation>Box</MassPropertiesComputation>
+      <AngularDamping>2</AngularDamping>
+      <CreateFromCollisionObject>true</CreateFromCollisionObject>
+      <ForceActivate>true</ForceActivate>
+      <UpdateFlags>Gravity</UpdateFlags>
+      <Serialize>true</Serialize>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_EntityStatComponentDefinition">
+      <Id>
+        <TypeId>CharacterStatComponent</TypeId>
+        <SubtypeId>Default_Astronaut</SubtypeId>
+      </Id>
+      <Stats>
+        <Stat>
+          <TypeId>MyObjectBuilder_EntityStat</TypeId>
+          <SubtypeId>SpaceCharacterHealth</SubtypeId>
+        </Stat>
+      </Stats>
+      <Scripts>
+        <Script>SpaceStatEffect</Script>
+      </Scripts>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_EntityStatComponentDefinition">
+      <Id>
+        <TypeId>CharacterStatComponent</TypeId>
+        <SubtypeId>Space_spider</SubtypeId>
+      </Id>
+      <Stats>
+        <Stat>
+          <TypeId>MyObjectBuilder_EntityStat</TypeId>
+          <SubtypeId>SpiderHealth</SubtypeId>
+        </Stat>
+      </Stats>
+      <Scripts>
+        <Script>SpaceStatEffect</Script>
+      </Scripts>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_EntityStatComponentDefinition">
+      <Id>
+        <TypeId>CharacterStatComponent</TypeId>
+        <SubtypeId>Cyberhound</SubtypeId>
+      </Id>
+      <Stats>
+        <Stat>
+          <TypeId>MyObjectBuilder_EntityStat</TypeId>
+          <SubtypeId>CyberHoundHealth</SubtypeId>
+        </Stat>
+      </Stats>
+      <Scripts>
+        <Script>SpaceStatEffect</Script>
+      </Scripts>
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>SmallBlockSmallContainer</SubtypeId>
+      </Id>
+      <Size x="0.5" y="0.5" z="0.5" />
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>SmallBlockMediumContainer</SubtypeId>
+      </Id>
+      <Size x="1.5" y="1.5" z="1.5" />
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>SmallBlockLargeContainer</SubtypeId>
+      </Id>
+      <Size x="2.5" y="2.5" z="2.5" />
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>LargeBlockSmallContainer</SubtypeId>
+      </Id>
+      <Size x="2.5" y="2.5" z="2.5" />
+    </EntityComponent>
+
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+      <Id>
+        <TypeId>Inventory</TypeId>
+        <SubtypeId>LargeBlockLargeContainer</SubtypeId>
+      </Id>
+      <Size x="7.5" y="7.5" z="7.5" />
+    </EntityComponent>
+
+
+  </EntityComponents>
+
+</Definitions>

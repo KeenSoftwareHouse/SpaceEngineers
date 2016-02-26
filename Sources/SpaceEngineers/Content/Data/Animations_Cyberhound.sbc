@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Animations>
+    <!-- Idle-->  
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CyberhoundIdle1</SubtypeId>
+      </Id>
+      <DisplayName>Idle</DisplayName>
+      <Description>Idle</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Idle_01.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+      <SupportedSkeletons>Tetrapod_simple</SupportedSkeletons>
+    </Animation>
+	
+    <!-- IdleEnd-->
+	
+    <!-- Run -->  
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CyberhoundRun</SubtypeId>
+      </Id>
+      <DisplayName>Run</DisplayName>
+      <Description>Run</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Run.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+      <SupportedSkeletons>Tetrapod_simple</SupportedSkeletons>
+    </Animation>
+    <!-- RunEnd -->
+	
+    <!-- Walk -->  
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CyberhoundWalk</SubtypeId>
+      </Id>
+      <DisplayName>Walk</DisplayName>
+      <Description>Walk</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Walk.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+      <SupportedSkeletons>Tetrapod_simple</SupportedSkeletons>
+    </Animation>
+    <!-- WalkEnd -->
+
+    <!-- Attack -->
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CyberhoundAttack</SubtypeId>
+      </Id>
+      <DisplayName>Walk</DisplayName>
+      <Description>Walk</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Attack.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+      <SupportedSkeletons>Tetrapod_simple</SupportedSkeletons>
+    </Animation>
+    <!-- AttackEnd -->
+    
+    <!-- Died -->
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CyberhoundDied</SubtypeId>
+      </Id>
+      <DisplayName>Death</DisplayName>
+      <Description>Death</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Death.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+      <SupportedSkeletons>Tetrapod_simple</SupportedSkeletons>
+    </Animation>
+  </Animations>
+</Definitions>
