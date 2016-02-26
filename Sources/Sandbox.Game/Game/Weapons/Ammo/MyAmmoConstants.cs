@@ -88,11 +88,6 @@ namespace Sandbox.Game.Weapons
             get { return m_weaponDefinition.WeaponAmmoDatas[(int)AmmoDefinition.AmmoType].RateOfFire; }
         }
 
-        public int CurrentWeaponBurstFireRate
-        {
-            get { return m_weaponDefinition.WeaponAmmoDatas[(int)AmmoDefinition.AmmoType].BurstFireRate; }
-        }
-
         public int CurrentWeaponShootIntervalInMiliseconds
         {
             get { return m_weaponDefinition.WeaponAmmoDatas[(int)AmmoDefinition.AmmoType].ShootIntervalInMiliseconds; }
