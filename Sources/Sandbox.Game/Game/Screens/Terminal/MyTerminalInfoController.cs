@@ -145,7 +145,7 @@ namespace Sandbox.Game.Gui
                 return;
             }
 
-            if (!m_grid.IsStatic || m_grid.MarkedForClose)
+            if (!m_grid.IsStatic || m_grid.MarkedForClose || !IsPlayerOwner(m_grid))
                 convertBtn.Enabled = false;
 
             if (!m_grid.BigOwners.Contains(MySession.Static.LocalPlayerId))
