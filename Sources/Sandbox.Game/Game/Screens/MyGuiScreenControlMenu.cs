@@ -102,7 +102,7 @@ namespace Sandbox.Game.Screens
         private RectangleF m_itemsRect;
 
         public MyGuiScreenControlMenu()
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.4f, 0.5f))
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.4f, 0.57f))
         {
             DrawMouseCursor = false;
             CanHideOthers = false;
@@ -113,7 +113,7 @@ namespace Sandbox.Game.Screens
         {
             base.RecreateControls(constructor);
 
-            AddCaption(MySpaceTexts.ScreenControlMenu_Title, captionScale: 1.3f);
+            AddCaption(MyCommonTexts.ScreenControlMenu_Title, captionScale: 1.3f);
 
             MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, m_items.Count * ITEM_SIZE));
             m_scrollPanel = new MyGuiControlScrollablePanel(parent);

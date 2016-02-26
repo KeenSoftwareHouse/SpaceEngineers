@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Game;
 using VRageMath;
 namespace Sandbox.ModAPI
 {
@@ -23,9 +24,9 @@ namespace Sandbox.ModAPI
         void FixBones(float oldDamage, float maxAllowedBoneMovement);
         void FullyDismount(IMyInventory outputInventory);
         //int GetConstructionStockpileItemAmount(Sandbox.Definitions.MyDefinitionId id);
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock GetCopyObjectBuilder();
+        MyObjectBuilder_CubeBlock GetCopyObjectBuilder();
         void GetMissingComponents(System.Collections.Generic.Dictionary<string, int> addToDictionary);
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock GetObjectBuilder();
+        MyObjectBuilder_CubeBlock GetObjectBuilder();
         bool HasDeformation { get; }
         //void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, Sandbox.Game.MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f);
         //void Init(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock objectBuilder, Sandbox.Game.Entities.MyCubeGrid cubeGrid, Sandbox.Game.Entities.MyCubeBlock fatBlock);
@@ -39,7 +40,7 @@ namespace Sandbox.ModAPI
         float MaxIntegrity { get; }
         float Mass { get; }
         //void MoveFirstItemToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
-        void MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = Sandbox.Common.ObjectBuilders.MyItemFlags.None);
+        void MoveItemsFromConstructionStockpile(IMyInventory toInventory, MyItemFlags flags = MyItemFlags.None);
         //void MoveItemsToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
         //void PlayConstructionSound(Sandbox.Game.Entities.MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false);
         void RemoveNeighbours();

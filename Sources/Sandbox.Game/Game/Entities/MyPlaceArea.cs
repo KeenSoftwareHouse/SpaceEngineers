@@ -4,9 +4,11 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Entity;
 
 #endregion
 
@@ -14,7 +16,7 @@ namespace Sandbox.Game.Entities
 {
     public abstract class MyPlaceArea : MyEntityComponentBase
     {
-        public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+        public int PlaceAreaProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         public abstract BoundingBoxD WorldAABB { get; }
         public MyStringHash AreaType { get; private set; }

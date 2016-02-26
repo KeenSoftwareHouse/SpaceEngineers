@@ -34,9 +34,9 @@ namespace Sandbox.Game.Entities.Cube
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorAdvancedStator))]
     class MyMotorAdvancedStator : MyMotorStator, IMyMotorAdvancedStator
     {
-        public override bool Attach(MyMotorRotor rotor, bool updateSync = false, bool updateGroup = true)
+        public override bool Attach(MyMotorRotor rotor, bool updateGroup = true)
         {
-            var ret = base.Attach(rotor, updateSync, updateGroup);
+            var ret = base.Attach(rotor, updateGroup);
 
             if (ret)
             {
@@ -48,7 +48,7 @@ namespace Sandbox.Game.Entities.Cube
 
             return ret;
         }
-        public override bool Detach(bool updateGroup = true,bool reattach = true)
+        public override bool Detach(bool updateGroup = true)
         {
             if (m_rotorBlock != null)
             {
@@ -57,7 +57,7 @@ namespace Sandbox.Game.Entities.Cube
                     m_conveyorEndpoint.Detach((m_rotorBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
                 }
             }
-            var ret = base.Detach(updateGroup, reattach);
+            var ret = base.Detach(updateGroup);
             return ret;
         }
 

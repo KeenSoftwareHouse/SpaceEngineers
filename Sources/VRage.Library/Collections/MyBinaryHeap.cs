@@ -26,6 +26,14 @@ namespace VRage.Collections
             }
         }
 
+        public bool Full
+        {
+            get
+            {
+                return m_count == m_capacity;
+            }
+        }
+
         private int m_capacity;
         private IComparer<K> m_comparer;
 
@@ -51,6 +59,11 @@ namespace VRage.Collections
             m_count++;
         }
 
+        public V GetItem(int index)
+        {
+            return m_array[index] as V;
+        }
+
         public V Min()
         {
             return (V)m_array[0];
@@ -74,6 +87,74 @@ namespace VRage.Collections
             }
 
             return toReturn;
+        }
+
+        public V RemoveMax()
+        {
+            Debug.Assert(m_count > 0);
+
+            int maxIndex = 0;
+
+            for (int i = 1; i < m_count; ++i)
+            {
+                if (m_comparer.Compare(m_array[maxIndex].HeapKey, m_array[i].HeapKey) < 0)
+                {
+                    maxIndex = i;
+                }
+            }
+
+            V toReturn = m_array[maxIndex] as V;
+
+            if (maxIndex != m_count)
+            {
+                MoveItem(m_count - 1, maxIndex);
+                Up(maxIndex);
+            }
+            m_count--;
+
+            return toReturn;
+        }
+
+        public void Remove(V item)
+        {
+            if (m_count != 1)
+            {
+                if (m_count - 1 == item.HeapIndex)
+                {
+                    m_array[m_count - 1] = null;
+                    m_count--;
+                }
+                else
+                {
+                    MoveItem(m_count - 1, item.HeapIndex);
+                    m_array[m_count - 1] = null;
+                    m_count--;
+
+                    if (m_comparer.Compare(item.HeapKey, m_array[item.HeapIndex].HeapKey) < 0)
+                        Down(item.HeapIndex);
+                    else
+                        Up(item.HeapIndex);
+                }
+            }
+            else
+            {
+                m_count--;
+                m_array[0] = null;
+            }
+        }
+
+        public void Modify(V item, K newKey)
+        {
+            K oldKey = item.HeapKey;
+            item.HeapKey = newKey;
+            if (m_comparer.Compare(oldKey, newKey) <= 0)
+            {
+                Down(item.HeapIndex);
+            }
+            else
+            {
+                Up(item.HeapIndex);
+            }
         }
 
         public void ModifyUp(V item, K newKey)

@@ -6,36 +6,37 @@ namespace Sandbox.Engine.Utils
     static class MyFpsManager
     {
         static long m_lastTime = 0;
-        static int m_fpsCounter = 0;
-        static int m_sessionTotalFrames = 0;
-        static int m_maxSessionFPS = 0;
-        static int m_minSessionFPS = int.MaxValue;
+        static uint m_fpsCounter = 0;
+        static uint m_sessionTotalFrames = 0;
+        static uint m_maxSessionFPS = 0;
+        static uint m_minSessionFPS = int.MaxValue;
 
-        static int m_lastFpsDrawn = 0;
+        static uint m_lastFpsDrawn = 0;
 
         static long m_lastFrameTime = 0;
         static long m_lastFrameMin = long.MaxValue;
         static long m_lastFrameMax = long.MinValue;
+        static byte m_firstFrames = 0;
 
         //  Returns FPS once per second. We can't display actual FPS at every frame, because it will be changing quickly and so unreadable.
         public static int GetFps()
         {
-            return m_lastFpsDrawn;
+            return (int)m_lastFpsDrawn;
         }
 
         public static int GetSessionTotalFrames()
         {
-            return m_sessionTotalFrames;
+            return (int)m_sessionTotalFrames;
         }
 
         public static int GetMaxSessionFPS()
         {
-            return m_maxSessionFPS;
+            return (int)m_maxSessionFPS;
         }
 
         public static int GetMinSessionFPS()
         {
-            return m_minSessionFPS;
+            return (int)m_minSessionFPS;
         }
 
         /// <summary>
@@ -89,15 +90,34 @@ namespace Sandbox.Engine.Utils
                 m_lastFrameMin = long.MaxValue;
                 m_lastFrameMax = long.MinValue;
 
-                if (MySession.Static != null)
+                if (MySession.Static != null && m_firstFrames > 20)
                 {
                     m_minSessionFPS = System.Math.Min(m_minSessionFPS, m_fpsCounter);
                     m_maxSessionFPS = System.Math.Max(m_maxSessionFPS, m_fpsCounter);
                 }
+                if (m_firstFrames <= 20) m_firstFrames++;
 
                 m_lastTime = MyPerformanceCounter.ElapsedTicks;
                 m_lastFpsDrawn = m_fpsCounter;
                 m_fpsCounter = 0;
+            }
+        }
+
+        public static void Reset(){
+            m_maxSessionFPS = 0;
+            m_minSessionFPS = int.MaxValue;
+            m_fpsCounter = 0;
+            m_sessionTotalFrames = 0;
+            m_lastTime = MyPerformanceCounter.ElapsedTicks;
+            m_firstFrames = 0;
+        }
+
+        public static void PrepareMinMax()
+        {
+            if (m_firstFrames <= 20)
+            {
+                m_minSessionFPS = m_lastFpsDrawn;
+                m_maxSessionFPS = m_lastFpsDrawn;
             }
         }
     }

@@ -55,8 +55,8 @@ namespace VRageRender.Profiler
             m_lineBatch.End();
 
             //GetRenderProfiler().StartProfilingBlock("MySpritesRenderer.Draw");
-            MyLinesRenderer.Draw(null);
-            MyCommon.UpdateFrameConstants();
+            MyLinesRenderer.Draw(MyRender11.Backbuffer, null);
+            //MyCommon.UpdateFrameConstants();
             MySpritesRenderer.Draw(MyRender11.Backbuffer.m_RTV, new MyViewport(ViewportSize.X, ViewportSize.Y));
             //GetRenderProfiler().EndProfilingBlock();
 

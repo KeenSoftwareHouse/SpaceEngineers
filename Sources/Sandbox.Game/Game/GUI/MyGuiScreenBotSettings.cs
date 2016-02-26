@@ -38,7 +38,7 @@ namespace Sandbox.Game.Gui
             layout.Advance(20);
 
             {
-                layout.Add(new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.BotSettingsScreen_Title)), MyAlignH.Center);
+                layout.Add(new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.BotSettingsScreen_Title)), MyAlignH.Center);
             }
 
             layout.Advance(30);
@@ -46,7 +46,7 @@ namespace Sandbox.Game.Gui
             {
                 var enableDebuggingCheckBox = new MyGuiControlCheckbox(isChecked: MyDebugDrawSettings.DEBUG_DRAW_BOTS);
                 enableDebuggingCheckBox.IsCheckedChanged += enableDebuggingCheckBox_IsCheckedChanged;
-                layout.Add(new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.BotSettingsScreen_EnableBotsDebugging)), MyAlignH.Left, advance: false);
+                layout.Add(new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.BotSettingsScreen_EnableBotsDebugging)), MyAlignH.Left, advance: false);
                 layout.Add(enableDebuggingCheckBox, MyAlignH.Right);
             }
 
@@ -54,10 +54,10 @@ namespace Sandbox.Game.Gui
 
             {
                 MyGuiControlButton nextButton = new MyGuiControlButton(
-                    text: MyTexts.Get(MySpaceTexts.BotSettingsScreen_NextBot),
+                    text: MyTexts.Get(MyCommonTexts.BotSettingsScreen_NextBot),
                     onButtonClick: nextButton_OnButtonClick);
                 MyGuiControlButton previousButton = new MyGuiControlButton(
-                    text: MyTexts.Get(MySpaceTexts.BotSettingsScreen_PreviousBot),
+                    text: MyTexts.Get(MyCommonTexts.BotSettingsScreen_PreviousBot),
                     onButtonClick: previousButton_OnButtonClick);
                 layout.Add(nextButton, previousButton);
             }
@@ -65,7 +65,7 @@ namespace Sandbox.Game.Gui
             layout.Advance(30);
 
             {
-                layout.Add(new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Close), onButtonClick: OnCloseClicked), MyAlignH.Center);
+                layout.Add(new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Close), onButtonClick: OnCloseClicked), MyAlignH.Center);
             }
         }
 

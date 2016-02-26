@@ -1,27 +1,5 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <StatGroupDefinitions>
-    <StatGroup>
-      <Id>
-        <TypeId>MyObjectBuilder_StatsDefinition</TypeId>
-        <SubtypeId>SpaceCharacterStats</SubtypeId>
-      </Id>
-      
-      <Stats>
-        <Stat>
-          <TypeId>MyObjectBuilder_EntityStat</TypeId>
-          <SubtypeId>Health</SubtypeId>
-        </Stat>
-      </Stats>
-      
-      <Scripts>
-        <Script>SpaceStatEffect</Script>
-      </Scripts>
-                             
-    </StatGroup>
-    
-  </StatGroupDefinitions>
-
   <StatDefinitions>
     <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
       <Id>
@@ -30,7 +8,40 @@
       </Id>
       <Name>Health</Name>
       <MinValue>0</MinValue>
+      <DefaultValue>100</DefaultValue>
       <MaxValue>100</MaxValue>
+    </Stat>
+
+    <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_EntityStat</TypeId>
+        <SubtypeId>SpiderHealth</SubtypeId>
+      </Id>
+      <Name>Health</Name>
+      <MinValue>0</MinValue>
+      <DefaultValue>150</DefaultValue>
+      <MaxValue>150</MaxValue>
+    </Stat>
+
+    <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_EntityStat</TypeId>
+        <SubtypeId>SpaceCharacterHealth</SubtypeId>
+      </Id>
+      <Name>Health</Name>
+      <MinValue>0</MinValue>
+      <DefaultValue>100</DefaultValue>
+      <MaxValue>100</MaxValue>
+    </Stat>
+    
+    <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_EntityStat</TypeId>
+        <SubtypeId>CyberHoundHealth</SubtypeId>
+      </Id>
+      <Name>Health</Name>
+      <MinValue>0</MinValue>
+      <MaxValue>85</MaxValue>
     </Stat>
   </StatDefinitions>
   

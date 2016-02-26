@@ -1,17 +1,20 @@
+// @define LIT_PARTICLE
+
 #include <common.h>
 #include <frame.h>
-#include <math.h>
+#include <Math/Color.h>
 #include <csm.h>
 #include <EnvAmbient.h>
 
 struct BillboardData
 {
 	int custom_projection_id;
-	uint color_rgba;
+	float4 Color;
 	float reflective;
-	float _padding0;
+	float AlphaSaturation;
 	float3 normal;
-	float _padding1;
+	float SoftParticleDistanceScale;
+	float AlphaCutout;
 };
 
 cbuffer CustomProjections : register ( b2 )
@@ -45,7 +48,7 @@ struct VsOut
 
 #define REFLECTIVE
 
-VsOut vs(VsIn vertex, uint vertex_id : SV_VertexID)
+VsOut __vertex_shader(VsIn vertex, uint vertex_id : SV_VertexID)
 {
 	VsOut result;
 
@@ -62,29 +65,14 @@ VsOut vs(VsIn vertex, uint vertex_id : SV_VertexID)
 		projPos = mul(float4(vertex.position.xyz, 1), view_projection[custom_id]);
 	}
 	result.position = projPos;
-	result.index = billboard_index;
-	
-	// result.texcoord = float2(
-	// 	(billboard_quad_index == 1 || billboard_quad_index == 2) ? 1 : 0,
-	// 	(billboard_quad_index / 2) ? 1 : 0);
-
 	result.texcoord = vertex.texcoord;
-
-	// float4 uv_modifiers;
-	// uv_modifiers.x = f16tof32(BillboardBuffer[billboard_index].uv_modifiers_offset);
-	// uv_modifiers.y = f16tof32(BillboardBuffer[billboard_index].uv_modifiers_offset >> 16);
-	// uv_modifiers.z = f16tof32(BillboardBuffer[billboard_index].uv_modifiers_scale);
-	// uv_modifiers.w = f16tof32(BillboardBuffer[billboard_index].uv_modifiers_scale >> 16);
-
-	
-	// result.texcoord = result.texcoord * uv_modifiers.zw + uv_modifiers.xy;
+	result.index = billboard_index;
 	result.wposition = vertex.position.xyz;
 
-	float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz; 
-
 #ifdef LIT_PARTICLE
-	float3 V = normalize(get_camera_position() - vs_pos);
-	result.light = frame_.directionalLightColor * calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(V);
+    float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz;
+    float3 V = normalize(get_camera_position() - vs_pos);
+    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(0, 0, V, 0, 0.5f);
 #endif
 
 	return result;
@@ -93,150 +81,92 @@ VsOut vs(VsIn vertex, uint vertex_id : SV_VertexID)
 #pragma warning( disable : 3571 )
 
 
-float4 ps(VsOut vertex) : SV_Target0
+float4 SaturateAlpha(float4 resultColor, float alpha, float alphaSaturation)
 {
-	//return float4(vertex.texcoord, 0, 1);
-
-	float4 sample = TextureAtlas.Sample(LinearSampler, vertex.texcoord.xy);
-	//return float4(vertex.texcoord.xy, 0, 1);
-	sample.xyz = pow(sample.xyz, 2.2f);
-	//float3 color_srgb = saturate(sample.rgb / sample.a);
- 	//float3 color = pow(color_srgb, 2.2f);
- 	//float4 linear_color = float4(color, 1) * sample.a;
-	//float4 linear_color = sample;
-	//linear_color.xyz = pow(abs(sample.xyz), 2.2f);
-
-	float depth_sample = Depth[vertex.position.xy].r;
-	float fade = 1;
-	if(depth_sample < 1) {
-		float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
-		float depth = linearize_depth(vertex.position.z, frame_.projection_matrix);
-		fade = saturate((depth - targetdepth) * 5.0f);
-	}
-
-	float4 billboard_color = D3DX_R8G8B8A8_UNORM_SRGB_to_FLOAT4_inexact(BillboardBuffer[vertex.index].color_rgba);
-
-#ifdef REFLECTIVE
-
-	float reflective = BillboardBuffer[vertex.index].reflective;
-	if(reflective)
-	{
-		//billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
-		float3 N = normalize(BillboardBuffer[vertex.index].normal);
-		float3 V = normalize(get_camera_position() - vertex.wposition);
-		float3 r = ambient_specular(0.04f, 0.95f, N, V);
-		float3 c = lerp(billboard_color.xyz * billboard_color.w, r, reflective);
-
-		float4 dirt = sample;
-		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
-
-		float4 finalR = float4(cDirt, max(dirt.w, billboard_color.w));
-		finalR.w *= 1.65f;
-		finalR.xyz *= finalR.w * 0.25f;
-		return finalR;	
-	}
-
-#endif
-	//sample.xyz = pow(sample.xyz, 2.2);
-	//billboard_color.xyz = pow(billboard_color.xyz, 2.2);
-	float4 finalc = sample * billboard_color;
-
-#ifdef LIT_PARTICLE
-	finalc.xyz *= vertex.light;
-#endif
-
-	float4 c = float4(finalc * fade);
-	return c;
+    if ( alphaSaturation < 1 )
+    {
+        float invSat = 1 - alphaSaturation;
+        float alphaSaturate = clamp(alpha - invSat, 0, 1);
+        resultColor += float4(1, 1, 1, 1) * float4(alphaSaturate.xxx, 0) * alpha;
+    }
+    return resultColor;
 }
 
+float4 CalculateColor(VsOut input, bool minTexture, float alphaCutout)
+{
+    float softParticleFade = 1;
+    float depth_sample = Depth[input.position.xy].r;
+    if ( depth_sample < 1 ) {
+        float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
+        float depth = linearize_depth(input.position.z, frame_.projection_matrix);
+        softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (depth - targetdepth));
+    }
 
-// // SE
-// float4 ps(VsOut vertex) : SV_Target0
-// {
-// 	float4 sample = TextureAtlas.Sample(LinearSampler, vertex.texcoord.xy);
-// 	float4 linear_color = sample;
-// 	linear_color.xyz = pow(abs(sample.xyz), 2.2f);
+	float4 billboardColor = float4(srgb_to_rgb(BillboardBuffer[input.index].Color.xyz), BillboardBuffer[input.index].Color.w);
+	//float4 billboardColor = BillboardBuffer[input.index].Color.xyz;
 
-// 	float depth_sample = Depth[vertex.position.xy].r;
-// 	float fade = 1;
-// 	if(depth_sample < 1) {
-// 		float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
-// 		float depth = linearize_depth(vertex.position.z, frame_.projection_matrix);
-// 		fade = saturate((depth - targetdepth) * 5.f);
-// 	}
+    float4 resultColor = float4(1, 1, 1, 1);
 
-// 	float4 billboard_color = D3DX_R8G8B8A8_UNORM_to_FLOAT4(BillboardBuffer[vertex.index].color_rgba);
-// 	billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
+    if ( minTexture )
+    {
+        resultColor *= billboardColor;
+        resultColor *= softParticleFade;
+    }
+    else
+    {
+        float4 textureSample = TextureAtlas.Sample(LinearSampler, input.texcoord.xy);
+        //float alpha = textureSample.x * textureSample.y * textureSample.z;
 
-// 	//return float4(linear_color * billboard_color * fade);
+        resultColor *= textureSample * billboardColor;
+        //resultColor += 100*BillboardBuffer[input.index].Emissivity*resultColor; TODO
+        //resultColor = SaturateAlpha(resultColor, alpha, BillboardBuffer[input.index].AlphaSaturation); uncomment for hotspots on lights/thruster flames
+        
+#ifdef ALPHA_CUTOUT
+		float cutout = step(alphaCutout, resultColor.w);
+		resultColor = float4(cutout * resultColor.xyz, cutout);
+		//resultColor = float4(resultColor.w, resultColor.w, resultColor.w, 1);
+#endif
 
-// #ifdef REFLECTIVE
+		resultColor *= softParticleFade;
+    }
+	return resultColor;
+}
 
-// 	float reflective = BillboardBuffer[vertex.index].reflective;
-// 	if(reflective)
-// 	{
-// 		billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
-// 		float3 N = normalize(BillboardBuffer[vertex.index].normal);
-// 		float3 V = normalize(get_camera_position() - vertex.wposition);
-// 		float3 r = ambient_specular(0.04, 0.95f, N, V);
-// 		float3 c = lerp(billboard_color.xyz, r, reflective);
+float4 __pixel_shader(VsOut vertex) : SV_Target0
+{
+	float4 resultColor = float4(1, 1, 1, 1);
 
-// 		float4 dirt = linear_color;
-// 		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
+#ifdef ALPHA_CUTOUT
+	float alphaCutout = BillboardBuffer[vertex.index].AlphaCutout; 
+#else
+	float alphaCutout = 0;
+#endif
 
-// 		return float4(cDirt, max(dirt.w, billboard_color.w));	
-// 	}
+#ifdef REFLECTIVE
+    float reflective = BillboardBuffer[vertex.index].reflective;
+    if ( reflective )
+    {
+		float3 N = normalize(BillboardBuffer[vertex.index].normal);
+		float3 viewVector = normalize(get_camera_position() - vertex.wposition);
 
-// #endif
+		float3 reflectionSample = ambient_specular(0.04f, 0.95f, N, viewVector);
+		float4 color = CalculateColor(vertex, true, alphaCutout);
+        color.xyz *= color.w;
+        float3 reflectionColor = lerp(color.xyz*color.w, reflectionSample, reflective);
 
-// #ifdef LIT_PARTICLE
-// 	billboard_color.xyz *= vertex.light;
-// #endif
-// 	return float4(linear_color * billboard_color * fade);
-// }
+        float4 dirtSample = TextureAtlas.Sample(LinearSampler, vertex.texcoord.xy);
+        float3 colorAndDirt = lerp(reflectionColor, dirtSample.xyz, dirtSample.w);
 
+        resultColor = float4(colorAndDirt, max(max(color.w, reflective), dirtSample.w));
+    }
+    else
+#endif
+    {
+		resultColor = CalculateColor(vertex, false, alphaCutout);
+#ifdef LIT_PARTICLE
+        resultColor.xyz *= vertex.light;
+#endif    
+    }
 
-// /*ME*/
-// float4 ps(VsOut vertex) : SV_Target0
-// {
-// 	float4 sample = TextureAtlas.Sample(LinearSampler, vertex.texcoord.xy);
-
-// 	float3 color_srgb = saturate(sample.rgb / sample.a);
-// 	float3 color = pow(color_srgb, 2.2f);
-// 	float4 linear_color = float4(color, 1) * sample.a;
-
-// 	float depth_sample = Depth[vertex.position.xy].r;
-// 	float fade = 1;
-// 	if(depth_sample < 1) {
-// 		float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
-// 		float depth = linearize_depth(vertex.position.z, frame_.projection_matrix);
-// 		fade = saturate((depth - targetdepth) * 5.f);
-// 	}
-
-// 	float4 billboard_color = D3DX_R8G8B8A8_UNORM_to_FLOAT4(BillboardBuffer[vertex.index].color_rgba);
-// 	//billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
-
-// #ifdef REFLECTIVE
-
-// 	float reflective = BillboardBuffer[vertex.index].reflective;
-// 	if(reflective)
-// 	{
-// 		billboard_color.xyz = pow(billboard_color.xyz, 2.2f);
-// 		float3 N = normalize(BillboardBuffer[vertex.index].normal);
-// 		float3 V = normalize(get_camera_position() - vertex.wposition);
-// 		float3 r = ambient_specular(0.04, 0.95f, N, V);
-// 		float3 c = lerp(billboard_color.xyz, r, reflective);
-
-// 		float4 dirt = linear_color;
-// 		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
-
-// 		return float4(cDirt, max(dirt.w, billboard_color.w));	
-// 	}
-
-// #endif
-
-// #ifdef LIT_PARTICLE
-// 	billboard_color.xyz *= vertex.light;
-// #endif
-// 	return float4(linear_color * billboard_color * fade);
-// }
+    return resultColor;
+}

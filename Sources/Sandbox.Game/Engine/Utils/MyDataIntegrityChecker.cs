@@ -45,8 +45,8 @@ namespace Sandbox.Engine.Utils
             {
                 byte[] dataHash = hashAlg.ComputeHash(data);
                 byte[] nameHash = hashAlg.ComputeHash(System.Text.Encoding.Unicode.GetBytes(dataName.ToCharArray()));
-                Debug.Assert(dataHash.Count() == HASH_SIZE);
-                Debug.Assert(nameHash.Count() == HASH_SIZE);
+                Debug.Assert(dataHash.Length == HASH_SIZE);
+                Debug.Assert(nameHash.Length == HASH_SIZE);
 
                 Array.Copy(dataHash, m_combinedData, HASH_SIZE);
                 Array.Copy(nameHash, 0, m_combinedData, HASH_SIZE, HASH_SIZE);

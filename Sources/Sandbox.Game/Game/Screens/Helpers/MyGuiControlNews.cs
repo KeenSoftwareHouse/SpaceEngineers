@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.News;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using Sandbox.Gui;
@@ -13,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;
@@ -116,7 +116,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_textError = new MyGuiControlMultilineText(
                 textAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
                 textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
-                font: Common.MyFontEnum.Red) {
+                font: MyFontEnum.Red) {
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
                 Name = "Error"
             };
@@ -160,10 +160,10 @@ namespace Sandbox.Game.Screens.Helpers
         {
             Debug.Assert(sender == m_textNewsEntry);
             m_stringCache.Clear();
-            m_stringCache.AppendFormat(MyTexts.GetString(MySpaceTexts.MessageBoxTextOpenBrowser), url);
+            m_stringCache.AppendFormat(MyTexts.GetString(MyCommonTexts.MessageBoxTextOpenBrowser), url);
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                 buttonType: MyMessageBoxButtonsType.YES_NO,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
                 messageText: m_stringCache,
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
@@ -171,8 +171,8 @@ namespace Sandbox.Game.Screens.Helpers
                         if (!MyBrowserHelper.OpenInternetBrowser(url))
                         {
                             StringBuilder sbMessage = new StringBuilder();
-                            sbMessage.AppendFormat(MyTexts.GetString(MySpaceTexts.TitleFailedToStartInternetBrowser), url);
-                            StringBuilder sbTitle = MyTexts.Get(MySpaceTexts.TitleFailedToStartInternetBrowser);
+                            sbMessage.AppendFormat(MyTexts.GetString(MyCommonTexts.TitleFailedToStartInternetBrowser), url);
+                            StringBuilder sbTitle = MyTexts.Get(MyCommonTexts.TitleFailedToStartInternetBrowser);
                             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                 messageText: sbMessage,
                                 messageCaption: sbTitle));

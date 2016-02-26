@@ -16,8 +16,6 @@ using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,6 +27,9 @@ using VRageRender;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI;
+using VRage.Animations;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Components
 {
@@ -70,8 +71,8 @@ namespace Sandbox.Game.Components
                 VRageRender.MyRenderProxy.DebugDrawAxis(((MyEntity)m_character.CurrentWeapon).WorldMatrix, 1.4f, false);
                 VRageRender.MyRenderProxy.DebugDrawText3D(((MyEntity)m_character.CurrentWeapon).WorldMatrix.Translation, "Weapon", Color.White, 0.7f, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
-                VRageRender.MyRenderProxy.DebugDrawSphere((m_character.Bones[m_character.WeaponBone].AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation, 0.02f, Color.White, 1, false);
-                VRageRender.MyRenderProxy.DebugDrawText3D((m_character.Bones[m_character.WeaponBone].AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation, "Weapon Bone", Color.White, 1f, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere((m_character.AnimationController.CharacterBones[m_character.WeaponBone].AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation, 0.02f, Color.White, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawText3D((m_character.AnimationController.CharacterBones[m_character.WeaponBone].AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation, "Weapon Bone", Color.White, 1f, false);
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC && m_character.IsUsing != null)
@@ -99,12 +100,9 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_BONES)
             {
-
-
-
-                for (int s = 0; s < m_character.Bones.Count; s++)
+                for (int s = 0; s < m_character.AnimationController.CharacterBones.Length; s++)
                 {
-                    MyCharacterBone bone2 = m_character.Bones[s];
+                    MyCharacterBone bone2 = m_character.AnimationController.CharacterBones[s];
                     if (bone2.Parent == null)
                         continue;
 
@@ -123,7 +121,7 @@ namespace Sandbox.Game.Components
                     VRageRender.MyRenderProxy.DebugDrawLine3D(p1, p2, Color.White, Color.White, false);
 
                     Vector3 pCenter = (p1 + p2) * 0.5f;
-                    VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2.Name + " (" + s.ToString() + ")", Color.White, 0.5f, false);
+                    VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2.Name + " (" + s.ToString() + ")", Color.Red, 0.5f, false);
 
                     VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.1f, false);
                 }

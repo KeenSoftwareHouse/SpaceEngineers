@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 
@@ -119,7 +120,7 @@ namespace Sandbox.Game.Screens.Terminal
 
         public void Refresh()
         {
-            PopulateMutuallyConnectedCubeGrids(MyAntennaSystem.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative));
+            PopulateMutuallyConnectedCubeGrids(MyAntennaSystem.Static.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative));
             PopulateOwnedCubeGrids(GetAllCubeGridsInfo());
         }
 
@@ -151,6 +152,7 @@ namespace Sandbox.Game.Screens.Terminal
 
         private void PopulateOwnedCubeGrids(HashSet <CubeGridInfo> gridInfoList)
         {
+            float scrollBarValue = m_shipsData.ScrollBar.Value;
             m_shipsData.Clear();
             foreach (var gridInfo in gridInfoList)
             {
@@ -203,6 +205,7 @@ namespace Sandbox.Game.Screens.Terminal
                 m_shipsData.Add(row);
                 m_shipsData.SortByColumn(m_columnToSort, MyGuiControlTable.SortStateEnum.Ascending, false);
             }
+            m_shipsData.ScrollBar.ChangeValue(scrollBarValue);
         }
         #endregion
 
@@ -230,11 +233,11 @@ namespace Sandbox.Game.Screens.Terminal
                 Distance = 0,
                 AppendedDistance = new StringBuilder("0"),
                 Name = m_openInventoryInteractedEntityRepresentative.DisplayName,
-                Status = m_openInventoryInteractedEntityRepresentative == MySession.LocalCharacter ? MyCubeGridConnectionStatus.Me : MyCubeGridConnectionStatus.PhysicallyConnected
+                Status = m_openInventoryInteractedEntityRepresentative == MySession.Static.LocalCharacter ? MyCubeGridConnectionStatus.Me : MyCubeGridConnectionStatus.PhysicallyConnected
             });
 
             //then you add your owned grids
-            foreach (var gridId in MySession.LocalHumanPlayer.Grids)
+            foreach (var gridId in MySession.Static.LocalHumanPlayer.Grids)
             {
                 MyCubeGrid grid;
                 if (!MyEntities.TryGetEntityById<MyCubeGrid>(gridId, out grid))
@@ -242,8 +245,8 @@ namespace Sandbox.Game.Screens.Terminal
 
                 if (!PlayerOwnsShip(grid))
                     continue;
-                
-                var representative = MyAntennaSystem.GetLogicalGroupRepresentative(grid);
+
+                var representative = MyAntennaSystem.Static.GetLogicalGroupRepresentative(grid);
                 if (AddedItems.Contains(representative.EntityId))
                     continue;
                 
@@ -284,17 +287,17 @@ namespace Sandbox.Game.Screens.Terminal
 
         private bool PlayerOwnsShip(MyCubeGrid grid)
         {
-            return grid.SmallOwners.Contains(MySession.LocalPlayerId);
+            return grid.SmallOwners.Contains(MySession.Static.LocalPlayerId);
         }
 
         //Rule: The representative of block is its cube grid, the representative of a character is himself
         private MyEntity GetInteractedEntityRepresentative(MyEntity controlledEntity)
         {
             if (controlledEntity is MyCubeBlock)
-                return MyAntennaSystem.GetLogicalGroupRepresentative((controlledEntity as MyCubeBlock).CubeGrid);
+                return MyAntennaSystem.Static.GetLogicalGroupRepresentative((controlledEntity as MyCubeBlock).CubeGrid);
 
             //assumption: it is impossible to open the character control panel when in a ship
-            return MySession.LocalCharacter;
+            return MySession.Static.LocalCharacter;
         }
 
         private void GridBroadcastersFromPlayer(MyCubeGrid grid, List<MyDataBroadcaster> output)
@@ -304,7 +307,7 @@ namespace Sandbox.Game.Screens.Terminal
             var gridBroadcasters = MyRadioBroadcaster.GetGridRelayedBroadcasters(grid);
             var controlledObjectId = m_openInventoryInteractedEntityRepresentative.EntityId;
             foreach (var broadcaster in gridBroadcasters)
-                if (MyAntennaSystem.GetBroadcasterParentEntityId(broadcaster) == controlledObjectId)
+                if (MyAntennaSystem.Static.GetBroadcasterParentEntityId(broadcaster) == controlledObjectId)
                     output.Add(broadcaster);
         }
 
@@ -314,15 +317,15 @@ namespace Sandbox.Game.Screens.Terminal
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
             m_tempPlayerBroadcasters.Clear();
-            MyAntennaSystem.GetPlayerRelayedBroadcasters(MySession.LocalCharacter, m_openInventoryInteractedEntityRepresentative, m_tempPlayerBroadcasters);
+            MyAntennaSystem.Static.GetPlayerRelayedBroadcasters(MySession.Static.LocalCharacter, m_openInventoryInteractedEntityRepresentative, m_tempPlayerBroadcasters);
             foreach (var broadcaster in m_tempPlayerBroadcasters)
-                if (MyAntennaSystem.GetBroadcasterParentEntityId(broadcaster) == grid.EntityId)
+                if (MyAntennaSystem.Static.GetBroadcasterParentEntityId(broadcaster) == grid.EntityId)
                     output.Add(broadcaster);
         }
 
         private float GetPlayerGridDistance(MyCubeGrid grid)
         {
-            return (float)Vector3D.Distance(MySession.ControlledEntity.Entity.PositionComp.GetPosition(), grid.GetBaseEntity().PositionComp.GetPosition());
+            return (float)Vector3D.Distance(MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition(), grid.GetBaseEntity().PositionComp.GetPosition());
         }
 
         #endregion
@@ -391,7 +394,7 @@ namespace Sandbox.Game.Screens.Terminal
                     
                     //pick the first antenna from cube grid to switch (could've been any one anyways)                    
                     else
-                        MyGuiScreenTerminal.ChangeInteractedEntity(m_tempReceivingFromGrid.ElementAt(0).Parent as MyTerminalBlock);
+                        MyGuiScreenTerminal.ChangeInteractedEntity(m_tempReceivingFromGrid.ElementAt(0).Entity as MyTerminalBlock);
                     return true;
                 }
             }
@@ -453,12 +456,12 @@ namespace Sandbox.Game.Screens.Terminal
                 return;
 
             if(previousMutualConnectionGrids == null)
-                previousMutualConnectionGrids = MyAntennaSystem.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative);
+                previousMutualConnectionGrids = MyAntennaSystem.Static.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative);
 
             if(previousShipInfo == null)
                 previousShipInfo = GetAllCubeGridsInfo();
 
-            var currentMutualConnectionGrids = MyAntennaSystem.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative);
+            var currentMutualConnectionGrids = MyAntennaSystem.Static.GetMutuallyConnectedGrids(m_openInventoryInteractedEntityRepresentative);
             var currentShipInfo = GetAllCubeGridsInfo();
 
             if (!previousMutualConnectionGrids.SetEquals(currentMutualConnectionGrids))

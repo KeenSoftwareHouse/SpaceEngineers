@@ -9,6 +9,13 @@ namespace VRage.Network
     public interface IMyReplicable : IMyNetObject
     {
         /// <summary>
+        /// Child replicables are strongly dependent on parent.
+        /// When parent is replicated, children are replicated, priority is never checked for children.
+        /// Dependency can change during replicable runtime, IsChild can not.
+        /// </summary>
+        bool IsChild { get; }
+
+        /// <summary>
         /// Gets dependency which must be replicated first.
         /// </summary>
         IMyReplicable GetDependency();
@@ -18,18 +25,24 @@ namespace VRage.Network
         /// When priority is lower than zero, it means the object is not relevant for client.
         /// Default priority is 1.0f.
         /// </summary>
-        float GetPriority(MyClientStateBase client);
+        float GetPriority(MyClientInfo client);
 
         /// <summary>
         /// Serializes object for replication to client.
         /// </summary>
-        void OnSave(BitStream stream);
+        bool OnSave(BitStream stream);
         
         /// <summary>
         /// Client deserializes object and adds it to proper collection (e.g. MyEntities).
         /// Loading done handler can be called synchronously or asynchronously (but always from Update thread).
         /// </summary>
-        void OnLoad(BitStream stream, Action loadingDoneHandler);
+        void OnLoad(BitStream stream, Action<bool> loadingDoneHandler);
+
+        /// <summary>
+        /// Client deserializes object and adds it to proper collection (e.g. MyEntities).
+        /// Loading done handler can be called synchronously or asynchronously (but always from Update thread).
+        /// </summary>
+        void OnLoadBegin(BitStream stream, Action<bool> loadingDoneHandler);
 
         /// <summary>
         /// Called on client when server destroyed this replicable.

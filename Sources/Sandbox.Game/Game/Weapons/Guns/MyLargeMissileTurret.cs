@@ -11,6 +11,7 @@ using VRage.Import;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.ModAPI.Ingame;
+using VRage.Game;
 
 #endregion
 
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateAfterSimulation()
         {
-            if (!MyFakes.ENABLE_MISSILE_TURRETS || MyFakes.OCTOBER_RELEASE_DISABLE_WEAPONS_AND_TOOLS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
+            if (!MyFakes.ENABLE_MISSILE_TURRETS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
             {
                 RotateModels();
                 return;

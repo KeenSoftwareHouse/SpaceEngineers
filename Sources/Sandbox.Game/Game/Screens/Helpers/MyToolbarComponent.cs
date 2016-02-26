@@ -10,6 +10,8 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -88,7 +90,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             get
             {
-                return m_instance.m_universalCharacterToolbar;
+                return m_instance != null ? m_instance.m_universalCharacterToolbar : null;
             }
         }
 
@@ -96,20 +98,36 @@ namespace Sandbox.Game.Screens.Helpers
         {
             if (!AutoUpdate)
                 return;
-            var shipController = MySession.ControlledEntity as MyShipController;
+            var shipController = MySession.Static.ControlledEntity as MyShipController;
 
-            if (shipController == null && m_instance.m_currentToolbar != m_instance.m_universalCharacterToolbar)
+            if (shipController == null)
             {
-                m_instance.m_currentToolbar = m_instance.m_universalCharacterToolbar;
-                if (CurrentToolbarChanged != null)
-                    CurrentToolbarChanged();
+                if(m_instance.m_currentToolbar != m_instance.m_universalCharacterToolbar)
+                {
+                    m_instance.m_currentToolbar = m_instance.m_universalCharacterToolbar;
+                    if (CurrentToolbarChanged != null)
+                        CurrentToolbarChanged();
+                }
             }
-            else if (shipController != null && m_instance.m_currentToolbar != shipController.Toolbar)
-            {
-                m_instance.m_currentToolbar = shipController.Toolbar;
-                if (CurrentToolbarChanged != null)
-                    CurrentToolbarChanged();
-            }
+            else
+                if (shipController.BuildingMode)
+                {
+                    if (m_instance.m_currentToolbar != shipController.BuildToolbar)
+                    {
+                        m_instance.m_currentToolbar = shipController.BuildToolbar;
+                        if (CurrentToolbarChanged != null)
+                            CurrentToolbarChanged();
+                    }
+                }
+                else
+                {
+                    if (m_instance.m_currentToolbar != shipController.Toolbar)
+                    {
+                        m_instance.m_currentToolbar = shipController.Toolbar;
+                        if (CurrentToolbarChanged != null)
+                            CurrentToolbarChanged();
+                    }
+                }
         }
 
         public static bool GlobalBuilding
@@ -120,7 +138,7 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     Debug.Assert(MyGuiScreenGamePlay.Static != null && MySpectatorCameraController.Static != null, "There must be valid gameplay and spectator at this point!");
                 }
-                return MySession.IsCameraUserControlledSpectator() && MyInput.Static.ENABLE_DEVELOPER_KEYS;
+                return MySession.Static.IsCameraUserControlledSpectator() && MyInput.Static.ENABLE_DEVELOPER_KEYS;
             }
         }
 
@@ -156,7 +174,7 @@ namespace Sandbox.Game.Screens.Helpers
             ProfilerShort.Begin("MyToolbarComponent.HandleInput");
             try
             {
-                var context = MySession.ControlledEntity != null ? MySession.ControlledEntity.ControlContext : MyStringId.NullOrEmpty;
+                var context = MySession.Static.ControlledEntity != null ? MySession.Static.ControlledEntity.ControlContext : MyStringId.NullOrEmpty;
                 var focusedScreen = MyScreenManager.GetScreenWithFocus();
                 if ((focusedScreen == MyGuiScreenGamePlay.Static ||
                     IsToolbarControlShown ) &&
@@ -167,7 +185,7 @@ namespace Sandbox.Game.Screens.Helpers
                         {
                             if (MyControllerHelper.IsControl(context, m_slotControls[i], MyControlStateType.NEW_PRESSED))
                             {
-                                if (!MyInput.Static.IsAnyShiftKeyPressed())
+                                if (!MyInput.Static.IsAnyCtrlKeyPressed())
                                 {
                                     if ((focusedScreen == MyGuiScreenGamePlay.Static ||
                                             (focusedScreen is MyGuiScreenCubeBuilder || focusedScreen is MyGuiScreenToolbarConfigBase) && ((MyGuiScreenToolbarConfigBase)focusedScreen).AllowToolbarKeys()) &&
@@ -182,10 +200,15 @@ namespace Sandbox.Game.Screens.Helpers
                             }
                         }
                     }
+
                     if ((focusedScreen == MyGuiScreenGamePlay.Static ||
                                 (focusedScreen is MyGuiScreenCubeBuilder || focusedScreen is MyGuiScreenToolbarConfigBase) && ((MyGuiScreenToolbarConfigBase)focusedScreen).AllowToolbarKeys()) &&
                                 CurrentToolbar != null)
-                        {
+                    {
+                        if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_NEXT_ITEM, MyControlStateType.NEW_PRESSED))
+                            CurrentToolbar.SelectNextSlot();
+                        else if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_PREV_ITEM, MyControlStateType.NEW_PRESSED))
+                            CurrentToolbar.SelectPreviousSlot();
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_UP, MyControlStateType.NEW_PRESSED))
                         {
                             MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
@@ -196,11 +219,6 @@ namespace Sandbox.Game.Screens.Helpers
                             MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                             CurrentToolbar.PageDown();
                         }
-
-                        if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_NEXT_ITEM, MyControlStateType.NEW_PRESSED))
-                            CurrentToolbar.SelectNextSlot();
-                        else if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_PREV_ITEM, MyControlStateType.NEW_PRESSED))
-                            CurrentToolbar.SelectPreviousSlot();
                     }
                 }
             }
@@ -289,7 +307,7 @@ namespace Sandbox.Game.Screens.Helpers
                 return MyToolbarType.Spectator;
             }
 
-            return MySession.ControlledEntity != null ? MySession.ControlledEntity.ToolbarType : MyToolbarType.Spectator;
+            return MySession.Static.ControlledEntity != null ? MySession.Static.ControlledEntity.ToolbarType : MyToolbarType.Spectator;
         }
 
         public static bool AutoUpdate { get; set; }

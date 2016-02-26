@@ -40,7 +40,7 @@ struct VsOut
 	uint id : DECALID;
 };
 
-VsOut vs(uint vertex_id : SV_VertexID)
+VsOut __vertex_shader(uint vertex_id : SV_VertexID)
 {
 	uint vId = vertex_id % 8;
 	uint decalId = vertex_id / 8;
@@ -81,7 +81,7 @@ float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
 }
 
 // copy of gbuffer normals? (resolved for msaa...)
-void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuffer1 : SV_TARGET1, out float4 out_gbuffer2 : SV_TARGET2)
+void __pixel_shader(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuffer1 : SV_TARGET1, out float4 out_gbuffer2 : SV_TARGET2)
 {
 	float2 screencoord = vertex.position.xy;
 

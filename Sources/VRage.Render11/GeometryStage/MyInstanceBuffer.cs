@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpDX;
-using SharpDX.Direct3D11;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 using VRage.Generics;
 
 namespace VRageRender
@@ -25,7 +20,7 @@ namespace VRageRender
         {
             m_capacity = 0;
 
-            m_input = MyVertexInputLayout.Empty();
+            m_input = MyVertexInputLayout.Empty;
 
             if(type == MyRenderInstanceBufferType.Cube)
             { 
@@ -56,40 +51,19 @@ namespace VRageRender
         internal unsafe void UpdateGeneric(List<MyInstanceData> instanceData, int capacity)
         {
             var instancesNum = instanceData.Count;
-            if (m_capacity < instancesNum && VertexBuffer != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(VertexBuffer);
-                VertexBuffer = VertexBufferId.NULL;
-            }
             if (m_capacity < instancesNum)
-            {
                 m_capacity = Math.Max(instancesNum, capacity);
-                VertexBuffer = MyHwBuffers.CreateVertexBuffer(m_capacity, sizeof(MyVertexFormatGenericInstance), null, m_debugName + " instances buffer");
-            }
-
             fixed (MyInstanceData* dataPtr = instanceData.ToArray())
             {
-                DataBox srcBox = new DataBox(new IntPtr(dataPtr));
-                ResourceRegion dstRegion = new ResourceRegion(0, 0, 0, sizeof(MyVertexFormatGenericInstance) * instancesNum, 1, 1);
-
-                MyRender11.ImmediateContext.UpdateSubresource(srcBox, VertexBuffer.Buffer, 0, dstRegion);
+                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref VertexBuffer, m_capacity, sizeof(MyVertexFormatGenericInstance), new IntPtr(dataPtr), m_debugName + " instances buffer");
             }
         }
 
         internal unsafe void UpdateCube(List<MyCubeInstanceData> instanceData, int capacity)
         {
             var instancesNum = instanceData.Count;
-            if (m_capacity < instancesNum && VertexBuffer != VertexBufferId.NULL)
-            {
-                MyHwBuffers.Destroy(VertexBuffer);
-                VertexBuffer = VertexBufferId.NULL;
-            }
             if (m_capacity < instancesNum)
-            {
                 m_capacity = Math.Max(instancesNum, capacity);
-
-                VertexBuffer = MyHwBuffers.CreateVertexBuffer(m_capacity, sizeof(MyVertexFormatCubeInstance), null, m_debugName + " instances buffer");
-            }
 
             var rawBuffer = new MyVertexFormatCubeInstance[m_capacity];
             for (int i = 0; i < instancesNum; i++)
@@ -99,16 +73,13 @@ namespace VRageRender
                     for (int j = 0; j < MyRender11Constants.CUBE_INSTANCE_BONES_NUM * 4; j++)
                         pTarget[j] = pSource[j];
                 }
-                rawBuffer[i].translationRotation = new HalfVector4(instanceData[i].m_translationAndRot);
-                rawBuffer[i].colorMaskHSV = new HalfVector4(instanceData[i].ColorMaskHSV);
+                rawBuffer[i].translationRotation = instanceData[i].m_translationAndRot;
+                rawBuffer[i].colorMaskHSV = (instanceData[i].ColorMaskHSV);
             }
 
             fixed (MyVertexFormatCubeInstance* dataPtr = rawBuffer)
             {
-                DataBox srcBox = new DataBox(new IntPtr(dataPtr));
-                ResourceRegion dstRegion = new ResourceRegion(0, 0, 0, sizeof(MyVertexFormatCubeInstance) * instancesNum, 1, 1);
-
-                MyRender11.ImmediateContext.UpdateSubresource(srcBox, VertexBuffer.Buffer, 0, dstRegion);
+                MyHwBuffers.ResizeAndUpdateStaticVertexBuffer(ref VertexBuffer, m_capacity, sizeof(MyVertexFormatCubeInstance), new IntPtr(dataPtr), m_debugName + " instances buffer");
             }
         }
     };

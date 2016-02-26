@@ -7,6 +7,8 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Models;
 using VRage.Import;
 using VRageMath;
 using VRageRender;

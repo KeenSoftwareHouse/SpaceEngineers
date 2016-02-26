@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Game;
 using VRage.ModAPI;
 namespace Sandbox.ModAPI
 {
@@ -8,22 +9,6 @@ namespace Sandbox.ModAPI
         /// Activates the building mode
         /// </summary>
         void Activate();
-
-        /// <summary>
-        /// Activates creating grids
-        /// </summary>
-        /// <param name="grid">grid to be created</param>
-        /// <param name="centerDeltaDirection"></param>
-        /// <param name="dragVectorLength"></param>
-        void ActivateShipCreationClipboard(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeGrid grid, VRageMath.Vector3 centerDeltaDirection, float dragVectorLength);
-
-        /// <summary>
-        /// Activates creating grids
-        /// </summary>
-        /// <param name="grid">grids to be created</param>
-        /// <param name="centerDeltaDirection"></param>
-        /// <param name="dragVectorLength"></param>
-        void ActivateShipCreationClipboard(Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeGrid[] grids, VRageMath.Vector3 centerDeltaDirection, float dragVectorLength);
         
         /// <summary>
         /// Adds construction site of block with currently selected definition
@@ -81,7 +66,7 @@ namespace Sandbox.ModAPI
         /// </summary>
         /// <param name="cubeSize">Grid size</param>
         /// <param name="isStatic">Station = static</param>
-        void StartNewGridPlacement(Sandbox.Common.ObjectBuilders.MyCubeSize cubeSize, bool isStatic);
+        void StartNewGridPlacement(MyCubeSize cubeSize, bool isStatic);
 
         /// <summary>
         /// Enables synmetry block placing

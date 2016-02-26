@@ -10,10 +10,21 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Common;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.AI
 {
+    public class MyBotTypeAttribute : MyFactoryTagAttribute
+    {
+        public MyBotTypeAttribute(Type objectBuilderType)
+            : base(objectBuilderType)
+        {
+        }
+    }
+
     public abstract class MyBotFactoryBase
     {
         protected class BehaviorData
@@ -46,19 +57,43 @@ namespace Sandbox.Game.AI
             }
         }
 
+        protected Dictionary<string, Type> m_TargetTypeByName;
         protected Dictionary<string, BehaviorData> m_botDataByBehaviorType;
         protected Dictionary<string, LogicData> m_logicDataByBehaviorSubtype;
-        protected Dictionary<Type, BehaviorTypeData> m_botTypeByDefinitionType;
+        protected Dictionary<Type, BehaviorTypeData> m_botTypeByDefinitionTypeRemoveThis;
+
+        private Type[] m_tmpTypeArray;
+        private object[] m_tmpConstructorParamArray;
+
+        private static MyObjectFactory<MyBotTypeAttribute, IMyBot> m_objectFactory;
+
+        static MyBotFactoryBase()
+        {
+            m_objectFactory = new MyObjectFactory<MyBotTypeAttribute, IMyBot>();
+
+            var baseAssembly = Assembly.GetAssembly(typeof(MyAgentBot));
+            m_objectFactory.RegisterFromAssembly(baseAssembly);
+            m_objectFactory.RegisterFromAssembly(VRage.Plugins.MyPlugins.GameAssembly);
+
+            foreach (var plugin in VRage.Plugins.MyPlugins.Plugins)
+                m_objectFactory.RegisterFromAssembly(plugin.GetType().Assembly);
+        }
 
         public MyBotFactoryBase()
         {
+            m_TargetTypeByName = new Dictionary<string, Type>();
             m_botDataByBehaviorType = new Dictionary<string, BehaviorData>();
             m_logicDataByBehaviorSubtype = new Dictionary<string, LogicData>();
-            m_botTypeByDefinitionType = new Dictionary<Type, BehaviorTypeData>();
+
+            m_tmpTypeArray = new Type[1] { null };
+            m_tmpConstructorParamArray = new object[1] { null };
 
             var baseAssembly = Assembly.GetAssembly(typeof(MyAgentBot));
             LoadBotData(baseAssembly);
             LoadBotData(VRage.Plugins.MyPlugins.GameAssembly);
+
+            foreach (var plugin in VRage.Plugins.MyPlugins.Plugins)
+                LoadBotData(plugin.GetType().Assembly);
         }
 
         protected void LoadBotData(Assembly assembly)
@@ -98,28 +133,18 @@ namespace Sandbox.Game.AI
                 }
                 else if (!type.IsAbstract && type.IsSubclassOf(typeof(MyBotLogic)))
                 {
-                    var typeAttrs = type.GetCustomAttributes(true);
-
-                    foreach (var typeAttr in typeAttrs)
+                    foreach (var typeAttr in type.GetCustomAttributes(typeof(BehaviorLogicAttribute), true))
                     {
-                        if (typeAttr is BehaviorLogicAttribute)
-                        {
-                            var subtypeAttr = typeAttr as BehaviorLogicAttribute;
-                            m_logicDataByBehaviorSubtype[subtypeAttr.BehaviorSubtype] = new LogicData(type);
-                        }
+                        var subtypeAttr = typeAttr as BehaviorLogicAttribute;
+                        m_logicDataByBehaviorSubtype[subtypeAttr.BehaviorSubtype] = new LogicData(type);
                     }
                 }
-                else if (!type.IsAbstract && typeof(IMyBot).IsAssignableFrom(type))
+                else if (!type.IsAbstract && typeof(MyAiTargetBase).IsAssignableFrom(type))
                 {
-                    var typeAttrs = type.GetCustomAttributes(true);
-
-                    foreach (var typeAttr in typeAttrs)
+                    foreach (var typeAttr in type.GetCustomAttributes(typeof(TargetTypeAttribute), true))
                     {
-                        if (typeAttr is BehaviorTypeAttribute)
-                        {
-                            var behTypeAttr = typeAttr as BehaviorTypeAttribute;
-                            m_botTypeByDefinitionType[behTypeAttr.BehaviorType] = new BehaviorTypeData(type);
-                        }
+                        var tarTypeAttr = typeAttr as TargetTypeAttribute;
+                        m_TargetTypeByName[tarTypeAttr.TargetType] = type;
                     }
                 }
             }
@@ -128,21 +153,33 @@ namespace Sandbox.Game.AI
         public abstract int MaximumUncontrolledBotCount { get; }
         public abstract int MaximumBotPerPlayer { get; }
 
+        public MyObjectBuilder_Bot GetBotObjectBuilder(IMyBot myAgentBot)
+        {
+            return m_objectFactory.CreateObjectBuilder<MyObjectBuilder_Bot>(myAgentBot);
+        }
+
         public IMyBot CreateBot(MyPlayer player, MyObjectBuilder_Bot botBuilder, MyBotDefinition botDefinition)
         {
+            MyObjectBuilderType obType = MyObjectBuilderType.Invalid;
+            if (botBuilder == null)
+            {
+                obType = botDefinition.Id.TypeId;
+                botBuilder = m_objectFactory.CreateObjectBuilder<MyObjectBuilder_Bot>(m_objectFactory.GetProducedType(obType));
+            }
+            else
+            {
+                obType = botBuilder.TypeId;
+                Debug.Assert(botDefinition.Id == botBuilder.BotDefId, "Bot builder type does not match bot definition type!");
+            }
+
             Debug.Assert(m_botDataByBehaviorType.ContainsKey(botDefinition.BehaviorType), "Undefined behavior type. Bot is not going to be created");
             if (!m_botDataByBehaviorType.ContainsKey(botDefinition.BehaviorType))
                 return null;
-            Debug.Assert(m_botTypeByDefinitionType.ContainsKey(botDefinition.TypeDefinitionId.TypeId), "Type not found. Bot is not going to be created!");
-            if (!m_botTypeByDefinitionType.ContainsKey(botDefinition.TypeDefinitionId.TypeId))
-                return null;
             var botData = m_botDataByBehaviorType[botDefinition.BehaviorType];
-            var behaviorTypeData = m_botTypeByDefinitionType[botDefinition.TypeDefinitionId.TypeId];
-            IMyBot output = CreateBot(behaviorTypeData.BotType, player, botDefinition);
+            IMyBot output = CreateBot(m_objectFactory.GetProducedType(obType), player, botDefinition);
             CreateActions(output, botData.BotActionsType);
             CreateLogic(output, botData.LogicType, botDefinition.BehaviorSubtype);
-            if (botBuilder != null)
-                output.Init(botBuilder);
+            output.Init(botBuilder);
             return output;
         }
 
@@ -168,11 +205,29 @@ namespace Sandbox.Game.AI
 
         private void CreateActions(IMyBot bot, Type actionImplType)
         {
-            var constructor = actionImplType.GetConstructor(new Type[] { bot.GetType() });
+            m_tmpTypeArray[0] = bot.GetType();
+            var constructor = actionImplType.GetConstructor(m_tmpTypeArray);
             if (constructor == null)
                 bot.BotActions = Activator.CreateInstance(actionImplType) as MyBotActionsBase;
             else
                 bot.BotActions = Activator.CreateInstance(actionImplType, bot) as MyBotActionsBase;
+            m_tmpTypeArray[0] = null;
+        }
+
+        public MyAiTargetBase CreateTargetForBot(MyAgentBot bot)
+        {
+            MyAiTargetBase retval = null;
+
+            m_tmpConstructorParamArray[0] = bot;
+            Type targetType = null;
+            m_TargetTypeByName.TryGetValue(bot.AgentDefinition.TargetType, out targetType);
+            if (targetType != null)
+            {
+                retval = Activator.CreateInstance(targetType, m_tmpConstructorParamArray) as MyAiTargetBase;
+            }
+            m_tmpConstructorParamArray[0] = null;
+
+            return retval;
         }
 
         private IMyBot CreateBot(Type botType, MyPlayer player, MyBotDefinition botDefinition)

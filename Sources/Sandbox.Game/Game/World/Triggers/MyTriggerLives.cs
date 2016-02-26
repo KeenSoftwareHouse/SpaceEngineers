@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
@@ -51,7 +53,7 @@ namespace Sandbox.Game.World.Triggers
             return IsTrue;
         }
 
-        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
+        public override void DisplayHints(MyPlayer player, MyEntity me)
         {
             if (MySession.Static.IsScenario)
                 MyHud.ScenarioInfo.LivesLeft = LivesLeft;

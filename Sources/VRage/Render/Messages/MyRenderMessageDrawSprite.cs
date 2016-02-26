@@ -7,7 +7,7 @@ using VRageRender.Graphics;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDrawSprite : IMyRenderMessage
+    public class MyRenderMessageDrawSprite : MyRenderMessageBase
     {
         public string Texture;
         public Color Color;
@@ -19,8 +19,9 @@ namespace VRageRender
         public float Depth;
         public SpriteEffects Effects;
         public bool ScaleDestination;
+        public bool WaitTillLoaded;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawSprite; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DrawSprite; } }
     }
 }

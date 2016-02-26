@@ -190,7 +190,6 @@ namespace VRageRender
         public HalfVector4 m_row1;
         public HalfVector4 m_row2;
         public HalfVector4 ColorMaskHSV;
-        public HalfVector2 UVOffset;
 
         public Matrix LocalMatrix
         {
@@ -225,7 +224,7 @@ namespace VRageRender
     // Total RAM size is 64 bytes
     public unsafe struct MyCubeInstanceData
     {
-        private fixed byte m_bones[32]; // 4 bytes per vector * 8 vectors = 32 bytes
+        private fixed byte m_bones[8*4]; // 4 bytes per vector * 8 vectors = 32 bytes
         public Vector4 m_translationAndRot;
         //If you want negative dithering, use SetColorMaskHSV instead!
         public Vector4 ColorMaskHSV;

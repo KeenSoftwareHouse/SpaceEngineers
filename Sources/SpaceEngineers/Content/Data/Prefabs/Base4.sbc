@@ -3229,7 +3229,7 @@
               <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
               <Enabled>true</Enabled>
-              <BroadcastRadius>10000</BroadcastRadius>
+              <BroadcastRadius>50000</BroadcastRadius>
               <ShowShipName>false</ShowShipName>
               <EnableBroadcasting>true</EnableBroadcasting>
             </MyObjectBuilder_CubeBlock>

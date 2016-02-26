@@ -12,7 +12,25 @@ namespace Sandbox.Engine.Utils
     //  I have made this mapping array because when using obfuscator, enum names change and when converted to string, they no more corresponds to file names
     static partial class MyEnumsToStrings
     {
-        public static string[] Particles = new string[] { 
+        public static string[] HudTextures = new string[] 
+        {
+            "corner.png",
+            "crosshair.png",
+            "HudOre.png",
+            "Target_enemy.png",
+            "Target_friend.png",
+            "Target_neutral.png",
+            "Target_me.png",
+            "TargetTurret.png",
+            "DirectionIndicator.png",
+            "gravity_point_red.png",
+            "gravity_point_white.png",
+            "gravity_arrow.png",
+            "hit_confirmation.png"
+        };
+
+        public static string[] Particles = new string[] 
+        { 
             "Explosion.dds", 
             "ExplosionSmokeDebrisLine.dds", 
             "Smoke.dds", 

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public abstract class MyPositionComponentBase : MyEntityComponentBase
     {
@@ -177,6 +173,23 @@ namespace VRage.Components
             }
         }
 
+        /// <summary>
+        /// Gets the maximal size.
+        /// </summary>
+        /// <value>
+        /// The Maximal size.
+        /// </value>
+        public float MaximalSize
+        {
+            get
+            {
+                BoundingBox bbox = LocalAABBHr;
+                Vector3 max = bbox.Max;
+                Vector3 min = bbox.Min;
+                Vector3 size = max - min;
+                return Math.Max(Math.Max(size.X, size.Y), size.Z);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the local volume offset.
@@ -396,16 +409,6 @@ namespace VRage.Components
             {
                 m_worldMatrixInvScaled = value;
             }
-        }
-
-        /// <summary>
-        /// Inverted world matrix of this physic object calculated on-demand (non cached).
-        /// Use it whenever you want to do world-matrix transformations with this physic objects.
-        /// </summary>
-        [Obsolete("Use WorldMatrixInverted property")]
-        public MatrixD GetWorldMatrixNormalizedInv()
-        {
-            return WorldMatrixNormalizedInv;
         }
 
         public virtual MatrixD GetViewMatrix()

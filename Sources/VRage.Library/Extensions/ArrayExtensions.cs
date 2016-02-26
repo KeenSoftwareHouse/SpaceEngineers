@@ -35,7 +35,7 @@ namespace System
             }
         }
 
-        public static T[] SubtractIndices<T>(this T[] self, List<int> indices)
+        public static T[] RemoveIndices<T>(this T[] self, List<int> indices)
         {
             if (indices.Count >= self.Length)
                 return new T[0];
@@ -45,7 +45,7 @@ namespace System
 
             T[] better = new T[self.Length - indices.Count];
             int offset = 0;
-            for (int i = indices[offset]; i < self.Length - indices.Count; i++)
+            for (int i = 0; i < self.Length - indices.Count; i++)
             {
                 while (offset < indices.Count && i == indices[offset] - offset)
                     offset++;

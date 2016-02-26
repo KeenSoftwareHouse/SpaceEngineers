@@ -5,6 +5,9 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using VRage.Game;
 using VRageMath;
 
 #endregion
@@ -18,18 +21,18 @@ namespace Sandbox.Game.Entities.Cube
         
         float m_broadcastRadius;
 
-        public MyRadioBroadcaster(MyEntity parent, float broadcastRadius = 100)
+        public MyRadioBroadcaster(float broadcastRadius = 100)
         {
             SyncObject = new MySyncRadioBroadcaster(this);
-            Parent = parent;
             m_broadcastRadius = broadcastRadius;
-            parent.OnClose += parent_OnClose;
         }
 
-        void parent_OnClose(MyEntity obj)
+        public override void OnBeforeRemovedFromContainer()
         {
+            base.OnBeforeRemovedFromContainer();
             Enabled = false;
         }
+
 
         bool m_enabled = false;
         public bool Enabled
@@ -39,6 +42,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_enabled != value)
                 {
+                    Debug.Assert(MySandboxGame.Static.UpdateThread == Thread.CurrentThread,"addidng antena from different thread !!!");
                     if (value)
                         MyRadioBroadcasters.AddBroadcaster(this);
                     else
@@ -79,7 +83,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public int m_radioProxyID = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+        public int m_radioProxyID = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
         public int RadioProxyID
         {
             get { return m_radioProxyID; }
@@ -88,7 +92,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public static HashSet<MyDataBroadcaster> GetGridRelayedBroadcasters(MyCubeGrid grid)
         {
-            return GetGridRelayedBroadcasters(grid, MySession.LocalPlayerId);
+            return GetGridRelayedBroadcasters(grid, MySession.Static.LocalPlayerId);
         }
 
         public static HashSet<MyDataBroadcaster> GetGridRelayedBroadcasters(MyCubeGrid grid, long playerId)

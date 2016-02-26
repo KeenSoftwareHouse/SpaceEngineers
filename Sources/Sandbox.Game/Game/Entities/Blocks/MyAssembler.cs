@@ -31,208 +31,18 @@ using VRage;
 using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Game.EntityComponents;
 using VRage.ObjectBuilders;
+using Sandbox.ModAPI.Interfaces;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.Network;
 
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Assembler))]
-    class MyAssembler : MyProductionBlock, IMyAssembler
+    class MyAssembler : MyProductionBlock, IMyAssembler, IMyEventProxy
     {
-        #region SyncClass
-        
-        [PreloadRequired]
-        public class SyncClass
-        {
-            [MessageId(2484, P2PMessageEnum.Reliable)]
-            struct ModeSwitchMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit DisassembleEnabled;
-            }
-
-            [MessageId(2485, P2PMessageEnum.Reliable)]
-            struct RepeatEnabledMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit DisassembleEnabled; // Only says which repeat is affected. ModeSwitchMsg changes this value.
-                public BoolBlit RepeatEnabled;
-            }
-
-            [MessageId(2486, P2PMessageEnum.Reliable)]
-            struct DisassembleAllMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageId(2491, P2PMessageEnum.Reliable)]
-            struct SlaveModeSwitchMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-                
-                public BoolBlit SlaveModeEnabled;
-            }
-
-            static SyncClass()
-            {
-                MySyncLayer.RegisterMessage<ModeSwitchMsg>(ModeSwitchRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<ModeSwitchMsg>(ModeSwitchSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<RepeatEnabledMsg>(RepeatEnabledRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<RepeatEnabledMsg>(RepeatEnabledSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterMessage<DisassembleAllMsg>(DisassembleAllRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<SlaveModeSwitchMsg>(SlaveSwitchRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterMessage<SlaveModeSwitchMsg>(SlaveSwitchSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            }
-
-            private MyAssembler m_assembler;
-
-            public SyncClass(MyAssembler assembler)
-            {
-                m_assembler = assembler;
-            }
-
-            internal void RequestModeSwitch(bool disassembleEnabled)
-            {
-                ModeSwitchMsg msg = new ModeSwitchMsg();
-
-                msg.EntityId = m_assembler.EntityId;
-                msg.DisassembleEnabled = disassembleEnabled;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    m_assembler.DisassembleEnabled = msg.DisassembleEnabled;
-                }
-                else
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            private static void ModeSwitchRequestCallback(ref ModeSwitchMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    assembler.DisassembleEnabled = msg.DisassembleEnabled;
-                }
-            }
-
-            private static void ModeSwitchSuccessCallback(ref ModeSwitchMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    assembler.DisassembleEnabled = msg.DisassembleEnabled;
-                }
-            }
-
-            internal void RequestSlaveSwitch(bool slaveEnabled)
-            {
-                SlaveModeSwitchMsg msg = new SlaveModeSwitchMsg();
-                msg.EntityId = m_assembler.EntityId;
-                msg.SlaveModeEnabled = slaveEnabled;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    m_assembler.IsSlave = msg.SlaveModeEnabled;
-                    m_assembler.SetSlave();
-                }
-                else
-                {
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-                }
-            }
-
-            private static void SlaveSwitchRequestCallback(ref SlaveModeSwitchMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    assembler.IsSlave = msg.SlaveModeEnabled;
-                    assembler.SetSlave();
-                }   
-            }
-
-            private static void SlaveSwitchSuccessCallback(ref SlaveModeSwitchMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    assembler.IsSlave = msg.SlaveModeEnabled;
-                    assembler.SetSlave();
-                }
-            }
-
-            internal void RequestRepeatEnabled(bool value)
-            {
-                RepeatEnabledMsg msg = new RepeatEnabledMsg();
-
-                msg.EntityId = m_assembler.EntityId;
-                msg.DisassembleEnabled = m_assembler.DisassembleEnabled;
-                msg.RepeatEnabled = value;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    m_assembler.RepeatEnabledSuccess(msg.DisassembleEnabled, msg.RepeatEnabled);
-                }
-                else
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            private static void RepeatEnabledRequestCallback(ref RepeatEnabledMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                    assembler.RepeatEnabledSuccess(msg.DisassembleEnabled, msg.RepeatEnabled);
-                }
-            }
-
-            private static void RepeatEnabledSuccessCallback(ref RepeatEnabledMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                {
-                    assembler.RepeatEnabledSuccess(msg.DisassembleEnabled, msg.RepeatEnabled);
-                }
-            }
-
-            internal void RequestDisassembleAll()
-            {
-                var msg = new DisassembleAllMsg();
-                msg.EntityId = m_assembler.EntityId;
-
-                if (Sync.IsServer)
-                    m_assembler.DisassembleAllInOutput();
-                else
-                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            private static void DisassembleAllRequestCallback(ref DisassembleAllMsg msg, MyNetworkClient sender)
-            {
-                MyAssembler assembler;
-                MyEntities.TryGetEntityById(msg.EntityId, out assembler);
-                if (assembler != null)
-                    assembler.DisassembleAllInOutput();
-            }
-        }
-        #endregion
 
         public enum StateEnum
         {
@@ -253,7 +63,7 @@ namespace Sandbox.Game.Entities.Cube
         private bool m_repeatDisassembleEnabled;
         private bool m_repeatAssembleEnabled;
         private bool m_disassembleEnabled;
-        private List<IMyInventoryOwner> m_inventoryOwners = new List<IMyInventoryOwner>();
+        private List<MyEntity> m_inventoryOwners = new List<MyEntity>();
         private List<MyBlueprintDefinitionBase.Item> m_requiredComponents = new List<MyBlueprintDefinitionBase.Item>(); 
 
         private const float TIME_IN_ADVANCE = 5;
@@ -265,9 +75,6 @@ namespace Sandbox.Game.Entities.Cube
         private int m_assemblerKeyCounter;
         private MyCubeGrid m_cubeGrid;
         private bool m_inventoryOwnersDirty = true;
-
-        private new SyncClass SyncObject;
-
 
         public bool InventoryOwnersDirty
         {
@@ -317,32 +124,26 @@ namespace Sandbox.Game.Entities.Cube
 
         static MyAssembler()
         {
-            if (MyFakes.ENABLE_ASSEMBLER_COOPERATION)
-            {
-                var slaveCheck = new MyTerminalControlCheckbox<MyAssembler>("slaveMode", MySpaceTexts.Assembler_SlaveMode, MySpaceTexts.Assembler_SlaveMode);
-                slaveCheck.Getter = (x) => x.IsSlave;
-                slaveCheck.Setter = (x, v) =>
-                {
-                    if (x.RepeatEnabled)
-                    {
-                        x.SyncObject.RequestRepeatEnabled(false);
-                    }
-                    x.SyncObject.RequestSlaveSwitch(v);
 
-                };
-                slaveCheck.EnableAction();
-                MyTerminalControlFactory.AddControl(slaveCheck);
-            }
+            var slaveCheck = new MyTerminalControlCheckbox<MyAssembler>("slaveMode", MySpaceTexts.Assembler_SlaveMode, MySpaceTexts.Assembler_SlaveMode);
+            slaveCheck.Getter = (x) => x.IsSlave;
+            slaveCheck.Setter = (x, v) =>
+            {
+                if (x.RepeatEnabled)
+                {
+                    x.RequestRepeatEnabled(false);
+                }
+                x.RequestSlaveEnabled(v);
+
+            };
+            slaveCheck.EnableAction();
+            MyTerminalControlFactory.AddControl(slaveCheck);
         }
 
         public MyAssembler() :
             base()
         {
-            m_baseIdleSound.Init("BlockAssembler");
-            m_processSound.Init("BlockAssemblerProcess");
-
             m_otherQueue = new List<QueueItem>();
-            SyncObject = new SyncClass(this);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -353,11 +154,16 @@ namespace Sandbox.Game.Entities.Cube
             MyDebug.AssertDebug(BlockDefinition is MyAssemblerDefinition);
             m_assemblerDef = BlockDefinition as MyAssemblerDefinition;
 
+
+            if (InventoryAggregate.InventoryCount > 2)
+            {
+                Debug.Fail("Inventory aggregate has to many inventories, probably wrong save. If you continue the unused inventories will be removed. Save the world to correct it. Please report this is if problem prevail.");
+
+                FixInputOutputInventories(m_assemblerDef.InputInventoryConstraint, m_assemblerDef.OutputInventoryConstraint);
+            }
+
             InputInventory.Constraint = m_assemblerDef.InputInventoryConstraint;
             OutputInventory.Constraint = m_assemblerDef.OutputInventoryConstraint;
-
-            if (Sync.IsServer)
-                OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
 
             bool removed = InputInventory.FilterItemsUsingConstraint();
             Debug.Assert(!removed, "Inventory filter removed items which were present in the object builder.");
@@ -397,11 +203,15 @@ namespace Sandbox.Game.Entities.Cube
             UpgradeValues.Add("Productivity", 0f);
             UpgradeValues.Add("PowerEfficiency", 1f);
 
+            m_baseIdleSound = BlockDefinition.PrimarySound;
+            m_processSound = BlockDefinition.ActionSound;
+
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
             ResourceSink.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
             UpdateDetailedInfo();
         }
+
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
@@ -434,7 +244,7 @@ namespace Sandbox.Game.Entities.Cube
         private void UpdateDetailedInfo()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.AppendFormat("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
@@ -637,7 +447,7 @@ namespace Sandbox.Game.Entities.Cube
                             MyGridConveyorSystem.ItemPullRequest(this, InputInventory, OwnerId, component.Id, neededAmount);                            
                         }
 
-                        if (IsSlave && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled)
+                        if (IsSlave && !RepeatEnabled)
                         {
                             var remainingTime = TIME_IN_ADVANCE - time;
                             if (remainingTime > 0)
@@ -662,9 +472,9 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < ProductionBlockDefinition.OperationalPowerConsumption)
+            if (!ResourceSink.IsPowered || ResourceSink.CurrentInput < GetOperationalPowerConsumption())
             {
-                if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, ProductionBlockDefinition.OperationalPowerConsumption))
+                if (!ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, GetOperationalPowerConsumption()))
                 {
                     CurrentState = StateEnum.NotEnoughPower;
                     return;
@@ -682,9 +492,6 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-            if (!MyFakes.OCTOBER_RELEASE_ASSEMBLER_ENABLED)
-                return;
-
             var firstQueueItem = TryGetFirstQueueItem();
             while (timeDelta > 0)
             {
@@ -697,7 +504,7 @@ namespace Sandbox.Game.Entities.Cube
                         return;
                     }
 
-                    if (!Sync.IsServer && MyFakes.ENABLE_PRODUCTION_SYNC)
+                    if (!Sync.IsServer)
                         break;
 
                     firstQueueItem = TryGetFirstQueueItem();
@@ -714,7 +521,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (timeDelta >= remainingTime)
                 {
-                    if (Sync.IsServer || !MyFakes.ENABLE_PRODUCTION_SYNC)
+                    if (Sync.IsServer)
                     {
                         if (DisassembleEnabled)
                             FinishDisassembling(currentBlueprint);
@@ -950,23 +757,58 @@ namespace Sandbox.Game.Entities.Cube
                 RebuildQueueInRepeatDisassembling();
         }
 
-        public void RequestDisassembleEnabled(bool value)
+        #region Multiplayer Callbacks
+
+        public void RequestDisassembleEnabled(bool newDisassembleEnabled)
         {
-            if (value != DisassembleEnabled)
-                SyncObject.RequestModeSwitch(value);
+            if (newDisassembleEnabled != DisassembleEnabled)
+                MyMultiplayer.RaiseEvent(this, x => x.ModeSwitchCallback, newDisassembleEnabled);
         }
 
-        public void RequestRepeatEnabled(bool value)
+        [Event, Reliable, Server, Broadcast]
+        private void ModeSwitchCallback(bool disassembleEnabled)
         {
-            if (value != RepeatEnabled)
-                SyncObject.RequestRepeatEnabled(value);
+            this.DisassembleEnabled = disassembleEnabled;
         }
 
-        public void RequestSlaveEnabled(bool value)
+        public void RequestRepeatEnabled(bool newRepeatEnable)
         {
-            if (value != IsSlave)
-                SyncObject.RequestSlaveSwitch(value);
+            if (newRepeatEnable != RepeatEnabled)
+                MyMultiplayer.RaiseEvent(this, x => x.RepeatEnabledCallback, this.DisassembleEnabled, newRepeatEnable);
         }
+
+        [Event, Reliable, Server, Broadcast]
+        private void RepeatEnabledCallback(bool disassembleEnabled, bool repeatEnable)
+        {
+            this.RepeatEnabledSuccess(disassembleEnabled, repeatEnable);
+        }
+
+        public void RequestSlaveEnabled(bool slaveModeEnable)
+        {
+            if (slaveModeEnable != IsSlave)
+                MyMultiplayer.RaiseEvent(this, x => x.SlaveSwitchCallback, slaveModeEnable);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void SlaveSwitchCallback(bool slaveModeEnabled)
+        {
+            this.IsSlave = slaveModeEnabled;
+            this.SetSlave();
+        }
+
+        public void RequestDisassembleAll()
+        {
+            if (DisassembleEnabled && !RepeatEnabled)
+                MyMultiplayer.RaiseEvent(this, x => x.DisassembleAllCallback);
+        }
+
+        [Event, Reliable, Server]
+        private void DisassembleAllCallback()
+        {
+            this.DisassembleAllInOutput();
+        }
+
+        #endregion
 
         private void RepeatEnabledSuccess(bool disassembleMode, bool repeatEnabled)
         {
@@ -974,12 +816,6 @@ namespace Sandbox.Game.Entities.Cube
                 SetRepeat(ref m_repeatDisassembleEnabled, repeatEnabled);
             else
                 SetRepeat(ref m_repeatAssembleEnabled, repeatEnabled);
-        }
-
-        public void RequestDisassembleAll()
-        {
-            if (DisassembleEnabled && !RepeatEnabled)
-                SyncObject.RequestDisassembleAll();
         }
 
         private void RebuildQueueInRepeatDisassembling()
@@ -1074,11 +910,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_inventoryOwners.Clear();
             List<IMyConveyorEndpoint> reachableVertices = new List<IMyConveyorEndpoint>();
-            MyGridConveyorSystem.Pathfinding.FindReachable(this.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock is IMyInventoryOwner);
+            MyGridConveyorSystem.Pathfinding.FindReachable(this.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock.HasInventory);
 
             foreach (var vertex in reachableVertices)
             {
-                m_inventoryOwners.Add(vertex.CubeBlock as IMyInventoryOwner);
+                m_inventoryOwners.Add(vertex.CubeBlock);
             }
             m_inventoryOwnersDirty = false;
         }
@@ -1087,23 +923,30 @@ namespace Sandbox.Game.Entities.Cube
         {
             foreach (var inv in m_inventoryOwners)
             {
-                if (inv != null && inv is IMyInventoryOwner)
+                if (inv != null)
                 {
-                    var cargo = inv as IMyInventoryOwner;
-                    var flags = cargo.GetInventory(0).GetFlags();
-                    var flag = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive;
-                    List<MyInventory> inventories = new List<MyInventory>();
-                    
-                    for (int i = 0; i < cargo.InventoryCount; i++)
-                    {
-                        inventories.Add(cargo.GetInventory(i));
-                    }
+                    var cargo = inv as MyEntity;
 
-                    foreach(var inventory in inventories)
+                    if (cargo != null && cargo.HasInventory)
                     {
-                        if (inventory.ContainItems(amount, contentId) && ((flags == flag || flags == MyInventoryFlags.CanSend) || cargo == this))
+                        System.Diagnostics.Debug.Assert((cargo.GetInventory(0) as MyInventory) != null, "Null or other inventory type!");
+
+                        var flags = (cargo.GetInventory(0) as MyInventory).GetFlags();
+                        var flag = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive;
+                        List<MyInventory> inventories = new List<MyInventory>();
+
+                        for (int i = 0; i < cargo.InventoryCount; i++)
                         {
-                            return true;
+                            System.Diagnostics.Debug.Assert((cargo.GetInventory(i) as MyInventory) != null, "Null or other inventory type!");
+                            inventories.Add(cargo.GetInventory(i) as MyInventory);
+                        }
+
+                        foreach (var inventory in inventories)
+                        {
+                            if (inventory.ContainItems(amount, contentId) && ((flags == flag || flags == MyInventoryFlags.CanSend) || cargo == this))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -1120,5 +963,26 @@ namespace Sandbox.Game.Entities.Cube
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
         }
+
+        protected override void OnInventoryAddedToAggregate(Inventory.MyInventoryAggregate aggregate, MyInventoryBase inventory)
+        {
+            base.OnInventoryAddedToAggregate(aggregate, inventory);
+
+            if (inventory == OutputInventory)
+            {
+                if (Sync.IsServer)
+                    OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
+            }
+        }
+
+        protected override void OnBeforeInventoryRemovedFromAggregate(Inventory.MyInventoryAggregate aggregate, MyInventoryBase inventory)
+        {
+            base.OnBeforeInventoryRemovedFromAggregate(aggregate, inventory);
+            if (inventory == OutputInventory)
+            {
+                if (Sync.IsServer)
+                    OutputInventory.ContentsChanged -= OutputInventory_ContentsChanged;
+            }
+        }     
     }
 }

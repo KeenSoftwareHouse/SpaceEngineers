@@ -3,7 +3,7 @@ using ProtoBuf;
 using VRageMath;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.VRageData
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

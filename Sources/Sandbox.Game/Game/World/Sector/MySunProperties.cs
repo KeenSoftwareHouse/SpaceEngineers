@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using System.Diagnostics;
+using VRage.Game;
+using VRageRender;
 
 namespace Sandbox.Game.World
 {
 
     public class MySunProperties //must be class because of debug screens
     {
+
         // Sun & ambient
         public float SunIntensity;
         public Color SunDiffuse;
         public Color SunSpecular;
         public string SunMaterial;
 
-        public float BackSunIntensity;
-        public Color BackSunDiffuse;
+        public float[] AdditionalSunIntensity;
+        public Color[] AdditionalSunDiffuse;
+        public Vector2[] AdditionalSunDirection;
 
         public Color AmbientColor;
         public float AmbientMultiplier;
@@ -35,8 +40,16 @@ namespace Sandbox.Game.World
             SunSpecular = from.SunSpecular;
             SunMaterial = from.SunMaterial;
 
-            BackSunIntensity = from.BackSunIntensity;
-            BackSunDiffuse = from.BackSunDiffuse;
+            AdditionalSunIntensity = new float[from.AdditionalSunIntensity.Length];
+            AdditionalSunDiffuse = new Color[from.AdditionalSunDiffuse.Length];
+            AdditionalSunDirection = new Vector2[from.AdditionalSunDirection.Length];
+
+            for (int lightIndex = 0; lightIndex < from.AdditionalSunDirection.Length; ++lightIndex)
+            {
+                AdditionalSunIntensity[lightIndex] = from.AdditionalSunIntensity[lightIndex];
+                AdditionalSunDiffuse[lightIndex] = from.AdditionalSunDiffuse[lightIndex];
+                AdditionalSunDirection[lightIndex] = from.AdditionalSunDirection[lightIndex];
+            }
 
             AmbientColor = from.AmbientColor;
             AmbientMultiplier = from.AmbientMultiplier;
@@ -55,6 +68,9 @@ namespace Sandbox.Game.World
             SunDiffuse = Color.White,
             SunSpecular = Color.White,
             AmbientColor = new Color(0.1f),
+            AdditionalSunIntensity = new float[] { 0.0f },
+            AdditionalSunDiffuse = new Color[] { new Color(0.784313738f, 0.784313738f, 0.784313738f) },
+            AdditionalSunDirection = new Vector2[] { new Vector2(0, 0) },
             SunSizeMultiplier = 100,
             BackgroundColor = Color.White,
             SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f),
@@ -69,9 +85,16 @@ namespace Sandbox.Game.World
             result.SunDiffuse = Color.Lerp(SunDiffuse, otherProperties.SunDiffuse, interpolator);
             result.SunIntensity = MathHelper.Lerp(SunIntensity, otherProperties.SunIntensity, interpolator);
             result.SunSpecular = Color.Lerp(SunSpecular, otherProperties.SunSpecular, interpolator);
-
-            result.BackSunIntensity = MathHelper.Lerp(BackSunIntensity, otherProperties.BackSunIntensity, interpolator);
-            result.BackSunDiffuse = Color.Lerp(BackSunDiffuse, otherProperties.BackSunDiffuse, interpolator);
+            
+            result.AdditionalSunIntensity = new float[AdditionalSunIntensity.Length];
+            result.AdditionalSunDiffuse = new Color[AdditionalSunDiffuse.Length];
+            result.AdditionalSunDirection = new Vector2[AdditionalSunDirection.Length];
+            for (int lightIndex = 0; lightIndex < AdditionalSunDirection.Length; ++lightIndex)
+            {
+                result.AdditionalSunIntensity[lightIndex] = MathHelper.Lerp(AdditionalSunIntensity[lightIndex], otherProperties.AdditionalSunIntensity[lightIndex], interpolator);
+                result.AdditionalSunDiffuse[lightIndex] = Color.Lerp(AdditionalSunDiffuse[lightIndex], otherProperties.AdditionalSunDiffuse[lightIndex], interpolator);
+                result.AdditionalSunDirection[lightIndex] = Vector2.Lerp(AdditionalSunDirection[lightIndex], otherProperties.AdditionalSunDirection[lightIndex], interpolator);
+            }
 
             result.AmbientColor = Color.Lerp(AmbientColor, otherProperties.AmbientColor, interpolator);
             result.AmbientMultiplier = MathHelper.Lerp(AmbientMultiplier, otherProperties.AmbientMultiplier, interpolator);
@@ -93,8 +116,15 @@ namespace Sandbox.Game.World
             builder.SunIntensity = SunIntensity;
             builder.SunDiffuse = SunDiffuse.ToVector3();
             builder.SunSpecular = SunSpecular.ToVector3();
-            builder.BackLightIntensity = BackSunIntensity;
-            builder.BackLightDiffuse = BackSunDiffuse.ToVector3();
+
+            builder.AdditionalSunDirection = new VRage.SerializableVector2[AdditionalSunDirection.Length];
+            for (int lightIndex = 0; lightIndex < builder.AdditionalSunDirection.Length; ++lightIndex)
+            {
+                builder.AdditionalSunDirection[lightIndex] = AdditionalSunDirection[lightIndex];
+            }
+            builder.BackLightIntensity = AdditionalSunIntensity[0];
+            builder.BackLightDiffuse = AdditionalSunDiffuse[0].ToVector3();
+
             builder.AmbientColor = AmbientColor.ToVector3();
             builder.AmbientMultiplier = AmbientMultiplier;
             builder.EnvironmentAmbientIntensity = EnvironmentAmbientIntensity;
@@ -109,8 +139,17 @@ namespace Sandbox.Game.World
             SunIntensity = builder.SunIntensity;
             SunDiffuse = new Color((Vector3)builder.SunDiffuse);
             SunSpecular = new Color((Vector3)builder.SunSpecular);
-            BackSunIntensity = builder.BackLightIntensity;
-            BackSunDiffuse = new Color((Vector3)builder.BackLightDiffuse);
+            AdditionalSunDirection = new Vector2[Math.Min(builder.AdditionalSunDirection.Length, MyRenderMessageUpdateRenderEnvironment.MaxAdditionalSuns)];
+            AdditionalSunDiffuse = new Color[AdditionalSunDirection.Length];
+            AdditionalSunIntensity = new float[AdditionalSunDirection.Length];
+
+            for (int lightIndex = 0; lightIndex < AdditionalSunDirection.Length; ++lightIndex)
+            {
+                AdditionalSunDirection[lightIndex] = builder.AdditionalSunDirection[lightIndex];
+                AdditionalSunIntensity[lightIndex] = builder.BackLightIntensity;
+                AdditionalSunDiffuse[lightIndex] = new Color((Vector3)builder.BackLightDiffuse);
+            }
+
             AmbientColor = new Color((Vector3)builder.AmbientColor);
             AmbientMultiplier = builder.AmbientMultiplier;
             EnvironmentAmbientIntensity = builder.EnvironmentAmbientIntensity;

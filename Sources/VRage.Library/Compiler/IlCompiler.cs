@@ -27,11 +27,21 @@ namespace VRage.Compiler
         {"using Sandbox.Common.ObjectBuilders.Serializer;",""},
         {"Sandbox.Common.ObjectBuilders.Serializer.",""},
         {"Sandbox.Common.MyMath","VRageMath.MyMath"},
-        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3I","VRage.SerializableVector3I"}};
+        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3I","VRage.SerializableVector3I"},
+        {"VRage.Components","VRage.Game.Components"},
+        {"using Sandbox.Common.ObjectBuilders.VRageData;",""},
+        {"Sandbox.Common.ObjectBuilders.MyOnlineModeEnum","VRage.Game.MyOnlineModeEnum"},
+        {"Sandbox.Common.ObjectBuilders.Definitions.MyDamageType","VRage.Game.MyDamageType"},
+        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableBlockOrientation","VRage.Game.SerializableBlockOrientation"},
+        {"Sandbox.Common.MySessionComponentDescriptor","VRage.Game.Components.MySessionComponentDescriptor"},
+        {"Sandbox.Common.MyUpdateOrder","VRage.Game.Components.MyUpdateOrder"},
+        {"Sandbox.Common.MySessionComponentBase","VRage.Game.Components.MySessionComponentBase"},
+        {"Sandbox.Common.MyFontEnum","VRage.Game.MyFontEnum"},
+        {"Sandbox.Common.MyRelationsBetweenPlayerAndBlock","VRage.Game.MyRelationsBetweenPlayerAndBlock"}};
 
         static IlCompiler()
         {
-            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll","VRage.Game.dll", "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll", "VRage.Game.dll", "System.Core.dll", "System.dll", "SpaceEngineers.ObjectBuilders.dll", "MedievalEngineers.ObjectBuilders.dll"/*, "Microsoft.CSharp.dll" */});
             Options.GenerateInMemory = true;
             //Options.IncludeDebugInformation = true;
         }
@@ -48,7 +58,7 @@ namespace VRage.Compiler
                         using (StreamReader sr = new StreamReader(stream))
                         {
                             string source = sr.ReadToEnd();
-                            source = source.Insert(0, "using VRage;\r\nusing VRage.Components;\r\nusing VRage.ObjectBuilders;\r\nusing VRage.ModAPI;\r\n");
+                            source = source.Insert(0, "using VRage;\r\nusing VRage.Game.Components;\r\nusing VRage.ObjectBuilders;\r\nusing VRage.ModAPI;\r\nusing Sandbox.Common.ObjectBuilders;\r\nusing VRage.Game;\r\n");
                             foreach (var value in m_compatibilityChanges)
                             {
                                 source = source.Replace(value.Key,value.Value);
@@ -63,25 +73,34 @@ namespace VRage.Compiler
 
         public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
         {
-            assembly = null;
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
             string[] sources = UpdateCompatibility(files);
             var result = m_cp.CompileAssemblyFromSource(Options, sources);
-            return CheckResultInternal(ref assembly, errors, result,false);
+            return CheckResultInternal(out assembly, errors, result, false);
         }
 
         public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
         {
-            assembly = null;
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
+            Options.GenerateExecutable = false;
+            Options.IncludeDebugInformation = false;
             var result = m_cp.CompileAssemblyFromSource(Options, source);
-            return CheckResultInternal(ref assembly, errors, result,true);
+            return CheckResultInternal(out assembly, errors, result,true);
         }
 
-        private static bool CheckResultInternal(ref Assembly assembly, List<string> errors, CompilerResults result,bool isIngameScript)
+        /// <summary>
+        /// Checks assembly for not allowed operations (ie. accesing file system, network)
+        /// </summary>
+        /// <param name="tmpAssembly">output assembly</param>
+        /// <param name="errors">compilation or check errors</param>
+        /// <param name="result">compiled assembly</param>
+        /// <param name="isIngameScript"></param>
+        /// <returns>wheter the check was sucessflu (false AND null asembly on fail)</returns>
+        private static bool CheckResultInternal(out Assembly assembly, List<string> errors, CompilerResults result,bool isIngameScript)
         {
+            assembly = null;
             if (result.Errors.HasErrors)
             {
                 var en = result.Errors.GetEnumerator();
@@ -92,16 +111,16 @@ namespace VRage.Compiler
                 }
                 return false;
             }
-            assembly = result.CompiledAssembly;
+            var tmpAssembly = result.CompiledAssembly;
             Type failedType;
             var dic = new Dictionary<Type, List<MemberInfo>>();
-            foreach (var t in assembly.GetTypes()) //allows calls inside assembly
+            foreach (var t in tmpAssembly.GetTypes()) //allows calls inside assembly
                 dic.Add(t, null);
 
             List<MethodBase> typeMethods = new List<MethodBase>();
             BindingFlags bfAllMembers = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
 
-            foreach (var t in assembly.GetTypes())
+            foreach (var t in tmpAssembly.GetTypes())
             {
                 typeMethods.Clear();
                 typeMethods.AddArray(t.GetMethods(bfAllMembers));
@@ -122,20 +141,19 @@ namespace VRage.Compiler
                     {
                         // CH: TODO: This message does not make much sense when we test not only allowed types, but also method attributes
                         errors.Add(string.Format("Type {0} used in {1} not allowed in script", failedType == null ? "FIXME" : failedType.ToString(), m.Name));
-                        assembly = null;
                         return false;
                     }
                 }
             }
+            assembly = tmpAssembly;
             return true;
         }
 
         public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
         {
-            assembly = null;
             Options.OutputAssembly = assemblyName;
             var result = m_cp.CompileAssemblyFromSource(Options, fileContents);
-            return CheckResultInternal(ref assembly, errors, result,isIngameScript);
+            return CheckResultInternal(out assembly, errors, result,isIngameScript);
         }
 
         public static bool Compile(string[] instructions, out Assembly assembly,bool isIngameScript, bool wrap = true)

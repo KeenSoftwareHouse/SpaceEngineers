@@ -9,8 +9,7 @@ struct PixelStageInput
 };
 
 struct OutlineConstants {
-	matrix WorldToVolume;
-	float3 Color;
+	float4 Color;
 };
 
 cbuffer OutlineConstants : register( b4 ) {
@@ -37,12 +36,11 @@ void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 	if(material_output.DISCARD)
 		discard;
 
-	float4 volumePos = mul(float4(pixel.position_ws, 1), Outline.WorldToVolume);
-	volumePos /= volumePos.w;
+	//float4 volumePos = mul(float4(pixel.position_ws, 1), Outline.WorldToVolume);
+	//volumePos /= volumePos.w;
 
-	if(any(abs(volumePos.xyz) > 0.5) ) {
-		discard;
-	}
+	//if(any(abs(volumePos.xyz) > 0.5) )
+	//	discard;
 
-	shaded = float4(Outline.Color, 1);
+	shaded = Outline.Color;
 }

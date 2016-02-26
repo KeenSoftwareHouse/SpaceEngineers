@@ -37,6 +37,10 @@ namespace VRage
         {
         }
 
+        public void SetMouseCapture(bool capture)
+        {
+        }
+
         public void OnModeChanged(VRageRender.MyWindowModeEnum mode, int width, int height)
         {
         }

@@ -15,10 +15,12 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
+using Sandbox.Graphics;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Game.Entity.UseObject;
@@ -29,6 +31,16 @@ using VRageMath;
 using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.Network;
+using Sandbox.Game.Entities.UseObject;
+using VRage.Game.Gui;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using Sandbox.Engine.Physics;
+using Sandbox.Game.AI;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game;
+using VRage.Serialization;
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -42,6 +54,7 @@ namespace Sandbox.Game.Entities
     public partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
     {
         #region Fields
+
         public MyGridGyroSystem GridGyroSystem;
         public MyGridSelectionSystem GridSelectionSystem;
         public MyResourceDistributorComponent GridResourceDistributor
@@ -59,8 +72,12 @@ namespace Sandbox.Game.Entities
             get { return (CubeGrid != null) ? CubeGrid.Components.Get<MyEntityThrustComponent>() : null; }
         }
 
-        private bool m_controlThrusters;
-        private bool m_controlWheels;
+        private readonly Sync<bool> m_controlThrusters;
+        private readonly Sync<bool> m_controlWheels;
+
+        private readonly Sync<bool> m_dampenersEnabled;
+
+        private bool m_reactorsSwitched = true;
 
         protected MyRechargeSocket m_rechargeSocket;
 
@@ -81,6 +98,7 @@ namespace Sandbox.Game.Entities
 
         protected bool m_enableFirstPerson = false;
         protected bool m_enableShipControl = true;
+        protected bool m_enableBuilderCockpit = false;
         public bool EnableShipControl { get { return m_enableShipControl; } }
 
         // This value can be in some advanced settings
@@ -92,9 +110,46 @@ namespace Sandbox.Game.Entities
         MyDefinitionId? m_selectedGunId;
 
         public MyToolbar Toolbar;
+        public MyToolbar BuildToolbar;
+        public bool BuildingMode = false;
+        public bool hasPower = false;
 
         protected MyEntity3DSoundEmitter m_soundEmitter;
         protected MySoundPair m_baseIdleSound;
+
+        protected static MyTerminalControlCheckbox<MyShipController>  m_horizonIndicator;
+
+        /// <summary>
+        /// Raycaster used for showing block info when active.
+        /// </summary>
+        private MyCasterComponent raycaster = null;
+
+        private int m_switchWeaponCounter = 0;
+
+        bool IsWaitingForWeaponSwitch
+        {
+            get
+            {
+                return m_switchWeaponCounter != 0;
+            }
+        }
+
+        private bool[] m_isShooting;
+
+        protected bool IsShooting(MyShootActionEnum action)
+        {
+            return m_isShooting[(int)action];
+        }
+
+        public bool IsShooting()
+        {
+            foreach (MyShootActionEnum value in MyEnum<MyShootActionEnum>.Values)
+            {
+                if (m_isShooting[(int)value])
+                    return true;
+            }
+            return false;
+        }
 
         #endregion
 
@@ -111,7 +166,7 @@ namespace Sandbox.Game.Entities
             {
                 var controlThrusters = new MyTerminalControlCheckbox<MyShipController>("ControlThrusters", MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters, MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters);
                 controlThrusters.Getter = (x) => x.ControlThrusters;
-                controlThrusters.Setter = (x, v) => x.SyncObject.SetControlThrusters(v);
+                controlThrusters.Setter = (x, v) => x.ControlThrusters = v;
                 controlThrusters.Visible = (x) => x.m_enableShipControl;
                 controlThrusters.Enabled = (x) => x.IsMainCockpitFree();
                 var action = controlThrusters.EnableAction();
@@ -121,7 +176,7 @@ namespace Sandbox.Game.Entities
 
                 var controlWheels = new MyTerminalControlCheckbox<MyShipController>("ControlWheels", MySpaceTexts.TerminalControlPanel_Cockpit_ControlWheels, MySpaceTexts.TerminalControlPanel_Cockpit_ControlWheels);
                 controlWheels.Getter = (x) => x.ControlWheels;
-                controlWheels.Setter = (x, v) => x.SyncObject.SetControlWheels(v);
+                controlWheels.Setter = (x, v) => x.ControlWheels = v;
                 controlWheels.Visible = (x) => x.m_enableShipControl;
                 controlWheels.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
                 action = controlWheels.EnableAction();
@@ -131,7 +186,7 @@ namespace Sandbox.Game.Entities
 
                 var handBrake = new MyTerminalControlCheckbox<MyShipController>("HandBrake", MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake, MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake);
                 handBrake.Getter = (x) => x.CubeGrid.GridSystems.WheelSystem.HandBrake;
-                handBrake.Setter = (x, v) => x.CubeGrid.SyncObject.SetHandbrakeRequest(v);
+                handBrake.Setter = (x, v) => x.CubeGrid.SetHandbrakeRequest(v);
                 handBrake.Visible = (x) => x.m_enableShipControl;
                 handBrake.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
                 action = handBrake.EnableAction();
@@ -161,13 +216,20 @@ namespace Sandbox.Game.Entities
 
             var mainCockpit = new MyTerminalControlCheckbox<MyShipController>("MainCockpit", MySpaceTexts.TerminalControlPanel_Cockpit_MainCockpit, MySpaceTexts.TerminalControlPanel_Cockpit_MainCockpit);
             mainCockpit.Getter = (x) => x.IsMainCockpit;
-            mainCockpit.Setter = (x, v) => x.SetMainCockpit(v);
+            mainCockpit.Setter = (x, v) => x.IsMainCockpit = v;
             mainCockpit.Enabled = (x) => x.IsMainCockpitFree();
             mainCockpit.Visible = (x) => x.CanBeMainCockpit();
             mainCockpit.EnableAction();
 
             MyTerminalControlFactory.AddControl(mainCockpit);
 
+			m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
+			m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
+			m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
+			m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
+			m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
+			m_horizonIndicator.EnableAction();
+			MyTerminalControlFactory.AddControl(m_horizonIndicator);           
         }
 
         public virtual MyCharacter Pilot
@@ -185,10 +247,14 @@ namespace Sandbox.Game.Entities
 
         public MyShipController()
         {
+            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
             ControllerInfo.ControlAcquired += OnControlAcquired;
             ControllerInfo.ControlReleased += OnControlReleased;
             GridSelectionSystem = new MyGridSelectionSystem(this);
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
+
+            m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
+            m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -200,6 +266,7 @@ namespace Sandbox.Game.Entities
             var def = MyDefinitionManager.Static.GetCubeBlockDefinition(objectBuilder.GetId());
             m_enableFirstPerson = BlockDefinition.EnableFirstPerson || MySession.Static.Settings.Enable3rdPersonView == false;
             m_enableShipControl = BlockDefinition.EnableShipControl;
+            m_enableBuilderCockpit = BlockDefinition.EnableBuilderCockpit;
 
 
             m_rechargeSocket = new MyRechargeSocket();
@@ -210,8 +277,8 @@ namespace Sandbox.Game.Entities
             //            m_selectedGunType = shipControllerOb.SelectedGunType;
             m_selectedGunId = shipControllerOb.SelectedGunId;
 
-            m_controlThrusters = shipControllerOb.ControlThrusters;
-            m_controlWheels = shipControllerOb.ControlWheels;
+            ControlThrusters = shipControllerOb.ControlThrusters;
+            ControlWheels = shipControllerOb.ControlWheels;
 
             if (shipControllerOb.IsMainCockpit)
             {
@@ -219,10 +286,12 @@ namespace Sandbox.Game.Entities
             }
 
 			HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
-
-            Toolbar = new MyToolbar(ToolbarType);
-
+            Toolbar = new MyToolbar(ToolbarType); ;
             Toolbar.Init(shipControllerOb.Toolbar, this);
+
+            BuildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
+            BuildToolbar.Init(shipControllerOb.BuildToolbar, this);
+
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
@@ -238,6 +307,8 @@ namespace Sandbox.Game.Entities
             m_baseIdleSound = BlockDefinition.PrimarySound;
 
             CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
+            Components.ComponentAdded += OnComponentAdded;
+            Components.ComponentRemoved += OnComponentRemoved;
         }
 
         protected virtual void ComponentStack_IsFunctionalChanged()
@@ -253,6 +324,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.ControlThrusters = m_controlThrusters;
             objectBuilder.ControlWheels = m_controlWheels;
             objectBuilder.Toolbar = Toolbar.GetObjectBuilder();
+            objectBuilder.BuildToolbar = BuildToolbar.GetObjectBuilder();
             objectBuilder.IsMainCockpit = m_isMainCockpit;
 			objectBuilder.HorizonIndicatorEnabled = HorizonIndicatorEnabled;
 
@@ -374,7 +446,7 @@ namespace Sandbox.Game.Entities
 		            controlTorque = GridGyroSystem.ControlTorque;
 
                 // Need it every frame because of MP interpolation
-				CubeGrid.SyncObject.SendControlThrustAndTorque(controlThrust, controlTorque);
+                CubeGrid.SendControlThrust(Vector3B.Round(controlThrust * 127.0f));
             }
         }
 
@@ -394,7 +466,7 @@ namespace Sandbox.Game.Entities
             if (GridGyroSystem != null)
                 GridGyroSystem.ControlTorque = Vector3.Zero;
             // Need it every frame because of MP interpolation
-            CubeGrid.SyncObject.SendControlThrustAndTorque(Vector3.Zero, Vector3.Zero);
+            CubeGrid.SendControlThrust(Vector3B.Zero);
 
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
@@ -461,7 +533,7 @@ namespace Sandbox.Game.Entities
             //    }
             //}
 
-            if (ControllerInfo.Controller != null && MySession.LocalHumanPlayer != null && ControllerInfo.Controller == MySession.LocalHumanPlayer.Controller)
+            if (ControllerInfo.Controller != null && MySession.Static.LocalHumanPlayer != null && ControllerInfo.Controller == MySession.Static.LocalHumanPlayer.Controller)
             {
                 var shipController = CubeGrid.GridSystems.ControlSystem.GetController();
                 if (shipController == ControllerInfo.Controller)
@@ -497,7 +569,7 @@ namespace Sandbox.Game.Entities
 
             foreach (MyShootActionEnum action in MyEnum<MyShootActionEnum>.Values)
             {
-                if (SyncObject.IsShooting(action))
+                if (IsShooting(action))
                 {
                     Shoot(action);
                 }
@@ -514,6 +586,33 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     DetailedInfo.Clear();
+                }
+            }
+
+            this.HandleBuldingMode();           
+        }
+        
+        /// <summary>
+        /// Handles logic related with 'building from cockpit'.
+        /// </summary>
+        private void HandleBuldingMode() 
+        {
+            if ((BuildingMode && MySession.Static.IsCameraControlledObject() == false) ||
+                (MyInput.Static.IsNewKeyPressed(MyKeys.G) && MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyMousePressed() && !(MySession.Static.ControlledEntity is MyRemoteControl)
+                && m_enableBuilderCockpit && CanBeMainCockpit() && MySession.Static.IsCameraControlledObject() == true))
+            {
+                BuildingMode = !BuildingMode;
+                MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
+                Toolbar.Unselect();
+                if (BuildingMode)
+                {
+                    MyHud.Crosshair.ChangeDefaultSprite(MyHudTexturesEnum.Target_enemy, 0.01f);
+                    MyHud.Notifications.Add(MyNotificationSingletons.BuildingModeOn);
+                }
+                else
+                {
+                    MyHud.Crosshair.ResetToDefault();
+                    MyHud.Notifications.Add(MyNotificationSingletons.BuildingModeOff);
                 }
             }
         }
@@ -546,13 +645,14 @@ namespace Sandbox.Game.Entities
 
         private void UpdateShipInfo()
         {
-            if (!MySandboxGame.IsDedicated && MySession.LocalHumanPlayer != null)
+            if (!MySandboxGame.IsDedicated && MySession.Static.LocalHumanPlayer != null)
             {
-                if (ControllerInfo.Controller != MySession.LocalHumanPlayer.Controller)
+                if (ControllerInfo.Controller != MySession.Static.LocalHumanPlayer.Controller)
                 {
                     return;
                 }
             }
+            hasPower = CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower;
             //These values are cached
             if (GridResourceDistributor != null)
             {
@@ -578,8 +678,8 @@ namespace Sandbox.Game.Entities
             {
                 if (GridResourceDistributor != null)
                 {
-                    MyHud.ShipInfo.PowerUsage = (GridResourceDistributor.MaxAvailableResource != 0.0f)
-                        ? (GridResourceDistributor.TotalRequiredInput / GridResourceDistributor.MaxAvailableResource)
+                    MyHud.ShipInfo.PowerUsage = (GridResourceDistributor.MaxAvailableResourceByType(MyResourceDistributorComponent.ElectricityId) != 0.0f)
+                        ? (GridResourceDistributor.TotalRequiredInputByType(MyResourceDistributorComponent.ElectricityId) / GridResourceDistributor.MaxAvailableResourceByType(MyResourceDistributorComponent.ElectricityId))
                         : 0.0f;
 
 
@@ -612,10 +712,11 @@ namespace Sandbox.Game.Entities
                         MyHud.ShipInfo.SpeedInKmH = false;
                     MyHud.ShipInfo.Speed = Parent.Physics.LinearVelocity.Length();
                 }
-                MyHud.ShipInfo.ReflectorLights = GridReflectorLights.ReflectorsEnabled;
+                if (GridReflectorLights!=null)
+                    MyHud.ShipInfo.ReflectorLights = GridReflectorLights.ReflectorsEnabled;
                 MyHud.ShipInfo.LandingGearsTotal = CubeGrid.GridSystems.LandingSystem.TotalGearCount;
-                MyHud.ShipInfo.LandingGearsLocked = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.Locked];
-                MyHud.ShipInfo.LandingGearsInProximity = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.ReadyToLock];
+                MyHud.ShipInfo.LandingGearsLocked = CubeGrid.GridSystems.LandingSystem[LandingGearMode.Locked];
+                MyHud.ShipInfo.LandingGearsInProximity = CubeGrid.GridSystems.LandingSystem[LandingGearMode.ReadyToLock];
             }
         }
 
@@ -636,14 +737,16 @@ namespace Sandbox.Game.Entities
             //System.Diagnostics.Debug.Assert(GridResourceDistributor != null);
             //System.Diagnostics.Debug.Assert(GridGyroSystem != null);
             //System.Diagnostics.Debug.Assert(EntityThrustComponent != null);
-
+            if (m_soundEmitter != null)
+            {
+                m_soundEmitter.Update();
+                UpdateSoundState();
+            }
             if (GridResourceDistributor == null || GridGyroSystem == null || EntityThrustComponent == null)
                 return;
 
             // This is here probably to give control to the second player when the first one leaves his cockpit. TODO: Do it properly
             //TryExtendControlToGroup();
-
-            UpdateSoundState();
 
             base.UpdateBeforeSimulation100();
         }
@@ -661,9 +764,9 @@ namespace Sandbox.Game.Entities
             {
                 return first.CubeGrid.BlocksCount > second.CubeGrid.BlocksCount;
             }
-            else if (first.CubeGrid.Physics != null && second.CubeGrid.Physics != null)
+            else if (first.CubeGrid.Physics != null && second.CubeGrid.Physics != null && first.CubeGrid.Physics.Shape.MassProperties.HasValue && second.CubeGrid.Physics.Shape.MassProperties.HasValue)
             {
-                return first.CubeGrid.Physics.Mass > second.CubeGrid.Physics.Mass;
+                return first.CubeGrid.Physics.Shape.MassProperties.Value.Mass > second.CubeGrid.Physics.Shape.MassProperties.Value.Mass;
             }
             else
             {
@@ -754,7 +857,7 @@ namespace Sandbox.Game.Entities
             if (m_notificationReactorsOn == null)
             {
                 var controlName = MyInput.Static.GetGameControl(MyControlsSpace.TOGGLE_REACTORS).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
-                m_notificationReactorsOn = new MyHudNotification(MySpaceTexts.NotificationHintTurnAllReactorsOn, 0);
+                m_notificationReactorsOn = new MyHudNotification(MySpaceTexts.NotificationHintTurnPowerOn, 0);
                 if (!MyInput.Static.IsJoystickConnected())
                     m_notificationReactorsOn.SetTextFormatArguments(controlName);
                 else
@@ -765,7 +868,7 @@ namespace Sandbox.Game.Entities
             if (m_notificationReactorsOff == null)
             {
                 var controlName = MyInput.Static.GetGameControl(MyControlsSpace.TOGGLE_REACTORS).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
-                m_notificationReactorsOff = new MyHudNotification(MySpaceTexts.NotificationHintTurnAllReactorsOff, 0);
+                m_notificationReactorsOff = new MyHudNotification(MySpaceTexts.NotificationHintTurnPowerOff, 0);
                 if (!MyInput.Static.IsJoystickConnected())
                     m_notificationReactorsOff.SetTextFormatArguments(controlName);
                 else
@@ -843,6 +946,31 @@ namespace Sandbox.Game.Entities
 
         #region Object control
 
+        void OnComponentAdded(System.Type arg1, MyEntityComponentBase arg2)
+        {
+            if (arg1 == typeof(MyCasterComponent))
+            {
+                raycaster = arg2 as MyCasterComponent;
+                this.PositionComp.OnPositionChanged += OnPositionChanged;
+            }
+        }
+
+        void OnComponentRemoved(System.Type arg1, MyEntityComponentBase arg2)
+        {
+            if (arg1 == typeof(MyCasterComponent))
+            {
+                raycaster = null;
+                this.PositionComp.OnPositionChanged -= OnPositionChanged;
+            }
+        }
+
+        void OnPositionChanged(MyPositionComponentBase obj)
+        {
+            MatrixD worldMatrix = obj.WorldMatrix;
+            if (raycaster != null)
+                raycaster.OnWorldPosChanged(ref worldMatrix);
+        }
+
         public override void OnRemovedFromScene(object source)
         {
             base.OnRemovedFromScene(source);
@@ -869,18 +997,18 @@ namespace Sandbox.Game.Entities
         {
             // Try to take control of ship
             // This won't be here at all
-            if (MySession.LocalHumanPlayer == controller.Player)
+            if (MySession.Static.LocalHumanPlayer == controller.Player)
             {
                 if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     GridWheels.InitControl();
 
                 if (MySession.Static.CameraController is MyEntity && IsCameraController())
-                    MySession.SetCameraController(MyCameraControllerEnum.Entity, this);
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, this);
 
                 //if (MyGuiScreenGamePlay.Static != null)
                 //    MySession.Static.CameraAttachedToChanged += Static_CameraAttachedToChanged;
 
-                if (MySession.Static.Settings.RespawnShipDelete && controller.Player.RespawnShip.Contains(CubeGrid.EntityId))
+                if (MySession.Static.Settings.RespawnShipDelete && CubeGrid.IsRespawnGrid)
                     MyHud.Notifications.Add(MyNotificationSingletons.RespawnShipWarning);
 
                 Static_CameraAttachedToChanged(null, null);
@@ -894,7 +1022,7 @@ namespace Sandbox.Game.Entities
 
                 MyHud.HideAll();
                 MyHud.ShipInfo.Show(null);
-                MyHud.Crosshair.Show(null);
+                MyHud.Crosshair.ResetToDefault();
                 MyHud.CharacterInfo.Show(null);
                 MyHud.SinkGroupInfo.Visible = true;
                 MyHud.GravityIndicator.Entity = this;
@@ -935,6 +1063,16 @@ namespace Sandbox.Game.Entities
                 GridSelectionSystem.OnControlAcquired();
             }
 
+            if (BuildingMode && (MySession.Static.ControlledEntity is MyRemoteControl)) BuildingMode = false;
+            if (BuildingMode)
+            {
+                MyHud.Crosshair.ChangeDefaultSprite(MyHudTexturesEnum.Target_enemy, 0.01f);
+            }
+            else
+            {
+                MyHud.Crosshair.ResetToDefault();
+            }
+
             var thrustComponent = EntityThrustComponent;
             if (controller == Sync.Players.GetEntityController(CubeGrid) && thrustComponent != null)
                 thrustComponent.Enabled = m_controlThrusters;
@@ -943,7 +1081,7 @@ namespace Sandbox.Game.Entities
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
-            if (Sync.IsServer || controller.Player == MySession.LocalHumanPlayer)
+            if (Sync.IsServer || controller.Player == MySession.Static.LocalHumanPlayer)
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
@@ -959,7 +1097,7 @@ namespace Sandbox.Game.Entities
             if (Sync.Players.GetEntityController(this) == controller && thrustComponent != null)
                 thrustComponent.Enabled = true;
 
-            if (MySession.LocalHumanPlayer == controller.Player)
+            if (MySession.Static.LocalHumanPlayer == controller.Player)
             {
                 OnControlReleased_UpdateCamera();
 
@@ -982,7 +1120,8 @@ namespace Sandbox.Game.Entities
 
                 MyHud.ShipInfo.Hide();
                 MyHud.GravityIndicator.Hide();
-                MyHud.Crosshair.Hide();
+                MyHud.Crosshair.HideDefaultSprite();
+                MyHud.Crosshair.Recenter();
                 MyHud.LargeTurretTargets.Visible = false;
                 MyHud.Notifications.Remove(m_noControlNotification);
                 m_noControlNotification = null;
@@ -997,7 +1136,7 @@ namespace Sandbox.Game.Entities
                 //controller.Player.OnDisplayNameChanged -= UpdateHudMarker;
             }
 
-            if (SyncObject.IsShooting())
+            if (IsShooting())
             {
                 EndShootAll();
             }
@@ -1057,7 +1196,7 @@ namespace Sandbox.Game.Entities
         #region Interactions
         void Static_CameraAttachedToChanged(IMyCameraController oldController, IMyCameraController newController)
         {
-            if (MySession.ControlledEntity == this && newController != MyThirdPersonSpectator.Static && newController != this)
+            if (MySession.Static.ControlledEntity == this && newController != MyThirdPersonSpectator.Static && newController != this)
             {
                 EndShootAll();
             }
@@ -1071,7 +1210,7 @@ namespace Sandbox.Game.Entities
 
         public void Shoot(MyShootActionEnum action)
         {
-            if (m_enableShipControl && !SyncObject.IsWaitingForWeaponSwitch)
+            if (m_enableShipControl && !IsWaitingForWeaponSwitch)
             {
                 MyGunStatusEnum status;
                 IMyGunObject<MyDeviceBase> gun;
@@ -1089,7 +1228,12 @@ namespace Sandbox.Game.Entities
         public void Use()
         {
             MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
-            SyncObject.ControlledEntity_Use();
+            RaiseControlledEntityUsed();
+        }
+
+        public void RaiseControlledEntityUsed()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.sync_ControlledEntity_Used);
         }
 
         public void UseContinues()
@@ -1112,7 +1256,7 @@ namespace Sandbox.Game.Entities
         {
         }
 
-        public void Sprint()
+        public void Sprint(bool enabled)
         {
         }
 
@@ -1152,14 +1296,14 @@ namespace Sandbox.Game.Entities
 
             if (updateProxy)
             {
-                SyncObject.SendDampenersUpdate(enableDampeners);
+                m_dampenersEnabled.Value = enableDampeners;
             }
 
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 if (m_inertiaDampenersNotification == null)
                     m_inertiaDampenersNotification = new MyHudNotification();
-                m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
+                m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
                 MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
         }
@@ -1197,14 +1341,16 @@ namespace Sandbox.Game.Entities
         {
             if (m_enableShipControl)
             {
-                if (GridResourceDistributor.SourcesEnabled != MyMultipleEnabledEnum.AllEnabled)
+                if (m_reactorsSwitched)
                 {
-                    CubeGrid.SyncObject.SendPowerDistributorState(MyMultipleEnabledEnum.AllEnabled, MySession.LocalPlayerId);
+                    CubeGrid.SendPowerDistributorState(MyMultipleEnabledEnum.AllDisabled, MySession.Static.LocalPlayerId);
                 }
                 else
                 {
-                    CubeGrid.SyncObject.SendPowerDistributorState(MyMultipleEnabledEnum.AllDisabled, MySession.LocalPlayerId);
+                    CubeGrid.SendPowerDistributorState(MyMultipleEnabledEnum.AllEnabled, MySession.Static.LocalPlayerId);
                 }
+                CubeGrid.ActivatePhysics();
+                m_reactorsSwitched = !m_reactorsSwitched;
             }
         }
 
@@ -1222,9 +1368,29 @@ namespace Sandbox.Game.Entities
             Vector2 target = Vector2.Zero;
             if (MyHudCrosshair.GetProjectedVector(to, ref target))
             {
-                MyHud.Crosshair.Position = target;
+                if (BuildingMode)
+                    target.Y += 0.17f * MyGuiManager.GetHudSize().Y;
+                MyHud.Crosshair.ChangePosition(target);
             }
+
+            if (raycaster != null && raycaster.HitBlock != null)
+            {
+
+                MyHud.BlockInfo.Visible = true;
+
+                MyHud.BlockInfo.MissingComponentIndex = -1;
+                MyHud.BlockInfo.BlockName = raycaster.HitBlock.BlockDefinition.DisplayNameText;
+                MyHud.BlockInfo.BlockIcon = raycaster.HitBlock.BlockDefinition.Icon;
+                MyHud.BlockInfo.BlockIntegrity = raycaster.HitBlock.Integrity / raycaster.HitBlock.MaxIntegrity;
+                MyHud.BlockInfo.CriticalIntegrity = raycaster.HitBlock.BlockDefinition.CriticalIntegrityRatio;
+                MyHud.BlockInfo.CriticalComponentIndex = raycaster.HitBlock.BlockDefinition.CriticalGroup;
+                MyHud.BlockInfo.OwnershipIntegrity = raycaster.HitBlock.BlockDefinition.OwnershipIntegrityRatio;
+
+                MySlimBlock.SetBlockComponents(MyHud.BlockInfo, raycaster.HitBlock);
+            }
+
         }
+
 
         #endregion
 
@@ -1248,16 +1414,6 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        protected override bool ShouldSync
-        {
-            get
-            {
-                // Don't sync update
-                return false;
-            }
-        }
-
-
         public override Vector3D LocationForHudMarker
         {
             get
@@ -1280,7 +1436,7 @@ namespace Sandbox.Game.Entities
             get { return m_controlThrusters; }
             set
             {
-                m_controlThrusters = value;
+                m_controlThrusters.Value = value;
                 if (EntityThrustComponent != null && Sync.Players.HasExtendedControl(this, CubeGrid))
                     EntityThrustComponent.Enabled = m_controlThrusters;
             }
@@ -1289,7 +1445,7 @@ namespace Sandbox.Game.Entities
         public bool ControlWheels
         {
             get { return m_controlWheels; }
-            set { m_controlWheels = value; }
+            set { m_controlWheels.Value = value; }
         }
 
         #endregion
@@ -1353,26 +1509,25 @@ namespace Sandbox.Game.Entities
 			}
 		}
 
-        public void RequestUse(UseActionEnum actionEnum, MyCharacter user)
-        {
-            SyncObject.RequestUse(actionEnum, user);
-        }
-
         void SwitchToWeaponInternal(MyDefinitionId? weapon, bool updateSync)
         {
             if (updateSync)
             {
-                SyncObject.RequestSwitchToWeapon(weapon, null, 0);
+                RequestSwitchToWeapon(weapon, null, 0);
                 return;
             }
 
             StopCurrentWeaponShooting();
 
+            MyAnalyticsHelper.ReportActivityEnd(this, "item_equip");
             if (weapon.HasValue)
             {
                 //    var gun = GetWeaponType(weapon.Value.TypeId);
 
                 SwitchToWeaponInternal(weapon);
+
+                string[] weaponNameParts = ((System.Type)weapon.Value.TypeId).Name.Split('_');
+                MyAnalyticsHelper.ReportActivityStart(this, "item_equip", "character", "ship_item_usage", weaponNameParts.Length > 1 ? weaponNameParts[1] : weaponNameParts[0]);
             }
             else
             {
@@ -1387,10 +1542,11 @@ namespace Sandbox.Game.Entities
             m_selectedGunId = gunId;
 
             Debug.Assert(gunId != null, "gunType Should not be null when switching weapon. (Cestmir)");
+
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 if (m_weaponSelectedNotification == null)
-                    m_weaponSelectedNotification = new MyHudNotification(MySpaceTexts.NotificationSwitchedToWeapon);
+                    m_weaponSelectedNotification = new MyHudNotification(MyCommonTexts.NotificationSwitchedToWeapon);
                 m_weaponSelectedNotification.SetTextFormatArguments(MyDeviceBase.GetGunNotificationName(m_selectedGunId.Value));
                 MyHud.Notifications.Add(m_weaponSelectedNotification);
             }
@@ -1400,11 +1556,11 @@ namespace Sandbox.Game.Entities
         {
             if (sync)
             {
-                SyncObject.RequestSwitchAmmoMagazine();
+                MyMultiplayer.RaiseEvent(this, x => x.OnSwitchAmmoMagazineRequest);
                 return;
             }
 
-            if (m_enableShipControl && !SyncObject.IsWaitingForWeaponSwitch)
+            if (m_enableShipControl && !IsWaitingForWeaponSwitch)
             {
                 GridSelectionSystem.SwitchAmmoMagazine();
             }
@@ -1428,7 +1584,7 @@ namespace Sandbox.Game.Entities
                 case MyGunStatusEnum.NotSelected:
                     if (m_noWeaponNotification == null)
                     {
-                        m_noWeaponNotification = new MyHudNotification(MySpaceTexts.NotificationNoWeaponSelected, 2000, font: MyFontEnum.Red);
+                        m_noWeaponNotification = new MyHudNotification(MyCommonTexts.NotificationNoWeaponSelected, 2000, font: MyFontEnum.Red);
                         MyHud.Notifications.Add(m_noWeaponNotification);
                     }
 
@@ -1437,7 +1593,7 @@ namespace Sandbox.Game.Entities
                 case MyGunStatusEnum.OutOfAmmo:
                     if (m_outOfAmmoNotification == null)
                     {
-                        m_outOfAmmoNotification = new MyHudNotification(MySpaceTexts.OutOfAmmo, 2000, font: MyFontEnum.Red);
+                        m_outOfAmmoNotification = new MyHudNotification(MyCommonTexts.OutOfAmmo, 2000, font: MyFontEnum.Red);
                     }
 
                     if (weapon is MyCubeBlock)
@@ -1449,7 +1605,7 @@ namespace Sandbox.Game.Entities
                 case MyGunStatusEnum.OutOfPower:
                     if (m_weaponNotWorkingNotification == null)
                     {
-                        m_weaponNotWorkingNotification = new MyHudNotification(MySpaceTexts.NotificationWeaponNotWorking, 2000, font: MyFontEnum.Red);
+                        m_weaponNotWorkingNotification = new MyHudNotification(MyCommonTexts.NotificationWeaponNotWorking, 2000, font: MyFontEnum.Red);
                     }
 
                     if (weapon is MyCubeBlock)
@@ -1534,33 +1690,6 @@ namespace Sandbox.Game.Entities
 
         #region Multiplayer
 
-        protected override MySyncEntity OnCreateSync()
-        {
-            var sync = new MySyncShipController(this);
-            OnInitSync(sync);
-            return sync;
-        }
-
-        protected virtual void OnInitSync(MySyncShipController sync)
-        {
-            sync.UseSuccess += sync_UseSuccess;
-            sync.UseFailed += sync_UseFailed;
-            sync.ControlledEntity_Used += sync_ControlledEntity_Used;
-            sync.SwitchToWeaponSuccessHandler += SwitchToWeaponSuccess;
-            sync.SwitchAmmoMagazineSuccessHandler += SwitchAmmoMagazineSuccess;
-            sync.PilotRelativeEntryUpdated += sync_PilotRelativeEntryUpdated;
-            sync.DampenersUpdated += sync_DampenersUpdated;
-        }
-
-        protected virtual void sync_PilotRelativeEntryUpdated(MyPositionAndOrientation relativeEntry)
-        {
-        }
-
-        void sync_DampenersUpdated(bool enableDampeners)
-        {
-            EnableDampingInternal(enableDampeners, false);
-        }
-
         protected virtual void sync_UseSuccess(UseActionEnum actionEnum, IMyControllableEntity user)
         {
         }
@@ -1570,7 +1699,7 @@ namespace Sandbox.Game.Entities
             if (user != null && user.ControllerInfo.IsLocallyHumanControlled())
             {
                 if (actionResult == UseActionResult.UsedBySomeoneElse)
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.AlreadyUsedBySomebodyElse, 2500, MyFontEnum.Red));
+                    MyHud.Notifications.Add(new MyHudNotification(MyCommonTexts.AlreadyUsedBySomebodyElse, 2500, MyFontEnum.Red));
                 else if (actionResult == UseActionResult.AccessDenied)
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 else if (actionResult == UseActionResult.Unpowered)
@@ -1580,7 +1709,8 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void sync_ControlledEntity_Used()
+        [Event,Reliable,Server,Broadcast]
+        protected void sync_ControlledEntity_Used()
         {
             OnControlledEntity_Used();
         }
@@ -1600,10 +1730,6 @@ namespace Sandbox.Game.Entities
         private MyHudNotification m_notificationWeaponMode;
         public MyControllerInfo ControllerInfo { get { return m_info; } }
 
-        public new MySyncShipController SyncObject
-        {
-            get { return (MySyncShipController)base.SyncObject; }
-        }
 
         void SwitchToWeaponSuccess(MyDefinitionId? weapon, MyObjectBuilder_Base weaponObjectBuilder, long weaponEntityId)
         {
@@ -1620,7 +1746,7 @@ namespace Sandbox.Game.Entities
 
         public void BeginShoot(MyShootActionEnum action)
         {
-            if (!SyncObject.IsWaitingForWeaponSwitch)
+            if (!IsWaitingForWeaponSwitch)
             {
                 MyGunStatusEnum status = MyGunStatusEnum.OK;
                 IMyGunObject<MyDeviceBase> gun = null;
@@ -1631,7 +1757,7 @@ namespace Sandbox.Game.Entities
                     ShowShootNotification(status, gun);
                 }
 
-                SyncObject.BeginShoot((Vector3)PositionComp.WorldMatrix.Forward, action);
+                BeginShootSync(action);
             }
         }
 
@@ -1639,8 +1765,10 @@ namespace Sandbox.Game.Entities
         {
             foreach (MyShootActionEnum action in MyEnum<MyShootActionEnum>.Values)
             {
-                if (SyncObject.IsShooting(action))
+                if (IsShooting(action))
+                {
                     EndShoot(action);
+                }
             }
         }
 
@@ -1648,7 +1776,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (MyShootActionEnum action in MyEnum<MyShootActionEnum>.Values)
             {
-                if (SyncObject.IsShooting(action))
+                if (IsShooting(action))
                 {
                     GridSelectionSystem.EndShoot(action);
                 }
@@ -1657,7 +1785,13 @@ namespace Sandbox.Game.Entities
 
         public void EndShoot(MyShootActionEnum action)
         {
-            SyncObject.EndShoot(action);
+            if (BuildingMode)
+            {
+                if (Pilot!=null)
+                    Pilot.EndShoot(action);
+            }
+            else
+                EndShootSync(action);
         }
 
         public void OnBeginShoot(MyShootActionEnum action)
@@ -1688,6 +1822,8 @@ namespace Sandbox.Game.Entities
 
             IsMainCockpit = false;
             CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
+            Components.ComponentAdded -= OnComponentAdded;
+            Components.ComponentRemoved -= OnComponentRemoved;
             base.Closing();
         }
 
@@ -1713,7 +1849,9 @@ namespace Sandbox.Game.Entities
                 RemoveLocal();
             }
             else
-                SyncObject.ControlledEntity_Use();
+            {
+                RaiseControlledEntityUsed();
+            }
         }
 
         protected virtual void RemoveLocal()
@@ -1742,7 +1880,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private bool m_isMainCockpit = false;
+        private readonly Sync<bool> m_isMainCockpit;
         public bool IsMainCockpit
         {
             get
@@ -1751,22 +1889,7 @@ namespace Sandbox.Game.Entities
             }
             set
             {
-                if (value != m_isMainCockpit)
-                {
-                    m_isMainCockpit = value;
-                    if (m_isMainCockpit)
-                    {
-                        CubeGrid.SetMainCockpit(this);
-                    }
-                    else
-                    {
-                        if (CubeGrid.IsMainCockpit(this))
-                        {
-                            CubeGrid.SetMainCockpit(null);
-                        }
-                    }
-                    RaisePropertiesChanged();
-                }
+               m_isMainCockpit.Value = value;
             }
         }
 
@@ -1777,12 +1900,25 @@ namespace Sandbox.Game.Entities
                 if (CubeGrid.HasMainCockpit() && !CubeGrid.IsMainCockpit(this))
                 {
                     IsMainCockpit = false;
-                    RaisePropertiesChanged();
                     return;
                 }
             }
             IsMainCockpit = value;
-            SyncObject.SendSetMainCockpit(IsMainCockpit);
+        }
+
+        private void MainCockpitChanged()
+        {
+            if (m_isMainCockpit)
+            {
+                CubeGrid.SetMainCockpit(this);
+            }
+            else
+            {
+                if (CubeGrid.IsMainCockpit(this))
+                {
+                    CubeGrid.SetMainCockpit(null);
+                }
+            }
         }
 
         protected virtual bool CanBeMainCockpit()
@@ -1795,14 +1931,14 @@ namespace Sandbox.Game.Entities
             return CubeGrid.HasMainCockpit() == false || CubeGrid.IsMainCockpit(this);
         }
 
-		bool m_horizonIndicatorEnabled;
+		readonly Sync<bool> m_horizonIndicatorEnabled;
+        
 		public bool HorizonIndicatorEnabled
 		{
 			get { return m_horizonIndicatorEnabled; }
 			set
 			{
-				m_horizonIndicatorEnabled = value;
-				RaisePropertiesChanged();
+				m_horizonIndicatorEnabled.Value = value;
 			}
 		}
 
@@ -1810,8 +1946,6 @@ namespace Sandbox.Game.Entities
 		{
 			if (HorizonIndicatorEnabled == newValue)
 				return;
-
-			SyncObject.SendHorizonIndicatorChanged(newValue); 
 		}
 
         public virtual MyToolbarType ToolbarType
@@ -2048,6 +2182,235 @@ namespace Sandbox.Game.Entities
         {
             get { return MySpaceBindingCreator.CX_SPACESHIP; }
         }
+
+        internal override void SetDamageEffect(bool show)
+        {
+            if (BlockDefinition.DamagedSound != null)
+                if (show)
+                    m_soundEmitter.PlaySound(BlockDefinition.DamagedSound, true);
+                else
+                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                        m_soundEmitter.StopSound(false);
+            base.SetDamageEffect(show);
+        }
+
+        internal override void StopDamageEffect()
+        {
+            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                m_soundEmitter.StopSound(true);
+            base.StopDamageEffect();
+        }
+
+        void DampenersEnabledChanged()
+        {
+            EnableDampingInternal(m_dampenersEnabled.Value, false);
+        }
+
+        void RequestSwitchToWeapon(MyDefinitionId? weapon, MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId)
+        {
+            if (!Sync.IsServer)
+            {
+                m_switchWeaponCounter++;
+            }
+
+            SerializableDefinitionId? def = weapon;
+            MyMultiplayer.RaiseEvent(this, x => x.SwitchToWeaponMessage, def, weaponObjectBuilder, weaponEntityId);
+        }
+
+        [Event, Reliable,Server]
+        void SwitchToWeaponMessage(SerializableDefinitionId? weapon, [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))] MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId)
+        {
+            if(CanSwitchToWeapon(weapon) == false)
+            {
+                if (MyEventContext.Current.IsLocallyInvoked)
+                {
+                    OnSwitchToWeaponFailure(weapon, weaponObjectBuilder, weaponEntityId);
+                }
+                else
+                {
+                    MyMultiplayer.RaiseEvent(this, x => x.OnSwitchToWeaponFailure, weapon, weaponObjectBuilder, weaponEntityId, MyEventContext.Current.Sender);
+                }
+                return;
+            }
+
+            if (weaponObjectBuilder != null && weaponObjectBuilder.EntityId == 0)
+            {
+                weaponObjectBuilder = (MyObjectBuilder_EntityBase)weaponObjectBuilder.Clone();
+                weaponObjectBuilder.EntityId = weaponEntityId == 0 ? MyEntityIdentifier.AllocateId() : weaponEntityId;
+            }
+            OnSwitchToWeaponSuccess(weapon, weaponObjectBuilder, weaponEntityId);
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnSwitchToWeaponSuccess, weapon, weaponObjectBuilder, weaponEntityId);
+
+        }
+
+        [Event, Reliable, Client]
+        void OnSwitchToWeaponFailure(SerializableDefinitionId? weapon, [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))] MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId)
+        {
+            if (!Sync.IsServer)
+            {
+                m_switchWeaponCounter--;
+            }
+        }
+
+        [Event, Reliable, Broadcast]
+        void OnSwitchToWeaponSuccess(SerializableDefinitionId? weapon, [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))] MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId)
+        {
+            if (!Sync.IsServer)
+            {
+                // Update the counter only if we are waiting for it
+                if (m_switchWeaponCounter > 0)
+                {
+                    m_switchWeaponCounter--;
+                }
+            }
+
+            SwitchToWeaponSuccess(weapon, weaponObjectBuilder, weaponEntityId);
+        }
+
+        public void RequestUse(UseActionEnum actionEnum, IMyControllableEntity usedBy)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.RequestUseMessage, actionEnum, usedBy.Entity.EntityId);
+        }
+
+        [Event, Reliable, Server]
+        void RequestUseMessage(UseActionEnum useAction, long usedById)
+        {
+            MyEntity controlledEntity;
+            bool entityExists = MyEntities.TryGetEntityById<MyEntity>(usedById, out controlledEntity);
+            IMyControllableEntity controllableEntity = controlledEntity as IMyControllableEntity;
+            Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
+            Debug.Assert(entityExists);
+
+            UseActionResult useResult = UseActionResult.OK;
+
+            if (entityExists && (useResult = (this as IMyUsableEntity).CanUse(useAction, controllableEntity)) == UseActionResult.OK)
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.UseSuccessCallback, useAction, usedById, useResult);
+                UseSuccessCallback(useAction, usedById, useResult);
+            }
+            else
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.UseFailureCallback, useAction, usedById, useResult, MyEventContext.Current.Sender);
+            }
+        }
+
+        [Event, Reliable, Broadcast]
+        void UseSuccessCallback(UseActionEnum useAction, long usedById,UseActionResult useResult)
+        {
+            MyEntity controlledEntity;
+            if (MyEntities.TryGetEntityById<MyEntity>(usedById, out controlledEntity))
+            {
+                var controllableEntity = controlledEntity as IMyControllableEntity;
+                Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
+
+                if (controllableEntity != null)
+                {
+                    VRage.Game.MyRelationsBetweenPlayerAndBlock relation = VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership;
+                    var cubeBlock = this as MyCubeBlock;
+                    if (cubeBlock != null && controllableEntity.ControllerInfo.Controller != null)
+                    {
+                        relation = cubeBlock.GetUserRelationToOwner(controllableEntity.ControllerInfo.Controller.Player.Identity.IdentityId);
+                    }
+
+                    if (relation.IsFriendly())
+                    {
+                        sync_UseSuccess(useAction, controllableEntity);
+                    }
+                    else
+                    {
+                        sync_UseFailed(useAction, useResult, controllableEntity);
+                    }
+                }
+            }
+        }
+
+        [Event, Reliable, Client]
+        void UseFailureCallback(UseActionEnum useAction, long usedById, UseActionResult useResult)
+        {
+            MyEntity controlledEntity;
+            bool userFound = MyEntities.TryGetEntityById<MyEntity>(usedById, out controlledEntity);
+            Debug.Assert(userFound);
+            IMyControllableEntity controllableEntity = controlledEntity as IMyControllableEntity;
+            Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
+            sync_UseFailed(useAction, useResult, controllableEntity);
+        }
+
+
+        [Event, Reliable, Server]
+        void OnSwitchAmmoMagazineRequest()
+        {
+            if ((this as IMyControllableEntity).CanSwitchAmmoMagazine() == false)
+            {
+                return;
+            }
+
+            SwitchAmmoMagazineSuccess();
+            MyMultiplayer.RaiseEvent(this, x => x.OnSwitchAmmoMagazineSuccess);
+        }
+
+        [Event, Reliable, Broadcast]
+        void OnSwitchAmmoMagazineSuccess()
+        {
+            SwitchAmmoMagazineSuccess();
+        }
+
+        public void BeginShootSync(MyShootActionEnum action = MyShootActionEnum.PrimaryAction)
+        {
+            StartShooting(action);
+
+            MyMultiplayer.RaiseEvent(this, x => x.ShootBeginCallback, action);
+
+            if (MyFakes.SIMULATE_QUICK_TRIGGER)
+                EndShootInternal(action);
+        }
+
+        [Event, Reliable,Server, BroadcastExcept]
+        void ShootBeginCallback(MyShootActionEnum action)
+        {
+            bool wouldCallStartTwice = Sync.IsServer && MyEventContext.Current.IsLocallyInvoked;
+            if (!wouldCallStartTwice)
+            {
+                StartShooting(action);
+            }
+        }
+
+        private void StartShooting(MyShootActionEnum action)
+        {
+            m_isShooting[(int)action] = true;
+            OnBeginShoot(action);
+        }
+
+        private void StopShooting(MyShootActionEnum action)
+        {
+            m_isShooting[(int)action] = false;
+            OnEndShoot(action);
+        }
+
+        public void EndShootSync(MyShootActionEnum action = MyShootActionEnum.PrimaryAction)
+        {
+            if (MyFakes.SIMULATE_QUICK_TRIGGER) return;
+
+            EndShootInternal(action);
+        }
+
+        private void EndShootInternal(MyShootActionEnum action = MyShootActionEnum.PrimaryAction)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.ShootEndCallback, action);
+
+            StopShooting(action);
+        }
+
+        [Event,Reliable,Server,BroadcastExcept]
+        void ShootEndCallback(MyShootActionEnum action)
+        {
+            bool wouldCallStopTwice = Sync.IsServer && MyEventContext.Current.IsLocallyInvoked;
+            if (!wouldCallStopTwice)
+            {
+                StopShooting(action);
+            }
+        }
+
     }
 }
 

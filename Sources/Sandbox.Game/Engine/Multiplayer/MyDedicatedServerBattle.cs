@@ -9,6 +9,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
 using SteamSDK;
+using VRage.Game;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -97,6 +98,12 @@ namespace Sandbox.Engine.Multiplayer
         {
             get { return true; }
             set { }
+        }
+
+        public override float BattleRemainingTime
+        {
+            get { return m_battleData.BattleRemainingTime; }
+            set { m_battleData.BattleRemainingTime = value; }
         }
 
         public override bool BattleCanBeJoined

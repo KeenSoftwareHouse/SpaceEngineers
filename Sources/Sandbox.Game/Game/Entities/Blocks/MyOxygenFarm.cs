@@ -10,12 +10,13 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Ingame;
 using VRage;
+using VRage.Game;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using VRage.Components;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -25,6 +26,7 @@ namespace Sandbox.Game.Entities.Blocks
         static readonly string[] m_emissiveNames = { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
         private float m_maxGasOutputFactor;
+        private bool firstUpdate = true;
         public new MyOxygenFarmDefinition BlockDefinition { get { return base.BlockDefinition as MyOxygenFarmDefinition; } }
 
         public MySolarGameLogicComponent SolarComponent { get; private set; }
@@ -50,7 +52,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
 
             IsWorkingChanged += OnIsWorkingChanged;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             InitializeConveyorEndpoint();
 
@@ -63,6 +65,7 @@ namespace Sandbox.Game.Entities.Blocks
                     ProductionToCapacityMultiplier = 1,
                     IsInfiniteCapacity = true,
                 });
+            SourceComp.Enabled = IsWorking;
 
             ResourceSink.Init(
                 BlockDefinition.ResourceSinkGroup,
@@ -97,7 +100,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float ComputeRequiredPower()
         {
-            return (Enabled && IsFunctional && IsWorking) ? BlockDefinition.OperationalPowerConsumption : 0f;
+            return Enabled && IsFunctional ? BlockDefinition.OperationalPowerConsumption : 0f;
         }
 
         protected override void OnEnabledChanged()
@@ -122,6 +125,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void OnIsWorkingChanged(MyCubeBlock obj)
         {
+            SourceComp.Enabled = IsWorking;
             UpdateEmissivity();
         }
 
@@ -133,7 +137,7 @@ namespace Sandbox.Game.Entities.Blocks
         private void UpdateDisplay()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
 
@@ -195,14 +199,16 @@ namespace Sandbox.Game.Entities.Blocks
             if (CubeGrid.Physics == null)
                 return;
 
-            float maxGasOutputFactor = SourceComp.ProductionEnabledByType(BlockDefinition.ProducedGas) ? SolarComponent.MaxOutput : 0f;
+            ResourceSink.Update();
+            float maxGasOutputFactor = IsWorking && SourceComp.ProductionEnabledByType(BlockDefinition.ProducedGas) ? SolarComponent.MaxOutput : 0f;
 
-            if (maxGasOutputFactor != m_maxGasOutputFactor)
+            if (maxGasOutputFactor != m_maxGasOutputFactor || firstUpdate)
             {
                 m_maxGasOutputFactor = maxGasOutputFactor;
                 SourceComp.SetMaxOutputByType(BlockDefinition.ProducedGas, SourceComp.DefinedOutputByType(BlockDefinition.ProducedGas)*m_maxGasOutputFactor);
                 UpdateVisual();
                 UpdateDisplay();
+                firstUpdate = false;
             }
 
             ResourceSink.Update();

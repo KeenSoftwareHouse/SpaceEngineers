@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.Components;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public partial class MyDataBroadcaster
+    public class MyDataBroadcaster : MyEntityComponentBase
     {
-        public MyEntity Parent { get; protected set; }
+        public Vector3D BroadcastPosition { get { return Entity.PositionComp.GetPosition(); } }
 
-        public long EntityId
+        public override string ComponentTypeDebugString
         {
-            get { return Parent.EntityId; }
+            get { return "MyDataBroadcaster"; }
         }
-        public Vector3D BroadcastPosition { get { return Parent.PositionComp.GetPosition(); } }
     }
 }

@@ -9,6 +9,7 @@ using System.Text;
 using Sandbox.Common.AI;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.AI.Actions;
+using VRage.Game;
 
 namespace Sandbox.Game.AI
 {
@@ -25,12 +26,14 @@ namespace Sandbox.Game.AI
         bool IsValidForUpdate { get; }
         bool CreatedByPlayer { get; }
 
-        MyObjectBuilder_Bot GetBotData();
+        MyObjectBuilder_Bot GetObjectBuilder();
 
        // MyBehaviorTree BehaviorTree { get; set; }
         string BehaviorSubtypeName { get; }
         ActionCollection ActionCollection { get; }
         MyBotMemory BotMemory { get; }
+        MyBotMemory LastBotMemory { get; set; }
+        void ReturnToLastMemory(); // for debugging
         MyBotDefinition BotDefinition { get; }
         MyBotActionsBase BotActions { get; set; }
         MyBotLogic BotLogic { get; }

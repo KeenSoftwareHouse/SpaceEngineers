@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using ParallelTasks;
 using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -28,6 +26,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.ObjectBuilders;
 
 #endregion
@@ -68,6 +67,35 @@ namespace Sandbox.Game.Gui
 
         MyGuiControlTabPage m_selectedPage;
 
+        int m_remainingTimeUpdateFrame;
+
+        private class CellRemainingTime : MyGuiControlTable.Cell
+        {
+            private DateTime m_timeEstimatedEnd;
+
+            public CellRemainingTime(float remainingTime)
+                : base("")
+            {
+                m_timeEstimatedEnd = DateTime.UtcNow + TimeSpan.FromSeconds(remainingTime);
+                FillText();
+            }
+
+            public override void Update()
+            {
+                base.Update();
+                FillText();
+            }
+
+            private void FillText()
+            {
+                TimeSpan remainingTimeSpan = m_timeEstimatedEnd - DateTime.UtcNow;
+                if (remainingTimeSpan < TimeSpan.Zero)
+                    remainingTimeSpan = TimeSpan.Zero;
+
+                Text.Clear().Append(remainingTimeSpan.ToString(@"mm\:ss"));
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -88,24 +116,6 @@ namespace Sandbox.Game.Gui
         protected override void OnClosed()
         {
             base.OnClosed();
-        }
-
-        private int WorldSizeComparison(MyGuiControlTable.Cell a, MyGuiControlTable.Cell b)
-        {
-            string aString = a.Text.ToString().Trim();
-            string bString = b.Text.ToString().Trim();
-            string aUnit = aString.Substring(aString.Length - 2);
-            string bUnit = bString.Substring(bString.Length - 2);
-            if (aUnit.Equals(bUnit))
-            {
-                int aAmount = int.Parse(aString.Substring(0, aString.Length - 2));
-                int bAmount = int.Parse(bString.Substring(0, bString.Length - 2));
-                return aAmount.CompareTo(bAmount);
-            }
-            else if (aUnit.Equals("MB", StringComparison.OrdinalIgnoreCase))
-                return 1;
-            else
-                return -1;
         }
 
         private int PlayerCountComparisonServers(MyGuiControlTable.Cell a, MyGuiControlTable.Cell b)
@@ -359,7 +369,7 @@ namespace Sandbox.Game.Gui
                         SteamAPI.Instance.RemoveFavoriteGame(server.AppID, System.Net.IPAddressExtensions.ToIPv4NetworkOrder(server.NetAdr.Address), (UInt16)server.NetAdr.Port, (UInt16)server.NetAdr.Port, FavoriteEnum.Favorite);
 
                         m_gamesTable.RemoveSelectedRow();
-                        m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                        m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                         break;
                     default:
                         throw new InvalidBranchException();
@@ -388,8 +398,8 @@ namespace Sandbox.Game.Gui
 
             int numControls = 0;
 
-            page.Controls.Add(m_joinButton = MakeButton(buttonOrigin + buttonDelta * numControls++, MySpaceTexts.ScreenMenuButtonJoinWorld, MySpaceTexts.ScreenMenuButtonJoinWorld, null));
-            page.Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * numControls++, MySpaceTexts.ScreenLoadSubscribedWorldRefresh, MySpaceTexts.ScreenLoadSubscribedWorldRefresh, null));
+            page.Controls.Add(m_joinButton = MakeButton(buttonOrigin + buttonDelta * numControls++, MyCommonTexts.ScreenMenuButtonJoinWorld, MyCommonTexts.ScreenMenuButtonJoinWorld, null));
+            page.Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * numControls++, MyCommonTexts.ScreenLoadSubscribedWorldRefresh, MyCommonTexts.ScreenLoadSubscribedWorldRefresh, null));
             m_joinButton.Enabled = false;
 
             var checkboxPos = buttonOrigin + new Vector2(-0.09f, -0.02f) + numControls * buttonDelta;
@@ -399,7 +409,7 @@ namespace Sandbox.Game.Gui
             {
                 Position = checkboxPos + new Vector2(0f, -0.04f),
                 Size = new Vector2(0.05f, 0.02f),
-                TextEnum = MySpaceTexts.JoinGame_SearchLabel
+                TextEnum = MyCommonTexts.JoinGame_SearchLabel
             };
             page.Controls.Add(blockSearchLabel);
 
@@ -408,7 +418,7 @@ namespace Sandbox.Game.Gui
                 Position = blockSearchLabel.Position + new Vector2(0.255f, 0f),
                 Size = new Vector2(0.27f, 0.02f)
             };
-            m_blockSearch.SetToolTip(MySpaceTexts.JoinGame_SearchTooltip);
+            m_blockSearch.SetToolTip(MyCommonTexts.JoinGame_SearchTooltip);
             m_blockSearch.TextChanged += OnBlockSearchTextChanged;
             page.Controls.Add(m_blockSearch);
 
@@ -426,8 +436,8 @@ namespace Sandbox.Game.Gui
 
             m_showOnlyCompatibleText = new MyGuiControlButton(
                             position: checkboxPos + checkBoxDelta * numControls + new Vector2(buttonSize.Y * 0.5f, 0),
-                            text: MyTexts.Get(MySpaceTexts.MultiplayerCompatibleVersions),
-                            toolTip: MyTexts.GetString(MySpaceTexts.MultiplayerCompatibleVersions),
+                            text: MyTexts.Get(MyCommonTexts.MultiplayerCompatibleVersions),
+                            toolTip: MyTexts.GetString(MyCommonTexts.MultiplayerCompatibleVersions),
                             onButtonClick: OnShowOnlyCompatibleTextClick,
                             visualStyle: MyGuiControlButtonStyleEnum.ClickableText,
                             originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -451,8 +461,8 @@ namespace Sandbox.Game.Gui
 
             m_showOnlyWithSameText = new MyGuiControlButton(
                  position: checkboxPos + checkBoxDelta * numControls + new Vector2(buttonSize.Y * 0.5f, 0),
-                 text: MyTexts.Get(MySpaceTexts.MultiplayerJoinSameGameData),
-                 toolTip: MyTexts.GetString(MySpaceTexts.MultiplayerJoinSameGameData),
+                 text: MyTexts.Get(MyCommonTexts.MultiplayerJoinSameGameData),
+                 toolTip: MyTexts.GetString(MyCommonTexts.MultiplayerJoinSameGameData),
                  onButtonClick: OnShowOnlySameModsClick,
                  visualStyle: MyGuiControlButtonStyleEnum.ClickableText,
                  originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -473,8 +483,8 @@ namespace Sandbox.Game.Gui
 
             m_showOnlyFriendsText = new MyGuiControlButton(
                  position: checkboxPos + checkBoxDelta * numControls++ + new Vector2(buttonSize.Y, 0),
-                 text: MyTexts.Get(MySpaceTexts.MultiplayerJoinFriendsGames),
-                 toolTip: MyTexts.GetString(MySpaceTexts.MultiplayerJoinFriendsGames),
+                 text: MyTexts.Get(MyCommonTexts.MultiplayerJoinFriendsGames),
+                 toolTip: MyTexts.GetString(MyCommonTexts.MultiplayerJoinFriendsGames),
                  onButtonClick: OnFriendsOnlyTextClick,
                  visualStyle: MyGuiControlButtonStyleEnum.ClickableText,
                  originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -492,8 +502,8 @@ namespace Sandbox.Game.Gui
 
             m_allowedGroupsText = new MyGuiControlButton(
                  position: checkboxPos + checkBoxDelta * numControls++ + new Vector2(buttonSize.Y, 0),
-                 text: MyTexts.Get(MySpaceTexts.MultiplayerJoinAllowedGroups),
-                 toolTip: MyTexts.GetString(MySpaceTexts.MultiplayerJoinAllowedGroups),
+                 text: MyTexts.Get(MyCommonTexts.MultiplayerJoinAllowedGroups),
+                 toolTip: MyTexts.GetString(MyCommonTexts.MultiplayerJoinAllowedGroups),
                  onButtonClick: OnAllowedGroupsTextClick,
                  visualStyle: MyGuiControlButtonStyleEnum.ClickableText,
                  originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -519,6 +529,24 @@ namespace Sandbox.Game.Gui
                 m_searchChanged = false;
                 m_searchChangedFunc();
             }
+
+            // Update table cells with remaining time
+            if (MyFakes.ENABLE_JOIN_SCREEN_REMAINING_TIME)
+            {
+                ++m_remainingTimeUpdateFrame;
+
+                if (m_remainingTimeUpdateFrame % 50 == 0)
+                {
+                    for (int i=0; i<m_gamesTable.RowsCount; ++i) 
+                    {
+                        var row = m_gamesTable.GetRow(i);
+                        row.Update();
+                    }
+
+                    m_remainingTimeUpdateFrame = 0;
+                }
+            }
+
             return base.Update(hasFocus);
         }
 

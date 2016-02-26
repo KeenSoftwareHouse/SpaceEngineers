@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Character
 {

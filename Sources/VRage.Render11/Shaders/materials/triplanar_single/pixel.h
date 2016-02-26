@@ -1,50 +1,18 @@
 #include <common.h>
-#include <math.h>
+#include <Math/math.h>
 #include <triplanar_sampling.h>
 #include <frame.h>
 #include <voxel_ambient_occlusion.h>
+#include <voxel_transition.h>
 
-float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
-{
-	float curDistance = 0;
-	float curScale = materialSettings.x;
-
-	float nextDistance = materialSettings.y;
-	float nextScale = materialSettings.z;
-
-
-	while (nextDistance < distance)
-	{
-		curDistance = nextDistance;
-		curScale = nextScale;
-
-		nextDistance *= materialSettings.w;
-		nextScale *= materialSettings.z;
-	}
-
-	return float4(curDistance, nextDistance, curScale, nextScale);
-}
 
 void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
-#ifdef DITHERED
-	float tex_dither = Dither8x8[(uint2)pixel.screen_position.xy % 8];
-	float object_dither = abs(pixel.custom_alpha);
+	ProcessDithering(pixel, output);
 
-	if (object_dither > 1)
-	{
-		object_dither -= 1.0f;
-		object_dither = 1.0f - object_dither;
-		if (tex_dither > object_dither)
-		{
-			DISCARD_PIXEL;
-		}
-	}
-	else if (tex_dither < object_dither)
-	{
-		DISCARD_PIXEL;
-	}
-#endif
+	if (output.DISCARD == 1)
+		return;
+
 #ifndef DEPTH_ONLY
 
 	float d = pixel.custom.distance;
@@ -66,23 +34,31 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	float distance_near = das.x;
 	float distance_far = das.y;
 
-	int texture_near = 0;
-	int texture_far = 0;
+	uint texture_near = 0;
+	uint texture_far = 0;
+
+    float voxelLodSize = 0;
+    float3 voxelOffset = 0;
+
+#ifdef USE_VOXEL_DATA
+    voxelLodSize = object_.voxelLodSize;
+    voxelOffset = object_.voxel_offset;
+#endif
 
 	float pixelizationDistance = 10;
 	
 	float pixelizationMultiplier_near = step(pixelizationDistance, das.x);
 	float pixelizationMultiplier_far = step(pixelizationDistance, das.y);
 
-	float3 offset_near = pixelizationMultiplier_near * object_.voxel_offset;
-	float3 offset_far = pixelizationMultiplier_far * object_.voxel_offset;
+    float3 offset_near = pixelizationMultiplier_near * voxelOffset;
+    float3 offset_far = pixelizationMultiplier_far * voxelOffset;
 
 	float3 texcoords_near = pixel.custom.texcoords + offset_near;
 	float3 texcoords_far = pixel.custom.texcoords + offset_far;
 
 	float2 texcoords_ddx[3];
 	float2 texcoords_ddy[3];
-	calc_derivatives(texcoords_far, texcoords_ddx, texcoords_ddy);
+	calc_derivatives(pixel.custom.texcoords, texcoords_ddx, texcoords_ddy);
 
 	if (material_.distance_and_scale_far.y > 0)
 	{
@@ -265,7 +241,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	//#ifdef DEBUG
 		if (frame_.debug_voxel_lod == 1.0f)
 		{
-			float3 debugColor = DEBUG_COLORS[clamp(object_.voxelLodSize,0, 15)];
+            float3 debugColor = DEBUG_COLORS[clamp(voxelLodSize, 0, 15)];
 			output.base_color.xyz = debugColor;
 			//output.base_color.xyz = pixel.custom.distance;
 		}
@@ -278,8 +254,25 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	output.gloss = gloss;
 	output.emissive = ext.y; 
 
-	// ambient
-	output.ao = ext.x*ext.x*ext.x* compute_voxel_ambient_occlusion(pixel.custom.ambient_occlusion, d);
-	output.id = 4;
+
+	if (pixel.custom.dark_side > 0.0)
+	{
+		output.id = 4;
+		// ambient
+		output.ao = 1 - pixel.custom.dark_side;
+		output.ao = output.ao * output.ao * output.ao * output.ao * ext.x * ext.x * ext.x;
+	}
+	else
+	{
+		output.id = 0;
+		// ambient
+		output.ao = ext.x * ext.x * ext.x;
+	}
+
+	float hardAmbient = 1-pixel.custom.ambient_occlusion;
+
+	output.base_color *= hardAmbient;
+	output.metalness *= hardAmbient;
+	output.gloss *= hardAmbient;
 #endif
 }

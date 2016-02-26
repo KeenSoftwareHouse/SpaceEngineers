@@ -133,7 +133,7 @@ namespace VRage.Animations
 
             foreach (ValueHolder key in m_keys)
             {
-                animatedTargetProp.AddKey(key);
+                animatedTargetProp.AddKey(key.Duplicate());
             }
         }
 
@@ -335,9 +335,9 @@ namespace VRage.Animations
             value.Z = interpolatedValue.Z * rnd;
             value.W = interpolatedValue.W;
             //value.W = interpolatedValue.W * rnd;
-            MathHelper.Clamp(value.X, 0, 1);
-            MathHelper.Clamp(value.Y, 0, 1);
-            MathHelper.Clamp(value.Z, 0, 1);
+            value.X = MathHelper.Clamp(value.X, 0, 1);
+            value.Y = MathHelper.Clamp(value.Y, 0, 1);
+            value.Z = MathHelper.Clamp(value.Z, 0, 1);
             //MathHelper.Clamp(value.W, 0, 1);
         }
     }

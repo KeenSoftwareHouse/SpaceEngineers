@@ -1,10 +1,9 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 using VRage.ObjectBuilders;
-using Sandbox.Definitions;
+using VRage.Game;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -28,7 +27,7 @@ namespace Sandbox.Common.ObjectBuilders
             return myId == BlockDefId && flags == this.Flags;
         }
 
-        public override Sandbox.Definitions.MyDefinitionId GetObjectId()
+        public override MyDefinitionId GetObjectId()
         {
             return BlockDefId;
         }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
@@ -38,7 +39,7 @@ namespace Sandbox.Game.Gui
 
         public override void RecreateControls(bool constructor)
         {
-            AddCaption(MySpaceTexts.ScreenDebugOfficial_ErrorLogCaption, captionOffset: new Vector2(0.0f, MyGuiConstants.SCREEN_CAPTION_DELTA_Y * -0.5f));
+            AddCaption(MyCommonTexts.ScreenDebugOfficial_ErrorLogCaption, captionOffset: new Vector2(0.0f, MyGuiConstants.SCREEN_CAPTION_DELTA_Y * -0.5f));
 
             m_currentPosition.Y += MyGuiConstants.SCREEN_CAPTION_DELTA_Y;
 
@@ -46,7 +47,7 @@ namespace Sandbox.Game.Gui
 
             if (MyDefinitionErrors.GetErrors().Count() == 0)
             {
-                text.AppendText(MyTexts.Get(MySpaceTexts.ScreenDebugOfficial_NoErrorText));
+                text.AppendText(MyTexts.Get(MyCommonTexts.ScreenDebugOfficial_NoErrorText));
             }
             foreach (var error in MyDefinitionErrors.GetErrors())
             {

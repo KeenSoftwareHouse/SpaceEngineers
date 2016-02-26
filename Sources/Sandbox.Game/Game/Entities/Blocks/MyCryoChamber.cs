@@ -17,6 +17,12 @@ using VRageRender;
 using VRage.ModAPI;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.EntityComponents;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
+using System.Diagnostics;
+using VRage;
+using Sandbox.Game.Replication;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -29,7 +35,11 @@ namespace Sandbox.Game.Entities.Blocks
         //Use this default if initialization fails
         private string m_overlayTextureName = "Textures\\GUI\\Screens\\cryopod_interior.dds";
 
-        private MyPlayer.PlayerId? m_currentPlayerId;
+        MyPlayer.PlayerId? m_currentPlayerId;
+
+        readonly Sync<MyPlayer.PlayerId?> m_attachedPlayerId;
+
+        bool m_retryAttachPilot = false;
 
         public override bool IsInFirstPersonView
         {
@@ -43,10 +53,15 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
-
+        static MyCryoChamber()
+        {
+            m_horizonIndicator.Enabled = (x) => false;
+            m_horizonIndicator.Visible = (x) => false;
+        }
         public MyCryoChamber()
         {
             ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
+            m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -55,6 +70,25 @@ namespace Sandbox.Game.Entities.Blocks
             m_characterDummy = Matrix.Identity;
 
             base.Init(objectBuilder, cubeGrid);
+
+            if (ResourceSink == null)
+            {
+                // we've already created ResourceSink in ancestor!
+                var sinkComp = new MyResourceSinkComponent();
+                sinkComp.Init(
+                    MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
+                    BlockDefinition.IdlePowerConsumption,
+                    this.CalculateRequiredPowerInput);
+                sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+                ResourceSink = sinkComp;
+            }
+            else
+            {
+                // override electricity settings
+                ResourceSink.SetMaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId, BlockDefinition.IdlePowerConsumption);
+                ResourceSink.SetRequiredInputFuncByType(MyResourceDistributorComponent.ElectricityId, this.CalculateRequiredPowerInput);
+                ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+            }
 
             var chamberOb = objectBuilder as MyObjectBuilder_CryoChamber;
 
@@ -67,21 +101,17 @@ namespace Sandbox.Game.Entities.Blocks
                 m_currentPlayerId = null;
             }
 
+
             var overlayTexture = BlockDefinition.OverlayTexture;
             if (!string.IsNullOrEmpty(overlayTexture))
             {
                 m_overlayTextureName = overlayTexture;
             }
 
-            var sinkComp = new MyResourceSinkComponent();
-			sinkComp.Init(
-                MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
-                BlockDefinition.IdlePowerConsumption,
-                this.CalculateRequiredPowerInput);
-            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
-	        ResourceSink = sinkComp;
+          
+            HorizonIndicatorEnabled = false;
 
-            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
         }
 
         private float CalculateRequiredPowerInput()
@@ -140,6 +170,11 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateOnceBeforeFrame();
 
             UpdateEmissivity();
+
+            if (m_attachedPlayerId.Value != m_currentPlayerId)
+            {
+                m_attachedPlayerId.Value = m_currentPlayerId;
+            }
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -155,27 +190,20 @@ namespace Sandbox.Game.Entities.Blocks
             return chamberOb;
         }
 
-        protected override MySyncEntity OnCreateSync()
-        {
-            var sync = new MySyncCryoChamber(this);
-            OnInitSync(sync);
-            return sync;
-        }
-
         protected override void PlacePilotInSeat(MyCharacter pilot)
         {
-            pilot.EnableLights(false, false);
+            pilot.EnableLights(false);
 
-	        var jetpack = pilot.JetpackComp;
-			if(jetpack != null)
-				jetpack.TurnOnJetpack(false, false, false, false);
+            var jetpack = pilot.JetpackComp;
+            if (jetpack != null)
+                jetpack.TurnOnJetpack(false, false, false, false);
 
-            pilot.Sit(true, MySession.LocalCharacter == pilot, false, BlockDefinition.CharacterAnimation);
+            pilot.Sit(true, MySession.Static.LocalCharacter == pilot, false, BlockDefinition.CharacterAnimation);
 
 
             pilot.SuitBattery.ResourceSource.Enabled = true;
 
-            pilot.PositionComp.SetWorldMatrix(m_characterDummy * WorldMatrix);
+            pilot.PositionComp.SetWorldMatrix(m_characterDummy * WorldMatrix, this);
             UpdateEmissivity(true);
         }
 
@@ -186,7 +214,15 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void RemovePilotFromSeat(MyCharacter pilot)
         {
+            if (pilot == MySession.Static.LocalCharacter)
+            {
+                MyHudCameraOverlay.Enabled = false;
+                this.Render.Visible = true;
+            }
+
             m_currentPlayerId = null;
+            m_attachedPlayerId.Value = null;
+            
             UpdateEmissivity(false);
         }
 
@@ -209,18 +245,35 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public override void UpdateBeforeSimulation10()
+        {
+            base.UpdateBeforeSimulation10();
+
+            if (MyFakes.ENABLE_OXYGEN_SOUNDS)
+            {
+                UpdateSound(Pilot != null && Pilot == MySession.Static.LocalCharacter);
+            }
+        }
+
         public override void UpdateAfterSimulation100()
         {
             base.UpdateAfterSimulation100();
 
             UpdateEmissivity();
             ResourceSink.Update();
+
+            if (m_retryAttachPilot)
+            {
+                m_retryAttachPilot = false;
+                AttachedPlayerChanged();
+            }
         }
 
         private void SetOverlay()
         {
             MyHudCameraOverlay.TextureName = m_overlayTextureName;
             MyHudCameraOverlay.Enabled = true;
+            this.Render.Visible = false;
         }
 
         private void UpdateEmissivity(bool isUsed)
@@ -242,16 +295,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
             }
-
-            if (MyFakes.ENABLE_OXYGEN_SOUNDS)
-            {
-                UpdateSound();
-            }
         }
 
         private bool IsPowered()
         {
-            if (ResourceSink == null || !ResourceSink.IsPowered) return false;
+            if (ResourceSink == null || !ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId)) return false;
             return m_rechargeSocket != null && m_rechargeSocket.ResourceDistributor != null && m_rechargeSocket.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower;
         }
 
@@ -334,23 +382,23 @@ namespace Sandbox.Game.Entities.Blocks
 
         private bool IsLocalCharacterInside()
         {
-            return MySession.LocalCharacter != null && MySession.LocalCharacter == Pilot;
+            return MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter == Pilot;
         }
 
-        private void UpdateSound()
+        private void UpdateSound(bool isUsed)
         {
             if (IsWorking)
             {
-                if (IsLocalCharacterInside())
+                if (isUsed)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
                     }
                 }
                 else
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
                     }
@@ -363,28 +411,21 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_soundEmitter.Update();
         }
-        
 
         public void CameraAttachedToChanged(IMyCameraController oldController, IMyCameraController newController)
         {
             if (oldController == this)
             {
-                MyHudCameraOverlay.Enabled = false;
                 MyRenderProxy.UpdateRenderObjectVisibility(Render.RenderObjectIDs[0], true, false);
-            }
-            else if (newController == this)
-            {
-                SetOverlay();
-                MyRenderProxy.UpdateRenderObjectVisibility(Render.RenderObjectIDs[0], false, false);
             }
         }
 
         protected override void sync_UseSuccess(UseActionEnum actionEnum, IMyControllableEntity user)
         {
-            if (user.Entity == MySession.LocalCharacter)
+            /*if (user.Entity == MySession.Static.LocalCharacter)
             {
                 MySession.Static.CameraAttachedToChanged += CameraAttachedToChanged;
-            }
+            }*/
 
             base.sync_UseSuccess(actionEnum, user);
         }
@@ -394,11 +435,19 @@ namespace Sandbox.Game.Entities.Blocks
             var pilot = m_pilot;
             base.OnControlledEntity_Used();
 
-            if (pilot != null && pilot == MySession.LocalCharacter)
+            if (pilot != null && pilot == MySession.Static.LocalCharacter)
             {
-                MySession.SetCameraController(MyCameraControllerEnum.Entity, pilot);
-                MySession.Static.CameraAttachedToChanged -= CameraAttachedToChanged;
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);
+                //MySession.Static.CameraAttachedToChanged -= CameraAttachedToChanged;
             }
+        }
+
+        protected override void OnControlAcquired_UpdateCamera()
+        {
+            //MySession.Static.CameraAttachedToChanged += CameraAttachedToChanged;
+            SetOverlay();
+            //MyRenderProxy.UpdateRenderObjectVisibility(Render.RenderObjectIDs[0], false, false);
+            base.OnControlAcquired_UpdateCamera();
         }
 
         protected override void UpdateCockpitModel()
@@ -418,14 +467,61 @@ namespace Sandbox.Game.Entities.Blocks
                 return false;
             }
 
-            (SyncObject as MySyncCryoChamber).SendControlPilotMsg(player);
+            if (m_attachedPlayerId.Value == m_currentPlayerId)
+            {
+                AttachedPlayerChanged();
+            }
+            else
+            {
+                m_attachedPlayerId.Value = m_currentPlayerId;
+            }
 
             return true;
         }
 
         internal void OnPlayerLoaded()
         {
-            MySession.Static.CameraAttachedToChanged += CameraAttachedToChanged;
+            //MySession.Static.CameraAttachedToChanged += CameraAttachedToChanged;
+        }
+
+        void AttachedPlayerChanged()
+        {
+            if (m_attachedPlayerId.Value.HasValue == false)
+            {
+                return;
+            }
+
+            var playerId = new MyPlayer.PlayerId(m_attachedPlayerId.Value.Value.SteamId, m_attachedPlayerId.Value.Value.SerialId);
+            var player = Sync.Players.GetPlayerById(playerId);
+            if (player != null)
+            {
+                if (Pilot != null)
+                {
+                    if (player == MySession.Static.LocalHumanPlayer)
+                    {
+                        OnPlayerLoaded();
+
+                        if (MySession.Static.CameraController != this)
+                        {
+                            MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, this);
+                        }
+                    }
+
+                    player.Controller.TakeControl(this);
+                    player.Identity.ChangeCharacter(Pilot);
+                }
+                else
+                {
+                    if (player == MySession.Static.LocalHumanPlayer)
+                    {
+                        Debug.Fail("Selected cryo chamber doesn't have a pilot!");
+                    }
+                }
+            }
+            else
+            {
+                m_retryAttachPilot = true;
+            }
         }
     }
 }

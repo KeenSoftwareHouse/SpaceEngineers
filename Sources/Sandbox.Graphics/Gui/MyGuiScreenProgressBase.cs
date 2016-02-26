@@ -1,5 +1,6 @@
 ﻿using System;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -99,7 +100,7 @@ namespace Sandbox.Graphics.GUI
                     position: new Vector2(deltaX, deltaY + 0.09f),
                     size: MyGuiConstants.BACK_BUTTON_SIZE,
                     text: MyTexts.Get(m_cancelText.Value),
-                    visualStyle: Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.ControlSetting,
+                    visualStyle: MyGuiControlButtonStyleEnum.ControlSetting,
                     onButtonClick: OnCancelClick);
                 Controls.Add(cancelButton);
             }

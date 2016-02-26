@@ -27,7 +27,8 @@ using VRage.Library.Collections;
 using Sandbox.Game.Entities;
 using VRage.Network;
 using VRage.Library.Utils;
-
+using Sandbox.Game;
+using VRage.Game;
 
 #endregion
 
@@ -213,7 +214,19 @@ namespace Sandbox.Engine.Multiplayer
         }
         public abstract bool IsServer { get; }
 
-        public float ServerSimulationRatio = 1.0f;
+        float m_serverSimulationRatio = 1.0f;
+        public float ServerSimulationRatio
+        {
+            get 
+            {
+                return (float)Math.Round(m_serverSimulationRatio, 2);
+            }
+            set 
+            {
+                m_serverSimulationRatio = value;
+            }
+        }
+
         public DictionaryReader<string, byte[]> VoxelMapData { get { return m_voxelMapData; } }
         public uint FrameCounter { get; private set; }
 
@@ -236,6 +249,8 @@ namespace Sandbox.Engine.Multiplayer
         public abstract string ScenarioBriefing { get; set; }
         public abstract DateTime ScenarioStartTime { get; set; }
         public abstract bool Battle { get; set; }
+        // Battle game remaining time in seconds.
+        public abstract float BattleRemainingTime { get; set; }
         public abstract bool BattleCanBeJoined { get; set; }
         public abstract ulong BattleWorldWorkshopId { get; set; }
         public abstract int BattleFaction1MaxBlueprintPoints { get; set; }
@@ -398,7 +413,7 @@ namespace Sandbox.Engine.Multiplayer
             for (int i = 0; i < MemberCount; i++)
             {
                 ulong member = GetMemberByIndex(i);
-                if (member != MySteam.UserId && member != exceptUserId)
+                if (member != Sync.MyId && member != exceptUserId)
                     SendControlMessage(member, ref message);
             }
         }
@@ -464,6 +479,7 @@ namespace Sandbox.Engine.Multiplayer
         void OnDisconnectedClient(ref MyControlDisconnectedMsg data, ulong sender)
         {
             RaiseClientLeft(data.Client, ChatMemberStateChangeEnum.Disconnected);
+            Console.WriteLine("Disconnected: " + sender);
         }
 
 
@@ -553,21 +569,36 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
+        public void ReportReplicatedObjects()
+        {
+            if (VRageRender.Profiler.MyRenderProfiler.ProfilerVisible)
+            {
+                ProfilerShort.Begin("ReportReplicatedObjects (only when profiler visible)");
+                ReplicationLayer.ReportReplicatedObjects();
+                ProfilerShort.End();
+            }
+        }
+
         public virtual void Tick()
         {
             FrameCounter++;
 
+            ProfilerShort.Begin("SendSimulationInfo");
             if (MyFakes.ENABLE_MULTIPLAYER_CONSTRAINT_COMPENSATION && IsServer && FrameCounter % 2 == 0)
             {
                 MySyncGlobal.SendSimulationInfo();
             }
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("SendElapsedGameTime");
             if (IsServer && (MySession.Static.ElapsedGameTime - m_lastSentTimeTimestamp).Seconds > 30)
             {
                 m_lastSentTimeTimestamp = MySession.Static.ElapsedGameTime;
                 MySyncGlobal.SendElapsedGameTime();
             }
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("Client kick update");
             int currentTotalTime = MySandboxGame.TotalTimeInMilliseconds;
             if (currentTotalTime - m_lastKickUpdate > 20000)
             {
@@ -586,23 +617,26 @@ namespace Sandbox.Engine.Multiplayer
 
                 m_lastKickUpdate = currentTotalTime;
             }
-
+            ProfilerShort.End();
+            
+            ProfilerShort.Begin("ReplicationLayer.Update");
             ReplicationLayer.Update();
-            if (VRageRender.Profiler.MyRenderProfiler.ProfilerVisible)
-            {
-                ReplicationLayer.ReportReplicatedObjects();
-            }
-
+            ProfilerShort.End();
+            
             // TODO: Remove
             //if (IsServer)
             //{
             //    SendServerPhysicsUpdate();
             //}
 
+            ProfilerShort.Begin("TransportLayer.Tick");
             Sync.Layer.TransportLayer.Tick();
+            ProfilerShort.End();
 
+            ProfilerShort.Begin("Trace, NetProfiler.Commit");
             VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Multiplayer, "============ Frame end ============");
             NetProfiler.Commit();
+            ProfilerShort.End();
         }
 
         //private void SendServerPhysicsUpdate()
@@ -620,7 +654,7 @@ namespace Sandbox.Engine.Multiplayer
         //            // TODO: coalesce
         //            foreach (var client in Sync.Clients.GetClients())
         //            {
-        //                if (client.SteamUserId != MySteam.UserId && client.SteamUserId != except)
+        //                if (client.SteamUserId != Sync.MyId && client.SteamUserId != except)
         //                    Sync.Layer.TransportLayer.SendMessage(MyMessageId.SERVER_UPDATE, m_sendPhysicsStream, false, new EndpointId(client.SteamUserId));
         //            }
         //            e.SetPhysicsUpdateSent();
@@ -741,7 +775,7 @@ namespace Sandbox.Engine.Multiplayer
             for (int i = 0; i < MemberCount; i++)
             {
                 var member = GetMemberByIndex(i);
-                if (member != MySteam.UserId && member == ServerId)
+                if (member != Sync.MyId && member == ServerId)
                 {
                     Peer2Peer.CloseSession(member);
                 }
@@ -782,5 +816,9 @@ namespace Sandbox.Engine.Multiplayer
             MySession.Static.Factions.LoadFactions(msg.Factions, true);
         }
 
+        protected MyClientState CreateClientState()
+        {
+            return Activator.CreateInstance(MyPerGameSettings.ClientStateType) as MyClientState;
+        }
     }
 }

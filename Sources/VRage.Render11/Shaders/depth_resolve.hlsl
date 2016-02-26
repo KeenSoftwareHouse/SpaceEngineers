@@ -13,7 +13,7 @@ Texture2DMS<float4, MS_SAMPLE_COUNT> SourceMS : register( t0 );
 #include <Frame.h>
 #include <postprocess_base.h>
 
-void resolve_depth(PostprocessVertex vertex, out float depth_write : SV_Depth)
+void __pixel_shader(PostprocessVertex vertex, out float depth_write : SV_Depth)
 {
 	uint2 texel = vertex.position.xy;
 

@@ -1,62 +1,17 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+﻿using SharpDX.Direct3D;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
-using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Resource = SharpDX.Direct3D11.Resource;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-using Color = VRageMath.Color;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using MapFlags = SharpDX.Direct3D11.MapFlags;
 using System.Runtime.InteropServices;
-using VRageRender.Lights;
 using VRage.Utils;
+using VRageMath;
+using VRageRender.Lights;
+using VRageRender.Resources;
+using Matrix = VRageMath.Matrix;
+using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
-    struct MyMapping
-    {
-        internal DataStream stream;
-        internal DeviceContext context;
-        internal Resource buffer;
-        internal DataBox dataBox;
-
-        internal static MyMapping MapDiscard(DeviceContext context, Resource buffer)
-        {
-            MyMapping mapping;
-            mapping.context = context;
-            mapping.buffer = buffer;
-            mapping.dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None, out mapping.stream);
-            return mapping;
-        }
-
-        internal static MyMapping MapDiscard(Resource buffer)
-        {
-            return MapDiscard(MyRender11.ImmediateContext, buffer);
-        }
-
-        internal void Unmap()
-        {
-            context.UnmapSubresource(buffer, 0);
-            stream.Dispose();
-        }
-    }
-
     [StructLayout(LayoutKind.Explicit, Size = 192)]
     struct SpotlightConstants
     {
@@ -69,16 +24,21 @@ namespace VRageRender
         internal Vector3 Position;
         [FieldOffset(128 + 12)]
         internal float Range;
+
         [FieldOffset(128 + 16)]
         internal Vector3 Color;
         [FieldOffset(128 + 28)]
         internal float ApertureCos;
+
         [FieldOffset(128 + 32)]
         internal Vector3 Direction;
         [FieldOffset(128 + 44)]
         internal float ShadowsRange;
+
         [FieldOffset(128 + 48)]
         internal Vector3 Up;
+        [FieldOffset(128 + 60)]
+        internal float __padding;
     }
 
     class MyLightRendering : MyImmediateRC
@@ -89,8 +49,9 @@ namespace VRageRender
         internal static int m_activeSpotlights;
         internal static ConstantsBufferId m_sunlightConstants;
 
-        static PixelShaderId DirectionalEnvironmentLight_Pixel;
-        static PixelShaderId DirectionalEnvironmentLight_Sample;
+        static PixelShaderId DirectionalEnvironmentLight_NoShadow = PixelShaderId.NULL;
+        static PixelShaderId DirectionalEnvironmentLight_Pixel = PixelShaderId.NULL;
+        static PixelShaderId DirectionalEnvironmentLight_Sample = PixelShaderId.NULL;
 
         static PixelShaderId PointlightsTiled_Pixel;
         static PixelShaderId PointlightsTiled_Sample;
@@ -103,35 +64,36 @@ namespace VRageRender
         static PixelShaderId SpotlightPs_Sample;
         static InputLayoutId SpotlightProxyIL;
 
+        private static bool m_lastFrameVisiblePointlights = true;
+
         internal static unsafe void Init()
         {
             //MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
 
-			DirectionalEnvironmentLight_Pixel = MyShaders.CreatePs("light.hlsl", "directional_environment", MyRender11.ShaderCascadesNumberHeader());
-			DirectionalEnvironmentLight_Sample = MyShaders.CreatePs("light.hlsl", "directional_environment", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
+			DirectionalEnvironmentLight_Pixel = MyShaders.CreatePs("light_dir.hlsl");
+            DirectionalEnvironmentLight_Sample = MyShaders.CreatePs("light_dir.hlsl", MyRender11.ShaderSampleFrequencyDefine());
 
-            PointlightsTiled_Pixel = MyShaders.CreatePs("light.hlsl", "pointlights_tiled", MyRender11.ShaderCascadesNumberHeader());
-            PointlightsTiled_Sample = MyShaders.CreatePs("light.hlsl", "pointlights_tiled", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
+            PointlightsTiled_Pixel = MyShaders.CreatePs("light_point.hlsl");
+            PointlightsTiled_Sample = MyShaders.CreatePs("light_point.hlsl", MyRender11.ShaderSampleFrequencyDefine());
 
-            m_preparePointLights = MyShaders.CreateCs("prepare_lights.hlsl", "prepare_lights", MyShaderHelpers.FormatMacros("NUMTHREADS " + TILE_SIZE));
+            m_preparePointLights = MyShaders.CreateCs("prepare_lights.hlsl", new[] { new ShaderMacro("NUMTHREADS", TILE_SIZE) });
 
-			SpotlightProxyVs = MyShaders.CreateVs("light.hlsl", "proxyVs");
-            SpotlightPs_Pixel = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy", MyRender11.ShaderCascadesNumberHeader());
-            SpotlightPs_Sample = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()) + MyRender11.ShaderCascadesNumberHeader());
+			SpotlightProxyVs = MyShaders.CreateVs("light_spot.hlsl");
+            SpotlightPs_Pixel = MyShaders.CreatePs("light_spot.hlsl");
+            SpotlightPs_Sample = MyShaders.CreatePs("light_spot.hlsl", MyRender11.ShaderSampleFrequencyDefine());
             SpotlightProxyIL = MyShaders.CreateIL(SpotlightProxyVs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION_PACKED));
 
-            var stride = sizeof(MyPointlightConstants);
-            m_pointlightCullHwBuffer = MyHwBuffers.CreateStructuredBuffer(MyRender11Constants.MAX_POINT_LIGHTS, stride, true);
+            m_pointlightCullHwBuffer = MyHwBuffers.CreateStructuredBuffer(MyRender11Constants.MAX_POINT_LIGHTS, sizeof(MyPointlightConstants), true);
             m_pointlightsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MyPointlightInfo) * MyRender11Constants.MAX_POINT_LIGHTS);
-            m_spotlightsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MySpotlightConstants) * MyRender11Constants.MAX_SPOTLIGHTS);
+            m_spotlightsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(SpotlightConstants) * MyRender11Constants.MAX_SPOTLIGHTS);
             m_sunlightConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MySunlightConstantsLayout));
         }
 
         static MyPointlightConstants[] m_pointlightsCullBuffer = new MyPointlightConstants[MyRender11Constants.MAX_POINT_LIGHTS];
         static StructuredBufferId m_pointlightCullHwBuffer;
 
-        internal static List<LightId> VisiblePointlights = new List<LightId>();
-        internal static List<LightId> VisibleSpotlights = new List<LightId>();
+        internal readonly static List<LightId> VisiblePointlights = new List<LightId>();
+        internal readonly static List<LightId> VisibleSpotlights = new List<LightId>();
         internal static SpotlightConstants[] Spotlights = new SpotlightConstants[32];
 
         internal static void DrawGlares()
@@ -144,60 +106,6 @@ namespace VRageRender
             {
                 DrawGlare(id);
             }
-
-            DrawSunGlare();
-        }
-
-        internal const float RENDER_SUN_DISTANCE = 1800;
-
-        internal static void DrawSunGlare()
-        {
-            if (MyEnvironment.DirectionalLightDir == Vector3.Zero)
-                return;
-            if (MyEnvironment.SunMaterial == null)
-                return;
-
-
-            //// this should be computed every time the sector is changed. If it is not initialized, calculate now:
-            //m_distanceToSun = MyRender.Sun.DistanceToSun;
-
-            //m_directionToSunNormalized = -MyRender.Sun.Direction;
-
-            //float radius = MyRender.Sun.SunSizeMultiplier * MySunConstants.SUN_SIZE_MULTIPLIER * MySunConstants.RENDER_SUN_DISTANCE / m_distanceToSun;
-            ////radius = Math.Max(MySunConstants.MIN_SUN_SIZE * MyRender.Sun.SunSizeMultiplier, radius);
-            ////radius = Math.Min(MySunConstants.MAX_SUN_SIZE * MyRender.Sun.SunSizeMultiplier, radius);
-
-            //float sunColorMultiplier = 3;
-
-            //sunColorMultiplier *= (1 - MyRender.FogProperties.FogMultiplier * 0.7f);
-
-            //m_querySize = .5f * radius;
-
-            //var sunPosition = GetSunPosition();
-            //radius *= .5f;
-            //Color color = new Color(.95f * sunColorMultiplier, .65f * sunColorMultiplier, .35f * sunColorMultiplier, 1);
-
-            //color = color * 5;
-
-            //MyTransparentGeometry.AddPointBillboard(MyRender.Sun.SunMaterial, color, sunPosition, radius, 0);
-
-            var distanceToSun = MyEnvironment.SunDistance;
-
-            var directionToSunNormalized = -MyEnvironment.DirectionalLightDir;
-
-            float radius = MyEnvironment.SunSizeMultiplier * RENDER_SUN_DISTANCE / distanceToSun;
-
-            float sunColorMultiplier = 3;
-            sunColorMultiplier *= (1 - MyEnvironment.FogSettings.FogMultiplier * 0.7f);
-
-            var sunPosition = MyEnvironment.CameraPosition + directionToSunNormalized * RENDER_SUN_DISTANCE;
-            radius *= .5f;
-            Color color = new Color(.95f * sunColorMultiplier, .65f * sunColorMultiplier, .35f * sunColorMultiplier, 1);
-
-            color = color * 5;
-
-            //if (MyEnvironment.SunBillboardEnabled)
-            //    MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
         }
 
         internal static void DrawGlare(LightId light)
@@ -287,12 +195,10 @@ namespace VRageRender
             //glare.QuerySize
 
             // parent range
-            float radius = MathHelper.Clamp(glare.Range * distance / 100.0f, minGlareRadius, maxGlareRadius);
+            float drawingRadius = MathHelper.Clamp(glare.Range * distance / 1000.0f, minGlareRadius, maxGlareRadius);
 
-            float drawingRadius = radius;
-
-            var startFadeout = 1000;
-            var endFadeout = 1100;
+            var startFadeout = 800;
+            var endFadeout = 1000;
 
             if (distance > startFadeout)
             {
@@ -319,6 +225,12 @@ namespace VRageRender
             MyLights.Update();
             MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, VisiblePointlights);
 
+            bool visibleSpotlights = VisiblePointlights.Count != 0;
+            if (!visibleSpotlights && !m_lastFrameVisiblePointlights)
+                return;
+
+            m_lastFrameVisiblePointlights = visibleSpotlights;
+
             if (VisiblePointlights.Count > MyRender11Constants.MAX_POINT_LIGHTS)
             {
                 VisiblePointlights.Sort((x, y) => x.ViewerDistanceSquared.CompareTo(y.ViewerDistanceSquared));
@@ -336,23 +248,17 @@ namespace VRageRender
                 activePointlights++;
                 Debug.Assert(activePointlights <= MyRender11Constants.MAX_POINT_LIGHTS);
             }
+            for(int lightIndex = activePointlights; lightIndex < MyRender11Constants.MAX_POINT_LIGHTS; ++lightIndex)
+            {
+                MyLights.WritePointlightConstants(LightId.NULL, ref m_pointlightsCullBuffer[lightIndex]);
+            }
 
             var mapping = MyMapping.MapDiscard(MyCommon.GetObjectCB(16));
-            mapping.stream.Write(activePointlights);
-            mapping.stream.Write(0f);
-            mapping.stream.Write(0f);
-            mapping.stream.Write(0f);
+            mapping.WriteAndPosition(ref activePointlights);
             mapping.Unmap();
 
             mapping = MyMapping.MapDiscard(m_pointlightCullHwBuffer.Buffer);
-            for (int i = 0; i < activePointlights; i++)
-            {
-                mapping.stream.Write(m_pointlightsCullBuffer[i]);
-            }
-            for (int i = activePointlights; i < MyRender11Constants.MAX_POINT_LIGHTS; i++)
-            {
-                mapping.stream.Write(new MyPointlightConstants());
-            }
+            mapping.WriteAndPosition(m_pointlightsCullBuffer, 0, MyRender11Constants.MAX_POINT_LIGHTS);
             mapping.Unmap();
 
             RC.CSSetCB(0, MyCommon.FrameConstants);
@@ -365,7 +271,7 @@ namespace VRageRender
             RC.SetCS(m_preparePointLights);
 
             var size = MyRender11.ViewportResolution;
-            RC.Context.Dispatch((size.X + TILE_SIZE - 1) / TILE_SIZE, (size.Y + TILE_SIZE - 1) / TILE_SIZE, 1);
+            RC.DeviceContext.Dispatch((size.X + TILE_SIZE - 1) / TILE_SIZE, (size.Y + TILE_SIZE - 1) / TILE_SIZE, 1);
             RC.SetCS(null);
         }
 
@@ -383,7 +289,7 @@ namespace VRageRender
 
             var cb = MyCommon.GetObjectCB(sizeof(SpotlightConstants));
             RC.SetCB(1, cb);
-            RC.Context.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
+            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
 
             int index = 0;
             int casterIndex = 0;
@@ -391,14 +297,14 @@ namespace VRageRender
             foreach(var id in VisibleSpotlights)
             {
                 var mapping = MyMapping.MapDiscard(cb);
-                mapping.stream.Write(MyLightRendering.Spotlights[index]);
+                mapping.WriteAndPosition(ref MyLightRendering.Spotlights[index]);
                 mapping.Unmap();
 
-                RC.Context.PixelShader.SetShaderResource(13, MyTextures.GetView(MyLights.Spotlights[id.Index].ReflectorTexture));
+                RC.DeviceContext.PixelShader.SetShaderResource(13, MyTextures.GetView(MyLights.Spotlights[id.Index].ReflectorTexture));
 
                 if(id.CastsShadowsThisFrame)
                 {
-                    RC.Context.PixelShader.SetShaderResource(14, MyShadows.ShadowmapsPool[casterIndex].ShaderView);
+                    RC.DeviceContext.PixelShader.SetShaderResource(14, MyRender11.DynamicShadows.ShadowmapsPool[casterIndex].ShaderView);
                     casterIndex++;
                 }
 
@@ -407,13 +313,13 @@ namespace VRageRender
                 {
                     RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
                 }
-                RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
+                RC.DeviceContext.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
 
                 if (MyRender11.MultisamplingEnabled)
                 {
                     RC.SetPS(SpotlightPs_Sample);
                     RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
-                    RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
+                    RC.DeviceContext.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
                 }
                 
                 index++;
@@ -433,7 +339,7 @@ namespace VRageRender
             MyLightRendering.PreparePointLights();
             MyGpuProfiler.IC_EndBlock();
 
-            RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             
             RC.BindGBufferForRead(0, MyGBuffer.Main);
@@ -482,32 +388,42 @@ namespace VRageRender
 
         static void RenderDirectionalEnvironmentLight()
         {
+            PixelShaderId directionalPixelShader;
+            if (!MyRenderProxy.Settings.EnableShadows)
+            {
+                if (DirectionalEnvironmentLight_NoShadow == PixelShaderId.NULL)
+                    DirectionalEnvironmentLight_NoShadow = MyShaders.CreatePs("light_dir.hlsl", new[] { new ShaderMacro("NO_SHADOWS", null) });
+
+                directionalPixelShader = DirectionalEnvironmentLight_NoShadow;
+            }
+            else
+                directionalPixelShader = DirectionalEnvironmentLight_Pixel;
             MySunlightConstantsLayout constants;
             constants.Direction = MyEnvironment.DirectionalLightDir;
             constants.Color = MyEnvironment.DirectionalLightIntensity;
 
             var mapping = MyMapping.MapDiscard(m_sunlightConstants);
-            mapping.stream.Write(constants);
+            mapping.WriteAndPosition(ref constants);
             mapping.Unmap();
 
             //context.VertexShader.Set(MyCommon.FullscreenShader.VertexShader);
-            RC.SetPS(DirectionalEnvironmentLight_Pixel);
+            RC.SetPS(directionalPixelShader);
             RC.SetCB(1, m_sunlightConstants);
-            RC.SetCB(4, MyShadows.m_csmConstants);
-            RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
-            RC.Context.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
-            RC.Context.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
+            RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
+            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
 
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
             
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
-                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyGeometryRenderer.m_envProbe.cubemapPrefiltered.ShaderView);
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
+                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
 
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SHADOW_SLOT, MyRender11.m_shadowsHelper.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SHADOW_SLOT, MyRender11.PostProcessedShadows.ShaderView);
 
-            RC.Context.PixelShader.SetShaderResource(MyCommon.AMBIENT_BRDF_LUT_SLOT,
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.AMBIENT_BRDF_LUT_SLOT,
                 MyCommon.GetAmbientBrdfLut());
 
             RC.BindSRV(MyCommon.AO_SLOT, MyScreenDependants.m_ambientOcclusion);

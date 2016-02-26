@@ -7,6 +7,8 @@ using System.Text;
 using VRageMath;
 using Sandbox.Game.Entities.Cube;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {

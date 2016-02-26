@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using VRage.Utils;
 using VRage.Serialization;
+using VRage.Game.Common;
 
 namespace VRage.ObjectBuilders
 {

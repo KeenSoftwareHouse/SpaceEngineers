@@ -74,7 +74,7 @@ namespace VRageRender
             if (!Visible)
                 return;
 
-            MyRenderModel model = MyRenderModels.GetModel(Model);//MySession.PlayerShip.CockpitGlassModelEnum);
+            MyRenderModel model = MyRenderModels.GetModel(Model);//MySession.Static.PlayerShip.CockpitGlassModelEnum);
 
             RasterizerState.CullNone.Apply();
 

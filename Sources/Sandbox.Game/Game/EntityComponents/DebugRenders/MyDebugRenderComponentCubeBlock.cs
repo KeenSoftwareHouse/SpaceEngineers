@@ -7,7 +7,6 @@ using VRageRender;
 using Sandbox.ModAPI;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -20,6 +19,7 @@ using System.Threading;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
 using Sandbox.Graphics;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {

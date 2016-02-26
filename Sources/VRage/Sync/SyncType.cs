@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Library.Sync;
 using VRage.Serialization;
 
 namespace VRage
@@ -45,6 +46,16 @@ namespace VRage
             sync.ValueChanged += m_registeredHandlers;
             m_properties.Add(sync);
             return sync;
+        }
+
+        public void Append(object obj)
+        {
+            var num = m_properties.Count;
+            SyncHelpers.Compose(obj, m_properties.Count, m_properties);
+            for (int i = num; i < m_properties.Count; i++)
+            {
+                m_properties[i].ValueChanged += m_registeredHandlers;
+            }
         }
     }
 }

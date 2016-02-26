@@ -24,12 +24,12 @@ namespace Sandbox.Game.Components
         {
             base.DebugDraw();
 
-            if (MyDebugDrawSettings.DEBUG_DRAW_BLOCK_NAMES && m_terminal.CustomName != null && MySession.ControlledEntity != null)
+            if (MyDebugDrawSettings.DEBUG_DRAW_BLOCK_NAMES && m_terminal.CustomName != null && MySession.Static.ControlledEntity != null)
             {
-                var character = (MySession.ControlledEntity as Sandbox.Game.Entities.Character.MyCharacter);
+                var character = (MySession.Static.ControlledEntity as Sandbox.Game.Entities.Character.MyCharacter);
                 Vector3D disp = character == null ? Vector3D.Zero : character.WorldMatrix.Up;
                 Vector3D pos = m_terminal.PositionComp.WorldMatrix.Translation + disp * m_terminal.CubeGrid.GridSize * 0.4f;
-                Vector3D viewerPos = MySession.ControlledEntity.Entity.WorldMatrix.Translation;
+                Vector3D viewerPos = MySession.Static.ControlledEntity.Entity.WorldMatrix.Translation;
                 var dist = (pos - viewerPos).Length();
                 if (dist > 35.0f) return true;
 

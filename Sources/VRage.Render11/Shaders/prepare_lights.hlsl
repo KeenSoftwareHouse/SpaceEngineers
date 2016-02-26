@@ -1,3 +1,5 @@
+// @defineMandatory NUMTHREADS 16
+
 #ifndef NUMTHREADS_X
 #define NUMTHREADS_X NUMTHREADS
 #endif
@@ -39,7 +41,7 @@ groupshared uint sTileNumLights;
 
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void prepare_lights(
+void __compute_shader(
 	uint3 dispatchThreadID : SV_DispatchThreadID,
 	uint3 groupThreadID : SV_GroupThreadID,
 	uint3 GroupID : SV_GroupID,

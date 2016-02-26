@@ -5,7 +5,6 @@ using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using VRageMath;
 using VRage.Plugins;
 using Sandbox.Game.Entities;
@@ -16,22 +15,29 @@ using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
 using System.Reflection;
+using VRage.Game;
+using VRage.Game.Common;
 
 namespace Sandbox.Game.World
 {
     public abstract class MyWorldGeneratorStartingStateBase
     {
+        public string FactionTag;
+
         public abstract Vector3D? GetStartingLocation();
         public abstract void SetupCharacter(MyWorldGenerator.Args generatorArgs);
 
         public virtual void Init(MyObjectBuilder_WorldGeneratorPlayerStartingState builder)
         {
-
+            this.FactionTag = builder.FactionTag;
         }
 
         public virtual MyObjectBuilder_WorldGeneratorPlayerStartingState GetObjectBuilder()
         {
-            return Sandbox.Game.World.MyWorldGenerator.StartingStateFactory.CreateObjectBuilder(this);
+            MyObjectBuilder_WorldGeneratorPlayerStartingState builder = Sandbox.Game.World.MyWorldGenerator.StartingStateFactory.CreateObjectBuilder(this);
+            builder.FactionTag = this.FactionTag;
+
+            return builder;
         }
 
         //Fixes position to voxel map surface (assuming gravity Vector3.Down and single voxel map)
@@ -50,6 +56,19 @@ namespace Sandbox.Game.World
             if (map != null)
                 position = map.GetPositionOnVoxel(position, maxVertDistance);
             return position;
+        }
+
+        /// <summary>
+        /// Setups player faction accoring to Factions.sbc and Scenario.sbx settings. If faction is not created yet. It will be created 
+        /// for the player with Faction.sbc settings. Faction have to accept humans.
+        /// </summary>
+        protected virtual void CreateAndSetPlayerFaction()
+        {
+            if (Sync.IsServer && this.FactionTag != null && MySession.Static.LocalHumanPlayer != null)
+            {
+                MyFaction playerFaction = MySession.Static.Factions.TryGetOrCreateFactionByTag(this.FactionTag);
+                playerFaction.AcceptJoin(MySession.Static.LocalHumanPlayer.Identity.IdentityId);
+            }
         }
     }
 
@@ -103,8 +122,8 @@ namespace Sandbox.Game.World
 
             public override void SetupCharacter(MyWorldGenerator.Args generatorArgs)
             {
-                Debug.Assert(MySession.LocalHumanPlayer != null, "Local controller does not exist!");
-                if (MySession.LocalHumanPlayer == null) return;
+                Debug.Assert(MySession.Static.LocalHumanPlayer != null, "Local controller does not exist!");
+                if (MySession.Static.LocalHumanPlayer == null) return;
 
                 var characterOb = Sandbox.Game.Entities.Character.MyCharacter.Random();
 
@@ -128,10 +147,13 @@ namespace Sandbox.Game.World
                 var character = new MyCharacter();
                 character.Name = "Player";
                 character.Init(characterOb);
-
+                MyEntities.RaiseEntityCreated(character);
+                
                 MyEntities.Add(character);
 
-                MySession.LocalHumanPlayer.SpawnIntoCharacter(character);
+                this.CreateAndSetPlayerFaction();
+
+                MySession.Static.LocalHumanPlayer.SpawnIntoCharacter(character);
             }
 
             public override void Init(MyObjectBuilder_WorldGeneratorPlayerStartingState builder)

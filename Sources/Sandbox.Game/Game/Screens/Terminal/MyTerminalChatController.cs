@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -56,7 +57,7 @@ namespace Sandbox.Game.Gui
             m_chatbox.TextChanged += m_chatbox_TextChanged;
             m_chatbox.EnterPressed += m_chatbox_EnterPressed;
 
-            if (MySession.LocalCharacter != null)
+            if (MySession.Static.LocalCharacter != null)
             {
                 MySession.Static.ChatSystem.PlayerMessageReceived += MyChatSystem_PlayerMessageReceived;
                 MySession.Static.ChatSystem.FactionMessageReceived += MyChatSystem_FactionMessageReceived;
@@ -87,7 +88,7 @@ namespace Sandbox.Game.Gui
             }
             else
             {
-                if (MySession.LocalCharacter != null)
+                if (MySession.Static.LocalCharacter != null)
                 {
                     m_sendButton.Enabled = true;
                 }
@@ -123,7 +124,7 @@ namespace Sandbox.Game.Gui
                     var playerIdentity = (MyIdentity)selectedItem.UserData;
                     RefreshPlayerChatHistory(playerIdentity);
 
-                    var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.LocalPlayerId, playerIdentity.IdentityId);
+                    var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.Static.LocalPlayerId, playerIdentity.IdentityId);
                     if (playerChatHistory != null && playerChatHistory.UnreadMessageCount > 0)
                     {
                         playerChatHistory.UnreadMessageCount = 0;
@@ -135,7 +136,7 @@ namespace Sandbox.Game.Gui
                     RefreshGlobalChatHistory();
 
                     MyChatHistory chatHistory;
-                    if (MySession.Static.ChatHistory.TryGetValue(MySession.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
+                    if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
                     {
                         chatHistory.GlobalChatHistory.UnreadMessageCount = 0;
                         UpdatePlayerList();
@@ -155,7 +156,7 @@ namespace Sandbox.Game.Gui
                 RefreshFactionChatHistory(faction);
 
                 var factions = MySession.Static.Factions;
-                var localFaction = factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+                var localFaction = factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
                 if (localFaction != null)
                 {
                     MyFactionChatHistory factionChat = MyChatSystem.FindFactionChatHistory(faction.FactionId, localFaction.FactionId);
@@ -174,7 +175,7 @@ namespace Sandbox.Game.Gui
         #region Network Events
         public void IncrementPlayerUnreadMessageCount(long otherPlayerId, bool refresh)
         {
-            MyPlayerChatHistory chatHistory = MyChatSystem.GetPlayerChatHistory(MySession.LocalPlayerId, otherPlayerId);
+            MyPlayerChatHistory chatHistory = MyChatSystem.GetPlayerChatHistory(MySession.Static.LocalPlayerId, otherPlayerId);
             if (chatHistory != null)
             {
                 chatHistory.UnreadMessageCount++;
@@ -187,7 +188,7 @@ namespace Sandbox.Game.Gui
 
         public void IncrementFactionUnreadMessageCount(long factionId, bool refresh)
         {
-            var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.LocalPlayerId, factionId);
+            var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.Static.LocalPlayerId, factionId);
             if (chatHistory != null)
             {
                 chatHistory.UnreadMessageCount++;
@@ -201,7 +202,7 @@ namespace Sandbox.Game.Gui
         public void IncrementGlobalUnreadMessageCount(bool refresh)
         {
             MyChatHistory chatHistory;
-            if (MySession.Static.ChatHistory.TryGetValue(MySession.LocalPlayerId, out chatHistory))
+            if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory))
             {
                 chatHistory.GlobalChatHistory.UnreadMessageCount++;
                 if (refresh)
@@ -310,7 +311,7 @@ namespace Sandbox.Game.Gui
         private void SendMessage()
         {
             //Cannot send any message if local character is missing
-            if (MySession.LocalCharacter == null)
+            if (MySession.Static.LocalCharacter == null)
             {
                 return;
             }
@@ -321,19 +322,19 @@ namespace Sandbox.Game.Gui
             MyDebug.AssertDebug(m_chatboxText.Length > 0, "Length of chat text should be positive");
             MyDebug.AssertDebug(m_chatboxText.Length <= MyChatConstants.MAX_CHAT_STRING_LENGTH, "Length of chat text should not exceed maximum allowed");
 
-            var history = MyChatSystem.GetChatHistory(MySession.LocalPlayerId);
+            var history = MyChatSystem.GetChatHistory(MySession.Static.LocalPlayerId);
             if (m_playerList.SelectedItems.Count > 0)
             {
                 var selectedItem = m_playerList.SelectedItems[0];
                 if (selectedItem == m_globalItem)
                 {
-                    MySession.LocalCharacter.SyncObject.SendNewGlobalMessage(MySession.LocalHumanPlayer.Id, m_chatboxText.ToString());
+                    MySession.Static.LocalCharacter.SyncObject.SendNewGlobalMessage(MySession.Static.LocalHumanPlayer.Id, m_chatboxText.ToString());
                 }
                 else
                 {
                     var playerIdentity = (MyIdentity)selectedItem.UserData;
 
-                    MySession.Static.ChatHistory[MySession.LocalPlayerId].AddPlayerChatItem(new MyPlayerChatItem(m_chatboxText.ToString(), MySession.LocalPlayerId, MySession.Static.ElapsedGameTime, false), playerIdentity.IdentityId);
+                    MySession.Static.ChatHistory[MySession.Static.LocalPlayerId].AddPlayerChatItem(new MyPlayerChatItem(m_chatboxText.ToString(), MySession.Static.LocalPlayerId, MySession.Static.ElapsedGameTime, false), playerIdentity.IdentityId);
                     RefreshPlayerChatHistory(playerIdentity);
                 }
             }
@@ -348,9 +349,9 @@ namespace Sandbox.Game.Gui
                     toSendTo.Add(member.Value.PlayerId, false);
                 }
 
-                if (!targetFaction.IsMember(MySession.LocalPlayerId))
+                if (!targetFaction.IsMember(MySession.Static.LocalPlayerId))
                 {
-                    var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+                    var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
                     if (localFaction != null)
                     {
                         foreach (var member in localFaction.Members)
@@ -360,12 +361,12 @@ namespace Sandbox.Game.Gui
                     }
                 }
                 
-                var factionChatItem = new MyFactionChatItem(m_chatboxText.ToString(), MySession.LocalPlayerId, MySession.Static.ElapsedGameTime, toSendTo);
+                var factionChatItem = new MyFactionChatItem(m_chatboxText.ToString(), MySession.Static.LocalPlayerId, MySession.Static.ElapsedGameTime, toSendTo);
                 
                 //This has to exist!
-                var currentFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+                var currentFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
 
-                MySession.LocalCharacter.SyncObject.SendNewFactionMessage(targetFaction.FactionId, currentFaction.FactionId, factionChatItem);
+                MySession.Static.LocalCharacter.SyncObject.SendNewFactionMessage(targetFaction.FactionId, currentFaction.FactionId, factionChatItem);
 
                 RefreshFactionChatHistory(targetFaction);
             }
@@ -376,7 +377,7 @@ namespace Sandbox.Game.Gui
         private void RefreshPlayerChatHistory(MyIdentity playerIdentity)
         {
             m_chatHistory.Clear();
-            var history = MyChatSystem.GetChatHistory(MySession.LocalPlayerId);
+            var history = MyChatSystem.GetChatHistory(MySession.Static.LocalPlayerId);
             
             var playerId = playerIdentity.IdentityId;
             MyPlayerChatHistory playerChat;
@@ -388,19 +389,19 @@ namespace Sandbox.Game.Gui
                     var identity = MySession.Static.Players.TryGetIdentity(text.IdentityId);
 
                     if (identity == null) continue;
-                    bool isPlayer = identity.IdentityId == MySession.LocalPlayerId;
+                    bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
 
-                    m_chatHistory.AppendText(identity.DisplayName, isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                    m_chatHistory.AppendText(identity.DisplayName, isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
                     if (!text.Sent)
                     {
                         m_tempStringBuilder.Clear();
                         m_tempStringBuilder.Append(" (");
                         m_tempStringBuilder.Append(MyTexts.GetString(MySpaceTexts.TerminalTab_Chat_Pending));
                         m_tempStringBuilder.Append(")");
-                        m_chatHistory.AppendText(m_tempStringBuilder, Common.MyFontEnum.Red, m_chatHistory.TextScale, Vector4.One);
+                        m_chatHistory.AppendText(m_tempStringBuilder, MyFontEnum.Red, m_chatHistory.TextScale, Vector4.One);
                     }
-                    m_chatHistory.AppendText(": ", isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
-                    m_chatHistory.AppendText(text.Text, Common.MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
+                    m_chatHistory.AppendText(": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                    m_chatHistory.AppendText(text.Text, MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
                     m_chatHistory.AppendLine();
                 }
             }
@@ -413,7 +414,7 @@ namespace Sandbox.Game.Gui
         {
             m_chatHistory.Clear();
             
-            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             if (localFaction == null)
             {
                 System.Diagnostics.Debug.Fail("Chat shouldn't be refreshed if local player is not a member of a faction!");
@@ -426,7 +427,7 @@ namespace Sandbox.Game.Gui
                 foreach (var item in chat)
                 {
                     bool alreadySentToMe;
-                    if (item.IdentityId == MySession.LocalPlayerId || (item.PlayersToSendTo.TryGetValue(MySession.LocalPlayerId, out alreadySentToMe) && alreadySentToMe))
+                    if (item.IdentityId == MySession.Static.LocalPlayerId || (item.PlayersToSendTo.TryGetValue(MySession.Static.LocalPlayerId, out alreadySentToMe) && alreadySentToMe))
                     {
                         int alreadySentToCount = 0;
                         foreach (var keyValue in item.PlayersToSendTo)
@@ -439,9 +440,9 @@ namespace Sandbox.Game.Gui
                         var identity = MySession.Static.Players.TryGetIdentity(item.IdentityId);
 
                         if (identity == null) continue;
-                        bool isPlayer = identity.IdentityId == MySession.LocalPlayerId;
+                        bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
 
-                        m_chatHistory.AppendText(identity.DisplayName, isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                        m_chatHistory.AppendText(identity.DisplayName, isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
                         if (item.PlayersToSendTo != null && item.PlayersToSendTo.Count > 0 && alreadySentToCount < item.PlayersToSendTo.Count)
                         {
                             var pendingText = new StringBuilder();
@@ -450,10 +451,10 @@ namespace Sandbox.Game.Gui
                             pendingText.Append("/");
                             pendingText.Append(item.PlayersToSendTo.Count.ToString());
                             pendingText.Append(") ");
-                            m_chatHistory.AppendText(pendingText, Common.MyFontEnum.Red, m_chatHistory.TextScale, Vector4.One);
+                            m_chatHistory.AppendText(pendingText, MyFontEnum.Red, m_chatHistory.TextScale, Vector4.One);
                         }
-                        m_chatHistory.AppendText(": ", isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
-                        m_chatHistory.AppendText(item.Text, Common.MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
+                        m_chatHistory.AppendText(": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                        m_chatHistory.AppendText(item.Text, MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
                         m_chatHistory.AppendLine();
                     }
                 }
@@ -466,7 +467,7 @@ namespace Sandbox.Game.Gui
         private void RefreshGlobalChatHistory()
         {
             m_chatHistory.Clear();
-            var history = MyChatSystem.GetChatHistory(MySession.LocalPlayerId);
+            var history = MyChatSystem.GetChatHistory(MySession.Static.LocalPlayerId);
 
             var chat = history.GlobalChatHistory.Chat;
             foreach (var text in chat)
@@ -474,12 +475,12 @@ namespace Sandbox.Game.Gui
                 var identity = MySession.Static.Players.TryGetIdentity(text.IdentityId);
 
                 if (identity == null) continue;
-                bool isPlayer = identity.IdentityId == MySession.LocalPlayerId;
+                bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
 
-                m_chatHistory.AppendText(identity.DisplayName, isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                m_chatHistory.AppendText(identity.DisplayName, isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
                 
-                m_chatHistory.AppendText(": ", isPlayer ? Common.MyFontEnum.DarkBlue : Common.MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
-                m_chatHistory.AppendText(text.Text, Common.MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
+                m_chatHistory.AppendText(": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                m_chatHistory.AppendText(text.Text, MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
                 m_chatHistory.AppendLine();
             }
 
@@ -509,7 +510,7 @@ namespace Sandbox.Game.Gui
             m_tempStringBuilder.Append(MyTexts.Get(MySpaceTexts.TerminalTab_Chat_GlobalChat));
 
             MyChatHistory chatHistory;
-            if (MySession.Static.ChatHistory.TryGetValue(MySession.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
+            if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
             {
                 m_tempStringBuilder.Append(" (");
                 m_tempStringBuilder.Append(chatHistory.GlobalChatHistory.UnreadMessageCount);
@@ -528,8 +529,8 @@ namespace Sandbox.Game.Gui
             foreach (var player in allPlayers)
             {
                 var playerIdentity = MySession.Static.Players.TryGetIdentity(MySession.Static.Players.TryGetIdentityId(player.SteamId, player.SerialId));
-                
-                if (playerIdentity.IdentityId != MySession.LocalPlayerId)
+
+                if (playerIdentity.IdentityId != MySession.Static.LocalPlayerId && player.SerialId == 0)
                 {
                     if (playerIdentity.Character == null)
                     {
@@ -547,7 +548,7 @@ namespace Sandbox.Game.Gui
                 m_tempStringBuilder.Clear();
                 m_tempStringBuilder.Append(onlinePlayer.DisplayName);
 
-                var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.LocalPlayerId, onlinePlayer.IdentityId);
+                var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.Static.LocalPlayerId, onlinePlayer.IdentityId);
                 if (playerChatHistory != null && playerChatHistory.UnreadMessageCount > 0)
                 {
                     m_tempStringBuilder.Append(" (");
@@ -567,7 +568,7 @@ namespace Sandbox.Game.Gui
                 m_tempStringBuilder.Append(MyTexts.GetString(MySpaceTexts.TerminalTab_Chat_Offline));
                 m_tempStringBuilder.Append(")");
 
-                var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.LocalPlayerId, offlinePlayer.IdentityId);
+                var playerChatHistory = MyChatSystem.GetPlayerChatHistory(MySession.Static.LocalPlayerId, offlinePlayer.IdentityId);
                 if (playerChatHistory != null && playerChatHistory.UnreadMessageCount > 0)
                 {
                     m_tempStringBuilder.Append(" (");
@@ -575,21 +576,21 @@ namespace Sandbox.Game.Gui
                     m_tempStringBuilder.Append(")");
                 }
 
-                var item = new MyGuiControlListbox.Item(text: m_tempStringBuilder, userData: offlinePlayer, fontOverride: Common.MyFontEnum.DarkBlue);
+                var item = new MyGuiControlListbox.Item(text: m_tempStringBuilder, userData: offlinePlayer, fontOverride: MyFontEnum.DarkBlue);
                 m_playerList.Add(item);
             }
         }
 
         private void RefreshFactionList()
         {
-            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             if (localFaction != null)
             {
                 //Add local player faction first
                 m_tempStringBuilder.Clear();
                 m_tempStringBuilder.Append(localFaction.Name);
 
-                var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.LocalPlayerId, localFaction.FactionId);
+                var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.Static.LocalPlayerId, localFaction.FactionId);
                 if (chatHistory != null && chatHistory.UnreadMessageCount > 0)
                 {
                     m_tempStringBuilder.Append(" (");
@@ -604,12 +605,12 @@ namespace Sandbox.Game.Gui
                 foreach (var faction in MySession.Static.Factions)
                 {
                     //Don't add local player faction twice
-                    if (faction.Value != localFaction)
+                    if (faction.Value != localFaction && faction.Value.AcceptHumans)
                     {
                         m_tempStringBuilder.Clear();
                         m_tempStringBuilder.Append(faction.Value.Name);
 
-                        chatHistory = MyChatSystem.GetFactionChatHistory(MySession.LocalPlayerId, faction.Value.FactionId);
+                        chatHistory = MyChatSystem.GetFactionChatHistory(MySession.Static.LocalPlayerId, faction.Value.FactionId);
                         if (chatHistory != null && chatHistory.UnreadMessageCount > 0)
                         {
                             m_tempStringBuilder.Append(" (");
@@ -711,7 +712,7 @@ namespace Sandbox.Game.Gui
         private void UpdateFactionList(bool forceRefresh)
         {
             var factions = MySession.Static.Factions;
-            var localFaction = factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            var localFaction = factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             if (localFaction == null)
             {
                 if (m_factionList.Items.Count != 0)
@@ -778,7 +779,7 @@ namespace Sandbox.Game.Gui
             m_chatbox.TextChanged -= m_chatbox_TextChanged;
             m_chatbox.EnterPressed -= m_chatbox_EnterPressed;
 
-            if (MySession.LocalCharacter != null)
+            if (MySession.Static.LocalCharacter != null)
             {
                 MySession.Static.ChatSystem.PlayerMessageReceived -= MyChatSystem_PlayerMessageReceived;
                 MySession.Static.ChatSystem.FactionMessageReceived -= MyChatSystem_FactionMessageReceived;

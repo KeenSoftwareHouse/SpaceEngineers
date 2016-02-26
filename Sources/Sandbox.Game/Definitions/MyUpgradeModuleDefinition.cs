@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {

@@ -1,6 +1,635 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <CubeBlocks>
+    <!-- Region Tree-->
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>LeafTreeTest</SubtypeId>
+      </Id>
+      <DisplayName>LeafTreeTest</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\LeafTree.mwm</Model> 
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+	
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>PineTreeTest</SubtypeId>
+      </Id>
+      <DisplayName>PineTreeTest</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\PineTree.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+	
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>PineSnowTreeTest</SubtypeId>
+      </Id>
+      <DisplayName>PineSnowTreeTest</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\PineTreeSnow.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>Monolith</SubtypeId>
+      </Id>
+      <DisplayName>Monolith</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="4" z="1" />
+      <Center x="0" y="0" z="0" />
+      <ModelOffset x="0" y="-4" z="0" />
+      <Model>Models\Environment\Props\Monolith.mwm</Model> 
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+        <Component Subtype="Superconductor" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Superconductor" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>200000</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>Stereolith</SubtypeId>
+      </Id>
+      <DisplayName>Stereolith</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="4" z="1" />
+      <Center x="0" y="0" z="0" />
+      <ModelOffset x="0" y="-4" z="0" />
+      <Model>Models\Environment\Props\Stereolith.mwm</Model> 
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+        <Component Subtype="Superconductor" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Superconductor" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>200000</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+	
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>DesertTreeTest</SubtypeId>
+      </Id>
+      <DisplayName>DesertTreeTest</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\DesertTree.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+	
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>PineTree</SubtypeId>
+      </Id>
+      <DisplayName>PineTree</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\PineTree.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>DeadTreeTest</SubtypeId>
+      </Id>
+      <DisplayName>DeadTreeTest</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\DesertTreeDead.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>AlienLeafTree01</SubtypeId>
+      </Id>
+      <DisplayName>AlienLeafTree01</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\AlienLeafTree01.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>AlienLeafTree02</SubtypeId>
+      </Id>
+      <DisplayName>AlienLeafTree02</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\AlienLeafTree02.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>AlienPalmTree01</SubtypeId>
+      </Id>
+      <DisplayName>AlienPalmTree01</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\AlienPalmTree01.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>AlienPalmTree02</SubtypeId>
+      </Id>
+      <DisplayName>AlienPalmTree02</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Trees\AlienPalmTree02.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+    <Id>
+      <TypeId>CubeBlock</TypeId>
+      <SubtypeId>AlienSnowTree01</SubtypeId>
+    </Id>
+    <DisplayName>AlienSnowTree01</DisplayName>
+    <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+    <Public>false</Public>
+    <CubeSize>Large</CubeSize>
+    <BlockTopology>TriangleMesh</BlockTopology>
+    <Size x="1" y="1" z="1" />
+    <ModelOffset x="0" y="0" z="0" />
+    <Model>Models\Environment\Trees\AlienSnowTree01.mwm</Model>
+    <Components>
+      <Component Subtype="SteelPlate" Count="130" />
+    </Components>
+    <CriticalComponent Subtype="Computer" Index="0" />
+    <EdgeType>Light</EdgeType>
+    <BuildTimeSeconds>80</BuildTimeSeconds>
+    <InventorySize>
+      <X>1</X>
+      <Y>1</Y>
+      <Z>1</Z>
+    </InventorySize>
+    </Definition>
+    <Definition>
+    <Id>
+      <TypeId>CubeBlock</TypeId>
+      <SubtypeId>AlienSnowTree02</SubtypeId>
+    </Id>
+    <DisplayName>AlienSnowTree02</DisplayName>
+    <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+    <Public>false</Public>
+    <CubeSize>Large</CubeSize>
+    <BlockTopology>TriangleMesh</BlockTopology>
+    <Size x="1" y="1" z="1" />
+    <ModelOffset x="0" y="0" z="0" />
+    <Model>Models\Environment\Trees\AlienSnowTree02.mwm</Model>
+    <Components>
+      <Component Subtype="SteelPlate" Count="130" />
+    </Components>
+    <CriticalComponent Subtype="Computer" Index="0" />
+    <EdgeType>Light</EdgeType>
+    <BuildTimeSeconds>80</BuildTimeSeconds>
+    <InventorySize>
+      <X>1</X>
+      <Y>1</Y>
+      <Z>1</Z>
+    </InventorySize>
+    </Definition>
+    
+    <!-- End Tree-->
+ <!-- Region Bushes-->
+
+	<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>DeadBushSmall</SubtypeId>
+      </Id>
+      <DisplayName>DeadBushSmall</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Bushes\DeadBushSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+
+    </Definition>
+
+<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>LeafBushSmall_var1</SubtypeId>
+      </Id>
+      <DisplayName>LeafBushSmall_var1</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Bushes\LeafBushSmall_var1.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+
+<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>PineBushSmall</SubtypeId>
+      </Id>
+      <DisplayName>PineBushSmall</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Bushes\PineBushSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+<Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>SnowPineBushSmall</SubtypeId>
+      </Id>
+      <DisplayName>SnowPineBushSmall</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Bushes\SnowPineBushSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>DesertBushSmall</SubtypeId>
+      </Id>
+      <DisplayName>DesertBushSmall</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Bushes\DesertBushSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <!-- End Bushes-->
+    <!-- Region Rocks-->
+
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>SmallOverhang</SubtypeId>
+      </Id>
+      <DisplayName>SmallOverhang</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Rocks\SmallOverhang.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+        <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>StoneFoliage01</SubtypeId>
+      </Id>
+      <DisplayName>StoneFoliage01</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Rocks\StoneFoliage01.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>StoneFoliage02</SubtypeId>
+      </Id>
+      <DisplayName>StoneFoliage02</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Rocks\StoneFoliage02.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>StoneFoliageSmall01</SubtypeId>
+      </Id>
+      <DisplayName>StoneFoliageSmall01</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Rocks\StoneFoliageSmall01.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    <Definition>
+      <Id>
+        <TypeId>CubeBlock</TypeId>
+        <SubtypeId>StoneFoliageSmall02</SubtypeId>
+      </Id>
+      <DisplayName>StoneFoliageSmall02</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Public>false</Public>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Environment\Rocks\StoneFoliageSmall02.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>80</BuildTimeSeconds>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
+    </Definition>
+    
+    <!-- End Rocks-->
+    
     <!-- Region BatteryBlock-->
     <Definition xsi:type="MyObjectBuilder_BatteryBlockDefinition">
       <Id>
@@ -6530,7 +7159,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <BuildTimeSeconds>8</BuildTimeSeconds>
+      <BuildTimeSeconds>7</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
     <Definition>
@@ -8153,7 +8782,7 @@
         <SubtypeId>SmallBlockArmorSlope2BaseSmooth</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Block_LightArmorSlope2BaseSmooth</DisplayName>
-      <Icon>Textures\GUI\Icons\Cubes\Sloped2x1x1BaseSmooth.dds</Icon>
+      <Icon>Textures\GUI\Icons\Cubes\Slope2x1x1BaseSmooth.dds</Icon>
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -8320,7 +8949,7 @@
         <SubtypeId>SmallBlockArmorSlope2TipSmooth</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Block_LightArmorSlope2TipSmooth</DisplayName>
-      <Icon>Textures\GUI\Icons\Cubes\Sloped2x1x1BaseSmooth.dds</Icon>
+      <Icon>Textures\GUI\Icons\Cubes\Slope2x1x1BaseSmooth.dds</Icon>
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -13542,8 +14171,8 @@
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
       <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
-      <RotationSpeed>0.002</RotationSpeed>
-      <ElevationSpeed>0.002 </ElevationSpeed>
+      <RotationSpeed>0.001</RotationSpeed>
+      <ElevationSpeed>0.001 </ElevationSpeed>
       <IdleRotation>true</IdleRotation>
       <MaxRangeMeters>600</MaxRangeMeters>
     </Definition>
@@ -13953,9 +14582,9 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <LightRadius Min="2" Max="10" Default="2.8" />
+      <LightRadius Min="2" Max="120" Default="120" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
-      <LightIntensity Min="0.5" Max="5" Default="2" />
+      <LightIntensity Min="0.5" Max="5" Default="1" />
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.001</RequiredPowerInput>
       <LightGlare>GlareLsLight</LightGlare>
@@ -14475,6 +15104,8 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <!--<UseModelIntersection>true</UseModelIntersection>-->
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -14506,6 +15137,8 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <UseModelIntersection>true</UseModelIntersection>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -14618,7 +15251,7 @@
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ProjectorDefinition">
       <Id>
-        <TypeId>Projector</TypeId>
+        <TypeId>MyObjectBuilder_Projector</TypeId>
         <SubtypeId>LargeProjector</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Block_Projector</DisplayName>
@@ -14658,10 +15291,12 @@
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>ArcBlockProjectorOn</PrimarySound>
+      <IdleSound>ArcBlockProjectorOff</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ProjectorDefinition">
       <Id>
-        <TypeId>Projector</TypeId>
+        <TypeId>MyObjectBuilder_Projector</TypeId>
         <SubtypeId>SmallProjector</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Block_Projector</DisplayName>
@@ -14698,8 +15333,10 @@
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <Public>true</Public>
-      <DamageEffectId>212</DamageEffectId>
-      <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>ArcBlockProjectorOn</PrimarySound>
+      <IdleSound>ArcBlockProjectorOff</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14755,6 +15392,8 @@
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14803,6 +15442,8 @@
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14860,6 +15501,8 @@
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OxygenGeneratorDefinition">
       <Id>
@@ -14995,6 +15638,8 @@
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -15054,6 +15699,8 @@
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -15115,6 +15762,8 @@
       <MaterialEfficiency>0.95</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockRafinery</PrimarySound>
+      <ActionSound>BlockRafineryProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -15164,6 +15813,8 @@
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <PrimarySound>BlockAssembler</PrimarySound>
+      <ActionSound>BlockAssemblerProcess</ActionSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -15469,6 +16120,7 @@
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
+      <Sound>BlockGravityGen</Sound>
       <Model>Models\Cubes\Large\GravityGenerator.mwm</Model>
       <Components>
         <Component Subtype="SteelPlate" Count="54" />
@@ -15510,6 +16162,7 @@
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
+      <Sound>BlockGravityGen</Sound>
       <Model>Models\Cubes\Large\GravityGeneratorSpherical.mwm</Model>
       <Components>
         <Component Subtype="SteelPlate" Count="54" />
@@ -15609,7 +16262,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\CockpitLarge.mwm</Model>
-      <PrimarySound>ArcBlockCockpitLrg</PrimarySound>
+      <PrimarySound>ArcBlockCockpitFlightSeat</PrimarySound>
       <CharacterAnimation>cockpit23</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -15619,7 +16272,7 @@
         <Component Subtype="Display" Count="10" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="InteriorPlate" Count="10" />
-        <Component Subtype="BulletproofGlass" Count="60" />        
+        <Component Subtype="BulletproofGlass" Count="10" />        
       </Components>
       <CriticalComponent Subtype="Display" Index="0" />
       <MountPoints>
@@ -15637,6 +16290,7 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>false</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <PrimarySound>BlockCockpitLrg</PrimarySound>
@@ -15664,7 +16318,7 @@
         <Component Subtype="Display" Count="8" />
         <Component Subtype="Computer" Count="100" />
         <Component Subtype="InteriorPlate" Count="10" />
-        <Component Subtype="BulletproofGlass" Count="10" />
+        <Component Subtype="BulletproofGlass" Count="60" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
@@ -15682,6 +16336,7 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>true</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
@@ -15731,6 +16386,7 @@
       <EdgeType>Light</EdgeType>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>true</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <PrimarySound>BlockCockpitSm</PrimarySound>
@@ -15789,6 +16445,7 @@
       <EdgeType>Light</EdgeType>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>true</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
@@ -15808,7 +16465,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\CockpitOpen.mwm</Model>
-      <PrimarySound>ArcBlockCockpitLrg</PrimarySound>
+      <PrimarySound>ArcBlockCockpitFlightSeat</PrimarySound>
       <CharacterAnimation>cockpit23</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -15835,6 +16492,7 @@
       <MirroringY>Z</MirroringY>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>true</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -15851,7 +16509,6 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\PassengerSeat.mwm</Model>
-      <PrimarySound>ArcBlockCockpitLrg</PrimarySound>
       <CharacterAnimation>passengerseat_large</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -15875,6 +16532,7 @@
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
+      <EnableBuilderCockpit>false</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -15890,7 +16548,6 @@
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\PassengerSeat.mwm</Model>
-      <PrimarySound>BlockCockpitSm</PrimarySound>
       <CharacterAnimation>passengerseat_small</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -15913,6 +16570,7 @@
       <EdgeType>Light</EdgeType>
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
+      <EnableBuilderCockpit>false</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -15928,7 +16586,6 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\CryoPod.mwm</Model>
-      <PrimarySound>BlockCockpitSm</PrimarySound>
       <CharacterAnimation>Idle</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="30" />
@@ -15963,8 +16620,8 @@
       <OxygenCapacity>1</OxygenCapacity>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
-      <OutsideSound>ArcBlockCryoOut</OutsideSound>
-      <InsideSound>ArcBlockCryoIn</InsideSound>
+      <OutsideSound>BlockCryoOut</OutsideSound>
+      <InsideSound>BlockCryoIn</InsideSound>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -16039,9 +16696,9 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>7</BuildTimeSeconds>
-      <LightRadius Min="1" Max="5" Default="2" />
+      <LightRadius Min="1" Max="120" Default="120" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
-      <LightIntensity Min="0.5" Max="5" Default="4" />
+      <LightIntensity Min="0.5" Max="5" Default="3" />
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <LightGlare>GlareSsLight</LightGlare>
@@ -16128,6 +16785,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\RocketLauncherConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>RocketLauncher</BlockPairName>
+      <MirroringZ>Y</MirroringZ>
       <Center x="0" y="0" z="1" />
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
@@ -16314,7 +16972,7 @@
       <SensorRadius>1.1</SensorRadius>
       <SensorOffset>0.8</SensorOffset>
       
-      <DeformationRatio>0.7</DeformationRatio>
+      <DeformationRatio>0.2</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
@@ -16365,7 +17023,7 @@
       <SensorRadius>1.9</SensorRadius>
       <SensorOffset>2.8</SensorOffset>
       
-      <DeformationRatio>0.7</DeformationRatio>
+      <DeformationRatio>0.2</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
@@ -16426,7 +17084,7 @@
         <Component Subtype="InteriorPlate" Count="5" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="Computer" Count="6" />
-        <Component Subtype="RadioCommunication" Count="6" />
+        <Component Subtype="RadioCommunication" Count="4" />
         <Component Subtype="Detector" Count="6" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
@@ -16464,7 +17122,7 @@
         <Component Subtype="InteriorPlate" Count="5" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="Computer" Count="6" />
-        <Component Subtype="RadioCommunication" Count="6" />
+        <Component Subtype="RadioCommunication" Count="4" />
         <Component Subtype="Detector" Count="6" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
@@ -16629,6 +17287,8 @@
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
       <TextureAspectRadio>2</TextureAspectRadio>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
       <Id>
@@ -16665,6 +17325,8 @@
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
       <Id>
@@ -16860,7 +17522,7 @@
         <Component Subtype="Display" Count="10" />
         <Component Subtype="BulletproofGlass" Count="6" />
       </Components>
-      <CriticalComponent Subttype="Computer" Index="0" />
+      <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Left" StartX="0" StartY="0.1" EndX="0.1" EndY="0.9" />
@@ -16879,6 +17541,8 @@
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
       <Id>
@@ -16918,6 +17582,8 @@
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TextureResolution>512</TextureResolution>
       <TextureAspectRadio>2</TextureAspectRadio>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RadioAntennaDefinition">
       <Id>
@@ -17001,6 +17667,7 @@
       <RequiredPowerInput>0.0003</RequiredPowerInput>
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>false</EnableBuilderCockpit>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -17046,6 +17713,7 @@
       <RequiredPowerInput>0.0003</RequiredPowerInput>
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
+      <EnableBuilderCockpit>false</EnableBuilderCockpit>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -17113,11 +17781,11 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\OxygenPressurizer.mwm</Model>
       <Components>
-        <Component Subtype="SteelPlate" Count="50" />
-        <Component Subtype="Construction" Count="30" />
-        <Component Subtype="MetalGrid" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="Computer" Count="5" />
-        <Component Subtype="SteelPlate" Count="30" />
+        <Component Subtype="SteelPlate" Count="3" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
@@ -17344,7 +18012,7 @@
       <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
           <StandbyPowerConsumption>0.000001</StandbyPowerConsumption>
-      <Capacity>40000</Capacity>
+      <Capacity>80000</Capacity>
       <InventoryMaxVolume>4</InventoryMaxVolume>
       <InventorySize>
         <X>2</X>
@@ -17548,11 +18216,8 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>6</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
-      <InventorySize>
-        <X>0.5</X>
-        <Y>0.5</Y>
-        <Z>0.5</Z>
-      </InventorySize>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -17584,11 +18249,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>14</BuildTimeSeconds>
-      <InventorySize>
-        <X>1.5</X>
-        <Y>1.5</Y>
-        <Z>1.5</Z>
-      </InventorySize>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -17619,11 +18281,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
-      <InventorySize>
-        <X>2.5</X>
-        <Y>2.5</Y>
-        <Z>2.5</Z>
-      </InventorySize>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -17659,11 +18318,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
-      <InventorySize>
-        <X>2.5</X>
-        <Y>2.5</Y>
-        <Z>2.5</Z>
-      </InventorySize>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -17707,11 +18363,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
-      <InventorySize>
-        <X>7.5</X>
-        <Y>7.5</Y>
-        <Z>7.5</Z>
-      </InventorySize>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <!-- End Region Cargo Container-->
     <!-- Region Thrust-->
@@ -17755,7 +18408,7 @@
       <ForceMagnitude>12000</ForceMagnitude>
       <MaxPowerConsumption>0.201</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
-      <SlowdownFactor>5</SlowdownFactor>
+      <SlowdownFactor>1</SlowdownFactor>
 
       <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
       <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
@@ -17830,7 +18483,7 @@
       <ForceMagnitude>144000</ForceMagnitude>
       <MaxPowerConsumption>2.4</MaxPowerConsumption>
       <MinPowerConsumption>0.000002</MinPowerConsumption>
-      <SlowdownFactor>5</SlowdownFactor>
+      <SlowdownFactor>1</SlowdownFactor>
 
       <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
       <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
@@ -18219,7 +18872,7 @@
       <MinPowerConsumption>0.000000001</MinPowerConsumption>     
       <ResourceSinkGroup>Thrust</ResourceSinkGroup>
       <ForceMagnitude>400000</ForceMagnitude>
-      <SlowdownFactor>5</SlowdownFactor>
+      <SlowdownFactor>1</SlowdownFactor>
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameLengthScale>1.15</FlameLengthScale>
       <FlameIdleColor>
@@ -18293,7 +18946,7 @@
       </FuelConverter>
       <MaxPowerConsumption>0.17</MaxPowerConsumption>
       <MinPowerConsumption>0.000000001</MinPowerConsumption>
-      <SlowdownFactor>5</SlowdownFactor>
+      <SlowdownFactor>1</SlowdownFactor>
       <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
       <FlameLengthScale>1.15</FlameLengthScale>
       <FlameIdleColor>
@@ -18320,6 +18973,343 @@
       <Public>true</Public>
     </Definition>
     <!--HydrogenThrusters End-->   
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>LargeBlockLargeAtmosphericThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_LargeAtmoThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterLargeLarge.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="5" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\AtmosphericThrusterLarge.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="100" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="LargeTube" Count="50" />
+        <Component Subtype="MetalGrid" Count="40" />
+        <Component Subtype="Motor" Count="1136" />        
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="SteelPlate" Count="130" />
+      </Components>
+      <CriticalComponent Subtype="Motor" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
+        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="3" />
+        <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="4" />
+        <MountPoint Side="Left" StartX="2" StartY="1" EndX="4" EndY="2" />
+        <MountPoint Side="Right" StartX="1" StartY="1" EndX="3" EndY="2" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\AtmosphericThrusterLarge_Construction_01.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\AtmosphericThrusterLarge_Construction_02.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\AtmosphericThrusterLarge_Construction_03.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>LargeAtmoThrust</BlockPairName>
+      <Center x="1" y="1" z="2" />
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>5400000</ForceMagnitude>
+      <MaxPowerConsumption>16.36</MaxPowerConsumption>
+      <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+      
+      <MinPlanetaryInfluence>0.3</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>0</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+      <NeedsAtmosphereForInfluence>true</NeedsAtmosphereForInfluence>
+
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustSmall</FlameGlareMaterial>
+      <FlameVisibilityDistance>500</FlameVisibilityDistance>
+      <FlameGlareSize>0.585</FlameGlareSize>
+      <FlameGlareQuerySize>2</FlameGlareQuerySize>
+      <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
+      <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
+      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
+      <PropellerAccelerationTime>3</PropellerAccelerationTime>
+      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerMaxVisibleDistance>100</PropellerMaxVisibleDistance>
+      <PrimarySound>ArcLrgShipSmJetAtmo</PrimarySound>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>LargeBlockSmallAtmosphericThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_SmallAtmoThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterSmall.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="3" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\AtmosphericThrusterSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="15" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="LargeTube" Count="8" />
+        <Component Subtype="MetalGrid" Count="10" />
+        <Component Subtype="Motor" Count="113" />
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="SteelPlate" Count="20" />
+      </Components>               
+      <CriticalComponent Subtype="Motor" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
+        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Right" StartX="1" StartY="0" EndX="2" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\AtmosphericThrusterSmall_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\AtmosphericThrusterSmall_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\AtmosphericThrusterSmall_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>SmallAtmoThrust</BlockPairName>
+      <Center x="0" y="0" z="1" />
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>420000</ForceMagnitude>
+      <MaxPowerConsumption>2.36</MaxPowerConsumption>
+      <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+      
+      <MinPlanetaryInfluence>0.3</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>0</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+      <NeedsAtmosphereForInfluence>true</NeedsAtmosphereForInfluence>
+
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareLsThrustSmall</FlameGlareMaterial>
+      <FlameVisibilityDistance>500</FlameVisibilityDistance>
+      <FlameGlareSize>0.585</FlameGlareSize>
+      <FlameGlareQuerySize>2</FlameGlareQuerySize>
+      <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
+      <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
+      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
+      <PropellerAccelerationTime>3</PropellerAccelerationTime>
+      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerMaxVisibleDistance>75</PropellerMaxVisibleDistance>
+      <PrimarySound>ArcLrgShipSmJetAtmo</PrimarySound>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>
+
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>SmallBlockLargeAtmosphericThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_LargeAtmoThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterLargeLarge.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="5" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\AtmosphericThrusterLarge.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="LargeTube" Count="4" />
+        <Component Subtype="MetalGrid" Count="8" />
+        <Component Subtype="Motor" Count="144" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="SteelPlate" Count="10" />
+      </Components>
+      <CriticalComponent Subtype="Motor" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
+        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="4" />
+        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="4" />
+        <MountPoint Side="Right" StartX="1" StartY="1" EndX="4" EndY="2" />
+        <MountPoint Side="Left" StartX="1" StartY="1" EndX="4" EndY="2" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\AtmosphericThrusterLarge_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\AtmosphericThrusterLarge_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\AtmosphericThrusterLarge_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>LargeAtmoThrust</BlockPairName>
+      <Center x="1" y="1" z="2" />
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>25</BuildTimeSeconds>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>408000</ForceMagnitude>
+      <MaxPowerConsumption>2.4</MaxPowerConsumption>
+      <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+
+      <MinPlanetaryInfluence>0.3</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>0</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+      <NeedsAtmosphereForInfluence>true</NeedsAtmosphereForInfluence>
+
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameDamage>0.2</FlameDamage>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareSsThrustLarge</FlameGlareMaterial>
+      <FlameVisibilityDistance>300</FlameVisibilityDistance>
+      <FlameGlareSize>0.908</FlameGlareSize>
+      <FlameGlareQuerySize>1</FlameGlareQuerySize>
+      <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
+      <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
+      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
+      <PropellerAccelerationTime>3</PropellerAccelerationTime>
+      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerMaxVisibleDistance>30</PropellerMaxVisibleDistance>
+      <PrimarySound>ArcSmShipLrgJetAtmo</PrimarySound>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>
+    <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
+      <Id>
+        <TypeId>Thrust</TypeId>
+        <SubtypeId>SmallBlockSmallAtmosphericThrust</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_SmallAtmoThrust</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterSmall.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="3" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\AtmosphericThrusterSmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="2" />
+        <Component Subtype="LargeTube" Count="1" />
+        <Component Subtype="MetalGrid" Count="1" />
+        <Component Subtype="Motor" Count="18" />
+        <Component Subtype="Construction" Count="2" />
+        <Component Subtype="SteelPlate" Count="1" />
+      </Components>        
+      <CriticalComponent Subtype="Motor" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Right" StartX="1" StartY="0" EndX="2" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\AtmosphericThrusterSmall_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\AtmosphericThrusterSmall_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\AtmosphericThrusterSmall_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>SmallAtmoThrust</BlockPairName>
+      <Center x="0" y="0" z="1" />
+      <MirroringZ>Y</MirroringZ>
+      <BuildTimeSeconds>12</BuildTimeSeconds>
+      <EdgeType>Light</EdgeType>
+
+      <ResourceSinkGroup>Thrust</ResourceSinkGroup>
+      <ForceMagnitude>80000</ForceMagnitude>
+      <MaxPowerConsumption>0.701</MaxPowerConsumption>
+      <MinPowerConsumption>0.000002</MinPowerConsumption>
+      <SlowdownFactor>1</SlowdownFactor>
+      
+      <MinPlanetaryInfluence>0.3</MinPlanetaryInfluence>
+      <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
+      <EffectivenessAtMinInfluence>0</EffectivenessAtMinInfluence>
+      <EffectivenessAtMaxInfluence>1</EffectivenessAtMaxInfluence>
+      <NeedsAtmosphereForInfluence>true</NeedsAtmosphereForInfluence>
+      
+      <FlameDamageLengthScale>0.6</FlameDamageLengthScale>
+      <FlameDamage>0.1</FlameDamage>
+      <FlameLengthScale>1.15</FlameLengthScale>
+      <FlameIdleColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameIdleColor>
+      <FlameFullColor>
+        <X>0.3</X>
+        <Y>0.3</Y>
+        <Z>0.3</Z>
+        <W>0.75</W>
+      </FlameFullColor>
+      <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
+      <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
+      <FlameGlareMaterial>GlareSsThrustSmall</FlameGlareMaterial>
+      <FlameVisibilityDistance>200</FlameVisibilityDistance>
+      <FlameGlareSize>0.391</FlameGlareSize>
+      <FlameGlareQuerySize>1</FlameGlareQuerySize>
+      <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
+      <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
+      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
+      <PropellerAccelerationTime>3</PropellerAccelerationTime>
+      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerMaxVisibleDistance>20</PropellerMaxVisibleDistance>
+      <PrimarySound>ArcSmShipSmJetAtmo</PrimarySound>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <Public>true</Public>
+    </Definition>
     <!-- End Region Thrust-->
     <Definition xsi:type="MyObjectBuilder_CameraBlockDefinition">
       <Id>
@@ -18434,7 +19424,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
-
+      <PrimarySound>ArcBlockGyroscope</PrimarySound>
+      
       <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>3.36E+07</ForceMagnitude>
       <RequiredPowerInput>0.00003</RequiredPowerInput>
@@ -18475,6 +19466,7 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
+      <PrimarySound>ArcBlockGyroscope</PrimarySound>
 
       <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>448000</ForceMagnitude>
@@ -18759,7 +19751,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <PrimarySound>BlockRotor</PrimarySound>
+      <PrimarySound>BlockPiston</PrimarySound>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
@@ -18806,7 +19798,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <PrimarySound>BlockRotor</PrimarySound>
+      <PrimarySound>BlockPiston</PrimarySound>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
@@ -18887,7 +19879,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <PrimarySound>BlockRotor</PrimarySound>
+      <PrimarySound>BlockPiston</PrimarySound>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
@@ -18934,7 +19926,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <PrimarySound>BlockRotor</PrimarySound>
+      <PrimarySound>BlockPiston</PrimarySound>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
@@ -19797,6 +20789,8 @@
       <EdgeType>Light</EdgeType>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BuildTimeSeconds>2</BuildTimeSeconds>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -19883,6 +20877,7 @@
       <PanelOffset>1.0</PanelOffset>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SolarPanelDefinition">
       <Id>
@@ -19938,6 +20933,7 @@
       <MirroringZ>X</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OxygenFarmDefinition">
       <Id>
@@ -20041,6 +21037,7 @@
       <IsAirTight>true</IsAirTight>
       <MirroringZ>Y</MirroringZ>
       <MirroringY>Z</MirroringY>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20088,6 +21085,7 @@
       <MirroringX>MinusHalfZ</MirroringX>
       <MirroringY>HalfZ</MirroringY>
       <MirroringZ>YMinusHalfZ</MirroringZ>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20135,6 +21133,7 @@
       <MirroringX>MinusHalfZ</MirroringX>
       <MirroringY>HalfZ</MirroringY>
       <MirroringZ>YMinusHalfZ</MirroringZ>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20173,6 +21172,7 @@
       <MirroringZ>Y</MirroringZ>
       <MirroringY>Z</MirroringY>
       <MirroringBlock>Window1x2Inv</MirroringBlock>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20211,6 +21211,7 @@
       <MirroringZ>Y</MirroringZ>
       <MirroringY>Z</MirroringY>
       <MirroringBlock>Window1x2SideLeft</MirroringBlock>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20254,6 +21255,7 @@
       <IsAirTight>true</IsAirTight>
       <MirroringZ>Y</MirroringZ>
       <MirroringY>Z</MirroringY>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20301,6 +21303,7 @@
       <MirroringX>HalfY</MirroringX>
       <MirroringY>XHalfY</MirroringY>
       <MirroringZ>MinusHalfY</MirroringZ>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20337,6 +21340,7 @@
       <MirroringX>YMinusHalfX</MirroringX>
       <MirroringY>HalfX</MirroringY>
       <MirroringZ>MinusHalfX</MirroringZ>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20384,6 +21388,7 @@
       <MirroringX>MinusHalfY</MirroringX>
       <MirroringY>HalfZ</MirroringY>
       <MirroringZ>HalfY</MirroringZ>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20418,6 +21423,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="2.0" EndY="1.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Z</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20452,6 +21458,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="2.0" EndY="1.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Z</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20486,6 +21493,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="1.0" EndY="1.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Y</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20520,6 +21528,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="1.0" EndY="1.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Y</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20554,6 +21563,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="3.0" EndY="3.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Y</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20588,6 +21598,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="3.0" EndY="3.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Y</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20623,6 +21634,7 @@
       </MountPoints>
       <MirroringX>Y</MirroringX>
       <MirroringY>X</MirroringY>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <Definition>
       <Id>
@@ -20657,6 +21669,7 @@
         <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="3.0" EndY="2.0" PropertiesMask="2" ExclusionMask="1" />
       </MountPoints>
       <MirroringX>Y</MirroringX>
+      <PhysicalMaterial>Glass</PhysicalMaterial>
     </Definition>
     <!-- End Region Window-->
     <!-- Region Conveyor system -->
@@ -20946,6 +21959,7 @@
       <MirroringZ>X</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ActionSound>BlockEject</ActionSound>
     </Definition>
     <Definition>
       <Id>
@@ -20964,7 +21978,7 @@
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="SmallTube" Count="12" />
         <Component Subtype="Motor" Count="6" />
-        <Component Subtype="BulletproofGlass" Count="4" />
+        <Component Subtype="SteelPlate" Count="4" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <BuildProgressModels>
@@ -21103,7 +22117,7 @@
         <Component Subtype="Construction" Count="40" />
         <Component Subtype="SmallTube" Count="12" />
         <Component Subtype="Motor" Count="6" />
-        <Component Subtype="BulletproofGlass" Count="4" />
+        <Component Subtype="SteelPlate" Count="4" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <BuildProgressModels>
@@ -21489,6 +22503,8 @@
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <MaxVirtualMass>20000</MaxVirtualMass>
       <RequiredPowerInput>0.0</RequiredPowerInput>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SpaceBallDefinition">
       <Id>
@@ -21517,6 +22533,8 @@
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <MaxVirtualMass>5000</MaxVirtualMass>
       <RequiredPowerInput>0.0</RequiredPowerInput>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21542,9 +22560,8 @@
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.5" File="Models\Cubes\Small\WheelSuspension1x1Construction_1.mwm" />
         <Model BuildPercentUpperBound="1" File="Models\Cubes\Small\WheelSuspension1x1Construction_2.mwm" />
-      </BuildProgressModels>
+      </BuildProgressModels>     
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel1x1</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -21576,9 +22593,9 @@
       <Model>Models\Cubes\Small\WheelSuspension3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="10" />
-        <Component Subtype="Construction" Count="20" />
-        <Component Subtype="LargeTube" Count="2" />
+        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
@@ -21587,7 +22604,6 @@
         <Model BuildPercentUpperBound="1" File="Models\Cubes\Small\WheelSuspension3x3Construction_2.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -21619,9 +22635,9 @@
       <Model>Models\Cubes\Small\WheelSuspension5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="10" />
-        <Component Subtype="Construction" Count="30" />
-        <Component Subtype="LargeTube" Count="3" />
+        <Component Subtype="SteelPlate" Count="4" />
+        <Component Subtype="Construction" Count="15" />
+        <Component Subtype="LargeTube" Count="2" />
         <Component Subtype="SteelPlate" Count="3" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
@@ -21630,7 +22646,6 @@
         <Model BuildPercentUpperBound="1" File="Models\Cubes\Small\WheelSuspension5x5Construction_2.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel5x5</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -21663,7 +22678,7 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="4" />
-        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="Construction" Count="20" />
         <Component Subtype="LargeTube" Count="4" />
         <Component Subtype="SteelPlate" Count="4" />
       </Components>
@@ -21674,7 +22689,6 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WheelSuspension1x1Construction_3.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel1x1</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -21706,10 +22720,10 @@
       <Model>Models\Cubes\Large\WheelSuspension3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="15" />
-        <Component Subtype="Construction" Count="120" />
-        <Component Subtype="LargeTube" Count="15" />
-        <Component Subtype="SteelPlate" Count="15" />
+        <Component Subtype="SteelPlate" Count="6" />
+        <Component Subtype="Construction" Count="25" />
+        <Component Subtype="LargeTube" Count="6" />
+        <Component Subtype="SteelPlate" Count="6" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <BuildProgressModels>
@@ -21718,7 +22732,6 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WheelSuspension3x3Construction_3.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -21750,10 +22763,10 @@
       <Model>Models\Cubes\Large\WheelSuspension5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="60" />
-        <Component Subtype="Construction" Count="400" />
-        <Component Subtype="LargeTube" Count="60" />
-        <Component Subtype="SteelPlate" Count="60" />
+        <Component Subtype="SteelPlate" Count="8" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="LargeTube" Count="8" />
+        <Component Subtype="SteelPlate" Count="8" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <BuildProgressModels>
@@ -21762,7 +22775,6 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WheelSuspension5x5Construction_3.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Top" StartX="0.6" StartY="0.6" EndX="2.4" EndY="2.4" />
       </MountPoints>
       <BlockPairName>RealWheel5x5</BlockPairName>
       <DeformationRatio>0.3</DeformationRatio>
@@ -22225,8 +23237,8 @@
       <EdgeType>Light</EdgeType>
       <Public>true</Public>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <DamageEffectId>212</DamageEffectId>
-      <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MergeBlockDefinition">
       <Id>
@@ -22812,7 +23824,7 @@
       <ModelOffset x="0" y="2.5" z="0" />
       <Center x="0" y="2" z="0" />
       <Model>Models\Cubes\Large\HangarDoor_base.mwm</Model>
-      <Sound>BlockRotor</Sound>
+      <Sound>BlockDoorHangar</Sound>
       <Components>
         <Component Subtype="SteelPlate" Count="250" />
         <Component Subtype="Construction" Count="15" />
@@ -22848,6 +23860,66 @@
       <OpeningSpeed>0.1</OpeningSpeed>
       <SubpartMovementDistance>2.5</SubpartMovementDistance>
   </Definition>
+  <Definition xsi:type="MyObjectBuilder_AirtightSlideDoorDefinition">
+      <Id>
+        <TypeId>AirtightSlideDoor</TypeId>
+        <SubtypeId>LargeBlockSlideDoor</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_AirtightSlideDoor</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\SlideDoor.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Center x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\SlideDoor.mwm</Model>
+      <Sound>BlockDoorSlidingClose</Sound>
+      <Components>
+        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="Construction" Count="15" />
+        <Component Subtype="SmallTube" Count="4" />
+        <Component Subtype="Motor" Count="4" />
+        <Component Subtype="Display" Count="1" />
+        <Component Subtype="Computer" Count="2" />
+        <Component Subtype="Construction" Count="25" />
+        <Component Subtype="BulletproofGlass" Count="15" />
+        <Component Subtype="SteelPlate" Count="15" />
+      </Components>    
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="0.05" EndY="1" />
+        <MountPoint Side="Front" StartX="0.95" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Front" StartX="0.05" StartY="0" EndX="0.95" EndY="0.05" />
+        <MountPoint Side="Front" StartX="0.05" StartY="0.95" EndX="0.95" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0.05" EndY="1" />
+        <MountPoint Side="Back" StartX="0.95" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0.05" StartY="0" EndX="0.95" EndY="0.05" />
+        <MountPoint Side="Back" StartX="0.05" StartY="0.95" EndX="0.95" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\SlideDoor_Construction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\SlideDoor_Construction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\SlideDoor_Construction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>AirtightSlide Door</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>28</BuildTimeSeconds>
+      <DisassembleRatio>1.5</DisassembleRatio>
+      <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
+      <ResourceSinkGroup>Doors</ResourceSinkGroup>
+      <PowerConsumptionIdle>0.00001</PowerConsumptionIdle>
+      <PowerConsumptionMoving>0.001</PowerConsumptionMoving>
+      <OpeningSpeed>0.8</OpeningSpeed>
+      <SubpartMovementDistance>2.5</SubpartMovementDistance>
+  </Definition>
+
     <Definition xsi:type="MyObjectBuilder_DebugSphere1Definition">
       <Id>
         <TypeId>DebugSphere1</TypeId>

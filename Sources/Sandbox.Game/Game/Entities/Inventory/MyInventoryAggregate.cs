@@ -1,14 +1,23 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.Utils;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Engine.Multiplayer;
+using VRage.Network;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Character;
+using VRage.Game;
+using VRage.Game.Entity;
+using VRage.ModAPI;
+using VRage.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities.Inventory
 {
@@ -16,7 +25,8 @@ namespace Sandbox.Game.Entities.Inventory
     /// This class implements basic functionality for the interface IMyInventoryAggregate. Use it as base class only if the basic functionality is enough.
     /// </summary>
     [MyComponentBuilder(typeof(MyObjectBuilder_InventoryAggregate))]
-    public class MyInventoryAggregate : MyInventoryBase, IMyComponentAggregate
+    [StaticEventOwner]
+    public class MyInventoryAggregate : MyInventoryBase, IMyComponentAggregate, IMyEventProxy
     {
         private MyAggregateComponentList m_children = new MyAggregateComponentList();
         public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnAfterComponentAdd;
@@ -78,6 +88,48 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
+        private float? m_forcedPriority;
+        public override float? ForcedPriority
+        {
+            get { return m_forcedPriority; }
+            set
+            {
+                m_forcedPriority = value;
+                foreach (var child in m_children.Reader)
+                {
+                    var inv = child as MyInventoryBase;
+                    inv.ForcedPriority = value;
+                }
+            }
+        }
+
+        private int m_inventoryCount;
+        public event Action<MyInventoryAggregate,int> OnInventoryCountChanged;
+
+        /// <summary>
+        /// Returns number of inventories of MyInventory type contained in this aggregate
+        /// </summary>
+        public int InventoryCount
+        {
+            get 
+            { 
+                return m_inventoryCount; 
+            }
+            private set 
+            {
+                if (m_inventoryCount != value)
+                {
+                    int change = m_inventoryCount - value;
+                    m_inventoryCount = value;
+                    var handler = OnInventoryCountChanged;
+                    if (handler != null)
+                    {
+                        OnInventoryCountChanged(this, change);
+                    }
+                }
+            }
+        }        
+
         #endregion
 
         #region De/Constructor & Init
@@ -111,12 +163,12 @@ namespace Sandbox.Game.Entities.Inventory
 
         #endregion
 
-        public override MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
+        public override MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId, float volumeRemoved = 0, float massRemoved = 0)
         {
             float amount = 0;
             foreach (MyInventoryBase inventory in m_children.Reader)
             {
-                amount += (float)inventory.ComputeAmountThatFits(contentId);
+                amount += (float)inventory.ComputeAmountThatFits(contentId, volumeRemoved, massRemoved);
             }
             return (MyFixedPoint)amount;
         }
@@ -166,7 +218,7 @@ namespace Sandbox.Game.Entities.Inventory
             return amount - restAmount;
         }
 
-        public MyInventoryBase GetInventory(MyStringId id)        
+        public MyInventoryBase GetInventory(MyStringHash id)        
         {
             tmp_list.Clear();
             this.GetComponentsFlattened(tmp_list);
@@ -181,21 +233,6 @@ namespace Sandbox.Game.Entities.Inventory
             return null;
         }
 
-        public MyInventoryBase GetInventory(MyStringHash id)
-        {
-            tmp_list.Clear();
-            this.GetComponentsFlattened(tmp_list);
-            foreach (var item in tmp_list)
-            {
-                MyInventoryBase inventory = item as MyInventoryBase;
-                if (MyStringHash.GetOrCompute(inventory.InventoryId.ToString()) == id)
-                {
-                    return inventory;
-                }
-            }
-            return null;
-        }
-
         public MyAggregateComponentList ChildList
         {
             get { return m_children; }
@@ -203,19 +240,46 @@ namespace Sandbox.Game.Entities.Inventory
 
         public void AfterComponentAdd(MyComponentBase component)
         {
-            (component as MyInventoryBase).ContentsChanged += child_OnContentsChanged;
+            var inv = component as MyInventoryBase;
+            inv.ForcedPriority = ForcedPriority;
+            inv.ContentsChanged += child_OnContentsChanged;
+            if (component is MyInventory)
+            {
+                InventoryCount++;
+            }
+            else if (component is MyInventoryAggregate)
+            {
+                (component as MyInventoryAggregate).OnInventoryCountChanged += OnChildAggregateCountChanged;
+                InventoryCount += (component as MyInventoryAggregate).InventoryCount;
+            }
             if (OnAfterComponentAdd != null)
             {
-                OnAfterComponentAdd(this, component as MyInventoryBase);
+                OnAfterComponentAdd(this, inv);
             }                
+        }
+
+        private void OnChildAggregateCountChanged(MyInventoryAggregate obj, int change)
+        {
+            InventoryCount += change;
         }
 
         public void BeforeComponentRemove(MyComponentBase component)
         {
-            (component as MyInventoryBase).ContentsChanged -= child_OnContentsChanged;
+            var inv = component as MyInventoryBase;
+            inv.ForcedPriority = null;
+            inv.ContentsChanged -= child_OnContentsChanged;
             if (OnBeforeComponentRemove != null)
             {
-                OnBeforeComponentRemove(this, component as MyInventoryBase);
+                OnBeforeComponentRemove(this, inv);
+            }
+            if (component is MyInventory)
+            {
+                InventoryCount--;
+            }
+            else if (component is MyInventoryAggregate)
+            {
+                (component as MyInventoryAggregate).OnInventoryCountChanged -= OnChildAggregateCountChanged;
+                InventoryCount -= (component as MyInventoryAggregate).InventoryCount;
             }
         }
 
@@ -253,7 +317,7 @@ namespace Sandbox.Game.Entities.Inventory
             {
                 foreach (var obInv in ob.Inventories)
                 {
-                    var comp = MyComponentFactory.CreateInstance(obInv.GetType());
+                    var comp = MyComponentFactory.CreateInstanceByTypeId(obInv.TypeId);
                     comp.Deserialize(obInv);
                     this.AddComponent(comp);
                 }
@@ -326,5 +390,286 @@ namespace Sandbox.Game.Entities.Inventory
             }
             return m_allItems;
         }
+
+        public override void OnContentsChanged()
+        {
+            RaiseContentsChanged();
+            if (Sync.IsServer && RemoveEntityOnEmpty && GetItemsCount() == 0)
+            {
+                Container.Entity.Close();
+            }
+        }
+
+        public override void OnBeforeContentsChanged()
+        {
+            RaiseBeforeContentsChanged();
+        }
+
+        /// <summary>
+        /// Transfers safely given item from inventory given as parameter to this instance.
+        /// </summary>
+        /// <returns>true if items were succesfully transfered, otherwise, false</returns>
+        public override bool TransferItemsFrom(MyInventoryBase sourceInventory, IMyInventoryItem item, MyFixedPoint amount, bool stack)
+        {
+            if (sourceInventory == null)
+            {
+                System.Diagnostics.Debug.Fail("Source inventory is null!");
+                return false;
+            }
+            MyInventoryBase destinationInventory = this;
+            if (destinationInventory == null)
+            {
+                System.Diagnostics.Debug.Fail("Destionation inventory is null!");
+                return false;
+            }
+            if (item == null)
+            {
+                System.Diagnostics.Debug.Fail("Item is null!");
+                return false;
+            }
+            if (amount == 0)
+            {
+                return true;
+            }
+
+            bool transfered = false;
+            if ((destinationInventory.ItemsCanBeAdded(amount, item) || destinationInventory == sourceInventory) && sourceInventory.ItemsCanBeRemoved(amount, item))
+            {
+                if (Sync.IsServer)
+                {
+                    if (destinationInventory != sourceInventory)
+                    {
+                        // try to add first and then remove to ensure this items don't disappear
+                        if (destinationInventory.Add(item, amount, stack))
+                        {
+                            if (sourceInventory.Remove(item, amount))
+                            {
+                                // successfull transaction
+                                return true;
+                            }
+                            else
+                            {
+                                // This can happend, that it can't be removed due to some lock, then we need to revert the add.
+                                destinationInventory.Remove(item, amount);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // same inventory transfer = splitting amount, need to remove first and add second
+                        if (sourceInventory.Remove(item, amount) && destinationInventory.Add(item, amount, stack))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.Fail("Error! Unsuccesfull splitting!");
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.Assert(sourceInventory != null);
+                    MyInventoryTransferEventContent eventParams = new MyInventoryTransferEventContent();
+                    eventParams.Amount = amount;
+                    eventParams.ItemId = item.ItemId;
+                    eventParams.SourceOwnerId = sourceInventory.Entity.EntityId;
+                    eventParams.SourceInventoryId = sourceInventory.InventoryId;
+                    eventParams.DestinationOwnerId = destinationInventory.Entity.EntityId;
+                    eventParams.DestinationInventoryId = destinationInventory.InventoryId;
+                    eventParams.Stack = stack;
+                    MyMultiplayer.RaiseStaticEvent(s => InventoryBaseTransferItem_Implementation, eventParams);
+                }
+            }
+
+            return transfered;
+        }
+
+        [Event, Reliable, Server]
+        private static void InventoryBaseTransferItem_Implementation(MyInventoryTransferEventContent eventParams)
+        {
+            if (!MyEntities.EntityExists(eventParams.DestinationOwnerId) || !MyEntities.EntityExists(eventParams.SourceOwnerId)) return;
+
+            MyEntity sourceOwner = MyEntities.GetEntityById(eventParams.SourceOwnerId);
+            MyInventoryBase source = sourceOwner.GetInventory(eventParams.SourceInventoryId);
+            MyEntity destOwner = MyEntities.GetEntityById(eventParams.DestinationOwnerId);
+            MyInventoryBase dst = destOwner.GetInventory(eventParams.DestinationInventoryId);
+            var items = source.GetItems();
+            MyPhysicalInventoryItem? foundItem = null;
+            foreach (var item in items)
+            {
+                if (item.ItemId == eventParams.ItemId)
+                {
+                    foundItem = item;
+                }
+            }
+
+            if (foundItem.HasValue)
+                dst.TransferItemsFrom(source, foundItem, eventParams.Amount, eventParams.Stack);
+        }
+
+        public override void ConsumeItem(MyDefinitionId itemId, MyFixedPoint amount, long consumerEntityId = 0)
+        {
+            SerializableDefinitionId serializableID = itemId;
+            MyMultiplayer.RaiseEvent(this, x => x.InventoryConsumeItem_Implementation, amount, serializableID, consumerEntityId);
+        }
+
+        /// <summary>
+        /// Returns number of embedded inventories - this inventory can be aggregation of other inventories.
+        /// </summary>
+        /// <returns>Return one for simple inventory, different number when this instance is an aggregation.</returns>
+        public override int GetInventoryCount()
+        {
+            return InventoryCount;
+        }
+
+        /// <summary>
+        /// Search for inventory having given search index. 
+        /// Aggregate inventory: Iterates through aggregate inventory until simple inventory with matching index is found.
+        /// Simple inventory: Returns itself if currentIndex == searchIndex.
+        /// 
+        /// Usage: searchIndex = index of inventory being searched, leave currentIndex = 0.
+        /// </summary>
+        public override MyInventoryBase IterateInventory(int searchIndex, int currentIndex)
+        {
+            foreach (var inventoryComp in ChildList.Reader)
+            {
+                var inventory = inventoryComp as MyInventoryBase;
+                if (inventory != null)
+                {
+                    var foundInventory = inventory.IterateInventory(searchIndex, currentIndex); // recursive search (it might be aggregate inventory again)
+                    if (foundInventory != null)
+                    {
+                        return foundInventory; // we found it!
+                    }
+                    else if (inventory is MyInventory) 
+                    {
+                        currentIndex++; // we did not found correct inventory - advance current index
+                    }
+                }
+            }
+            return null;
+        }
+
+        [Event, Reliable, Server]
+        private void InventoryConsumeItem_Implementation(MyFixedPoint amount, SerializableDefinitionId itemId, long consumerEntityId)
+        {
+            if ((consumerEntityId != 0 && !MyEntities.EntityExists(consumerEntityId)))
+            {
+                return;
+            }
+
+            var existingAmount = GetItemAmount(itemId);
+            if (existingAmount < amount)
+                amount = existingAmount;
+
+            MyEntity entity = null;
+            if (consumerEntityId != 0)
+            {
+                entity = MyEntities.GetEntityById(consumerEntityId);
+                if (entity == null)
+                    return;
+            }
+
+            if (entity.Components != null)
+            {
+                var statComp = entity.Components.Get<MyEntityStatComponent>() as MyCharacterStatComponent;
+                if (statComp != null)
+                {
+                    var definition = MyDefinitionManager.Static.GetDefinition(itemId) as MyConsumableItemDefinition;
+                    statComp.Consume(amount, definition);
+                    var character = entity as MyCharacter;
+                    if (character != null)
+                        character.SoundComp.StartSecondarySound(definition.EatingSound, true);
+                }
+            }
+
+            RemoveItemsOfType(amount, itemId);
+        }
+
+        #region Fixing wrong inventories
+
+        /// <summary>
+        /// Naive looking for inventories with some items..
+        /// </summary>
+        static public MyInventoryAggregate FixInputOutputInventories(MyInventoryAggregate inventoryAggregate, MyInventoryConstraint inputInventoryConstraint, MyInventoryConstraint outputInventoryConstraint)
+        {
+            MyInventory inputInventory = null;
+            MyInventory outputInventory = null;
+
+            foreach (var inventory in inventoryAggregate.ChildList.Reader)
+            {
+                var myInventory = inventory as MyInventory;
+
+                if (myInventory == null)
+                    continue;
+
+                if (myInventory.GetItemsCount() > 0)
+                {
+                    if (inputInventory == null)
+                    {
+                        bool check = true;
+                        if (inputInventoryConstraint != null)
+                        {
+                            foreach (var item in myInventory.GetItems())
+                            {
+                                check &= inputInventoryConstraint.Check(item.GetDefinitionId());
+                            }
+                        }
+                        if (check)
+                        {
+                            inputInventory = myInventory;
+                        }
+                    }
+                    if (outputInventory == null && inputInventory != myInventory)
+                    {
+                        bool check = true;
+                        if (outputInventoryConstraint != null)
+                        {
+                            foreach (var item in myInventory.GetItems())
+                            {
+                                check &= outputInventoryConstraint.Check(item.GetDefinitionId());
+                            }
+                        }
+                        if (check)
+                        {
+                            outputInventory = myInventory;
+                        }
+                    }                    
+                }
+            }
+
+            if (inputInventory == null || outputInventory == null)
+            {
+                foreach (var inventory in inventoryAggregate.ChildList.Reader)
+                {
+                    var myInventory = inventory as MyInventory;
+                    if (myInventory == null)
+                        continue;
+                    if (inputInventory == null )
+                    {
+                        inputInventory = myInventory;
+                    }
+                    else if (outputInventory == null)
+                    {
+                        outputInventory = myInventory;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+
+            inventoryAggregate.RemoveComponent(inputInventory);
+            inventoryAggregate.RemoveComponent(outputInventory);
+            var fixedAggregate = new MyInventoryAggregate();
+            fixedAggregate.AddComponent(inputInventory);
+            fixedAggregate.AddComponent(outputInventory);
+            return fixedAggregate;
+        }
+
+        #endregion
     }
 }

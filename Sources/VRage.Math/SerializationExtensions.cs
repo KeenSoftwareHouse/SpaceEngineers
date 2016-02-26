@@ -23,25 +23,6 @@ namespace System
             stream.Serialize(ref vec.Z);
         }
 
-        /// <summary>
-        /// Serializes Vector3 in range from 0 to 1, each component to byte precision
-        /// </summary>
-        public static void SerializeNormalizedUByte(this BitStream stream, ref Vector3 vec)
-        {
-            if (stream.Writing)
-            {
-                stream.WriteByte((byte)(vec.X / 255));
-                stream.WriteByte((byte)(vec.Y / 255));
-                stream.WriteByte((byte)(vec.Z / 255));
-            }
-            else
-            {
-                vec.X = stream.ReadByte() * 255.0f;
-                vec.Y = stream.ReadByte() * 255.0f;
-                vec.Z = stream.ReadByte() * 255.0f;
-            }
-        }
-
         public static void Serialize(this BitStream stream, ref Vector4 vec)
         {
             stream.Serialize(ref vec.X);
@@ -176,6 +157,169 @@ namespace System
             stream.SerializeVariant(ref vec.X);
             stream.SerializeVariant(ref vec.Y);
             stream.SerializeVariant(ref vec.Z);
+        }
+
+        /// <summary>
+        /// 64 bits
+        /// </summary>
+        public static void Write(this BitStream stream, HalfVector4 vec)
+        {
+            stream.WriteUInt64(vec.PackedValue);
+        }
+
+        /// <summary>
+        /// 48 bits
+        /// </summary>
+        public static void Write(this BitStream stream, HalfVector3 vec)
+        {
+            stream.WriteUInt16(vec.X);
+            stream.WriteUInt16(vec.Y);
+            stream.WriteUInt16(vec.Z);
+        }
+
+        public static void Write(this BitStream stream, Vector3 vec)
+        {
+            stream.WriteFloat(vec.X);
+            stream.WriteFloat(vec.Y);
+            stream.WriteFloat(vec.Z);
+        }
+
+        public static void Write(this BitStream stream, Vector3D vec)
+        {
+            stream.WriteDouble(vec.X);
+            stream.WriteDouble(vec.Y);
+            stream.WriteDouble(vec.Z);
+        }
+
+        public static void Write(this BitStream stream, Vector4 vec)
+        {
+            stream.WriteFloat(vec.X);
+            stream.WriteFloat(vec.Y);
+            stream.WriteFloat(vec.Z);
+            stream.WriteFloat(vec.W);
+        }
+
+        public static void Write(this BitStream stream, Vector4D vec)
+        {
+            stream.WriteDouble(vec.X);
+            stream.WriteDouble(vec.Y);
+            stream.WriteDouble(vec.Z);
+            stream.WriteDouble(vec.W);
+        }
+
+        public static void Write(this BitStream stream, Vector3I vec)
+        {
+            stream.WriteInt32(vec.X);
+            stream.WriteInt32(vec.Y);
+            stream.WriteInt32(vec.Z);
+        }
+
+        /// <summary>
+        /// Writes Vector3 with -1, 1 range (uniform-spacing) with specified bit precision.
+        /// </summary>
+        public static void WriteNormalizedSignedVector3(this BitStream stream, Vector3 vec, int bitCount)
+        {
+            vec = Vector3.Clamp(vec, Vector3.MinusOne, Vector3.One);
+            stream.WriteNormalizedSignedFloat(vec.X, bitCount);
+            stream.WriteNormalizedSignedFloat(vec.Y, bitCount);
+            stream.WriteNormalizedSignedFloat(vec.Z, bitCount);
+        }
+
+        public static void WriteVariant(this BitStream stream, Vector3I vec)
+        {
+            stream.WriteVariantSigned(vec.X);
+            stream.WriteVariantSigned(vec.Y);
+            stream.WriteVariantSigned(vec.Z);
+        }
+
+        /// <summary>
+        /// 64 bits
+        /// </summary>
+        public static HalfVector4 ReadHalfVector4(this BitStream stream)
+        {
+            HalfVector4 result;
+            result.PackedValue = stream.ReadUInt64();
+            return result;
+        }
+
+        /// <summary>
+        /// 48 bits
+        /// </summary>
+        public static HalfVector3 ReadHalfVector3(this BitStream stream)
+        {
+            HalfVector3 result;
+            result.X = stream.ReadUInt16();
+            result.Y = stream.ReadUInt16();
+            result.Z = stream.ReadUInt16();
+            return result;
+        }
+
+        /// <summary>
+        /// Reads Vector3 with -1, 1 range (uniform-spacing) with specified bit precision.
+        /// </summary>
+        public static Vector3 ReadNormalizedSignedVector3(this BitStream stream, int bitCount)
+        {
+            Vector3 vec;
+            vec.X = stream.ReadNormalizedSignedFloat(bitCount);
+            vec.Y = stream.ReadNormalizedSignedFloat(bitCount);
+            vec.Z = stream.ReadNormalizedSignedFloat(bitCount);
+            return vec;
+        }
+
+        public static Vector3 ReadVector3(this BitStream stream)
+        {
+            Vector3 vec;
+            vec.X = stream.ReadFloat();
+            vec.Y = stream.ReadFloat();
+            vec.Z = stream.ReadFloat();
+            return vec;
+        }
+
+        public static Vector3D ReadVector3D(this BitStream stream)
+        {
+            Vector3D vec;
+            vec.X = stream.ReadDouble();
+            vec.Y = stream.ReadDouble();
+            vec.Z = stream.ReadDouble();
+            return vec;
+        }
+
+        public static Vector4 ReadVector4(this BitStream stream)
+        {
+            Vector4 vec;
+            vec.X = stream.ReadFloat();
+            vec.Y = stream.ReadFloat();
+            vec.Z = stream.ReadFloat();
+            vec.W = stream.ReadFloat();
+            return vec;
+        }
+
+        public static Vector4D ReadVector4D(this BitStream stream)
+        {
+            Vector4D vec;
+            vec.X = stream.ReadDouble();
+            vec.Y = stream.ReadDouble();
+            vec.Z = stream.ReadDouble();
+            vec.W = stream.ReadDouble();
+            return vec;
+        }
+
+        public static Vector3I ReadVector3I(this BitStream stream)
+        {
+            Vector3I vec;
+            vec.X = stream.ReadInt32();
+            vec.Y = stream.ReadInt32();
+            vec.Z = stream.ReadInt32();
+            return vec;
+        }
+
+        public static Vector3I ReadVector3IVariant(this BitStream stream)
+        {
+            Vector3I vec;
+            vec.X = stream.ReadInt32Variant();
+            vec.Y = stream.ReadInt32Variant();
+            vec.Z = stream.ReadInt32Variant();
+            return vec;
         }
 
         /// <summary>

@@ -32,6 +32,11 @@ namespace Sandbox.Game.AI.Pathfinding
         public struct ClosedCellInfo
         {
             public bool NewCell;
+
+            // Only valid when NewCell is false
+            public int OldStartingIndex;
+            public ushort OldComponentNum;
+
             public int StartingIndex;
             public ushort ComponentNum;
             public Base6Directions.DirectionFlags ExploredDirections; // CH:TODO: Maybe get rid of this. It's duplicated in MyVoxelHighLevelHelper.m_exploredCells
@@ -42,11 +47,12 @@ namespace Sandbox.Game.AI.Pathfinding
         // Maps component numbers to their containing cells
         private Dictionary<int, ulong> m_componentCells;
 
-        private int m_nextComponentIndex;
-        private int m_currentStartingComponent;
-
         private bool m_cellOpen;
         private bool m_componentOpen;
+
+        // Component index allocation
+        private Dictionary<ushort, List<int>> m_componentIndicesAvailable;
+        private int m_nextComponentIndex;
 
         // Is reset when a new cell is open
         private List<Vector3> m_lastCellComponentCenters;
@@ -58,15 +64,6 @@ namespace Sandbox.Game.AI.Pathfinding
         // Only valid while a component is open:
         private List<MyIntervalList> m_components;
 
-        public int OpenComponentIndex
-        {
-            get
-            {
-                Debug.Assert(m_componentOpen && m_cellOpen);
-                return m_currentStartingComponent + m_componentNum;
-            }
-        }
-
         public MyNavmeshComponents()
         {
             m_cellOpen = false;
@@ -74,34 +71,22 @@ namespace Sandbox.Game.AI.Pathfinding
 
             m_cellInfos = new Dictionary<ulong, CellInfo>();
             m_componentCells = new Dictionary<int, ulong>();
-            m_currentStartingComponent = 0;
+
+            m_componentIndicesAvailable = new Dictionary<ushort, List<int>>();
             m_nextComponentIndex = 0;
 
             m_components = null;
             m_lastCellComponentCenters = new List<Vector3>();
         }
 
-        public int OpenCell(ulong cellCoord)
+        public void OpenCell(ulong cellCoord)
         {
             Debug.Assert(!m_cellOpen, "Opening a new cell while the previous one is still open in TriangleComponentMapping!");
-
-            MyNavmeshComponents.CellInfo existingCell;
-            if (TryGetCell(cellCoord, out existingCell))
-            {
-                m_currentStartingComponent = existingCell.StartingIndex;
-            }
-            else
-            {
-                m_currentStartingComponent = m_nextComponentIndex;
-            }
-
             m_cellOpen = true;
             m_cellCoord = cellCoord;
             m_componentNum = 0;
             m_components = new List<MyIntervalList>();
             m_lastCellComponentCenters.Clear();
-
-            return m_currentStartingComponent;
         }
 
         public void CloseAndCacheCell(ref ClosedCellInfo output)
@@ -109,30 +94,45 @@ namespace Sandbox.Game.AI.Pathfinding
             Debug.Assert(m_cellOpen, "Closing a cell in TriangleComponentMapping, but no cell is open!");
 
             CellInfo info = new CellInfo();
+            bool reallocateIndices = true;
             if (m_cellInfos.TryGetValue(m_cellCoord, out info))
             {
-                // CH: TODO: Check this assert.
-                Debug.Assert(m_componentNum == info.ComponentNum);
-
                 output.NewCell = false;
+                output.OldComponentNum = info.ComponentNum;
+                output.OldStartingIndex = info.StartingIndex;
+
+                if (info.ComponentNum == m_componentNum)
+                {
+                    reallocateIndices = false;
+                    info.ComponentNum = output.OldComponentNum;
+                    info.StartingIndex = output.OldStartingIndex;
+                }
             }
             else
             {
-                info.ComponentNum = m_componentNum;
-                info.StartingIndex = m_currentStartingComponent;
-
-                if (m_currentStartingComponent + m_componentNum > m_nextComponentIndex)
-                {
-                    m_nextComponentIndex = m_currentStartingComponent + m_componentNum;
-                }
-
                 output.NewCell = true;
             }
 
-            // Save information about containing cell
-            for (int i = 0; i < info.ComponentNum; ++i)
+            if (reallocateIndices)
             {
-                m_componentCells[info.StartingIndex + i] = m_cellCoord;
+                info.ComponentNum = m_componentNum;
+                info.StartingIndex = AllocateComponentStartingIndex(m_componentNum);
+                
+                // Remove containing cell information from the old cell indices
+                if (output.NewCell == false)
+                {
+                    DeallocateComponentStartingIndex(output.OldStartingIndex, output.OldComponentNum);
+                    for (int i = 0; i < output.OldComponentNum; i++)
+                    {
+                        m_componentCells.Remove(output.OldStartingIndex + i);
+                    }
+                }
+
+                // Save information about containing cell to the newly allocated cell indices
+                for (int i = 0; i < info.ComponentNum; ++i)
+                {
+                    m_componentCells[info.StartingIndex + i] = m_cellCoord;
+                }
             }
 
             m_cellInfos[m_cellCoord] = info;
@@ -261,6 +261,35 @@ namespace Sandbox.Game.AI.Pathfinding
             }
 
             m_cellInfos.Remove(packedCoord);
+            DeallocateComponentStartingIndex(cellInfo.StartingIndex, cellInfo.ComponentNum);
+        }
+
+        private int AllocateComponentStartingIndex(ushort componentNum)
+        {
+            List<int> indices = null;
+            int index;
+            if (m_componentIndicesAvailable.TryGetValue(componentNum, out indices) && indices.Count > 0)
+            {
+                index = indices[indices.Count - 1];
+                indices.RemoveAt(indices.Count - 1);
+                return index;
+            }
+
+            index = m_nextComponentIndex;
+            m_nextComponentIndex += componentNum;
+            return index;
+        }
+
+        private void DeallocateComponentStartingIndex(int index, ushort componentNum)
+        {
+            List<int> indices = null;
+            if (!m_componentIndicesAvailable.TryGetValue(componentNum, out indices))
+            {
+                indices = new List<int>();
+                m_componentIndicesAvailable[componentNum] = indices;
+            }
+
+            indices.Add(index);
         }
     }
 }

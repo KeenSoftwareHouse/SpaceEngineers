@@ -19,7 +19,6 @@ using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry;
 using VRage;
 using VRage.Import;
 using VRage.Utils;
@@ -29,6 +28,8 @@ using ModelId = System.Int32;
 using Sandbox.Game.GUI;
 using Sandbox.Engine.Physics;
 using Havok;
+using VRage.Game;
+using VRage.Game.Models;
 
 #endregion
 
@@ -251,7 +252,7 @@ namespace Sandbox.Game.Entities.Cube
                 gizmoSpace.m_cubeModels.Add(cubePartModel);
                 gizmoSpace.m_cubeMatrices.Add(gizmoSpace.m_cubeMatricesTemp[faceIndex]);
 
-                int tileIndex = faceIndex % tiles.Count();
+                int tileIndex = faceIndex % tiles.Length;
 
                 var invertedTile = Matrix.Transpose(tiles[tileIndex].LocalMatrix);
                 var onlyOrientation = invertedTile * gizmoSpace.m_cubeMatricesTemp[faceIndex].GetOrientation();
@@ -265,7 +266,7 @@ namespace Sandbox.Game.Entities.Cube
                         bones[i] = new Vector3UByte(128, 128, 128);
                     }
 
-                    var model = MyModels.GetModel(cubePartModel);
+                    var model = VRage.Game.Models.MyModels.GetModel(cubePartModel);
 
                     for (int index = 0; index < Math.Min(model.BoneMapping.Length, 9); index++)
                     {
@@ -348,7 +349,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var m = invGridWorldMatrix;
 
-            MyCharacter character = MySession.LocalCharacter;
+            MyCharacter character = MySession.Static.LocalCharacter;
             if (character == null)
                 return false;
 
@@ -374,11 +375,18 @@ namespace Sandbox.Game.Entities.Cube
             }*/
 
             double distance = double.MaxValue;
-            if (gizmoBox.Intersects(line, out distance))
+            if (gizmoBox.Intersects(ref line, out distance))
             {
                 // Distance from the player's head to the gizmo box.
                 double distanceToPlayer = gizmoBox.Distance(localHead);
-                return distanceToPlayer <= 5.0;
+                if (MySession.Static.ControlledEntity is MyShipController)
+                {
+                    return distanceToPlayer <= MyCubeBuilder.MAX_BLOCK_BUILDING_DISTANCE_SHIP;
+                }
+                else
+                {
+                    return distanceToPlayer <= MyCubeBuilder.MAX_BLOCK_BUILDING_DISTANCE_SUIT;
+                }
             }
             return false;
         }
@@ -416,7 +424,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool PointsAABBIntersectsGizmo(List<Vector3> points, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false, bool dynamicMode = false)
+        public bool PointsAABBIntersectsGizmo(List<Vector3D> points, MyGizmoSpaceEnum gizmo, ref MatrixD invGridWorldMatrix, float gridSize, float inflate = 0.0f, bool onVoxel = false, bool dynamicMode = false)
         {
             MatrixD m = new MatrixD();
             BoundingBoxD gizmoBox = new BoundingBoxD();
@@ -668,32 +676,32 @@ namespace Sandbox.Game.Entities.Cube
                     break;
             }
 
-            var blockMirrorAxis = Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.None;
+            var blockMirrorAxis = MySymmetryAxisEnum.None;
             if (MyUtils.IsZero(Math.Abs(Vector3.Dot(sourceSpace.m_localMatrixAdd.Right, mirrorNormal)) - 1.0f))
             {
-                blockMirrorAxis = Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.X;
+                blockMirrorAxis = MySymmetryAxisEnum.X;
             }
             else
                 if (MyUtils.IsZero(Math.Abs(Vector3.Dot(sourceSpace.m_localMatrixAdd.Up, mirrorNormal)) - 1.0f))
                 {
-                    blockMirrorAxis = Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Y;
+                    blockMirrorAxis = MySymmetryAxisEnum.Y;
                 }
                 else
                     if (MyUtils.IsZero(Math.Abs(Vector3.Dot(sourceSpace.m_localMatrixAdd.Forward, mirrorNormal)) - 1.0f))
                     {
-                        blockMirrorAxis = Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Z;
+                        blockMirrorAxis = MySymmetryAxisEnum.Z;
                     }
 
-            var blockMirrorOption = Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.None;
+            var blockMirrorOption = MySymmetryAxisEnum.None;
             switch (blockMirrorAxis)
             {
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.X:
+                case MySymmetryAxisEnum.X:
                     blockMirrorOption = cubeBlockDefinition.SymmetryX;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Y:
+                case MySymmetryAxisEnum.Y:
                     blockMirrorOption = cubeBlockDefinition.SymmetryY;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Z:
+                case MySymmetryAxisEnum.Z:
                     blockMirrorOption = cubeBlockDefinition.SymmetryZ;
                     break;
 
@@ -704,93 +712,93 @@ namespace Sandbox.Game.Entities.Cube
 
             switch (blockMirrorOption)
             {
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.X:
+                case MySymmetryAxisEnum.X:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Y:
+                case MySymmetryAxisEnum.Y:
                     //targetSpace.m_gizmoLocalMatrixAdd = sourceSpace.m_gizmoLocalMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.Z:
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZThenOffsetX:
+                case MySymmetryAxisEnum.Z:
+                case MySymmetryAxisEnum.ZThenOffsetX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.HalfX:
+                case MySymmetryAxisEnum.HalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(-MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.HalfY:
+                case MySymmetryAxisEnum.HalfY:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(-MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.HalfZ:
+                case MySymmetryAxisEnum.HalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(-MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.XHalfY:
+                case MySymmetryAxisEnum.XHalfY:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.YHalfY:
+                case MySymmetryAxisEnum.YHalfY:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZHalfY:
+                case MySymmetryAxisEnum.ZHalfY:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.XHalfX:
+                case MySymmetryAxisEnum.XHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.YHalfX:
+                case MySymmetryAxisEnum.YHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZHalfX:
+                case MySymmetryAxisEnum.ZHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.XHalfZ:
+                case MySymmetryAxisEnum.XHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.YHalfZ:
+                case MySymmetryAxisEnum.YHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZHalfZ:
+                case MySymmetryAxisEnum.ZHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(-MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.XMinusHalfZ:
+                case MySymmetryAxisEnum.XMinusHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.YMinusHalfZ:
+                case MySymmetryAxisEnum.YMinusHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZMinusHalfZ:
+                case MySymmetryAxisEnum.ZMinusHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.XMinusHalfX:
+                case MySymmetryAxisEnum.XMinusHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.YMinusHalfX:
+                case MySymmetryAxisEnum.YMinusHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.ZMinusHalfX:
+                case MySymmetryAxisEnum.ZMinusHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.PiOver2) * targetSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.MinusHalfX:
+                case MySymmetryAxisEnum.MinusHalfX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.MinusHalfY:
+                case MySymmetryAxisEnum.MinusHalfY:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
-                case Common.ObjectBuilders.Definitions.MySymmetryAxisEnum.MinusHalfZ:
+                case MySymmetryAxisEnum.MinusHalfZ:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationZ(MathHelper.PiOver2) * sourceSpace.m_localMatrixAdd;
                     break;
 

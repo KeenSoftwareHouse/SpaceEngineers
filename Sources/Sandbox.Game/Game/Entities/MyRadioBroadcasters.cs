@@ -16,6 +16,7 @@ using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game;
 
 
 #endregion
@@ -44,12 +45,12 @@ namespace Sandbox.Game.Entities
 
         public static void AddBroadcaster(MyRadioBroadcaster broadcaster)
         {
-            if (broadcaster.Parent is MyCubeBlock)
+            if (broadcaster.Entity is MyCubeBlock)
             {
-                MyCubeGrid grid = (broadcaster.Parent as MyCubeBlock).CubeGrid;
+                MyCubeGrid grid = (broadcaster.Entity as MyCubeBlock).CubeGrid;
                 Debug.Assert(grid.InScene, "adding broadcaster when grid is not in scene");
             }
-            if (broadcaster.RadioProxyID == MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (broadcaster.RadioProxyID == MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 BoundingBoxD box = BoundingBoxD.CreateFromSphere(new BoundingSphereD(broadcaster.BroadcastPosition, broadcaster.BroadcastRadius));
                 broadcaster.RadioProxyID = m_aabbTree.AddProxy(ref box, broadcaster, 0);
@@ -58,16 +59,16 @@ namespace Sandbox.Game.Entities
 
         public static void RemoveBroadcaster(MyRadioBroadcaster broadcaster)
         {
-            if (broadcaster.RadioProxyID != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (broadcaster.RadioProxyID != MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 m_aabbTree.RemoveProxy(broadcaster.RadioProxyID);
-                broadcaster.RadioProxyID = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+                broadcaster.RadioProxyID = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
             }
         }
 
         public static void MoveBroadcaster(MyRadioBroadcaster broadcaster)
         {
-            if (broadcaster.RadioProxyID != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (broadcaster.RadioProxyID != MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 BoundingBoxD box = BoundingBoxD.CreateFromSphere(new BoundingSphereD(broadcaster.BroadcastPosition, broadcaster.BroadcastRadius));
                 m_aabbTree.MoveProxy(broadcaster.RadioProxyID, ref box, Vector3.Zero);
@@ -82,8 +83,14 @@ namespace Sandbox.Game.Entities
         public static void GetAllBroadcastersInSphere(BoundingSphereD sphere, List<MyDataBroadcaster> result)
         {
             m_aabbTree.OverlapAllBoundingSphere<MyDataBroadcaster>(ref sphere, result, false);
-
-            result.RemoveAll((x) => Vector3D.Distance(sphere.Center, x.BroadcastPosition) > sphere.Radius + (x as MyRadioBroadcaster).BroadcastRadius);
+            for(int i = result.Count -1; i >= 0; i--)
+            {
+                var x = result[i];
+                var dst = (sphere.Radius + ((MyRadioBroadcaster)x).BroadcastRadius);
+                dst*=dst;
+                if (Vector3D.DistanceSquared(sphere.Center, x.BroadcastPosition) > dst)
+                    result.RemoveAtFast(i);
+            }
         }
 
         public static void DebugDraw()

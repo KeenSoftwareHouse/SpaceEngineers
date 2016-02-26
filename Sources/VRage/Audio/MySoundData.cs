@@ -16,6 +16,7 @@ namespace VRage.Data.Audio
         public string Alternative2D;
         public bool UseOcclusion;
         public List<MyAudioWave> Waves;
+        public List<DistantSound> DistantSounds;
         public MyMusicTrack MusicTrack;
 
         public bool IsHudCue { get { return StringComparer.InvariantCultureIgnoreCase.Equals(Category.ToString(), "hud"); } }

@@ -1,5 +1,6 @@
 ﻿using Havok;
 using ParallelTasks;
+using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,7 +19,7 @@ namespace Sandbox.Engine.Voxels
     {
         public struct Args
         {
-            public MyWorkTracker<Vector3I, MyPrecalcJobPhysicsPrefetch> Tracker;
+            public MyWorkTracker<MyCellCoord, MyPrecalcJobPhysicsPrefetch> Tracker;
 
             public IMyStorage Storage;
             public MyCellCoord GeometryCell;
@@ -30,6 +31,7 @@ namespace Sandbox.Engine.Voxels
         private Args m_args;
         private volatile bool m_isCancelled;
 
+
         private HkBvCompressedMeshShape m_result;
 
         public MyPrecalcJobPhysicsPrefetch() : base(true) { }
@@ -39,9 +41,9 @@ namespace Sandbox.Engine.Voxels
             var job = m_instancePool.Allocate();
 
             job.m_args = args;
-            args.Tracker.Add(args.GeometryCell.CoordInLod, job);
+            args.Tracker.Add(args.GeometryCell, job);
 
-            MyPrecalcComponent.EnqueueBack(job, true);
+            MyPrecalcComponent.EnqueueBack(job);
         }
 
         public override void DoWork()
@@ -52,7 +54,7 @@ namespace Sandbox.Engine.Voxels
                 if (m_isCancelled)
                     return;
 
-                var geometryData = m_args.TargetPhysics.CreateMesh(m_args.Storage, m_args.GeometryCell.CoordInLod);
+                var geometryData = m_args.TargetPhysics.CreateMesh(m_args.Storage, m_args.GeometryCell);
 
                 if (m_isCancelled)
                     return;
@@ -74,12 +76,12 @@ namespace Sandbox.Engine.Voxels
 
             if (MyPrecalcComponent.Loaded && !m_isCancelled)
             {
-                m_args.TargetPhysics.OnTaskComplete(m_args.GeometryCell.CoordInLod, m_result);
+                m_args.TargetPhysics.OnTaskComplete(m_args.GeometryCell, m_result);
             }
 
             if (!m_isCancelled)
             {
-                m_args.Tracker.Complete(m_args.GeometryCell.CoordInLod);
+                m_args.Tracker.Complete(m_args.GeometryCell);
             }
 
             if (!m_result.Base.IsZero)

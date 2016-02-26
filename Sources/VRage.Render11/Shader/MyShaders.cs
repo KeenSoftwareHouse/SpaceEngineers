@@ -4,599 +4,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using VRage.Utils;
-using VRageRender;
-using VRage.Generics;
-using System.Threading;
-using System.Security.Cryptography;
-using VRage.Library.Utils;
-using VRage.FileSystem;
-using System.Text.RegularExpressions;
 using SharpDX.Direct3D;
+using VRage;
+using VRage.Utils;
+using VRage.FileSystem;
+using VRage.Render11.Shader;
+
 namespace VRageRender
 {
-    static class MyShaderDefines
+    partial class MyRender11
     {
-        static StringBuilder m_builder = new StringBuilder();
-        internal static string Build(params string [] macros)
-        {
-            m_builder.Clear();
-
-            foreach(var macro in macros)
-            {
-                m_builder.AppendFormat("#define {0}{1}", macro, System.Environment.NewLine);
-            }
-
-            return m_builder.ToString();
-        }
+        internal static ShaderMacro[] GlobalShaderMacro = new ShaderMacro[0];
     }
-
-    enum MyShaderProfileEnum
-    {
-        VS_5_0,
-        PS_5_0,
-        GS_5_0,
-        CS_5_0
-    }
-
-    internal static class MyShaderProfileEnumExtensions
-    {
-        internal static string Value(this MyShaderProfileEnum val)
-        {
-            switch (val)
-            {
-                case MyShaderProfileEnum.VS_5_0:
-                    return "vs_5_0";
-
-                case MyShaderProfileEnum.PS_5_0:
-                    return "ps_5_0";
-
-                case MyShaderProfileEnum.GS_5_0:
-                    return "gs_5_0";
-
-                case MyShaderProfileEnum.CS_5_0:
-                    return "cs_5_0";
-            }
-
-            return "";
-        }
-    }
-
-
-//    abstract class MyShaderProvider
-//    {
-//        #region Fields
-//        OnCompileCallbackType m_onCompileDelegate;
-//        protected byte[] m_bytecode;
-//        #endregion
-
-//        static MyShaderProvider()
-//        {
-//            Directory.CreateDirectory(Path.Combine(MyFileSystem.UserDataPath, "ShaderCache"));
-//        }
-
-//        internal abstract void Compile();
-
-//        internal byte[] GetBytecode()
-//        {
-//            return m_bytecode;
-//        }
-
-//        protected void OnCompileSuccess()
-//        {
-//            if (m_onCompileDelegate != null)
-//            {
-//                m_onCompileDelegate(m_bytecode);
-//            }
-//        }
-
-//        internal void AddCallback(OnCompileCallbackType callback)
-//        {
-//            if(m_onCompileDelegate == null)
-//            {
-//                m_onCompileDelegate = callback;
-//            }
-//            else
-//            {
-//                m_onCompileDelegate += callback;
-//            }
-//        }
-
-//        static MD5 m_md5 = System.Security.Cryptography.MD5.Create(); 
-
-//        static string CalculateCacheKey(string src, string func, string profile)
-//        {
-//            StringBuilder builder = new StringBuilder();
-//            builder.Append(func);
-//            builder.Append(profile);
-//#if DEBUG
-//            builder.Append("$DEBUG");
-//#endif
-//            try
-//            {
-//                var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, "Shaders"));
-//                builder.Append(ShaderBytecode.Preprocess(src, null, includes));
-
-//                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(builder.ToString());
-//                byte[] hash = m_md5.ComputeHash(inputBytes);
-
-//                builder.Clear();
-
-//                for (int i = 0; i < hash.Length; i++)
-//                {
-//                    builder.Append(hash[i].ToString("X2"));
-//                }
-//                return builder.ToString();
-//            }
-//            catch (CompilationException e)
-//            {
-//                return null;
-//            }
-
-//            return null;
-//        }
-
-//        static byte[] TryCatcheFetch(string key)
-//        {
-//            if (key == null)
-//                return null;
-
-//            var filename = Path.Combine(MyFileSystem.UserDataPath, "ShaderCache", Path.GetFileName(key + ".cache"));
-//            if (File.Exists(filename))
-//            {
-//                return System.IO.File.ReadAllBytes(filename);
-//            }
-
-//            return null;
-//        }
-
-//        static void StoreInCache(string key, byte[] value)
-//        {
-//            if (key == null)
-//                return;
-
-//            using (var writer = new BinaryWriter(File.OpenWrite(Path.Combine(MyFileSystem.UserDataPath, "ShaderCache", Path.GetFileName(key + ".cache")))))
-//            {
-//                writer.Write(value);
-//            }
-//        }
-
-//        internal static byte[] CompileInternal(string src, string func, string profile, string name)
-//        {
-//            string errors;
-
-//            var dumpResults = MyShaderFactory.DUMP_CODE;
-
-//            var key = CalculateCacheKey(src, func, profile);
-//            var cached = TryCatcheFetch(key);
-//            if (cached != null)
-//            {
-//                return cached;
-//            }
-
-//            try
-//            {
-//                var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, "Shaders"));
-
-//#if DEBUG
-//                var compilationResult = ShaderBytecode.Compile(src, func, profile, 0, 0, null, includes, name);
-//#else
-//                var compilationResult = ShaderBytecode.Compile(src, func, profile, ShaderFlags.OptimizationLevel3, 0, null, includes, name);
-//#endif
-
-//                if(dumpResults)
-//                {
-//                    var disassembly = compilationResult.Bytecode.Disassemble(DisassemblyFlags.EnableColorCode |
-//                                                                       DisassemblyFlags.EnableInstructionNumbering);
-
-//#if DEBUG
-//                    string asmPath = Path.GetFileName(name + "__DEBUG.html");
-//#else
-//                    string asmPath = Path.GetFileName(name + "__O3.html");
-//#endif
-
-//                    using (var writer = new StreamWriter(Path.Combine(MyFileSystem.ContentPath, "ShaderOutput", asmPath)))
-//                    {
-//                        writer.Write(disassembly);
-//                    }
-//                }
-
-//                if(compilationResult.Bytecode.Data.Length > 0)
-//                {
-//                    StoreInCache(key, compilationResult.Bytecode.Data);
-//                }
-
-//                return compilationResult.Bytecode.Data;
-//            }
-//            catch (CompilationException e)
-//            {
-//                MyRender11.Log.WriteLine(String.Format("Compilation of shader {0} failed: {1}", name, e));
-//            }
-//            catch (System.IO.FileNotFoundException)
-//            {
-//                throw;
-//            }
-
-//            return null;
-//        }
-//    }
-
-//    class FileShaderProvier : MyShaderProvider
-//    {
-//        internal string m_name;
-//        internal string m_file;
-//        internal string m_macros;
-
-//        internal string m_function;
-//        internal string m_profile;
-
-//        internal FileShaderProvier(string name, string file, string function, string profile, string macros)
-//        {
-//            m_name = name;
-//            m_file = file;
-//            m_macros = macros != null ? macros : "";
-//            m_function = function;
-//            m_profile = profile;
-//        }
-
-//        string GetSource()
-//        {
-//            using (var reader = new StreamReader(Path.Combine(MyFileSystem.ContentPath, "Shaders", m_file)))
-//            {
-//                return m_macros + reader.ReadToEnd();
-//            }
-//        }
-
-//        internal override void Compile()
-//        {
-//            var compiled = CompileInternal(GetSource(), m_function, m_profile, m_name);
-
-//            if(compiled != null)
-//            {
-//                m_bytecode = compiled;
-//                OnCompileSuccess();
-//            }
-//        }
-//    }
-
-//    abstract class MyShaderBase
-//    {
-//        internal abstract void SetBytecode(byte[] bytecode);
-//    }
-
-//    class MyComputeShader : MyShaderBase
-//    {
-//        ComputeShader m_shader;
-
-//        public static implicit operator ComputeShader(MyComputeShader v)
-//        {
-//            return v.m_shader;
-//        }
-
-//        internal override void SetBytecode(byte[] bytecode)
-//        {
-//            if (m_shader != null)
-//                m_shader.Dispose();
-//            m_shader = new ComputeShader(MyRender11.Device, bytecode);
-//        }
-//    }
-
-//    class MyPixelShader : MyShaderBase
-//    {
-//        PixelShader m_shader;
-
-//        public static implicit operator PixelShader(MyPixelShader v)
-//        {
-//            return v.m_shader;
-//        }
-
-//        internal override void SetBytecode(byte[] bytecode)
-//        {
-//            if (m_shader != null)
-//                m_shader.Dispose();
-//            m_shader = new PixelShader(MyRender11.Device, bytecode);
-//        }
-//    }
-
-//    class MyVertexShader : MyShaderBase
-//    {
-//        VertexShader m_shader;
-
-//        public static implicit operator VertexShader(MyVertexShader v)
-//        {
-//            return v.m_shader;
-//        }
-
-//        internal override void SetBytecode(byte[] bytecode)
-//        {
-//            if (m_shader != null)
-//                m_shader.Dispose();
-//            m_shader = new VertexShader(MyRender11.Device, bytecode);
-//        }
-//    }
-
-//    class MyGeometryShader : MyShaderBase
-//    {
-//        GeometryShader m_shader;
-
-//        public static implicit operator GeometryShader(MyGeometryShader v)
-//        {
-//            return v.m_shader;
-//        }
-
-//        internal override void SetBytecode(byte[] bytecode)
-//        {
-//            if (m_shader != null)
-//                m_shader.Dispose();
-//            m_shader = new GeometryShader(MyRender11.Device, bytecode);
-//        }
-//    }
-
-//    class MyGeometryShaderWithSO : MyShaderBase
-//    {
-//        GeometryShader m_shader;
-
-//        StreamOutputElement[] m_elements;
-//        int[] m_bufferedStrides;
-//        int m_rasterizedStream;
-
-//        internal MyGeometryShaderWithSO(StreamOutputElement[] elements, int[] bufferedStrides, int rasterizedStream)
-//        {
-//            m_elements = elements;
-//            m_bufferedStrides = bufferedStrides;
-//            m_rasterizedStream = rasterizedStream;
-//        }
-
-//        public static implicit operator GeometryShader(MyGeometryShaderWithSO v)
-//        {
-//            return v.m_shader;
-//        }
-
-//        internal override void SetBytecode(byte[] bytecode)
-//        {
-//            if (m_shader != null)
-//                m_shader.Dispose();
-//            m_shader = new GeometryShader(MyRender11.Device, bytecode, m_elements, m_bufferedStrides, m_rasterizedStream);
-//        }
-//    }
-
-    static class MyShaderHelpers
-    {
-        static ThreadLocal<StringBuilder> m_strB = new ThreadLocal<StringBuilder>(() => new StringBuilder());
-
-        internal static string FormatMacros(params string[] macros)
-        {
-            m_strB.Value.Clear();
-            Array.Sort(macros);
-
-            foreach (var macro in macros)
-            {
-                if (macro != null)
-                {
-                    m_strB.Value.AppendFormat("#define {0}{1}", macro, System.Environment.NewLine);
-                }
-            }
-
-            return m_strB.Value.ToString();
-        }
-    }
-    
-    static class MyShaderFactory
-    {
-        internal const bool DUMP_CODE = false;//MyRender11.DebugMode;
-
-//        // make thread safe
-//        static Dictionary<int, MyShaderProvider> m_cached = new Dictionary<int, MyShaderProvider>();
-//        static Dictionary<MyShaderProvider, MyShaderBase> m_shaders = new Dictionary<MyShaderProvider, MyShaderBase>();
-//        static Queue<MyShaderProvider> m_compilationQueue = new Queue<MyShaderProvider>();
-
-//        internal static MyComputeShader CreateCS(string file, string func, string macros)
-//        {
-//            var key = MyHashHelper.Combine(file.GetHashCode(), func.GetHashCode());
-//            if(macros != null)
-//                key = MyHashHelper.Combine(key, macros.GetHashCode());
-
-//            var provider = m_cached.SetDefault(key);
-//            if(provider == null)
-//            {
-//                string name = String.Format("cs_[{0}][{1}]{2}", file, func, macros != null ? macros.Replace(Environment.NewLine, "_") : "");
-//                provider = new FileShaderProvier(name, file, func, "cs_5_0", macros);
-
-//                m_cached[key] = provider;
-//                m_shaders[provider] = new MyComputeShader();
-//                m_compilationQueue.Enqueue(provider);
-//            }
-
-//            return m_shaders[provider] as MyComputeShader;
-//        }
-
-//        internal static MyPixelShader CreatePS(string file, string func, string macros)
-//        {
-//            var key = MyHashHelper.Combine(file.GetHashCode(), func.GetHashCode());
-//            if(macros != null)
-//                key = MyHashHelper.Combine(key, macros.GetHashCode());
-
-//            var provider = m_cached.SetDefault(key);
-//            if(provider == null)
-//            {
-//                string name = String.Format("ps_[{0}][{1}]{2}", file, func, macros != null ? macros.Replace(Environment.NewLine, "_") : "");
-//                provider = new FileShaderProvier(name, file, func, "ps_5_0", macros);
-
-//                m_cached[key] = provider;
-//                m_shaders[provider] = new MyPixelShader();
-//                m_compilationQueue.Enqueue(provider);
-//            }
-
-//            return m_shaders[provider] as MyPixelShader;
-//        }
-
-//        internal static MyVertexShader CreateVS(string file, string func, string macros,
-//            OnCompileCallbackType callback)
-//        {
-//            var key = MyHashHelper.Combine(file.GetHashCode(), func.GetHashCode());
-//            if (macros != null)
-//                key = MyHashHelper.Combine(key, macros.GetHashCode());
-
-//            var provider = m_cached.SetDefault(key);
-//            if (provider == null)
-//            {
-//                string name = String.Format("vs_[{0}][{1}]{2}", file, func, macros != null ? macros.Replace(Environment.NewLine, "_") : "");
-//                provider = new FileShaderProvier(name, file, func, "vs_5_0", macros);
-
-//                m_cached[key] = provider;
-//                m_shaders[provider] = new MyVertexShader();
-//                m_compilationQueue.Enqueue(provider);
-//            }
-//            if(callback != null)
-//            {
-//                provider.AddCallback(callback);
-//            }
-
-//            return m_shaders[provider] as MyVertexShader;
-//        }
-
-//        internal static MyGeometryShader CreateGS(string file, string func, string macros)
-//        {
-//            var key = MyHashHelper.Combine(file.GetHashCode(), func.GetHashCode());
-//            if (macros != null)
-//                key = MyHashHelper.Combine(key, macros.GetHashCode());
-
-//            var provider = m_cached.SetDefault(key);
-//            if (provider == null)
-//            {
-//                string name = String.Format("gs_[{0}][{1}]{2}", file, func, macros != null ? macros.Replace(Environment.NewLine, "_") : "");
-//                provider = new FileShaderProvier(name, file, func, "gs_5_0", macros);
-
-//                m_cached[key] = provider;
-//                m_shaders[provider] = new MyGeometryShader();
-//                m_compilationQueue.Enqueue(provider);
-//            }
-
-//            return m_shaders[provider] as MyGeometryShader;
-//        }
-
-//        internal static MyGeometryShaderWithSO CreateGSWithSO(string file, string func, string macros, StreamOutputElement[] elements = null, int[] bufferedStrides = null, int rasterizedStream = 0)
-//        {
-//            var key = MyHashHelper.Combine(file.GetHashCode(), func.GetHashCode());
-//            if (macros != null)
-//                key = MyHashHelper.Combine(key, macros.GetHashCode());
-
-//            var provider = m_cached.SetDefault(key);
-//            if (provider == null)
-//            {
-//                string name = String.Format("gs_[{0}][{1}]{2}", file, func, macros != null ? macros.Replace(Environment.NewLine, "_") : "");
-//                provider = new FileShaderProvier(name, file, func, "gs_5_0", macros);
-
-//                m_cached[key] = provider;
-//                m_shaders[provider] = new MyGeometryShaderWithSO(elements, bufferedStrides, rasterizedStream);
-//                m_compilationQueue.Enqueue(provider);
-//            }
-
-//            return m_shaders[provider] as MyGeometryShaderWithSO;
-//        }
-
-//        internal static void RecompileAll()
-//        {
-//            m_compilationQueue.Clear();
-
-//            foreach (var p in m_cached.Values)
-//                m_compilationQueue.Enqueue(p);
-//        }
-
-//        internal static void RunCompilation()
-//        {
-//            if (MyRender11.ShaderRebuildFlag)
-//            {
-//                RecompileAll();
-//            }
-
-//            foreach(var k in m_compilationQueue)
-//            {
-//                k.Compile();
-//            }
-//            foreach (var k in m_compilationQueue)
-//            {
-//                var bytecode = k.GetBytecode();
-//                if(bytecode != null)
-//                {
-//                    try { 
-//                        m_shaders[k].SetBytecode(bytecode);
-//                    }
-//                    catch (SharpDXException e)
-//                    {
-//                        throw new MyRenderException("GPU failed to create shader", MyRenderExceptionEnum.GpuNotSupported);
-//                    }
-//                }
-//            }
-
-//            if (m_compilationQueue.Count > 0) 
-//            {
-//                Debug.WriteLine(String.Format("Finished processing compilation queue for {0} shaders", m_compilationQueue.Count));
-//            }
-//            m_compilationQueue.Clear();
-//        }
-    }
-
-
-    class MyIncludeProcessor : Include
-    {
-        private List<string> m_pathStacks;
-
-        internal MyIncludeProcessor(string path)
-        {
-            m_pathStacks = new List<string>();
-            m_pathStacks.Add(path);
-        }
-
-        public void Close(Stream stream)
-        {
-            stream.Close();
-            m_pathStacks.RemoveAt(m_pathStacks.Count - 1);
-        }
-
-        public Stream Open(IncludeType type, string fileName, Stream parentStream)
-        {
-            string baseDir;
-            if (type == IncludeType.Local)
-            {
-                baseDir = String.Concat(m_pathStacks.FindAll(item => item != "\\"));
-            }
-            else
-            {
-                baseDir = m_pathStacks.First();
-            }
-
-            string fullFileName = Path.Combine(baseDir, fileName);
-            string localPath = Path.GetDirectoryName(fullFileName.Substring(baseDir.Length));
-            m_pathStacks.Add(localPath);
-
-            if (MyFileSystem.FileExists(fullFileName))
-            {
-                return new FileStream(fullFileName, FileMode.Open, FileAccess.Read);
-            }
-            else
-            {
-                return Stream.Null;
-            }
-            
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public IDisposable Shadow { get; set; }
-    }
-
-    internal delegate void OnCompileCallbackType(byte[] bytecode);
-
-
-
-
-
 
     struct ShaderBytecodeId
     {
@@ -613,20 +37,6 @@ namespace VRageRender
         }
 
         internal static readonly ShaderBytecodeId NULL = new ShaderBytecodeId { Index = -1 };
-    }
-
-    struct MyShaderCompilationInfo
-    {
-        internal MyStringId File;
-        internal MyStringId Function;
-        internal MyShaderProfileEnum Profile;
-        internal string Header;
-        internal string Name;
-    }
-
-    struct MyShaderBytecode
-    {
-        internal byte[] Bytecode;
     }
 
     struct InputLayoutId
@@ -650,12 +60,6 @@ namespace VRageRender
         {
             return MyShaders.GetIL(id);
         }
-    }
-
-    struct InputLayoutInfo
-    {
-        internal ShaderBytecodeId BytecodeId;
-        internal VertexLayoutId VLayoutId;
     }
 
     struct VertexShaderId
@@ -682,7 +86,7 @@ namespace VRageRender
         internal ShaderBytecodeId BytecodeId { get { return MyShaders.VertexShaders.Data[this.Index].Bytecode; } }
     }
 
-    struct PixelShaderId
+    public struct PixelShaderId
     {
         internal int Index;
 
@@ -724,6 +128,10 @@ namespace VRageRender
         {
             return MyShaders.GetCs(id);
         }
+
+        // Needed because the single parameter version of ComputeShader.SetUnorderedAccessView allocates
+        internal static UnorderedAccessView[] TmpUav = new UnorderedAccessView[1];
+        internal static int[] TmpCount = new int[1] { -1 };
     }
 
     struct GeometryShaderId
@@ -760,30 +168,27 @@ namespace VRageRender
         internal int RasterizerStreams;
     }
 
-    static class MyShaders
+    public static class MyShaders
     {
-        static readonly ShaderMacro[] DebugMacro = new ShaderMacro[]
-        {
-            new ShaderMacro("DEBUG", null)
-        };
-
-        internal const string ShadersContentPath = "Shaders";
-        internal const string UserCachePath = "ShaderCache";
-        static MD5 m_md5 = System.Security.Cryptography.MD5.Create(); 
-
-        static MyShaders()
-        {
-            Directory.CreateDirectory(Path.Combine(MyFileSystem.UserDataPath, UserCachePath));
-        }
+        internal const bool DUMP_CODE = false;//MyRender11.DebugMode;
 
         internal static void Init()
         {
 
         }
 
+        private struct MyShaderBytecode
+        {
+            internal byte[] Bytecode;
+        }
         static MyFreelist<MyShaderBytecode> Bytecodes = new MyFreelist<MyShaderBytecode>(512);
         static Dictionary<ShaderBytecodeId, MyShaderCompilationInfo> Shaders = new Dictionary<ShaderBytecodeId, MyShaderCompilationInfo>();
 
+        private struct InputLayoutInfo
+        {
+            internal ShaderBytecodeId BytecodeId;
+            internal VertexLayoutId VLayoutId;
+        }
         static HashSet<InputLayoutId> ILIndex = new HashSet<InputLayoutId>();
         static MyFreelist<InputLayoutInfo> InputLayouts = new MyFreelist<InputLayoutInfo>(64);
         static InputLayout [] ILObjects = new InputLayout[64];
@@ -809,177 +214,7 @@ namespace VRageRender
 
         static Dictionary<MyStringId, byte[]> CompilationCache = new Dictionary<MyStringId, byte[]>(MyStringId.Comparer);
 
-        static string CalculateCacheKey(string source, string function, string profile)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(function);
-            builder.Append(profile);
-            if(MyRender11.DebugMode)
-            {
-                builder.Append("$DEBUG");
-            }
-            try
-            {
-                var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, ShadersContentPath));
-                builder.Append(ShaderBytecode.Preprocess(source, null, includes));
-
-
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(builder.ToString());
-                byte[] hash = m_md5.ComputeHash(inputBytes);
-
-                builder.Clear();
-
-                for (int i = 0; i < hash.Length; i++)
-                {
-                    builder.Append(hash[i].ToString("X2"));
-                }
-                return builder.ToString();
-            }
-            catch (CompilationException e)
-            {
-                return null;
-            }
-
-            return null;
-        }
-
-        static byte[] TryCatcheFetch(string key)
-        {
-            if (key == null)
-                return null;
-
-            var filename = Path.Combine(MyFileSystem.UserDataPath, UserCachePath, Path.GetFileName(key + ".cache"));
-            if (File.Exists(filename))
-            {
-                return System.IO.File.ReadAllBytes(filename);
-            }
-
-            return null;
-        }
-
-        static void StoreInCache(string key, byte[] value)
-        {
-            if (key == null)
-                return;
-
-            using (var writer = new BinaryWriter(File.OpenWrite(Path.Combine(MyFileSystem.UserDataPath, UserCachePath, Path.GetFileName(key + ".cache")))))
-            {
-                writer.Write(value);
-            }
-        }
-
-        internal static byte[] Compile(string source, string function, string profile, string name, bool invalidateCache)
-        {
-            string errors;
-
-            var dumpResults = MyShaderFactory.DUMP_CODE;
-
-            var key = CalculateCacheKey(source, function, profile);
-            if(!invalidateCache)
-            {
-                var cached = TryCatcheFetch(key);
-                if (cached != null)
-                {
-                    return cached;
-                }
-            }
-
-            try
-            {
-                var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, ShadersContentPath));
-
-                CompilationResult compilationResult;
-
-                if(MyRender11.DebugMode)
-                {
-                    compilationResult = ShaderBytecode.Compile(source, function, profile, 0, 0, DebugMacro, includes, name);
-                }
-                else
-                {
-                    compilationResult = ShaderBytecode.Compile(source, function, profile, ShaderFlags.OptimizationLevel3, 0, null, includes, name);
-                }
-
-                if (dumpResults)
-                {
-                    var disassembly = compilationResult.Bytecode.Disassemble(DisassemblyFlags.EnableColorCode |
-                                                                       DisassemblyFlags.EnableInstructionNumbering);
-                    string asmPath;
-                    if(MyRender11.DebugMode)
-                    {
-                        asmPath = Path.GetFileName(name + "__DEBUG.html");
-                    }
-                    else
-                    {
-                        asmPath = Path.GetFileName(name + "__O3.html");
-                    }
-
-                    using (var writer = new StreamWriter(Path.Combine(MyFileSystem.ContentPath, "ShaderOutput", asmPath)))
-                    {
-                        writer.Write(disassembly);
-                    }
-                }
-
-                if(compilationResult.Message != null)
-                {
-                    Debug.WriteLine(String.Format("Compilation of shader {0}: {1}", name, compilationResult.Message));
-                    ExtendedErrorMessage(source, compilationResult.Message);
-                }
-
-                if (compilationResult.Bytecode.Data.Length > 0)
-                {
-                    StoreInCache(key.ToString(), compilationResult.Bytecode.Data);
-                }
-
-                return compilationResult.Bytecode.Data;
-            }
-            catch (CompilationException e)
-            {
-                MyRender11.Log.WriteLine(String.Format("Compilation of shader {0} failed: {1}", name, e));
-
-                Debug.WriteLine(String.Format("Compilation of shader {0} failed", name));
-                Debug.WriteLine(e);
-                ExtendedErrorMessage(source, e.Message);
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                throw;
-            }
-
-            return null;
-        }
-
-        static void ExtendedErrorMessage(string code, string errorMsg )
-        {
-            Regex rx = new Regex(@"\((?<lineNo>\d+),\d+\):",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var match = rx.Match(errorMsg);
-
-            var lineStr = match.Groups["lineNo"].Value;
-            if (lineStr != "")
-            {
-                var line = Int32.Parse(lineStr) - 1;
-                var sourceLines = code.Split(new [] { "\r\n" }, StringSplitOptions.None);
-
-                for (int i = -2; i <= 2; i++)
-                {
-                    var offseted = line + i;
-                    if (0 <= offseted && offseted < sourceLines.Count())
-                    {
-                        Debug.WriteLine(String.Format("{0}: {1}", offseted + 1, sourceLines[offseted]));
-                    }
-                }
-            }
-        }
-
-        #endregion
-
-        static ShaderBytecodeId CreateBytecode()
-        { 
-            var id = new ShaderBytecodeId { Index = Bytecodes.Allocate() };
-            return id;
-        }
-
-        internal static VertexShaderId CreateVs(string file, string func, string header = "")
+        internal static VertexShaderId CreateVs(string file, ShaderMacro[] macros = null)
         {
             var bytecode = CreateBytecode();
 
@@ -995,10 +230,8 @@ namespace VRageRender
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
                 File = X.TEXT(file),
-                Function = X.TEXT(func),
-                Profile = MyShaderProfileEnum.VS_5_0,
-                Header = header,
-                Name = String.Format("vs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
+                Profile = MyShadersDefines.Profiles.vs_5_0,
+                Macros = macros
             };
 
             VsObjects[id.Index] = null;
@@ -1009,7 +242,7 @@ namespace VRageRender
             return id;
         }
 
-        internal static PixelShaderId CreatePs(string file, string func, string header = "")
+        public static PixelShaderId CreatePs(string file, ShaderMacro[] macros = null)
         {
             var bytecode = CreateBytecode();
 
@@ -1025,10 +258,8 @@ namespace VRageRender
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
                 File = X.TEXT(file),
-                Function = X.TEXT(func),
-                Profile = MyShaderProfileEnum.PS_5_0,
-                Header = header,
-                Name = String.Format("ps_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
+                Profile = MyShadersDefines.Profiles.ps_5_0,
+                Macros = macros
             };
 
             PsObjects[id.Index] = null;
@@ -1039,7 +270,7 @@ namespace VRageRender
             return id;
         }
 
-        internal static ComputeShaderId CreateCs(string file, string func, string header = "")
+        internal static ComputeShaderId CreateCs(string file, ShaderMacro[] macros = null)
         {
             var bytecode = CreateBytecode();
 
@@ -1055,10 +286,8 @@ namespace VRageRender
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
                 File = X.TEXT(file),
-                Function = X.TEXT(func),
-                Profile = MyShaderProfileEnum.CS_5_0,
-                Header = header,
-                Name = String.Format("cs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
+                Profile = MyShadersDefines.Profiles.cs_5_0,
+                Macros = macros,
             };
 
             CsObjects[id.Index] = null;
@@ -1069,7 +298,7 @@ namespace VRageRender
             return id;
         }
 
-        internal static GeometryShaderId CreateGs(string file, string func, string header = "", MyShaderStreamOutputInfo ? streamOut = null)
+        internal static GeometryShaderId CreateGs(string file, ShaderMacro[] macros = null, MyShaderStreamOutputInfo? streamOut = null)
         {
             var bytecode = CreateBytecode();
 
@@ -1085,15 +314,13 @@ namespace VRageRender
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
                 File = X.TEXT(file),
-                Function = X.TEXT(func),
-                Profile = MyShaderProfileEnum.GS_5_0,
-                Header = header,
-                Name = String.Format("gs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
+                Profile = MyShadersDefines.Profiles.gs_5_0,
+                Macros = macros
             };
 
             GsObjects[id.Index] = null;
 
-            if(streamOut.HasValue)
+            if (streamOut.HasValue)
             {
                 StreamOutputs[id] = streamOut.Value;
             }
@@ -1108,24 +335,138 @@ namespace VRageRender
         {
             var info = Shaders[bytecode];
 
-            var path = Path.Combine(MyFileSystem.ContentPath, ShadersContentPath, info.File.ToString());
+            var path = Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath, info.File.ToString());
             if (!File.Exists(path))
             {
-                MyRender11.Log.WriteLine("ERROR: Shaders Compile - can not find file: " + path);
-                throw new MyRenderException("Failed to compile shader" + info.Name, MyRenderExceptionEnum.Unassigned);                
+                string message = "ERROR: Shaders Compile - can not find file: " + path;
+                MyRender11.Log.WriteLine(message);
+                throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
             }
 
             using (var reader = new StreamReader(path))
             {
-                var compiled = Compile(MyRender11.GlobalShaderHeader + info.Header + reader.ReadToEnd(), info.Function.ToString(), info.Profile.Value(), info.Name, invalidateCache);
-                Bytecodes.Data[bytecode.Index].Bytecode = compiled != null ? compiled : Bytecodes.Data[bytecode.Index].Bytecode; 
-
-                if(Bytecodes.Data[bytecode.Index].Bytecode == null)
+                ShaderMacro[] macros = MyRender11.GlobalShaderMacro;
+                if (info.Macros != null && info.Macros.Length > 0 || MyRender11.DebugMode)
                 {
-                    MyRender11.Log.WriteLine("Failed to compile shader" + info.Name);
-                    throw new MyRenderException("Failed to compile shader" + info.Name, MyRenderExceptionEnum.Unassigned);
+                    macros = new ShaderMacro[MyRender11.GlobalShaderMacro.Length + (info.Macros != null ? info.Macros.Length : 0)];
+                    MyRender11.GlobalShaderMacro.CopyTo(macros, 0);
+                    if (info.Macros != null)
+                        info.Macros.CopyTo(macros, MyRender11.GlobalShaderMacro.Length); 
+                }
+                var compiled = Compile(reader.ReadToEnd(), macros, info.Profile, info.File.ToString(), false);
+
+                Bytecodes.Data[bytecode.Index].Bytecode = compiled ?? Bytecodes.Data[bytecode.Index].Bytecode;
+
+                if (Bytecodes.Data[bytecode.Index].Bytecode == null)
+                {
+                    string message = "Failed to compile " + info.File + " @ profile " + info.Profile + " with defines " + macros.GetString();
+                    MyRender11.Log.WriteLine(message);
+                    throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
                 }
             }
+        }
+
+        internal static byte[] Compile(string source, ShaderMacro[] macros, MyShadersDefines.Profiles profile, string sourceDescriptor, bool invalidateCache)
+        {
+            bool wasCached;
+            string compileLog;
+            var result = Compile(source, macros, profile, sourceDescriptor, !MyRender11.DebugMode, invalidateCache, out wasCached, out compileLog);
+
+            if (!wasCached)
+            {
+                string message = "WARNING: Shader was not precompiled - " + sourceDescriptor + " @ profile " + profile + " with defines " + macros.GetString();
+                MyRender11.Log.WriteLine(message);
+            }
+            if (!string.IsNullOrEmpty(compileLog))
+            {
+                string descriptor = sourceDescriptor + " " + MyShadersDefines.ProfileToString(profile) + " " + macros.GetString();
+
+                if (result != null)
+                {
+                    Debug.WriteLine(String.Format("Compilation of shader {0}: {1}", descriptor, compileLog));
+                    
+                }
+                else
+                {
+                    string message = String.Format("Compilation of shader {0} failed: {1}", descriptor, compileLog);
+                    MyRender11.Log.WriteLine(message);
+                    Debug.WriteLine(message);
+                }
+            }
+            return result;
+        }
+
+        internal static byte[] Compile(string source, ShaderMacro[] macros, MyShadersDefines.Profiles profile, string sourceDescriptor, bool optimize, bool invalidateCache, out bool wasCached, out string compileLog)
+        {
+            ProfilerShort.Begin("MyShaders.Compile");
+            string function = MyShadersDefines.ProfileEntryPoint(profile);
+            string profileName = MyShadersDefines.ProfileToString(profile);
+
+            wasCached = false;
+            compileLog = null;
+
+            ProfilerShort.Begin("MyShaders.Preprocess");
+            string preprocessedSource = PreprocessShader(source, macros);
+
+            var key = MyShaderCache.CalculateKey(preprocessedSource, function, profileName);
+            if (!invalidateCache)
+            {
+                var cached = MyShaderCache.TryFetch(key);
+                if (cached != null)
+                {
+                    wasCached = true;
+                    ProfilerShort.End();
+                    ProfilerShort.End();
+                    return cached;
+                }
+            }
+            ProfilerShort.End();
+
+            try
+            {
+                string descriptor = sourceDescriptor + " " + profile + " " + macros.GetString();
+                CompilationResult compilationResult = ShaderBytecode.Compile(preprocessedSource, function, profileName, optimize ? ShaderFlags.OptimizationLevel3 : 0, 0, null, null, descriptor);
+
+                if (DUMP_CODE)
+                {
+                    var disassembly = compilationResult.Bytecode.Disassemble(DisassemblyFlags.EnableColorCode |
+                                                                             DisassemblyFlags.EnableInstructionNumbering);
+                    string asmPath;
+                    if (MyRender11.DebugMode)
+                    {
+                        asmPath = Path.GetFileName(descriptor + "__DEBUG.html");
+                    }
+                    else
+                    {
+                        asmPath = Path.GetFileName(descriptor + "__O3.html");
+                    }
+
+                    using (var writer = new StreamWriter(Path.Combine(MyFileSystem.ContentPath, "ShaderOutput", asmPath)))
+                    {
+                        writer.Write(disassembly);
+                    }
+                }
+
+                if (compilationResult.Message != null)
+                {
+                    compileLog = compilationResult.Message + "\n" + ExtendedErrorMessage(preprocessedSource, compilationResult.Message);
+                }
+
+                if (compilationResult.Bytecode.Data.Length > 0)
+                    MyShaderCache.Store(key.ToString(), compilationResult.Bytecode.Data);
+
+                return compilationResult.Bytecode.Data;
+            }
+            catch (CompilationException e)
+            {
+                Debug.WriteLine(preprocessedSource);
+                compileLog = e.Message + "\n" + ExtendedErrorMessage(preprocessedSource, e.Message);
+            }
+            finally
+            {
+                ProfilerShort.End();
+            }
+            return null;
         }
 
         internal static byte[] GetBytecode(ShaderBytecodeId id)
@@ -1163,7 +504,7 @@ namespace VRageRender
             var bytecodeId = VertexShaders.Data[id.Index].Bytecode;
             Compile(bytecodeId);
 
-            if(VsObjects[id.Index] != null)
+            if (VsObjects[id.Index] != null)
             {
                 VsObjects[id.Index].Dispose();
                 VsObjects[id.Index] = null;
@@ -1173,7 +514,7 @@ namespace VRageRender
             {
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch(SharpDXException e)
+            catch (SharpDXException e)
             {
                 Compile(bytecodeId, true);
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -1234,12 +575,12 @@ namespace VRageRender
             }
 
             try
-            { 
-                if(StreamOutputs.ContainsKey(id))
+            {
+                if (StreamOutputs.ContainsKey(id))
                 {
                     var so = StreamOutputs[id];
 
-                    GsObjects[id.Index] = new GeometryShader(MyRender11.Device, GetBytecode(bytecodeId), 
+                    GsObjects[id.Index] = new GeometryShader(MyRender11.Device, GetBytecode(bytecodeId),
                         so.Elements, so.Strides, so.RasterizerStreams, null);
                 }
                 else
@@ -1288,7 +629,7 @@ namespace VRageRender
         {
             var info = InputLayouts.Data[id.Index];
 
-            if(ILObjects[id.Index] != null)
+            if (ILObjects[id.Index] != null)
             {
                 ILObjects[id.Index].Dispose();
                 ILObjects[id.Index] = null;
@@ -1327,7 +668,7 @@ namespace VRageRender
 
         internal static void OnDeviceEnd()
         {
-            foreach(var id in VsIndex)
+            foreach (var id in VsIndex)
             {
                 if (VsObjects[id.Index] != null)
                 {
@@ -1378,6 +719,112 @@ namespace VRageRender
             OnDeviceEnd();
             // TODO: just rebuild
             Recompile();
+        }
+
+        private static string PreprocessShader(string source, ShaderMacro[] macros)
+        {
+            try
+            {
+                var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath));
+                return ShaderBytecode.Preprocess(source, macros, includes);
+            }
+            catch (CompilationException e)
+            {
+                return null;
+            }
+        }
+
+        private static string ExtendedErrorMessage(string code, string errorMsg)
+        {
+            var sb = new StringBuilder();
+            Regex rx = new Regex(@"\((?<lineNo>\d+),\d+\):",
+                RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var match = rx.Match(errorMsg);
+
+            var lineStr = match.Groups["lineNo"].Value;
+            if (lineStr != "")
+            {
+                var line = Int32.Parse(lineStr) - 1;
+                var sourceLines = code.Split(new [] { "\r\n" }, StringSplitOptions.None);
+
+                for (int i = -2; i <= 2; i++)
+                {
+                    var offseted = line + i;
+                    if (0 <= offseted && offseted < sourceLines.Length)
+                    {
+                        sb.AppendFormat("{0}: {1}\n", offseted + 1, sourceLines[offseted]);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        #endregion
+
+        private static ShaderBytecodeId CreateBytecode()
+        { 
+            var id = new ShaderBytecodeId { Index = Bytecodes.Allocate() };
+            return id;
+        }
+
+        private class MyIncludeProcessor : Include
+        {
+            private List<string> m_pathStacks;
+
+            internal MyIncludeProcessor(string path)
+            {
+                m_pathStacks = new List<string>();
+                m_pathStacks.Add(path);
+            }
+
+            public void Close(Stream stream)
+            {
+                stream.Close();
+                m_pathStacks.RemoveAt(m_pathStacks.Count - 1);
+            }
+
+            public Stream Open(IncludeType type, string fileName, Stream parentStream)
+            {
+                string baseDir;
+                if (type == IncludeType.Local)
+                {
+                    baseDir = String.Concat(m_pathStacks.FindAll(item => item != "\\"));
+                }
+                else
+                {
+                    baseDir = m_pathStacks.First();
+                }
+
+                string fullFileName = Path.Combine(baseDir, fileName);
+                string localPath = Path.GetDirectoryName(fullFileName.Substring(baseDir.Length));
+                m_pathStacks.Add(localPath);
+
+                if (MyFileSystem.FileExists(fullFileName))
+                {
+                    return new FileStream(fullFileName, FileMode.Open, FileAccess.Read);
+                }
+                else
+                {
+                    string message = "Include not found: " + fullFileName;
+                    MyRender11.Log.WriteLine(message);
+                    Debug.WriteLine(message);
+                    return Stream.Null;
+                }
+
+            }
+
+            public void Dispose()
+            {
+            }
+
+            public IDisposable Shadow { get; set; }
+        }
+
+        private struct MyShaderCompilationInfo
+        {
+            internal MyStringId File;
+            internal MyShadersDefines.Profiles Profile;
+            internal ShaderMacro[] Macros;
         }
     }
 }

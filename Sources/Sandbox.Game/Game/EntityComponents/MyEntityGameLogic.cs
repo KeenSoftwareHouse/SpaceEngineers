@@ -1,7 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Decals;
 using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,14 +8,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Components
 {
-    class MyEntityGameLogic : MyGameLogicComponent
+    public class MyEntityGameLogic : MyGameLogicComponent
     {
         /// <summary>
         /// This event may not be invoked at all, when calling MyEntities.CloseAll, marking is bypassed
@@ -229,7 +229,9 @@ namespace Sandbox.Game.Components
 
             CallAndClearOnClosing();
 
-            MyDecals.RemoveModelDecals(m_entity);
+            // hide decals - decals of children are already hidden, see above
+            if (m_entity.Render.RenderObjectIDs.Length > 0)
+                VRageRender.MyRenderProxy.HideDecals(m_entity.Render.RenderObjectIDs[0], Vector3.Zero, 0);
             MyEntities.RemoveName(m_entity);
             MyEntities.RemoveFromClosedEntities(m_entity);
 

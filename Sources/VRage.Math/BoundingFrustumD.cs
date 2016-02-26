@@ -114,7 +114,7 @@ namespace VRageMath
             }
         }
 
-        private BoundingFrustumD()
+        public BoundingFrustumD()
         {
         }
 

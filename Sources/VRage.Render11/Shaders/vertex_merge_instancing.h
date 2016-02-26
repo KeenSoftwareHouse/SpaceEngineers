@@ -23,6 +23,8 @@ struct InstanceData {
 	float4 row0;
 	float4 row1;
 	float4 row2;
+    uint DepthBias;
+    float3 __padding;
 };
 
 StructuredBuffer<uint> IndexDataSRV : register(MERGE(t,BIG_TABLE_INDICES));

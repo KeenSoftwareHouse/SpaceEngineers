@@ -5,13 +5,13 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageSetRenderEntityLOD : IMyRenderMessage
+    public class MyRenderMessageSetRenderEntityLOD : MyRenderMessageBase
     {
         public uint ID;
         public float Distance; //Multiplier of MyRenderConstants.LodTransitionDistanceBackgroundEnd
         public string Model;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SetRenderEntityLOD; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetRenderEntityLOD; } }
     }
 }

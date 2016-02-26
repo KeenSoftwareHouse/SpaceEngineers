@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -29,5 +31,11 @@ namespace Sandbox.Definitions
                 this.BehaviorSubtype = ob.BehaviorSubtype;
             Commandable = ob.Commandable;
         }
+
+        public virtual void AddItems(Sandbox.Game.Entities.Character.MyCharacter character)
+        {
+
+        }
+
     }
 }

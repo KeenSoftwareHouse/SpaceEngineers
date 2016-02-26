@@ -10,7 +10,10 @@ using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System.Diagnostics;
+using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -24,6 +27,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_smallShipButton;
         MyGuiControlButton m_largeShipButton;
         MyGuiControlButton m_stationButton;
+        MyGuiControlButton m_goodAiBotButton;
         MyGuiControlBlockInfo m_blockInfoSmall;
         MyGuiControlBlockInfo m_blockInfoLarge;
 
@@ -56,10 +60,11 @@ namespace Sandbox.Game.Gui
 
             ProfilerShort.Begin("MyGuiScreenCubeBuilder.RecreateControls");
 
-            bool showRightControls = !(MySession.ControlledEntity is MyShipController) || MyToolbarComponent.GlobalBuilding;
+            bool showRightControls = !(MySession.Static.ControlledEntity is MyShipController) || (MySession.Static.ControlledEntity is MyShipController && (MySession.Static.ControlledEntity as MyShipController).BuildingMode) || MyToolbarComponent.GlobalBuilding;
+            
             //Disable right buttons if current spectator is official spectator
             if (MySession.Static.SurvivalMode)
-                showRightControls &= !(MySession.IsCameraUserControlledSpectator() && !MyInput.Static.ENABLE_DEVELOPER_KEYS && MySession.Static.Settings.EnableSpectator);
+                showRightControls &= !(MySession.Static.IsCameraUserControlledSpectator() && !MyInput.Static.ENABLE_DEVELOPER_KEYS && MySession.Static.Settings.EnableSpectator);
 
             m_smallShipButton = (MyGuiControlButton)Controls.GetControlByName("ButtonSmall");
             m_smallShipButton.Visible = showRightControls;
@@ -73,12 +78,16 @@ namespace Sandbox.Game.Gui
             m_stationButton.Visible = showRightControls;
             m_stationButton.ButtonClicked += stationButton_OnButtonClick;
 
-            if (m_screenCubeGrid != null)
+
+
+            if (m_screenCubeGrid != null && !(MySession.Static.ControlledEntity is MyShipController && (MySession.Static.ControlledEntity as MyShipController).BuildingMode))
             {
                 m_smallShipButton.Visible = false;
                 m_stationButton.Visible = false;
                 m_largeShipButton.Visible = false;
+                //m_goodAiBotButton.Visible = false;
             }
+
 			var style = new MyGuiControlBlockInfo.MyControlBlockInfoStyle()
 			{
 				BlockNameLabelFont = MyFontEnum.White,
@@ -87,7 +96,7 @@ namespace Sandbox.Game.Gui
 				ComponentsLabelFont = MyFontEnum.Blue,
 				InstalledRequiredLabelText = MySpaceTexts.HudBlockInfo_Installed_Required,
 				InstalledRequiredLabelFont = MyFontEnum.Blue,
-				RequiredLabelText = MySpaceTexts.HudBlockInfo_Required,
+                RequiredLabelText = MyCommonTexts.HudBlockInfo_Required,
 				IntegrityLabelFont = MyFontEnum.White,
 				IntegrityBackgroundColor = new Vector4(78 / 255.0f, 116 / 255.0f, 137 / 255.0f, 1.0f),
 				IntegrityForegroundColor = new Vector4(0.5f, 0.1f, 0.1f, 1),
@@ -123,38 +132,90 @@ namespace Sandbox.Game.Gui
         public override void HandleInput(bool receivedFocusInThisUpdate)
         {
             base.HandleInput(receivedFocusInThisUpdate);
-            if (m_gridBlocks.Visible && m_gridBlocks.MouseOverItem != null && m_gridBlocks.MouseOverItem.UserData is GridItemUserData &&
-               (m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData is MyObjectBuilder_ToolbarItemCubeBlock)
+            if (m_gridBlocks.Visible && m_gridBlocks.MouseOverItem != null && m_gridBlocks.MouseOverItem.UserData is GridItemUserData)
             {
-                var block = (m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData as MyObjectBuilder_ToolbarItemCubeBlock;
-                MyDefinitionBase definition;
-                if (MyDefinitionManager.Static.TryGetDefinition(block.DefinitionId, out definition))
+                if ((m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData is MyObjectBuilder_ToolbarItemCubeBlock)
                 {
-                    var group = MyDefinitionManager.Static.GetDefinitionGroup((definition as MyCubeBlockDefinition).BlockPairName);
-
-                    if (group.Large != null)
+                    var block = (m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData as MyObjectBuilder_ToolbarItemCubeBlock;
+                    MyDefinitionBase definition;
+                    if (MyDefinitionManager.Static.TryGetDefinition(block.DefinitionId, out definition))
                     {
-                        m_blockInfoLarge.BlockInfo.LoadDefinition(group.Large);
-                        m_blockInfoLarge.Visible = true;
-                    }
-                    else
-                        m_blockInfoLarge.Visible = false;
+                        var group = MyDefinitionManager.Static.GetDefinitionGroup((definition as MyCubeBlockDefinition).BlockPairName);
 
-                    if (group.Small != null)
-                    {
-                        m_blockInfoSmall.BlockInfo.LoadDefinition(group.Small);
-                        m_blockInfoSmall.Visible = true;
+                        if (group.Large != null)
+                        {
+                            m_blockInfoLarge.BlockInfo.LoadDefinition(group.Large);
+                            m_blockInfoLarge.Visible = true;
+                        }
+                        else
+                            m_blockInfoLarge.Visible = false;
+
+                        if (group.Small != null)
+                        {
+                            m_blockInfoSmall.BlockInfo.LoadDefinition(group.Small);
+                            m_blockInfoSmall.Visible = true;
+                        }
+                        else
+                            m_blockInfoSmall.Visible = false;
                     }
-                    else
-                        m_blockInfoSmall.Visible = false;
                 }
-
+                //Case where grid item is used for new stastion/ship creation and not a CubeBlock directly
+                else if ((m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData is MyObjectBuilder_ToolbarItemCreateGrid)
+                {
+                    var block = (m_gridBlocks.MouseOverItem.UserData as GridItemUserData).ItemData as MyObjectBuilder_ToolbarItemCreateGrid;
+                    if (block.DefinitionId.SubtypeName.Equals("CreateSmallShip"))
+                        CreateToolTipForNewGrid(MyCubeSize.Small, false);
+                    else if (block.DefinitionId.SubtypeName.Equals("CreateLargeShip"))
+                        CreateToolTipForNewGrid(MyCubeSize.Large, false);
+                    else if (block.DefinitionId.SubtypeName.Equals("CreateStation"))
+                        CreateToolTipForNewGrid(MyCubeSize.Large, true);
+                }
+                else
+                {
+                    m_blockInfoSmall.Visible = false;
+                    m_blockInfoLarge.Visible = false;
+                }
             }
+            //button for new station/ship mouse over cases
+            else if ((m_smallShipButton.Visible && m_smallShipButton.IsMouseOver))
+                CreateToolTipForNewGrid(MyCubeSize.Small, false);
+            else if (m_largeShipButton.Visible && m_largeShipButton.IsMouseOver)
+                CreateToolTipForNewGrid(MyCubeSize.Large, false);
+            else if (m_stationButton.Visible && m_stationButton.IsMouseOver)
+                CreateToolTipForNewGrid(MyCubeSize.Large, true);
             else
             {
                 m_blockInfoSmall.Visible = false;
                 m_blockInfoLarge.Visible = false;
             }
+        }
+
+        /// <summary>
+        /// Used in order to get material requirements from prefabs of the new station/ship and draw them to the hud
+        /// </summary>
+        void CreateToolTipForNewGrid(MyCubeSize size, bool isStatic)
+        {
+            bool isLarge = (size == MyCubeSize.Large);
+            MyGuiControlBlockInfo usedInfo = isLarge ? m_blockInfoLarge : m_blockInfoSmall;
+            MyGuiControlBlockInfo unusedInfo = !isLarge ? m_blockInfoLarge : m_blockInfoSmall;
+            string prefabName;
+            MyDefinitionManager.Static.GetBaseBlockPrefabName(size, isStatic, MySession.Static.CreativeMode, out prefabName);
+            if (prefabName == null)
+                return;
+            var gridBuilders = MyPrefabManager.Static.GetGridPrefab(prefabName);
+            Debug.Assert(gridBuilders != null && gridBuilders.Length > 0);
+            if (gridBuilders == null || gridBuilders.Length == 0)
+                return;
+
+            MyCubeBlockDefinition blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(gridBuilders[0].CubeBlocks[0].GetId());
+            if (blockDefinition != null)
+            {
+                usedInfo.BlockInfo.LoadDefinition(blockDefinition);
+                usedInfo.Visible = true;
+            }
+            else
+                usedInfo.Visible = false;
+            unusedInfo.Visible = false;
         }
 
         void smallShipButton_OnButtonClick(MyGuiControlButton sender)
@@ -172,13 +233,18 @@ namespace Sandbox.Game.Gui
             CreateGrid(MyCubeSize.Large, isStatic: true);
         }
 
+        void goodAiBotButton_OnButtonClick(MyGuiControlButton sender)
+        {
+            //CreateGrid(MyCubeSize.Large, isStatic: true);
+        }
+
         void CreateGrid(MyCubeSize cubeSize, bool isStatic)
         {
             if (!MyEntities.MemoryLimitReachedReport && !MySandboxGame.IsPaused)
             {
                 MySessionComponentVoxelHand.Static.Enabled = false;
                 MyCubeBuilder.Static.StartNewGridPlacement(cubeSize, isStatic);
-                var character = MySession.LocalCharacter;
+                var character = MySession.Static.LocalCharacter;
 
                 Debug.Assert(character != null);
                 if (character != null)
@@ -188,6 +254,11 @@ namespace Sandbox.Game.Gui
                 }
             }
             CloseScreen();
+        }
+
+        public override bool AllowToolbarKeys()
+        {
+            return base.AllowToolbarKeys();
         }
     }
 }

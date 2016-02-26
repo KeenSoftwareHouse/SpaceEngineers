@@ -1,6 +1,5 @@
 ﻿#region Using
 using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
@@ -10,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -21,7 +21,7 @@ namespace Sandbox.Game.Gui
 {
     public abstract class MyGuiScreenDebugBase : MyGuiScreenBase
     {
-        static Vector4 m_defaultColor = new Vector4(0.5f, 0.4f, 0.2f, 1f);
+        static Vector4 m_defaultColor = Color.Yellow.ToVector4();
         static Vector4 m_defaultTextColor = new Vector4(1f, 1f, 0f, 1f);
 
         protected Vector2 m_currentPosition;
@@ -39,10 +39,10 @@ namespace Sandbox.Game.Gui
         protected MyGuiScreenDebugBase(Vector4? backgroundColor = null, bool isTopMostScreen = false)
             : this(new Vector2(MyGuiManager.GetMaxMouseCoord().X - 0.16f, 0.5f), new Vector2(0.32f, 1.0f), backgroundColor ?? 0.85f * Color.Black.ToVector4(), isTopMostScreen)
         {
-            m_closeOnEsc           = true;
+            m_closeOnEsc = true;
             m_drawEvenWithoutFocus = true;
-            m_isTopMostScreen      = false;
-            CanHaveFocus           = false;
+            m_isTopMostScreen = false;
+            CanHaveFocus = false;
             m_isTopScreen = true;
         }
 
@@ -104,7 +104,7 @@ namespace Sandbox.Game.Gui
 
             MyGuiControlCheckbox checkBox = new MyGuiControlCheckbox(
                 isChecked: false,
-                color: 0.8f * (color ?? m_defaultColor),
+                color: (color ?? m_defaultColor),
                 visualStyle: MyGuiControlCheckboxStyleEnum.Debug,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
             checkBox.Position = m_currentPosition + new Vector2(screenSize.Value.X - checkBox.Size.X, 0) + (checkBoxOffset ?? Vector2.Zero);
@@ -226,7 +226,7 @@ namespace Sandbox.Game.Gui
         {
             MyGuiControlSlider slider = new MyGuiControlSlider(
                 position: m_currentPosition,
-                width: 460f /MyGuiConstants.GUI_OPTIMAL_SIZE.X,
+                width: 460f / MyGuiConstants.GUI_OPTIMAL_SIZE.X,
                 minValue: valueMin,
                 maxValue: valueMax,
                 labelText: new StringBuilder(" {0}").ToString(),
@@ -295,28 +295,46 @@ namespace Sandbox.Game.Gui
                 };
             }
             else
-            if (memberInfo is FieldInfo)
-            {
-                FieldInfo field = (FieldInfo)memberInfo;
-
-                slider.Value = (float)field.GetValue(instance);
-                slider.UserData = new Tuple<object, FieldInfo>(instance, field);
-                slider.ValueChanged = delegate(MyGuiControlSlider sender)
+                if (memberInfo is FieldInfo)
                 {
-                    Tuple<object, FieldInfo> tuple = sender.UserData as Tuple<object, FieldInfo>;
-                    tuple.Item2.SetValue(tuple.Item1, sender.Value);
-                    ValueChanged(sender);
-                };
-            }
-            else
-            {
-                System.Diagnostics.Debug.Assert(false, "Unknown type of memberInfo");
-            }
+                    FieldInfo field = (FieldInfo)memberInfo;
+
+                    slider.Value = (float)field.GetValue(instance);
+                    slider.UserData = new Tuple<object, FieldInfo>(instance, field);
+                    slider.ValueChanged = delegate(MyGuiControlSlider sender)
+                    {
+                        Tuple<object, FieldInfo> tuple = sender.UserData as Tuple<object, FieldInfo>;
+                        tuple.Item2.SetValue(tuple.Item1, sender.Value);
+                        ValueChanged(sender);
+                    };
+                }
+                else
+                {
+                    System.Diagnostics.Debug.Assert(false, "Unknown type of memberInfo");
+                }
 
             return slider;
         }
 
         #endregion
+
+        protected MyGuiControlTextbox AddTextbox(String value, Action<MyGuiControlTextbox> onTextChanged, Vector4? color = null, float scale = 1.0f, MyGuiControlTextboxType type = MyGuiControlTextboxType.Normal, List<MyGuiControlBase> controlGroup = null, MyFontEnum font = MyFontEnum.Debug)
+        {
+            var textbox = new MyGuiControlTextbox(m_currentPosition, value, 6, color, scale, type);
+            textbox.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            if (onTextChanged != null)
+            {
+                textbox.TextChanged += onTextChanged;
+            }
+            Controls.Add(textbox);
+
+            m_currentPosition.Y += textbox.Size.Y + 0.01f;
+
+            if (controlGroup != null)
+                controlGroup.Add(textbox);
+
+            return textbox;
+        }
 
         #region Label
 
@@ -386,7 +404,7 @@ namespace Sandbox.Game.Gui
                 color: Color.White,
                 defaultColor: Color.White,
                 font: MyFontEnum.Debug,
-                dialogAmountCaption: MySpaceTexts.DialogAmount_AddAmountCaption);
+                dialogAmountCaption: MyCommonTexts.DialogAmount_AddAmountCaption);
             colorControl.ColorMask = Color.Yellow.ToVector4();
             colorControl.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             Controls.Add(colorControl);
@@ -420,16 +438,16 @@ namespace Sandbox.Game.Gui
                     }
                     else
                         if (tuple.Item2.MemberType.GetType() == typeof(Vector3))
-                    {
-                        tuple.Item2.SetValue(tuple.Item1, sender.GetColor().ToVector3(), new object[0]);
-                        ValueChanged(sender);
-                    }
-                    else
-                    if (tuple.Item2.MemberType.GetType() == typeof(Vector4))
-                    {
-                        tuple.Item2.SetValue(tuple.Item1, sender.GetColor().ToVector4(), new object[0]);
-                        ValueChanged(sender);
-                    }
+                        {
+                            tuple.Item2.SetValue(tuple.Item1, sender.GetColor().ToVector3(), new object[0]);
+                            ValueChanged(sender);
+                        }
+                        else
+                            if (tuple.Item2.MemberType.GetType() == typeof(Vector4))
+                            {
+                                tuple.Item2.SetValue(tuple.Item1, sender.GetColor().ToVector4(), new object[0]);
+                                ValueChanged(sender);
+                            }
                 };
             }
             else
@@ -507,7 +525,7 @@ namespace Sandbox.Game.Gui
             Vector4? textColor = null,
             Vector2? size = null)
         {
-            MyGuiControlCombobox combo = new MyGuiControlCombobox(m_currentPosition, size: size)
+            MyGuiControlCombobox combo = new MyGuiControlCombobox(m_currentPosition, size: size, textColor: textColor)
             {
                 VisualStyle = MyGuiControlComboboxStyleEnum.Debug,
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
@@ -520,6 +538,29 @@ namespace Sandbox.Game.Gui
                 controlGroup.Add(combo);
 
             return combo;
+        }
+
+        protected MyGuiControlCombobox AddCombo<TEnum>(
+            TEnum selectedItem,
+            Action<TEnum> valueChanged,
+            bool enabled = true,
+            List<MyGuiControlBase> controlGroup = null, Vector4? color = null)
+            where TEnum : struct, IComparable, IFormattable, IConvertible
+        {
+            Debug.Assert(typeof(TEnum).IsEnum);
+
+            var combobox = AddCombo(controlGroup, color);
+            foreach (var value in MyEnum<TEnum>.Values)
+            {
+                combobox.AddItem((int)(object)value, new StringBuilder(value.ToString()));
+            }
+            combobox.SelectItemByKey((int)(object)selectedItem);
+            combobox.ItemSelected += delegate()
+            {
+                valueChanged(MyEnum<TEnum>.SetValue((ulong)combobox.GetSelectedKey()));
+            };
+
+            return combobox;
         }
 
         protected MyGuiControlCombobox AddCombo<TEnum>(

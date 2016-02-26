@@ -11,5 +11,6 @@ namespace Sandbox.ModAPI.Ingame
         void GetBlocksOfType<T>(List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null);
         void SearchBlocksOfName(string name,List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null);
         IMyTerminalBlock GetBlockWithName(string name);
+        IMyBlockGroup GetBlockGroupWithName(string name);
     }
 }

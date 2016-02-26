@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Sandbox.Definitions;
-using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
@@ -11,7 +10,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using VRage;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRage.Trace;
@@ -112,6 +112,9 @@ namespace Sandbox.Game.EntityComponents
 
 			public void Add(MyDefinitionId typeId, IMyConveyorEndpointBlock endpoint)
 			{
+                if (FirstEndpoint == null)
+                    FirstEndpoint = endpoint.ConveyorEndpoint;
+
 				var componentContainer = (endpoint as IMyEntity).Components;
 
                 var sink = componentContainer.Get<MyResourceSinkComponent>();
@@ -177,8 +180,8 @@ namespace Sandbox.Game.EntityComponents
 
                 SinkSourcePairs.Clear();
 
-				StockpilingStorage.Clear();
-				OtherStorage.Clear();
+				StockpilingStorage.SetSize(0);
+				OtherStorage.SetSize(0);
 		    }
 		}
 
@@ -234,14 +237,21 @@ namespace Sandbox.Game.EntityComponents
 			public MyResourceStateEnum ResourceState;
 		}
 
-		private readonly List<PerTypeData> m_dataPerType = new List<PerTypeData>();
-	    
 	    private int m_allEnabledCounter = 0;
-
-		private readonly HashSet<MyDefinitionId> m_initializedTypes = new HashSet<MyDefinitionId>();
 		private int m_typeGroupCount = 0;
-		private readonly Dictionary<MyDefinitionId, int> m_typeIdToIndex = new Dictionary<MyDefinitionId, int>();
-		private readonly Dictionary<MyDefinitionId, bool> m_typeIdToConveyorConnectionRequired = new Dictionary<MyDefinitionId, bool>(); 
+
+		private readonly List<PerTypeData> m_dataPerType = new List<PerTypeData>();
+		private readonly HashSet<MyDefinitionId> m_initializedTypes = new HashSet<MyDefinitionId>(MyDefinitionId.Comparer);
+		private readonly Dictionary<MyDefinitionId, int> m_typeIdToIndex = new Dictionary<MyDefinitionId, int>(MyDefinitionId.Comparer);
+		private readonly Dictionary<MyDefinitionId, bool> m_typeIdToConveyorConnectionRequired = new Dictionary<MyDefinitionId, bool>(MyDefinitionId.Comparer);
+
+        private readonly HashSet<MyDefinitionId> m_typesToRemove = new HashSet<MyDefinitionId>(MyDefinitionId.Comparer);
+
+        private readonly MyConcurrentHashSet<MyResourceSinkComponent> m_sinksToAdd = new MyConcurrentHashSet<MyResourceSinkComponent>();
+        private readonly MyConcurrentHashSet<MyTuple<MyResourceSinkComponent, bool>> m_sinksToRemove = new MyConcurrentHashSet<MyTuple<MyResourceSinkComponent, bool>>();
+        private readonly MyConcurrentHashSet<MyResourceSourceComponent> m_sourcesToAdd = new MyConcurrentHashSet<MyResourceSourceComponent>();
+        private readonly MyConcurrentHashSet<MyResourceSourceComponent> m_sourcesToRemove = new MyConcurrentHashSet<MyResourceSourceComponent>();
+        private readonly MyConcurrentDictionary<MyDefinitionId, int> m_changedTypes = new MyConcurrentDictionary<MyDefinitionId, int>(MyDefinitionId.Comparer);
 
 	    /// <summary>
 	    /// Remaining fuel time in hours.
@@ -250,11 +260,6 @@ namespace Sandbox.Game.EntityComponents
 	    #region Properties
 
 	    public bool AllEnabledRecently { get { return m_allEnabledCounter <= 30; } }
-		public float MaxAvailableResource { get { return m_dataPerType[0].MaxAvailableResource; } }
-		public float MaxAvailableResourceByType(MyDefinitionId resourceTypeId) { return m_dataPerType[GetTypeIndex(resourceTypeId)].MaxAvailableResource; }
-
-		public float TotalRequiredInput { get { return TotalRequiredInputByType(m_typeIdToIndexTotal.Keys.First()); } }
-		public float TotalRequiredInputByType(MyDefinitionId type) { return m_dataPerType[GetTypeIndex(type)].SinkDataByPriority.Last().RequiredInputCumulative; }
 
 	    /// <summary>
 	    /// For debugging purposes. Enables trace messages and watches for this instance.
@@ -274,63 +279,68 @@ namespace Sandbox.Game.EntityComponents
 
 		public static readonly MyDefinitionId ElectricityId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Electricity");
 
-		private static readonly Dictionary<MyDefinitionId, int> m_typeIdToIndexTotal = new Dictionary<MyDefinitionId, int>();
-		private static readonly Dictionary<MyDefinitionId, bool> m_typeIdToConveyorConnectionRequiredTotal = new Dictionary<MyDefinitionId, bool>(); 
+		private static readonly Dictionary<MyDefinitionId, int> m_typeIdToIndexTotal = new Dictionary<MyDefinitionId, int>(MyDefinitionId.Comparer);
+        private static readonly Dictionary<MyDefinitionId, bool> m_typeIdToConveyorConnectionRequiredTotal = new Dictionary<MyDefinitionId, bool>(MyDefinitionId.Comparer);
 
-		private static readonly Dictionary<MyStringHash, int> m_sourceSubtypeToPriority = new Dictionary<MyStringHash, int>();
-		private static readonly Dictionary<MyStringHash, int> m_sinkSubtypeToPriority = new Dictionary<MyStringHash, int>();
-		private readonly static Dictionary<MyStringHash, bool> m_sinkSubtypeToAdaptability = new Dictionary<MyStringHash, bool>();
+        private static readonly Dictionary<MyStringHash, int> m_sourceSubtypeToPriority = new Dictionary<MyStringHash, int>(MyStringHash.Comparer);
+        private static readonly Dictionary<MyStringHash, int> m_sinkSubtypeToPriority = new Dictionary<MyStringHash, int>(MyStringHash.Comparer);
+        private readonly static Dictionary<MyStringHash, bool> m_sinkSubtypeToAdaptability = new Dictionary<MyStringHash, bool>(MyStringHash.Comparer);
 		public static DictionaryReader<MyStringHash, int> SinkSubtypesToPriority { get { return new DictionaryReader<MyStringHash, int>(m_sinkSubtypeToPriority); } }
 
-
-	    private static void InitializeMappings()
+	    internal static void InitializeMappings()
 	    {
-			var distributionGroups = MyDefinitionManager.Static.GetDefinitionsOfType<MyResourceDistributionGroupDefinition>();
+            lock (m_typeIdToIndexTotal)
+            {
+                if (m_sinkGroupPrioritiesTotal >= 0 || m_sourceGroupPrioritiesTotal >= 0)
+                    return;
 
-			var sortedGroups = distributionGroups.OrderBy(def => def.Priority);
+                var distributionGroups = MyDefinitionManager.Static.GetDefinitionsOfType<MyResourceDistributionGroupDefinition>();
 
-			if (distributionGroups.Count > 0)
-			{
-				m_sinkGroupPrioritiesTotal = 0;
-				m_sourceGroupPrioritiesTotal = 0;
-			}
+                var sortedGroups = distributionGroups.OrderBy(def => def.Priority);
 
-			foreach (MyResourceDistributionGroupDefinition distributionGroup in sortedGroups)
-			{
-				if (!distributionGroup.IsSource)
-				{
-					m_sinkSubtypeToPriority.Add(distributionGroup.Id.SubtypeId, m_sinkGroupPrioritiesTotal++);
-					m_sinkSubtypeToAdaptability.Add(distributionGroup.Id.SubtypeId, distributionGroup.IsAdaptible);
-				}
-				else // IsSource == true
-				{
-					m_sourceSubtypeToPriority.Add(distributionGroup.Id.SubtypeId, m_sourceGroupPrioritiesTotal++);
-				}
-			}
+                if (distributionGroups.Count > 0)
+                {
+                    m_sinkGroupPrioritiesTotal = 0;
+                    m_sourceGroupPrioritiesTotal = 0;
+                }
 
-			m_sinkGroupPrioritiesTotal = Math.Max(m_sinkGroupPrioritiesTotal, 1);
-			m_sourceGroupPrioritiesTotal = Math.Max(m_sourceGroupPrioritiesTotal, 1);
+                foreach (MyResourceDistributionGroupDefinition distributionGroup in sortedGroups)
+                {
+                    if (!distributionGroup.IsSource)
+                    {
+                        m_sinkSubtypeToPriority.Add(distributionGroup.Id.SubtypeId, m_sinkGroupPrioritiesTotal++);
+                        m_sinkSubtypeToAdaptability.Add(distributionGroup.Id.SubtypeId, distributionGroup.IsAdaptible);
+                    }
+                    else // IsSource == true
+                    {
+                        m_sourceSubtypeToPriority.Add(distributionGroup.Id.SubtypeId, m_sourceGroupPrioritiesTotal++);
+                    }
+                }
 
-			m_sinkSubtypeToPriority.Add(MyStringHash.NullOrEmpty, m_sinkGroupPrioritiesTotal-1);
-			m_sinkSubtypeToAdaptability.Add(MyStringHash.NullOrEmpty, false);
-			m_sourceSubtypeToPriority.Add(MyStringHash.NullOrEmpty, m_sourceGroupPrioritiesTotal - 1);
+                m_sinkGroupPrioritiesTotal = Math.Max(m_sinkGroupPrioritiesTotal, 1);
+                m_sourceGroupPrioritiesTotal = Math.Max(m_sourceGroupPrioritiesTotal, 1);
 
-		    m_typeGroupCountTotal = 0;
-			m_typeIdToIndexTotal.Add(ElectricityId, m_typeGroupCountTotal++);	// Electricity is always in game for now (needed in ME for jetpack)
-			m_typeIdToConveyorConnectionRequiredTotal.Add(ElectricityId, false);
+                m_sinkSubtypeToPriority.Add(MyStringHash.NullOrEmpty, m_sinkGroupPrioritiesTotal - 1);
+                m_sinkSubtypeToAdaptability.Add(MyStringHash.NullOrEmpty, false);
+                m_sourceSubtypeToPriority.Add(MyStringHash.NullOrEmpty, m_sourceGroupPrioritiesTotal - 1);
 
-		    var gasTypes = MyDefinitionManager.Static.GetDefinitionsOfType<MyGasProperties>();	// Get viable fuel types from some definition?
-		    foreach (var gasDefinition in gasTypes)
-		    {
-			    m_typeIdToIndexTotal.Add(gasDefinition.Id, m_typeGroupCountTotal++);
-				m_typeIdToConveyorConnectionRequiredTotal.Add(gasDefinition.Id, true);	// MK: TODO: Read this from definition
-		    }
+                m_typeGroupCountTotal = 0;
+                m_typeIdToIndexTotal.Add(ElectricityId, m_typeGroupCountTotal++);	// Electricity is always in game for now (needed in ME for jetpack)
+                m_typeIdToConveyorConnectionRequiredTotal.Add(ElectricityId, false);
+
+                var gasTypes = MyDefinitionManager.Static.GetDefinitionsOfType<MyGasProperties>();	// Get viable fuel types from some definition?
+                foreach (var gasDefinition in gasTypes)
+                {
+                    m_typeIdToIndexTotal.Add(gasDefinition.Id, m_typeGroupCountTotal++);
+                    m_typeIdToConveyorConnectionRequiredTotal.Add(gasDefinition.Id, true);	// MK: TODO: Read this from definition
+                }
+            }
 	    }
 
-		private void InitializeNewType(MyDefinitionId typeId)
+		private void InitializeNewType(ref MyDefinitionId typeId)
 		{
 			m_typeIdToIndex.Add(typeId, m_typeGroupCount++);
-			m_typeIdToConveyorConnectionRequired.Add(typeId, IsConveyorConnectionRequiredTotal(typeId));
+			m_typeIdToConveyorConnectionRequired.Add(typeId, IsConveyorConnectionRequiredTotal(ref typeId));
 
             var sinksByPriority = new HashSet<MyResourceSinkComponent>[m_sinkGroupPrioritiesTotal];
             var sourceByPriority = new HashSet<MyResourceSourceComponent>[m_sourceGroupPrioritiesTotal];
@@ -350,7 +360,7 @@ namespace Sandbox.Game.EntityComponents
 		    List<int> stockpilingStorageIndices = null;
 		    List<int> otherStorageIndices = null;
 
-		    if (IsConveyorConnectionRequired(typeId))
+		    if (IsConveyorConnectionRequired(ref typeId))
 		    {
                 distributionGroups = new List<MyPhysicalDistributionGroup>();
 		    }
@@ -391,25 +401,166 @@ namespace Sandbox.Game.EntityComponents
 
 		public MyResourceDistributorComponent()
 	    {
-		    if (m_sinkGroupPrioritiesTotal < 0 || m_sourceGroupPrioritiesTotal < 0)
-			    InitializeMappings();
+			InitializeMappings();
 	    }
 
 	    #region Add and remove
+
+        private void RemoveTypesFromChanges(ListReader<MyDefinitionId> types)
+        {
+            foreach(var resourceType in types)
+            {
+                int existingCount;
+                if (m_changedTypes.TryGetValue(resourceType, out existingCount))
+                    m_changedTypes[resourceType] = existingCount - 1;
+            }
+        }
 
 	    public void AddSink(MyResourceSinkComponent sink)
 	    {
 		    Debug.Assert(sink != null);
 
-		    foreach (var typeId in sink.AcceptedResources)
-		    {
-				if(!m_initializedTypes.Contains(typeId))
-					InitializeNewType(typeId);
+            MyTuple<MyResourceSinkComponent, bool> foundTuple = default(MyTuple<MyResourceSinkComponent, bool>);
+            foreach(var sinkPair in m_sinksToRemove)
+            {
+                if(sinkPair.Item1 == sink)
+                {
+                    foundTuple = sinkPair;
+                    break;
+                }
+            }
 
-				var sinksOfType = GetSinksOfType(typeId, sink.Group);
-				Debug.Assert(MatchesAdaptability(sinksOfType, sink), "All sinks in the same group must have same adaptability.");
+            lock (m_sinksToRemove)
+            {
+                if (foundTuple.Item1 != null)
+                {
+                    m_sinksToRemove.Remove(foundTuple);
+                    RemoveTypesFromChanges(foundTuple.Item1.AcceptedResources);
+                    return;
+                }
+            }
+            lock (m_sinksToAdd)
+            {
+                m_sinksToAdd.Add(sink);
+            }
+
+            foreach (var resourceType in sink.AcceptedResources)
+            {
+                int existingCount;
+                if (!m_changedTypes.TryGetValue(resourceType, out existingCount))
+                    m_changedTypes.Add(resourceType, 1);
+                else
+                    m_changedTypes[resourceType] = existingCount+1;
+            }
+	    }
+
+	    public void RemoveSink(MyResourceSinkComponent sink, bool resetSinkInput = true, bool markedForClose = false)
+	    {
+		    if (markedForClose)
+			    return;
+
+		    Debug.Assert(sink != null);
+
+            lock (m_sinksToAdd)
+            {
+                if (m_sinksToAdd.Contains(sink))
+                {
+                    m_sinksToAdd.Remove(sink);
+                    RemoveTypesFromChanges(sink.AcceptedResources);
+                    return;
+                }
+            }
+
+            lock (m_sinksToRemove)
+            {
+                m_sinksToRemove.Add(MyTuple.Create(sink, true));
+            }
+
+            foreach (var resourceType in sink.AcceptedResources)
+            {
+                int existingCount;
+                if (!m_changedTypes.TryGetValue(resourceType, out existingCount))
+                    m_changedTypes.Add(resourceType, 1);
+                else
+                    m_changedTypes[resourceType] = existingCount+1;
+            }
+	    }
+
+	    public void AddSource(MyResourceSourceComponent source)
+	    {
+		    Debug.Assert(source != null);
+
+            lock (m_sourcesToRemove)
+            {
+                if (m_sourcesToRemove.Contains(source))
+                {
+                    m_sourcesToRemove.Remove(source);
+                    RemoveTypesFromChanges(source.ResourceTypes);
+                    return;
+                }
+            }
+
+            lock (m_sourcesToAdd)
+            {
+                m_sourcesToAdd.Add(source);
+            }
+
+            foreach (var resourceType in source.ResourceTypes)
+            {
+                int existingCount;
+                if (!m_changedTypes.TryGetValue(resourceType, out existingCount))
+                    m_changedTypes.Add(resourceType, 1);
+                else
+                    m_changedTypes[resourceType] = existingCount+1;
+            }
+	    }
+
+	    public void RemoveSource(MyResourceSourceComponent source)
+	    {
+		    Debug.Assert(source != null);
+
+            lock (m_sourcesToAdd)
+            {
+                if (m_sourcesToAdd.Contains(source))
+                {
+                    m_sourcesToAdd.Remove(source);
+                    RemoveTypesFromChanges(source.ResourceTypes);
+                    return;
+                }
+            }
+
+            lock (m_sourcesToRemove)
+            {
+                m_sourcesToRemove.Add(source);
+            }
+
+            foreach (var resourceType in source.ResourceTypes)
+            {
+                int existingCount;
+                if (!m_changedTypes.TryGetValue(resourceType, out existingCount))
+                    m_changedTypes.Add(resourceType, 1);
+                else
+                    m_changedTypes[resourceType] = existingCount+1;
+            }
+	    }
+
+        private void AddSinkLazy(MyResourceSinkComponent sink)
+        {
+            foreach (var acceptedResourceId in sink.AcceptedResources)
+		    {
+                MyDefinitionId typeId = acceptedResourceId;
+				if(!m_initializedTypes.Contains(typeId))
+					InitializeNewType(ref typeId);
+
+				var sinksOfType = GetSinksOfType(ref typeId, sink.Group);
+                if (sinksOfType == null)
+                {
+                    Debug.Fail("SinksOfType is null on add of " + typeId.ToString());
+                    continue;
+                }
+				//Debug.Assert(MatchesAdaptability(sinksOfType, sink), "All sinks in the same group must have same adaptability.");
 				Debug.Assert(!sinksOfType.Contains(sink));
-			    int typeIndex = GetTypeIndex(typeId);
+			    int typeIndex = GetTypeIndex(ref typeId);
 
                 MyResourceSourceComponent matchingSource = null;
 		        if (sink.Container != null)
@@ -441,24 +592,28 @@ namespace Sandbox.Game.EntityComponents
 		            sinksOfType.Add(sink);
 
 			    m_dataPerType[typeIndex].NeedsRecompute = true;
+                m_dataPerType[typeIndex].GroupsDirty = true;
 			    m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
 		    }
 
 		    sink.RequiredInputChanged += Sink_RequiredInputChanged;
 		    sink.ResourceAvailable += Sink_IsResourceAvailable;
 	        sink.OnAddType += Sink_OnAddType;
-	    }
+            sink.OnRemoveType += Sink_OnRemoveType;
+        }
 
-	    public void RemoveSink(MyResourceSinkComponent sink, bool resetSinkInput = true, bool markedForClose = false)
-	    {
-		    if (markedForClose)
-			    return;
-		    Debug.Assert(sink != null);
-
-		    foreach (var typeId in sink.AcceptedResources)
+        private void RemoveSinkLazy(MyResourceSinkComponent sink, bool resetSinkInput = true)
+        {
+            foreach (var acceptedResourceId in sink.AcceptedResources)
 		    {
-			    var sinksOfType = GetSinksOfType(typeId, sink.Group);
-			    int typeIndex = GetTypeIndex(typeId);
+                MyDefinitionId typeId = acceptedResourceId;
+			    var sinksOfType = GetSinksOfType(ref typeId, sink.Group);
+                if (sinksOfType == null)
+                {
+                    //Debug.Fail("SinksOfType is null on removal of " + typeId.ToString());
+                    continue;
+                }
+			    int typeIndex = GetTypeIndex(ref typeId);
 
                 if (!sinksOfType.Remove(sink))
                 {
@@ -481,27 +636,33 @@ namespace Sandbox.Game.EntityComponents
                 }
 
 			    m_dataPerType[typeIndex].NeedsRecompute = true;
+                m_dataPerType[typeIndex].GroupsDirty = true;
 				m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
 				if (resetSinkInput)
-					sink.SetInputFromDistributor(typeId, 0.0f, IsAdaptible(sink));
+					sink.SetInputFromDistributor(typeId, 0.0f, IsAdaptible(sink), false);
 		    }
 
+            sink.OnRemoveType -= Sink_OnRemoveType;
 	        sink.OnAddType -= Sink_OnAddType;
 		    sink.RequiredInputChanged -= Sink_RequiredInputChanged;
 		    sink.ResourceAvailable -= Sink_IsResourceAvailable;
-	    }
+        }
 
-	    public void AddSource(MyResourceSourceComponent source)
-	    {
-		    Debug.Assert(source != null);
-
-		    foreach (var typeId in source.ResourceTypes)
+        private void AddSourceLazy(MyResourceSourceComponent source)
+        {
+            foreach (var resourceType in source.ResourceTypes)
 		    {
+                var typeId = resourceType;
 				if(!m_initializedTypes.Contains(typeId))
-					InitializeNewType(typeId);
+					InitializeNewType(ref typeId);
 
-			    var sourcesOfType = GetSourcesOfType(typeId, source.Group);
-			    int typeIndex = GetTypeIndex(typeId);
+			    var sourcesOfType = GetSourcesOfType(ref typeId, source.Group);
+                if (sourcesOfType == null)
+                {
+                    Debug.Fail("SourcesOfType is null on add of " + typeId.ToString());
+                    continue;
+                }
+			    int typeIndex = GetTypeIndex(ref typeId);
 				Debug.Assert(!sourcesOfType.Contains(source));
 				Debug.Assert(MatchesInfiniteCapacity(sourcesOfType, source), "All producers in the same group must have same 'infinite capacity' state.");
 
@@ -535,6 +696,7 @@ namespace Sandbox.Game.EntityComponents
 				    sourcesOfType.Add(source);
 
 			    m_dataPerType[typeIndex].NeedsRecompute = true;
+                m_dataPerType[typeIndex].GroupsDirty = true;
 			    ++m_dataPerType[typeIndex].SourceCount;
 
 				if (m_dataPerType[typeIndex].SourceCount == 1)
@@ -551,16 +713,20 @@ namespace Sandbox.Game.EntityComponents
 		    source.HasCapacityRemainingChanged += source_HasRemainingCapacityChanged;
 		    source.MaxOutputChanged += source_MaxOutputChanged;
 	        source.ProductionEnabledChanged += source_ProductionEnabledChanged;
-	    }
+        }
 
-	    public void RemoveSource(MyResourceSourceComponent source)
-	    {
-		    Debug.Assert(source != null);
-
-		    foreach (var typeId in source.ResourceTypes)
+        private void RemoveSourceLazy(MyResourceSourceComponent source)
+        {
+            foreach (var resourceTypeId in source.ResourceTypes)
 		    {
-			    var sourcesOfType = GetSourcesOfType(typeId, source.Group);
-			    var typeIndex = GetTypeIndex(typeId);
+                MyDefinitionId typeId = resourceTypeId;
+			    var sourcesOfType = GetSourcesOfType(ref typeId, source.Group);
+                if (sourcesOfType == null)
+                {
+                    Debug.Fail("SourcesOfType is null on removal of " + typeId.ToString());
+                    continue;
+                }
+			    var typeIndex = GetTypeIndex(ref typeId);
 
                 if (!sourcesOfType.Remove(source))
                 {
@@ -583,6 +749,7 @@ namespace Sandbox.Game.EntityComponents
                 }
 
 			    m_dataPerType[typeIndex].NeedsRecompute = true;
+                m_dataPerType[typeIndex].GroupsDirty = true;
 
 			    --m_dataPerType[typeIndex].SourceCount;
 				if (m_dataPerType[typeIndex].SourceCount == 0)
@@ -591,9 +758,15 @@ namespace Sandbox.Game.EntityComponents
 				}
 				else if (m_dataPerType[typeIndex].SourceCount== 1)
 				{
-				    var firstSourceOfType = GetFirstSourceOfType(typeId);
-                    if(firstSourceOfType != null)
-					    ChangeSourcesState(typeId, (firstSourceOfType.Enabled) ? MyMultipleEnabledEnum.AllEnabled : MyMultipleEnabledEnum.AllDisabled, MySession.LocalPlayerId);
+				    var firstSourceOfType = GetFirstSourceOfType(ref typeId);
+                    if (firstSourceOfType != null)
+                        ChangeSourcesState(typeId, (firstSourceOfType.Enabled) ? MyMultipleEnabledEnum.AllEnabled : MyMultipleEnabledEnum.AllDisabled, MySession.Static.LocalPlayerId);
+                    else
+                    {
+                        // Bug Fix - When battery is on grid it somehow leaves Sources = 1 even tought that no sources are present
+                        --m_dataPerType[typeIndex].SourceCount;
+                        m_dataPerType[typeIndex].SourcesEnabled = MyMultipleEnabledEnum.NoObjects;
+                    }
 				}
 				else if (m_dataPerType[typeIndex].SourcesEnabled == MyMultipleEnabledEnum.Mixed)
 				{
@@ -605,13 +778,15 @@ namespace Sandbox.Game.EntityComponents
 	        source.ProductionEnabledChanged -= source_ProductionEnabledChanged;
 		    source.MaxOutputChanged -= source_MaxOutputChanged;
 		    source.HasCapacityRemainingChanged -= source_HasRemainingCapacityChanged;
-		    
-	    }
+        }
 
 	    public int GetSourceCount(MyDefinitionId resourceTypeId, MyStringHash sourceGroupType)
 	    {
             int additionalCount = 0;
-	        int typeIndex = GetTypeIndex(resourceTypeId);
+	        int typeIndex;
+            if (!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
+                return 0;
+
             int priorityIndex = m_sourceSubtypeToPriority[sourceGroupType];
             foreach(var pair in m_dataPerType[typeIndex].InputOutputList)
                 if (pair.Item2.Group == sourceGroupType && pair.Item2.CurrentOutputByType(resourceTypeId) > 0) ++additionalCount;
@@ -623,13 +798,21 @@ namespace Sandbox.Game.EntityComponents
 
 	    public void UpdateBeforeSimulation10()
 	    {
+            CheckDistributionSystemChanges();
 		    foreach (var typeId in m_typeIdToIndex.Keys)
 		    {
-			    int typeIndex = GetTypeIndex(typeId);
-			    if (m_dataPerType[typeIndex].NeedsRecompute)
-				    RecomputeResourceDistribution(typeId);
+                MyDefinitionId localTypeId = typeId;
+                int typeIndex = GetTypeIndex(ref localTypeId);
+			    if (NeedsRecompute(ref localTypeId))
+                    RecomputeResourceDistribution(ref localTypeId, false);
 				m_dataPerType[typeIndex].LastFuelTimeCompute += 10;
 		    }
+
+            foreach (var typeToRemove in m_typesToRemove)
+            {
+                var tmpType = typeToRemove;
+                RemoveType(ref tmpType);
+            }
 
 		    if (ShowTrace)
 			    UpdateTrace();
@@ -645,7 +828,9 @@ namespace Sandbox.Game.EntityComponents
 		    bool isWorking = true;
 		    int workingGroupCount = 0;
 		    int i = 0;
-		    var typeIndex = GetTypeIndex(ElectricityId);
+		    int typeIndex;
+            if (!TryGetTypeIndex(ElectricityId, out typeIndex))
+                return;
 			for (; i < m_dataPerType[typeIndex].SinkDataByPriority.Length; ++i)
 		    {
 			    if (isWorking &&
@@ -664,9 +849,13 @@ namespace Sandbox.Game.EntityComponents
 
 		public void ChangeSourcesState(MyDefinitionId resourceTypeId, MyMultipleEnabledEnum state, long playerId)
 		{
-			int typeIndex = GetTypeIndex(resourceTypeId);
 			MyDebug.AssertDebug(state != MyMultipleEnabledEnum.Mixed, "You must NOT use this property to set mixed state.");
 			MyDebug.AssertDebug(state != MyMultipleEnabledEnum.NoObjects, "You must NOT use this property to set state without any objects.");
+            int typeIndex;
+            if (TryGetTypeIndex(resourceTypeId, out typeIndex) == false)
+            {
+                return;
+            }
 			// You cannot change the state when there are no objects.
 			if (m_dataPerType[typeIndex].SourcesEnabled == state || m_dataPerType[typeIndex] .SourcesEnabled == MyMultipleEnabledEnum.NoObjects)
 				return;
@@ -702,7 +891,7 @@ namespace Sandbox.Game.EntityComponents
 		    ProfilerShort.Begin("MyResourceDistributor.ComputeRemainingFuelTime()");
 		    try
 		    {
-			    var typeIndex = GetTypeIndex(resourceTypeId);
+			    var typeIndex = GetTypeIndex(ref resourceTypeId);
 			    if (m_dataPerType[typeIndex].MaxAvailableResource == 0.0f)
 				    return 0.0f;
 
@@ -780,7 +969,7 @@ namespace Sandbox.Game.EntityComponents
 	    {
 		    ProfilerShort.Begin("MyResourceDistributor.RefreshSourcesEnabled");
 	        int typeIndex;
-	        if (!TryGetTypeIndex(resourceTypeId, out typeIndex))
+	        if (!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
 	            return;
 
 			m_dataPerType[typeIndex].SourcesEnabledDirty = false;
@@ -826,21 +1015,103 @@ namespace Sandbox.Game.EntityComponents
 	            foreach (var typeData in m_dataPerType) // TODO: Build the groups incrementally and update only the group that was affected when something changes
 	            {
 	                typeData.GroupsDirty = true;
+	                typeData.NeedsRecompute = true;
 	            }
 	        }
 	    }
 
-	    private void RecomputeResourceDistribution(MyDefinitionId typeId)
+        private void CheckDistributionSystemChanges()
+        {
+            if (m_sinksToRemove.Count > 0)
+            {
+                lock (m_sinksToRemove)
+                {
+                    foreach (var sinkResetPair in m_sinksToRemove)
+                    {
+                        RemoveSinkLazy(sinkResetPair.Item1, sinkResetPair.Item2);
+
+                        foreach (var resourceType in sinkResetPair.Item1.AcceptedResources)
+                            m_changedTypes[resourceType] = m_changedTypes[resourceType] - 1;
+                    }
+                    m_sinksToRemove.Clear();
+                }
+            }
+
+            if (m_sourcesToRemove.Count > 0)
+            {
+                lock (m_sourcesToRemove)
+                {
+                    foreach (var sourceToRemove in m_sourcesToRemove)
+                    {
+                        RemoveSourceLazy(sourceToRemove);
+
+                        foreach (var resourceType in sourceToRemove.ResourceTypes)
+                            m_changedTypes[resourceType] = m_changedTypes[resourceType] - 1;
+                    }
+                    m_sourcesToRemove.Clear();
+                }
+            }
+
+            if (m_sourcesToAdd.Count > 0)
+            {
+                lock (m_sourcesToAdd)
+                {
+                    foreach (var sourceToAdd in m_sourcesToAdd)
+                    {
+                        AddSourceLazy(sourceToAdd);
+
+                        foreach (var resourceType in sourceToAdd.ResourceTypes)
+                            m_changedTypes[resourceType] = m_changedTypes[resourceType] - 1;
+                    }
+                    m_sourcesToAdd.Clear();
+                }
+            }
+
+            if (m_sinksToAdd.Count > 0)
+            {
+                lock (m_sinksToAdd)
+                {
+                    foreach (var sinkToAdd in m_sinksToAdd)
+                    {
+                        AddSinkLazy(sinkToAdd);
+
+                        foreach (var resourceType in sinkToAdd.AcceptedResources)
+                            m_changedTypes[resourceType] = m_changedTypes[resourceType] - 1;
+                    }
+                    m_sinksToAdd.Clear();
+                }
+            }
+
+
+            foreach(var idCountPair in m_changedTypes)
+            {
+            //    Debug.Assert(idCountPair.Value == 0);
+            }
+        }
+
+	    private void RecomputeResourceDistribution(ref MyDefinitionId typeId, bool updateChanges = true)
 	    {
 		    ProfilerShort.Begin("MyResourceDistributor.RecomputeResourceDistribution");
 
-		    int typeIndex = GetTypeIndex(typeId);
+            if(updateChanges)
+                CheckDistributionSystemChanges();
 
-			if (!IsConveyorConnectionRequired(typeId))
+		    int typeIndex = GetTypeIndex(ref typeId);
+
+            if (m_dataPerType[typeIndex].SinksByPriority.Length == 0 &&
+                m_dataPerType[typeIndex].SourcesByPriority.Length == 0 &&
+                m_dataPerType[typeIndex].InputOutputList.Count == 0)
+            {
+                m_typesToRemove.Add(typeId);
+                ProfilerShort.End();
+                return;
+            }
+
+			if (!IsConveyorConnectionRequired(ref typeId))
 		    {
                 ProfilerShort.Begin("ComputeInitial");
 			    ComputeInitialDistributionData(
-					typeId,
+					ref typeId,
 					m_dataPerType[typeIndex].SinkDataByPriority,
 					m_dataPerType[typeIndex].SourceDataByPriority,
                     ref m_dataPerType[typeIndex].InputOutputData,
@@ -850,9 +1121,10 @@ namespace Sandbox.Game.EntityComponents
 					m_dataPerType[typeIndex].StockpilingStorageIndices,
 					m_dataPerType[typeIndex].OtherStorageIndices,
 					out m_dataPerType[typeIndex].MaxAvailableResource);
+
                 ProfilerShort.BeginNextBlock("RecomputeDistribution");
 				m_dataPerType[typeIndex].ResourceState = RecomputeResourceDistributionPartial(
-					typeId, 
+					ref typeId, 
 					0,
 					m_dataPerType[typeIndex].SinkDataByPriority,
 					m_dataPerType[typeIndex].SourceDataByPriority,
@@ -867,11 +1139,12 @@ namespace Sandbox.Game.EntityComponents
 		    }
 		    else
 		    {
-                ProfilerShort.Begin("RecreatePhysical" + typeId);
+                ProfilerShort.Begin("RecreatePhysical " + typeId);
 		        if (m_dataPerType[typeIndex].GroupsDirty)
 		        {
+                    m_dataPerType[typeIndex].GroupsDirty = false;
 		            m_dataPerType[typeIndex].DistributionGroupsInUse = 0;
-		            RecreatePhysicalDistributionGroups(typeId, m_dataPerType[typeIndex].SinksByPriority, m_dataPerType[typeIndex].SourcesByPriority, m_dataPerType[typeIndex].InputOutputList);
+		            RecreatePhysicalDistributionGroups(ref typeId, m_dataPerType[typeIndex].SinksByPriority, m_dataPerType[typeIndex].SourcesByPriority, m_dataPerType[typeIndex].InputOutputList);
 		        }
 
 		        MyResourceStateEnum totalState = MyResourceStateEnum.Ok;
@@ -882,7 +1155,7 @@ namespace Sandbox.Game.EntityComponents
 
                     ProfilerShort.BeginNextBlock("ComputeInitial");
 					ComputeInitialDistributionData(
-					typeId,
+					ref typeId,
                     group.SinkDataByPriority,
                     group.SourceDataByPriority,
                     ref group.InputOutputData,
@@ -895,7 +1168,7 @@ namespace Sandbox.Game.EntityComponents
 
                     ProfilerShort.BeginNextBlock("RecomputeDistribution");
                     group.ResourceState = RecomputeResourceDistributionPartial(
-					typeId,
+					ref typeId,
 					0,
                     group.SinkDataByPriority,
                     group.SourceDataByPriority,
@@ -921,7 +1194,7 @@ namespace Sandbox.Game.EntityComponents
 	    }
 
 	    void RecreatePhysicalDistributionGroups(
-            MyDefinitionId typeId,
+            ref MyDefinitionId typeId,
             HashSet<MyResourceSinkComponent>[] allSinksByPriority,
             HashSet<MyResourceSourceComponent>[] allSourcesByPriority,
             List<MyTuple<MyResourceSinkComponent, MyResourceSourceComponent>> allSinkSources)
@@ -935,11 +1208,11 @@ namespace Sandbox.Game.EntityComponents
                         if (sink.TemporaryConnectedEntity == null)
                             continue;
 
-                        SetEntityGroupForTempConnected(typeId, sink);
+                        SetEntityGroupForTempConnected(ref typeId, sink);
                         continue;
                     }
 
-                    SetEntityGroup(typeId, sink.Entity);
+                    SetEntityGroup(ref typeId, sink.Entity);
                 }
             }
 
@@ -952,35 +1225,37 @@ namespace Sandbox.Game.EntityComponents
                         if (source.TemporaryConnectedEntity == null)
                             continue;
 
-                        SetEntityGroupForTempConnected(typeId, source);
+                        SetEntityGroupForTempConnected(ref typeId, source);
                         continue;
                     }
 
-                    SetEntityGroup(typeId, source.Entity);
+                    SetEntityGroup(ref typeId, source.Entity);
                 }
             }
 
             foreach (var sinkSourcePair in allSinkSources)
             {
                 if (sinkSourcePair.Item1.Entity != null)
-                    SetEntityGroup(typeId, sinkSourcePair.Item1.Entity);
+                    SetEntityGroup(ref typeId, sinkSourcePair.Item1.Entity);
             }
 	    }
 
-		void SetEntityGroup(MyDefinitionId typeId, IMyEntity entity)
+		void SetEntityGroup(ref MyDefinitionId typeId, IMyEntity entity)
 		{
 			var block = entity as IMyConveyorEndpointBlock;
 			if (block == null)
 				return;
 
-		    int typeIndex = GetTypeIndex(typeId);
+		    int typeIndex = GetTypeIndex(ref typeId);
 			bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
 			{
                 if (!MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
 					continue;
 
-                m_dataPerType[typeIndex].DistributionGroups[groupIndex].Add(typeId, block);
+                var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
+                group.Add(typeId, block);
+                m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
 				found = true;
 				break;
 			}
@@ -989,16 +1264,20 @@ namespace Sandbox.Game.EntityComponents
 			{
                 if (++m_dataPerType[typeIndex].DistributionGroupsInUse > m_dataPerType[typeIndex].DistributionGroups.Count)
                     m_dataPerType[typeIndex].DistributionGroups.Add(new MyPhysicalDistributionGroup(typeId, block));
-				else
-                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1].Init(typeId, block);
+                else
+                {
+                    var group = m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1];
+                    group.Init(typeId, block);
+                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1] = group;
+                }
 			}
 		}
 
-        void SetEntityGroupForTempConnected(MyDefinitionId typeId, MyResourceSinkComponent sink)
+        void SetEntityGroupForTempConnected(ref MyDefinitionId typeId, MyResourceSinkComponent sink)
         {
             var block = sink.TemporaryConnectedEntity as IMyConveyorEndpointBlock;
 
-            int typeIndex = GetTypeIndex(typeId);
+            int typeIndex = GetTypeIndex(ref typeId);
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
@@ -1025,7 +1304,9 @@ namespace Sandbox.Game.EntityComponents
                         continue;
                 }
 
-                m_dataPerType[typeIndex].DistributionGroups[groupIndex].AddTempConnected(typeId, sink);
+                var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
+                group.AddTempConnected(typeId, sink);
+                m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
                 found = true;
                 break;
             }
@@ -1035,15 +1316,19 @@ namespace Sandbox.Game.EntityComponents
                 if (++m_dataPerType[typeIndex].DistributionGroupsInUse > m_dataPerType[typeIndex].DistributionGroups.Count)
                     m_dataPerType[typeIndex].DistributionGroups.Add(new MyPhysicalDistributionGroup(typeId, sink));
                 else
-                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1].InitFromTempConnected(typeId, sink);
+                {
+                    var group = m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1];
+                    group.InitFromTempConnected(typeId, sink);
+                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1] = group;
+                }
             }
         }
 
-        void SetEntityGroupForTempConnected(MyDefinitionId typeId, MyResourceSourceComponent source)
+        void SetEntityGroupForTempConnected(ref MyDefinitionId typeId, MyResourceSourceComponent source)
         {
             var block = source.TemporaryConnectedEntity as IMyConveyorEndpointBlock;
 
-            int typeIndex = GetTypeIndex(typeId);
+            int typeIndex = GetTypeIndex(ref typeId);
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
@@ -1069,8 +1354,9 @@ namespace Sandbox.Game.EntityComponents
                     if (!addToGroup)
                         continue;
                 }
-
-                m_dataPerType[typeIndex].DistributionGroups[groupIndex].AddTempConnected(typeId, source);
+                var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
+                group.AddTempConnected(typeId, source);
+                m_dataPerType[typeIndex].DistributionGroups[groupIndex] = group;
                 found = true;
                 break;
             }
@@ -1080,12 +1366,16 @@ namespace Sandbox.Game.EntityComponents
                 if (++m_dataPerType[typeIndex].DistributionGroupsInUse > m_dataPerType[typeIndex].DistributionGroups.Count)
                     m_dataPerType[typeIndex].DistributionGroups.Add(new MyPhysicalDistributionGroup(typeId, source));
                 else
-                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1].InitFromTempConnected(typeId, source);
+                {
+                    var group = m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1];
+                    group.InitFromTempConnected(typeId, source);
+                    m_dataPerType[typeIndex].DistributionGroups[m_dataPerType[typeIndex].DistributionGroupsInUse - 1] = group;
+                }
             }
         }
 
-		private void ComputeInitialDistributionData(
-			MyDefinitionId typeId,
+		private static void ComputeInitialDistributionData(
+			ref MyDefinitionId typeId,
 			MySinkGroupData[] sinkDataByPriority,
 			MySourceGroupData[] sourceDataByPriority,
             ref MyTuple<MySinkGroupData, MySourceGroupData> sinkSourceData,
@@ -1135,12 +1425,12 @@ namespace Sandbox.Game.EntityComponents
 				sinkDataByPriority[i].RequiredInputCumulative = requiredInputCumulative;
 			}
 
-            PrepareSinkSourceData(typeId, ref sinkSourceData, sinkSourcePairs, stockpilingStorageList, otherStorageList);
+            PrepareSinkSourceData(ref typeId, ref sinkSourceData, sinkSourcePairs, stockpilingStorageList, otherStorageList);
             maxAvailableResource += sinkSourceData.Item2.MaxAvailableResource;
 		}
 
-		private void PrepareSinkSourceData(
-			MyDefinitionId typeId,
+		private static void PrepareSinkSourceData(
+			ref MyDefinitionId typeId,
 			ref MyTuple<MySinkGroupData, MySourceGroupData> sinkSourceData,
 			List<MyTuple<MyResourceSinkComponent, MyResourceSourceComponent>> sinkSourcePairs,
 			List<int> stockpilingStorageList,
@@ -1178,8 +1468,8 @@ namespace Sandbox.Game.EntityComponents
 	    /// Recomputes power distribution in subset of all priority groups (in range
 	    /// from startPriorityIdx until the end). Passing index 0 recomputes all priority groups.
 	    /// </summary>
-	    private MyResourceStateEnum RecomputeResourceDistributionPartial(
-			MyDefinitionId typeId,
+	    private static MyResourceStateEnum RecomputeResourceDistributionPartial(
+			ref MyDefinitionId typeId,
 			int startPriorityIdx, 
 			MySinkGroupData[] sinkDataByPriority,
 			MySourceGroupData[] sourceDataByPriority,
@@ -1248,7 +1538,8 @@ namespace Sandbox.Game.EntityComponents
 				if (stockpilesRequiredInput <= availableResourcesForStockpiles)
                 {
 					availableResourcesForStockpiles -= stockpilesRequiredInput;
-                    foreach (int pairIndex in stockpilingStorageList)
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (int pairIndex in stockpilingStorageList.ToArray())
                     {
                         var sink = sinkSourcePairs[pairIndex].Item1;
                         sink.SetInputFromDistributor(typeId, sink.RequiredInputByType(typeId), true);
@@ -1257,7 +1548,8 @@ namespace Sandbox.Game.EntityComponents
                 }
                 else
                 {
-                    foreach (int pairIndex in stockpilingStorageList)
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (int pairIndex in stockpilingStorageList.ToArray())
                     {
                         var sink = sinkSourcePairs[pairIndex].Item1;
 						float ratio = sink.RequiredInputByType(typeId) / stockpilesRequiredInput;
@@ -1430,19 +1722,28 @@ namespace Sandbox.Game.EntityComponents
 		    }
 	    }
 
-	    private HashSet<MyResourceSinkComponent> GetSinksOfType(MyDefinitionId typeId, MyStringHash groupType)
+	    private HashSet<MyResourceSinkComponent> GetSinksOfType(ref MyDefinitionId typeId, MyStringHash groupType)
 	    {
-			return m_dataPerType[GetTypeIndex(typeId)].SinksByPriority[m_sinkSubtypeToPriority[groupType]];
+            int typeIndex;
+            int priorityIndex;
+            if (!TryGetTypeIndex(typeId, out typeIndex) || !m_sinkSubtypeToPriority.TryGetValue(groupType, out priorityIndex))
+                return null;
+
+			return m_dataPerType[typeIndex].SinksByPriority[priorityIndex];
 	    }
 
-	    private HashSet<MyResourceSourceComponent> GetSourcesOfType(MyDefinitionId typeId, MyStringHash groupType)
+	    private HashSet<MyResourceSourceComponent> GetSourcesOfType(ref MyDefinitionId typeId, MyStringHash groupType)
 	    {
-		    return m_dataPerType[GetTypeIndex(typeId)].SourcesByPriority[m_sourceSubtypeToPriority[groupType]];
+            int typeIndex, priorityIndex;
+            if (!TryGetTypeIndex(typeId, out typeIndex) || !m_sourceSubtypeToPriority.TryGetValue(groupType, out priorityIndex))
+                return null;
+
+		    return m_dataPerType[typeIndex].SourcesByPriority[priorityIndex];
 	    }
 
-	    private MyResourceSourceComponent GetFirstSourceOfType(MyDefinitionId resourceTypeId)
+	    private MyResourceSourceComponent GetFirstSourceOfType(ref MyDefinitionId resourceTypeId)
 	    {
-		    var typeIndex = GetTypeIndex(resourceTypeId);
+		    var typeIndex = GetTypeIndex(ref resourceTypeId);
 		    for (int i = 0; i < m_dataPerType[typeIndex].SourcesByPriority.Length; ++i)
 		    {
 			    if (m_dataPerType[typeIndex].SourcesByPriority[i].Count > 0)
@@ -1454,7 +1755,7 @@ namespace Sandbox.Game.EntityComponents
 		public MyMultipleEnabledEnum SourcesEnabledByType(MyDefinitionId resourceTypeId)
 		{
 		    int typeIndex;
-            if(!TryGetTypeIndex(resourceTypeId, out typeIndex))
+            if(!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
                 return MyMultipleEnabledEnum.NoObjects;
 
 			if (m_dataPerType[typeIndex].SourcesEnabledDirty)
@@ -1466,7 +1767,7 @@ namespace Sandbox.Game.EntityComponents
 		public float RemainingFuelTimeByType(MyDefinitionId resourceTypeId)
 		{
 			int typeIndex;
-		    if (!TryGetTypeIndex(resourceTypeId, out typeIndex))
+		    if (!TryGetTypeIndex(ref resourceTypeId, out typeIndex))
 		        return 0f;
 
 			if (!m_dataPerType[typeIndex].RemainingFuelTimeDirty || m_dataPerType[typeIndex].LastFuelTimeCompute <= 30)
@@ -1477,16 +1778,29 @@ namespace Sandbox.Game.EntityComponents
 			return m_dataPerType[typeIndex].RemainingFuelTime;
 		}
 
+        private bool NeedsRecompute(ref MyDefinitionId typeId)
+        {
+            int typeIndex;
+            int changeTypeCounter;
+            return  (m_changedTypes.TryGetValue(typeId, out changeTypeCounter) && changeTypeCounter > 0) ||
+                    (TryGetTypeIndex(ref typeId, out typeIndex) && m_dataPerType[typeIndex].NeedsRecompute);
+        }
+
 		public MyResourceStateEnum ResourceStateByType(MyDefinitionId typeId)
 		{
-			var typeIndex = GetTypeIndex(typeId);
-			if (m_dataPerType[typeIndex].NeedsRecompute)
-				RecomputeResourceDistribution(typeId);
+			var typeIndex = GetTypeIndex(ref typeId);
+			if (NeedsRecompute(ref typeId))
+				RecomputeResourceDistribution(ref typeId);
 
 			return m_dataPerType[typeIndex].ResourceState;
 		}
 
-	    private bool TryGetTypeIndex(MyDefinitionId typeId, out int typeIndex)
+        private bool TryGetTypeIndex(MyDefinitionId typeId, out int typeIndex)
+        {
+            return TryGetTypeIndex(ref typeId, out typeIndex);
+        }
+
+	    private bool TryGetTypeIndex(ref MyDefinitionId typeId, out int typeIndex)
 	    {
 	        typeIndex = 0;
 	        if (m_typeGroupCount == 0)
@@ -1497,7 +1811,7 @@ namespace Sandbox.Game.EntityComponents
 	        return true;
 	    }
 
-		private int GetTypeIndex(MyDefinitionId typeId)
+		private int GetTypeIndex(ref MyDefinitionId typeId)
 		{
 			var typeIndex = 0;
 			if (m_typeGroupCount > 1)
@@ -1505,7 +1819,7 @@ namespace Sandbox.Game.EntityComponents
 			return typeIndex;
 		}
 
-		private static int GetTypeIndexTotal(MyDefinitionId typeId)
+		private static int GetTypeIndexTotal(ref MyDefinitionId typeId)
 		{
 			var typeIndex = 0;
 			if (m_typeGroupCountTotal > 1)
@@ -1513,12 +1827,17 @@ namespace Sandbox.Game.EntityComponents
 			return typeIndex;
 		}
 
-		public static bool IsConveyorConnectionRequiredTotal(MyDefinitionId typeId)
+        public static bool IsConveyorConnectionRequiredTotal(MyDefinitionId typeId)
+        {
+            return IsConveyorConnectionRequiredTotal(ref typeId);
+        }
+
+		public static bool IsConveyorConnectionRequiredTotal(ref MyDefinitionId typeId)
 		{
 			return m_typeIdToConveyorConnectionRequiredTotal[typeId];
 		}
 
-		private bool IsConveyorConnectionRequired(MyDefinitionId typeId)
+		private bool IsConveyorConnectionRequired(ref MyDefinitionId typeId)
 		{
 			return m_typeIdToConveyorConnectionRequired[typeId];
 		}
@@ -1533,33 +1852,61 @@ namespace Sandbox.Game.EntityComponents
 			return m_sourceSubtypeToPriority[source.Group];
 		}
 
-		private bool IsAdaptible(MyResourceSinkComponent sink)
+		private static bool IsAdaptible(MyResourceSinkComponent sink)
 		{
 			return m_sinkSubtypeToAdaptability[sink.Group];
 		}
+
+        private void RemoveType(ref MyDefinitionId typeId)
+        {
+            int typeIndex;
+            if (!TryGetTypeIndex(ref typeId, out typeIndex))
+                return;
+
+
+            m_dataPerType.RemoveAt(typeIndex);
+            m_initializedTypes.Remove(typeId);
+            --m_typeGroupCount;
+            m_typeIdToIndex.Remove(typeId);
+            m_typeIdToConveyorConnectionRequired.Remove(typeId);
+            return;
+        }
 
 	    #endregion
 
 	    #region Event handlers
 
-        private void Sink_OnAddType(MyResourceSinkComponent sink)
+        private void Sink_OnAddType(MyResourceSinkComponent sink, MyDefinitionId resourceType)
 	    {
-	        RemoveSink(sink, false);
-            AddSink(sink);
+	        RemoveSinkLazy(sink, false);
+            CheckDistributionSystemChanges();
+            AddSinkLazy(sink);
 	    }
+
+        private void Sink_OnRemoveType(MyResourceSinkComponent sink, MyDefinitionId resourceType)
+        {
+            RemoveSinkLazy(sink, false);
+            CheckDistributionSystemChanges();
+            AddSinkLazy(sink);
+        }
 
 	    private void Sink_RequiredInputChanged(MyDefinitionId changedResourceTypeId, MyResourceSinkComponent changedSink, float oldRequirement, float newRequirement)
 	    {
-			var typeIndex = GetTypeIndex(changedResourceTypeId);
-            if (m_dataPerType[typeIndex].NeedsRecompute)
+			var typeIndex = GetTypeIndex(ref changedResourceTypeId);
+	        if (!TryGetTypeIndex(changedResourceTypeId, out typeIndex))
+	        {
+	            Debug.Fail("Sink required input changed but missing the resource id.");
+	            return;
+	        }
+            if (NeedsRecompute(ref changedResourceTypeId))
             {
-                RecomputeResourceDistribution(changedResourceTypeId);
+                RecomputeResourceDistribution(ref changedResourceTypeId);
                 return;
             }
 
 			int groupId = GetPriority(changedSink);
 
-			if (!IsConveyorConnectionRequired(changedResourceTypeId))
+			if (!IsConveyorConnectionRequired(ref changedResourceTypeId))
 		    {
 				// Go over all priorities, starting from the changedSink.
 				MyDebug.AssertDebug(m_dataPerType[typeIndex].SinkDataByPriority[groupId].RequiredInput >= 0.0f);
@@ -1576,14 +1923,14 @@ namespace Sandbox.Game.EntityComponents
 				}
 
 				PrepareSinkSourceData(
-					changedResourceTypeId,
+					ref changedResourceTypeId,
 					ref m_dataPerType[typeIndex].InputOutputData,
 					m_dataPerType[typeIndex].InputOutputList,
 					m_dataPerType[typeIndex].StockpilingStorageIndices,
 					m_dataPerType[typeIndex].OtherStorageIndices);
 
 			    m_dataPerType[typeIndex].ResourceState = RecomputeResourceDistributionPartial(
-					changedResourceTypeId,
+					ref changedResourceTypeId,
 					groupId,
 					m_dataPerType[typeIndex].SinkDataByPriority,
 					m_dataPerType[typeIndex].SourceDataByPriority,
@@ -1617,14 +1964,14 @@ namespace Sandbox.Game.EntityComponents
 					}
 
 					PrepareSinkSourceData(
-					changedResourceTypeId,
+					ref changedResourceTypeId,
                     ref group.InputOutputData,
                     group.SinkSourcePairs,
                     group.StockpilingStorage,
                     group.OtherStorage);
 
                     group.ResourceState = RecomputeResourceDistributionPartial(
-					changedResourceTypeId,
+					ref changedResourceTypeId,
 					groupId,
                     group.SinkDataByPriority,
                     group.SourceDataByPriority,
@@ -1645,41 +1992,91 @@ namespace Sandbox.Game.EntityComponents
 
 	    private float Sink_IsResourceAvailable(MyDefinitionId resourceTypeId, MyResourceSinkComponent receiver)
 	    {
-		    var typeIndex = GetTypeIndex(resourceTypeId);
-		    int groupIndex = m_sinkSubtypeToPriority[receiver.Group];
-			return m_dataPerType[typeIndex].SinkDataByPriority[groupIndex].RemainingAvailableResource - m_dataPerType[typeIndex].SinkDataByPriority[groupIndex].RequiredInput;
+		    var typeIndex = GetTypeIndex(ref resourceTypeId);
+            int priorityIndex = GetPriority(receiver);
+
+            if (IsConveyorConnectionRequired(ref resourceTypeId))
+            {
+                var receiverEndpoint = receiver.Entity as IMyConveyorEndpointBlock;
+                if(receiverEndpoint == null)
+                    return 0f;
+                var conveyorEndpoint = receiverEndpoint.ConveyorEndpoint;
+
+                int groupIndex;
+                for(groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
+                {
+                    if(m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinksByPriority[priorityIndex].Contains(receiver))
+                        break;
+                }
+                if (groupIndex == m_dataPerType[typeIndex].DistributionGroupsInUse)
+                    return 0f;
+
+                return  m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource +
+                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RemainingAvailableResource -
+                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RequiredInput -
+                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RequiredInput;
+            }
+            else
+            {
+                return m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource + m_dataPerType[typeIndex].InputOutputData.Item1.RemainingAvailableResource
+                        - m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RequiredInput - m_dataPerType[typeIndex].InputOutputData.Item1.RequiredInput;
+            }
 	    }
 
 	    private void source_HasRemainingCapacityChanged(MyDefinitionId changedResourceTypeId, MyResourceSourceComponent source)
 	    {
-		    int typeIndex = GetTypeIndex(changedResourceTypeId);
+		    int typeIndex = GetTypeIndex(ref changedResourceTypeId);
 			m_dataPerType[typeIndex].NeedsRecompute = true;
 			m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
 	    }
 
+        public void ConveyorSystem_OnPoweredChanged()
+        {
+            
+            for (int typeIndex = 0; typeIndex < m_dataPerType.Count; ++typeIndex)
+            {
+            //    m_dataPerType[typeIndex].DistributionGroupsInUse = 0;
+            //    RecreatePhysicalDistributionGroups(typeId, m_dataPerType[typeIndex].SinksByPriority, m_dataPerType[typeIndex].SourcesByPriority, m_dataPerType[typeIndex].InputOutputList);
+            //    m_dataPerType[typeIndex].GroupsDirty = false;
+                m_dataPerType[typeIndex].GroupsDirty = true;
+                m_dataPerType[typeIndex].NeedsRecompute = true;
+                m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
+                m_dataPerType[typeIndex].SourcesEnabledDirty = true;
+            }
+        }
+
 	    private void source_MaxOutputChanged(MyDefinitionId changedResourceTypeId, float oldOutput, MyResourceSourceComponent obj)
 	    {
-			int typeIndex = GetTypeIndex(changedResourceTypeId);
+			int typeIndex = GetTypeIndex(ref changedResourceTypeId);
 		    m_dataPerType[typeIndex].NeedsRecompute = true;
 		    m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
 		    m_dataPerType[typeIndex].SourcesEnabledDirty = true;
 
-		    // Don't wait for next update with few sources.
-		    // Also ensures that when character enters cockpit, his battery is
-		    // turned off right away without waiting for update.
 		    if (m_dataPerType[typeIndex].SourceCount == 1)
-			    RecomputeResourceDistribution(changedResourceTypeId);
+			    RecomputeResourceDistribution(ref changedResourceTypeId);
 	    }
 
         private void source_ProductionEnabledChanged(MyDefinitionId changedResourceTypeId, MyResourceSourceComponent obj)
         {
-            int typeIndex = GetTypeIndex(changedResourceTypeId);
+            int typeIndex = GetTypeIndex(ref changedResourceTypeId);
             m_dataPerType[typeIndex].NeedsRecompute = true;
             m_dataPerType[typeIndex].RemainingFuelTimeDirty = true;
             m_dataPerType[typeIndex].SourcesEnabledDirty = true;
 
             if (m_dataPerType[typeIndex].SourceCount == 1)
-                RecomputeResourceDistribution(changedResourceTypeId);
+                RecomputeResourceDistribution(ref changedResourceTypeId);
+        }
+
+        public float MaxAvailableResourceByType(MyDefinitionId resourceTypeId)
+        {
+            int typeIndex;
+            return TryGetTypeIndex(ref resourceTypeId, out typeIndex) ? m_dataPerType[typeIndex].MaxAvailableResource : 0f;
+        }
+
+        public float TotalRequiredInputByType(MyDefinitionId resourceTypeId)
+        {
+            int typeIndex;
+            return TryGetTypeIndex(ref resourceTypeId, out typeIndex) ? m_dataPerType[typeIndex].SinkDataByPriority.Last().RequiredInputCumulative : 0f;
         }
 
 	    #endregion

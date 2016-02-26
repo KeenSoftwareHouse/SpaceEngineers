@@ -1,4 +1,5 @@
-﻿using Sandbox.Engine.Multiplayer;
+﻿using Sandbox.Common;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -10,7 +11,6 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Game.World.Generator;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
@@ -20,11 +20,16 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRageMath;
+using Sandbox.Common.ObjectBuilders;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.GameSystems
 {
     public class MyGridJumpDriveSystem
     {
+        public const float JUMP_DRIVE_DELAY = 10.0f; // seconds
+
         public const double MIN_JUMP_DISTANCE = 5000.0;
 
         private MyCubeGrid m_grid;
@@ -43,13 +48,13 @@ namespace Sandbox.Game.GameSystems
         private bool m_isJumping = false;
         private float m_prevJumpTime = 0f;
         private bool m_jumped = false;
+        private bool m_effectPlayed;
         
-        private DateTime m_jumpStartTime;
-        private bool m_playEffect = false;
-        private float m_playerFov;
-
+        private float m_jumpTimeLeft;
+        private bool m_playEffect = false;  // is local character affected by effect?
+        
         private Vector3D? m_savedJumpDirection;
-        private long? m_savedElapsedTicks;
+        private float? m_savedRemainingJumpTime;
 
         private MySoundPair m_chargingSound = new MySoundPair("ShipJumpDriveCharging");
         private MySoundPair m_jumpInSound = new MySoundPair("ShipJumpDriveJumpIn");
@@ -66,10 +71,10 @@ namespace Sandbox.Game.GameSystems
             m_soundEmitter = new MyEntity3DSoundEmitter(m_grid);
         }
 
-        public void Init(Vector3D? jumpDriveDirection, long? jumpElapsedTicks)
+        public void Init(Vector3D? jumpDriveDirection, float? remainingTimeForJump)
         {
             m_savedJumpDirection = jumpDriveDirection;
-            m_savedElapsedTicks = jumpElapsedTicks;
+            m_savedRemainingJumpTime = remainingTimeForJump;
 
         }
 
@@ -82,11 +87,11 @@ namespace Sandbox.Game.GameSystems
             return null;
         }
 
-        public long? GetJumpElapsedTicks()
+        internal float? GetRemainingJumpTime()
         {
             if (m_isJumping && !m_jumped)
             {
-                return (TimeUtil.LocalTime - m_jumpStartTime).Ticks;
+                return m_jumpTimeLeft;
             }
             return null;
         }
@@ -115,10 +120,11 @@ namespace Sandbox.Game.GameSystems
 
                 m_isJumping = true;
                 m_jumped = false;
-                m_jumpStartTime = TimeUtil.LocalTime - new TimeSpan(m_savedElapsedTicks.Value);
+                m_jumpTimeLeft = m_savedRemainingJumpTime != null ? m_savedRemainingJumpTime.Value : 0f; 
+                m_effectPlayed = false;
 
                 m_savedJumpDirection = null;
-                m_savedElapsedTicks = null;
+                m_savedRemainingJumpTime = null;
             }
 
             UpdateJumpDriveSystem();
@@ -243,7 +249,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.OK,
                     messageText: GetWarningText(actualDistance),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning)
                     ));
             }
             else
@@ -251,7 +257,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
                     messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
                     size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                     {
                         if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
@@ -330,21 +336,33 @@ namespace Sandbox.Game.GameSystems
         private void UpdateConnectedGrids()
         {
             m_connectedGrids.Clear();
-            foreach (var node in MyCubeGridGroups.Static.Physical.GetGroup(m_grid).Nodes)
+            var group = MyCubeGridGroups.Static.Physical.GetGroup(m_grid);
+            if (group == null)
+                Debug.Fail("Group is null");
+            else
             {
-                if (node.NodeData.Physics != null)
-                {
-                    m_connectedGrids.Add(node.NodeData);
-                }
-            }
-
-            foreach (var node in MyCubeGridGroups.Static.Logical.GetGroup(m_grid).Nodes)
-            {
-                if (!m_connectedGrids.Contains(node.NodeData))
+                foreach (var node in group.Nodes)
                 {
                     if (node.NodeData.Physics != null)
                     {
                         m_connectedGrids.Add(node.NodeData);
+                    }
+                }
+
+            }
+            var lgroup = MyCubeGridGroups.Static.Logical.GetGroup(m_grid);
+            if (lgroup == null)
+                Debug.Fail("Group is null");
+            else
+            {
+                foreach (var node in lgroup.Nodes)
+                {
+                    if (!m_connectedGrids.Contains(node.NodeData))
+                    {
+                        if (node.NodeData.Physics != null)
+                        {
+                            m_connectedGrids.Add(node.NodeData);
+                        }
                     }
                 }
             }
@@ -387,7 +405,20 @@ namespace Sandbox.Game.GameSystems
             regionBBox.Translate(desiredLocation - regionBBox.Center);
 
             
+            MyProceduralWorldGenerator.Static.OverlapAllPlanetSeedsInSphere(new BoundingSphereD(regionBBox.Center, regionBBox.HalfExtents.AbsMax()), m_objectsInRange);
             Vector3D currentSearchPosition = desiredLocation;
+            foreach (var planet in m_objectsInRange)
+            {
+                if (planet.BoundingVolume.Contains(currentSearchPosition) != ContainmentType.Disjoint)
+                {
+                    Vector3D v = currentSearchPosition - planet.BoundingVolume.Center;
+                    v.Normalize();
+                    v *= planet.BoundingVolume.HalfExtents * 1.5;
+                    currentSearchPosition = planet.BoundingVolume.Center + v;
+                    break;
+                }
+            }
+            m_objectsInRange.Clear();
 
             MyProceduralWorldGenerator.Static.OverlapAllAsteroidSeedsInSphere(new BoundingSphereD(regionBBox.Center, regionBBox.HalfExtents.AbsMax()), m_objectsInRange);
             foreach (var asteroid in m_objectsInRange)
@@ -396,11 +427,12 @@ namespace Sandbox.Game.GameSystems
             }
             m_objectsInRange.Clear();
 
-            MyGamePruningStructure.GetAllTopMostEntitiesInBox(ref regionBBox, m_entitiesInRange);
+            MyGamePruningStructure.GetTopMostEntitiesInBox(ref regionBBox, m_entitiesInRange);
 
             // Inflate the obstacles so we only need to check the center of the ship for collisions
             foreach (var entity in m_entitiesInRange)
             {
+                if (!(entity is MyPlanet))
                 {
                     m_obstaclesInRange.Add(entity.PositionComp.WorldAABB.GetInflated(shipBBox.HalfExtents));
                 }
@@ -482,27 +514,32 @@ namespace Sandbox.Game.GameSystems
             return p;
         }
 
-        private bool IsLocalCharacterAffectedByJump()
+        private bool IsLocalCharacterAffectedByJump(bool forceRecompute = false)
         {
-            if (MySession.LocalCharacter == null)
+            if (MySession.Static.LocalCharacter == null)
             {
+                m_playEffect = false;
                 return false;
             }
+
+            if (m_playEffect && !forceRecompute) // cached value
+                return true;
 
             GetCharactersInBoundingBox(GetAggregateBBox(), m_characters);
             foreach (var character in m_characters)
             {
-                if (character == MySession.LocalCharacter)
+                if (character == MySession.Static.LocalCharacter)
                 {
                     if (character.Parent != null)
                     {
                         m_characters.Clear();
+                        m_playEffect = true;
                         return true;
                     }
                 }
             }
             m_characters.Clear();
-
+            m_playEffect = false;
             return false;
         }
 
@@ -525,24 +562,15 @@ namespace Sandbox.Game.GameSystems
 
             m_isJumping = true;
             m_jumped = false;
-            m_jumpStartTime = TimeUtil.LocalTime;
+            m_effectPlayed = false;
+            m_jumpTimeLeft = JUMP_DRIVE_DELAY;
 
             m_shipInfo.Clear();
             
             foreach (var grid in m_connectedGrids)
             {
                 m_shipInfo.Add(grid, grid.WorldMatrix.Translation + m_jumpDirection);
-                grid.GridSystems.JumpSystem.m_jumpStartTime = m_jumpStartTime;
-            }
-
-            if (IsLocalCharacterAffectedByJump())
-            {
-                m_playEffect = true;
-                m_playerFov = MySandboxGame.Config.FieldOfView;
-            }
-            else
-            {
-                m_playEffect = false;
+                grid.GridSystems.JumpSystem.m_jumpTimeLeft = m_jumpTimeLeft;
             }
 
             m_soundEmitter.PlaySound(m_chargingSound);
@@ -551,37 +579,38 @@ namespace Sandbox.Game.GameSystems
 
         private void UpdateJumpDriveSystem()
         {
-            // Using this instead of game time because it cannot be affected by sim speed
-            float jumpTime = (float)(TimeUtil.LocalTime - m_jumpStartTime).TotalMilliseconds;
-
-            float warmupTime = 10000f;
-            float startJumpTime = 1500f;
-            float endJumpTime = 500f;
-
             if (m_isJumping)
             {
-                if (jumpTime < warmupTime)
+                float jumpTime = m_jumpTimeLeft;
+                const float startJumpTime = 1.2f;
+                const float particleTime = 0.3f;
+                const float endJumpTime = -0.3f;
+
+                m_jumpTimeLeft -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                if (jumpTime > startJumpTime)
                 {
-                    int prevTimeInt = (int)(m_prevJumpTime / 1000);
-                    int timeInt = (int)(jumpTime / 1000);
-                    if (prevTimeInt != timeInt)
-                    {
+                    double roundTime = Math.Round(jumpTime);
+                    if (roundTime != m_prevJumpTime)
                         if (IsLocalCharacterAffectedByJump())
                         {
                             var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500);
-                            int secondsRemaining = (int)(Math.Round((warmupTime - jumpTime) / 1000));
-                            notification.SetTextFormatArguments(secondsRemaining);
+                            notification.SetTextFormatArguments(roundTime);
                             MyHud.Notifications.Add(notification);
                         }
-                    }
-                } 
-                else if (jumpTime < startJumpTime + warmupTime)
+                }
+                else if (jumpTime > 0)
                 {
+                    IsLocalCharacterAffectedByJump();
                     if (m_soundEmitter.SoundId != m_jumpOutSound.SoundId)
                     {
                         m_soundEmitter.PlaySound(m_jumpOutSound);
                     }
-                    UpdateJumpEffect(MathHelper.SmoothStep(1f, 0f, (jumpTime - warmupTime) / startJumpTime));
+                    UpdateJumpEffect(jumpTime / startJumpTime);
+
+                    if (jumpTime < particleTime)
+                    {
+                        PlayParticleEffect();
+                    }
                 }
                 else if (!m_jumped)
                 {
@@ -608,26 +637,27 @@ namespace Sandbox.Game.GameSystems
                         }
                     }
                 }
-                else if (jumpTime < startJumpTime + endJumpTime + warmupTime)
+                else if (jumpTime > endJumpTime)
                 {
-                    if (m_soundEmitter.SoundId != m_jumpInSound.SoundId)
-                    {
-                        m_soundEmitter.PlaySound(m_jumpInSound);
-                    }
-                    UpdateJumpEffect(MathHelper.SmoothStep(0f, 1f, (jumpTime - startJumpTime - warmupTime) / (endJumpTime)));
+                    UpdateJumpEffect(jumpTime / endJumpTime);
                 }
                 else
                 {
                     CleanupAfterJump();
+                    if (m_soundEmitter.SoundId != m_jumpInSound.SoundId)
+                    {
+                        m_soundEmitter.PlaySound(m_jumpInSound);
+                    }
                 }
+                m_prevJumpTime = (float)Math.Round(jumpTime);
             }
-            m_prevJumpTime = jumpTime;
         }
 
-        private void PerformJump(Vector3D jumpTarget)
+        private void PlayParticleEffect()
         {
-            m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
+            if (m_effectPlayed) return;
 
+            m_effectPlayed = true;
             MyParticleEffect effect;
             if (MyParticlesManager.TryCreateParticleEffect(53, out effect))
             {
@@ -635,6 +665,11 @@ namespace Sandbox.Game.GameSystems
                 effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 25f;
                 effect.AutoDelete = true;
             }
+        }
+
+        private void PerformJump(Vector3D jumpTarget)
+        {
+            m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
 
             BoundingBoxD aggregateBox = m_grid.PositionComp.WorldAABB;
             foreach (var grid in m_shipInfo.Keys)
@@ -678,7 +713,7 @@ namespace Sandbox.Game.GameSystems
             m_soundEmitter.StopSound(true, true);
             if (m_isJumping && IsLocalCharacterAffectedByJump())
             {
-                var notification = new MyHudNotification(MySpaceTexts.NotificationJumpAborted, 1500, Common.MyFontEnum.Red, level: MyNotificationLevel.Important);
+                var notification = new MyHudNotification(MySpaceTexts.NotificationJumpAborted, 1500, MyFontEnum.Red, level: MyNotificationLevel.Important);
                 MyHud.Notifications.Add(notification);
             }
 
@@ -692,7 +727,8 @@ namespace Sandbox.Game.GameSystems
                 jumpDrive.IsJumping = false;
             }
 
-            UpdateJumpEffect(1f);
+            if (IsLocalCharacterAffectedByJump())
+                MySector.MainCamera.FieldOfView = MySandboxGame.Config.FieldOfView;
             m_jumped = false;
             m_isJumping = false;
         }
@@ -711,19 +747,19 @@ namespace Sandbox.Game.GameSystems
             if (m_playEffect)
             {
                 float maxFov = MathHelper.ToRadians(170.0f);
-                float fov = MathHelper.SmoothStep(m_playerFov, maxFov, 1f - t);
+                float fov = MathHelper.SmoothStep(MySandboxGame.Config.FieldOfView, maxFov, 1f - t);
                 MySector.MainCamera.FieldOfView = fov;
             }
         }
 
         public bool CheckReceivedCoordinates(ref Vector3D pos)
         {
-            if ((TimeUtil.LocalTime - m_jumpStartTime).TotalSeconds > 20)
+            if (m_jumpTimeLeft > 20)
                 return true;
             if (Vector3D.DistanceSquared(m_grid.PositionComp.GetPosition(), pos) > 10000 * 10000)
             {
                 //most likely comes from packet created before jump
-                MySandboxGame.Log.WriteLine(string.Format("Wrong position packet received, dist={0}, T={1})", Vector3D.Distance(m_grid.PositionComp.GetPosition(), pos), (TimeUtil.LocalTime - m_jumpStartTime).TotalSeconds));
+                MySandboxGame.Log.WriteLine(string.Format("Wrong position packet received, dist={0}, T={1})", Vector3D.Distance(m_grid.PositionComp.GetPosition(), pos), m_jumpTimeLeft));
                 return false;
             }
             return true;
@@ -752,7 +788,7 @@ namespace Sandbox.Game.GameSystems
                 m_jumpDirection *= ratio;
             }
 
-            if (actualDistance < MIN_JUMP_DISTANCE)
+            if (actualDistance < MIN_JUMP_DISTANCE-200)
             {
                 SyncObject.SendJumpFailure();
                 return;

@@ -14,6 +14,8 @@ using VRageMath;
 using Sandbox.Game.Entities.EnvironmentItems;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Multiplayer;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -31,6 +33,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             if (!Sync.IsServer) return;
 
             RemoveItem(instanceId, sync: true);
+        }
+
+        protected override MyEntity DestroyItem(int itemInstanceId)
+        {
+            RemoveItem(itemInstanceId, sync: true);
+            return null;
         }
     }
 }

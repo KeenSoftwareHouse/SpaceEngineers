@@ -1,4 +1,5 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using VRage.Game;
+
 namespace VRage.Dedicated
 {
     partial class ConfigForm<T> where T : MyObjectBuilder_SessionSettings, new()

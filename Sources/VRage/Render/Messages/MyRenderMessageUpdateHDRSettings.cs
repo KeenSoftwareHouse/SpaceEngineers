@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateHDRSettings : IMyRenderMessage
+    public class MyRenderMessageUpdateHDRSettings : MyRenderMessageBase
     {
         public bool Enabled;
         public float Exposure;
@@ -16,7 +16,7 @@ namespace VRageRender
         public float HorizontalBlurAmount;
         public int NumberOfBlurPasses;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateHDRSettings; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateHDRSettings; } }
     }
 }

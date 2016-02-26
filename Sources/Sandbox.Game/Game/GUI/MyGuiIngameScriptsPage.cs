@@ -1,6 +1,5 @@
 ﻿
 using ParallelTasks;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
@@ -14,6 +13,7 @@ using System.Text;
 using VRage;
 using VRage;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -129,10 +129,10 @@ namespace Sandbox.Game.Gui
             Vector2 buttonOffset = new Vector2(0.11f, 0.035f);
             float width = 0.11f;
 
-            var okButton = CreateButton(width, MyTexts.Get(MySpaceTexts.Ok), OnOk, textScale: m_textScale);
+            var okButton = CreateButton(width, MyTexts.Get(MyCommonTexts.Ok), OnOk, textScale: m_textScale);
             okButton.Position = buttonPosition;
 
-            var cancelButton = CreateButton(width, MyTexts.Get(MySpaceTexts.Cancel), OnCancel, textScale: m_textScale);
+            var cancelButton = CreateButton(width, MyTexts.Get(MyCommonTexts.Cancel), OnCancel, textScale: m_textScale);
             cancelButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
 
             m_detailsButton = CreateButton(width, MyTexts.Get(MySpaceTexts.ProgrammableBlock_ButtonDetails), OnDetails, textScale: m_textScale, enabled: false);
@@ -143,7 +143,7 @@ namespace Sandbox.Game.Gui
 
             width = 0.22f;
 
-            m_deleteButton = CreateButton(width, MyTexts.Get(MySpaceTexts.LoadScreenButtonDelete), OnDelete, false, textScale: m_textScale);
+            m_deleteButton = CreateButton(width, MyTexts.Get(MyCommonTexts.LoadScreenButtonDelete), OnDelete, false, textScale: m_textScale);
             m_deleteButton.Position = (buttonPosition + new Vector2(0f, 2f) * buttonOffset) * new Vector2(0.29f, 1f);
 
             m_createFromEditorButton = CreateButton(width, MyTexts.Get(MySpaceTexts.ProgrammableBlock_ButtonCreateFromEditor), OnCreateFromEditor, textScale: m_textScale, enabled: true);
@@ -152,7 +152,7 @@ namespace Sandbox.Game.Gui
             m_replaceButton = CreateButton(width, MyTexts.Get(MySpaceTexts.ProgrammableBlock_ButtonReplaceFromEditor), OnReplaceFromEditor, textScale: m_textScale, enabled: true);
             m_replaceButton.Position = (buttonPosition + new Vector2(0f, 4f) * buttonOffset) * new Vector2(0.29f, 1f);
 
-            var workshopButton = CreateButton(width, MyTexts.Get(MySpaceTexts.ScreenLoadSubscribedWorldBrowseWorkshop), OnOpenWorkshop, textScale: m_textScale);
+            var workshopButton = CreateButton(width, MyTexts.Get(MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop), OnOpenWorkshop, textScale: m_textScale);
             workshopButton.Position = (buttonPosition + new Vector2(0f, 5f) * buttonOffset) * new Vector2(0.29f, 1f);
 
             var reloadButton = CreateButton(width, MyTexts.Get(MySpaceTexts.ProgrammableBlock_ButtonRefreshScripts), OnReload, textScale: m_textScale);
@@ -167,7 +167,7 @@ namespace Sandbox.Game.Gui
 
             float hiddenPartTop = (SCREEN_SIZE.Y - 1.0f) / 2.0f;
 
-            var searchBoxLabel = MakeLabel(MyTexts.GetString(MySpaceTexts.ScreenCubeBuilderBlockSearch), searchPosition + new Vector2(-0.129f, -0.015f), m_textScale);
+            var searchBoxLabel = MakeLabel(MyTexts.GetString(MyCommonTexts.ScreenCubeBuilderBlockSearch), searchPosition + new Vector2(-0.129f, -0.015f), m_textScale);
             m_searchBox = new MyGuiControlTextbox(searchPosition);
             m_searchBox.Size = new Vector2(0.15f, 0.2f);
 
@@ -497,7 +497,7 @@ namespace Sandbox.Game.Gui
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                     buttonType: MyMessageBoxButtonsType.OK,
                                     styleEnum: MyMessageBoxStyleEnum.Error,
-                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                                     messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_ScriptNotFound)
                                     ));
                     }
@@ -605,7 +605,7 @@ namespace Sandbox.Game.Gui
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                             buttonType: MyMessageBoxButtonsType.OK,
                             styleEnum: MyMessageBoxStyleEnum.Error,
-                            messageCaption: MyTexts.Get(MySpaceTexts.LoadScreenButtonDelete),
+                            messageCaption: MyTexts.Get(MyCommonTexts.LoadScreenButtonDelete),
                             messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_ReplaceScriptNameUsed))
                             );
 
@@ -620,7 +620,7 @@ namespace Sandbox.Game.Gui
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                 buttonType: MyMessageBoxButtonsType.YES_NO,
                 styleEnum: MyMessageBoxStyleEnum.Info,
-                messageCaption: MyTexts.Get(MySpaceTexts.LoadScreenButtonDelete),
+                messageCaption: MyTexts.Get(MyCommonTexts.LoadScreenButtonDelete),
                 messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_DeleteScriptDialogText),
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
                 {
@@ -779,7 +779,7 @@ namespace Sandbox.Game.Gui
         protected MyGuiControlButton CreateButton(float usableWidth, StringBuilder text, Action<MyGuiControlButton> onClick, bool enabled = true, MyStringId? tooltip = null, float textScale = 1f)
         {
             var button = AddButton(text, onClick);
-            button.VisualStyle = Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Rectangular;
+            button.VisualStyle = MyGuiControlButtonStyleEnum.Rectangular;
             button.TextScale = textScale;
             button.Size = new Vector2(usableWidth, button.Size.Y);
             button.Position = button.Position + new Vector2(-0.04f / 2.0f, 0.0f);

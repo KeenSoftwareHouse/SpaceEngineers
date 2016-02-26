@@ -1,44 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRageMath;
-using VRage.Components;
 using VRage.ModAPI;
 using System.Diagnostics;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     public class MyHierarchyComponentBase : MyEntityComponentBase
     {
-        private List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
-
-        HashSet<object> QueryResults
-        {
-            get 
-            {
-                if (m_queryResults == null)
-                    m_queryResults = new HashSet<object>();
-                return m_queryResults;
-            }
-        }
-        HashSet<MyLineSegmentOverlapResult<object>> LineQueryResults
-        {
-            get
-            {
-                if (m_lineQueryResults == null)
-                    m_lineQueryResults = new HashSet<MyLineSegmentOverlapResult<object>>();
-                return m_lineQueryResults;
-            }
-        }
-        [ThreadStatic]
-        HashSet<object> m_queryResults = new HashSet<object>();
-        [ThreadStatic]
-        HashSet<MyLineSegmentOverlapResult<object>> m_lineQueryResults = new HashSet<MyLineSegmentOverlapResult<object>>();
-
-        public Action<BoundingBoxD, HashSet<object>> QueryAABBImpl;
-        public Action<BoundingSphereD, HashSet<object>> QuerySphereImpl;
-        public Action<LineD, HashSet<MyLineSegmentOverlapResult<object>>> QueryLineImpl;
+        protected List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
 
         /// <summary>
         /// Return top most parent of this entity
@@ -56,6 +26,13 @@ namespace VRage.Components
             return parent;
         }
 
+        /**
+         * Identifier for the parent hierarchy.
+         * 
+         * This is should be reliably unique within a hierarchy level but only usable by the parent.
+         */
+        public long ChildId;
+
         /// <summary>
         /// Gets the childs collection.
         /// </summary>
@@ -69,9 +46,9 @@ namespace VRage.Components
 
         MyEntityComponentContainer m_parentContainer;
         MyHierarchyComponentBase m_parent;
-        public MyHierarchyComponentBase Parent 
-        { 
-            get { return m_parent; } 
+        public MyHierarchyComponentBase Parent
+        {
+            get { return m_parent; }
             set
             {
                 if (m_parentContainer != null)
@@ -183,43 +160,6 @@ namespace VRage.Components
             if (child.InScene)
                 child.OnRemovedFromScene(this);
         }
-
-        public void QueryAABB<T>(ref BoundingBoxD aabb, List<T> result)
-        {
-            if (QueryAABBImpl != null)
-            {
-                QueryAABBImpl(aabb, QueryResults);
-                result.AddHashsetCasting(QueryResults);
-                QueryResults.Clear();
-            }
-        }
-
-        public void QuerySphere<T>(ref BoundingSphereD sphere, List<T> result)
-        {
-            if (QuerySphereImpl != null)
-            {
-                QuerySphereImpl(sphere, QueryResults);
-                result.AddHashsetCasting(QueryResults);
-                QueryResults.Clear();
-            }
-        }
-
-        public void QueryLine<T>(ref LineD line, List<MyLineSegmentOverlapResult<T>> result)
-        {
-            if(QueryLineImpl != null)
-            {
-                QueryLineImpl(line, LineQueryResults);
-                MyLineSegmentOverlapResult<T> overlap = new MyLineSegmentOverlapResult<T>();
-                foreach (var r in LineQueryResults)
-                {
-                    overlap.Element = (T)r.Element;
-                    overlap.Distance = r.Distance;
-                    result.Add(overlap);
-                }
-                LineQueryResults.Clear();
-            }
-        }
-
         public void GetChildrenRecursive(HashSet<IMyEntity> result)
         {
             for (int i = 0; i < Children.Count; i++)

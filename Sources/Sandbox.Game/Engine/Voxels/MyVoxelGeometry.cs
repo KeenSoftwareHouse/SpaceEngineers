@@ -13,7 +13,8 @@ using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using MyGridIntersection = Sandbox.Engine.Utils.MyGridIntersection;
-using VRage.Components;
+using VRage.Game.Components;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -129,7 +130,7 @@ namespace Sandbox.Engine.Voxels
             return false;
         }
 
-        public bool Intersect(ref Line localLine, out MyIntersectionResultLineTriangle result, IntersectionFlags flags)
+        public bool Intersect(ref Line localLine, out VRage.Game.Models.MyIntersectionResultLineTriangle result, IntersectionFlags flags)
         {
             MyPrecalcComponent.AssertUpdateThread();
 
@@ -149,7 +150,7 @@ namespace Sandbox.Engine.Voxels
             float? minDistanceUntilNow = null;
             BoundingBox cellBoundingBox;
             MyCellCoord cell = new MyCellCoord();
-            MyIntersectionResultLineTriangle? tmpResult = null;
+            VRage.Game.Models.MyIntersectionResultLineTriangle? tmpResult = null;
             for (int index = 0; index < m_sweepResultCache.Count; index++)
             {
                 cell.CoordInLod = m_sweepResultCache[index];
@@ -176,7 +177,7 @@ namespace Sandbox.Engine.Voxels
 
             ProfilerShort.End();
 
-            result = tmpResult ?? default(MyIntersectionResultLineTriangle);
+            result = tmpResult ?? default(VRage.Game.Models.MyIntersectionResultLineTriangle);
             return tmpResult.HasValue;
         }
 
@@ -290,7 +291,7 @@ namespace Sandbox.Engine.Voxels
             ProfilerShort.End();
         }
 
-        private void GetCellLineIntersectionOctree(ref MyIntersectionResultLineTriangle? result, ref Line modelSpaceLine, ref float? minDistanceUntilNow, CellData cachedDataCell, IntersectionFlags flags)
+        private void GetCellLineIntersectionOctree(ref VRage.Game.Models.MyIntersectionResultLineTriangle? result, ref Line modelSpaceLine, ref float? minDistanceUntilNow, CellData cachedDataCell, IntersectionFlags flags)
         {
             m_overlapElementCache.Clear();
             if (cachedDataCell.Octree != null)
@@ -338,7 +339,7 @@ namespace Sandbox.Engine.Voxels
                 if ((distance != null) && ((result == null) || (distance.Value < result.Value.Distance)))
                 {
                     minDistanceUntilNow = distance.Value;
-                    result = new MyIntersectionResultLineTriangle(ref triangleVertices, ref calculatedTriangleNormal, distance.Value);
+                    result = new VRage.Game.Models.MyIntersectionResultLineTriangle(ref triangleVertices, ref calculatedTriangleNormal, distance.Value);
                 }
             }
         }
@@ -371,7 +372,7 @@ namespace Sandbox.Engine.Voxels
                     // overlap to neighbor; introduces extra data but it makes logic for raycasts simpler (no need to check neighbor cells)
                     min -= 1;
                     max += 2;
-                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false,false);
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION, true);
                 }
                 else
                 {

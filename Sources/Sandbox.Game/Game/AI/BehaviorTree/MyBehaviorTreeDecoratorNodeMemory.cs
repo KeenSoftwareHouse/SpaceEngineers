@@ -1,13 +1,13 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using LogicMemoryBuilder = Sandbox.Common.ObjectBuilders.AI.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.LogicMemoryBuilder;
-using TimerMemoryBuilder = Sandbox.Common.ObjectBuilders.AI.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.TimerLogicMemoryBuilder;
-using CounterMemoryBuilder = Sandbox.Common.ObjectBuilders.AI.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.CounterLogicMemoryBuilder;
+using LogicMemoryBuilder = VRage.Game.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.LogicMemoryBuilder;
+using TimerMemoryBuilder = VRage.Game.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.TimerLogicMemoryBuilder;
+using CounterMemoryBuilder = VRage.Game.MyObjectBuilder_BehaviorTreeDecoratorNodeMemory.CounterLogicMemoryBuilder;
 using System.Diagnostics;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {

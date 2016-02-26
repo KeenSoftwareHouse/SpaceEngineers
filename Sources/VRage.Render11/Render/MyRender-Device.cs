@@ -25,8 +25,7 @@ namespace VRageRender
     partial class MyRender11
     {
         internal static Device Device { get; private set; }
-        internal static DeviceContext ImmediateContext { get; private set; }
-        internal static DeviceContext Context { get { return ImmediateContext; } }
+        internal static DeviceContext DeviceContext { get; private set; }
 
         static MyRenderDeviceSettings m_settings = new MyRenderDeviceSettings { AdapterOrdinal = -1 };
         static IntPtr m_windowHandle;
@@ -78,6 +77,7 @@ namespace VRageRender
         {
             CreateDevice(m_windowHandle, m_settings);
 
+            MyRenderContext.OnDeviceReset();
             MyRenderContextPool.OnDeviceReset();
 
             OnDeviceReset();
@@ -85,37 +85,32 @@ namespace VRageRender
 
         static bool m_initialized = false;
 
+        private static int GetPriorityAdapter()
+        {
+            var adapters = GetAdaptersList();
+            var bestPriority = -1000;
+            int bestIndex = -1;
+            for (int i = 0; i < adapters.Length; i++)
+            {
+                if (adapters[i].IsDx11Supported && bestPriority < adapters[i].Priority)
+                {
+                    bestPriority = adapters[i].Priority;
+                    bestIndex = i;
+                }
+            }
+            return bestIndex;
+        }
+
         internal static int ValidateAdapterIndex(int adapterIndex)
         {
             var adapters = GetAdaptersList();
 
             bool adapterIndexNotValid =
-                adapterIndex == -1
+                adapterIndex < 0
                 || adapters.Length <= adapterIndex
                 || !adapters[adapterIndex].IsDx11Supported;
             if (adapterIndexNotValid)
-            {
-                var bestPriority = -1000;
-
-                for (int i = 0; i < adapters.Length; i++)
-                {
-                    if (adapters[i].IsDx11Supported)
-                    {
-                        bestPriority = (int)Math.Max(bestPriority, adapters[i].Priority);
-                    }
-                }
-
-                // taking adapter with top priority
-                for (int i = 0; i < adapters.Length; i++)
-                {
-                    if (adapters[i].IsDx11Supported && adapters[i].Priority == bestPriority)
-                    {
-                        adapterIndex = i;
-                        break;
-                    }
-                }
-            }
-
+                return GetPriorityAdapter();
             return adapterIndex;
         }
 
@@ -130,35 +125,40 @@ namespace VRageRender
             FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
             DeviceCreationFlags flags = DeviceCreationFlags.None;
       
-    #if DEBUG_DEVICE    
+    #if DEBUG_DEVICE && DEBUG
             flags |= DeviceCreationFlags.Debug;
     #endif
 
             WinApi.DEVMODE mode = new WinApi.DEVMODE();
             WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);
 
-            var adapters = GetAdaptersList();
-
-            int adapterIndex = settingsToTry.HasValue ? settingsToTry.Value.AdapterOrdinal : - 1;
-            adapterIndex = ValidateAdapterIndex(adapterIndex);
-            
-            if(adapterIndex == -1)
-            {
-                throw new MyRenderException("No supporting device detected!", MyRenderExceptionEnum.GpuNotSupported);
-            }
-
             var settings = settingsToTry ?? new MyRenderDeviceSettings()
             {
-                AdapterOrdinal = adapterIndex,
+                AdapterOrdinal = -1,
                 BackBufferHeight = mode.dmPelsHeight,
                 BackBufferWidth = mode.dmPelsWidth,
                 WindowMode = MyWindowModeEnum.Fullscreen,
                 RefreshRate = 60000,
                 VSync = false,
             };
+            settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
+
+            if (settings.AdapterOrdinal == -1)
+            {
+                throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
+            }
+
             m_settings = settings;
 
-            Device = new Device(GetFactory().Adapters[adapters[m_settings.AdapterOrdinal].AdapterDeviceId], flags, FeatureLevel.Level_11_0);
+            // If this line crashes cmd this: Dism /online /add-capability /capabilityname:Tools.Graphics.DirectX~~~~0.0.1.0
+            var adapters = GetAdaptersList();
+            if (m_settings.AdapterOrdinal >= adapters.Length)
+                throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
+            var adapterId = adapters[m_settings.AdapterOrdinal].AdapterDeviceId;
+            if (adapterId >= GetFactory().Adapters.Length)
+                throw new MyRenderException("Invalid adapter id binding!", MyRenderExceptionEnum.GpuNotSupported);
+            var adapter = GetFactory().Adapters[adapterId];
+            Device = new Device(adapter, flags, FeatureLevel.Level_11_0);
 
             // HACK: This is required for Steam overlay to work. Apparently they hook only CreateDevice methods with DriverType argument.
             try
@@ -181,13 +181,13 @@ namespace VRageRender
                 new System.Threading.Thread(ProcessDebugOutput).Start();
             }
 
-            if(ImmediateContext != null)
+            if(DeviceContext != null)
             {
-                ImmediateContext.Dispose();
-                ImmediateContext = null;
+                DeviceContext.Dispose();
+                DeviceContext = null;
             }
 
-            ImmediateContext = Device.ImmediateContext;
+            DeviceContext = Device.ImmediateContext;
 
             m_windowHandle = windowHandle;
 
@@ -216,7 +216,7 @@ namespace VRageRender
                 scDesc.BufferCount = MyRender11Constants.BUFFER_COUNT;
                 scDesc.Flags = SwapChainFlags.AllowModeSwitch;
                 scDesc.IsWindowed = true;
-                scDesc.ModeDescription.Format = MyRender11Constants.BACKBUFFER_FORMAT;
+                scDesc.ModeDescription.Format = MyRender11Constants.DX11_BACKBUFFER_FORMAT;
                 scDesc.ModeDescription.Height = m_settings.BackBufferHeight;
                 scDesc.ModeDescription.Width = m_settings.BackBufferWidth;
                 scDesc.ModeDescription.RefreshRate.Numerator = m_settings.RefreshRate;
@@ -265,10 +265,10 @@ namespace VRageRender
                 m_swapchain = null;
             }
 
-            if (ImmediateContext != null)
+            if (DeviceContext != null)
             {
-                ImmediateContext.Dispose();
-                ImmediateContext = null;
+                DeviceContext.Dispose();
+                DeviceContext = null;
             }
 
             if (Device != null)

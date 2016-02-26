@@ -1,4 +1,5 @@
-#include <brdf.h>
+// @skipCache
+#include <Lighting/brdf.h>
 #include <random.h>
 
 Texture2DArray<float4> EnvProbeArray : register(t0);

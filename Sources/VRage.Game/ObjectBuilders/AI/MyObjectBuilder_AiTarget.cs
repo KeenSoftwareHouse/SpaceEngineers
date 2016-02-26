@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using VRage.ObjectBuilders;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     public enum MyAiTargetEnum
     {
@@ -14,8 +14,8 @@ namespace Sandbox.Common.ObjectBuilders.AI
         CHARACTER,
         POSITION,
         ENTITY,
-		ENVIRONMENT_ITEM,
-		VOXEL,
+        ENVIRONMENT_ITEM,
+        VOXEL,
     }
 
     [ProtoContract]

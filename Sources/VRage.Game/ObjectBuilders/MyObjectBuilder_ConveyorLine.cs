@@ -1,18 +1,12 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Conveyors;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using VRageMath;
 using VRage.ObjectBuilders;
-using VRage;
 using VRage.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {    
     [ProtoContract]
     [MyObjectBuilderDefinition]

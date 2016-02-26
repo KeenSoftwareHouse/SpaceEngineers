@@ -8,36 +8,51 @@ namespace VRageRender
     public enum MyRenderInstanceBufferType
     {
         Cube,
-        Generic
+        Generic,
+        Invalid,
     }
 
-    public class MyRenderMessageCreateRenderInstanceBuffer: IMyRenderMessage
+    public class MyRenderMessageCreateRenderInstanceBuffer: MyRenderMessageBase
     {
         public uint ID;
         public string DebugName;
         public MyRenderInstanceBufferType Type;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateRenderInstanceBuffer; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateRenderInstanceBuffer; } }
     }
 
-    public class MyRenderMessageUpdateRenderCubeInstanceBuffer : IMyRenderMessage
+    public class MyRenderMessageUpdateRenderCubeInstanceBuffer : MyRenderMessageBase
     {
         public uint ID;
         public List<MyCubeInstanceData> InstanceData = new List<MyCubeInstanceData>();
         public int Capacity;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateRenderCubeInstanceBuffer; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderCubeInstanceBuffer; } }
+
+        public override void Close()
+        {
+            InstanceData.Clear();
+
+            base.Close();
+        }
     }
 
-    public class MyRenderMessageUpdateRenderInstanceBuffer : IMyRenderMessage
+    public class MyRenderMessageUpdateRenderInstanceBuffer : MyRenderMessageBase
     {
         public uint ID;
         public List<MyInstanceData> InstanceData = new List<MyInstanceData>();
         public int Capacity;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateRenderInstanceBuffer; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderInstanceBuffer; } }
+
+        public override void Close()
+        {
+            InstanceData.SetSize(0);
+
+            base.Close();
+        }
     }
 }

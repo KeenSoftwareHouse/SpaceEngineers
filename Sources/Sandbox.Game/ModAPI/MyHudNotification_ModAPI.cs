@@ -5,6 +5,7 @@ using System.Text;
 
 using Sandbox.Common;
 using Sandbox.ModAPI;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {

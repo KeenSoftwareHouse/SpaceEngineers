@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Audio;
 using VRage.Utils;
 using VRage.Data;
@@ -16,6 +17,8 @@ using VRageMath;
 using VRageRender;
 using VRage.Library.Utils;
 using VRage.Data.Audio;
+using Sandbox.Game.GameSystems;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
@@ -63,7 +66,7 @@ namespace Sandbox.Game.Entities
                 m_cache.Append("Real").Append(cueName);
                 m_realistic = MyAudio.Static.GetCueId(m_cache.ToString());
 
-                //Debug.Assert(m_arcade != MySpaceTexts.NullOrEmpty || m_realistic != MySpaceTexts.NullOrEmpty, string.Format("Could not find any sound for '{0}'", cueName));
+                //Debug.Assert(m_arcade.Hash != MyStringHash.NullOrEmpty || m_realistic.Hash != MyStringHash.NullOrEmpty, string.Format("Could not find any sound for '{0}'", cueName));
                 if (m_arcade.Hash == MyStringHash.NullOrEmpty && m_realistic.Hash == MyStringHash.NullOrEmpty)
                     MySandboxGame.Log.WriteLine(string.Format("Could not find any sound for '{0}'", cueName));
                 else
@@ -169,6 +172,8 @@ namespace Sandbox.Game.Entities
         private Vector3? m_velocity;
         private List<MyCueId> m_soundsQueue = new List<MyCueId>();
         private bool m_playing2D;
+        private bool usesDistanceSounds = false;
+        private MyCueId closeSound = new MyCueId(MyStringHash.NullOrEmpty);
 
         #endregion
 
@@ -189,6 +194,7 @@ namespace Sandbox.Game.Entities
                 if (m_cueEnum != value)
                 {
                     m_cueEnum = value;
+                    if (m_cueEnum.Hash == MyStringHash.GetOrCompute("None")) Debugger.Break();
                 }
             }
         }
@@ -235,23 +241,44 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        ~MyEntity3DSoundEmitter()
+        {
+            foreach (List<Delegate> list in EmitterMethods.Values)
+            {
+                list.Clear();
+            }
+            EmitterMethods.Clear();
+            m_soundsQueue.Clear();
+        }
+
         public void Update()
         {
+            bool validSoundIsPlaying = m_sound != null && m_sound.IsPlaying;
             if (!CanHearSound())
             {
-                if (m_sound != null && m_sound.IsPlaying)
+                if (validSoundIsPlaying)
                 {
                     StopSound(true, false);
                     m_sound = null;
                 }
                 return;
             }
-            else if ((m_sound == null || !m_sound.IsPlaying) && Loop)
+            else if (!validSoundIsPlaying && Loop)
+            {
                 PlaySoundInternal(true);
-            else if (m_sound != null && m_sound.IsPlaying && Loop && m_playing2D != ShouldPlay2D())
+            }
+            else if (validSoundIsPlaying && Loop && m_playing2D != ShouldPlay2D())
             {
                 StopSound(true, false);
                 PlaySoundInternal(true);
+            }
+            else if (validSoundIsPlaying && Loop && m_playing2D == false && usesDistanceSounds)
+            {
+                MyCueId newSound = CheckDistanceSounds(closeSound);
+                if (MyStringHash.Comparer.Equals(newSound.Hash, SoundId.Hash) == false)
+                {
+                    PlaySound(newSound, true, useDistanceCheck: false);
+                }
             }
         }
 
@@ -259,7 +286,15 @@ namespace Sandbox.Game.Entities
         {
             var canHear = EmitterMethods[MethodsEnum.CanHear].Count == 0;
             foreach (var func in EmitterMethods[MethodsEnum.CanHear])
-                canHear |= ((Func<bool>)func)();
+            {
+                var checkCanHear = (Func<bool>)func;
+                if(checkCanHear == null)
+                {
+                    Debug.Fail("CanHear in EmitterMethods contains a null delegate!");
+                    continue;
+                }
+                canHear |= checkCanHear();
+            }
             return IsCloseEnough() && canHear;
         }
 
@@ -267,10 +302,14 @@ namespace Sandbox.Game.Entities
         {
             if (Entity is MyCubeBlock)
             {
-                if (MySession.ControlledEntity != null && MySession.ControlledEntity.Entity is MyCockpit)
-                    return (MySession.ControlledEntity.Entity as MyCockpit).CubeGrid == (Entity as MyCubeBlock).CubeGrid;
+                if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity is MyCockpit)
+                    return (MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid == (Entity as MyCubeBlock).CubeGrid;
                 else
-                    return false;
+                {
+                    if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.SoundComp != null &&
+                        MySession.Static.LocalCharacter.SoundComp.StandingOnGrid == (Entity as MyCubeBlock).CubeGrid)
+                        return true;
+                }
             }
             return false;
         }
@@ -279,8 +318,8 @@ namespace Sandbox.Game.Entities
         {
             if (Entity is IMyHandheldGunObject<MyDeviceBase>)
             {
-                if (MySession.ControlledEntity != null && MySession.ControlledEntity.Entity is MyCharacter)
-                    return (MySession.ControlledEntity.Entity as MyCharacter).CurrentWeapon == Entity;
+                if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity is MyCharacter)
+                    return (MySession.Static.ControlledEntity.Entity as MyCharacter).CurrentWeapon == Entity;
                 else
                     return false;
             }
@@ -299,18 +338,22 @@ namespace Sandbox.Game.Entities
 
         private bool IsControlledEntity()
         {
-            return MySession.ControlledEntity != null && m_entity == MySession.ControlledEntity.Entity;
+            return MySession.Static.ControlledEntity != null && m_entity == MySession.Static.ControlledEntity.Entity;
         }
 
         private bool IsBeingWelded()
         {
-            var controlledEntity = MySession.ControlledEntity;
+            if (MySession.Static == null)
+            {
+                return false;
+            }
+            var controlledEntity = MySession.Static.ControlledEntity;
             if (controlledEntity == null)
             {
                 return false;
             }
 
-            var character = MySession.ControlledEntity.Entity as MyCharacter;
+            var character = MySession.Static.ControlledEntity.Entity as MyCharacter;
             if (character == null)
             {
                 return false;
@@ -324,7 +367,7 @@ namespace Sandbox.Game.Entities
 
             var grid = tool.GetTargetGrid();
             var cubeBlock = (Entity as MyCubeBlock);
-            if (grid == null || cubeBlock == null || grid != cubeBlock.CubeGrid)
+            if (grid == null || cubeBlock == null || grid != cubeBlock.CubeGrid || tool.HasHitBlock == false)
             {
                 return false;
             }
@@ -336,12 +379,18 @@ namespace Sandbox.Game.Entities
             }
 
 
-            return targetCube.FatBlock == cubeBlock;
+            return (targetCube.FatBlock == cubeBlock && tool.IsShooting);
         }
 
         private bool IsInOxygen()
         {
-            return (MySession.LocalCharacter != null && MySession.LocalCharacter.OxygenComponent.EnvironmentOxygenLevel > 0.1f);
+            // we cannot use cached value from update100:
+            // example: character leaves enviroment with oxygen and enters void, realistic sound (sound in void) should be played
+            //          ...but cached MySession.LocalCharacter.OxygenComponent.EnvironmentOxygenLevel can be still on full level!
+            if (MySession.Static.LocalCharacter == null)
+                return false;
+            float oxygenOnPlayerPos = MyOxygenProviderSystem.GetOxygenInPoint(MySession.Static.LocalCharacter.PositionComp.GetPosition());
+            return oxygenOnPlayerPos > 0.1f;
         }
 
         private MyCueId SelectCue(MySoundPair sound)
@@ -364,7 +413,7 @@ namespace Sandbox.Game.Entities
         static MyStringHash m_helmetEffect = MyStringHash.GetOrCompute("LowPassHelmet");
         private MyStringHash SelectEffect()
         {
-            if (MyFakes.ENABLE_NEW_SOUNDS && MySession.LocalCharacter != null && !MySession.LocalCharacter.Definition.NeedsOxygen && IsInOxygen())
+            if (MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.LocalCharacter != null && !MySession.Static.LocalCharacter.Definition.NeedsOxygen && IsInOxygen())
             {
                 return m_helmetEffect;
             }
@@ -407,7 +456,7 @@ namespace Sandbox.Game.Entities
                 PlaySound(cueId, stopPrevious, skipIntro);
         }
 
-        public void PlaySound(MySoundPair soundId, bool stopPrevious = false, bool skipIntro = false)
+        public void PlaySound(MySoundPair soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false)
         {
             var cueId = soundId.Arcade;
             if (EmitterMethods[MethodsEnum.CueType].Count > 0)
@@ -415,12 +464,17 @@ namespace Sandbox.Game.Entities
                 var select = (Func<MySoundPair, MyCueId>)EmitterMethods[MethodsEnum.CueType][0];
                 cueId = select(soundId);
             }
-            PlaySound(cueId, stopPrevious, skipIntro);
+            PlaySound(cueId, stopPrevious, skipIntro, force2D : force2D);
         }
 
-        public void PlaySound(MyCueId soundId, bool stopPrevious = false, bool skipIntro = false)
+        public void PlaySound(MyCueId soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false, bool useDistanceCheck = true)
         {
+            closeSound = soundId;
+            if (useDistanceCheck && ShouldPlay2D() == false && force2D == false)
+                soundId = CheckDistanceSounds(soundId);
+            bool usesDistanceSoundsCache = usesDistanceSounds;
             if (m_sound != null)
+            {
                 if (stopPrevious)
                     StopSound(true);
                 else if (m_sound.IsLoopable)
@@ -429,12 +483,45 @@ namespace Sandbox.Game.Entities
                     StopSound(true);
                     m_soundsQueue.Add(sound.CueEnum);
                 }
+            }
             SoundId = soundId;
-            PlaySoundInternal(skipIntro);
+            usesDistanceSounds = usesDistanceSoundsCache;
+            PlaySoundInternal(skipIntro, force2D: force2D);
+        }
+
+        private MyCueId CheckDistanceSounds(MyCueId soundId)
+        {
+            if (soundId.IsNull == false)
+            {
+                MySoundData cueDefinition = MyAudio.Static.GetCue(soundId);
+                if (cueDefinition != null && cueDefinition.DistantSounds != null && cueDefinition.DistantSounds.Count > 0)
+                {
+                    float distanceToSoundSquered = Vector3.DistanceSquared(MySector.MainCamera.Position, this.SourcePosition);
+                    int bestSoundIndex = -1;
+                    usesDistanceSounds = true;
+                    for (int i = 0; i < cueDefinition.DistantSounds.Count; i++)
+                    {
+                        if (distanceToSoundSquered > cueDefinition.DistantSounds[i].distance * cueDefinition.DistantSounds[i].distance)
+                            bestSoundIndex = i;
+                        else
+                            break;
+                    }
+                    if (bestSoundIndex >= 0)
+                    {
+                        soundId = new MyCueId(MyStringHash.GetOrCompute(cueDefinition.DistantSounds[bestSoundIndex].sound));
+                    }
+                }
+                else
+                {
+                    usesDistanceSounds = false;
+                }
+            }
+            return soundId;
         }
 
         public void StopSound(bool forced, bool cleanUp = true)
         {
+            usesDistanceSounds = false;
             if (m_sound != null)
             {
                 m_sound.Stop(forced);
@@ -469,10 +556,12 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void PlaySoundInternal(bool skipIntro = false, bool skipToEnd = false)
+        private void PlaySoundInternal(bool skipIntro = false, bool skipToEnd = false, bool force2D = false)
         {
-            m_playing2D = ShouldPlay2D() && !Force3D;
+            m_playing2D = (ShouldPlay2D() && !Force3D) || force2D;
             Loop = MyAudio.Static.IsLoopable(SoundId) && !skipToEnd;
+            if (Loop && MySession.Static.ElapsedPlayTime.TotalSeconds < 6)
+                skipIntro = true;
             if (m_playing2D)
                 Sound = MyAudio.Static.PlaySound(SoundId, this, MySoundDimensions.D2, skipIntro, skipToEnd);
             else if (CanHearSound()) //Start 3D sound only if can be heard

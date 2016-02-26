@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -12,33 +13,34 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("textpanel")]
-    public class MyUseObjectTextPanel : IMyUseObject
+    public class MyUseObjectTextPanel : MyUseObjectBase
     {
         private MyTextPanel m_textPanel;
         private Matrix m_localMatrix;
 
         public MyUseObjectTextPanel(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
+            : base(owner, dummyData)
         {
             m_textPanel = (MyTextPanel)owner;
             m_localMatrix = dummyData.Matrix;
         }
 
-        float IMyUseObject.InteractiveDistance
+        public override float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
 
-        MatrixD IMyUseObject.ActivationMatrix
+        public override MatrixD ActivationMatrix
         {
             get { return m_localMatrix * m_textPanel.WorldMatrix; }
         }
 
-        MatrixD IMyUseObject.WorldMatrix
+        public override MatrixD WorldMatrix
         {
             get { return m_textPanel.WorldMatrix; }
         }
 
-        int IMyUseObject.RenderObjectID
+        public override int RenderObjectID
         {
             get
             {
@@ -49,27 +51,27 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyUseObject.ShowOverlay
+        public override bool ShowOverlay
         {
             get { return true; }
         }
 
-        UseActionEnum IMyUseObject.SupportedActions
+        public override UseActionEnum SupportedActions
         {
             get { return UseActionEnum.Manipulate | UseActionEnum.OpenTerminal; }
         }
 
-        bool IMyUseObject.ContinuousUsage
+        public override bool ContinuousUsage
         {
             get { return false; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity user)
+        public override void Use(UseActionEnum actionEnum, IMyEntity user)
         {
             m_textPanel.Use(actionEnum, user);
         }
 
-        MyActionDescription IMyUseObject.GetActionInfo(UseActionEnum actionEnum)
+        public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
             switch (actionEnum)
             {
@@ -102,11 +104,11 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyUseObject.HandleInput() { return false; }
+        public override bool HandleInput() { return false; }
 
-        void IMyUseObject.OnSelectionLost() { }
+        public override void OnSelectionLost() { }
 
-        bool IMyUseObject.PlayIndicatorSound
+        public override bool PlayIndicatorSound
         {
             get { return true; }
         }

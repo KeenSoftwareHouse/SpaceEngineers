@@ -17,151 +17,25 @@ using System.Diagnostics;
 using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.Game;
 using VRage.ModAPI;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Components;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ButtonPanel))]
     internal class MyButtonPanel : MyFunctionalBlock, Sandbox.ModAPI.IMyButtonPanel
     {
-        [PreloadRequired]
-        class MySyncButtonPanel : MySyncEntity
-        {
-            [MessageIdAttribute(3316, P2PMessageEnum.Reliable)]
-            protected struct CheckAccessMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit CheckAccess;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(3317, P2PMessageEnum.Reliable)]
-            protected struct ChangeToolbarItemMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public ToolbarItem Item;
-
-                [ProtoMember]
-                public int Index;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(3318, P2PMessageEnum.Reliable)]
-            protected struct SetCustomButtonName : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public String CustomName;
-
-                [ProtoMember]
-                public int Index;
-            }
-
-            static MySyncButtonPanel()
-            {
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, CheckAccessMsg>(OnCheckAccessChanged, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncButtonPanel, SetCustomButtonName>(OnButtonCustomNameChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            }
-
-            private MyButtonPanel m_panel;
-            private bool m_syncing;
-            public bool IsSyncing
-            {
-                get { return m_syncing; }
-            }
-
-            public MySyncButtonPanel(MyButtonPanel panel)
-                :base(panel)
-            {
-                m_panel = panel;
-            }
-
-            public void SendCheckAccessChanged(bool value)
-            {
-                var msg = new CheckAccessMsg();
-                msg.EntityId = m_panel.EntityId;
-                msg.CheckAccess = value;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            public void SendToolbarItemChanged(ToolbarItem item, int index)
-            {
-                if (m_syncing)
-                    return;
-                var msg = new ChangeToolbarItemMsg();
-                msg.EntityId = m_panel.EntityId;
-                msg.Item = item;
-                msg.Index = index;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            public void SendCustonNameChanged(string customName, int index)
-            {
-                if (m_syncing)
-                    return;
-                var msg = new SetCustomButtonName();
-                msg.EntityId = m_panel.EntityId;
-                msg.CustomName = customName;
-                msg.Index = index;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            private static void OnToolbarItemChanged(MySyncButtonPanel sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
-            {
-                sync.m_syncing = true;
-                MyToolbarItem item = null;
-                if (msg.Item.EntityID != 0)
-                    item = ToolbarItem.ToItem(msg.Item);
-                sync.m_panel.Toolbar.SetItemAtIndex(msg.Index, item);
-                sync.m_syncing = false;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-
-            private static void OnCheckAccessChanged(MySyncButtonPanel syncObject, ref CheckAccessMsg msg, MyNetworkClient sender)
-            {
-                syncObject.m_panel.m_anyoneCanUse = msg.CheckAccess;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-
-            private static void OnButtonCustomNameChanged(MySyncButtonPanel syncObject, ref SetCustomButtonName msg, MyNetworkClient sender)
-            {
-                syncObject.m_panel.SetButtonName(msg.CustomName,msg.Index);
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-
-        }
-
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
-        private bool m_anyoneCanUse;
+        private readonly Sync<bool> m_anyoneCanUse;
         int m_selectedButton = -1;
 		
+
         public MyToolbar Toolbar { get; set; }
 
         public new MyButtonPanelDefinition BlockDefinition { get { return base.BlockDefinition as MyButtonPanelDefinition; } }
@@ -171,11 +45,7 @@ namespace Sandbox.Game.Entities.Blocks
             get { return m_anyoneCanUse; }
             set
             {
-                if (m_anyoneCanUse != value)
-                {
-                    m_anyoneCanUse = value;
-                    (SyncObject as MySyncButtonPanel).SendCheckAccessChanged(value);
-                }
+                m_anyoneCanUse.Value = value;
             }
         }
 
@@ -187,6 +57,8 @@ namespace Sandbox.Game.Entities.Blocks
         StringBuilder m_emptyName = new StringBuilder("");
 
         Vector3D m_previusPosition = Vector3D.Zero;
+
+        bool m_syncing = false;
 
         static MyButtonPanel()
         {
@@ -230,14 +102,19 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(customButtonName);
         }
 
-        protected override MySyncEntity OnCreateSync()
+        public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
-            return new MySyncButtonPanel(this);
-        }
+            SyncFlag = true; 
 
-        public override void Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
-        {
-            SyncFlag = true;
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                BlockDefinition.ResourceSinkGroup,
+                0.0001f,
+                () => IsFunctional ? 0.0001f : 0);
+            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+            sinkComp.IsPoweredChanged += ComponentStack_IsFunctionalChanged;
+            ResourceSink = sinkComp;
+
             base.Init(builder, cubeGrid);
             m_emissiveNames = new List<string>(BlockDefinition.ButtonCount);
             for (int i = 1; i <= BlockDefinition.ButtonCount; i++) //button dummies have 1-based index
@@ -265,15 +142,7 @@ namespace Sandbox.Game.Entities.Blocks
             AnyoneCanUse = ob.AnyoneCanUse;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
-
-			var sinkComp = new MyResourceSinkComponent();
-            sinkComp.Init(
-				BlockDefinition.ResourceSinkGroup,
-				0.0001f,
-				() => IsFunctional ? 0.0001f : 0);
-			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
-			sinkComp.IsPoweredChanged += ComponentStack_IsFunctionalChanged;
-	        ResourceSink = sinkComp;
+		
             ResourceSink.Update();
 
             if (ob.CustomButtonNames != null)
@@ -293,7 +162,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-			return base.CheckIsWorking() && ResourceSink.IsPowered;
+			return base.CheckIsWorking() && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId);
         }
 
         void ComponentStack_IsFunctionalChanged()
@@ -310,23 +179,25 @@ namespace Sandbox.Game.Entities.Blocks
 
         void Toolbar_ItemChanged(MyToolbar self, MyToolbar.IndexArgs index)
         {
+            if(m_syncing)
+            {
+                return;
+            }
             Debug.Assert(self == Toolbar);
             
             var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             UpdateButtonEmissivity(index.ItemIndex);
-            (SyncObject as MySyncButtonPanel).SendToolbarItemChanged(tItem, index.ItemIndex);
+            MyMultiplayer.RaiseEvent(this, x => x.SendToolbarItemChanged, tItem, index.ItemIndex);
 
             if (m_shouldSetOtherToolbars)
             {
                 m_shouldSetOtherToolbars = false;
-                if (!(SyncObject as MySyncButtonPanel).IsSyncing)
+
+                foreach (var toolbar in m_openedToolbars)
                 {
-                    foreach (var toolbar in m_openedToolbars)
+                    if (toolbar != self)
                     {
-                        if (toolbar != self)
-                        {
-                            toolbar.SetItemAtIndex(index.ItemIndex, self.GetItemAtIndex(index.ItemIndex));
-                        }
+                        toolbar.SetItemAtIndex(index.ItemIndex, self.GetItemAtIndex(index.ItemIndex));
                     }
                 }
                 m_shouldSetOtherToolbars = true;
@@ -336,8 +207,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (slot != null)
             {
                 string name = slot.DisplayName.ToString();
-                SetButtonName(name, index.ItemIndex);
-                (SyncObject as MySyncButtonPanel).SendCustonNameChanged(name, index.ItemIndex);
+                MyMultiplayer.RaiseEvent(this, x => x.SetButtonName, name, index.ItemIndex);
             }
         }
 
@@ -384,7 +254,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (Toolbar.GetItemAtIndex(index) == null)
                 c = BlockDefinition.UnassignedButtonColor;
             float emissivity = c.W;
-            if (!IsFunctional || !Enabled || CubeGrid.GridSystems.ResourceDistributor.ResourceState == MyResourceStateEnum.NoPower)
+            if (!IsWorking)
             {
                 c = Color.Red.ToVector4();
                 emissivity = 0;
@@ -468,6 +338,7 @@ namespace Sandbox.Game.Entities.Blocks
             return  new StringBuilder(item);
         }
 
+        [Event,Reliable,Server,Broadcast]
         public void SetButtonName(string name, int position)
         {
             string item = null;
@@ -487,9 +358,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return;
             }
-            SetButtonName(name.ToString(), m_selectedButton);
-
-            (SyncObject as MySyncButtonPanel).SendCustonNameChanged(name.ToString(), m_selectedButton);
+            MyMultiplayer.RaiseEvent(this, x => x.SetButtonName, name.ToString(), m_selectedButton);   
         }
 
         public string GetCustomButtonName(int pos)
@@ -519,6 +388,19 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
             
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void SendToolbarItemChanged(ToolbarItem sentItem, int index)
+        {
+            m_syncing = true;
+            MyToolbarItem item = null;
+            if (sentItem.EntityID != 0)
+            {
+                item = ToolbarItem.ToItem(sentItem);
+            }
+            Toolbar.SetItemAtIndex(index, item);
+            m_syncing = false;
         }
     }
 }

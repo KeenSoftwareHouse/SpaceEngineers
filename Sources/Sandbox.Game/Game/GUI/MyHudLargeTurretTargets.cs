@@ -2,6 +2,8 @@
 
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
+using VRage.Game.Entity;
+using VRage.Game.Gui;
 
 
 #endregion

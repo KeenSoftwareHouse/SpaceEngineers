@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -68,26 +69,26 @@ namespace SpaceEngineers.Game.Gui
 
             const float TEXT_SCALE = MyGuiConstants.DEFAULT_TEXT_SCALE * 0.85f;
 
-            var labelVideoAdapter        = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.VideoAdapter));
-            var labelVideoMode           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.VideoMode));
-            var labelWindowMode          = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenOptionsVideo_WindowMode));
-            var labelVSync               = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.VerticalSync));
-            var labelHwCursor            = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.HardwareCursor));
+            var labelVideoAdapter        = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.VideoAdapter));
+            var labelVideoMode           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.VideoMode));
+            var labelWindowMode          = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenOptionsVideo_WindowMode));
+            var labelVSync               = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.VerticalSync));
+            var labelHwCursor            = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.HardwareCursor));
             var labelRenderQuality       = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.RenderQuality));
-            var labelFoV                 = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.FieldOfView));
-            m_fieldOfViewDefaultLabel    = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.DefaultFOV));
-            var labelRenderInterpolation = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.RenderIterpolation));
+            var labelFoV                 = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.FieldOfView));
+            m_fieldOfViewDefaultLabel    = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.DefaultFOV));
+            var labelRenderInterpolation = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.RenderIterpolation));
             var labelEnableDamageEffects = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.EnableDamageEffects));
 
-            m_videoAdapterCombobox   = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVideoAdapter));
-            m_resolutionCombobox     = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVideoMode));
+            m_videoAdapterCombobox   = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsVideoAdapter));
+            m_resolutionCombobox     = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsVideoMode));
             m_windowModeCombobox     = new MyGuiControlCombobox();
-            m_verticalSyncCheckbox   = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVerticalSync));
-            m_hardwareCursorCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsHardwareCursor));
+            m_verticalSyncCheckbox   = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsVerticalSync));
+            m_hardwareCursorCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsHardwareCursor));
             m_enableDamageEffectsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsEnableDamageEffects));
 
-            m_renderQualityCombobox  = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsRenderQuality));
-            m_fieldOfViewSlider      = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsFieldOfView),
+            m_renderQualityCombobox  = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsRenderQuality));
+            m_fieldOfViewSlider      = new MyGuiControlSlider(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsFieldOfView),
                 labelText: new StringBuilder("{0}").ToString(),
                 labelSpaceWidth: 0.035f,
                 labelScale: TEXT_SCALE,
@@ -96,7 +97,7 @@ namespace SpaceEngineers.Game.Gui
                 maxValue: MathHelper.ToDegrees(MyConstants.FIELD_OF_VIEW_CONFIG_MAX),
                 defaultValue: MathHelper.ToDegrees(MyConstants.FIELD_OF_VIEW_CONFIG_DEFAULT));
 
-            m_renderInterpolationCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionRenderIterpolation));
+            m_renderInterpolationCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionRenderIterpolation));
 
             m_unsupportedAspectRatioLabel = new MyGuiControlLabel(colorMask: MyGuiConstants.LABEL_TEXT_COLOR * 0.9f, textScale: TEXT_SCALE * 0.85f);
             m_recommendAspectRatioLabel = new MyGuiControlLabel(colorMask: MyGuiConstants.LABEL_TEXT_COLOR * 0.9f, textScale: TEXT_SCALE * 0.85f);
@@ -149,7 +150,7 @@ namespace SpaceEngineers.Game.Gui
             foreach (var control in Controls)
                 control.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
 
-            m_unsupportedAspectRatioLabel.Text = string.Format("* {0}", MyTexts.Get(MySpaceTexts.UnsupportedAspectRatio));
+            m_unsupportedAspectRatioLabel.Text = string.Format("* {0}", MyTexts.Get(MyCommonTexts.UnsupportedAspectRatio));
             AddAdaptersToComboBox();
             AddRenderQualitiesToComboBox();
             AddWindowModesToComboBox();
@@ -163,14 +164,14 @@ namespace SpaceEngineers.Game.Gui
             Controls.Add(new MyGuiControlButton(
                 position: new Vector2(-0.05f, 0.31f),
                 size: MyGuiConstants.OK_BUTTON_SIZE,
-                text: MyTexts.Get(MySpaceTexts.Ok),
+                text: MyTexts.Get(MyCommonTexts.Ok),
                 onButtonClick: OnOkClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER));
 
             Controls.Add(new MyGuiControlButton(
                 position: new Vector2(0.05f, 0.31f),
                 size: MyGuiConstants.OK_BUTTON_SIZE,
-                text: MyTexts.Get(MySpaceTexts.Cancel),
+                text: MyTexts.Get(MyCommonTexts.Cancel),
                 onButtonClick: OnCancelClick,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
 
@@ -197,9 +198,9 @@ namespace SpaceEngineers.Game.Gui
 
         private void AddWindowModesToComboBox()
         {
-            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.Window,           MySpaceTexts.ScreenOptionsVideo_WindowMode_Window);
-            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.FullscreenWindow, MySpaceTexts.ScreenOptionsVideo_WindowMode_FullscreenWindow);
-            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.Fullscreen,       MySpaceTexts.ScreenOptionsVideo_WindowMode_Fullscreen);
+            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.Window,           MyCommonTexts.ScreenOptionsVideo_WindowMode_Window);
+            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.FullscreenWindow, MyCommonTexts.ScreenOptionsVideo_WindowMode_FullscreenWindow);
+            m_windowModeCombobox.AddItem((int)MyWindowModeEnum.Fullscreen,       MyCommonTexts.ScreenOptionsVideo_WindowMode_Fullscreen);
         }
 
         void OnVideoAdapterSelected()
@@ -256,7 +257,7 @@ namespace SpaceEngineers.Game.Gui
             { // UpdateRecommendecAspectRatioLabel
                 MyAspectRatio recommendedAspectRatio = MyVideoSettingsManager.GetRecommendedAspectRatio(adapterIndex);
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat(MyTexts.GetString(MySpaceTexts.RecommendedAspectRatio), recommendedAspectRatio.TextShort);
+                sb.AppendFormat(MyTexts.GetString(MyCommonTexts.RecommendedAspectRatio), recommendedAspectRatio.TextShort);
                 m_recommendAspectRatioLabel.Text = string.Format("*** {0}", sb);
             }
         }
@@ -385,8 +386,8 @@ namespace SpaceEngineers.Game.Gui
                     m_waitingForConfirmation = true;
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                         buttonType: MyMessageBoxButtonsType.YES_NO_TIMEOUT,
-                        messageText: MyTexts.Get(MySpaceTexts.DoYouWantToKeepTheseSettingsXSecondsRemaining),
-                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                        messageText: MyTexts.Get(MyCommonTexts.DoYouWantToKeepTheseSettingsXSecondsRemaining),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
                         callback: OnMessageBoxCallback,
                         timeoutInMiliseconds: MyGuiConstants.VIDEO_OPTIONS_CONFIRMATION_TIMEOUT_IN_MILISECONDS));
                     break;
@@ -397,8 +398,8 @@ namespace SpaceEngineers.Game.Gui
                 case MyVideoSettingsManager.ChangeResult.Failed:
                     m_doRevert = true;
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                        messageText: MyTexts.Get(MySpaceTexts.SorryButSelectedSettingsAreNotSupportedByYourHardware),
-                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError)));
+                        messageText: MyTexts.Get(MyCommonTexts.SorryButSelectedSettingsAreNotSupportedByYourHardware),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError)));
                     break;
             }
         }

@@ -7,7 +7,6 @@ using VRageRender;
 using Sandbox.ModAPI;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -19,9 +18,12 @@ using System.Threading;
 
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
+using VRage;
 using VRage.Import;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ModAPI;
+using VRage.Game.Models;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
@@ -45,7 +47,9 @@ namespace Sandbox.Game.Components
                  GetRenderCullingOptions(),
                  m_diffuseColor,
                  m_colorMaskHsv,
-                 Transparency
+                 Transparency,
+                 maxViewDistance: float.MaxValue,
+                 depthBias: DepthBias
                 ));
         }
 
@@ -94,13 +98,23 @@ namespace Sandbox.Game.Components
         /// </summary>
         public override void Draw()
         {
+            ProfilerShort.Begin("MyRenderComponent::Draw");
+
             var objToCameraSq = Vector3.DistanceSquared(MySector.MainCamera.Position, Container.Entity.PositionComp.GetPosition());
 
             //Disable glass for holograms (transparency < 0)
-            if (m_model != null && m_model.GlassData != null && objToCameraSq < Container.Entity.MaxGlassDistSq && Transparency >= 0f)
+            if (Transparency >= 0f && m_model != null && m_model.GlassData != null && objToCameraSq < Container.Entity.MaxGlassDistSq)
             {
                 string mat;
                 var world = (Matrix)Container.Entity.PositionComp.WorldMatrix;
+
+                Vector3 worldP0;
+                Vector3 worldP1;
+                Vector3 worldP2;
+
+                Vector3 n0;
+                Vector3 n1;
+                Vector3 n2;
 
                 for (int i = 0; i < m_model.GlassData.TriCount; i++)
                 {
@@ -108,10 +122,6 @@ namespace Sandbox.Game.Components
                     Vector3 p0 = m_model.GetVertex(tri.I0);
                     Vector3 p1 = m_model.GetVertex(tri.I1);
                     Vector3 p2 = m_model.GetVertex(tri.I2);
-
-                    Vector3 worldP0 = new Vector3();
-                    Vector3 worldP1 = new Vector3();
-                    Vector3 worldP2 = new Vector3();
 
                     Vector3.Transform(ref p0, ref world, out worldP0);
                     Vector3.Transform(ref p1, ref world, out worldP1);
@@ -133,11 +143,8 @@ namespace Sandbox.Game.Components
                         mat = string.IsNullOrEmpty(m_model.GlassData.Material.GlassCCW) ? "GlassCCW" : m_model.GlassData.Material.GlassCCW;
                     }
 
-                    Vector3 n0 = Vector3.Zero;
-                    Vector3 n1 = Vector3.Zero;
-                    Vector3 n2 = Vector3.Zero;
-
-                    bool smooth = m_model.GlassData.Material.GlassSmooth;
+                    // this does not make sense, as the shader takes only the one normal from the first point; better to use calculated triangle normal
+                    /*bool smooth = m_model.GlassData.Material.GlassSmooth;
 
                     if (smooth)
                     {
@@ -146,8 +153,14 @@ namespace Sandbox.Game.Components
                         n2 = m_model.GetVertexNormal(tri.I2);
                     }
                     else
+                    {*/
+                        n0 = n1 = n2 = normal;
+                    //}
+                    if (dot > 0)
                     {
-                        n0 = n1 = n2 = Vector3.Normalize(Vector3.Cross(p1 - p0, p2 - p0));
+                        n0 = -n0;
+                        n1 = -n1;
+                        n2 = -n2;
                     }
 
                     var renderID = m_renderObjectIDs[0];
@@ -161,25 +174,26 @@ namespace Sandbox.Game.Components
 
                     if (worldP0P1 > worldP1P2 && worldP0P1 > worldP2P0)
                     {
-                        center = (worldP0 + worldP1) / 2;
+                        center = (worldP0 + worldP1) * 0.5f;
                     }
                     else if (worldP1P2 > worldP2P0 && worldP1P2 > worldP0P1)
                     {
-                        center = (worldP1 + worldP2) / 2;
+                        center = (worldP1 + worldP2) * 0.5f;
                     }
                     else
                     {
-                        center = (worldP2 + worldP0) / 2;
+                        center = (worldP2 + worldP0) * 0.5f;
                     }
 
-                    Sandbox.Graphics.TransparentGeometry.MyTransparentGeometry.AddTriangleBillboard(
+                    MyTransparentGeometry.AddTriangleBillboard(
                           p0, p1, p2,
                           n0, n1, n2,
                           uv0.ToVector2(), uv1.ToVector2(), uv2.ToVector2(),
-                          mat, (int)renderID, center,
-                          useNormals: smooth);
+                          mat, (int)renderID, center);
                 }
             }
+
+            ProfilerShort.End();
         }
 
         public override bool IsVisible()
@@ -214,15 +228,20 @@ namespace Sandbox.Game.Components
 
                 if (hasChanged)                
                 {
-                    MyEntities.UnregisterForDraw(Container.Entity);
                     Container.Entity.Flags &= ~EntityFlags.NeedsDraw;
 
                     if (value)
                         Container.Entity.Flags |= EntityFlags.NeedsDraw;
-
                     if (Container.Entity.InScene)
                     {
-                        MyEntities.RegisterForDraw(Container.Entity);
+                        if (value)
+                        {
+                            MyEntities.RegisterForDraw(Container.Entity);
+                        }
+                        else
+                        {
+                            MyEntities.UnregisterForDraw(Container.Entity);
+                        }
                     }
                 }
             }

@@ -1,11 +1,7 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     [ProtoContract]
     public class MyBBMemoryTarget : MyBBMemoryValue
@@ -32,6 +28,12 @@ namespace Sandbox.Common.ObjectBuilders.AI
         {
         }
 
+        public static void UnsetTarget(ref MyBBMemoryTarget target)
+        {
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.NO_TARGET;
+        }
+
         public static void SetTargetEntity(ref MyBBMemoryTarget target, MyAiTargetEnum targetType, long entityId, Vector3D? position = null)
         {
             if (target == null) target = new MyBBMemoryTarget();
@@ -50,11 +52,11 @@ namespace Sandbox.Common.ObjectBuilders.AI
             target.Position = position;
         }
 
-        public static void SetTargetCube(ref MyBBMemoryTarget target, Vector3I blockPosition, long entityId)
+        public static void SetTargetCube(ref MyBBMemoryTarget target, Vector3I blockPosition, long gridEntityId)
         {
             if (target == null) target = new MyBBMemoryTarget();
             target.TargetType = MyAiTargetEnum.CUBE;
-            target.EntityId = entityId;
+            target.EntityId = gridEntityId;
             target.TreeId = null;
             target.Position = new Vector3D(blockPosition);
         }

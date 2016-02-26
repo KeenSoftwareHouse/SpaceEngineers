@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.ModAPI
 {
@@ -16,7 +17,7 @@ namespace Sandbox.ModAPI
     {
         IMyConfigDedicated ConfigDedicated { get; }
         string GetTypeName(Type type);
-        void ShowNotification(string message, int disappearTimeMs = 2000, Common.MyFontEnum font = Common.MyFontEnum.White);
+        void ShowNotification(string message, int disappearTimeMs = 2000, MyFontEnum font = MyFontEnum.White);
 
         /// <summary>
         /// Create a notification object.
@@ -27,7 +28,7 @@ namespace Sandbox.ModAPI
         /// <param name="disappearTimeMs"></param>
         /// <param name="font"></param>
         /// <returns>The notification object.</returns>
-        IMyHudNotification CreateNotification(string message, int disappearTimeMs = 2000, Common.MyFontEnum font = Common.MyFontEnum.White);
+        IMyHudNotification CreateNotification(string message, int disappearTimeMs = 2000, MyFontEnum font = MyFontEnum.White);
 
         void ShowMessage(string sender, string messageText);
         void SendMessage(string messageText);

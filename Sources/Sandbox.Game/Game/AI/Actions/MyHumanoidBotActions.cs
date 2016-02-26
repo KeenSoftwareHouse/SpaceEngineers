@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.AI;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Voxels;

@@ -339,7 +339,8 @@ namespace VRageRender.Graphics
             // Check that texture is not null
             if (texture == null || texture.NativePointer == IntPtr.Zero)
             {
-                throw new ArgumentNullException("texture");
+                Debug.Fail("Texture cannot be null.");
+                return;
             }
 
             // Make sure that Begin was called

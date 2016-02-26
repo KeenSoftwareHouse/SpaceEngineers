@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
@@ -9,6 +10,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -19,12 +22,12 @@ namespace Sandbox.Game.Screens.Helpers
         {
             get
             {
-                var character = MySession.ControlledEntity as MyCharacter;
+                var character = MySession.Static.ControlledEntity as MyCharacter;
                 if (character == null)
                 {
                     return null;
                 }
-                return character.GetInventory();
+                return character.GetInventory() as MyInventory;
             }
         }
 
@@ -34,7 +37,7 @@ namespace Sandbox.Game.Screens.Helpers
             bool available = itemAmount > 0;
             if (available)
             {
-                var character = MySession.ControlledEntity as MyCharacter;
+                var character = MySession.Static.ControlledEntity as MyCharacter;
                 itemAmount = MyFixedPoint.Min(itemAmount, 1);
                 if (character != null && character.StatComp != null && itemAmount > 0)
                 {
@@ -70,7 +73,7 @@ namespace Sandbox.Game.Screens.Helpers
             return type == MyToolbarType.Character;
         }
 
-        public override MyToolbarItem.ChangeInfo Update(Entities.MyEntity owner, long playerID = 0)
+        public override MyToolbarItem.ChangeInfo Update(MyEntity owner, long playerID = 0)
         {            
             bool enabled = Inventory != null ? Inventory.GetItemAmount(Definition.Id) > 0 : false; 
             

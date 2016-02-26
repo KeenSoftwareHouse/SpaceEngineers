@@ -7,9 +7,5 @@ namespace Sandbox.Game.Entities.Blocks
 {
     public class MyLaserBroadcaster : MyDataBroadcaster
     {
-        public MyLaserBroadcaster(MyEntity parent)
-        {
-            Parent = parent;
-        }
     }
 }

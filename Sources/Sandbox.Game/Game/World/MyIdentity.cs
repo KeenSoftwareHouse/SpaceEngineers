@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRageMath;
 

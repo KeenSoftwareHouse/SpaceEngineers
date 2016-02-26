@@ -48,7 +48,7 @@ namespace Sandbox.Engine.Voxels
             var startCoord = Vector3I.Zero;
             var endCoord = new Vector3I(MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS - 1);
 
-            var cache = new MyStorageDataCache();
+            var cache = new MyStorageData();
             cache.Resize(Vector3I.Zero, endCoord);
             Vector3I cellCoord;
             for (cellCoord.X = 0; cellCoord.X < cellsCount.X; cellCoord.X++)

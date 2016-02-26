@@ -23,14 +23,39 @@ namespace Sandbox.Game.Multiplayer
         public static bool IsServer { get { return MultiplayerActive ? MyMultiplayer.Static.IsServer : true; } }
         public static ulong ServerId { get { return MultiplayerActive ? MyMultiplayer.Static.ServerId : MyId; } }
         public static MySyncLayer Layer { get { return MySession.Static != null ? MySession.Static.SyncLayer : null; } }
+        static bool? m_steamOnline;
         //public static MyTransportLayer Transport { get { return Layer.TransportLayer; } }
 
-        public static ulong MyId { get { return MySteam.UserId; } }
+        public static ulong MyId 
+        { 
+            get 
+            { 
+                if(MyFakes.ENABLE_RUN_WITHOUT_STEAM && MySandboxGame.IsDedicated == false)         
+                {
+                    if (m_steamOnline.HasValue == false)
+                    {
+                        m_steamOnline = MySteam.IsOnline;
+                    }
+
+                    if (m_steamOnline.Value == false)
+                    {
+                        return 1234567891011;
+                    }
+                }
+
+                return MySteam.UserId; 
+            } 
+        }
         public static string MyName { get { return MySteam.UserName; } }
 
         public static float ServerSimulationRatio
         {
-            get { return (MultiplayerActive && !IsServer) ? MyMultiplayer.Static.ServerSimulationRatio : MyPhysics.SimulationRatio; }
+            get 
+            {
+                //when there is crash on different thread multiplayer can be disposed during calls
+                MyMultiplayerBase multiplayer = MyMultiplayer.Static;
+                return (multiplayer != null && !multiplayer.IsServer) ? multiplayer.ServerSimulationRatio : MyPhysics.SimulationRatio; 
+            }
             set
             {
                 Debug.Assert(!IsServer, "Server should not set simulation speed!");
@@ -38,7 +63,6 @@ namespace Sandbox.Game.Multiplayer
                     MyMultiplayer.Static.ServerSimulationRatio = value;
             }
         }
-
         /// <summary>
         /// Use this number to achieve same speed as server.
         /// </summary>
@@ -46,6 +70,11 @@ namespace Sandbox.Game.Multiplayer
         {
             get
             {
+                if (IsServer)
+                {
+                    return 1.0f;
+                }
+
                 if (!MyFakes.ENABLE_MULTIPLAYER_CONSTRAINT_COMPENSATION)
                     return 1.0f;
 
@@ -55,7 +84,7 @@ namespace Sandbox.Game.Multiplayer
                     return 1.0f;
                 }
                 else
-                {
+                {                 
                     return ServerSimulationRatio / MyPhysics.SimulationRatio;
                 }
             }

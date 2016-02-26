@@ -77,15 +77,15 @@ namespace Sandbox.Game.Screens.Helpers
                         {
                             if (snapshot.SavingSuccess)
                             {
-                                var notification = new MyHudNotification(MySpaceTexts.WorldSaved, 2500);
+                                var notification = new MyHudNotification(MyCommonTexts.WorldSaved, 2500);
                                 notification.SetTextFormatArguments(MySession.Static.Name);
                                 MyHud.Notifications.Add(notification);
                             }
                             else
                             {
                                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                    messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.WorldNotSaved), MySession.Static.Name),
-                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError)));
+                                    messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MyCommonTexts.WorldNotSaved), MySession.Static.Name),
+                                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError)));
                             }
                         }
                     }
@@ -98,8 +98,8 @@ namespace Sandbox.Game.Screens.Helpers
                 if (!MySandboxGame.IsDedicated)
                 {
                     MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                        messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.WorldNotSaved), MySession.Static.Name),
-                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError)));
+                        messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MyCommonTexts.WorldNotSaved), MySession.Static.Name),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError)));
                 }
 
                 PopInProgress();

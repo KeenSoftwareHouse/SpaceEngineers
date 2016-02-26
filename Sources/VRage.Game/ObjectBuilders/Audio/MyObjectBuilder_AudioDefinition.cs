@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
-using VRage.Data;
 using VRage.Utils;
-using VRage.Library.Utils;
 using VRage.Data.Audio;
-using VRage;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Audio
+namespace VRage.Game
 {
     [ProtoContract]
     [XmlType("Sound")]
@@ -95,6 +88,13 @@ namespace Sandbox.Common.ObjectBuilders.Audio
         {
             get { return SoundData.Waves; }
             set { SoundData.Waves = value; }
+        }
+
+        [ProtoMember]
+        public List<DistantSound> DistantSounds
+        {
+            get { return SoundData.DistantSounds; }
+            set { SoundData.DistantSounds = value; }
         }
 
         [ProtoMember, DefaultValue("")]

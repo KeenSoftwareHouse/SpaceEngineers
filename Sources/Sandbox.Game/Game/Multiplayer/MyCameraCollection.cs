@@ -10,13 +10,16 @@ using System.Text;
 
 using VRageMath;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
-using CameraControllerSettings = Sandbox.Common.ObjectBuilders.MyObjectBuilder_Player.CameraControllerSettings;
+using CameraControllerSettings = VRage.Game.MyObjectBuilder_Player.CameraControllerSettings;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities;
+using VRage.Game;
 using VRage.Utils;
+using VRage.Network;
 
 namespace Sandbox.Game.Multiplayer
 {
+  
     public class MyEntityCameraSettings
     {
         public PlayerId PID;
@@ -44,57 +47,24 @@ namespace Sandbox.Game.Multiplayer
         public MyCameraControllerEnum Controller;
     }
 
-    [PreloadRequired]
+    [StaticEventOwner]
     class MyCameraCollection
     {
-        [ProtoContract]
-        [MessageId(456, P2PMessageEnum.Reliable)]
-        struct PlayerSaveEntityCameraSettingsMsg
-        {
-            [ProtoMember]
-            public int PlayerSerialId;
-            [ProtoMember]
-            public long EntityId;
-            [ProtoMember]
-            public double Distance;
-            [ProtoMember]
-            public bool IsFirstPerson;
-            [ProtoMember]
-            public float HeadX;
-            [ProtoMember]
-            public float HeadY;
-        }
-
-        static MyCameraCollection()
-        {    
-            MySyncLayer.RegisterMessage<PlayerSaveEntityCameraSettingsMsg>(OnSaveEntityCameraSettings, MyMessagePermissions.ToServer);
-        }
-
         public void RequestSaveEntityCameraSettings(PlayerId pid, long entityId, bool isFirstPerson, double distance, float headAngleX, float headAngleY)
         {
-            if (MyEntities.CloseAllowed)
-                return;
-
-            var msg = new PlayerSaveEntityCameraSettingsMsg();
-            msg.PlayerSerialId = pid.SerialId;
-            msg.EntityId = entityId;
-            msg.Distance = distance;
-            msg.IsFirstPerson = isFirstPerson;
-            msg.HeadX = headAngleX;
-            msg.HeadY = headAngleY;
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(x => OnSaveEntityCameraSettings, pid, entityId, isFirstPerson, distance, headAngleX, headAngleY);
         }
 
-        static void OnSaveEntityCameraSettings(ref PlayerSaveEntityCameraSettingsMsg msg, MyNetworkClient sender)
+        [Event,Reliable,Server]
+        static void OnSaveEntityCameraSettings(PlayerId playerId, long entityId, bool isFirstPerson, double distance, float headAngleX, float headAngleY)
         {
-            PlayerId pid = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
-            Vector2 headAngle = new Vector2(msg.HeadX, msg.HeadY);
+            PlayerId pid = new PlayerId(playerId.SteamId, playerId.SerialId);
+            Vector2 headAngle = new Vector2(headAngleX, headAngleY);
             MyPlayer player = MySession.Static.Players.GetPlayerById(pid);
-            if (player != null && player.Character != null && player.Character.EntityId == msg.EntityId)
-                MySession.Static.Cameras.AddCharacterCameraData(pid, msg.IsFirstPerson, msg.Distance, headAngle);
+            if (player != null && player.Character != null && player.Character.EntityId == entityId)
+                MySession.Static.Cameras.AddCharacterCameraData(pid, isFirstPerson, distance, headAngle);
             else
-                MySession.Static.Cameras.AddCameraData(pid, msg.EntityId, msg.IsFirstPerson, msg.Distance, headAngle);
+                MySession.Static.Cameras.AddCameraData(pid, entityId, isFirstPerson, distance, headAngle);
         }
 
         private Dictionary<PlayerId, Dictionary<long, MyEntityCameraSettings>> m_entityCameraSettings = new Dictionary<PlayerId, Dictionary<long, MyEntityCameraSettings>>();
@@ -161,7 +131,7 @@ namespace Sandbox.Game.Multiplayer
             if (MySandboxGame.IsDedicated)
                 client = MySession.Static.Players.GetPlayerById(pid);
             else
-                client = MySession.LocalHumanPlayer;
+                client = MySession.Static.LocalHumanPlayer;
 
             if (m_characterCameraSettings != null && client != null && client.Character != null && client.Character.EntityId == entityId)
             {
@@ -270,7 +240,7 @@ namespace Sandbox.Game.Multiplayer
             }
 
             Vector2 headAngle = new Vector2(headAngleX, headAngleY);
-            if (MySession.ControlledEntity is MyCharacter || (MySession.LocalCharacter != null && MySession.LocalCharacter.EntityId == entityId))
+            if (MySession.Static.ControlledEntity is MyCharacter || (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.EntityId == entityId))
                 AddCharacterCameraData(pid, isFirstPerson, distance, headAngle);
             else
                 AddCameraData(pid, entityId, isFirstPerson, distance, headAngle);

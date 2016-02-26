@@ -8,6 +8,8 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRageMath;
 
 

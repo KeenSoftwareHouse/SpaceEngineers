@@ -1,9 +1,9 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;

@@ -1,8 +1,9 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
 using VRage.ModAPI;
+using VRage.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -12,6 +13,7 @@ namespace Sandbox.Common.ObjectBuilders
         public MyObjectBuilder_CubeBlock[] Blocks;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public ushort[] BlockIds;
 
         public override void Remap(IMyRemapHelper remapHelper)

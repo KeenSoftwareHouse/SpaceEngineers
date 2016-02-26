@@ -3,6 +3,7 @@
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -13,7 +14,10 @@ using Sandbox.Graphics.GUI;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Game.Components;
+using VRage.Game;
 using VRage.Input;
+using VRage.Network;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -23,6 +27,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
+    [StaticEventOwner]
     public class MyPlaceAreas : MySessionComponentBase
     {
         #region Fields
@@ -61,7 +66,7 @@ namespace Sandbox.Game.Entities
             m_aabbTree.GetAll(areas, false);
             foreach (var area in areas)
             {
-                area.PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+                area.PlaceAreaProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
             }
 
             Clear();
@@ -69,7 +74,7 @@ namespace Sandbox.Game.Entities
 
         public void AddPlaceArea(MyPlaceArea area)
         {
-            if (area.PlaceAreaProxyId == MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (area.PlaceAreaProxyId == MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 BoundingBoxD box = area.WorldAABB;
                 area.PlaceAreaProxyId = m_aabbTree.AddProxy(ref box, area, 0);
@@ -78,16 +83,16 @@ namespace Sandbox.Game.Entities
 
         public void RemovePlaceArea(MyPlaceArea area)
         {
-            if (area.PlaceAreaProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (area.PlaceAreaProxyId != MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 m_aabbTree.RemoveProxy(area.PlaceAreaProxyId);
-                area.PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+                area.PlaceAreaProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
             }
         }
 
         public void MovePlaceArea(MyPlaceArea area)
         {
-            if (area.PlaceAreaProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            if (area.PlaceAreaProxyId != MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 BoundingBoxD box = area.WorldAABB;
                 m_aabbTree.MoveProxy(area.PlaceAreaProxyId, ref box, Vector3.Zero);
@@ -113,9 +118,9 @@ namespace Sandbox.Game.Entities
 		{
 			Vector3D cameraPos, cameraDir;
 
-			if (MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.ThirdPersonSpectator || MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.Entity)
+			if (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity)
 			{
-				var headMatrix = MySession.ControlledEntity.GetHeadMatrix(true, true);
+				var headMatrix = MySession.Static.ControlledEntity.GetHeadMatrix(true, true);
 				cameraPos = headMatrix.Translation;
 				cameraDir = headMatrix.Forward;
 			}
@@ -127,7 +132,7 @@ namespace Sandbox.Game.Entities
 
 			List<MyPhysics.HitInfo> hitInfos = new List<MyPhysics.HitInfo>();
 
-			MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 100, hitInfos, MyPhysics.ObjectDetectionCollisionLayer);
+            MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 100, hitInfos, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
 			if (hitInfos.Count == 0)
 				return;
 
@@ -162,12 +167,15 @@ namespace Sandbox.Game.Entities
 
 				var positionAndOrientation = new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up);
 
-				MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id);
+                MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id);
                 objectBuilder.PersistentFlags = MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
-				objectBuilder.PositionAndOrientation = positionAndOrientation;
+                objectBuilder.PositionAndOrientation = positionAndOrientation;
 
 				if (objectBuilder.IsSynced)
-					MySyncCreate.RequestEntityCreate(objectBuilder);
+                {
+                    SerializableDefinitionId id = definition.Id;
+                    MyMultiplayer.RaiseStaticEvent(x => CreateNewPlaceArea, id,positionAndOrientation);
+                }			
 				else
 				{
 					MyAreaMarker flag = MyEntityFactory.CreateEntity<MyAreaMarker>(objectBuilder);
@@ -178,6 +186,16 @@ namespace Sandbox.Game.Entities
 			}
 		}
 
+        [Event, Reliable,Server]
+        static void CreateNewPlaceArea(SerializableDefinitionId id, MyPositionAndOrientation positionAndOrientation)
+        {
+            MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(id);
+            objectBuilder.PersistentFlags = MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
+            objectBuilder.PositionAndOrientation = positionAndOrientation;
+
+            MyEntities.CreateFromObjectBuilderAndAdd(objectBuilder);
+        }
+
 		public override void HandleInput()
 		{
 			base.HandleInput();
@@ -187,7 +205,7 @@ namespace Sandbox.Game.Entities
 
 			if (MyControllerHelper.IsControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION))
 			{
-				if (MySession.ControlledEntity != null && AreaMarkerDefinition != null)
+				if (MySession.Static.ControlledEntity != null && AreaMarkerDefinition != null)
 					PlaceAreaMarker();
 			}
 		}

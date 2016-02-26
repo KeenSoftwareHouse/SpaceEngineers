@@ -5,6 +5,8 @@ using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using System;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Utils;
 
 namespace Sandbox.Game.Entities
@@ -36,7 +38,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         void OnEndShoot(MyShootActionEnum action);
         void UseFinished();
-        void Sprint();
+        void Sprint(bool enabled);
 
         void SwitchToWeapon(MyDefinitionId weaponDefinition);
 		void SwitchToWeapon(MyToolbarItemWeapon weapon);

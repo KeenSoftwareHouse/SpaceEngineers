@@ -20,104 +20,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Afterburner = MyStringId.GetOrCompute("Afterburner");
 
         ///<summary>
-        ///Are you sure you want to exit?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureYouWantToExit = MyStringId.GetOrCompute("MessageBoxTextAreYouSureYouWantToExit");
-
-        ///<summary>
-        ///Please press a key
-        ///</summary>
-        public static readonly MyStringId AssignControlKeyboard = MyStringId.GetOrCompute("AssignControlKeyboard");
-
-        ///<summary>
-        ///Please click a mouse button
-        ///</summary>
-        public static readonly MyStringId AssignControlMouse = MyStringId.GetOrCompute("AssignControlMouse");
-
-        ///<summary>
-        ///Audio
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsButtonAudio = MyStringId.GetOrCompute("ScreenOptionsButtonAudio");
-
-        ///<summary>
-        ///Audio options
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionAudioOptions = MyStringId.GetOrCompute("ScreenCaptionAudioOptions");
-
-        ///<summary>
-        ///Cancel
-        ///</summary>
-        public static readonly MyStringId Cancel = MyStringId.GetOrCompute("Cancel");
-
-        ///<summary>
-        ///CANNOT ASSIGN CONTROL
-        ///</summary>
-        public static readonly MyStringId CanNotAssignControl = MyStringId.GetOrCompute("CanNotAssignControl");
-
-        ///<summary>
-        ///Continue last
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonContinueLastGame = MyStringId.GetOrCompute("LoadScreenButtonContinueLastGame");
-
-        ///<summary>
-        ///{0} is already assigned to {1}. Remove the original control?
-        ///</summary>
-        public static readonly MyStringId ControlAlreadyAssigned = MyStringId.GetOrCompute("ControlAlreadyAssigned");
-
-        ///<summary>
-        ///The pressed key may not be assigned to controls.
-        ///</summary>
-        public static readonly MyStringId ControlIsNotValid = MyStringId.GetOrCompute("ControlIsNotValid");
-
-        ///<summary>
-        ///Controls
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionControls = MyStringId.GetOrCompute("ScreenCaptionControls");
-
-        ///<summary>
-        ///Credits
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonCredits = MyStringId.GetOrCompute("ScreenMenuButtonCredits");
-
-        ///<summary>
-        ///Delete
-        ///</summary>
-        public static readonly MyStringId KeysDelete = MyStringId.GetOrCompute("KeysDelete");
-
-        ///<summary>
-        ///Down
-        ///</summary>
-        public static readonly MyStringId KeysDown = MyStringId.GetOrCompute("KeysDown");
-
-        ///<summary>
-        ///Do you want to keep these settings? {0} seconds remaining.
-        ///</summary>
-        public static readonly MyStringId DoYouWantToKeepTheseSettingsXSecondsRemaining = MyStringId.GetOrCompute("DoYouWantToKeepTheseSettingsXSecondsRemaining");
-
-        ///<summary>
         ///Drill
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Drill = MyStringId.GetOrCompute("DisplayName_Block_Drill");
-
-        ///<summary>
-        ///End
-        ///</summary>
-        public static readonly MyStringId KeysEnd = MyStringId.GetOrCompute("KeysEnd");
-
-        ///<summary>
-        ///Exit to main menu
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonExitToMainMenu = MyStringId.GetOrCompute("ScreenMenuButtonExitToMainMenu");
-
-        ///<summary>
-        ///Exit to Windows
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonExitToWindows = MyStringId.GetOrCompute("ScreenMenuButtonExitToWindows");
-
-        ///<summary>
-        ///Field of view
-        ///</summary>
-        public static readonly MyStringId FieldOfView = MyStringId.GetOrCompute("FieldOfView");
 
         ///<summary>
         ///Use tool / Fire weapon
@@ -130,289 +35,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlName_FireSecondaryWeapon = MyStringId.GetOrCompute("ControlName_FireSecondaryWeapon");
 
         ///<summary>
-        ///Game
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsButtonGame = MyStringId.GetOrCompute("ScreenOptionsButtonGame");
-
-        ///<summary>
-        ///Game options
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionGameOptions = MyStringId.GetOrCompute("ScreenCaptionGameOptions");
-
-        ///<summary>
-        ///Gamepad
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsControls_Gamepad = MyStringId.GetOrCompute("ScreenOptionsControls_Gamepad");
-
-        ///<summary>
-        ///Analog
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsControls_AnalogAxes = MyStringId.GetOrCompute("ScreenOptionsControls_AnalogAxes");
-
-        ///<summary>
-        ///Sound volume
-        ///</summary>
-        public static readonly MyStringId GameVolume = MyStringId.GetOrCompute("GameVolume");
-
-        ///<summary>
-        ///General
-        ///</summary>
-        public static readonly MyStringId ControlTypeGeneral = MyStringId.GetOrCompute("ControlTypeGeneral");
-
-        ///<summary>
-        ///Hardware cursor
-        ///</summary>
-        public static readonly MyStringId HardwareCursor = MyStringId.GetOrCompute("HardwareCursor");
-
-        ///<summary>
         ///Lights on / off
         ///</summary>
         public static readonly MyStringId ControlName_ToggleHeadlights = MyStringId.GetOrCompute("ControlName_ToggleHeadlights");
 
         ///<summary>
-        ///Help
-        ///</summary>
-        public static readonly MyStringId ControlName_Help = MyStringId.GetOrCompute("ControlName_Help");
-
-        ///<summary>
-        ///Home
-        ///</summary>
-        public static readonly MyStringId KeysHome = MyStringId.GetOrCompute("KeysHome");
-
-        ///<summary>
-        ///Insert
-        ///</summary>
-        public static readonly MyStringId KeysInsert = MyStringId.GetOrCompute("KeysInsert");
-
-        ///<summary>
         ///Inventory
         ///</summary>
         public static readonly MyStringId Inventory = MyStringId.GetOrCompute("Inventory");
-
-        ///<summary>
-        ///Invert mouse X axis
-        ///</summary>
-        public static readonly MyStringId InvertMouseX = MyStringId.GetOrCompute("InvertMouseX");
-
-        ///<summary>
-        ///Invert mouse Y axis
-        ///</summary>
-        public static readonly MyStringId InvertMouseY = MyStringId.GetOrCompute("InvertMouseY");
-
-        ///<summary>
-        ///Joystick or gamepad
-        ///</summary>
-        public static readonly MyStringId Joystick = MyStringId.GetOrCompute("Joystick");
-
-        ///<summary>
-        ///JDLeft
-        ///</summary>
-        public static readonly MyStringId JoystickButtonLeft = MyStringId.GetOrCompute("JoystickButtonLeft");
-
-        ///<summary>
-        ///JDRight
-        ///</summary>
-        public static readonly MyStringId JoystickButtonRight = MyStringId.GetOrCompute("JoystickButtonRight");
-
-        ///<summary>
-        ///JDUp
-        ///</summary>
-        public static readonly MyStringId JoystickButtonUp = MyStringId.GetOrCompute("JoystickButtonUp");
-
-        ///<summary>
-        ///JDDown
-        ///</summary>
-        public static readonly MyStringId JoystickButtonDown = MyStringId.GetOrCompute("JoystickButtonDown");
-
-        ///<summary>
-        ///Joystick deadzone width
-        ///</summary>
-        public static readonly MyStringId JoystickDeadzone = MyStringId.GetOrCompute("JoystickDeadzone");
-
-        ///<summary>
-        ///Joystick gradual precision
-        ///</summary>
-        public static readonly MyStringId JoystickExponent = MyStringId.GetOrCompute("JoystickExponent");
-
-        ///<summary>
-        ///Joystick sensitivity
-        ///</summary>
-        public static readonly MyStringId JoystickSensitivity = MyStringId.GetOrCompute("JoystickSensitivity");
-
-        ///<summary>
-        ///Keyboard
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsControls_Keyboard = MyStringId.GetOrCompute("ScreenOptionsControls_Keyboard");
-
-        ///<summary>
-        ///Language
-        ///</summary>
-        public static readonly MyStringId Language = MyStringId.GetOrCompute("Language");
-
-        ///<summary>
-        ///Left
-        ///</summary>
-        public static readonly MyStringId KeysLeft = MyStringId.GetOrCompute("KeysLeft");
-
-        ///<summary>
-        ///LAlt
-        ///</summary>
-        public static readonly MyStringId KeysLeftAlt = MyStringId.GetOrCompute("KeysLeftAlt");
-
-        ///<summary>
-        ///LCtrl
-        ///</summary>
-        public static readonly MyStringId KeysLeftControl = MyStringId.GetOrCompute("KeysLeftControl");
-
-        ///<summary>
-        ///LMB
-        ///</summary>
-        public static readonly MyStringId LeftMouseButton = MyStringId.GetOrCompute("LeftMouseButton");
-
-        ///<summary>
-        ///LShift
-        ///</summary>
-        public static readonly MyStringId KeysLeftShift = MyStringId.GetOrCompute("KeysLeftShift");
-
-        ///<summary>
-        ///Load
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonLoad = MyStringId.GetOrCompute("LoadScreenButtonLoad");
-
-        ///<summary>
-        ///LOADING … PLEASE WAIT
-        ///</summary>
-        public static readonly MyStringId LoadingPleaseWaitUppercase = MyStringId.GetOrCompute("LoadingPleaseWaitUppercase");
-
-        ///<summary>
-        ///ERROR
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionError = MyStringId.GetOrCompute("MessageBoxCaptionError");
-
-        ///<summary>
-        ///PLEASE CONFIRM
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionPleaseConfirm = MyStringId.GetOrCompute("MessageBoxCaptionPleaseConfirm");
-
-        ///<summary>
-        ///EXIT
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionExit = MyStringId.GetOrCompute("MessageBoxCaptionExit");
-
-        ///<summary>
-        ///MMB
-        ///</summary>
-        public static readonly MyStringId MiddleMouseButton = MyStringId.GetOrCompute("MiddleMouseButton");
-
-        ///<summary>
-        ///Mouse
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsControls_Mouse = MyStringId.GetOrCompute("ScreenOptionsControls_Mouse");
-
-        ///<summary>
-        ///Mouse sensitivity
-        ///</summary>
-        public static readonly MyStringId MouseSensitivity = MyStringId.GetOrCompute("MouseSensitivity");
-
-        ///<summary>
-        ///MXB1
-        ///</summary>
-        public static readonly MyStringId MouseXButton1 = MyStringId.GetOrCompute("MouseXButton1");
-
-        ///<summary>
-        ///MXB2
-        ///</summary>
-        public static readonly MyStringId MouseXButton2 = MyStringId.GetOrCompute("MouseXButton2");
-
-        ///<summary>
-        ///Navigation
-        ///</summary>
-        public static readonly MyStringId ControlTypeNavigation = MyStringId.GetOrCompute("ControlTypeNavigation");
-
-        ///<summary>
-        ///New World
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionNewWorld = MyStringId.GetOrCompute("ScreenCaptionNewWorld");
-
-        ///<summary>
-        ///No
-        ///</summary>
-        public static readonly MyStringId No = MyStringId.GetOrCompute("No");
-
-        ///<summary>
-        ///Num 0
-        ///</summary>
-        public static readonly MyStringId KeysNumPad0 = MyStringId.GetOrCompute("KeysNumPad0");
-
-        ///<summary>
-        ///Num 1
-        ///</summary>
-        public static readonly MyStringId KeysNumPad1 = MyStringId.GetOrCompute("KeysNumPad1");
-
-        ///<summary>
-        ///Num 2
-        ///</summary>
-        public static readonly MyStringId KeysNumPad2 = MyStringId.GetOrCompute("KeysNumPad2");
-
-        ///<summary>
-        ///Num 3
-        ///</summary>
-        public static readonly MyStringId KeysNumPad3 = MyStringId.GetOrCompute("KeysNumPad3");
-
-        ///<summary>
-        ///Num 4
-        ///</summary>
-        public static readonly MyStringId KeysNumPad4 = MyStringId.GetOrCompute("KeysNumPad4");
-
-        ///<summary>
-        ///Num 5
-        ///</summary>
-        public static readonly MyStringId KeysNumPad5 = MyStringId.GetOrCompute("KeysNumPad5");
-
-        ///<summary>
-        ///Num 6
-        ///</summary>
-        public static readonly MyStringId KeysNumPad6 = MyStringId.GetOrCompute("KeysNumPad6");
-
-        ///<summary>
-        ///Num 7
-        ///</summary>
-        public static readonly MyStringId KeysNumPad7 = MyStringId.GetOrCompute("KeysNumPad7");
-
-        ///<summary>
-        ///Num 8
-        ///</summary>
-        public static readonly MyStringId KeysNumPad8 = MyStringId.GetOrCompute("KeysNumPad8");
-
-        ///<summary>
-        ///Num 9
-        ///</summary>
-        public static readonly MyStringId KeysNumPad9 = MyStringId.GetOrCompute("KeysNumPad9");
-
-        ///<summary>
-        ///OK
-        ///</summary>
-        public static readonly MyStringId Ok = MyStringId.GetOrCompute("Ok");
-
-        ///<summary>
-        ///Options
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionOptions = MyStringId.GetOrCompute("ScreenCaptionOptions");
-
-        ///<summary>
-        ///PgDown
-        ///</summary>
-        public static readonly MyStringId KeysPageDown = MyStringId.GetOrCompute("KeysPageDown");
-
-        ///<summary>
-        ///PgUp
-        ///</summary>
-        public static readonly MyStringId KeysPageUp = MyStringId.GetOrCompute("KeysPageUp");
-
-        ///<summary>
-        ///Recommended aspect ratio: {0}
-        ///</summary>
-        public static readonly MyStringId RecommendedAspectRatio = MyStringId.GetOrCompute("RecommendedAspectRatio");
 
         ///<summary>
         ///Render quality
@@ -433,36 +63,6 @@ namespace Sandbox.Game.Localization
         ///Normal
         ///</summary>
         public static readonly MyStringId RenderQualityNormal = MyStringId.GetOrCompute("RenderQualityNormal");
-
-        ///<summary>
-        ///Defaults
-        ///</summary>
-        public static readonly MyStringId Revert = MyStringId.GetOrCompute("Revert");
-
-        ///<summary>
-        ///Right
-        ///</summary>
-        public static readonly MyStringId KeysRight = MyStringId.GetOrCompute("KeysRight");
-
-        ///<summary>
-        ///RAlt
-        ///</summary>
-        public static readonly MyStringId KeysRightAlt = MyStringId.GetOrCompute("KeysRightAlt");
-
-        ///<summary>
-        ///RCtrl
-        ///</summary>
-        public static readonly MyStringId KeysRightControl = MyStringId.GetOrCompute("KeysRightControl");
-
-        ///<summary>
-        ///RMB
-        ///</summary>
-        public static readonly MyStringId RightMouseButton = MyStringId.GetOrCompute("RightMouseButton");
-
-        ///<summary>
-        ///RShift
-        ///</summary>
-        public static readonly MyStringId KeysRightShift = MyStringId.GetOrCompute("KeysRightShift");
 
         ///<summary>
         ///Roll left (ship / jetpack)
@@ -495,89 +95,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlName_RotationUp = MyStringId.GetOrCompute("ControlName_RotationUp");
 
         ///<summary>
-        ///SELECT CONTROL
-        ///</summary>
-        public static readonly MyStringId SelectControl = MyStringId.GetOrCompute("SelectControl");
-
-        ///<summary>
-        ///SCHEDULED SERVER SHUTDOWN
-        ///</summary>
-        public static readonly MyStringId ServerShutdownNotificationCaption = MyStringId.GetOrCompute("ServerShutdownNotificationCaption");
-
-        ///<summary>
-        ///Sorry, but the settings you have chosen are not supported by your hardware.
-        ///</summary>
-        public static readonly MyStringId SorryButSelectedSettingsAreNotSupportedByYourHardware = MyStringId.GetOrCompute("SorryButSelectedSettingsAreNotSupportedByYourHardware");
-
-        ///<summary>
-        ///Space
-        ///</summary>
-        public static readonly MyStringId KeysSpace = MyStringId.GetOrCompute("KeysSpace");
-
-        ///<summary>
-        ///Starting game … please wait.
-        ///</summary>
-        public static readonly MyStringId StartGameInProgressPleaseWait = MyStringId.GetOrCompute("StartGameInProgressPleaseWait");
-
-        ///<summary>
-        ///Strafe left
-        ///</summary>
-        public static readonly MyStringId ControlName_StrafeLeft = MyStringId.GetOrCompute("ControlName_StrafeLeft");
-
-        ///<summary>
-        ///Strafe right
-        ///</summary>
-        public static readonly MyStringId ControlName_StrafeRight = MyStringId.GetOrCompute("ControlName_StrafeRight");
-
-        ///<summary>
-        ///Systems 1
-        ///</summary>
-        public static readonly MyStringId ControlTypeSystems1 = MyStringId.GetOrCompute("ControlTypeSystems1");
-
-        ///<summary>
-        ///Systems 2
-        ///</summary>
-        public static readonly MyStringId ControlTypeSystems2 = MyStringId.GetOrCompute("ControlTypeSystems2");
-
-        ///<summary>
-        ///Tab
-        ///</summary>
-        public static readonly MyStringId KeysTab = MyStringId.GetOrCompute("KeysTab");
-
-        ///<summary>
-        ///Failed to start the browser.
-        ///</summary>
-        public static readonly MyStringId TitleFailedToStartInternetBrowser = MyStringId.GetOrCompute("TitleFailedToStartInternetBrowser");
-
-        ///<summary>
-        ///none
-        ///</summary>
-        public static readonly MyStringId UnknownControl_None = MyStringId.GetOrCompute("UnknownControl_None");
-
-        ///<summary>
-        ///Up
-        ///</summary>
-        public static readonly MyStringId KeysUp = MyStringId.GetOrCompute("KeysUp");
-
-        ///<summary>
-        ///Use / Interact
-        ///</summary>
-        public static readonly MyStringId ControlName_UseOrInteract = MyStringId.GetOrCompute("ControlName_UseOrInteract");
-
-        ///<summary>
-        ///Vertical sync
-        ///</summary>
-        public static readonly MyStringId VerticalSync = MyStringId.GetOrCompute("VerticalSync");
-
-        ///<summary>
         ///Video
         ///</summary>
         public static readonly MyStringId ScreenOptionsButtonVideo = MyStringId.GetOrCompute("ScreenOptionsButtonVideo");
-
-        ///<summary>
-        ///Video mode
-        ///</summary>
-        public static readonly MyStringId VideoMode = MyStringId.GetOrCompute("VideoMode");
 
         ///<summary>
         ///Video options
@@ -585,219 +105,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenCaptionVideoOptions = MyStringId.GetOrCompute("ScreenCaptionVideoOptions");
 
         ///<summary>
-        ///Tools / Weapons
-        ///</summary>
-        public static readonly MyStringId ControlTypeToolsOrWeapons = MyStringId.GetOrCompute("ControlTypeToolsOrWeapons");
-
-        ///<summary>
-        ///Yes
-        ///</summary>
-        public static readonly MyStringId Yes = MyStringId.GetOrCompute("Yes");
-
-        ///<summary>
-        ///Disabled
-        ///</summary>
-        public static readonly MyStringId Disabled = MyStringId.GetOrCompute("Disabled");
-
-        ///<summary>
-        ///JRX+
-        ///</summary>
-        public static readonly MyStringId JoystickRotationXpos = MyStringId.GetOrCompute("JoystickRotationXpos");
-
-        ///<summary>
-        ///JRY+
-        ///</summary>
-        public static readonly MyStringId JoystickRotationYpos = MyStringId.GetOrCompute("JoystickRotationYpos");
-
-        ///<summary>
-        ///JRZ+
-        ///</summary>
-        public static readonly MyStringId JoystickRotationZpos = MyStringId.GetOrCompute("JoystickRotationZpos");
-
-        ///<summary>
-        ///JS1+
-        ///</summary>
-        public static readonly MyStringId JoystickSlider1pos = MyStringId.GetOrCompute("JoystickSlider1pos");
-
-        ///<summary>
-        ///JS2+
-        ///</summary>
-        public static readonly MyStringId JoystickSlider2pos = MyStringId.GetOrCompute("JoystickSlider2pos");
-
-        ///<summary>
-        ///JRX-
-        ///</summary>
-        public static readonly MyStringId JoystickRotationXneg = MyStringId.GetOrCompute("JoystickRotationXneg");
-
-        ///<summary>
-        ///JRY-
-        ///</summary>
-        public static readonly MyStringId JoystickRotationYneg = MyStringId.GetOrCompute("JoystickRotationYneg");
-
-        ///<summary>
-        ///JRZ-
-        ///</summary>
-        public static readonly MyStringId JoystickRotationZneg = MyStringId.GetOrCompute("JoystickRotationZneg");
-
-        ///<summary>
-        ///JS1-
-        ///</summary>
-        public static readonly MyStringId JoystickSlider1neg = MyStringId.GetOrCompute("JoystickSlider1neg");
-
-        ///<summary>
-        ///JS2-
-        ///</summary>
-        public static readonly MyStringId JoystickSlider2neg = MyStringId.GetOrCompute("JoystickSlider2neg");
-
-        ///<summary>
-        ///Num .
-        ///</summary>
-        public static readonly MyStringId KeysDecimal = MyStringId.GetOrCompute("KeysDecimal");
-
-        ///<summary>
-        ///Bkslash
-        ///</summary>
-        public static readonly MyStringId KeysBackslash = MyStringId.GetOrCompute("KeysBackslash");
-
-        ///<summary>
-        ///Comma
-        ///</summary>
-        public static readonly MyStringId KeysComma = MyStringId.GetOrCompute("KeysComma");
-
-        ///<summary>
-        ///Minus
-        ///</summary>
-        public static readonly MyStringId KeysMinus = MyStringId.GetOrCompute("KeysMinus");
-
-        ///<summary>
-        ///[
-        ///</summary>
-        public static readonly MyStringId KeysOpenBracket = MyStringId.GetOrCompute("KeysOpenBracket");
-
-        ///<summary>
-        ///]
-        ///</summary>
-        public static readonly MyStringId KeysCloseBracket = MyStringId.GetOrCompute("KeysCloseBracket");
-
-        ///<summary>
-        ///Period
-        ///</summary>
-        public static readonly MyStringId KeysPeriod = MyStringId.GetOrCompute("KeysPeriod");
-
-        ///<summary>
-        ///Pipe
-        ///</summary>
-        public static readonly MyStringId KeysPipe = MyStringId.GetOrCompute("KeysPipe");
-
-        ///<summary>
-        ///Plus
-        ///</summary>
-        public static readonly MyStringId KeysPlus = MyStringId.GetOrCompute("KeysPlus");
-
-        ///<summary>
-        ///Slash
-        ///</summary>
-        public static readonly MyStringId KeysQuestion = MyStringId.GetOrCompute("KeysQuestion");
-
-        ///<summary>
-        ///Quote
-        ///</summary>
-        public static readonly MyStringId KeysQuotes = MyStringId.GetOrCompute("KeysQuotes");
-
-        ///<summary>
-        ///Colon
-        ///</summary>
-        public static readonly MyStringId KeysSemicolon = MyStringId.GetOrCompute("KeysSemicolon");
-
-        ///<summary>
-        ///~
-        ///</summary>
-        public static readonly MyStringId KeysTilde = MyStringId.GetOrCompute("KeysTilde");
-
-        ///<summary>
-        ///Num *
-        ///</summary>
-        public static readonly MyStringId KeysMultiply = MyStringId.GetOrCompute("KeysMultiply");
-
-        ///<summary>
-        ///Num /
-        ///</summary>
-        public static readonly MyStringId KeysDivide = MyStringId.GetOrCompute("KeysDivide");
-
-        ///<summary>
-        ///Num +
-        ///</summary>
-        public static readonly MyStringId KeysAdd = MyStringId.GetOrCompute("KeysAdd");
-
-        ///<summary>
-        ///Num −
-        ///</summary>
-        public static readonly MyStringId KeysSubtract = MyStringId.GetOrCompute("KeysSubtract");
-
-        ///<summary>
-        ///Caps Lock
-        ///</summary>
-        public static readonly MyStringId KeysCapsLock = MyStringId.GetOrCompute("KeysCapsLock");
-
-        ///<summary>
-        ///Enter
-        ///</summary>
-        public static readonly MyStringId KeysEnter = MyStringId.GetOrCompute("KeysEnter");
-
-        ///<summary>
-        ///Backsp.
-        ///</summary>
-        public static readonly MyStringId KeysBackspace = MyStringId.GetOrCompute("KeysBackspace");
-
-        ///<summary>
-        ///Applying changes … please wait
-        ///</summary>
-        public static readonly MyStringId ApplyingPleaseWait = MyStringId.GetOrCompute("ApplyingPleaseWait");
-
-        ///<summary>
-        ///You have been killed
-        ///</summary>
-        public static readonly MyStringId MP_YouHaveBeenKilled = MyStringId.GetOrCompute("MP_YouHaveBeenKilled");
-
-        ///<summary>
-        ///Music volume
-        ///</summary>
-        public static readonly MyStringId MusicVolume = MyStringId.GetOrCompute("MusicVolume");
-
-        ///<summary>
-        ///Video adapter
-        ///</summary>
-        public static readonly MyStringId VideoAdapter = MyStringId.GetOrCompute("VideoAdapter");
-
-        ///<summary>
-        ///Default: {0:F1}
-        ///</summary>
-        public static readonly MyStringId DefaultFOV = MyStringId.GetOrCompute("DefaultFOV");
-
-        ///<summary>
-        ///World {0} loaded
-        ///</summary>
-        public static readonly MyStringId WorldLoaded = MyStringId.GetOrCompute("WorldLoaded");
-
-        ///<summary>
         ///Chat screen
         ///</summary>
         public static readonly MyStringId Chat_screen = MyStringId.GetOrCompute("Chat_screen");
-
-        ///<summary>
-        ///Screenshot
-        ///</summary>
-        public static readonly MyStringId ControlName_Screenshot = MyStringId.GetOrCompute("ControlName_Screenshot");
-
-        ///<summary>
-        ///Prev. Color or Camera
-        ///</summary>
-        public static readonly MyStringId ControlName_PreviousColor = MyStringId.GetOrCompute("ControlName_PreviousColor");
-
-        ///<summary>
-        ///Next Color or Camera
-        ///</summary>
-        public static readonly MyStringId ControlName_NextColor = MyStringId.GetOrCompute("ControlName_NextColor");
 
         ///<summary>
         ///Terminal / Inventory
@@ -810,11 +120,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Item_Welder = MyStringId.GetOrCompute("DisplayName_Item_Welder");
 
         ///<summary>
-        ///World '{0}' saved
-        ///</summary>
-        public static readonly MyStringId WorldSaved = MyStringId.GetOrCompute("WorldSaved");
-
-        ///<summary>
         ///Press {0} to dismount target
         ///</summary>
         public static readonly MyStringId AngleGrinderPrimaryAction = MyStringId.GetOrCompute("AngleGrinderPrimaryAction");
@@ -825,19 +130,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WelderPrimaryActionBuild = MyStringId.GetOrCompute("WelderPrimaryActionBuild");
 
         ///<summary>
-        ///Blueprints
-        ///</summary>
-        public static readonly MyStringId Blueprints = MyStringId.GetOrCompute("Blueprints");
-
-        ///<summary>
         ///Control Panel
         ///</summary>
         public static readonly MyStringId ControlPanel = MyStringId.GetOrCompute("ControlPanel");
-
-        ///<summary>
-        ///Factions
-        ///</summary>
-        public static readonly MyStringId Factions = MyStringId.GetOrCompute("Factions");
 
         ///<summary>
         ///Assembler
@@ -1295,34 +590,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId HelpScreen_FactionColor_White = MyStringId.GetOrCompute("HelpScreen_FactionColor_White");
 
         ///<summary>
-        ///Blueprint Materials
-        ///</summary>
-        public static readonly MyStringId BlueprintMaterials = MyStringId.GetOrCompute("BlueprintMaterials");
-
-        ///<summary>
-        ///Production Queue
-        ///</summary>
-        public static readonly MyStringId ProductionQueue = MyStringId.GetOrCompute("ProductionQueue");
-
-        ///<summary>
         ///Reactor
         ///</summary>
         public static readonly MyStringId Reactor = MyStringId.GetOrCompute("Reactor");
 
         ///<summary>
-        ///Edit Settings
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonEditSettings = MyStringId.GetOrCompute("LoadScreenButtonEditSettings");
-
-        ///<summary>
         ///Auto-healing
         ///</summary>
         public static readonly MyStringId WorldSettings_AutoHealing = MyStringId.GetOrCompute("WorldSettings_AutoHealing");
-
-        ///<summary>
-        ///Custom World
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionCustomWorld = MyStringId.GetOrCompute("ScreenCaptionCustomWorld");
 
         ///<summary>
         ///Description
@@ -1350,16 +625,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnvironmentHostilitySafe = MyStringId.GetOrCompute("WorldSettings_EnvironmentHostilitySafe");
 
         ///<summary>
-        ///Name is too long (max 128 characters allowed)
-        ///</summary>
-        public static readonly MyStringId ErrorNameTooLong = MyStringId.GetOrCompute("ErrorNameTooLong");
-
-        ///<summary>
-        ///Name is too short (min 5 characters required)
-        ///</summary>
-        public static readonly MyStringId ErrorNameTooShort = MyStringId.GetOrCompute("ErrorNameTooShort");
-
-        ///<summary>
         ///Friendly fire
         ///</summary>
         public static readonly MyStringId WorldSettings_FriendlyFire = MyStringId.GetOrCompute("WorldSettings_FriendlyFire");
@@ -1370,59 +635,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_GameStyle = MyStringId.GetOrCompute("WorldSettings_GameStyle");
 
         ///<summary>
-        ///Game mode
-        ///</summary>
-        public static readonly MyStringId WorldSettings_GameMode = MyStringId.GetOrCompute("WorldSettings_GameMode");
-
-        ///<summary>
-        ///Survival
-        ///</summary>
-        public static readonly MyStringId WorldSettings_GameModeSurvival = MyStringId.GetOrCompute("WorldSettings_GameModeSurvival");
-
-        ///<summary>
         ///Realistic x10
         ///</summary>
         public static readonly MyStringId WorldSettings_GameSurvivalTimes10 = MyStringId.GetOrCompute("WorldSettings_GameSurvivalTimes10");
 
         ///<summary>
-        ///Join World
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonJoinWorld = MyStringId.GetOrCompute("ScreenMenuButtonJoinWorld");
-
-        ///<summary>
-        ///Name
-        ///</summary>
-        public static readonly MyStringId Name = MyStringId.GetOrCompute("Name");
-
-        ///<summary>
-        ///Online mode
-        ///</summary>
-        public static readonly MyStringId WorldSettings_OnlineMode = MyStringId.GetOrCompute("WorldSettings_OnlineMode");
-
-        ///<summary>
-        ///Offline
-        ///</summary>
-        public static readonly MyStringId WorldSettings_OnlineModeOffline = MyStringId.GetOrCompute("WorldSettings_OnlineModeOffline");
-
-        ///<summary>
-        ///Private
-        ///</summary>
-        public static readonly MyStringId WorldSettings_OnlineModePrivate = MyStringId.GetOrCompute("WorldSettings_OnlineModePrivate");
-
-        ///<summary>
-        ///Public
-        ///</summary>
-        public static readonly MyStringId WorldSettings_OnlineModePublic = MyStringId.GetOrCompute("WorldSettings_OnlineModePublic");
-
-        ///<summary>
         ///Password
         ///</summary>
         public static readonly MyStringId WorldSettings_Password = MyStringId.GetOrCompute("WorldSettings_Password");
-
-        ///<summary>
-        ///Quickstart
-        ///</summary>
-        public static readonly MyStringId ScreenNewWorldButtonQuickstart = MyStringId.GetOrCompute("ScreenNewWorldButtonQuickstart");
 
         ///<summary>
         ///Sound in space
@@ -1465,11 +685,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettingsHarvestingMode = MyStringId.GetOrCompute("ToolTipWorldSettingsHarvestingMode");
 
         ///<summary>
-        ///Name must be {0} to {1} alpha-numeric characters
-        ///</summary>
-        public static readonly MyStringId ToolTipWorldSettingsName = MyStringId.GetOrCompute("ToolTipWorldSettingsName");
-
-        ///<summary>
         ///Visibility of your game  Offline: Game runs in offline mode and does not require internet connection Private: Other players cannot join Friends: Only your Steam friends can join Public: Any Steam player can join
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsOnlineMode = MyStringId.GetOrCompute("ToolTipWorldSettingsOnlineMode");
@@ -1483,26 +698,6 @@ namespace Sandbox.Game.Localization
         ///There's no sound in space. Turn it on to simulate Earth-like sound conditions (even though it's not realistic). Turn it off for a realistic mode where you can hear only sounds that your astronaut character can hear.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsSoundInSpace = MyStringId.GetOrCompute("ToolTipWorldSettingsSoundInSpace");
-
-        ///<summary>
-        ///Are you sure you want to delete '{0}'?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureYouWantToDeleteSave = MyStringId.GetOrCompute("MessageBoxTextAreYouSureYouWantToDeleteSave");
-
-        ///<summary>
-        ///Load World
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionLoadWorld = MyStringId.GetOrCompute("ScreenCaptionLoadWorld");
-
-        ///<summary>
-        ///Save As
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonSaveAs = MyStringId.GetOrCompute("LoadScreenButtonSaveAs");
-
-        ///<summary>
-        ///Creative
-        ///</summary>
-        public static readonly MyStringId WorldSettings_GameModeCreative = MyStringId.GetOrCompute("WorldSettings_GameModeCreative");
 
         ///<summary>
         ///Scenario
@@ -1520,194 +715,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Scenario_Survival = MyStringId.GetOrCompute("DisplayName_Scenario_Survival");
 
         ///<summary>
-        ///Player Character
+        ///Power switch on / off
         ///</summary>
-        public static readonly MyStringId PlayerCharacter = MyStringId.GetOrCompute("PlayerCharacter");
-
-        ///<summary>
-        ///Auto-save
-        ///</summary>
-        public static readonly MyStringId WorldSettings_AutoSave = MyStringId.GetOrCompute("WorldSettings_AutoSave");
-
-        ///<summary>
-        ///Auto-save saves the state of your world every {0} minutes or when exiting the game
-        ///</summary>
-        public static readonly MyStringId ToolTipWorldSettingsAutoSave = MyStringId.GetOrCompute("ToolTipWorldSettingsAutoSave");
-
-        ///<summary>
-        ///Do you want to save your progress?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWantToSaveYourProgress = MyStringId.GetOrCompute("MessageBoxTextDoYouWantToSaveYourProgress");
-
-        ///<summary>
-        ///Save World
-        ///</summary>
-        public static readonly MyStringId SaveWorld = MyStringId.GetOrCompute("SaveWorld");
-
-        ///<summary>
-        ///Save
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonSave = MyStringId.GetOrCompute("ScreenMenuButtonSave");
-
-        ///<summary>
-        ///Saving ... please wait
-        ///</summary>
-        public static readonly MyStringId SavingPleaseWait = MyStringId.GetOrCompute("SavingPleaseWait");
-
-        ///<summary>
-        ///Advanced
-        ///</summary>
-        public static readonly MyStringId Advanced = MyStringId.GetOrCompute("Advanced");
-
-        ///<summary>
-        ///Advanced Controls
-        ///</summary>
-        public static readonly MyStringId AdvancedControls = MyStringId.GetOrCompute("AdvancedControls");
-
-        ///<summary>
-        ///Backward
-        ///</summary>
-        public static readonly MyStringId ControlName_Backward = MyStringId.GetOrCompute("ControlName_Backward");
-
-        ///<summary>
-        ///Basic Controls
-        ///</summary>
-        public static readonly MyStringId BasicControls = MyStringId.GetOrCompute("BasicControls");
-
-        ///<summary>
-        ///Close
-        ///</summary>
-        public static readonly MyStringId Close = MyStringId.GetOrCompute("Close");
-
-        ///<summary>
-        ///Down or Crouch
-        ///</summary>
-        public static readonly MyStringId ControlName_DownOrCrouch = MyStringId.GetOrCompute("ControlName_DownOrCrouch");
-
-        ///<summary>
-        ///First-person / Third-person
-        ///</summary>
-        public static readonly MyStringId ControlName_FirstOrThirdPerson = MyStringId.GetOrCompute("ControlName_FirstOrThirdPerson");
-
-        ///<summary>
-        ///Forward
-        ///</summary>
-        public static readonly MyStringId ControlName_Forward = MyStringId.GetOrCompute("ControlName_Forward");
-
-        ///<summary>
-        ///NextPage
-        ///</summary>
-        public static readonly MyStringId NextPage = MyStringId.GetOrCompute("NextPage");
-
-        ///<summary>
-        ///Press {0} for help and tutorials
-        ///</summary>
-        public static readonly MyStringId NotificationNeedShowHelpScreen = MyStringId.GetOrCompute("NotificationNeedShowHelpScreen");
-
-        ///<summary>
-        ///Previous Page
-        ///</summary>
-        public static readonly MyStringId PreviousPage = MyStringId.GetOrCompute("PreviousPage");
-
-        ///<summary>
-        ///Show controls hints
-        ///</summary>
-        public static readonly MyStringId ShowControlsHints = MyStringId.GetOrCompute("ShowControlsHints");
-
-        ///<summary>
-        ///Tutorials
-        ///</summary>
-        public static readonly MyStringId SteamGuide = MyStringId.GetOrCompute("SteamGuide");
-
-        ///<summary>
-        ///Up or Jump
-        ///</summary>
-        public static readonly MyStringId ControlName_UpOrJump = MyStringId.GetOrCompute("ControlName_UpOrJump");
-
-        ///<summary>
-        ///Rotate block vertical -
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateVerticalNeg = MyStringId.GetOrCompute("ControlName_CubeRotateVerticalNeg");
-
-        ///<summary>
-        ///Rotate block vertical +
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateVerticalPos = MyStringId.GetOrCompute("ControlName_CubeRotateVerticalPos");
-
-        ///<summary>
-        ///Rotate block horizontal -
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateHorizontalNeg = MyStringId.GetOrCompute("ControlName_CubeRotateHorizontalNeg");
-
-        ///<summary>
-        ///Rotate block horizontal +
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateHorizontalPos = MyStringId.GetOrCompute("ControlName_CubeRotateHorizontalPos");
-
-        ///<summary>
-        ///Rotate block roll -
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateRollNeg = MyStringId.GetOrCompute("ControlName_CubeRotateRollNeg");
-
-        ///<summary>
-        ///Rotate block roll +
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeRotateRollPos = MyStringId.GetOrCompute("ControlName_CubeRotateRollPos");
-
-        ///<summary>
-        ///Unequip
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot0 = MyStringId.GetOrCompute("ControlName_Slot0");
-
-        ///<summary>
-        ///Equip item from slot 1
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot1 = MyStringId.GetOrCompute("ControlName_Slot1");
-
-        ///<summary>
-        ///Equip item from slot 2
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot2 = MyStringId.GetOrCompute("ControlName_Slot2");
-
-        ///<summary>
-        ///Equip item from slot 3
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot3 = MyStringId.GetOrCompute("ControlName_Slot3");
-
-        ///<summary>
-        ///Equip item from slot 4
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot4 = MyStringId.GetOrCompute("ControlName_Slot4");
-
-        ///<summary>
-        ///Equip item from slot 5
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot5 = MyStringId.GetOrCompute("ControlName_Slot5");
-
-        ///<summary>
-        ///Equip item from slot 6
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot6 = MyStringId.GetOrCompute("ControlName_Slot6");
-
-        ///<summary>
-        ///Equip item from slot 7
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot7 = MyStringId.GetOrCompute("ControlName_Slot7");
-
-        ///<summary>
-        ///Equip item from slot 8
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot8 = MyStringId.GetOrCompute("ControlName_Slot8");
-
-        ///<summary>
-        ///Equip item from slot 9
-        ///</summary>
-        public static readonly MyStringId ControlName_Slot9 = MyStringId.GetOrCompute("ControlName_Slot9");
-
-        ///<summary>
-        ///Reactors on / off
-        ///</summary>
-        public static readonly MyStringId ControlName_ReactorsOnOff = MyStringId.GetOrCompute("ControlName_ReactorsOnOff");
+        public static readonly MyStringId ControlName_PowerSwitchOnOff = MyStringId.GetOrCompute("ControlName_PowerSwitchOnOff");
 
         ///<summary>
         ///Empty World
@@ -1715,44 +725,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Scenario_EmptyWorld = MyStringId.GetOrCompute("DisplayName_Scenario_EmptyWorld");
 
         ///<summary>
-        ///Are you sure you want to quick-load?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureYouWantToQuickLoad = MyStringId.GetOrCompute("MessageBoxTextAreYouSureYouWantToQuickLoad");
-
-        ///<summary>
-        ///Are you sure you want to quick-save?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureYouWantToQuickSave = MyStringId.GetOrCompute("MessageBoxTextAreYouSureYouWantToQuickSave");
-
-        ///<summary>
-        ///Toolbar config
-        ///</summary>
-        public static readonly MyStringId ControlName_ToolbarConfig = MyStringId.GetOrCompute("ControlName_ToolbarConfig");
-
-        ///<summary>
-        ///Hold to look around
-        ///</summary>
-        public static readonly MyStringId ControlName_HoldToLookAround = MyStringId.GetOrCompute("ControlName_HoldToLookAround");
-
-        ///<summary>
-        ///Hold to sprint
-        ///</summary>
-        public static readonly MyStringId ControlName_HoldToSprint = MyStringId.GetOrCompute("ControlName_HoldToSprint");
-
-        ///<summary>
         ///Jetpack on / off
         ///</summary>
         public static readonly MyStringId ControlName_Jetpack = MyStringId.GetOrCompute("ControlName_Jetpack");
-
-        ///<summary>
-        ///Loading ... please wait
-        ///</summary>
-        public static readonly MyStringId LoadingPleaseWait = MyStringId.GetOrCompute("LoadingPleaseWait");
-
-        ///<summary>
-        ///There's no place to create a new block. Point your view to an empty space.
-        ///</summary>
-        public static readonly MyStringId NoPlaceToCreateGrid = MyStringId.GetOrCompute("NoPlaceToCreateGrid");
 
         ///<summary>
         ///Not enough materials to create a new block. At least one steel plate is required.
@@ -1768,41 +743,6 @@ namespace Sandbox.Game.Localization
         ///Conveyor
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Conveyor = MyStringId.GetOrCompute("DisplayName_Block_Conveyor");
-
-        ///<summary>
-        ///HUD on / off
-        ///</summary>
-        public static readonly MyStringId ControlName_HudOnOff = MyStringId.GetOrCompute("ControlName_HudOnOff");
-
-        ///<summary>
-        ///Hint: Drag an icon to a toolbar slot and activate by a numeric key
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderHint = MyStringId.GetOrCompute("ScreenCubeBuilderHint");
-
-        ///<summary>
-        ///Saved
-        ///</summary>
-        public static readonly MyStringId Saved = MyStringId.GetOrCompute("Saved");
-
-        ///<summary>
-        ///Hide weapon
-        ///</summary>
-        public static readonly MyStringId HideWeapon = MyStringId.GetOrCompute("HideWeapon");
-
-        ///<summary>
-        ///Thrust
-        ///</summary>
-        public static readonly MyStringId Thrust = MyStringId.GetOrCompute("Thrust");
-
-        ///<summary>
-        ///One of the world/save files is corrupted and can't be loaded. See log for details.
-        ///</summary>
-        public static readonly MyStringId SomeWorldFilesCouldNotBeLoaded = MyStringId.GetOrCompute("SomeWorldFilesCouldNotBeLoaded");
-
-        ///<summary>
-        ///World file is corrupted and could not be loaded.
-        ///</summary>
-        public static readonly MyStringId WorldFileIsCorruptedAndCouldNotBeLoaded = MyStringId.GetOrCompute("WorldFileIsCorruptedAndCouldNotBeLoaded");
 
         ///<summary>
         ///Terminal
@@ -2520,74 +1460,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId HudInfoNoGravity = MyStringId.GetOrCompute("HudInfoNoGravity");
 
         ///<summary>
-        ///Create a new world with custom settings
-        ///</summary>
-        public static readonly MyStringId ToolTipNewWorldCustomWorld = MyStringId.GetOrCompute("ToolTipNewWorldCustomWorld");
-
-        ///<summary>
-        ///Create a new world using the default settings: Game Type: Creative Mode Scenario: Easy Start 1 Auto-Save: ON
+        ///Create a new world using the default settings: Game Type: Creative Mode Scenario: Planet / Easy Start 1 Auto-Save: ON
         ///</summary>
         public static readonly MyStringId ToolTipNewWorldQuickstart = MyStringId.GetOrCompute("ToolTipNewWorldQuickstart");
-
-        ///<summary>
-        ///Higher rendering quality means better visuals, larger view distance and more special effects - however, it is more demanding on your computer's performance (CPU and GPU).  If the game doesn't run smoothly, decrease it.
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsRenderQuality = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderQuality");
-
-        ///<summary>
-        ///Select a graphic adapter and/or a monitor
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsVideoAdapter = MyStringId.GetOrCompute("ToolTipVideoOptionsVideoAdapter");
-
-        ///<summary>
-        ///Select a screen resolution. We recommend using an aspect ratio compatible with your monitor. If the game doesn't run smoothly, decrease your screen resolution.
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsVideoMode = MyStringId.GetOrCompute("ToolTipVideoOptionsVideoMode");
-
-        ///<summary>
-        ///HW mouse cursor is independent of game framerate. We recommend to turn it on.
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsHardwareCursor = MyStringId.GetOrCompute("ToolTipVideoOptionsHardwareCursor");
-
-        ///<summary>
-        ///The game will synchronize with the refresh rate of the monitor. We recommend to turn it off.
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsVerticalSync = MyStringId.GetOrCompute("ToolTipVideoOptionsVerticalSync");
-
-        ///<summary>
-        ///Horizontal field of view angle
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionsFieldOfView = MyStringId.GetOrCompute("ToolTipVideoOptionsFieldOfView");
-
-        ///<summary>
-        ///Show on-screen control hints during gameplay
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsShowControlsHints = MyStringId.GetOrCompute("ToolTipGameOptionsShowControlsHints");
-
-        ///<summary>
-        ///World '{0}' failed to save. This can be caused by running out of memory or problems when writing files. Working on this world any longer may result in loss of progress. You can check log file to find out more about what caused this error.
-        ///</summary>
-        public static readonly MyStringId WorldNotSaved = MyStringId.GetOrCompute("WorldNotSaved");
-
-        ///<summary>
-        ///Not enough memory to add new objects
-        ///</summary>
-        public static readonly MyStringId NotificationMemoryOverload = MyStringId.GetOrCompute("NotificationMemoryOverload");
-
-        ///<summary>
-        ///We have detected a better graphics card in your computer than the one the game currently runs on. Please check your NVIDIA/AMD Control Panel settings.
-        ///</summary>
-        public static readonly MyStringId BetterGCIsAvailable = MyStringId.GetOrCompute("BetterGCIsAvailable");
-
-        ///<summary>
-        ///WARNING
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionWarning = MyStringId.GetOrCompute("MessageBoxCaptionWarning");
-
-        ///<summary>
-        ///This will open {0} in your internet browser. The game will keep running. Do you want to continue?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextOpenBrowser = MyStringId.GetOrCompute("MessageBoxTextOpenBrowser");
 
         ///<summary>
         ///Crouching
@@ -2705,79 +1580,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Scenario_EasyStart2 = MyStringId.GetOrCompute("DisplayName_Scenario_EasyStart2");
 
         ///<summary>
-        ///Do you want to start by playing tutorial maps?
+        ///Do you want to see basic tutorial video?
         ///</summary>
         public static readonly MyStringId MessageBoxTextTutorialQuestion = MyStringId.GetOrCompute("MessageBoxTextTutorialQuestion");
-
-        ///<summary>
-        ///Loaded
-        ///</summary>
-        public static readonly MyStringId Loaded = MyStringId.GetOrCompute("Loaded");
-
-        ///<summary>
-        ///There are no saved worlds yet. Please start by creating a new world.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextNoSavedWorlds = MyStringId.GetOrCompute("MessageBoxTextNoSavedWorlds");
-
-        ///<summary>
-        ///Video Tutorial
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionVideoTutorial = MyStringId.GetOrCompute("MessageBoxCaptionVideoTutorial");
-
-        ///<summary>
-        ///Save changes before quitting?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextSaveChangesBeforeExit = MyStringId.GetOrCompute("MessageBoxTextSaveChangesBeforeExit");
-
-        ///<summary>
-        ///Name is already used. Please choose a different name.
-        ///</summary>
-        public static readonly MyStringId ErrorNameAlreadyExists = MyStringId.GetOrCompute("ErrorNameAlreadyExists");
-
-        ///<summary>
-        ///Press {0} to place cube
-        ///</summary>
-        public static readonly MyStringId NotificationBuildingFormat = MyStringId.GetOrCompute("NotificationBuildingFormat");
-
-        ///<summary>
-        ///Press {0} or {1} to change color. Hold {2} to apply color. Hold {3} or {4} to increase brush size.
-        ///</summary>
-        public static readonly MyStringId NotificationColorFormat = MyStringId.GetOrCompute("NotificationColorFormat");
-
-        ///<summary>
-        ///You can hide these hints in Game Options
-        ///</summary>
-        public static readonly MyStringId NotificationHideHintsInGameOptions = MyStringId.GetOrCompute("NotificationHideHintsInGameOptions");
-
-        ///<summary>
-        ///Press {0} to hide/unhide the HUD
-        ///</summary>
-        public static readonly MyStringId NotificationHudHideFormat = MyStringId.GetOrCompute("NotificationHudHideFormat");
-
-        ///<summary>
-        ///Press {0}, {1}, {2}, {3}, {4}, {5} to rotate
-        ///</summary>
-        public static readonly MyStringId NotificationRotationFormat = MyStringId.GetOrCompute("NotificationRotationFormat");
-
-        ///<summary>
-        ///Press {0} to configure toolbar or create new objects
-        ///</summary>
-        public static readonly MyStringId NotificationScreenFormat = MyStringId.GetOrCompute("NotificationScreenFormat");
-
-        ///<summary>
-        ///Press {0}, {1}, {2}, ... to equip from slot
-        ///</summary>
-        public static readonly MyStringId NotificationSlotEquipFormat = MyStringId.GetOrCompute("NotificationSlotEquipFormat");
-
-        ///<summary>
-        ///This tool/weapon is disabled
-        ///</summary>
-        public static readonly MyStringId NotificationToolDisabled = MyStringId.GetOrCompute("NotificationToolDisabled");
-
-        ///<summary>
-        ///Press {0} to add block, press {1} to remove block. Hold {2} to build fast
-        ///</summary>
-        public static readonly MyStringId NotificationUnlimitedBuildingFormat = MyStringId.GetOrCompute("NotificationUnlimitedBuildingFormat");
 
         ///<summary>
         ///Hold to color a block (creative mode)
@@ -2795,34 +1600,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlDescMediumBrush = MyStringId.GetOrCompute("ControlDescMediumBrush");
 
         ///<summary>
-        ///Quick Load
-        ///</summary>
-        public static readonly MyStringId ControlDescQuickLoad = MyStringId.GetOrCompute("ControlDescQuickLoad");
-
-        ///<summary>
-        ///Quick Save
-        ///</summary>
-        public static readonly MyStringId ControlDescQuickSave = MyStringId.GetOrCompute("ControlDescQuickSave");
-
-        ///<summary>
         ///Zoom in third-person mode
         ///</summary>
         public static readonly MyStringId ControlDescZoom = MyStringId.GetOrCompute("ControlDescZoom");
-
-        ///<summary>
-        ///Mouse wheel
-        ///</summary>
-        public static readonly MyStringId MouseWheel = MyStringId.GetOrCompute("MouseWheel");
-
-        ///<summary>
-        ///Tab content:
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderBuildingBlocks = MyStringId.GetOrCompute("ScreenCubeBuilderBuildingBlocks");
-
-        ///<summary>
-        ///Creative mode
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderCreativeMode = MyStringId.GetOrCompute("ScreenCubeBuilderCreativeMode");
 
         ///<summary>
         ///New Large Ship
@@ -2838,21 +1618,6 @@ namespace Sandbox.Game.Localization
         ///New Station
         ///</summary>
         public static readonly MyStringId ScreenCubeBuilderNewStation = MyStringId.GetOrCompute("ScreenCubeBuilderNewStation");
-
-        ///<summary>
-        ///Configure your toolbar (assign building blocks, tools and weapons)
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderSubtitle = MyStringId.GetOrCompute("ScreenCubeBuilderSubtitle");
-
-        ///<summary>
-        ///Toolbar
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderToolbar = MyStringId.GetOrCompute("ScreenCubeBuilderToolbar");
-
-        ///<summary>
-        ///Toolbar Config
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderToolbarConfig = MyStringId.GetOrCompute("ScreenCubeBuilderToolbarConfig");
 
         ///<summary>
         ///Charging
@@ -2895,69 +1660,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId HudEnergyGroupUtility = MyStringId.GetOrCompute("HudEnergyGroupUtility");
 
         ///<summary>
-        ///Steam Overlay is disabled
-        ///</summary>
-        public static readonly MyStringId SteamOverlayDisabledCaption = MyStringId.GetOrCompute("SteamOverlayDisabledCaption");
-
-        ///<summary>
         ///Please enable Steam Overlay in Steam client: go to Settings, In-game tab, Enable Steam Community In-Game and in Steam Library, Space Engineers, Properties, Enable Steam Community In-Game
         ///</summary>
         public static readonly MyStringId SteamOverlayDisabledText = MyStringId.GetOrCompute("SteamOverlayDisabledText");
-
-        ///<summary>
-        ///Publish
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonPublish = MyStringId.GetOrCompute("LoadScreenButtonPublish");
-
-        ///<summary>
-        ///Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextWorldPublished = MyStringId.GetOrCompute("MessageBoxTextWorldPublished");
-
-        ///<summary>
-        ///Failed to publish on Steam Workshop
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextWorldPublishFailed = MyStringId.GetOrCompute("MessageBoxTextWorldPublishFailed");
-
-        ///<summary>
-        ///Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextModPublished = MyStringId.GetOrCompute("MessageBoxTextModPublished");
-
-        ///<summary>
-        ///Failed to publish on Steam Workshop
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextModPublishFailed = MyStringId.GetOrCompute("MessageBoxTextModPublishFailed");
-
-        ///<summary>
-        ///Publishing ... please wait.
-        ///</summary>
-        public static readonly MyStringId ProgressTextPublishingWorld = MyStringId.GetOrCompute("ProgressTextPublishingWorld");
-
-        ///<summary>
-        ///Uploading ... please wait.
-        ///</summary>
-        public static readonly MyStringId ProgressTextUploadingWorld = MyStringId.GetOrCompute("ProgressTextUploadingWorld");
-
-        ///<summary>
-        ///Workshop
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonSubscribedWorlds = MyStringId.GetOrCompute("ScreenMenuButtonSubscribedWorlds");
-
-        ///<summary>
-        ///Creating world ... please wait.
-        ///</summary>
-        public static readonly MyStringId ProgressTextCreatingWorld = MyStringId.GetOrCompute("ProgressTextCreatingWorld");
-
-        ///<summary>
-        ///Workshop
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionWorkshop = MyStringId.GetOrCompute("ScreenCaptionWorkshop");
-
-        ///<summary>
-        ///Recommend
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonRecommend = MyStringId.GetOrCompute("ScreenMenuButtonRecommend");
 
         ///<summary>
         ///If you like Space Engineers, you can recommend it to your Steam friends on the following page. Recommendations help to grow the community. Thank you!
@@ -2970,81 +1675,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxCaptionRecommend = MyStringId.GetOrCompute("MessageBoxCaptionRecommend");
 
         ///<summary>
-        ///WORLD PUBLISHED
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionWorldPublished = MyStringId.GetOrCompute("MessageBoxCaptionWorldPublished");
-
-        ///<summary>
-        ///WORLD PUBLISH FAILED
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionWorldPublishFailed = MyStringId.GetOrCompute("MessageBoxCaptionWorldPublishFailed");
-
-        ///<summary>
-        ///MOD PUBLISHED
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionModPublished = MyStringId.GetOrCompute("MessageBoxCaptionModPublished");
-
-        ///<summary>
-        ///MOD PUBLISH FAILED
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionModPublishFailed = MyStringId.GetOrCompute("MessageBoxCaptionModPublishFailed");
-
-        ///<summary>
-        ///Copy & Load
-        ///</summary>
-        public static readonly MyStringId ScreenLoadSubscribedWorldCopyAndLoad = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldCopyAndLoad");
-
-        ///<summary>
-        ///Publish selected world on Steam Workshop
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonTooltipPublish = MyStringId.GetOrCompute("LoadScreenButtonTooltipPublish");
-
-        ///<summary>
-        ///View a list of worlds subscribed on Steam Workshop
-        ///</summary>
-        public static readonly MyStringId ToolTipMenuSubscribedWorlds = MyStringId.GetOrCompute("ToolTipMenuSubscribedWorlds");
-
-        ///<summary>
-        ///PUBLISH WORLD
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishWorld = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishWorld");
-
-        ///<summary>
-        ///UPDATE WORLD
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionDoYouWishToUpdateWorld = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToUpdateWorld");
-
-        ///<summary>
-        ///Are you sure you want to upload and publish selected world on Steam Workshop? Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWishToPublishWorld = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToPublishWorld");
-
-        ///<summary>
-        ///Are you sure you want to upload and overwrite selected world on Steam Workshop?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWishToUpdateWorld = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToUpdateWorld");
-
-        ///<summary>
-        ///PUBLISH MOD
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishMod = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishMod");
-
-        ///<summary>
-        ///UPDATE MOD
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionDoYouWishToUpdateMod = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToUpdateMod");
-
-        ///<summary>
-        ///Are you sure you want to upload and publish selected mod on Steam Workshop? Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWishToPublishMod = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToPublishMod");
-
-        ///<summary>
-        ///Are you sure you want to upload and overwrite selected mod on Steam Workshop?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWishToUpdateMod = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToUpdateMod");
-
-        ///<summary>
         ///Press {0} to leave cockpit
         ///</summary>
         public static readonly MyStringId NotificationHintLeaveCockpit = MyStringId.GetOrCompute("NotificationHintLeaveCockpit");
@@ -3055,14 +1685,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintOpenShipControlPanel = MyStringId.GetOrCompute("NotificationHintOpenShipControlPanel");
 
         ///<summary>
-        ///Press {0} to turn all reactors off
+        ///Press {0} to turn power off
         ///</summary>
-        public static readonly MyStringId NotificationHintTurnAllReactorsOff = MyStringId.GetOrCompute("NotificationHintTurnAllReactorsOff");
+        public static readonly MyStringId NotificationHintTurnPowerOff = MyStringId.GetOrCompute("NotificationHintTurnPowerOff");
 
         ///<summary>
-        ///Press {0} to turn all reactors on
+        ///Press {0} to turn power on
         ///</summary>
-        public static readonly MyStringId NotificationHintTurnAllReactorsOn = MyStringId.GetOrCompute("NotificationHintTurnAllReactorsOn");
+        public static readonly MyStringId NotificationHintTurnPowerOn = MyStringId.GetOrCompute("NotificationHintTurnPowerOn");
 
         ///<summary>
         ///large ship
@@ -3083,16 +1713,6 @@ namespace Sandbox.Game.Localization
         ///{0} is not available for {1}
         ///</summary>
         public static readonly MyStringId NotificationBlockNotAvailableFor = MyStringId.GetOrCompute("NotificationBlockNotAvailableFor");
-
-        ///<summary>
-        ///Browse Workshop
-        ///</summary>
-        public static readonly MyStringId ScreenLoadSubscribedWorldBrowseWorkshop = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldBrowseWorkshop");
-
-        ///<summary>
-        ///Refresh
-        ///</summary>
-        public static readonly MyStringId ScreenLoadSubscribedWorldRefresh = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldRefresh");
 
         ///<summary>
         ///Angle grinder
@@ -3120,16 +1740,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationArgWelder = MyStringId.GetOrCompute("NotificationArgWelder");
 
         ///<summary>
-        ///No weapon selected
-        ///</summary>
-        public static readonly MyStringId NotificationNoWeaponSelected = MyStringId.GetOrCompute("NotificationNoWeaponSelected");
-
-        ///<summary>
-        ///Switched to weapon type '{0}'
-        ///</summary>
-        public static readonly MyStringId NotificationSwitchedToWeaponType = MyStringId.GetOrCompute("NotificationSwitchedToWeaponType");
-
-        ///<summary>
         ///Press {0} or {1} to climb up and down
         ///</summary>
         public static readonly MyStringId NotificationHintPressToClimbUpDown = MyStringId.GetOrCompute("NotificationHintPressToClimbUpDown");
@@ -3150,9 +1760,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationJetpackOff = MyStringId.GetOrCompute("NotificationJetpackOff");
 
         ///<summary>
-        ///Jetpack Off (no energy)
+        ///Jetpack Off (no hydrogen)
         ///</summary>
-        public static readonly MyStringId NotificationJetpackOffNoEnergy = MyStringId.GetOrCompute("NotificationJetpackOffNoEnergy");
+        public static readonly MyStringId NotificationJetpackOffNoHydrogen = MyStringId.GetOrCompute("NotificationJetpackOffNoHydrogen");
 
         ///<summary>
         ///Jetpack On
@@ -3175,61 +1785,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId HudInfoNameDampeners = MyStringId.GetOrCompute("HudInfoNameDampeners");
 
         ///<summary>
-        ///Inertia dampeners Off
-        ///</summary>
-        public static readonly MyStringId NotificationInertiaDampenersOff = MyStringId.GetOrCompute("NotificationInertiaDampenersOff");
-
-        ///<summary>
-        ///Inertia dampeners On
-        ///</summary>
-        public static readonly MyStringId NotificationInertiaDampenersOn = MyStringId.GetOrCompute("NotificationInertiaDampenersOn");
-
-        ///<summary>
-        ///Delete
-        ///</summary>
-        public static readonly MyStringId LoadScreenButtonDelete = MyStringId.GetOrCompute("LoadScreenButtonDelete");
-
-        ///<summary>
-        ///Edit Settings
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionEditSettings = MyStringId.GetOrCompute("ScreenCaptionEditSettings");
-
-        ///<summary>
-        ///Save As
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionSaveAs = MyStringId.GetOrCompute("ScreenCaptionSaveAs");
-
-        ///<summary>
-        ///Help
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonHelp = MyStringId.GetOrCompute("ScreenMenuButtonHelp");
-
-        ///<summary>
-        ///Load World
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonLoadWorld = MyStringId.GetOrCompute("ScreenMenuButtonLoadWorld");
-
-        ///<summary>
-        ///New World
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonNewWorld = MyStringId.GetOrCompute("ScreenMenuButtonNewWorld");
-
-        ///<summary>
-        ///Options
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonOptions = MyStringId.GetOrCompute("ScreenMenuButtonOptions");
-
-        ///<summary>
-        ///Custom World
-        ///</summary>
-        public static readonly MyStringId ScreenNewWorldButtonCustomWorld = MyStringId.GetOrCompute("ScreenNewWorldButtonCustomWorld");
-
-        ///<summary>
-        ///Controls
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsButtonControls = MyStringId.GetOrCompute("ScreenOptionsButtonControls");
-
-        ///<summary>
         ///Landing gears:
         ///</summary>
         public static readonly MyStringId HudInfoNameLandingGear = MyStringId.GetOrCompute("HudInfoNameLandingGear");
@@ -3243,61 +1798,6 @@ namespace Sandbox.Game.Localization
         ///Locked:
         ///</summary>
         public static readonly MyStringId HudInfoNameLocked = MyStringId.GetOrCompute("HudInfoNameLocked");
-
-        ///<summary>
-        ///RESET CONTROLS
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionResetControlsToDefault = MyStringId.GetOrCompute("MessageBoxCaptionResetControlsToDefault");
-
-        ///<summary>
-        ///Are you sure you want to reset control bindings to default?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextResetControlsToDefault = MyStringId.GetOrCompute("MessageBoxTextResetControlsToDefault");
-
-        ///<summary>
-        ///Screenshot failed
-        ///</summary>
-        public static readonly MyStringId ScreenshotFailed = MyStringId.GetOrCompute("ScreenshotFailed");
-
-        ///<summary>
-        ///Screenshot {0} saved
-        ///</summary>
-        public static readonly MyStringId ScreenshotSaved = MyStringId.GetOrCompute("ScreenshotSaved");
-
-        ///<summary>
-        ///Exported to: {0}
-        ///</summary>
-        public static readonly MyStringId ExportToObjComplete = MyStringId.GetOrCompute("ExportToObjComplete");
-
-        ///<summary>
-        ///Export to obj file failed
-        ///</summary>
-        public static readonly MyStringId ExportToObjFailed = MyStringId.GetOrCompute("ExportToObjFailed");
-
-        ///<summary>
-        ///Open in Workshop
-        ///</summary>
-        public static readonly MyStringId ScreenLoadSubscribedWorldOpenInWorkshop = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldOpenInWorkshop");
-
-        ///<summary>
-        ///Open Steam Overlay with Workshop screen
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopBrowseWorkshop = MyStringId.GetOrCompute("ToolTipWorkshopBrowseWorkshop");
-
-        ///<summary>
-        ///Download selected world to your computer and load
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopCopyAndLoad = MyStringId.GetOrCompute("ToolTipWorkshopCopyAndLoad");
-
-        ///<summary>
-        ///Open selected world in Workshop Steam Overlay
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopOpenInWorkshop = MyStringId.GetOrCompute("ToolTipWorkshopOpenInWorkshop");
-
-        ///<summary>
-        ///Refresh the list of subscribed worlds
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopRefresh = MyStringId.GetOrCompute("ToolTipWorkshopRefresh");
 
         ///<summary>
         ///Landing gear / Color picker
@@ -3365,49 +1865,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenTerminalInventory_Volume = MyStringId.GetOrCompute("ScreenTerminalInventory_Volume");
 
         ///<summary>
-        ///{0}{3} Mass: {1} kg Volume: {2} L
+        ///{0}{3} Mass: {1} kg Volume: {2} L{4}
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ItemInfo = MyStringId.GetOrCompute("ToolTipTerminalInventory_ItemInfo");
-
-        ///<summary>
-        ///Symmetry X plane: {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryX = MyStringId.GetOrCompute("SettingSymmetryX");
-
-        ///<summary>
-        ///Symmetry X plane (offset): {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryXOffset = MyStringId.GetOrCompute("SettingSymmetryXOffset");
-
-        ///<summary>
-        ///Symmetry Y plane: {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryY = MyStringId.GetOrCompute("SettingSymmetryY");
-
-        ///<summary>
-        ///Symmetry Y plane (offset): {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryYOffset = MyStringId.GetOrCompute("SettingSymmetryYOffset");
-
-        ///<summary>
-        ///Symmetry Z plane: {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryZ = MyStringId.GetOrCompute("SettingSymmetryZ");
-
-        ///<summary>
-        ///Symmetry Z plane (offset): {0} to set, {1} to reset
-        ///</summary>
-        public static readonly MyStringId SettingSymmetryZOffset = MyStringId.GetOrCompute("SettingSymmetryZOffset");
 
         ///<summary>
         ///Inertia dampeners
         ///</summary>
         public static readonly MyStringId ControlName_InertialDampeners = MyStringId.GetOrCompute("ControlName_InertialDampeners");
-
-        ///<summary>
-        ///Press {0} to pick up {1}
-        ///</summary>
-        public static readonly MyStringId NotificationPickupObject = MyStringId.GetOrCompute("NotificationPickupObject");
 
         ///<summary>
         ///Use symmetry
@@ -3420,56 +1885,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Beacon = MyStringId.GetOrCompute("DisplayName_Block_Beacon");
 
         ///<summary>
-        ///Press LMB or Ctrl+V to paste object
-        ///</summary>
-        public static readonly MyStringId CubeBuilderPasteNotification = MyStringId.GetOrCompute("CubeBuilderPasteNotification");
-
-        ///<summary>
-        ///An error occurred while adding one or more objects. See log file for more details.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextErrorLoadingEntities = MyStringId.GetOrCompute("MessageBoxTextErrorLoadingEntities");
-
-        ///<summary>
-        ///Are you sure you want to delete selected object? (copy will be stored in clipboard)
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureToMoveGridToClipboard = MyStringId.GetOrCompute("MessageBoxTextAreYouSureToMoveGridToClipboard");
-
-        ///<summary>
-        ///Memory limit has been reached while loading the world and some objects were not added. If you were using Large World fix and the game was recently updated, it may have been disabled.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextMemoryLimitReachedDuringLoad = MyStringId.GetOrCompute("MessageBoxTextMemoryLimitReachedDuringLoad");
-
-        ///<summary>
-        ///Keyboard 2
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsControls_Keyboard2 = MyStringId.GetOrCompute("ScreenOptionsControls_Keyboard2");
-
-        ///<summary>
-        ///Downloading world: {0}% World size: {1}
-        ///</summary>
-        public static readonly MyStringId DialogTextDownloadingWorld = MyStringId.GetOrCompute("DialogTextDownloadingWorld");
-
-        ///<summary>
-        ///Downloading the world has failed!
-        ///</summary>
-        public static readonly MyStringId DialogTextDownloadWorldFailed = MyStringId.GetOrCompute("DialogTextDownloadWorldFailed");
-
-        ///<summary>
-        ///Joining world
-        ///</summary>
-        public static readonly MyStringId DialogTextJoiningWorld = MyStringId.GetOrCompute("DialogTextJoiningWorld");
-
-        ///<summary>
-        ///Joining world failed, reason: {0}
-        ///</summary>
-        public static readonly MyStringId DialogTextJoinWorldFailed = MyStringId.GetOrCompute("DialogTextJoinWorldFailed");
-
-        ///<summary>
-        ///We have detected that your graphics card is under the minimum requirements and this can cause performance issues or crashes. Thank you for your understanding.
-        ///</summary>
-        public static readonly MyStringId GpuUnderMinimumNotification = MyStringId.GetOrCompute("GpuUnderMinimumNotification");
-
-        ///<summary>
         ///Any kind of ore
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_AnyOre = MyStringId.GetOrCompute("ToolTipItemFilter_AnyOre");
@@ -3480,44 +1895,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipItemFilter_UraniumIngot = MyStringId.GetOrCompute("ToolTipItemFilter_UraniumIngot");
 
         ///<summary>
-        ///Show rotation hints
-        ///</summary>
-        public static readonly MyStringId ShowRotationHints = MyStringId.GetOrCompute("ShowRotationHints");
-
-        ///<summary>
-        ///Show HUD rotation hints during building
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsShowRotationHints = MyStringId.GetOrCompute("ToolTipGameOptionsShowRotationHints");
-
-        ///<summary>
         ///Rotor
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Rotor = MyStringId.GetOrCompute("DisplayName_Block_Rotor");
-
-        ///<summary>
-        ///[unassigned]
-        ///</summary>
-        public static readonly MyStringId UnknownControl_Unassigned = MyStringId.GetOrCompute("UnknownControl_Unassigned");
-
-        ///<summary>
-        ///Building mode
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_BuildingMode = MyStringId.GetOrCompute("ScreenOptionsGame_BuildingMode");
-
-        ///<summary>
-        ///Line
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_Line = MyStringId.GetOrCompute("ScreenOptionsGame_Line");
-
-        ///<summary>
-        ///Plane
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_Plane = MyStringId.GetOrCompute("ScreenOptionsGame_Plane");
-
-        ///<summary>
-        ///Single block
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_SingleBlock = MyStringId.GetOrCompute("ScreenOptionsGame_SingleBlock");
 
         ///<summary>
         ///Torque
@@ -3655,11 +2035,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyDescription_MotorVelocity = MyStringId.GetOrCompute("BlockPropertyDescription_MotorVelocity");
 
         ///<summary>
-        ///Suicide
-        ///</summary>
-        public static readonly MyStringId ControlName_Suicide = MyStringId.GetOrCompute("ControlName_Suicide");
-
-        ///<summary>
         ///Girder
         ///</summary>
         public static readonly MyStringId DisplayName_Item_Girder = MyStringId.GetOrCompute("DisplayName_Item_Girder");
@@ -3755,19 +2130,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyDescription_LightIntensity = MyStringId.GetOrCompute("BlockPropertyDescription_LightIntensity");
 
         ///<summary>
-        ///Multiplayer server cannot be started, error: {0}
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorStartingServer = MyStringId.GetOrCompute("MultiplayerErrorStartingServer");
-
-        ///<summary>
         ///Press {0} to open Door
         ///</summary>
         public static readonly MyStringId NotificationHintPressToOpenDoor = MyStringId.GetOrCompute("NotificationHintPressToOpenDoor");
-
-        ///<summary>
-        ///Object is being used by somebody else
-        ///</summary>
-        public static readonly MyStringId AlreadyUsedBySomebodyElse = MyStringId.GetOrCompute("AlreadyUsedBySomebodyElse");
 
         ///<summary>
         ///Off
@@ -3780,86 +2145,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId SwitchText_On = MyStringId.GetOrCompute("SwitchText_On");
 
         ///<summary>
-        ///Friend games
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoinFriendsGames = MyStringId.GetOrCompute("MultiplayerJoinFriendsGames");
-
-        ///<summary>
-        ///Players
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionPlayers = MyStringId.GetOrCompute("ScreenCaptionPlayers");
-
-        ///<summary>
-        ///Friends
-        ///</summary>
-        public static readonly MyStringId ScreenPlayersLobby_Friends = MyStringId.GetOrCompute("ScreenPlayersLobby_Friends");
-
-        ///<summary>
-        ///Private
-        ///</summary>
-        public static readonly MyStringId ScreenPlayersLobby_Private = MyStringId.GetOrCompute("ScreenPlayersLobby_Private");
-
-        ///<summary>
-        ///Public
-        ///</summary>
-        public static readonly MyStringId ScreenPlayersLobby_Public = MyStringId.GetOrCompute("ScreenPlayersLobby_Public");
-
-        ///<summary>
-        ///Game owner
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_GameOwner = MyStringId.GetOrCompute("ScreenPlayers_GameOwner");
-
-        ///<summary>
-        ///Invite
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_Invite = MyStringId.GetOrCompute("ScreenPlayers_Invite");
-
-        ///<summary>
-        ///Kick
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_Kick = MyStringId.GetOrCompute("ScreenPlayers_Kick");
-
-        ///<summary>
-        ///Player name
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_PlayerName = MyStringId.GetOrCompute("ScreenPlayers_PlayerName");
-
-        ///<summary>
-        ///Game does not exist anymore.
-        ///</summary>
-        public static readonly MyStringId DialogDownloadWorld_WorldDoesNotExists = MyStringId.GetOrCompute("DialogDownloadWorld_WorldDoesNotExists");
-
-        ///<summary>
-        ///KICKED
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionKicked = MyStringId.GetOrCompute("MessageBoxCaptionKicked");
-
-        ///<summary>
-        ///You have been kicked from the game by its owner.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextYouHaveBeenKicked = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenKicked");
-
-        ///<summary>
-        ///Friends
-        ///</summary>
-        public static readonly MyStringId WorldSettings_OnlineModeFriends = MyStringId.GetOrCompute("WorldSettings_OnlineModeFriends");
-
-        ///<summary>
-        ///Are you sure you want to reconnect to the current multiplayer game?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextAreYouSureYouWantToReconnect = MyStringId.GetOrCompute("MessageBoxTextAreYouSureYouWantToReconnect");
-
-        ///<summary>
-        ///You are in offline mode and multiplayer is disabled. You have to change the settings from the main menu.
-        ///</summary>
-        public static readonly MyStringId NotificationMultiplayerDisabled = MyStringId.GetOrCompute("NotificationMultiplayerDisabled");
-
-        ///<summary>
-        ///Steam is offline. Please run Steam in normal mode or restart Steam if the problem persists
-        ///</summary>
-        public static readonly MyStringId SteamIsOfflinePleaseRestart = MyStringId.GetOrCompute("SteamIsOfflinePleaseRestart");
-
-        ///<summary>
         ///Copy paste allows you to create new ship or station directly from clipboard
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsEnableCopyPaste = MyStringId.GetOrCompute("ToolTipWorldSettingsEnableCopyPaste");
@@ -3870,74 +2155,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableCopyPaste = MyStringId.GetOrCompute("WorldSettings_EnableCopyPaste");
 
         ///<summary>
-        ///Compatible versions
-        ///</summary>
-        public static readonly MyStringId MultiplayerCompatibleVersions = MyStringId.GetOrCompute("MultiplayerCompatibleVersions");
-
-        ///<summary>
-        ///Max players
-        ///</summary>
-        public static readonly MyStringId MaxPlayers = MyStringId.GetOrCompute("MaxPlayers");
-
-        ///<summary>
-        ///Waiting for world data
-        ///</summary>
-        public static readonly MyStringId DialogWaitingForWorldData = MyStringId.GetOrCompute("DialogWaitingForWorldData");
-
-        ///<summary>
-        ///Connection to server failed: {0}
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorConnectionFailed = MyStringId.GetOrCompute("MultiplayerErrorConnectionFailed");
-
-        ///<summary>
-        ///Connecting to server
-        ///</summary>
-        public static readonly MyStringId MultiplayerStateConnectingToServer = MyStringId.GetOrCompute("MultiplayerStateConnectingToServer");
-
-        ///<summary>
-        ///Waiting for server to respond
-        ///</summary>
-        public static readonly MyStringId MultiplayerStateWaitingForServer = MyStringId.GetOrCompute("MultiplayerStateWaitingForServer");
-
-        ///<summary>
-        ///The selected game type is more limited than the original one. This means that your inventory might be truncated and you might lose some items! Are you sure you want to change the game type?
-        ///</summary>
-        public static readonly MyStringId HarvestingWarningInventoryMightBeTruncatedAreYouSure = MyStringId.GetOrCompute("HarvestingWarningInventoryMightBeTruncatedAreYouSure");
-
-        ///<summary>
-        ///Friend worlds
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionFriendWorlds = MyStringId.GetOrCompute("ScreenCaptionFriendWorlds");
-
-        ///<summary>
-        ///Public worlds
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionPublicWorlds = MyStringId.GetOrCompute("ScreenCaptionPublicWorlds");
-
-        ///<summary>
-        ///Change color / weapon mode
-        ///</summary>
-        public static readonly MyStringId ControlName_CubeColorChange = MyStringId.GetOrCompute("ControlName_CubeColorChange");
-
-        ///<summary>
         ///Weapons enabled
         ///</summary>
         public static readonly MyStringId WorldSettings_EnableWeapons = MyStringId.GetOrCompute("WorldSettings_EnableWeapons");
-
-        ///<summary>
-        ///This weapon is disabled in world settings
-        ///</summary>
-        public static readonly MyStringId NotificationWeaponDisabledInSettings = MyStringId.GetOrCompute("NotificationWeaponDisabledInSettings");
-
-        ///<summary>
-        ///Show players (multiplayer only)
-        ///</summary>
-        public static readonly MyStringId ControlDescPlayersList = MyStringId.GetOrCompute("ControlDescPlayersList");
-
-        ///<summary>
-        ///Players
-        ///</summary>
-        public static readonly MyStringId ScreenMenuButtonPlayers = MyStringId.GetOrCompute("ScreenMenuButtonPlayers");
 
         ///<summary>
         ///Assembler damaged or dismounted
@@ -3948,16 +2168,6 @@ namespace Sandbox.Game.Localization
         ///Passage
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Passage = MyStringId.GetOrCompute("DisplayName_Block_Passage");
-
-        ///<summary>
-        /// (Damaged)
-        ///</summary>
-        public static readonly MyStringId ItemDamagedDescription = MyStringId.GetOrCompute("ItemDamagedDescription");
-
-        ///<summary>
-        ///Server is not responding
-        ///</summary>
-        public static readonly MyStringId MultiplaterJoin_ServerIsNotResponding = MyStringId.GetOrCompute("MultiplaterJoin_ServerIsNotResponding");
 
         ///<summary>
         ///Gravitational acceleration of the generator.
@@ -4010,36 +2220,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintPressToRechargeInMedicalRoom = MyStringId.GetOrCompute("NotificationHintPressToRechargeInMedicalRoom");
 
         ///<summary>
-        ///Unsupported aspect ratio
-        ///</summary>
-        public static readonly MyStringId UnsupportedAspectRatio = MyStringId.GetOrCompute("UnsupportedAspectRatio");
-
-        ///<summary>
-        ///Only friends can join this game
-        ///</summary>
-        public static readonly MyStringId OnlyFriendsCanJoinThisGame = MyStringId.GetOrCompute("OnlyFriendsCanJoinThisGame");
-
-        ///<summary>
-        ///A description of the world
-        ///</summary>
-        public static readonly MyStringId ToolTipWorldSettingsDescription = MyStringId.GetOrCompute("ToolTipWorldSettingsDescription");
-
-        ///<summary>
-        ///Compress saved games
-        ///</summary>
-        public static readonly MyStringId CompressSaveGames = MyStringId.GetOrCompute("CompressSaveGames");
-
-        ///<summary>
-        ///Whether the saved games should be compressed on the disk to save space
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsCompressSaveGames = MyStringId.GetOrCompute("ToolTipGameOptionsCompressSaveGames");
-
-        ///<summary>
-        ///Disable headbob
-        ///</summary>
-        public static readonly MyStringId Headbob = MyStringId.GetOrCompute("Headbob");
-
-        ///<summary>
         ///When enabled, each player can see name of other players above their characters
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsShowPlayerNamesOnHud = MyStringId.GetOrCompute("ToolTipWorldSettingsShowPlayerNamesOnHud");
@@ -4050,36 +2230,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_ShowPlayerNamesOnHud = MyStringId.GetOrCompute("WorldSettings_ShowPlayerNamesOnHud");
 
         ///<summary>
-        ///Show player names
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_ShowPlayerNames = MyStringId.GetOrCompute("ScreenOptionsGame_ShowPlayerNames");
-
-        ///<summary>
-        ///Show player names above their characters. This feature must also be enabled in world settings.
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsShowPlayerNames = MyStringId.GetOrCompute("ToolTipGameOptionsShowPlayerNames");
-
-        ///<summary>
-        ///UI opacity
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_UIOpacity = MyStringId.GetOrCompute("ScreenOptionsGame_UIOpacity");
-
-        ///<summary>
-        ///Change opacity of UI dialogs.
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsUIOpacity = MyStringId.GetOrCompute("ToolTipGameOptionsUIOpacity");
-
-        ///<summary>
-        ///UI background opacity
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_UIBkOpacity = MyStringId.GetOrCompute("ScreenOptionsGame_UIBkOpacity");
-
-        ///<summary>
-        ///Change opacity of UI dialogs background.
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsUIBkOpacity = MyStringId.GetOrCompute("ToolTipGameOptionsUIBkOpacity");
-
-        ///<summary>
         ///Drop item
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ThrowOut = MyStringId.GetOrCompute("ToolTipTerminalInventory_ThrowOut");
@@ -4088,11 +2238,6 @@ namespace Sandbox.Game.Localization
         ///Warning: Suit energy is low. Life support systems may fail.
         ///</summary>
         public static readonly MyStringId NotificationSuitEnergyLow = MyStringId.GetOrCompute("NotificationSuitEnergyLow");
-
-        ///<summary>
-        ///Inventory is full
-        ///</summary>
-        public static readonly MyStringId NotificationInventoryFull = MyStringId.GetOrCompute("NotificationInventoryFull");
 
         ///<summary>
         ///Warning: Suit energy is critically low. Life support failure imminent.
@@ -4110,11 +2255,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettingsMaxFloatingObjects = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxFloatingObjects");
 
         ///<summary>
-        ///{0} is out of ammunition
-        ///</summary>
-        public static readonly MyStringId OutOfAmmo = MyStringId.GetOrCompute("OutOfAmmo");
-
-        ///<summary>
         ///Missile 200 mm
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_Missile200mm = MyStringId.GetOrCompute("ToolTipItemFilter_Missile200mm");
@@ -4123,11 +2263,6 @@ namespace Sandbox.Game.Localization
         ///NATO 25x184 mm
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_NATO_25x184mm = MyStringId.GetOrCompute("ToolTipItemFilter_NATO_25x184mm");
-
-        ///<summary>
-        ///You need {0} to build {1}
-        ///</summary>
-        public static readonly MyStringId NotificationMissingComponentToPlaceBlockFormat = MyStringId.GetOrCompute("NotificationMissingComponentToPlaceBlockFormat");
 
         ///<summary>
         ///Asteroids
@@ -4183,31 +2318,6 @@ namespace Sandbox.Game.Localization
         ///Range
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_OreDetectorRange = MyStringId.GetOrCompute("BlockPropertyTitle_OreDetectorRange");
-
-        ///<summary>
-        ///Game mode
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_GameMode = MyStringId.GetOrCompute("JoinGame_ColumnTitle_GameMode");
-
-        ///<summary>
-        ///Players
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_Players = MyStringId.GetOrCompute("JoinGame_ColumnTitle_Players");
-
-        ///<summary>
-        ///Username
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_Username = MyStringId.GetOrCompute("JoinGame_ColumnTitle_Username");
-
-        ///<summary>
-        ///World
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_World = MyStringId.GetOrCompute("JoinGame_ColumnTitle_World");
-
-        ///<summary>
-        ///World size
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_WorldSize = MyStringId.GetOrCompute("JoinGame_ColumnTitle_WorldSize");
 
         ///<summary>
         ///Any item produced by assembler.
@@ -4270,11 +2380,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Description_Scenario_LoneSurvivor = MyStringId.GetOrCompute("Description_Scenario_LoneSurvivor");
 
         ///<summary>
-        ///Are you sure you want to commit suicide?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextSuicide = MyStringId.GetOrCompute("MessageBoxTextSuicide");
-
-        ///<summary>
         ///Crashed Red Ship
         ///</summary>
         public static readonly MyStringId DisplayName_Scenario_CrashedRedShip = MyStringId.GetOrCompute("DisplayName_Scenario_CrashedRedShip");
@@ -4298,21 +2403,6 @@ namespace Sandbox.Game.Localization
         ///Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_Scrap = MyStringId.GetOrCompute("DisplayName_Item_Scrap");
-
-        ///<summary>
-        ///The server host has left the game
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorServerHasLeft = MyStringId.GetOrCompute("MultiplayerErrorServerHasLeft");
-
-        ///<summary>
-        ///You died. Respawn in {0} seconds
-        ///</summary>
-        public static readonly MyStringId NotificationRespawn = MyStringId.GetOrCompute("NotificationRespawn");
-
-        ///<summary>
-        ///Required
-        ///</summary>
-        public static readonly MyStringId HudBlockInfo_Required = MyStringId.GetOrCompute("HudBlockInfo_Required");
 
         ///<summary>
         ///Large Ship / Station
@@ -4510,21 +2600,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipTerminalProduction_RepeatMode = MyStringId.GetOrCompute("ToolTipTerminalProduction_RepeatMode");
 
         ///<summary>
-        ///Inventory size {0}x Assembler efficiency {1}x Refinery speed {2}x
-        ///</summary>
-        public static readonly MyStringId JoinGame_GameTypeToolTip_MultipliersFormat = MyStringId.GetOrCompute("JoinGame_GameTypeToolTip_MultipliersFormat");
-
-        ///<summary>
-        ///Player connected: {0}
-        ///</summary>
-        public static readonly MyStringId NotificationClientConnected = MyStringId.GetOrCompute("NotificationClientConnected");
-
-        ///<summary>
-        ///Player disconnected: {0}
-        ///</summary>
-        public static readonly MyStringId NotificationClientDisconnected = MyStringId.GetOrCompute("NotificationClientDisconnected");
-
-        ///<summary>
         ///Thruster damage
         ///</summary>
         public static readonly MyStringId WorldSettings_ThrusterDamage = MyStringId.GetOrCompute("WorldSettings_ThrusterDamage");
@@ -4545,11 +2620,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableCargoShips = MyStringId.GetOrCompute("WorldSettings_EnableCargoShips");
 
         ///<summary>
-        ///Server has different version of the game. Your version: {0}; Server version: {1}
-        ///</summary>
-        public static readonly MyStringId MultiplayerError_IncorrectVersion = MyStringId.GetOrCompute("MultiplayerError_IncorrectVersion");
-
-        ///<summary>
         ///Armageddon (unrealistic)
         ///</summary>
         public static readonly MyStringId WorldSettings_EnvironmentHostilityCataclysmUnreal = MyStringId.GetOrCompute("WorldSettings_EnvironmentHostilityCataclysmUnreal");
@@ -4560,16 +2630,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId FirstApril2014 = MyStringId.GetOrCompute("FirstApril2014");
 
         ///<summary>
-        ///Show crosshair
-        ///</summary>
-        public static readonly MyStringId ShowCrosshair = MyStringId.GetOrCompute("ShowCrosshair");
-
-        ///<summary>
-        ///Whether the weapon crosshair should be visible
-        ///</summary>
-        public static readonly MyStringId ToolTipGameOptionsShowCrosshair = MyStringId.GetOrCompute("ToolTipGameOptionsShowCrosshair");
-
-        ///<summary>
         ///Artificial Mass
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VirtualMass = MyStringId.GetOrCompute("DisplayName_Block_VirtualMass");
@@ -4578,11 +2638,6 @@ namespace Sandbox.Game.Localization
         ///Control Station
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Cockpit2 = MyStringId.GetOrCompute("DisplayName_Block_Cockpit2");
-
-        ///<summary>
-        ///Game is already saving.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextSavingInProgress = MyStringId.GetOrCompute("MessageBoxTextSavingInProgress");
 
         ///<summary>
         ///Collector
@@ -4660,16 +2715,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Window3x3Flat = MyStringId.GetOrCompute("DisplayName_Block_Window3x3Flat");
 
         ///<summary>
-        ///* Localized by the community.
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_LocalizationWarning = MyStringId.GetOrCompute("ScreenOptionsGame_LocalizationWarning");
-
-        ///<summary>
-        ///Click for more info
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsGame_MoreInfo = MyStringId.GetOrCompute("ScreenOptionsGame_MoreInfo");
-
-        ///<summary>
         ///Single / All weapon mode (cockpit)
         ///</summary>
         public static readonly MyStringId ControlDescSingleAllMode = MyStringId.GetOrCompute("ControlDescSingleAllMode");
@@ -4720,21 +2765,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Window3x3FlatInv = MyStringId.GetOrCompute("DisplayName_Block_Window3x3FlatInv");
 
         ///<summary>
-        ///No direct connection available.
-        ///</summary>
-        public static readonly MyStringId Multiplayer_IndirectConnection = MyStringId.GetOrCompute("Multiplayer_IndirectConnection");
-
-        ///<summary>
-        ///No message received from server for {0} seconds.
-        ///</summary>
-        public static readonly MyStringId Multiplayer_LastMsg = MyStringId.GetOrCompute("Multiplayer_LastMsg");
-
-        ///<summary>
-        ///No connection with server.
-        ///</summary>
-        public static readonly MyStringId Multiplayer_NoConnection = MyStringId.GetOrCompute("Multiplayer_NoConnection");
-
-        ///<summary>
         ///Press {0} to switch between single/all weapon mode.
         ///</summary>
         public static readonly MyStringId NotificationHintSwitchWeaponMode = MyStringId.GetOrCompute("NotificationHintSwitchWeaponMode");
@@ -4750,11 +2780,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipItemFilter_NATO_5p56x45mm = MyStringId.GetOrCompute("ToolTipItemFilter_NATO_5p56x45mm");
 
         ///<summary>
-        ///Game paused
-        ///</summary>
-        public static readonly MyStringId GamePaused = MyStringId.GetOrCompute("GamePaused");
-
-        ///<summary>
         ///Wheel 1x1
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Wheel1x1 = MyStringId.GetOrCompute("DisplayName_Block_Wheel1x1");
@@ -4768,11 +2793,6 @@ namespace Sandbox.Game.Localization
         ///Wheel 5x5
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Wheel5x5 = MyStringId.GetOrCompute("DisplayName_Block_Wheel5x5");
-
-        ///<summary>
-        ///Pause the game (offline only)
-        ///</summary>
-        public static readonly MyStringId ControlDescPauseGame = MyStringId.GetOrCompute("ControlDescPauseGame");
 
         ///<summary>
         ///Grinder
@@ -4795,24 +2815,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Decoy = MyStringId.GetOrCompute("DisplayName_Block_Decoy");
 
         ///<summary>
-        ///Pause game
-        ///</summary>
-        public static readonly MyStringId ControlName_PauseGame = MyStringId.GetOrCompute("ControlName_PauseGame");
-
-        ///<summary>
-        ///Pause
-        ///</summary>
-        public static readonly MyStringId KeysPause = MyStringId.GetOrCompute("KeysPause");
-
-        ///<summary>
         ///Save
         ///</summary>
         public static readonly MyStringId TerminalButton_GroupSave = MyStringId.GetOrCompute("TerminalButton_GroupSave");
-
-        ///<summary>
-        ///{0} is not working
-        ///</summary>
-        public static readonly MyStringId NotificationWeaponNotWorking = MyStringId.GetOrCompute("NotificationWeaponNotWorking");
 
         ///<summary>
         ///Lock
@@ -4865,11 +2870,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertiesText_RequiredInput = MyStringId.GetOrCompute("BlockPropertiesText_RequiredInput");
 
         ///<summary>
-        ///Type: 
-        ///</summary>
-        public static readonly MyStringId BlockPropertiesText_Type = MyStringId.GetOrCompute("BlockPropertiesText_Type");
-
-        ///<summary>
         ///Locked
         ///</summary>
         public static readonly MyStringId BlockPropertyValue_Locked = MyStringId.GetOrCompute("BlockPropertyValue_Locked");
@@ -4913,16 +2913,6 @@ namespace Sandbox.Game.Localization
         ///Target moving objects
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_LargeTurretTargetMoving = MyStringId.GetOrCompute("BlockPropertyTitle_LargeTurretTargetMoving");
-
-        ///<summary>
-        ///Amount to add
-        ///</summary>
-        public static readonly MyStringId DialogAmount_AddAmountCaption = MyStringId.GetOrCompute("DialogAmount_AddAmountCaption");
-
-        ///<summary>
-        ///Value to set
-        ///</summary>
-        public static readonly MyStringId DialogAmount_SetValueCaption = MyStringId.GetOrCompute("DialogAmount_SetValueCaption");
 
         ///<summary>
         ///Argument
@@ -4970,16 +2960,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationFuelNo = MyStringId.GetOrCompute("NotificationFuelNo");
 
         ///<summary>
-        ///Health is critical. Seek medical attention immediately.
-        ///</summary>
-        public static readonly MyStringId NotificationHealthCritical = MyStringId.GetOrCompute("NotificationHealthCritical");
-
-        ///<summary>
-        ///Health is low.
-        ///</summary>
-        public static readonly MyStringId NotificationHealthLow = MyStringId.GetOrCompute("NotificationHealthLow");
-
-        ///<summary>
         ///Meteor storm inbound.
         ///</summary>
         public static readonly MyStringId NotificationMeteorInbound = MyStringId.GetOrCompute("NotificationMeteorInbound");
@@ -5005,7 +2985,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_ConveyorSmall = MyStringId.GetOrCompute("DisplayName_Block_ConveyorSmall");
 
         ///<summary>
-        ///Small Curved Tube
+        ///Small Curved Conveyor Tube
         ///</summary>
         public static readonly MyStringId DisplayName_Block_ConveyorTubeCurvedSmall = MyStringId.GetOrCompute("DisplayName_Block_ConveyorTubeCurvedSmall");
 
@@ -5018,16 +2998,6 @@ namespace Sandbox.Game.Localization
         ///Press {0} to open inventory
         ///</summary>
         public static readonly MyStringId NotificationHintPressToOpenInventoryConnector = MyStringId.GetOrCompute("NotificationHintPressToOpenInventoryConnector");
-
-        ///<summary>
-        ///This server has different game data than your client
-        ///</summary>
-        public static readonly MyStringId MultiplayerError_DifferentData = MyStringId.GetOrCompute("MultiplayerError_DifferentData");
-
-        ///<summary>
-        ///Games marked with * have incompatible game data
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoin_IncompatibleGameDataLabel = MyStringId.GetOrCompute("MultiplayerJoin_IncompatibleGameDataLabel");
 
         ///<summary>
         ///Info
@@ -5095,159 +3065,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_Info_TrianglesTooltip = MyStringId.GetOrCompute("TerminalTab_Info_TrianglesTooltip");
 
         ///<summary>
-        ///Game admin
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_GameAdmin = MyStringId.GetOrCompute("ScreenPlayers_GameAdmin");
-
-        ///<summary>
-        ///Dedicated only
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoinServers = MyStringId.GetOrCompute("MultiplayerJoinServers");
-
-        ///<summary>
-        ///User is already joined
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorAlreadyJoined = MyStringId.GetOrCompute("MultiplayerErrorAlreadyJoined");
-
-        ///<summary>
-        ///You are not in group {0}. Do you want to visit group web page?
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorNotInGroup = MyStringId.GetOrCompute("MultiplayerErrorNotInGroup");
-
-        ///<summary>
-        ///Server is full
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorServerFull = MyStringId.GetOrCompute("MultiplayerErrorServerFull");
-
-        ///<summary>
-        ///Steam servers offline or server group does not exist
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorSteamServersOffline = MyStringId.GetOrCompute("MultiplayerErrorSteamServersOffline");
-
-        ///<summary>
-        ///Ticket invalid
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorTicketInvalid = MyStringId.GetOrCompute("MultiplayerErrorTicketInvalid");
-
-        ///<summary>
-        ///LAN only
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoinLANServers = MyStringId.GetOrCompute("MultiplayerJoinLANServers");
-
-        ///<summary>
-        ///Friends
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_Friends = MyStringId.GetOrCompute("JoinGame_TabTitle_Friends");
-
-        ///<summary>
-        ///LAN
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_LAN = MyStringId.GetOrCompute("JoinGame_TabTitle_LAN");
-
-        ///<summary>
-        ///Games
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_Lobbies = MyStringId.GetOrCompute("JoinGame_TabTitle_Lobbies");
-
-        ///<summary>
-        ///Servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_Servers = MyStringId.GetOrCompute("JoinGame_TabTitle_Servers");
-
-        ///<summary>
-        ///Join world
-        ///</summary>
-        public static readonly MyStringId JoinGame_Title = MyStringId.GetOrCompute("JoinGame_Title");
-
-        ///<summary>
-        ///Ping
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_Ping = MyStringId.GetOrCompute("JoinGame_ColumnTitle_Ping");
-
-        ///<summary>
-        ///Server
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_Server = MyStringId.GetOrCompute("JoinGame_ColumnTitle_Server");
-
-        ///<summary>
-        ///Logged in elsewhere
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorLoggedInElseWhere = MyStringId.GetOrCompute("MultiplayerErrorLoggedInElseWhere");
-
-        ///<summary>
-        ///No license or license expired
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorNoLicenseOrExpired = MyStringId.GetOrCompute("MultiplayerErrorNoLicenseOrExpired");
-
-        ///<summary>
-        ///Ticket already used
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorTicketAlreadyUsed = MyStringId.GetOrCompute("MultiplayerErrorTicketAlreadyUsed");
-
-        ///<summary>
-        ///Ticket cancelled
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorTicketCanceled = MyStringId.GetOrCompute("MultiplayerErrorTicketCanceled");
-
-        ///<summary>
-        ///User not connected
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorUserNotConnected = MyStringId.GetOrCompute("MultiplayerErrorUserNotConnected");
-
-        ///<summary>
-        ///VAC banned
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorVACBanned = MyStringId.GetOrCompute("MultiplayerErrorVACBanned");
-
-        ///<summary>
-        ///VAC check timed out
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorVACCheckTimedOut = MyStringId.GetOrCompute("MultiplayerErrorVACCheckTimedOut");
-
-        ///<summary>
-        ///Allowed groups
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoinAllowedGroups = MyStringId.GetOrCompute("MultiplayerJoinAllowedGroups");
-
-        ///<summary>
         ///Merge Block
         ///</summary>
         public static readonly MyStringId DisplayName_Block_MergeBlock = MyStringId.GetOrCompute("DisplayName_Block_MergeBlock");
 
         ///<summary>
-        ///News downloading failed
-        ///</summary>
-        public static readonly MyStringId NewsDownloadingFailed = MyStringId.GetOrCompute("NewsDownloadingFailed");
-
-        ///<summary>
-        ///INFO
-        ///</summary>
-        public static readonly MyStringId MessageBoxCaptionInfo = MyStringId.GetOrCompute("MessageBoxCaptionInfo");
-
-        ///<summary>
         ///New version of Space Engineers is available!
         ///</summary>
         public static readonly MyStringId NewVersionAvailable = MyStringId.GetOrCompute("NewVersionAvailable");
-
-        ///<summary>
-        ///Server Group ID is invalid, server administrator should set proper group ID in server config (or zero to disable group checking)
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorGroupIdInvalid = MyStringId.GetOrCompute("MultiplayerErrorGroupIdInvalid");
-
-        ///<summary>
-        ///The list of local dedicated servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_LAN = MyStringId.GetOrCompute("JoinGame_TabTooltip_LAN");
-
-        ///<summary>
-        ///The list of player created games
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_Lobbies = MyStringId.GetOrCompute("JoinGame_TabTooltip_Lobbies");
-
-        ///<summary>
-        ///The list of internet dedicated servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_Servers = MyStringId.GetOrCompute("JoinGame_TabTooltip_Servers");
 
         ///<summary>
         ///Enable spectator in the world
@@ -5258,11 +3083,6 @@ namespace Sandbox.Game.Localization
         ///Enable spectator
         ///</summary>
         public static readonly MyStringId WorldSettings_EnableSpectator = MyStringId.GetOrCompute("WorldSettings_EnableSpectator");
-
-        ///<summary>
-        ///Player color
-        ///</summary>
-        public static readonly MyStringId PlayerCharacterColor = MyStringId.GetOrCompute("PlayerCharacterColor");
 
         ///<summary>
         ///Black
@@ -5300,11 +3120,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId PlayerCharacterColorYellow = MyStringId.GetOrCompute("PlayerCharacterColorYellow");
 
         ///<summary>
-        ///Press {0} to change your appearance
-        ///</summary>
-        public static readonly MyStringId NotificationHintPressToUseWardrobe = MyStringId.GetOrCompute("NotificationHintPressToUseWardrobe");
-
-        ///<summary>
         ///Control thrusters
         ///</summary>
         public static readonly MyStringId TerminalControlPanel_Cockpit_ControlThrusters = MyStringId.GetOrCompute("TerminalControlPanel_Cockpit_ControlThrusters");
@@ -5330,26 +3145,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_Info_Rotors = MyStringId.GetOrCompute("TerminalTab_Info_Rotors");
 
         ///<summary>
-        ///Window mode
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsVideo_WindowMode = MyStringId.GetOrCompute("ScreenOptionsVideo_WindowMode");
-
-        ///<summary>
-        ///Fullscreen
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsVideo_WindowMode_Fullscreen = MyStringId.GetOrCompute("ScreenOptionsVideo_WindowMode_Fullscreen");
-
-        ///<summary>
-        ///Fullscreen window
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsVideo_WindowMode_FullscreenWindow = MyStringId.GetOrCompute("ScreenOptionsVideo_WindowMode_FullscreenWindow");
-
-        ///<summary>
-        ///Window
-        ///</summary>
-        public static readonly MyStringId ScreenOptionsVideo_WindowMode_Window = MyStringId.GetOrCompute("ScreenOptionsVideo_WindowMode_Window");
-
-        ///<summary>
         ///Break Force
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_BreakForce = MyStringId.GetOrCompute("BlockPropertyTitle_BreakForce");
@@ -5360,19 +3155,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_LandGearAutoLock = MyStringId.GetOrCompute("BlockPropertyTitle_LandGearAutoLock");
 
         ///<summary>
-        ///Spectator Controls
-        ///</summary>
-        public static readonly MyStringId SpectatorControls = MyStringId.GetOrCompute("SpectatorControls");
-
-        ///<summary>
         ///Get back into controlled character / cockpit
         ///</summary>
         public static readonly MyStringId SpectatorControls_None_Desc = MyStringId.GetOrCompute("SpectatorControls_None_Desc");
-
-        ///<summary>
-        ///Spectator with fixed view vector to controlled object
-        ///</summary>
-        public static readonly MyStringId SpectatorControls_Delta_Desc = MyStringId.GetOrCompute("SpectatorControls_Delta_Desc");
 
         ///<summary>
         ///Free spectator. You can still shoot and do actions with controlled object
@@ -5383,41 +3168,6 @@ namespace Sandbox.Game.Localization
         ///Static spectator. You control character / cockpit, but camera is static
         ///</summary>
         public static readonly MyStringId SpectatorControls_Static_Desc = MyStringId.GetOrCompute("SpectatorControls_Static_Desc");
-
-        ///<summary>
-        ///You are banned on this server
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorBannedByAdmins = MyStringId.GetOrCompute("MultiplayerErrorBannedByAdmins");
-
-        ///<summary>
-        ///You are banned on this server. Open admin profile?
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorBannedByAdminsWithDialog = MyStringId.GetOrCompute("MultiplayerErrorBannedByAdminsWithDialog");
-
-        ///<summary>
-        ///You have been banned on this server by its admin.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextYouHaveBeenBanned = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenBanned");
-
-        ///<summary>
-        ///Ban
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_Ban = MyStringId.GetOrCompute("ScreenPlayers_Ban");
-
-        ///<summary>
-        ///Return to the game area!
-        ///</summary>
-        public static readonly MyStringId HudMarker_ReturnToWorld = MyStringId.GetOrCompute("HudMarker_ReturnToWorld");
-
-        ///<summary>
-        ///Warning: You will die in {0:F1} meters!
-        ///</summary>
-        public static readonly MyStringId NotificationLeavingWorld = MyStringId.GetOrCompute("NotificationLeavingWorld");
-
-        ///<summary>
-        ///Advanced world settings
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionAdvancedSettings = MyStringId.GetOrCompute("ScreenCaptionAdvancedSettings");
 
         ///<summary>
         ///Advanced
@@ -5510,94 +3260,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_Factions_CreateFactionTagToolTip = MyStringId.GetOrCompute("TerminalTab_Factions_CreateFactionTagToolTip");
 
         ///<summary>
-        ///Spectator
-        ///</summary>
-        public static readonly MyStringId Spectator = MyStringId.GetOrCompute("Spectator");
-
-        ///<summary>
-        ///Delta spectator
-        ///</summary>
-        public static readonly MyStringId SpectatorControls_Delta = MyStringId.GetOrCompute("SpectatorControls_Delta");
-
-        ///<summary>
-        ///Free spectator
-        ///</summary>
-        public static readonly MyStringId SpectatorControls_Free = MyStringId.GetOrCompute("SpectatorControls_Free");
-
-        ///<summary>
-        ///Player control
-        ///</summary>
-        public static readonly MyStringId SpectatorControls_None = MyStringId.GetOrCompute("SpectatorControls_None");
-
-        ///<summary>
-        ///Static spectator
-        ///</summary>
-        public static readonly MyStringId SpectatorControls_Static = MyStringId.GetOrCompute("SpectatorControls_Static");
-
-        ///<summary>
         ///Show center of mass
         ///</summary>
         public static readonly MyStringId TerminalTab_Info_ShowMassCenter = MyStringId.GetOrCompute("TerminalTab_Info_ShowMassCenter");
 
         ///<summary>
-        ///Given faction name already exists
-        ///</summary>
-        public static readonly MyStringId MessageBoxErrorFactionsNameAlreadyExists = MyStringId.GetOrCompute("MessageBoxErrorFactionsNameAlreadyExists");
-
-        ///<summary>
-        ///Faction tag must be exactly 3 characters long
-        ///</summary>
-        public static readonly MyStringId MessageBoxErrorFactionsTag = MyStringId.GetOrCompute("MessageBoxErrorFactionsTag");
-
-        ///<summary>
-        ///Given faction tag already exists
-        ///</summary>
-        public static readonly MyStringId MessageBoxErrorFactionsTagAlreadyExists = MyStringId.GetOrCompute("MessageBoxErrorFactionsTagAlreadyExists");
-
-        ///<summary>
-        ///Faction name must be at least 4 characters long
-        ///</summary>
-        public static readonly MyStringId MessageBoxErrorFactionsNameTooShort = MyStringId.GetOrCompute("MessageBoxErrorFactionsNameTooShort");
-
-        ///<summary>
         ///You must leave your faction before creating new one
         ///</summary>
         public static readonly MyStringId TerminalTab_Factions_BeforeCreateLeave = MyStringId.GetOrCompute("TerminalTab_Factions_BeforeCreateLeave");
-
-        ///<summary>
-        ///Edit
-        ///</summary>
-        public static readonly MyStringId Edit = MyStringId.GetOrCompute("Edit");
-
-        ///<summary>
-        ///Kick
-        ///</summary>
-        public static readonly MyStringId Kick = MyStringId.GetOrCompute("Kick");
-
-        ///<summary>
-        ///Leader
-        ///</summary>
-        public static readonly MyStringId Leader = MyStringId.GetOrCompute("Leader");
-
-        ///<summary>
-        ///Member
-        ///</summary>
-        public static readonly MyStringId Member = MyStringId.GetOrCompute("Member");
-
-        ///<summary>
-        ///Are you sure that you want to kick player '{0}' from your faction?
-        ///</summary>
-        public static readonly MyStringId MessageBoxConfirmFactionsKickPlayer = MyStringId.GetOrCompute("MessageBoxConfirmFactionsKickPlayer");
-
-        ///<summary>
-        ///Are you sure that you want to leave faction '{0}'?
-        ///</summary>
-        public static readonly MyStringId MessageBoxConfirmFactionsLeave = MyStringId.GetOrCompute("MessageBoxConfirmFactionsLeave");
-
-        ///<summary>
-        ///Promote
-        ///</summary>
-        public static readonly MyStringId Promote = MyStringId.GetOrCompute("Promote");
 
         ///<summary>
         ///If checked, ships that are considered to be trash will be removed to make the game run faster. To be considered trash, the grid has to contain just a few blocks, be in uniform linear motion, be unpowered, uncontrolled, without a medbay and far enough from all players so that they can barely see it.
@@ -5615,34 +3285,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_RemoveTrash = MyStringId.GetOrCompute("WorldSettings_RemoveTrash");
 
         ///<summary>
-        ///Demote
-        ///</summary>
-        public static readonly MyStringId Demote = MyStringId.GetOrCompute("Demote");
-
-        ///<summary>
-        ///Access denied
-        ///</summary>
-        public static readonly MyStringId AccessDenied = MyStringId.GetOrCompute("AccessDenied");
-
-        ///<summary>
-        ///Founder
-        ///</summary>
-        public static readonly MyStringId Founder = MyStringId.GetOrCompute("Founder");
-
-        ///<summary>
-        ///Status
-        ///</summary>
-        public static readonly MyStringId Status = MyStringId.GetOrCompute("Status");
-
-        ///<summary>
         ///Private info (visible to members only):
         ///</summary>
         public static readonly MyStringId TerminalTab_Factions_Private = MyStringId.GetOrCompute("TerminalTab_Factions_Private");
-
-        ///<summary>
-        ///Accept
-        ///</summary>
-        public static readonly MyStringId Accept = MyStringId.GetOrCompute("Accept");
 
         ///<summary>
         /// (access denied)
@@ -5650,29 +3295,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Terminal_BlockAccessDenied = MyStringId.GetOrCompute("Terminal_BlockAccessDenied");
 
         ///<summary>
-        ///Are you sure that you want to accept player '{0}' to your faction?
-        ///</summary>
-        public static readonly MyStringId MessageBoxConfirmFactionsAcceptJoin = MyStringId.GetOrCompute("MessageBoxConfirmFactionsAcceptJoin");
-
-        ///<summary>
-        ///Are you sure that you want demote '{0}' to member?
-        ///</summary>
-        public static readonly MyStringId MessageBoxConfirmFactionsDemote = MyStringId.GetOrCompute("MessageBoxConfirmFactionsDemote");
-
-        ///<summary>
-        ///Are you sure that you want promote '{0}' to leader?
-        ///</summary>
-        public static readonly MyStringId MessageBoxConfirmFactionsPromote = MyStringId.GetOrCompute("MessageBoxConfirmFactionsPromote");
-
-        ///<summary>
         ///Edit faction
         ///</summary>
         public static readonly MyStringId TerminalTab_Factions_EditFaction = MyStringId.GetOrCompute("TerminalTab_Factions_EditFaction");
-
-        ///<summary>
-        ///Applicant
-        ///</summary>
-        public static readonly MyStringId Applicant = MyStringId.GetOrCompute("Applicant");
 
         ///<summary>
         ///Temporary ship. It will get removed after you leave the game or spawn in a new one.
@@ -5688,11 +3313,6 @@ namespace Sandbox.Game.Localization
         ///Delete respawn ship
         ///</summary>
         public static readonly MyStringId WorldSettings_RespawnShipDelete = MyStringId.GetOrCompute("WorldSettings_RespawnShipDelete");
-
-        ///<summary>
-        ///Tag
-        ///</summary>
-        public static readonly MyStringId Tag = MyStringId.GetOrCompute("Tag");
 
         ///<summary>
         ///This faction is proposing peace treaty to your faction
@@ -5798,26 +3418,6 @@ namespace Sandbox.Game.Localization
         ///Reset owners of all blocks to nobody
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsResetOwnership = MyStringId.GetOrCompute("ToolTipWorldSettingsResetOwnership");
-
-        ///<summary>
-        ///Session delete failed
-        ///</summary>
-        public static readonly MyStringId SessionDeleteFailed = MyStringId.GetOrCompute("SessionDeleteFailed");
-
-        ///<summary>
-        ///Medical Rooms
-        ///</summary>
-        public static readonly MyStringId Medicals_Title = MyStringId.GetOrCompute("Medicals_Title");
-
-        ///<summary>
-        ///Are you sure you want to change owner to {0}?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextChangeOwner = MyStringId.GetOrCompute("MessageBoxTextChangeOwner");
-
-        ///<summary>
-        ///Respawn
-        ///</summary>
-        public static readonly MyStringId Respawn = MyStringId.GetOrCompute("Respawn");
 
         ///<summary>
         ///Battery
@@ -5950,11 +3550,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Terminal_ShowOnHUDToolTip = MyStringId.GetOrCompute("Terminal_ShowOnHUDToolTip");
 
         ///<summary>
-        ///Same game data
-        ///</summary>
-        public static readonly MyStringId MultiplayerJoinSameGameData = MyStringId.GetOrCompute("MultiplayerJoinSameGameData");
-
-        ///<summary>
         ///Accept peace
         ///</summary>
         public static readonly MyStringId TerminalTab_Factions_AcceptPeaceRequest = MyStringId.GetOrCompute("TerminalTab_Factions_AcceptPeaceRequest");
@@ -5968,61 +3563,6 @@ namespace Sandbox.Game.Localization
         ///Respawn Ship
         ///</summary>
         public static readonly MyStringId RespawnShip = MyStringId.GetOrCompute("RespawnShip");
-
-        ///<summary>
-        ///Refresh
-        ///</summary>
-        public static readonly MyStringId Refresh = MyStringId.GetOrCompute("Refresh");
-
-        ///<summary>
-        ///dead
-        ///</summary>
-        public static readonly MyStringId PlayerInfo_Dead = MyStringId.GetOrCompute("PlayerInfo_Dead");
-
-        ///<summary>
-        ///Active mods
-        ///</summary>
-        public static readonly MyStringId ScreenMods_ActiveMods = MyStringId.GetOrCompute("ScreenMods_ActiveMods");
-
-        ///<summary>
-        ///Available mods
-        ///</summary>
-        public static readonly MyStringId ScreenMods_AvailableMods = MyStringId.GetOrCompute("ScreenMods_AvailableMods");
-
-        ///<summary>
-        ///Deactivate mod
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveLeft = MyStringId.GetOrCompute("ToolTipScreenMods_MoveLeft");
-
-        ///<summary>
-        ///Deactivate all mods
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveLeftAll = MyStringId.GetOrCompute("ToolTipScreenMods_MoveLeftAll");
-
-        ///<summary>
-        ///Activate mod
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveRight = MyStringId.GetOrCompute("ToolTipScreenMods_MoveRight");
-
-        ///<summary>
-        ///Activate all mods
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveRightAll = MyStringId.GetOrCompute("ToolTipScreenMods_MoveRightAll");
-
-        ///<summary>
-        ///Mods
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Mods = MyStringId.GetOrCompute("WorldSettings_Mods");
-
-        ///<summary>
-        ///Open selected mod in Workshop Steam Overlay
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopOpenModInWorkshop = MyStringId.GetOrCompute("ToolTipWorkshopOpenModInWorkshop");
-
-        ///<summary>
-        ///Refresh the list of subscribed mods
-        ///</summary>
-        public static readonly MyStringId ToolTipWorkshopRefreshMod = MyStringId.GetOrCompute("ToolTipWorkshopRefreshMod");
 
         ///<summary>
         ///Enemy faction
@@ -6070,24 +3610,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenTerminal_Infinite = MyStringId.GetOrCompute("ScreenTerminal_Infinite");
 
         ///<summary>
-        ///Search game
-        ///</summary>
-        public static readonly MyStringId JoinGame_SearchLabel = MyStringId.GetOrCompute("JoinGame_SearchLabel");
-
-        ///<summary>
-        ///At least 3 characters must be inserted to start searching
-        ///</summary>
-        public static readonly MyStringId JoinGame_SearchTooltip = MyStringId.GetOrCompute("JoinGame_SearchTooltip");
-
-        ///<summary>
         ///Clients can save
         ///</summary>
         public static readonly MyStringId WorldSettings_ClientCanSave = MyStringId.GetOrCompute("WorldSettings_ClientCanSave");
-
-        ///<summary>
-        ///Downloading mods ... please wait.
-        ///</summary>
-        public static readonly MyStringId ProgressTextDownloadingMods = MyStringId.GetOrCompute("ProgressTextDownloadingMods");
 
         ///<summary>
         ///If the wheel is propelled.
@@ -6108,11 +3633,6 @@ namespace Sandbox.Game.Localization
         ///Steering
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Motor_Steering = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Steering");
-
-        ///<summary>
-        ///Client saving is disabled on this server
-        ///</summary>
-        public static readonly MyStringId NotificationClientCannotSave = MyStringId.GetOrCompute("NotificationClientCannotSave");
 
         ///<summary>
         ///Regulates wheel friction by changing pressure in the tire.
@@ -6143,26 +3663,6 @@ namespace Sandbox.Game.Localization
         ///Wheel could not be placed.
         ///</summary>
         public static readonly MyStringId NotificationWheelNotPlaced = MyStringId.GetOrCompute("NotificationWheelNotPlaced");
-
-        ///<summary>
-        ///Move mod down
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveDown = MyStringId.GetOrCompute("ToolTipScreenMods_MoveDown");
-
-        ///<summary>
-        ///Move mod up
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveUp = MyStringId.GetOrCompute("ToolTipScreenMods_MoveUp");
-
-        ///<summary>
-        ///Move mod to bottom
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveBottom = MyStringId.GetOrCompute("ToolTipScreenMods_MoveBottom");
-
-        ///<summary>
-        ///Move mod to top
-        ///</summary>
-        public static readonly MyStringId ToolTipScreenMods_MoveTop = MyStringId.GetOrCompute("ToolTipScreenMods_MoveTop");
 
         ///<summary>
         ///Your block (no faction)
@@ -6315,16 +3815,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Velocity = MyStringId.GetOrCompute("BlockPropertyTitle_Velocity");
 
         ///<summary>
-        ///You cannot create group with blocks you don't have access rights to.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextCannotCreateGroup = MyStringId.GetOrCompute("MessageBoxTextCannotCreateGroup");
-
-        ///<summary>
-        ///You cannot delete group with blocks you don't have access rights to.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextCannotDeleteGroup = MyStringId.GetOrCompute("MessageBoxTextCannotDeleteGroup");
-
-        ///<summary>
         ///Number of batteries in use:
         ///</summary>
         public static readonly MyStringId HudInfoNameNumberOfBatteries = MyStringId.GetOrCompute("HudInfoNameNumberOfBatteries");
@@ -6425,16 +3915,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_ThrustOverride = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustOverride");
 
         ///<summary>
-        ///You have been kicked from the faction.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextYouHaveBeenKickedFromFaction = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenKickedFromFaction");
-
-        ///<summary>
-        ///You have been accepted to faction.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextYouHaveBeenAcceptedToFaction = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenAcceptedToFaction");
-
-        ///<summary>
         ///Switch
         ///</summary>
         public static readonly MyStringId BlockAction_Switch = MyStringId.GetOrCompute("BlockAction_Switch");
@@ -6505,16 +3985,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_GyroYawOverride = MyStringId.GetOrCompute("BlockPropertyTitle_GyroYawOverride");
 
         ///<summary>
-        ///Previous toolbar
-        ///</summary>
-        public static readonly MyStringId ControlName_ToolbarDown = MyStringId.GetOrCompute("ControlName_ToolbarDown");
-
-        ///<summary>
-        ///Next toolbar
-        ///</summary>
-        public static readonly MyStringId ControlName_ToolbarUp = MyStringId.GetOrCompute("ControlName_ToolbarUp");
-
-        ///<summary>
         ///Current position: 
         ///</summary>
         public static readonly MyStringId BlockPropertiesText_PistonCurrentPosition = MyStringId.GetOrCompute("BlockPropertiesText_PistonCurrentPosition");
@@ -6538,51 +4008,6 @@ namespace Sandbox.Game.Localization
         ///Wave animation
         ///</summary>
         public static readonly MyStringId DisplayName_Animation_Wave = MyStringId.GetOrCompute("DisplayName_Animation_Wave");
-
-        ///<summary>
-        ///Downloading mods has failed! Please check mods in world settings.
-        ///</summary>
-        public static readonly MyStringId DialogTextDownloadModsFailed = MyStringId.GetOrCompute("DialogTextDownloadModsFailed");
-
-        ///<summary>
-        ///Checking for mod updates ... please wait.
-        ///</summary>
-        public static readonly MyStringId ProgressTextCheckingMods = MyStringId.GetOrCompute("ProgressTextCheckingMods");
-
-        ///<summary>
-        ///Debug draw
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_Caption = MyStringId.GetOrCompute("ScreenDebugOfficial_Caption");
-
-        ///<summary>
-        ///Enable debug draw
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_EnableDebugDraw = MyStringId.GetOrCompute("ScreenDebugOfficial_EnableDebugDraw");
-
-        ///<summary>
-        ///Loading error log:
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_ErrorLogCaption = MyStringId.GetOrCompute("ScreenDebugOfficial_ErrorLogCaption");
-
-        ///<summary>
-        ///Model dummies
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_ModelDummies = MyStringId.GetOrCompute("ScreenDebugOfficial_ModelDummies");
-
-        ///<summary>
-        ///Mount points
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_MountPoints = MyStringId.GetOrCompute("ScreenDebugOfficial_MountPoints");
-
-        ///<summary>
-        ///There were no loading errors
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_NoErrorText = MyStringId.GetOrCompute("ScreenDebugOfficial_NoErrorText");
-
-        ///<summary>
-        ///Physics primitives
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_PhysicsPrimitives = MyStringId.GetOrCompute("ScreenDebugOfficial_PhysicsPrimitives");
 
         ///<summary>
         ///Show ship name
@@ -6625,44 +4050,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId CustomShipName_SmallShip = MyStringId.GetOrCompute("CustomShipName_SmallShip");
 
         ///<summary>
-        ///Open in new window
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_OpenErrorLog = MyStringId.GetOrCompute("ScreenDebugOfficial_OpenErrorLog");
-
-        ///<summary>
-        ///Reload textures
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_ReloadTextures = MyStringId.GetOrCompute("ScreenDebugOfficial_ReloadTextures");
-
-        ///<summary>
         ///Direct access
         ///</summary>
         public static readonly MyStringId BroadcastStatus_PhysicallyConnected = MyStringId.GetOrCompute("BroadcastStatus_PhysicallyConnected");
-
-        ///<summary>
-        ///Local mods are not allowed in multiplayer. Use workshop mods instead.
-        ///</summary>
-        public static readonly MyStringId DialogTextLocalModsDisabledInMultiplayer = MyStringId.GetOrCompute("DialogTextLocalModsDisabledInMultiplayer");
-
-        ///<summary>
-        ///Local mod
-        ///</summary>
-        public static readonly MyStringId ScreenMods_LocalMod = MyStringId.GetOrCompute("ScreenMods_LocalMod");
-
-        ///<summary>
-        ///Could not retrieve mod details from Steam
-        ///</summary>
-        public static readonly MyStringId ScreenMods_MissingDetails = MyStringId.GetOrCompute("ScreenMods_MissingDetails");
-
-        ///<summary>
-        ///Missing local mod
-        ///</summary>
-        public static readonly MyStringId ScreenMods_MissingLocalMod = MyStringId.GetOrCompute("ScreenMods_MissingLocalMod");
-
-        ///<summary>
-        ///Workshop mod
-        ///</summary>
-        public static readonly MyStringId ScreenMods_WorkshopMod = MyStringId.GetOrCompute("ScreenMods_WorkshopMod");
 
         ///<summary>
         ///Unknown
@@ -6670,39 +4060,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockOwner_Unknown = MyStringId.GetOrCompute("BlockOwner_Unknown");
 
         ///<summary>
-        ///Reload models
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_ReloadModels = MyStringId.GetOrCompute("ScreenDebugOfficial_ReloadModels");
-
-        ///<summary>
-        ///Copy log to system clipboard
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_CopyErrorLogToClipboard = MyStringId.GetOrCompute("ScreenDebugOfficial_CopyErrorLogToClipboard");
-
-        ///<summary>
-        ///Warning: All ships will be removed in {0:F1} meters!
-        ///</summary>
-        public static readonly MyStringId NotificationLeavingWorld_Creative = MyStringId.GetOrCompute("NotificationLeavingWorld_Creative");
-
-        ///<summary>
-        ///Player model
-        ///</summary>
-        public static readonly MyStringId PlayerCharacterModel = MyStringId.GetOrCompute("PlayerCharacterModel");
-
-        ///<summary>
-        ///Mods
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_Mods = MyStringId.GetOrCompute("JoinGame_ColumnTitle_Mods");
-
-        ///<summary>
         ///Press {0} to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintPressToOpenButtonPanel");
-
-        ///<summary>
-        ///Press {0} to use {1}
-        ///</summary>
-        public static readonly MyStringId NotificationHintPressToUse = MyStringId.GetOrCompute("NotificationHintPressToUse");
 
         ///<summary>
         ///Radius of the gravity field
@@ -6755,64 +4115,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DefinitionError_BlockWithComputerNotTerminalBlock = MyStringId.GetOrCompute("DefinitionError_BlockWithComputerNotTerminalBlock");
 
         ///<summary>
-        ///Select server to show mod list
-        ///</summary>
-        public static readonly MyStringId JoinGame_SelectServerToShowModList = MyStringId.GetOrCompute("JoinGame_SelectServerToShowModList");
-
-        ///<summary>
         ///Button Panel
         ///</summary>
         public static readonly MyStringId DisplayName_Block_ButtonPanel = MyStringId.GetOrCompute("DisplayName_Block_ButtonPanel");
 
         ///<summary>
-        ///Search
-        ///</summary>
-        public static readonly MyStringId ScreenMods_SearchLabel = MyStringId.GetOrCompute("ScreenMods_SearchLabel");
-
-        ///<summary>
-        ///Could not get mod list from the server
-        ///</summary>
-        public static readonly MyStringId JoinGame_BadModsListResponse = MyStringId.GetOrCompute("JoinGame_BadModsListResponse");
-
-        ///<summary>
         ///Space Suit
         ///</summary>
         public static readonly MyStringId SpawnInSpaceSuit = MyStringId.GetOrCompute("SpawnInSpaceSuit");
-
-        ///<summary>
-        ///Hud Warnings
-        ///</summary>
-        public static readonly MyStringId HudWarnings = MyStringId.GetOrCompute("HudWarnings");
-
-        ///<summary>
-        ///Identity {0} was added
-        ///</summary>
-        public static readonly MyStringId NPCIdentityAdded = MyStringId.GetOrCompute("NPCIdentityAdded");
-
-        ///<summary>
-        ///This world can not be loaded. It has been created in newer version of the game.
-        ///</summary>
-        public static readonly MyStringId DialogTextIncompatibleWorldVersion = MyStringId.GetOrCompute("DialogTextIncompatibleWorldVersion");
-
-        ///<summary>
-        ///This workshop item does not seem to belong to you. Make sure you are logged in with the right account.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextPublishFailed_AccessDenied = MyStringId.GetOrCompute("MessageBoxTextPublishFailed_AccessDenied");
-
-        ///<summary>
-        ///Export clipboard to file
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_SavePrefab = MyStringId.GetOrCompute("ScreenDebugOfficial_SavePrefab");
-
-        ///<summary>
-        ///Save ships from clipboard to file
-        ///</summary>
-        public static readonly MyStringId ToolTipSaveShip = MyStringId.GetOrCompute("ToolTipSaveShip");
-
-        ///<summary>
-        ///Add New Enemy Identity
-        ///</summary>
-        public static readonly MyStringId AddNewNPC = MyStringId.GetOrCompute("AddNewNPC");
 
         ///<summary>
         ///Components
@@ -6830,41 +4140,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_BlueprintClass_SmallBlocks = MyStringId.GetOrCompute("DisplayName_BlueprintClass_SmallBlocks");
 
         ///<summary>
-        ///Tools
-        ///</summary>
-        public static readonly MyStringId DisplayName_BlueprintClass_Tools = MyStringId.GetOrCompute("DisplayName_BlueprintClass_Tools");
-
-        ///<summary>
-        ///Select tags
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionWorkshopTags = MyStringId.GetOrCompute("ScreenCaptionWorkshopTags");
-
-        ///<summary>
-        ///Animation
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Animation = MyStringId.GetOrCompute("WorkshopTag_Animation");
-
-        ///<summary>
-        ///Block
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Block = MyStringId.GetOrCompute("WorkshopTag_Block");
-
-        ///<summary>
-        ///Character
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Character = MyStringId.GetOrCompute("WorkshopTag_Character");
-
-        ///<summary>
-        ///Other
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Other = MyStringId.GetOrCompute("WorkshopTag_Other");
-
-        ///<summary>
-        ///Skybox
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Skybox = MyStringId.GetOrCompute("WorkshopTag_Skybox");
-
-        ///<summary>
         ///View
         ///</summary>
         public static readonly MyStringId BlockActionTitle_View = MyStringId.GetOrCompute("BlockActionTitle_View");
@@ -6873,11 +4148,6 @@ namespace Sandbox.Game.Localization
         ///Camera
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Camera = MyStringId.GetOrCompute("DisplayName_Block_Camera");
-
-        ///<summary>
-        ///Could not update because you are not the owner of this mod.
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextPublishFailed_OwnerMismatchMod = MyStringId.GetOrCompute("MessageBoxTextPublishFailed_OwnerMismatchMod");
 
         ///<summary>
         ///Error loading original game content, cannot load file: {0}  Original game content has been probably modified, revert any modification and try again. Best way to do it is to delete folder 'SpaceEngineers\Content\Data' and then select in Steam 'Verify local game cache'.  Reinstalling the game is not enough, because Steam does not delete unknown files!
@@ -6890,11 +4160,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyDescription_BroadcastUsingAntennas = MyStringId.GetOrCompute("BlockPropertyDescription_BroadcastUsingAntennas");
 
         ///<summary>
-        ///Some mods were not loaded because of errors. See log file for details or run the game in single player to access the mod debug screen.
-        ///</summary>
-        public static readonly MyStringId MessageBoxErrorModLoadingFailure = MyStringId.GetOrCompute("MessageBoxErrorModLoadingFailure");
-
-        ///<summary>
         ///Any item accepted by {0}
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_GenericProductionBlockInput = MyStringId.GetOrCompute("ToolTipItemFilter_GenericProductionBlockInput");
@@ -6903,16 +4168,6 @@ namespace Sandbox.Game.Localization
         ///Any item produced by {0}
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_GenericProductionBlockOutput = MyStringId.GetOrCompute("ToolTipItemFilter_GenericProductionBlockOutput");
-
-        ///<summary>
-        ///Render interpolation
-        ///</summary>
-        public static readonly MyStringId RenderIterpolation = MyStringId.GetOrCompute("RenderIterpolation");
-
-        ///<summary>
-        ///Reduces stuttering and makes game smoother.
-        ///</summary>
-        public static readonly MyStringId ToolTipVideoOptionRenderIterpolation = MyStringId.GetOrCompute("ToolTipVideoOptionRenderIterpolation");
 
         ///<summary>
         ///Production
@@ -6930,11 +4185,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintPressToExitCamera = MyStringId.GetOrCompute("NotificationHintPressToExitCamera");
 
         ///<summary>
-        ///Modpack
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_ModPack = MyStringId.GetOrCompute("WorkshopTag_ModPack");
-
-        ///<summary>
         ///Arc furnace
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Arc_Furnace = MyStringId.GetOrCompute("DisplayName_Block_Arc_Furnace");
@@ -6945,7 +4195,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenDebugSpawnMenu_Caption = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_Caption");
 
         ///<summary>
-        ///Spawn Asteroid
+        ///Spawn Asteroid/Planet
         ///</summary>
         public static readonly MyStringId ScreenDebugSpawnMenu_SpawnAsteroid = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_SpawnAsteroid");
 
@@ -7120,11 +4370,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_SensorDetectStations = MyStringId.GetOrCompute("BlockPropertyTitle_SensorDetectStations");
 
         ///<summary>
-        ///{0}
-        ///</summary>
-        public static readonly MyStringId CustomText = MyStringId.GetOrCompute("CustomText");
-
-        ///<summary>
         ///Show gravity range
         ///</summary>
         public static readonly MyStringId TerminalTab_Info_ShowGravityGizmo = MyStringId.GetOrCompute("TerminalTab_Info_ShowGravityGizmo");
@@ -7178,16 +4423,6 @@ namespace Sandbox.Game.Localization
         ///Time to trigger: 
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_TimerToTrigger = MyStringId.GetOrCompute("BlockPropertyTitle_TimerToTrigger");
-
-        ///<summary>
-        ///Tabs of tools and objects:
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderBlockCategories = MyStringId.GetOrCompute("ScreenCubeBuilderBlockCategories");
-
-        ///<summary>
-        ///Search:
-        ///</summary>
-        public static readonly MyStringId ScreenCubeBuilderBlockSearch = MyStringId.GetOrCompute("ScreenCubeBuilderBlockSearch");
 
         ///<summary>
         ///Reloadable Rocket Launcher
@@ -7365,11 +4600,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_RespawnShip_x50 = MyStringId.GetOrCompute("WorldSettings_RespawnShip_x50");
 
         ///<summary>
-        ///Move pasted object
-        ///</summary>
-        public static readonly MyStringId ControlDescCopyPasteMove = MyStringId.GetOrCompute("ControlDescCopyPasteMove");
-
-        ///<summary>
         ///Cooldowns disabled
         ///</summary>
         public static readonly MyStringId WorldSettings_RespawnShip_CooldownsDisabled = MyStringId.GetOrCompute("WorldSettings_RespawnShip_CooldownsDisabled");
@@ -7388,31 +4618,6 @@ namespace Sandbox.Game.Localization
         ///Cockpit Blocks
         ///</summary>
         public static readonly MyStringId DisplayName_Category_Cockpit = MyStringId.GetOrCompute("DisplayName_Category_Cockpit");
-
-        ///<summary>
-        ///Script
-        ///</summary>
-        public static readonly MyStringId WorkshopTag_Script = MyStringId.GetOrCompute("WorkshopTag_Script");
-
-        ///<summary>
-        ///Some blocks in the pasted grid are not available in this world
-        ///</summary>
-        public static readonly MyStringId NotificationCopyPasteBlockNotAvailable = MyStringId.GetOrCompute("NotificationCopyPasteBlockNotAvailable");
-
-        ///<summary>
-        ///Converting models. Please wait.
-        ///</summary>
-        public static readonly MyStringId ConvertingObjs = MyStringId.GetOrCompute("ConvertingObjs");
-
-        ///<summary>
-        ///All models converted.
-        ///</summary>
-        public static readonly MyStringId ConvertToObjDone = MyStringId.GetOrCompute("ConvertToObjDone");
-
-        ///<summary>
-        ///Exporting model. Please wait.
-        ///</summary>
-        public static readonly MyStringId ExportingToObj = MyStringId.GetOrCompute("ExportingToObj");
 
         ///<summary>
         ///Power Blocks
@@ -7440,11 +4645,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenDebugSpawnMenu_SpawnObject = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_SpawnObject");
 
         ///<summary>
-        ///Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextDoYouWantToPasteGridWithMissingBlocks = MyStringId.GetOrCompute("MessageBoxTextDoYouWantToPasteGridWithMissingBlocks");
-
-        ///<summary>
         ///Asteroids
         ///</summary>
         public static readonly MyStringId ScreenDebugSpawnMenu_Asteroids = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_Asteroids");
@@ -7453,11 +4653,6 @@ namespace Sandbox.Game.Localization
         ///Items
         ///</summary>
         public static readonly MyStringId ScreenDebugSpawnMenu_Items = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_Items");
-
-        ///<summary>
-        ///Item is not available in this world
-        ///</summary>
-        public static readonly MyStringId NotificationCopyPasteFloatingObjectNotAvailable = MyStringId.GetOrCompute("NotificationCopyPasteFloatingObjectNotAvailable");
 
         ///<summary>
         ///Asteroid
@@ -7483,11 +4678,6 @@ namespace Sandbox.Game.Localization
         ///Cooperative Mode
         ///</summary>
         public static readonly MyStringId Assembler_SlaveMode = MyStringId.GetOrCompute("Assembler_SlaveMode");
-
-        ///<summary>
-        ///Help Others
-        ///</summary>
-        public static readonly MyStringId ShipWelder_HelpOthers = MyStringId.GetOrCompute("ShipWelder_HelpOthers");
 
         ///<summary>
         ///Ammo Assembler
@@ -7635,16 +4825,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenDebugSpawnMenu_InvalidAmount = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_InvalidAmount");
 
         ///<summary>
-        ///Placing objects to world. Please wait.
-        ///</summary>
-        public static readonly MyStringId PlacingObjectsToScene = MyStringId.GetOrCompute("PlacingObjectsToScene");
-
-        ///<summary>
-        ///Systems 3
-        ///</summary>
-        public static readonly MyStringId ControlTypeSystems3 = MyStringId.GetOrCompute("ControlTypeSystems3");
-
-        ///<summary>
         ///Enable or disable cooperative mode
         ///</summary>
         public static readonly MyStringId ToolTipTerminalProduction_SlaveMode = MyStringId.GetOrCompute("ToolTipTerminalProduction_SlaveMode");
@@ -7675,11 +4855,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenDebugSpawnMenu_SelectAsteroidType = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_SelectAsteroidType");
 
         ///<summary>
-        ///Switched to weapon: {0}
-        ///</summary>
-        public static readonly MyStringId NotificationSwitchedToWeapon = MyStringId.GetOrCompute("NotificationSwitchedToWeapon");
-
-        ///<summary>
         ///Any ammo magazine accepted by {0}
         ///</summary>
         public static readonly MyStringId ToolTipItemFilter_AmmoMagazineInput = MyStringId.GetOrCompute("ToolTipItemFilter_AmmoMagazineInput");
@@ -7693,36 +4868,6 @@ namespace Sandbox.Game.Localization
         ///Attach
         ///</summary>
         public static readonly MyStringId BlockActionTitle_Attach = MyStringId.GetOrCompute("BlockActionTitle_Attach");
-
-        ///<summary>
-        ///Backward
-        ///</summary>
-        public static readonly MyStringId Thrust_Back = MyStringId.GetOrCompute("Thrust_Back");
-
-        ///<summary>
-        ///Down
-        ///</summary>
-        public static readonly MyStringId Thrust_Down = MyStringId.GetOrCompute("Thrust_Down");
-
-        ///<summary>
-        ///Forward
-        ///</summary>
-        public static readonly MyStringId Thrust_Forward = MyStringId.GetOrCompute("Thrust_Forward");
-
-        ///<summary>
-        ///Left
-        ///</summary>
-        public static readonly MyStringId Thrust_Left = MyStringId.GetOrCompute("Thrust_Left");
-
-        ///<summary>
-        ///Right
-        ///</summary>
-        public static readonly MyStringId Thrust_Right = MyStringId.GetOrCompute("Thrust_Right");
-
-        ///<summary>
-        ///Up
-        ///</summary>
-        public static readonly MyStringId Thrust_Up = MyStringId.GetOrCompute("Thrust_Up");
 
         ///<summary>
         ///Someone else is using this ship!
@@ -7785,19 +4930,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationProjectorMultipleGrids = MyStringId.GetOrCompute("NotificationProjectorMultipleGrids");
 
         ///<summary>
-        ///Select
-        ///</summary>
-        public static readonly MyStringId SelectBlueprint = MyStringId.GetOrCompute("SelectBlueprint");
-
-        ///<summary>
         ///Show grid pivot
         ///</summary>
         public static readonly MyStringId TerminalTab_Info_PivotBtn = MyStringId.GetOrCompute("TerminalTab_Info_PivotBtn");
-
-        ///<summary>
-        ///Facepalm
-        ///</summary>
-        public static readonly MyStringId DisplayName_Animation_Facepalm = MyStringId.GetOrCompute("DisplayName_Animation_Facepalm");
 
         ///<summary>
         ///Thumb-Up
@@ -7830,11 +4965,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_SteelCatwalkTwoSides = MyStringId.GetOrCompute("DisplayName_Block_SteelCatwalkTwoSides");
 
         ///<summary>
-        ///Available Blueprints
-        ///</summary>
-        public static readonly MyStringId AvailableBlueprints = MyStringId.GetOrCompute("AvailableBlueprints");
-
-        ///<summary>
         ///Keep Projection
         ///</summary>
         public static readonly MyStringId KeepProjectionToggle = MyStringId.GetOrCompute("KeepProjectionToggle");
@@ -7863,6 +4993,21 @@ namespace Sandbox.Game.Localization
         ///Space Ball
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SpaceBall = MyStringId.GetOrCompute("DisplayName_Block_SpaceBall");
+
+        ///<summary>
+        ///Create New Small Ship
+        ///</summary>
+        public static readonly MyStringId DisplayName_GridCreateTool_CreateSmallShip = MyStringId.GetOrCompute("DisplayName_GridCreateTool_CreateSmallShip");
+
+        ///<summary>
+        ///Create New Large Ship
+        ///</summary>
+        public static readonly MyStringId DisplayName_GridCreateTool_CreateLargeShip = MyStringId.GetOrCompute("DisplayName_GridCreateTool_CreateLargeShip");
+
+        ///<summary>
+        ///Create New Station
+        ///</summary>
+        public static readonly MyStringId DisplayName_GridCreateTool_CreateStation = MyStringId.GetOrCompute("DisplayName_GridCreateTool_CreateStation");
 
         ///<summary>
         ///Voxel Hands
@@ -7915,26 +5060,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_VoxelHand_Sphere = MyStringId.GetOrCompute("DisplayName_VoxelHand_Sphere");
 
         ///<summary>
-        ///Radius
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Sphere_Radius = MyStringId.GetOrCompute("VoxelHandProperty_Sphere_Radius");
-
-        ///<summary>
-        ///Width
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Box_Width = MyStringId.GetOrCompute("VoxelHandProperty_Box_Width");
-
-        ///<summary>
-        ///Depth
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Box_Depth = MyStringId.GetOrCompute("VoxelHandProperty_Box_Depth");
-
-        ///<summary>
-        ///Height
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Box_Height = MyStringId.GetOrCompute("VoxelHandProperty_Box_Height");
-
-        ///<summary>
         ///When set, the game area is limited to a cube with a side length set to the chosen size. All objects that leave the game area will be removed from the game. Characters leaving the game area will be killed.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsLimitWorldSize = MyStringId.GetOrCompute("ToolTipWorldSettingsLimitWorldSize");
@@ -7970,11 +5095,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_WorldSizeCustom = MyStringId.GetOrCompute("WorldSettings_WorldSizeCustom");
 
         ///<summary>
-        ///Distance
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandDistance = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandDistance");
-
-        ///<summary>
         ///Loop time
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_SoundBlockLoopTime = MyStringId.GetOrCompute("BlockPropertyTitle_SoundBlockLoopTime");
@@ -8000,21 +5120,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertiesText_LoopTimer = MyStringId.GetOrCompute("BlockPropertiesText_LoopTimer");
 
         ///<summary>
-        ///Brush Settings
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandSettings = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandSettings");
-
-        ///<summary>
-        ///Transparency
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandTransparency = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandTransparency");
-
-        ///<summary>
-        ///Shape Settings
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_ShapeSettings = MyStringId.GetOrCompute("VoxelHandSettingScreen_ShapeSettings");
-
-        ///<summary>
         ///Terrain auto level
         ///</summary>
         public static readonly MyStringId DisplayName_VoxelHand_AutoLevel = MyStringId.GetOrCompute("DisplayName_VoxelHand_AutoLevel");
@@ -8023,16 +5128,6 @@ namespace Sandbox.Game.Localization
         ///Capsule
         ///</summary>
         public static readonly MyStringId DisplayName_VoxelHand_Capsule = MyStringId.GetOrCompute("DisplayName_VoxelHand_Capsule");
-
-        ///<summary>
-        ///Length
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Capsule_Length = MyStringId.GetOrCompute("VoxelHandProperty_Capsule_Length");
-
-        ///<summary>
-        ///Radius
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_Capsule_Radius = MyStringId.GetOrCompute("VoxelHandProperty_Capsule_Radius");
 
         ///<summary>
         ///Alert 1
@@ -8090,49 +5185,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalControlPanel_RunCode = MyStringId.GetOrCompute("TerminalControlPanel_RunCode");
 
         ///<summary>
-        ///Model contains modded blocks. Only models with default blocks can be exported.
-        ///</summary>
-        public static readonly MyStringId ExportToObjModded = MyStringId.GetOrCompute("ExportToObjModded");
-
-        ///<summary>
         ///Ramp
         ///</summary>
         public static readonly MyStringId DisplayName_VoxelHand_Ramp = MyStringId.GetOrCompute("DisplayName_VoxelHand_Ramp");
-
-        ///<summary>
-        ///Snap to voxel grid
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandSnapToVoxel = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandSnapToVoxel");
-
-        ///<summary>
-        ///Area
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_AutoLevel_Area = MyStringId.GetOrCompute("VoxelHandProperty_AutoLevel_Area");
-
-        ///<summary>
-        ///Choose axis
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_AutoLevel_Axis = MyStringId.GetOrCompute("VoxelHandProperty_AutoLevel_Axis");
-
-        ///<summary>
-        ///X axis
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_AutoLevel_AxisX = MyStringId.GetOrCompute("VoxelHandProperty_AutoLevel_AxisX");
-
-        ///<summary>
-        ///Y axis
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_AutoLevel_AxisY = MyStringId.GetOrCompute("VoxelHandProperty_AutoLevel_AxisY");
-
-        ///<summary>
-        ///Z axis
-        ///</summary>
-        public static readonly MyStringId VoxelHandProperty_AutoLevel_AxisZ = MyStringId.GetOrCompute("VoxelHandProperty_AutoLevel_AxisZ");
-
-        ///<summary>
-        ///Material
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandMaterial = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandMaterial");
 
         ///<summary>
         ///Infinite: High density
@@ -8405,21 +5460,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ProgrammableBlock_Exception_Ownershipchanged = MyStringId.GetOrCompute("ProgrammableBlock_Exception_Ownershipchanged");
 
         ///<summary>
-        ///New message in {0} faction chat
-        ///</summary>
-        public static readonly MyStringId NotificationNewFactionChatMessage = MyStringId.GetOrCompute("NotificationNewFactionChatMessage");
-
-        ///<summary>
-        ///New global chat message
-        ///</summary>
-        public static readonly MyStringId NotificationNewGlobalChatMessage = MyStringId.GetOrCompute("NotificationNewGlobalChatMessage");
-
-        ///<summary>
-        ///New message from {0}
-        ///</summary>
-        public static readonly MyStringId NotificationNewPlayerChatMessage = MyStringId.GetOrCompute("NotificationNewPlayerChatMessage");
-
-        ///<summary>
         ///-Broadcast-
         ///</summary>
         public static readonly MyStringId TerminalTab_Chat_GlobalChat = MyStringId.GetOrCompute("TerminalTab_Chat_GlobalChat");
@@ -8428,16 +5468,6 @@ namespace Sandbox.Game.Localization
         ///Comms
         ///</summary>
         public static readonly MyStringId TerminalTab_Chat = MyStringId.GetOrCompute("TerminalTab_Chat");
-
-        ///<summary>
-        ///Description is too long (max 8000 characters allowed)
-        ///</summary>
-        public static readonly MyStringId ErrorDescriptionTooLong = MyStringId.GetOrCompute("ErrorDescriptionTooLong");
-
-        ///<summary>
-        ///Description
-        ///</summary>
-        public static readonly MyStringId Description = MyStringId.GetOrCompute("Description");
 
         ///<summary>
         ///View distance
@@ -8550,11 +5580,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TooltipScreenMods_Category_Skybox = MyStringId.GetOrCompute("TooltipScreenMods_Category_Skybox");
 
         ///<summary>
-        ///Select categories
-        ///</summary>
-        public static readonly MyStringId TooltipScreenMods_SelectCategories = MyStringId.GetOrCompute("TooltipScreenMods_SelectCategories");
-
-        ///<summary>
         ///Description
         ///</summary>
         public static readonly MyStringId TerminalTab_GPS_Description = MyStringId.GetOrCompute("TerminalTab_GPS_Description");
@@ -8625,11 +5650,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_GPS_SaveWarning = MyStringId.GetOrCompute("TerminalTab_GPS_SaveWarning");
 
         ///<summary>
-        ///View distance: {0}m
-        ///</summary>
-        public static readonly MyStringId JoinGame_GameTypeToolTip_ViewDistance = MyStringId.GetOrCompute("JoinGame_GameTypeToolTip_ViewDistance");
-
-        ///<summary>
         ///Only faction members can use faction-to-faction communications
         ///</summary>
         public static readonly MyStringId TerminalTab_Chat_NoFaction = MyStringId.GetOrCompute("TerminalTab_Chat_NoFaction");
@@ -8675,11 +5695,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_GPS_NewFromCurrent_Name = MyStringId.GetOrCompute("TerminalTab_GPS_NewFromCurrent_Name");
 
         ///<summary>
-        ///Project to voxel
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandProjectToVoxel = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandProjectToVoxel");
-
-        ///<summary>
         ///Edit private text
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_TextPanelShowTextPanel = MyStringId.GetOrCompute("BlockPropertyTitle_TextPanelShowTextPanel");
@@ -8708,21 +5723,6 @@ namespace Sandbox.Game.Localization
         ///Shoot once
         ///</summary>
         public static readonly MyStringId Terminal_ShootOnce = MyStringId.GetOrCompute("Terminal_ShootOnce");
-
-        ///<summary>
-        ///Next voxel material
-        ///</summary>
-        public static readonly MyStringId ControlDescNextVoxelMaterial = MyStringId.GetOrCompute("ControlDescNextVoxelMaterial");
-
-        ///<summary>
-        ///Open voxel hand settings
-        ///</summary>
-        public static readonly MyStringId ControlDescOpenVoxelHandSettings = MyStringId.GetOrCompute("ControlDescOpenVoxelHandSettings");
-
-        ///<summary>
-        ///Previous voxel material
-        ///</summary>
-        public static readonly MyStringId ControlDescPreviousVoxelMaterial = MyStringId.GetOrCompute("ControlDescPreviousVoxelMaterial");
 
         ///<summary>
         ///Only owner
@@ -8755,21 +5755,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_TextPanelAccessType = MyStringId.GetOrCompute("BlockPropertyTitle_TextPanelAccessType");
 
         ///<summary>
-        ///Are you sure you want to replace this blueprint with clipboard?
-        ///</summary>
-        public static readonly MyStringId BlueprintsMessageBoxDesc_Replace = MyStringId.GetOrCompute("BlueprintsMessageBoxDesc_Replace");
-
-        ///<summary>
-        ///Replace
-        ///</summary>
-        public static readonly MyStringId BlueprintsMessageBoxTitle_Replace = MyStringId.GetOrCompute("BlueprintsMessageBoxTitle_Replace");
-
-        ///<summary>
-        ///Text panel is read-only
-        ///</summary>
-        public static readonly MyStringId NotificationTextPanelReadOnly = MyStringId.GetOrCompute("NotificationTextPanelReadOnly");
-
-        ///<summary>
         ///Generated Blocks
         ///</summary>
         public static readonly MyStringId DisplayName_Category_GeneratedBlocks = MyStringId.GetOrCompute("DisplayName_Category_GeneratedBlocks");
@@ -8800,24 +5785,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableToolShake = MyStringId.GetOrCompute("WorldSettings_EnableToolShake");
 
         ///<summary>
-        ///Text is too long. Do you want to truncate it?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextTooLongText = MyStringId.GetOrCompute("MessageBoxTextTooLongText");
-
-        ///<summary>
-        ///Export model
-        ///</summary>
-        public static readonly MyStringId ControlDescExportModel = MyStringId.GetOrCompute("ControlDescExportModel");
-
-        ///<summary>
         ///Text is too long. It won't be saved.
         ///</summary>
         public static readonly MyStringId ProgrammableBlock_Editor_TextTooLong = MyStringId.GetOrCompute("ProgrammableBlock_Editor_TextTooLong");
-
-        ///<summary>
-        ///Show bounding box
-        ///</summary>
-        public static readonly MyStringId VoxelHandSettingScreen_HandShowGizmos = MyStringId.GetOrCompute("VoxelHandSettingScreen_HandShowGizmos");
 
         ///<summary>
         ///Console
@@ -9035,26 +6005,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_LightRoundArmorSlope = MyStringId.GetOrCompute("DisplayName_Block_LightRoundArmorSlope");
 
         ///<summary>
-        ///This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running. Do you want to continue?
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextOpenUrlOverlayNotEnabled = MyStringId.GetOrCompute("MessageBoxTextOpenUrlOverlayNotEnabled");
-
-        ///<summary>
-        ///Press {0} to rotate the block
-        ///</summary>
-        public static readonly MyStringId NotificationRotationFormatCombined = MyStringId.GetOrCompute("NotificationRotationFormatCombined");
-
-        ///<summary>
-        ///Press {0} or {1} to toggle compound building
-        ///</summary>
-        public static readonly MyStringId NotificationCompoundBuildingFormat = MyStringId.GetOrCompute("NotificationCompoundBuildingFormat");
-
-        ///<summary>
-        ///Press {0} to toggle dynamic building
-        ///</summary>
-        public static readonly MyStringId NotificationSwitchBuildingModeFormat = MyStringId.GetOrCompute("NotificationSwitchBuildingModeFormat");
-
-        ///<summary>
         ///Heavy Armor Round Corner
         ///</summary>
         public static readonly MyStringId DisplayName_Block_HeavyRoundArmorCorner = MyStringId.GetOrCompute("DisplayName_Block_HeavyRoundArmorCorner");
@@ -9068,11 +6018,6 @@ namespace Sandbox.Game.Localization
         ///Heavy Armor Round Slope
         ///</summary>
         public static readonly MyStringId DisplayName_Block_HeavyRoundArmorSlope = MyStringId.GetOrCompute("DisplayName_Block_HeavyRoundArmorSlope");
-
-        ///<summary>
-        ///Switch walk
-        ///</summary>
-        public static readonly MyStringId ControlName_SwitchWalk = MyStringId.GetOrCompute("ControlName_SwitchWalk");
 
         ///<summary>
         ///Connected to 
@@ -9098,31 +6043,6 @@ namespace Sandbox.Game.Localization
         ///Searching for a laser at GPS coordinates 
         ///</summary>
         public static readonly MyStringId LaserAntennaModeSearchGPS = MyStringId.GetOrCompute("LaserAntennaModeSearchGPS");
-
-        ///<summary>
-        ///The list of favorite servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_Favorites = MyStringId.GetOrCompute("JoinGame_TabTooltip_Favorites");
-
-        ///<summary>
-        ///Favorites
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_Favorites = MyStringId.GetOrCompute("JoinGame_TabTitle_Favorites");
-
-        ///<summary>
-        ///History
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTitle_History = MyStringId.GetOrCompute("JoinGame_TabTitle_History");
-
-        ///<summary>
-        ///The list of friends servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_Friends = MyStringId.GetOrCompute("JoinGame_TabTooltip_Friends");
-
-        ///<summary>
-        ///The list of previously visited servers
-        ///</summary>
-        public static readonly MyStringId JoinGame_TabTooltip_History = MyStringId.GetOrCompute("JoinGame_TabTooltip_History");
 
         ///<summary>
         ///Light Armor Corner 2x1x1
@@ -9183,16 +6103,6 @@ namespace Sandbox.Game.Localization
         ///Light Armor Slope 3x1x1 Smooth
         ///</summary>
         public static readonly MyStringId DisplayName_Block_LightArmorSlope3Smooth = MyStringId.GetOrCompute("DisplayName_Block_LightArmorSlope3Smooth");
-
-        ///<summary>
-        ///Add server to favorites
-        ///</summary>
-        public static readonly MyStringId JoinGame_Favorites_Add = MyStringId.GetOrCompute("JoinGame_Favorites_Add");
-
-        ///<summary>
-        ///Remove server from favorites
-        ///</summary>
-        public static readonly MyStringId JoinGame_Favorites_Remove = MyStringId.GetOrCompute("JoinGame_Favorites_Remove");
 
         ///<summary>
         ///Light Armor Corner 2x1x1 Base
@@ -9345,21 +6255,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_HeavyArmorSlope2TipSmooth = MyStringId.GetOrCompute("DisplayName_Block_HeavyArmorSlope2TipSmooth");
 
         ///<summary>
-        ///Open voxel hand settings
-        ///</summary>
-        public static readonly MyStringId ControlName_VoxelHandSettings = MyStringId.GetOrCompute("ControlName_VoxelHandSettings");
-
-        ///<summary>
-        ///Press {0} to open voxel hand settings
-        ///</summary>
-        public static readonly MyStringId NotificationVoxelHandHintFormat = MyStringId.GetOrCompute("NotificationVoxelHandHintFormat");
-
-        ///<summary>
-        ///Press {0} or {1} to change voxel material
-        ///</summary>
-        public static readonly MyStringId NotificationVoxelMaterialFormat = MyStringId.GetOrCompute("NotificationVoxelMaterialFormat");
-
-        ///<summary>
         ///These receivers are in radio range and can report their position. Their current state and target is in parenthesis: idle   laser is idling >> laser is rotating towards other receiver or GPS coordinates ?>  searching for other laser at requested GPS coordinates ~> contacting other side of link (this includes waiting for other laser        to turn its face to me or futile effort to contact receiver        which is turned off or is not there any more) => connection is established To connect to lasers not listed here you can connect to coordinates.
         ///</summary>
         public static readonly MyStringId LaserAntennaReceiversListHelp = MyStringId.GetOrCompute("LaserAntennaReceiversListHelp");
@@ -9378,26 +6273,6 @@ namespace Sandbox.Game.Localization
         ///Copy target's current or last known position into clipboard
         ///</summary>
         public static readonly MyStringId LaserAntennaCopyTargetCoordsHelp = MyStringId.GetOrCompute("LaserAntennaCopyTargetCoordsHelp");
-
-        ///<summary>
-        ///Enable bots debugging
-        ///</summary>
-        public static readonly MyStringId BotSettingsScreen_EnableBotsDebugging = MyStringId.GetOrCompute("BotSettingsScreen_EnableBotsDebugging");
-
-        ///<summary>
-        ///Next bot
-        ///</summary>
-        public static readonly MyStringId BotSettingsScreen_NextBot = MyStringId.GetOrCompute("BotSettingsScreen_NextBot");
-
-        ///<summary>
-        ///Previous bot
-        ///</summary>
-        public static readonly MyStringId BotSettingsScreen_PreviousBot = MyStringId.GetOrCompute("BotSettingsScreen_PreviousBot");
-
-        ///<summary>
-        ///Bots settings
-        ///</summary>
-        public static readonly MyStringId BotSettingsScreen_Title = MyStringId.GetOrCompute("BotSettingsScreen_Title");
 
         ///<summary>
         ///Blacklist
@@ -9458,11 +6333,6 @@ namespace Sandbox.Game.Localization
         ///Remove
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ConveyorSorterRemove = MyStringId.GetOrCompute("BlockPropertyTitle_ConveyorSorterRemove");
-
-        ///<summary>
-        ///Bots settings
-        ///</summary>
-        public static readonly MyStringId ScreenDebugOfficial_BotSettings = MyStringId.GetOrCompute("ScreenDebugOfficial_BotSettings");
 
         ///<summary>
         ///Small Conveyor Sorter
@@ -9720,6 +6590,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenCaptionScenario = MyStringId.GetOrCompute("ScreenCaptionScenario");
 
         ///<summary>
+        ///AI School Scenario
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionAISchool = MyStringId.GetOrCompute("ScreenCaptionAISchool");
+
+        ///<summary>
         ///Warning: Suit energy is critically low.
         ///</summary>
         public static readonly MyStringId NotificationSuitEnergyCriticalNoDamage = MyStringId.GetOrCompute("NotificationSuitEnergyCriticalNoDamage");
@@ -9738,11 +6613,6 @@ namespace Sandbox.Game.Localization
         ///Cannot remove helmet on this suit.
         ///</summary>
         public static readonly MyStringId NotificationNoHelmetVariation = MyStringId.GetOrCompute("NotificationNoHelmetVariation");
-
-        ///<summary>
-        ///Report a Bug
-        ///</summary>
-        public static readonly MyStringId ReportBug = MyStringId.GetOrCompute("ReportBug");
 
         ///<summary>
         ///Helmet
@@ -9810,21 +6680,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_Enable3rdPersonCamera = MyStringId.GetOrCompute("WorldSettings_Enable3rdPersonCamera");
 
         ///<summary>
-        ///Next toolbar item
-        ///</summary>
-        public static readonly MyStringId ControlName_ToolbarNextItem = MyStringId.GetOrCompute("ControlName_ToolbarNextItem");
-
-        ///<summary>
-        ///Previous toolbar item
-        ///</summary>
-        public static readonly MyStringId ControlName_ToolbarPreviousItem = MyStringId.GetOrCompute("ControlName_ToolbarPreviousItem");
-
-        ///<summary>
-        ///Tools / Weapons 2
-        ///</summary>
-        public static readonly MyStringId ControlTypeToolsOrWeapons2 = MyStringId.GetOrCompute("ControlTypeToolsOrWeapons2");
-
-        ///<summary>
         ///Oxygen Output: 
         ///</summary>
         public static readonly MyStringId BlockPropertiesText_OxygenOutput = MyStringId.GetOrCompute("BlockPropertiesText_OxygenOutput");
@@ -9838,16 +6693,6 @@ namespace Sandbox.Game.Localization
         ///Random encounters
         ///</summary>
         public static readonly MyStringId WorldSettings_Encounters = MyStringId.GetOrCompute("WorldSettings_Encounters");
-
-        ///<summary>
-        ///Build mode
-        ///</summary>
-        public static readonly MyStringId ControlName_BuildMode = MyStringId.GetOrCompute("ControlName_BuildMode");
-
-        ///<summary>
-        ///Control menu
-        ///</summary>
-        public static readonly MyStringId ScreenControlMenu_Title = MyStringId.GetOrCompute("ScreenControlMenu_Title");
 
         ///<summary>
         ///Show distance for enemy antennas
@@ -9870,11 +6715,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenButtonBattle = MyStringId.GetOrCompute("ScreenButtonBattle");
 
         ///<summary>
-        ///Open control menu
-        ///</summary>
-        public static readonly MyStringId ControlName_ControlMenu = MyStringId.GetOrCompute("ControlName_ControlMenu");
-
-        ///<summary>
         ///Cryo Chamber
         ///</summary>
         public static readonly MyStringId DisplayName_Block_CryoChamber = MyStringId.GetOrCompute("DisplayName_Block_CryoChamber");
@@ -9888,31 +6728,6 @@ namespace Sandbox.Game.Localization
         ///Show terminal
         ///</summary>
         public static readonly MyStringId ControlMenuItemLabel_Terminal = MyStringId.GetOrCompute("ControlMenuItemLabel_Terminal");
-
-        ///<summary>
-        ///Off
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemValue_Off = MyStringId.GetOrCompute("ControlMenuItemValue_Off");
-
-        ///<summary>
-        ///On
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemValue_On = MyStringId.GetOrCompute("ControlMenuItemValue_On");
-
-        ///<summary>
-        ///Camera mode
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_CameraMode = MyStringId.GetOrCompute("ControlMenuItemLabel_CameraMode");
-
-        ///<summary>
-        ///FPP
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemValue_FPP = MyStringId.GetOrCompute("ControlMenuItemValue_FPP");
-
-        ///<summary>
-        ///TPP
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemValue_TPP = MyStringId.GetOrCompute("ControlMenuItemValue_TPP");
 
         ///<summary>
         ///Scenario Settings
@@ -10005,6 +6820,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Jetpack = MyStringId.GetOrCompute("ControlMenuItemLabel_Jetpack");
 
         ///<summary>
+        ///Build Mode
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_BuildMode = MyStringId.GetOrCompute("ControlMenuItemLabel_BuildMode");
+
+        ///<summary>
         ///Landing gears
         ///</summary>
         public static readonly MyStringId ControlMenuItemLabel_LandingGear = MyStringId.GetOrCompute("ControlMenuItemLabel_LandingGear");
@@ -10025,49 +6845,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Broadcasting = MyStringId.GetOrCompute("ControlMenuItemLabel_Broadcasting");
 
         ///<summary>
-        ///Suicide
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_CommitSuicide = MyStringId.GetOrCompute("ControlMenuItemLabel_CommitSuicide");
-
-        ///<summary>
-        ///Quick load / reconnect
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_QuickLoad = MyStringId.GetOrCompute("ControlMenuItemLabel_QuickLoad");
-
-        ///<summary>
-        ///Show color picker
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_ShowColorPicker = MyStringId.GetOrCompute("ControlMenuItemLabel_ShowColorPicker");
-
-        ///<summary>
         ///Show terminal
         ///</summary>
         public static readonly MyStringId ControlMenuItemLabel_ShowTerminal = MyStringId.GetOrCompute("ControlMenuItemLabel_ShowTerminal");
-
-        ///<summary>
-        ///Show toolbar screen
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_ShowToolbarScreen = MyStringId.GetOrCompute("ControlMenuItemLabel_ShowToolbarScreen");
-
-        ///<summary>
-        ///Toggle HUD
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_ToggleHud = MyStringId.GetOrCompute("ControlMenuItemLabel_ToggleHud");
-
-        ///<summary>
-        ///Pause game
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_PauseGame = MyStringId.GetOrCompute("ControlMenuItemLabel_PauseGame");
-
-        ///<summary>
-        ///Feature is not available yet
-        ///</summary>
-        public static readonly MyStringId MessageBoxTextErrorFeatureNotAvailableYet = MyStringId.GetOrCompute("MessageBoxTextErrorFeatureNotAvailableYet");
-
-        ///<summary>
-        ///Maximum number of bots has been reached
-        ///</summary>
-        public static readonly MyStringId NotificationMaximumNumberBots = MyStringId.GetOrCompute("NotificationMaximumNumberBots");
 
         ///<summary>
         ///Effectiveness Module
@@ -10090,16 +6870,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_Battle = MyStringId.GetOrCompute("WorldSettings_Battle");
 
         ///<summary>
-        ///Build mode
-        ///</summary>
-        public static readonly MyStringId Hud_BuildMode = MyStringId.GetOrCompute("Hud_BuildMode");
-
-        ///<summary>
-        ///Press {0} to toggle compound building
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickCompoundBuildingFormat = MyStringId.GetOrCompute("NotificationJoystickCompoundBuildingFormat");
-
-        ///<summary>
         ///Extend
         ///</summary>
         public static readonly MyStringId BlockActionTitle_Extend = MyStringId.GetOrCompute("BlockActionTitle_Extend");
@@ -10108,41 +6878,6 @@ namespace Sandbox.Game.Localization
         ///Retract
         ///</summary>
         public static readonly MyStringId BlockActionTitle_Retract = MyStringId.GetOrCompute("BlockActionTitle_Retract");
-
-        ///<summary>
-        ///Press {0} to access control menu
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickControlMenuFormat = MyStringId.GetOrCompute("NotificationJoystickControlMenuFormat");
-
-        ///<summary>
-        ///In order to show help or modify toolbar, open control menu
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickMenus = MyStringId.GetOrCompute("NotificationJoystickMenus");
-
-        ///<summary>
-        ///Press {0} or {1} to select toolbar slots
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickSlotEquipFormat = MyStringId.GetOrCompute("NotificationJoystickSlotEquipFormat");
-
-        ///<summary>
-        ///Press {0} to add block, press {1} to remove block
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickUnlimitedBuildingFormat = MyStringId.GetOrCompute("NotificationJoystickUnlimitedBuildingFormat");
-
-        ///<summary>
-        ///Press {0} to change voxel material
-        ///</summary>
-        public static readonly MyStringId NotificationJoystickVoxelMaterialFormat = MyStringId.GetOrCompute("NotificationJoystickVoxelMaterialFormat");
-
-        ///<summary>
-        ///Press {0} to change Gameplay options
-        ///</summary>
-        public static readonly MyStringId Notification_GameplayOptions = MyStringId.GetOrCompute("Notification_GameplayOptions");
-
-        ///<summary>
-        ///Change appearance
-        ///</summary>
-        public static readonly MyStringId ControlMenuItemLabel_Wardrobe = MyStringId.GetOrCompute("ControlMenuItemLabel_Wardrobe");
 
         ///<summary>
         ///Access control menu to open control panel of {0}
@@ -10173,16 +6908,6 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
-
-        ///<summary>
-        ///Access control menu to open inventory of {0}
-        ///</summary>
-        public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
-
-        ///<summary>
-        ///Press {0} to enter build mode
-        ///</summary>
-        public static readonly MyStringId NotificationHintPressToOpenBuildMode = MyStringId.GetOrCompute("NotificationHintPressToOpenBuildMode");
 
         ///<summary>
         ///Joining battle
@@ -10285,111 +7010,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Notification_NoControlAutoPilot = MyStringId.GetOrCompute("Notification_NoControlAutoPilot");
 
         ///<summary>
-        ///Physics
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Physics = MyStringId.GetOrCompute("WorldSettings_Physics");
-
-        ///<summary>
-        ///Fast
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Physics_Fast = MyStringId.GetOrCompute("WorldSettings_Physics_Fast");
-
-        ///<summary>
-        ///Normal
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Physics_Normal = MyStringId.GetOrCompute("WorldSettings_Physics_Normal");
-
-        ///<summary>
-        ///Precise
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Physics_Precise = MyStringId.GetOrCompute("WorldSettings_Physics_Precise");
-
-        ///<summary>
-        ///Higher settings improve simulation BUT directly affects performance.
-        ///</summary>
-        public static readonly MyStringId WorldSettings_Physics_Tooltip = MyStringId.GetOrCompute("WorldSettings_Physics_Tooltip");
-
-        ///<summary>
-        ///Graphics options
-        ///</summary>
-        public static readonly MyStringId ScreenCaptionGraphicsOptions = MyStringId.GetOrCompute("ScreenCaptionGraphicsOptions");
-
-        ///<summary>
-        ///Anisotropic filtering
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering");
-
-        ///<summary>
-        ///Off
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering_Off = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering_Off");
-
-        ///<summary>
-        ///Anti-aliasing
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing");
-
-        ///<summary>
-        ///None
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing_None = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing_None");
-
-        ///<summary>
-        ///Foliage details
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails");
-
-        ///<summary>
-        ///Disabled
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Disabled = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Disabled");
-
-        ///<summary>
-        ///High
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_High");
-
-        ///<summary>
-        ///Low
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Low");
-
-        ///<summary>
-        ///Medium
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Medium");
-
-        ///<summary>
-        ///Multi-threaded rendering
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_MultiThreadedRendering = MyStringId.GetOrCompute("ScreenGraphicsOptions_MultiThreadedRendering");
-
-        ///<summary>
-        ///Quality preset
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset");
-
-        ///<summary>
-        ///Custom
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Custom = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Custom");
-
-        ///<summary>
-        ///High
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_High");
-
-        ///<summary>
-        ///Low
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Low");
-
-        ///<summary>
-        ///Medium
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Medium");
-
-        ///<summary>
         ///Renderer
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_Renderer = MyStringId.GetOrCompute("ScreenGraphicsOptions_Renderer");
@@ -10398,36 +7018,6 @@ namespace Sandbox.Game.Localization
         ///Shadow quality
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution");
-
-        ///<summary>
-        ///High
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_High");
-
-        ///<summary>
-        ///Low
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_Low");
-
-        ///<summary>
-        ///Texture quality
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality");
-
-        ///<summary>
-        ///High
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_High");
-
-        ///<summary>
-        ///Low
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Low");
-
-        ///<summary>
-        ///Medium
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Medium");
 
         ///<summary>
         ///Changing the renderer requires restart of the game.
@@ -10445,19 +7035,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
 
         ///<summary>
-        ///Station rotation mode
+        ///Station rotation mode, press {0} to switch off
         ///</summary>
         public static readonly MyStringId NotificationStationRotation = MyStringId.GetOrCompute("NotificationStationRotation");
-
-        ///<summary>
-        ///Push-to-talk voice chat
-        ///</summary>
-        public static readonly MyStringId ControlName_VoiceChat = MyStringId.GetOrCompute("ControlName_VoiceChat");
-
-        ///<summary>
-        ///Enable voice chat
-        ///</summary>
-        public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
 
         ///<summary>
         ///Applied changes will be visible after restarting the game
@@ -10608,11 +7188,6 @@ namespace Sandbox.Game.Localization
         ///Medium
         ///</summary>
         public static readonly MyStringId WorldSettings_FloraDensity_Medium = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Medium");
-
-        ///<summary>
-        ///Tonemapping
-        ///</summary>
-        public static readonly MyStringId ScreenGraphicsOptions_Tonemapping = MyStringId.GetOrCompute("ScreenGraphicsOptions_Tonemapping");
 
         ///<summary>
         ///Disable respawn ships
@@ -11280,12 +7855,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationCannotJumpIntoGravity = MyStringId.GetOrCompute("NotificationCannotJumpIntoGravity");
 
         ///<summary>
-        ///Small star system with 3 planets and 3 moons.
+        ///Empty Star System with 3 planets and their moons
         ///</summary>
         public static readonly MyStringId Description_Scenario_StarSystem = MyStringId.GetOrCompute("Description_Scenario_StarSystem");
 
         ///<summary>
-        ///StarSystem
+        ///Star System
         ///</summary>
         public static readonly MyStringId DisplayName_Scenario_StarSystem = MyStringId.GetOrCompute("DisplayName_Scenario_StarSystem");
 
@@ -11308,11 +7883,6 @@ namespace Sandbox.Game.Localization
         ///Grid mass:
         ///</summary>
         public static readonly MyStringId TerminalTab_Info_GridMass = MyStringId.GetOrCompute("TerminalTab_Info_GridMass");
-
-        ///<summary>
-        ///Grass density
-        ///</summary>
-        public static readonly MyStringId WorldSettings_GrassDensity = MyStringId.GetOrCompute("WorldSettings_GrassDensity");
 
         ///<summary>
         ///Testing Star System to show Planet generation possibilities - all available planets and moons
@@ -11340,9 +7910,144 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Notification_NoControlNotMain = MyStringId.GetOrCompute("Notification_NoControlNotMain");
 
         ///<summary>
-        ///Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).
+        ///Bots enabled
         ///</summary>
-        public static readonly MyStringId MessageBoxTextGuideQuestion = MyStringId.GetOrCompute("MessageBoxTextGuideQuestion");
+        public static readonly MyStringId BrainSimulatorIntegration_EnabledLabel = MyStringId.GetOrCompute("BrainSimulatorIntegration_EnabledLabel");
+
+        ///<summary>
+        ///Enables the integration in general
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_EnabledTooltip = MyStringId.GetOrCompute("BrainSimulatorIntegration_EnabledTooltip");
+
+        ///<summary>
+        ///IP address
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_IPLabel = MyStringId.GetOrCompute("BrainSimulatorIntegration_IPLabel");
+
+        ///<summary>
+        ///Port
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_PortLabel = MyStringId.GetOrCompute("BrainSimulatorIntegration_PortLabel");
+
+        ///<summary>
+        ///GoodAI Bot Settings
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ScreenCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_ScreenCaption");
+
+        ///<summary>
+        ///The specified IP address is not valid, please correct it. (Use 127.0.0.1 for local connection.)
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_WrongIpAlert = MyStringId.GetOrCompute("BrainSimulatorIntegration_WrongIpAlert");
+
+        ///<summary>
+        ///Invalid Port Number
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_WrongPortCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_WrongPortCaption");
+
+        ///<summary>
+        ///The specified port is invalid number. Use a number between 0 and 65536.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_WrongPortMessage = MyStringId.GetOrCompute("BrainSimulatorIntegration_WrongPortMessage");
+
+        ///<summary>
+        ///Invalid IP Address
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_WrongIpCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_WrongIpCaption");
+
+        ///<summary>
+        ///GoodAI bots
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_BrainSimulatorIntegration = MyStringId.GetOrCompute("ScreenOptionsGame_BrainSimulatorIntegration");
+
+        ///<summary>
+        ///This feature is experimental and may lead to severely reduced game performance or unstability!
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ExperimentalWarning = MyStringId.GetOrCompute("BrainSimulatorIntegration_ExperimentalWarning");
+
+        ///<summary>
+        ///Experimental Feature
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ExperimentalFeatureCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_ExperimentalFeatureCaption");
+
+        ///<summary>
+        ///I have read the warning and still want to turn the feature on!
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ExperimentalFeatureConfirmation = MyStringId.GetOrCompute("BrainSimulatorIntegration_ExperimentalFeatureConfirmation");
+
+        ///<summary>
+        ///Automatic mode is not supported because this computer does not meet these requirements:
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_RequirementsNotMet = MyStringId.GetOrCompute("BrainSimulatorIntegration_RequirementsNotMet");
+
+        ///<summary>
+        ///You can still use the manual mode.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ManualModeAllowed = MyStringId.GetOrCompute("BrainSimulatorIntegration_ManualModeAllowed");
+
+        ///<summary>
+        ///Brain not found
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_BrainNotFoundCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_BrainNotFoundCaption");
+
+        ///<summary>
+        ///The selected brain was not found.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_BrainNotFoundMessage = MyStringId.GetOrCompute("BrainSimulatorIntegration_BrainNotFoundMessage");
+
+        ///<summary>
+        ///Brain Simulator not connected
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_NotConnectedCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_NotConnectedCaption");
+
+        ///<summary>
+        ///Could not connect to the Brain Simulator. Please check if the settings are correct. The game will continue to try to connect.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_NotConnectedMessage = MyStringId.GetOrCompute("BrainSimulatorIntegration_NotConnectedMessage");
+
+        ///<summary>
+        ///Brain Simulator issue
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_RunnerIssueCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_RunnerIssueCaption");
+
+        ///<summary>
+        ///Unable to run brains automatically, the Brain Simulator has crashed and been restarted too many times. The bot will not function.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_RunnerRestarted = MyStringId.GetOrCompute("BrainSimulatorIntegration_RunnerRestarted");
+
+        ///<summary>
+        ///Unable to run brains automatically, the Brain Simulator executable has not been found. The bot will not function.
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_RunnerNotFound = MyStringId.GetOrCompute("BrainSimulatorIntegration_RunnerNotFound");
+
+        ///<summary>
+        ///Add GoodAI Bot
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ChooseBrainCaption = MyStringId.GetOrCompute("BrainSimulatorIntegration_ChooseBrainCaption");
+
+        ///<summary>
+        ///Brain
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ChooseBrainLabel = MyStringId.GetOrCompute("BrainSimulatorIntegration_ChooseBrainLabel");
+
+        ///<summary>
+        ///Add
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_ChooseBrainAddButton = MyStringId.GetOrCompute("BrainSimulatorIntegration_ChooseBrainAddButton");
+
+        ///<summary>
+        ///AI School
+        ///</summary>
+        public static readonly MyStringId BrainSimulatorIntegration_AISchoolButton = MyStringId.GetOrCompute("BrainSimulatorIntegration_AISchoolButton");
+
+        ///<summary>
+        ///GoodAI Bot Feedback
+        ///</summary>
+        public static readonly MyStringId DisplayName_RewardPunishmentTool = MyStringId.GetOrCompute("DisplayName_RewardPunishmentTool");
+
+        ///<summary>
+        ///Add GoodAI bot
+        ///</summary>
+        public static readonly MyStringId ScreenCubeBuilderAddGoodAiBot = MyStringId.GetOrCompute("ScreenCubeBuilderAddGoodAiBot");
 
         ///<summary>
         ///Hydrogen Tank
@@ -11378,6 +8083,26 @@ namespace Sandbox.Game.Localization
         ///Random NPC pirate ship will be generated from time to time. These ships are enemies and will try to attack you with their drones.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableDrones = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableDrones");
+
+        ///<summary>
+        ///Enable / disable spawning of cyberhounds
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableCyberhounds");
+
+        ///<summary>
+        ///Enable cyberhounds
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("WorldSettings_EnableCyberhounds");
+
+        ///<summary>
+        ///Enable / disable spawning of spiders
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableSpiders = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableSpiders");
+
+        ///<summary>
+        ///Enable spiders
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableSpiders = MyStringId.GetOrCompute("WorldSettings_EnableSpiders");
 
         ///<summary>
         ///Enable drones
@@ -11423,11 +8148,6 @@ namespace Sandbox.Game.Localization
         ///Run with default argument
         ///</summary>
         public static readonly MyStringId TerminalControlPanel_RunCodeDefault = MyStringId.GetOrCompute("TerminalControlPanel_RunCodeDefault");
-
-        ///<summary>
-        ///You can place only completely constructed and undamaged blocks in the inventory
-        ///</summary>
-        public static readonly MyStringId NotificationIncompleteGrid = MyStringId.GetOrCompute("NotificationIncompleteGrid");
 
         ///<summary>
         ///Large Atmospheric Thruster
@@ -11535,11 +8255,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipBatteryBlock_Discharge = MyStringId.GetOrCompute("ToolTipBatteryBlock_Discharge");
 
         ///<summary>
-        ///Muted
-        ///</summary>
-        public static readonly MyStringId ScreenPlayers_Muted = MyStringId.GetOrCompute("ScreenPlayers_Muted");
-
-        ///<summary>
         ///Gas refilled from bottles.
         ///</summary>
         public static readonly MyStringId NotificationGasBottleRefill = MyStringId.GetOrCompute("NotificationGasBottleRefill");
@@ -11548,11 +8263,6 @@ namespace Sandbox.Game.Localization
         ///Sliding Door
         ///</summary>
         public static readonly MyStringId DisplayName_Block_AirtightSlideDoor = MyStringId.GetOrCompute("DisplayName_Block_AirtightSlideDoor");
-
-        ///<summary>
-        ///Voice chat volume
-        ///</summary>
-        public static readonly MyStringId VoiceChatVolume = MyStringId.GetOrCompute("VoiceChatVolume");
 
         ///<summary>
         ///Space spiders
@@ -11568,26 +8278,6 @@ namespace Sandbox.Game.Localization
         ///Backpack
         ///</summary>
         public static readonly MyStringId DisplayName_AstronautBackpack = MyStringId.GetOrCompute("DisplayName_AstronautBackpack");
-
-        ///<summary>
-        ///Time remaining
-        ///</summary>
-        public static readonly MyStringId JoinGame_ColumnTitle_RemainingTime = MyStringId.GetOrCompute("JoinGame_ColumnTitle_RemainingTime");
-
-        ///<summary>
-        ///Lobby
-        ///</summary>
-        public static readonly MyStringId JoinGame_Lobby = MyStringId.GetOrCompute("JoinGame_Lobby");
-
-        ///<summary>
-        ///Waiting
-        ///</summary>
-        public static readonly MyStringId JoinGame_Waiting = MyStringId.GetOrCompute("JoinGame_Waiting");
-
-        ///<summary>
-        ///The game session has ended. Feel free to join another one.
-        ///</summary>
-        public static readonly MyStringId MultiplayerErrorSessionEnded = MyStringId.GetOrCompute("MultiplayerErrorSessionEnded");
 
         ///<summary>
         ///Bite attack
@@ -11613,5 +8303,350 @@ namespace Sandbox.Game.Localization
         ///Deburrow
         ///</summary>
         public static readonly MyStringId DisplayName_Animation_SpiderDeburrow = MyStringId.GetOrCompute("DisplayName_Animation_SpiderDeburrow");
+
+        ///<summary>
+        ///Minimal world with platform and few fighters, loads quickly, good for testing and debugging
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_DebugStart = MyStringId.GetOrCompute("Description_Scenario_DebugStart");
+
+        ///<summary>
+        ///Debug fast start
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_DebugStart = MyStringId.GetOrCompute("DisplayName_Scenario_DebugStart");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId String = MyStringId.GetOrCompute("String");
+
+        ///<summary>
+        ///Space Master
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Caption = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Caption");
+
+        ///<summary>
+        ///Depower trash
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_DepowerTrash = MyStringId.GetOrCompute("ScreenDebugAdminMenu_DepowerTrash");
+
+        ///<summary>
+        ///Controlled
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Controlled = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Controlled");
+
+        ///<summary>
+        ///Powered
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Powered = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Powered");
+
+        ///<summary>
+        ///Stationary
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Stationary = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Stationary");
+
+        ///<summary>
+        ///Fixed (stations)
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Stations = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Stations");
+
+        ///<summary>
+        ///With medical room
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_WithMedBay = MyStringId.GetOrCompute("ScreenDebugAdminMenu_WithMedBay");
+
+        ///<summary>
+        ///With production
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_WithProduction = MyStringId.GetOrCompute("ScreenDebugAdminMenu_WithProduction");
+
+        ///<summary>
+        ///Admin menu is available only when you're admin or when admin promotes you to Space Master
+        ///</summary>
+        public static readonly MyStringId AdminMenuNotAvailable = MyStringId.GetOrCompute("AdminMenuNotAvailable");
+
+        ///<summary>
+        ///Sort by
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_SortBy = MyStringId.GetOrCompute("ScreenDebugAdminMenu_SortBy");
+
+        ///<summary>
+        ///Depower
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_Depower = MyStringId.GetOrCompute("ScreenDebugAdminMenu_Depower");
+
+        ///<summary>
+        ///Builder mode off
+        ///</summary>
+        public static readonly MyStringId BuilderModeOff = MyStringId.GetOrCompute("BuilderModeOff");
+
+        ///<summary>
+        ///Builder mode on
+        ///</summary>
+        public static readonly MyStringId BuilderModeOn = MyStringId.GetOrCompute("BuilderModeOn");
+
+        ///<summary>
+        ///Switch cockpit builder mode
+        ///</summary>
+        public static readonly MyStringId SwitchBuilderMode = MyStringId.GetOrCompute("SwitchBuilderMode");
+
+        ///<summary>
+        ///You are no longer a Space master
+        ///</summary>
+        public static readonly MyStringId NotificationPlayerDemoted = MyStringId.GetOrCompute("NotificationPlayerDemoted");
+
+        ///<summary>
+        ///You have been promoted to Space master
+        ///</summary>
+        public static readonly MyStringId NotificationPlayerPromoted = MyStringId.GetOrCompute("NotificationPlayerPromoted");
+
+        ///<summary>
+        ///You are on server and allready have all objects
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_ReplicateEverythingServer_Tooltip = MyStringId.GetOrCompute("ScreenDebugAdminMenu_ReplicateEverythingServer_Tooltip");
+
+        ///<summary>
+        ///Removing ships or stations with Medical Room can be dangerous, because you can remove players' only respawn points, be careful
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_MedbayNotification = MyStringId.GetOrCompute("ScreenDebugAdminMenu_MedbayNotification");
+
+        ///<summary>
+        ///Space Pirates
+        ///</summary>
+        public static readonly MyStringId DisplayName_Faction_SpacePirates = MyStringId.GetOrCompute("DisplayName_Faction_SpacePirates");
+
+        ///<summary>
+        ///Start on a habitable planet on a station equipped with basic vehicles. The base is under an imminent threat of pirate attacks.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_EarthEasyStart = MyStringId.GetOrCompute("Description_Scenario_EarthEasyStart");
+
+        ///<summary>
+        ///Start on a barren planet on a station equipped with basic vehicles. Youre under an imminent attack by pirates.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_MarsEasyStart = MyStringId.GetOrCompute("Description_Scenario_MarsEasyStart");
+
+        ///<summary>
+        ///Easy Start Earth
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_EarthEasyStart = MyStringId.GetOrCompute("DisplayName_Scenario_EarthEasyStart");
+
+        ///<summary>
+        ///Easy Start Mars
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_MarsEasyStart = MyStringId.GetOrCompute("DisplayName_Scenario_MarsEasyStart");
+
+        ///<summary>
+        ///Start on a mysterious planet and face attacks from pirates and local fauna.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_AlienEasyStart = MyStringId.GetOrCompute("Description_Scenario_AlienEasyStart");
+
+        ///<summary>
+        ///Easy Start Alien
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_AlienEasyStart = MyStringId.GetOrCompute("DisplayName_Scenario_AlienEasyStart");
+
+        ///<summary>
+        ///It seems that your system does not support DirectX 11, game will load scenario with no planets
+        ///</summary>
+        public static readonly MyStringId QuickstartDX11NotAvailable = MyStringId.GetOrCompute("QuickstartDX11NotAvailable");
+
+        ///<summary>
+        ///Please restart the game to finish switching to DX11
+        ///</summary>
+        public static readonly MyStringId QuickstartDX11PleaseRestartGame = MyStringId.GetOrCompute("QuickstartDX11PleaseRestartGame");
+
+        ///<summary>
+        ///Please switch to DirectX 11 to play a planet scenario
+        ///</summary>
+        public static readonly MyStringId QuickstartDX11SwitchQuestion = MyStringId.GetOrCompute("QuickstartDX11SwitchQuestion");
+
+        ///<summary>
+        ///Game will load scenario with no planets
+        ///</summary>
+        public static readonly MyStringId QuickstartNoPlanets = MyStringId.GetOrCompute("QuickstartNoPlanets");
+
+        ///<summary>
+        ///It seems that your system does not support DirectX 11, please select scenario with no planets
+        ///</summary>
+        public static readonly MyStringId QuickstartNoDx9SelectDifferent = MyStringId.GetOrCompute("QuickstartNoDx9SelectDifferent");
+
+        ///<summary>
+        ///Please select scenario with no planets
+        ///</summary>
+        public static readonly MyStringId QuickstartSelectDifferent = MyStringId.GetOrCompute("QuickstartSelectDifferent");
+
+        ///<summary>
+        ///Start on a moon with basic mining machinery but there is a threat of pirates occupying the moon's pole.
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_MoonEasyStart = MyStringId.GetOrCompute("Description_Scenario_MoonEasyStart");
+
+        ///<summary>
+        ///First Colony
+        ///</summary>
+        public static readonly MyStringId DisplayName_Faction_FirstColonyFaction = MyStringId.GetOrCompute("DisplayName_Faction_FirstColonyFaction");
+
+        ///<summary>
+        ///Easy Start Moon
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_MoonEasyStart = MyStringId.GetOrCompute("DisplayName_Scenario_MoonEasyStart");
+
+        ///<summary>
+        ///PlanetaryLander
+        ///</summary>
+        public static readonly MyStringId DisplayName_PlanetaryLander = MyStringId.GetOrCompute("DisplayName_PlanetaryLander");
+
+        ///<summary>
+        ///Press {0} for station rotation mode
+        ///</summary>
+        public static readonly MyStringId NotificationStationRotationOff = MyStringId.GetOrCompute("NotificationStationRotationOff");
+
+        ///<summary>
+        ///Elite Automatic Rifle
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_EliteAutomaticRifle = MyStringId.GetOrCompute("DisplayName_Item_EliteAutomaticRifle");
+
+        ///<summary>
+        ///Precise Automatic Rifle
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_PreciseAutomaticRifle = MyStringId.GetOrCompute("DisplayName_Item_PreciseAutomaticRifle");
+
+        ///<summary>
+        ///Rapid-Fire Automatic Rifle
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_RapidFireAutomaticRifle = MyStringId.GetOrCompute("DisplayName_Item_RapidFireAutomaticRifle");
+
+        ///<summary>
+        ///Target neutrals
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_LargeTurretTargetNeutrals = MyStringId.GetOrCompute("BlockPropertyTitle_LargeTurretTargetNeutrals");
+
+        ///<summary>
+        ///Planet
+        ///</summary>
+        public static readonly MyStringId WorkshopTag_Planet = MyStringId.GetOrCompute("WorkshopTag_Planet");
+
+        ///<summary>
+        ///Planet
+        ///</summary>
+        public static readonly MyStringId TooltipScreenMods_Category_Planet = MyStringId.GetOrCompute("TooltipScreenMods_Category_Planet");
+
+        ///<summary>
+        ///Learn movement essentials, how to keep your engineer alive with life support energy and oxygen and how to use each of the character tools, the welder, grinder and hand drill.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial01Movements = MyStringId.GetOrCompute("BriefingTutorial01Movements");
+
+        ///<summary>
+        ///An introduction to player and cargo inventories, how to add/withdraw items and a basic initiation to control panels and terminals for controlling block functions.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial02Inventory = MyStringId.GetOrCompute("BriefingTutorial02Inventory");
+
+        ///<summary>
+        ///Learn how to recharge your suit energy by tackling a series of small challenges that    explain the behaviour of power within Space Engineers and the different ways you can provide it.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial03Energy = MyStringId.GetOrCompute("BriefingTutorial03Energy");
+
+        ///<summary>
+        ///This tutorial covers the various oxygen related blocks, oxygen farms, generators, vents, bottles, tanks and ice, including their control panel functions. The concept of creating an airtight room for pressurization is also addressed.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial04Oxygen = MyStringId.GetOrCompute("BriefingTutorial04Oxygen");
+
+        ///<summary>
+        ///The basics of infrastructure and industry are taught in this tutorial. You will learn how to mine ores, process them in a refinery and then commission new block components to be made in the assembler from the refined elements.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial05OreRefining = MyStringId.GetOrCompute("BriefingTutorial05OreRefining");
+
+        ///<summary>
+        ///Setting up a good conveyor system is very useful and can save you a lot of time. Learn how to move items through conveyors and the different ways to have separate systems interact or connect with each other.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial06Conveyors = MyStringId.GetOrCompute("BriefingTutorial06Conveyors");
+
+        ///<summary>
+        ///The jetpack tutorial displays the controls needed for flight which is followed by a series of assault course style sections to challenge your ability to fly quickly and accurately, you have a limited time from the moment you begin each section to reach the exit door. Watch out for hazards!
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial07Jetpack = MyStringId.GetOrCompute("BriefingTutorial07Jetpack");
+
+        ///<summary>
+        ///The true test of any engineer is the ability to build a space-worthy ship from scratch, this tutorial will provide instruction on how to build a simple one-person transport vessel. Learn how to place blocks, weld them to completion and make a simple flight, you will also be taught essential rules of ship building that you can apply to create your own designs.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial08YourFirstShip = MyStringId.GetOrCompute("BriefingTutorial08YourFirstShip");
+
+        ///<summary>
+        ///This tutorial offers instruction on how to fly a ship and use the three ship tools. You must use each ship in turn to navigate through several chambers that demonstrate how to grind, weld and drill as well as how to stock a weld ships cargo and how to dock with connectors.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial09ShipFlight = MyStringId.GetOrCompute("BriefingTutorial09ShipFlight");
+
+        ///<summary>
+        ///This tutorial aims to illuminate the nature of small, large and station grids, the rules that govern them and how you can join them with the merge block. There is also a brief section on floating objects.
+        ///</summary>
+        public static readonly MyStringId BriefingTutorial10Grids = MyStringId.GetOrCompute("BriefingTutorial10Grids");
+
+        ///<summary>
+        ///Enhanced Grinder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_AngleGrinder2 = MyStringId.GetOrCompute("DisplayName_Item_AngleGrinder2");
+
+        ///<summary>
+        ///Proficient Grinder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_AngleGrinder3 = MyStringId.GetOrCompute("DisplayName_Item_AngleGrinder3");
+
+        ///<summary>
+        ///Elite Grinder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_AngleGrinder4 = MyStringId.GetOrCompute("DisplayName_Item_AngleGrinder4");
+
+        ///<summary>
+        ///Enhanced Hand Drill
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_HandDrill2 = MyStringId.GetOrCompute("DisplayName_Item_HandDrill2");
+
+        ///<summary>
+        ///Proficient Hand Drill
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_HandDrill3 = MyStringId.GetOrCompute("DisplayName_Item_HandDrill3");
+
+        ///<summary>
+        ///Elite Hand Drill
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_HandDrill4 = MyStringId.GetOrCompute("DisplayName_Item_HandDrill4");
+
+        ///<summary>
+        ///Enhanced Welder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_Welder2 = MyStringId.GetOrCompute("DisplayName_Item_Welder2");
+
+        ///<summary>
+        ///Proficient Welder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_Welder3 = MyStringId.GetOrCompute("DisplayName_Item_Welder3");
+
+        ///<summary>
+        ///Elite Welder
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_Welder4 = MyStringId.GetOrCompute("DisplayName_Item_Welder4");
+
+        ///<summary>
+        ///Empty Voxel Map
+        ///</summary>
+        public static readonly MyStringId ScreenDebugSpawnMenu_EmptyVoxelMap = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_EmptyVoxelMap");
+
+        ///<summary>
+        ///Your game has ran out of memory last time. Do you want to switch to LOW preset and restart game to apply changes?
+        ///</summary>
+        public static readonly MyStringId LowMemSwitchToLowQuestion = MyStringId.GetOrCompute("LowMemSwitchToLowQuestion");
+
+        ///<summary>
+        ///Planetary
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Planetary = MyStringId.GetOrCompute("TrainingLevel_Planetary");
+
+        ///<summary>
+        ///Safety lock override
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_WeldForce = MyStringId.GetOrCompute("BlockPropertyTitle_WeldForce");
+
+        ///<summary>
+        ///Safety lock speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_WeldSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_WeldSpeed");
     }
 }

@@ -14,7 +14,6 @@ namespace Sandbox.Engine.Utils
         static MyFakesLocal()
         {
             // NOTE: Set your fakes here. Never commit this!
-            MyFakes.TEST_MODELS = false;
         }
 
         public static void SetupLocalPerGameSettings()
@@ -23,4 +22,3 @@ namespace Sandbox.Engine.Utils
         }
     }
 }
-

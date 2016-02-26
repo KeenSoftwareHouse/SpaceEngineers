@@ -3,19 +3,10 @@ using System;
 using System.ComponentModel;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRageMath;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
-    // Do not change numbers, these are saved in DB
-    [Flags]
-    public enum MyItemFlags : byte
-    {
-        None = 0,
-        Damaged = 1 << 1,
-    }
-
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalObject : MyObjectBuilder_Base
@@ -23,8 +14,15 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(MyItemFlags.None)]
         public MyItemFlags Flags = MyItemFlags.None;
 
+        /// <summary>
+        /// This is used for GUI to show the amount of health points (durability) of the weapons and tools. This is updated through Durability entity component if entity exists..
+        /// </summary>
+        [ProtoMember, DefaultValue(null)]
+        public float? DurabilityHP = null;
+
         public virtual bool CanStack(MyObjectBuilder_PhysicalObject a)
         {
+            if (a == null) return false;
             return CanStack(a.TypeId, a.SubtypeId, a.Flags);
         }
 
@@ -46,9 +44,16 @@ namespace Sandbox.Common.ObjectBuilders
             Flags = flags;
         }
 
-        public virtual Sandbox.Definitions.MyDefinitionId GetObjectId()
+        public virtual MyDefinitionId GetObjectId()
         {
             return this.GetId();
         }
+    }
+
+    [Flags]
+    public enum MyItemFlags : byte
+    {
+        None = 0,
+        Damaged = 1 << 1,
     }
 }

@@ -34,16 +34,18 @@ namespace VRageRender
         internal int Num;
         internal ShaderResourceView Texture;
         internal bool Lit;
+        internal bool AlphaCutout;
     }
 
     struct MyBillboardData
     {
         internal int CustomProjectionID;
-        internal Color Color;
+        internal Vector4 Color;
         internal float Reflective;
-        internal float _padding0;
+        internal float AlphaSaturation;
         internal Vector3 Normal;
-        internal float _padding1;
+        internal float SoftParticleDistanceScale;
+        internal float AlphaCutout;
     }
 
     struct MyTextureAtlasElement
@@ -229,6 +231,8 @@ namespace VRageRender
         static PixelShaderId m_ps;
         static VertexShaderId m_vsLit;
         static PixelShaderId m_psLit;
+        static PixelShaderId m_psAlphaCutout;
+        static PixelShaderId m_psAlphaCutoutAndLit;
         static InputLayoutId m_inputLayout;
 
         static IndexBufferId m_IB = IndexBufferId.NULL;
@@ -241,6 +245,8 @@ namespace VRageRender
         static MyBillboard[] m_sortBuffer = new MyBillboard[MaxBillboards];
         static int m_sortedBillboardsNum;
 
+        private static MyPassStats m_stats = new MyPassStats();
+
         internal static List<MyBillboard> m_billboardsOnce = new List<MyBillboard>();
         internal static MyObjectsPoolSimple<MyBillboard> m_billboardsOncePool = new MyObjectsPoolSimple<MyBillboard>(MaxBillboards / 4);
 
@@ -248,10 +254,14 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_vs = MyShaders.CreateVs("billboard.hlsl", "vs");
-            m_ps = MyShaders.CreatePs("billboard.hlsl", "ps");
-            m_vsLit = MyShaders.CreateVs("billboard.hlsl", "vs", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
-			m_psLit = MyShaders.CreatePs("billboard.hlsl", "ps", MyShaderHelpers.FormatMacros("LIT_PARTICLE") + MyRender11.ShaderCascadesNumberHeader());
+            m_vs = MyShaders.CreateVs("billboard.hlsl");
+            m_ps = MyShaders.CreatePs("billboard.hlsl");
+            m_vsLit = MyShaders.CreateVs("billboard.hlsl", new [] {new ShaderMacro("LIT_PARTICLE", null)});
+            m_psLit = MyShaders.CreatePs("billboard.hlsl", new[] { new ShaderMacro("LIT_PARTICLE", null) });
+            
+            m_psAlphaCutout = MyShaders.CreatePs("billboard.hlsl", new[] { new ShaderMacro("ALPHA_CUTOUT", null) });
+            m_psAlphaCutoutAndLit = MyShaders.CreatePs("billboard.hlsl", new[] { new ShaderMacro("ALPHA_CUTOUT", null), new ShaderMacro("LIT_PARTICLE", null) });
+
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.TEXCOORD0_H));
 
             //MyCallbacks.RegisterDeviceResetListener(new OnDeviceResetDelegate(OnDeviceRestart));
@@ -315,8 +325,6 @@ namespace VRageRender
                     var material = MyTransparentMaterials.GetMaterial(billboard.ContainedBillboards[j].Material);
                     m_sortedNum += material.NeedSort ? 1 : 0;
                 }
-
-                
             }
 
         }
@@ -417,6 +425,9 @@ namespace VRageRender
 
                 billboardData.CustomProjectionID = billboard.CustomViewProjection;
                 billboardData.Color = billboard.Color;
+                billboardData.AlphaCutout = billboard.AlphaCutout;
+                billboardData.AlphaSaturation = material.AlphaSaturation;
+                billboardData.SoftParticleDistanceScale = material.SoftParticleDistanceScale;
                 if (material.UseAtlas)
                 {
                     var atlasItem = m_atlasedTextures[material.Texture];
@@ -524,6 +535,7 @@ namespace VRageRender
                     batch.Texture = prevTexId != TexId.NULL ? MyTextures.Views[prevTexId.Index] : null;
 
                     batch.Lit = prevMaterial.CanBeAffectedByOtherLights;
+                    batch.AlphaCutout = prevMaterial.AlphaCutout;
 
                     m_batches.Add(batch);
                     currentOffset = i;
@@ -541,6 +553,7 @@ namespace VRageRender
                 batch.Texture = prevTexId != TexId.NULL ? MyTextures.GetView(prevTexId) : null;
 
                 batch.Lit = prevMaterial.CanBeAffectedByOtherLights;
+                batch.AlphaCutout = prevMaterial.AlphaCutout;
 
                 m_batches.Add(batch);
             }
@@ -548,7 +561,7 @@ namespace VRageRender
 
         static unsafe void TransferData()
         {
-            var mapping = MyMapping.MapDiscard(RC.Context, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
+            var mapping = MyMapping.MapDiscard(RC.DeviceContext, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
             for (int i = 0; i < MyRenderProxy.BillboardsViewProjectionRead.Count; i++)
             {
                 var view = MyRenderProxy.BillboardsViewProjectionRead[i].View;
@@ -567,35 +580,32 @@ namespace VRageRender
                     offsetX, offsetY, 0, 1
                     );
 
-                mapping.stream.Write(Matrix.Transpose(view * projection * viewportTransformation));
+                var transpose = Matrix.Transpose(view * projection * viewportTransformation);
+                mapping.WriteAndPosition(ref transpose);
             }
             for (int i = MyRenderProxy.BillboardsViewProjectionRead.Count; i < MaxCustomProjections; i++)
             {
-                mapping.stream.Write(Matrix.Identity);
+                mapping.WriteAndPosition(ref Matrix.Identity);
             }
             mapping.Unmap();
 
-            mapping = MyMapping.MapDiscard(RC.Context, m_VB.Buffer);
-            fixed(void * ptr = m_vertexData)
-            {
-                mapping.stream.Write(new IntPtr(ptr), 0, (sizeof(MyVertexFormatPosition) * MaxBillboards * 4));
-            }
+            int billboardCount = m_sorted + m_unsorted;
+
+            mapping = MyMapping.MapDiscard(RC.DeviceContext, m_VB.Buffer);
+            mapping.WriteAndPosition(m_vertexData, 0, billboardCount * 4);
             mapping.Unmap();
 
-            mapping = MyMapping.MapDiscard(RC.Context, m_SB.Buffer);
-            fixed(void *ptr = m_billboardData)
-            {
-                mapping.stream.Write(new IntPtr(ptr), 0, (sizeof(MyBillboardData) * MaxBillboards));
-            }
+            mapping = MyMapping.MapDiscard(RC.DeviceContext, m_SB.Buffer);
+            mapping.WriteAndPosition(m_billboardData, 0, billboardCount);
             mapping.Unmap();
         }
 
         internal unsafe static void Render(MyBindableResource dst, MyBindableResource depth, MyBindableResource depthRead)
         {
+            m_stats.Clear();
             MyRender11.GetRenderProfiler().StartProfilingBlock("Gather");
             Gather();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
-
 
             MyRender11.GetRenderProfiler().StartProfilingBlock("Draw");
             TransferData();
@@ -609,14 +619,13 @@ namespace VRageRender
             RC.SetCB(2, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
             RC.SetDS(MyDepthStencilState.DefaultDepthState);
 
-            RC.SetCB(4, MyShadows.m_csmConstants);
-            RC.Context.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
-            RC.Context.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
-            RC.Context.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
+            RC.DeviceContext.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
+            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.ShaderView);
+            RC.DeviceContext.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);
 
-
-            RC.Context.VertexShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
-            RC.Context.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
 
             RC.SetVB(0, m_VB.Buffer, m_VB.Stride);
             RC.SetIB(m_IB.Buffer, m_IB.Format);
@@ -636,8 +645,18 @@ namespace VRageRender
                 if(m_batches[i].Lit)
                 {
                     RC.SetVS(m_vsLit);
-                    RC.SetPS(m_psLit);
+
+                    if (m_batches[i].AlphaCutout)
+                        RC.SetPS(m_psAlphaCutoutAndLit);
+                    else
+                        RC.SetPS(m_psLit);
                 }
+                else
+                    if (m_batches[i].AlphaCutout)
+                    {
+                        RC.SetVS(m_vs);
+                        RC.SetPS(m_psAlphaCutout);
+                    }
                 else
                 {
                     RC.SetVS(m_vs);
@@ -645,11 +664,15 @@ namespace VRageRender
                 }
 
                 RC.BindRawSRV(0, m_batches[i].Texture);
-                RC.Context.DrawIndexed(m_batches[i].Num * 6, m_batches[i].Offset * 6, 0);
+                RC.DeviceContext.DrawIndexed(m_batches[i].Num * 6, m_batches[i].Offset * 6, 0);
+                ++RC.Stats.BillboardDrawIndexed;
             }
+            m_stats.Billboards += m_sorted + m_unsorted;
 
             RC.SetRS(null);
+            RC.SetBS(null);
             m_batches.Clear();
+            MyRender11.GatherStats(m_stats);
             MyRender11.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -657,58 +680,6 @@ namespace VRageRender
         {
             m_billboardsOncePool.ClearAllAllocated();
             m_billboardsOnce.Clear();
-        }
-    }
-
-    class MyBlendTargets : MyScreenPass
-    {
-        static PixelShaderId m_ps = PixelShaderId.NULL;
-        static PixelShaderId m_psPixelStencil = PixelShaderId.NULL;
-
-        internal static void Init()
-        {
-            m_ps = MyShaders.CreatePs("postprocess.hlsl", "copy");
-            m_psPixelStencil = MyShaders.CreatePs("postprocess.hlsl", "copyWithStencilTest");
-        }
-
-        internal static void Run(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
-        {
-            //RC.SetBS(MyRender.BlendStateAdditive);
-            RC.SetBS(bs);
-            RC.SetRS(null);
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, dst);
-            RC.BindSRV(0, src);
-            RC.SetPS(m_ps);
-
-            DrawFullscreenQuad();
-            RC.SetBS(null);
-        }
-
-        internal static void RunWithStencil(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
-        {
-            RC.SetDS(MyDepthStencilState.TestOutlineMeshStencil, 0x40);
-            RC.SetBS(bs);
-            RC.SetRS(null);
-            RC.BindDepthRT(MyGBuffer.Main.DepthStencil, DepthStencilAccess.ReadOnly, dst);
-            RC.BindSRV(0, src);
-            RC.SetPS(m_ps);
-
-            DrawFullscreenQuad();
-            RC.SetBS(null);
-        }
-
-        internal static void RunWithPixelStencilTest(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
-        {
-            RC.SetDS(null);
-            RC.SetBS(bs);
-            RC.SetRS(null);
-            RC.BindDepthRT(null, DepthStencilAccess.ReadOnly, dst);
-            RC.BindSRV(0, src);
-            RC.BindSRV(1, MyGBuffer.Main.DepthStencil.Stencil);
-            RC.SetPS(m_psPixelStencil);
-
-            DrawFullscreenQuad();
-            RC.SetBS(null);
         }
     }
 }

@@ -6,14 +6,14 @@ using VRageMath;
 
 namespace VRageRender
 {
-   public class MyRenderMessageUpdateBillboardsColorize : IMyRenderMessage
+   public class MyRenderMessageUpdateBillboardsColorize : MyRenderMessageBase
     {
         public bool Enable;
         public Color Color;
         public float Distance;
         public Vector3 Normal;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateBillboardsColorize; } }
+       public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+       public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateBillboardsColorize; } }
     }
 }

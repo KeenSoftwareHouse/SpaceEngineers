@@ -3,7 +3,7 @@ using VRageRender.Lights;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateRenderLight : IMyRenderMessage
+    public class MyRenderMessageUpdateRenderLight : MyRenderMessageBase
     {
         public uint ID;
         public LightTypeEnum Type;
@@ -36,7 +36,7 @@ namespace VRageRender
         public string GlareMaterial;
         public float GlareMaxDistance;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateRenderLight; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderLight; } }
     }
 }

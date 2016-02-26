@@ -3,7 +3,8 @@ using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
-
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 using VRage.Utils;
 
@@ -14,13 +15,13 @@ namespace Sandbox.Definitions
     {
         public class MyCompoundBlockRotationBinding
         {
-            public string BuildTypeReference;
+            public MyStringId BuildTypeReference;
             public MyBlockOrientation[] Rotations;
         }
 
         public class MyCompoundBlockBinding
         {
-            public string BuildType;
+            public MyStringId BuildType;
             public bool Multiple;
             public MyCompoundBlockRotationBinding[] RotationBinds;
         }
@@ -42,7 +43,7 @@ namespace Sandbox.Definitions
                 {
                     MyCompoundBlockBinding binding = new MyCompoundBlockBinding();
 
-                    binding.BuildType = ob.Bindings[i].BuildType != null ? ob.Bindings[i].BuildType.ToLower() : null;
+                    binding.BuildType = MyStringId.GetOrCompute(ob.Bindings[i].BuildType != null ? ob.Bindings[i].BuildType.ToLower() : null);
 
                     binding.Multiple = ob.Bindings[i].Multiple;
 
@@ -55,7 +56,7 @@ namespace Sandbox.Definitions
                             if (ob.Bindings[i].RotationBinds[rotationBind].Rotations != null && ob.Bindings[i].RotationBinds[rotationBind].Rotations.Length > 0)
                             {
                                 binding.RotationBinds[rotationBind] = new MyCompoundBlockRotationBinding();
-                                binding.RotationBinds[rotationBind].BuildTypeReference = ob.Bindings[i].RotationBinds[rotationBind].BuildTypeReference != null ? ob.Bindings[i].RotationBinds[rotationBind].BuildTypeReference.ToLower() : null;
+                                binding.RotationBinds[rotationBind].BuildTypeReference = MyStringId.GetOrCompute(ob.Bindings[i].RotationBinds[rotationBind].BuildTypeReference != null ? ob.Bindings[i].RotationBinds[rotationBind].BuildTypeReference.ToLower() : null);
 
                                 binding.RotationBinds[rotationBind].Rotations = new MyBlockOrientation[ob.Bindings[i].RotationBinds[rotationBind].Rotations.Length];
 

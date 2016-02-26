@@ -11,15 +11,15 @@ struct PixelStageIn
 };
 
 #include <template.h>
-#include <math.h>
+#include <Math/math.h>
 
-void vs(VertexStageIn input, out PixelStageIn output)
+void __vertex_shader(VertexStageIn input, out PixelStageIn output)
 {
 	output.position = mul(float4(input.position.xyz, 1), projection_.view_proj_matrix);
 	output.color = input.color;
 }
 
-void ps(PixelStageIn input, out float4 rt : SV_Target0)
+void __pixel_shader(PixelStageIn input, out float4 rt : SV_Target0)
 {
 	rt = input.color;
 }

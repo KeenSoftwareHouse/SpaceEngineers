@@ -31,13 +31,13 @@ namespace Sandbox.Game.AI
     }
 
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class BehaviorTypeAttribute : Attribute
+    public class TargetTypeAttribute : Attribute
     {
-        public readonly Type BehaviorType;
+        public readonly string TargetType;
 
-        public BehaviorTypeAttribute(Type behaviorType)
+        public TargetTypeAttribute(string targetType)
         {
-            BehaviorType = behaviorType;
+            TargetType = targetType;
         }
     }
 }

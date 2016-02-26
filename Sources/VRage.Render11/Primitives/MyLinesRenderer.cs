@@ -1,15 +1,8 @@
 ﻿using System;
-using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
-using Rectangle = VRageMath.Rectangle;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
 using BoundingBox = VRageMath.BoundingBox;
 using BoundingSphere = VRageMath.BoundingSphere;
 using BoundingFrustum = VRageMath.BoundingFrustum;
@@ -17,6 +10,7 @@ using Color = VRageMath.Color;
 using System.Collections.Generic;
 using VRageMath.PackedVector;
 using VRage.Generics;
+using VRageMath;
 
 
 namespace VRageRender
@@ -106,14 +100,51 @@ namespace VRageRender
             Add6FacedConvex(bf.GetCorners(), color);
         }
 
-        internal void Add6FacedConvex(Vector3 [] vertices, Color color)
+        internal void Add6FacedConvexWorld(Vector3D[] v, Color col)
         {
-            AddQuad(vertices[0], vertices[1], vertices[2], vertices[3], color);
-            AddQuad(vertices[4], vertices[5], vertices[6], vertices[7], color);
-            AddQuad(vertices[0], vertices[1], vertices[5], vertices[4], color);
-            AddQuad(vertices[0], vertices[3], vertices[7], vertices[4], color);
-            AddQuad(vertices[3], vertices[2], vertices[6], vertices[7], color);
-            AddQuad(vertices[2], vertices[1], vertices[5], vertices[6], color);
+            Vector3D c = MyEnvironment.CameraPosition;
+            Vector3D v0 = v[0] - c, v1 = v[1] - c, v2 = v[2] - c, v3 = v[3] - c, v4 = v[4] - c, v5 = v[5] - c, v6 = v[6] - c, v7 = v[7] - c;
+
+            Add(v0, v1, col);
+            Add(v1, v3, col);
+            Add(v2, v3, col);
+            Add(v2, v0, col);
+
+            Add(v4, v5, col);
+            Add(v5, v7, col);
+            Add(v6, v7, col);
+            Add(v6, v4, col);
+
+            Add(v0, v4, col);
+            Add(v1, v5, col);
+            Add(v2, v6, col);
+            Add(v3, v7, col);
+        }
+
+        internal unsafe void Add6FacedConvex(Vector3[] vertices, Color color)
+        {
+            fixed(Vector3* verticesPtr = vertices)
+            {
+                Add6FacedConvex(verticesPtr, color);
+            }
+        }
+
+        internal unsafe void Add6FacedConvex(Vector3* vertices, Color color)
+        {
+            Add(vertices[0], vertices[1], color);
+            Add(vertices[1], vertices[2], color);
+            Add(vertices[2], vertices[3], color);
+            Add(vertices[3], vertices[0], color);
+
+            Add(vertices[4], vertices[5], color);
+            Add(vertices[5], vertices[6], color);
+            Add(vertices[6], vertices[7], color);
+            Add(vertices[7], vertices[4], color);
+
+            Add(vertices[0], vertices[4], color);
+            Add(vertices[1], vertices[5], color);
+            Add(vertices[2], vertices[6], color);
+            Add(vertices[3], vertices[7], color);
         }
 
         internal void AddBoundingBox(BoundingBox bb, Color color)
@@ -194,8 +225,8 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_vs = MyShaders.CreateVs("line.hlsl", "vs");
-            m_ps = MyShaders.CreatePs("line.hlsl", "ps");
+            m_vs = MyShaders.CreateVs("line.hlsl");
+            m_ps = MyShaders.CreatePs("line.hlsl");
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.COLOR4));
 
             m_currentBufferSize = 100000;
@@ -213,7 +244,8 @@ namespace VRageRender
 
         internal static MyLinesBatch CreateBatch()
         {
-            var batch = m_batchesPool.Allocate1();
+            MyLinesBatch batch = null;
+            m_batchesPool.AllocateOrCreate(out batch);
             batch.Construct();
             return batch;
         }
@@ -235,10 +267,10 @@ namespace VRageRender
             }
         }
 
-        internal static unsafe void Draw(MyBindableResource depth)
+        internal static unsafe void Draw(MyBindableResource renderTarget, MyBindableResource depth)
         {
             RC.SetupScreenViewport();
-            RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
+            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
             RC.SetIL(m_inputLayout);
 
             RC.SetRS(MyRender11.m_linesRasterizerState);
@@ -251,15 +283,14 @@ namespace VRageRender
             CheckBufferSize(m_vertices.Count);
             RC.SetVB(0, m_VB.Buffer, m_VB.Stride);
 
-            RC.BindDepthRT(depth, DepthStencilAccess.ReadOnly, MyRender11.Backbuffer);
+            RC.BindDepthRT(depth, DepthStencilAccess.ReadOnly, renderTarget);
             
             RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
 
             if(m_batches.Count > 0)
             {
                 var mapping = MyMapping.MapDiscard(m_VB.Buffer);
-                for (int i = 0; i < m_vertices.Count; i++)
-                    mapping.stream.Write(m_vertices[i]);
+                mapping.WriteAndPosition(m_vertices.GetInternalArray(), 0, m_vertices.Count);
                 mapping.Unmap();
 
                 Matrix prevMatrix = Matrix.Zero;
@@ -278,9 +309,10 @@ namespace VRageRender
                     if (prevMatrix != matrix)
                     {
                         prevMatrix = matrix;
+                        var transpose = Matrix.Transpose(matrix);
 
                         mapping = MyMapping.MapDiscard(MyCommon.ProjectionConstants);
-                        mapping.stream.Write(Matrix.Transpose(matrix));
+                        mapping.WriteAndPosition(ref transpose);
                         mapping.Unmap();
                     }
 
@@ -293,7 +325,7 @@ namespace VRageRender
                         RC.SetDS(MyDepthStencilState.DefaultDepthState);
                     }
 
-                    RC.Context.Draw(batch.VertexCount, batch.StartVertex);
+                    RC.DeviceContext.Draw(batch.VertexCount, batch.StartVertex);
                 }
             }
 

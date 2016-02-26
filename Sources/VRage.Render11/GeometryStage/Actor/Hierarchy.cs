@@ -1,34 +1,17 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Generics;
-
+using VRage.Utils;
 using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Utils;
 
 
 namespace VRageRender
 {
     class MyGroupLeafComponent : MyActorComponent
     {
-        internal MyActor m_parent;
+        internal MyActor Parent { get; set; }
         internal MyMaterialMergeGroup m_mergeGroup;
         internal bool m_mergable;
 
@@ -37,7 +20,7 @@ namespace VRageRender
             base.Construct();
             Type = MyActorComponentEnum.GroupLeaf;
 
-            m_parent = null;
+            Parent = null;
             m_mergeGroup = null;
             m_mergable = false;
         }
@@ -51,18 +34,18 @@ namespace VRageRender
         {
             if (m_mergeGroup != null)
             {
-                m_mergeGroup.RemoveEntity(m_owner);
+                m_mergeGroup.RemoveEntity(Owner);
                 m_mergeGroup = null;
             }
 
-            if (m_parent != null)
+            if (Parent != null)
             {
-                var root = m_parent.GetGroupRoot();
+                var root = Parent.GetGroupRoot();
                 if (root != null)
                 {
                     root.Remove(this);
                 }
-                m_parent = null;
+                Parent = null;
             }
 
             base.OnRemove(owner);
@@ -99,18 +82,26 @@ namespace VRageRender
             Resize(size);
         }
 
+        internal void Clear()
+        {
+            SortingKeys = MyRenderableProxy_2.EmptyKeyList;
+            Proxies = MyRenderableProxy_2.EmptyList;
+        }
+
         static MyObjectsPool<MyCullProxy_2> Pool = new MyObjectsPool<MyCullProxy_2>(128);
 
         internal static MyCullProxy_2 Allocate()
         {
-            var o = Pool.Allocate1();
-            o.Construct();
-            return o;
+            MyCullProxy_2 cullProxy2 = null;
+            Pool.AllocateOrCreate(out cullProxy2);
+            cullProxy2.Construct();
+            return cullProxy2;
         }
 
-        internal static void Free(MyCullProxy_2 o)
+        internal static void Free(MyCullProxy_2 cullProxy2)
         {
-            Pool.Deallocate(o);
+            cullProxy2.Clear();
+            Pool.Deallocate(cullProxy2);
         }
     }
 
@@ -149,7 +140,7 @@ namespace VRageRender
         {
             //var matrix = actor.WorldMatrix;
             //matrix.Translation = matrix.Translation - MyEnvironment.CameraPosition;
-            m_mergeGroup.UpdateEntity(actor.ID, ref actor.WorldMatrix);
+            m_mergeGroup.UpdateEntity(actor.ID, ref actor.WorldMatrix, actor.GetRenderable().m_depthBias);
         }
 
         internal void UpdateAll()
@@ -171,9 +162,9 @@ namespace VRageRender
                 ObjectSRVs = new MySrvTable { StartSlot = MyCommon.INSTANCE_INDIRECTION, SRVs = m_mergeGroup.m_SRVs, BindFlag = MyBindFlag.BIND_VS, Version = this.GetHashCode() },
                 VertexData = new MyVertexDataProxy_2 { },
 
-                DepthShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.DEPTH_ONLY),
-                Shaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
-                ForwardShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
+                DepthShaders = MyMaterialShaders.Get(MyStringId.GetOrCompute("standard"), MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_DEPTH_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.DEPTH_ONLY),
+                Shaders = MyMaterialShaders.Get(MyStringId.GetOrCompute("standard"), MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_OPAQUE_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
+                ForwardShaders = MyMaterialShaders.Get(MyStringId.GetOrCompute("standard"), MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_FORWARD_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
 
                 RenderFlags = MyRenderableProxyFlags.DepthSkipTextures,
 
@@ -263,8 +254,8 @@ namespace VRageRender
         internal void PropagateMatrixChange(MyActor child)
         {
             var matrix = child.m_relativeTransform.HasValue
-                        ? (MatrixD)child.m_relativeTransform.Value * m_owner.WorldMatrix
-                        : m_owner.WorldMatrix;
+                        ? (MatrixD)child.m_relativeTransform.Value * Owner.WorldMatrix
+                        : Owner.WorldMatrix;
             child.SetMatrix(ref matrix);
         }
 
@@ -280,30 +271,28 @@ namespace VRageRender
 
         internal void TurnIntoSeparateRenderables()
         {
-            foreach (var child in m_children)
+            foreach (var childActor in m_children)
             {
-                var r = child.GetRenderable();
+                var renderableComponent = childActor.GetRenderable();
 
-                var model = r.GetModel();
+                var model = renderableComponent.GetModel();
                 var material = MyMeshes.GetMeshPart(model, 0, 0).Info.Material;
 
                 bool fracture = model.Info.RuntimeGenerated || model.Info.Dynamic;
 
                 if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture)
                 {
-                    if(child.GetGroupLeaf().m_mergeGroup != null)
+                    if(childActor.GetGroupLeaf().m_mergeGroup != null)
                     {
                         var materialRk = MyMeshMaterials1.Table[material.Index].RepresentationKey;
                         var mergeGroupForMaterial = m_materialGroups.Get(materialRk);
                         if (mergeGroupForMaterial == null)
-                        {
                             continue;
-                        }
 
-                        r.SetStandaloneRendering(true);
-                        child.GetGroupLeaf().m_mergeGroup = null;
+                        renderableComponent.IsRenderedStandAlone = true;
+                        childActor.GetGroupLeaf().m_mergeGroup = null;
 
-                        mergeGroupForMaterial.RemoveEntity(child);
+                        mergeGroupForMaterial.RemoveEntity(childActor);
                     }
                 }
             }
@@ -320,14 +309,14 @@ namespace VRageRender
                 TurnIntoSeparateRenderables();
             }
 
-            m_children.Remove(leaf.m_owner);
+            m_children.Remove(leaf.Owner);
         }
 
         internal void Merge(MyActor child)
         {
-            var r = child.GetRenderable();
+            var renderableComponent = child.GetRenderable();
 
-            var model = r.GetModel();
+            var model = renderableComponent.GetModel();
             var material = MyMeshes.GetMeshPart(model, 0, 0).Info.Material;
 
             bool fracture = model.Info.RuntimeGenerated || model.Info.Dynamic;
@@ -345,7 +334,7 @@ namespace VRageRender
                     m_dirtyProxy = true;
                 }
 
-                r.SetStandaloneRendering(false);
+                renderableComponent.IsRenderedStandAlone = false;
                 child.GetGroupLeaf().m_mergeGroup = mergeGroupForMaterial;
 
                 mergeGroupForMaterial.AddEntity(child, model);
@@ -355,25 +344,25 @@ namespace VRageRender
 
         internal void Add(MyActor child)
         {
-            child.AddComponent(MyComponentFactory<MyGroupLeafComponent>.Create());
+            child.AddComponent<MyGroupLeafComponent>(MyComponentFactory<MyGroupLeafComponent>.Create());
 
-            child.GetGroupLeaf().m_parent = m_owner;
+            child.GetGroupLeaf().Parent = Owner;
 
             m_children.Add(child);
 
             if (child.m_relativeTransform == null)
             {
-                child.m_relativeTransform = (Matrix)( child.WorldMatrix * MatrixD.Invert(m_owner.WorldMatrix) );
+                child.m_relativeTransform = (Matrix)(child.WorldMatrix * MatrixD.Invert(Owner.WorldMatrix));
             }
 
-            if (!m_owner.m_localAabb.HasValue)
+            if (!Owner.m_localAabb.HasValue)
             {
-                m_owner.m_localAabb = child.m_localAabb;
+                Owner.m_localAabb = child.m_localAabb;
             }
             else
             {
                 var localAabb = child.m_localAabb.Value;
-                m_owner.m_localAabb = m_owner.m_localAabb.Value.Include(ref localAabb);
+                Owner.m_localAabb = Owner.m_localAabb.Value.Include(ref localAabb);
             }
 
             PropagateMatrixChange(child);
@@ -460,24 +449,20 @@ namespace VRageRender
 
                 foreach (var child in m_children)
                 {
-                    if (child.m_visible && child.GetRenderable() != null && !child.GetRenderable().IsRendered)
+                    if (child.IsVisible && child.GetRenderable() != null && !child.GetRenderable().IsRendered)
                     {
                         bb.Include(child.Aabb);
                     }
                 }
 
-                m_owner.Aabb = bb;
+                Owner.Aabb = bb;
 
                 if (m_materialGroups.Count > 0)
                 {
                     if (m_btreeProxy == -1)
-                    {
-                        m_btreeProxy = MyScene.GroupsDBVH.AddProxy(ref m_owner.Aabb, m_proxy, 0);
-                    }
+                        m_btreeProxy = MyScene.GroupsDBVH.AddProxy(ref Owner.Aabb, m_proxy, 0);
                     else
-                    {
-                        MyScene.GroupsDBVH.MoveProxy(m_btreeProxy, ref m_owner.Aabb, Vector3.Zero);
-                    }
+                        MyScene.GroupsDBVH.MoveProxy(m_btreeProxy, ref Owner.Aabb, Vector3.Zero);
                 }
 
                 m_dirtyTree = false;
@@ -506,7 +491,7 @@ namespace VRageRender
             {
                 for (int i = 0; i < m_children.Count; i++)
                 {
-                    m_children[i].RemoveComponent(m_children[i].GetGroupLeaf());
+                    m_children[i].RemoveComponent<MyGroupLeafComponent>(m_children[i].GetGroupLeaf());
                 }
                 m_children = null;
             }

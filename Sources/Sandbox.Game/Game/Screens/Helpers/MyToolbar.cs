@@ -6,7 +6,11 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Sandbox.Game.Entities.Cube;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -62,7 +66,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public bool ShowHolsterSlot
         {
-            get { return m_toolbarType == MyToolbarType.Character; }
+            get { return m_toolbarType == MyToolbarType.Character || m_toolbarType == MyToolbarType.BuildCockpit; }
         }
 
         public int? SelectedSlot
@@ -231,6 +235,10 @@ namespace Sandbox.Game.Screens.Helpers
                     SetItemAtSerialized(slot.Index, slot.Item, slot.Data);
                 }
             }
+
+            MyCockpit cockpit = Owner as MyCockpit;
+            if (cockpit != null && cockpit.CubeGrid != null)
+                cockpit.CubeGrid.OnBlockRemoved += OnBlockRemoved;
         }
 
         public MyObjectBuilder_Toolbar GetObjectBuilder()
@@ -359,15 +367,11 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
-        void ToolbarItemUpdated(MyToolbarItem obj, MyToolbarItem.ChangeInfo changed)
+        void ToolbarItemUpdated(int index, MyToolbarItem.ChangeInfo changed)
         {
-            if (ItemUpdated != null)
+            if (m_items.IsValidIndex(index) && ItemUpdated != null)
             {
-                int index = Array.IndexOf(m_items, obj);
-                if (index != -1)
-                {
-                    ItemUpdated(this, new IndexArgs() { ItemIndex = index }, changed);
-                }
+                ItemUpdated(this, new IndexArgs() { ItemIndex = index }, changed);
             }
         }
 
@@ -402,6 +406,40 @@ namespace Sandbox.Game.Screens.Helpers
         public void CharacterInventory_OnContentsChanged(MyInventoryBase inventory)
         {
             Update();
+        }
+
+        private void OnBlockRemoved(MySlimBlock block)
+        {
+            if (block.FatBlock == null)
+                return;
+
+            // Check if this toolbar is owned by the removed block, in which case clear out all the items.
+            if (Owner != null && Owner.EntityId == block.FatBlock.EntityId)
+            {
+                for (int i = 0; i < m_items.Length; i++)
+                {
+                    if (m_items[i] == null) continue;
+
+                    m_items[i].OnClose();
+                    m_items[i] = null;
+                }
+                return;
+            }
+
+            // Check if the toolbar refers to the removed block, in which case, disable the removed item.
+            for (int i = 0; i < m_items.Length; i++)
+            {
+                if (m_items[i] == null) continue;
+
+                if (m_items[i] is IMyToolbarItemEntity)
+                {
+                    IMyToolbarItemEntity item = (IMyToolbarItemEntity)m_items[i];
+                    if (item.CompareEntityIds(block.FatBlock.EntityId))
+                    {
+                        m_items[i].SetEnabled(false);
+                    }
+                }
+            }
         }
 
         public void SetDefaults(bool sendEvent = true)
@@ -535,6 +573,10 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 if (checkIfWantsToBeActivated && !itemToActivate.WantsToBeActivated)
                     return false;
+                if (itemToActivate.WantsToBeActivated || MyCubeBuilder.Static.IsActivated)
+                {
+                    Unselect(false);
+                }
                 return itemToActivate.Activate();
             }
             if (itemToActivate == null)
@@ -542,14 +584,14 @@ namespace Sandbox.Game.Screens.Helpers
             return false;
         }
 
-        public void Unselect()
+        public void Unselect(bool unselectSound = true)
         {
             if (MyToolbarComponent.CurrentToolbar != this)
                 return;
-            if (SelectedItem != null)
+            if (SelectedItem != null && unselectSound)
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
 
-            var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
+            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
             if (controlledObject != null)
                 controlledObject.SwitchToWeapon(null);
 
@@ -632,7 +674,7 @@ namespace Sandbox.Game.Screens.Helpers
                     var updated = m_items[i].Update(Owner, playerID);
                     if (updated == MyToolbarItem.ChangeInfo.None) continue;
 
-                    ToolbarItemUpdated(m_items[i], updated);
+                    ToolbarItemUpdated(i, updated);
                 }
             }
 

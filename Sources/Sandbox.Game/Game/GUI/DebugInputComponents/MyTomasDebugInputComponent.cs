@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -30,6 +32,8 @@ namespace Sandbox.Game.Gui
 
         private long m_previousSpectatorGridId = 0;
 
+        public static string ClipboardText = string.Empty;
+
         public override string GetName()
         {
             return "Tomas";
@@ -43,9 +47,9 @@ namespace Sandbox.Game.Gui
                {
                    foreach (var obj in MyEntities.GetEntities().OfType<MyCharacter>())
                    {
-                       if (obj == MySession.ControlledEntity)
+                       if (obj == MySession.Static.ControlledEntity)
                        {
-                           MySession.SetCameraController(MyCameraControllerEnum.Spectator);
+                           MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator);
                        }
                        obj.Close();
                    }
@@ -102,18 +106,18 @@ namespace Sandbox.Game.Gui
             () => "Switch control to next entity",
             delegate
             {
-                if (MySession.ControlledEntity != null)
+                if (MySession.Static.ControlledEntity != null)
                 { //we already are controlling this object
 
-                    var cameraController = MySession.GetCameraControllerEnum();
+                    var cameraController = MySession.Static.GetCameraControllerEnum();
                     if (cameraController != MyCameraControllerEnum.Entity && cameraController != MyCameraControllerEnum.ThirdPersonSpectator)
                     {
-                        MySession.SetCameraController(MyCameraControllerEnum.Entity, MySession.ControlledEntity.Entity);
+                        MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
                     }
                     else
                     {
                         var entities = MyEntities.GetEntities().ToList();
-                        int lastKnownIndex = entities.IndexOf(MySession.ControlledEntity.Entity);
+                        int lastKnownIndex = entities.IndexOf(MySession.Static.ControlledEntity.Entity);
 
                         var entitiesList = new List<MyEntity>();
                         if (lastKnownIndex + 1 < entities.Count)
@@ -138,7 +142,7 @@ namespace Sandbox.Game.Gui
 
                         if (newControlledObject != null)
                         {
-                            MySession.LocalHumanPlayer.Controller.TakeControl(newControlledObject);
+                            MySession.Static.LocalHumanPlayer.Controller.TakeControl(newControlledObject);
                         }
                     }
                 }
@@ -274,6 +278,29 @@ namespace Sandbox.Game.Gui
 
             AddShortcut(MyKeys.F2, true, false, false, false, () => "Spectator to next small grid", () => SpectatorToNextGrid(MyCubeSize.Small));
             AddShortcut(MyKeys.F3, true, false, false, false, () => "Spectator to next large grid", () => SpectatorToNextGrid(MyCubeSize.Large));
+
+            AddShortcut(MyKeys.Multiply, true, false, false, false,
+                () => "Show model texture names",
+                CopyAssetToClipboard
+                );
+        }
+
+        private bool CopyAssetToClipboard()
+        {            
+            // DUE TO THREADING APPARTMENT REQUIREMENTS FOR WINDOWS.FORMS.CLIPLBOARD MUST BE RUN IN STA MODE
+            System.Threading.Thread clipboardThread = new System.Threading.Thread(new System.Threading.ThreadStart(TextToClipboard));
+            clipboardThread.ApartmentState = System.Threading.ApartmentState.STA;
+            clipboardThread.Start();
+
+            return true;
+        }
+
+        private void TextToClipboard()
+        {
+            if (ClipboardText != null && ClipboardText != String.Empty)
+            {
+                System.Windows.Forms.Clipboard.SetText(ClipboardText);
+            }
         }
 
         public override bool HandleInput()

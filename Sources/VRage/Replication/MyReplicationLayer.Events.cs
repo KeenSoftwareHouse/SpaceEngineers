@@ -8,6 +8,7 @@ using System.Text;
 using VRage.Library.Collections;
 using VRage.Replication;
 using VRage.Serialization;
+using VRage.Utils;
 
 namespace VRage.Network
 {
@@ -24,13 +25,15 @@ namespace VRage.Network
         /// </remarks>
         internal abstract bool DispatchEvent(BitStream stream, CallSite site, EndpointId recipient, IMyNetObject eventInstance, float unreliablePriority);
 
+        internal abstract bool DispatchBlockingEvent(BitStream stream, CallSite site, EndpointId recipient, IMyNetObject eventInstance, IMyNetObject blockedNetObject, float unreliablePriority);
+
         /// <summary>
         /// Called when event is received over network.
         /// Event can be validated, invoked and/or transferred to other peers.
         /// </summary>
         internal abstract void ProcessEvent(BitStream stream, CallSite site, object obj, IMyNetObject sendAs, EndpointId source);
 
-        protected sealed override void DispatchEvent<T1, T2, T3, T4, T5, T6, T7>(CallSite callSite, EndpointId recipient, float unreliablePriority, ref T1 arg1, ref T2 arg2, ref T3 arg3, ref T4 arg4, ref T5 arg5, ref T6 arg6, ref T7 arg7)
+        protected sealed override void DispatchEvent<T1, T2, T3, T4, T5, T6, T7, T8>(CallSite callSite, EndpointId recipient, float unreliablePriority, ref T1 arg1, ref T2 arg2, ref T3 arg3, ref T4 arg4, ref T5 arg5, ref T6 arg6, ref T7 arg7, ref T8 arg8)
         {
             IMyNetObject sendAs;
             NetworkId networkId;
@@ -48,10 +51,16 @@ namespace VRage.Network
             }
             else if (arg1 is IMyEventProxy)
             {
-                string format = "Raising event on IMyEventProxy which is not recognized by replication layer (there is no replicable with IMyProxyTarget.Target set to this proxy): {0}";
-                Debug.Assert(m_proxyToTarget.ContainsKey((IMyEventProxy)arg1), String.Format(format, m_proxyToTarget.ToString()));
-
                 sendAs = GetProxyTarget((IMyEventProxy)arg1);
+
+                if(sendAs == null)
+                {
+                    string msg = "Raising event on object which is not recognized by replication: " + arg1;
+                    Debug.Fail(msg);
+                    MyLog.Default.WriteLine(msg);
+                    return;
+                }
+
                 sendId += (uint)m_typeTable.Get(sendAs.GetType()).EventTable.Count; // Add max id of Proxy
                 networkId = GetNetworkIdByObject(sendAs);
                 Debug.Assert(object.ReferenceEquals(GetProxyTarget(((IMyProxyTarget)sendAs).Target), sendAs), "There must be one-to-one relationship between IMyEventProxy and IMyEventTarget. Proxy.EventTarget.Target == Proxy");
@@ -66,10 +75,27 @@ namespace VRage.Network
                 throw new InvalidOperationException("Instance events may be called only on IMyNetObject or IMyEventProxy");
             }
 
+            NetworkId blockingNetworkId = NetworkId.Invalid;
+            IMyNetObject blockedNetObj = null;
+            if (arg8 is IMyEventProxy && callSite.IsBlocking)
+            {
+                blockedNetObj = GetProxyTarget((IMyEventProxy)arg8);
+                blockingNetworkId = GetNetworkIdByObject(blockedNetObj);
+            }
+            else if (arg8 is IMyEventProxy && !callSite.IsBlocking)
+            {
+                throw new InvalidOperationException("Rising blocking event but event itself does not have Blocking attribute");
+            }
+            else if (!(arg8 is IMyEventProxy) && callSite.IsBlocking)
+            {
+                throw new InvalidOperationException("Event contain Blocking attribute but blocked event proxy is not set or raised event is not blocking one");
+            }
+
             Debug.Assert(sendId <= 255, "Max 256 events are supported per hierarchy");
 
             m_sendStreamEvent.ResetWrite();
             m_sendStreamEvent.WriteNetworkId(networkId);
+            m_sendStreamEvent.WriteNetworkId(blockingNetworkId);
             m_sendStreamEvent.WriteByte((byte)sendId); // TODO: Compress eventId to necessary number of bits
 
             var site = (CallSite<T1, T2, T3, T4, T5, T6, T7>)callSite;
@@ -78,7 +104,14 @@ namespace VRage.Network
                 site.Serializer(arg1, m_sendStreamEvent, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref arg7);
             }
 
-            if (DispatchEvent(m_sendStreamEvent, callSite, recipient, sendAs, unreliablePriority))
+            bool dispatchRes = false;
+            // If blocking event, than process a little differently. (Internally it will call DispatchEvent anyway)
+            if (!blockingNetworkId.IsInvalid)
+                dispatchRes = DispatchBlockingEvent(m_sendStreamEvent, callSite, recipient, sendAs, blockedNetObj, unreliablePriority);
+            else
+                dispatchRes = DispatchEvent(m_sendStreamEvent, callSite, recipient, sendAs, unreliablePriority);
+
+            if (dispatchRes)
             {
                 InvokeLocally(site, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
             }
@@ -105,12 +138,13 @@ namespace VRage.Network
         void ProcessEvent(BitStream stream, EndpointId sender)
         {
             NetworkId networkId = stream.ReadNetworkId();
+            NetworkId blockedNetworkId = stream.ReadNetworkId();
             uint eventId = (uint)stream.ReadByte(); // TODO: Compress eventId to necessary number of bits
 
-            ProcessEvent(stream, networkId, eventId, sender);
+            ProcessEvent(stream, networkId, blockedNetworkId, eventId, sender);
         }
 
-        protected virtual void ProcessEvent(BitStream stream, NetworkId networkId, uint eventId, EndpointId sender)
+        protected virtual void ProcessEvent(BitStream stream, NetworkId networkId, NetworkId blockedNetId, uint eventId, EndpointId sender)
         {
             CallSite site;
             IMyNetObject sendAs;
@@ -124,6 +158,10 @@ namespace VRage.Network
             else // Instance event
             {
                 sendAs = GetObjectByNetworkId(networkId);
+                if(sendAs == null)
+                {
+                    return;
+                }
                 var typeInfo = m_typeTable.Get(sendAs.GetType());
                 int eventCount = typeInfo.EventTable.Count;
                 if (eventId < eventCount) // Directly

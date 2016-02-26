@@ -1,12 +1,8 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     public class BlueprintItem
@@ -18,7 +14,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlAttribute]
         public string TypeId
         {
-            get { return Id.TypeId.ToString(); }
+            get { return !Id.TypeId.IsNull ? Id.TypeId.ToString() : "(null)"; }
             set { Id.TypeId = MyObjectBuilderType.ParseBackwardsCompatible(value); }
         }
 

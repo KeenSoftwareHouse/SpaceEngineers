@@ -22,9 +22,9 @@ namespace Sandbox.Gui
             {
                 var texts = m_splitRegex.Split(text);
                 var matches = m_splitRegex.Matches(text);
-                for (int i = 0; i < matches.Count || i < texts.Count(); i++)
+                for (int i = 0; i < matches.Count || i < texts.Length; i++)
                 {
-                    if (i < texts.Count())
+                    if (i < texts.Length)
                         label.AppendText(m_stringCache.Clear().Append(texts[i]));
                     if (i < matches.Count)
                         ParseMarkup(label, matches[i].Value);

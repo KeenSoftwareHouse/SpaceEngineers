@@ -4,12 +4,13 @@
     <ScenarioDefinition>
       <Id>
         <TypeId>ScenarioDefinition</TypeId>
-        <SubtypeId>EasyStart1</SubtypeId>
+        <SubtypeId>EarthEasyStart</SubtypeId>
       </Id>
-      <DisplayName>DisplayName_Scenario_EasyStart1</DisplayName>
-      <Description>Description_Scenario_EasyStart1</Description>
-      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyStart1.dds</Icon>
-      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <DisplayName>DisplayName_Scenario_EarthEasyStart</DisplayName>
+      <Description>Description_Scenario_EarthEasyStart</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyEarth1.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
@@ -22,12 +23,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -37,7 +71,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -47,7 +81,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -57,42 +91,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -118,7 +122,2586 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
-      
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>        
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="53551.883969711591" y="-26759.051205339609" z="11944.182028662406" />
+            <Forward x="-0.3045119" y="-0.197448239" z="0.931819" />
+            <Up x="0.8781913" y="-0.437030554" z="0.194381937" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>          
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <!--Planets Start-->
+        <Operation xsi:type="CreatePlanet" DefinitionName ="EarthLike">
+          <PositionCenter x="0" y="0" z="-0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Moon">
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Alien">
+          <PositionCenter x="131072" y="131072" z="5731072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Titan">
+          <PositionMinCorner x="20000" y="210000" z="5780000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Mars">
+          <PositionCenter x="1031072" y="131072" z="1631072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet"  DefinitionName ="Europa" >
+          <PositionMinCorner x="900000" y="0" z="1600000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+        <!--Planets End-->
+        <!--Stations Start-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Monolith">
+          <Transform>
+            <Position x="1036328.9270927134" y="118785.44457274556" z="1695105.8429506391" />
+            <Forward x="-1.02642839E-09" y="0.982051551" z="0.188612774" />
+            <Up x="0.081991896" y="-0.187977716" z="0.978745" />            
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Platform4328">
+          <Transform>
+            <Position x="15673.795877106986" y="127220.41797561164" z="-111785.89168048142" />
+            <Forward x="3.26201566E-10" y="0.195492089" z="0.980705261" />
+            <Up x="-0.07514363" y="-0.9779326" z="0.194939375" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="EarthEasyStation">
+          <Transform>
+            <Position x="53560.143275046408" y="-26724.912605384887" z="11924.628411616868" />
+            <Forward x="-2.83122063E-07" y="-0.408008665" z="-0.912978053" />
+            <Up x="0.877506852" y="-0.4378316" z="0.19566609" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Ore_Detection_Station_mk.1">
+          <Transform>
+            <Position x="53570.746407512743" y="-26607.243612486443" z="12069.2615933834" />
+            <Forward x="-1.49011612E-08" y="0.413112968" z="0.9106798" />
+            <Up x="0.8779149" y="-0.436048627" z="0.197805375" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="CarrierShipProjector">
+          <Transform>
+            <Position x="53598.336229574823" y="-26647.006912588215" z="11961.146180075215" />
+            <Forward x="-0.479550779" y="-0.801151454" z="0.3580326" />
+            <Up x="0.8775141" y="-0.4378346" z="0.195626691" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="VehicleProjector">
+          <Transform>
+            <Position x="53570.522904508434" y="-26683.912692009519" z="11977.515813529251" />
+            <Forward x="-0.4795641" y="-0.8011444" z="0.358030558" />
+            <Up x="0.877506852" y="-0.437831581" z="0.195666134" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Atmospheric_Miner_mk.2">
+          <Transform>
+            <Position x="53548.99469878331" y="-26736.241559206777" z="11959.757925514139" />
+            <Forward x="0.478700161" y="0.794722259" z="-0.373179138" />
+            <Up x="0.8779429" y="-0.437112957" z="0.195316389" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Constructor_mk.1">
+          <Transform>
+            <Position x="53594.379665156754" y="-26668.797223269277" z="11929.768179420389" />
+            <Forward x="-0.478479773" y="-0.793585539" z="0.375871122" />
+            <Up x="0.8780495" y="-0.436930627" z="0.195245385" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Deterrent_mk.1">
+          <Transform>
+            <Position x="53565.811255658817" y="-26708.614328128548" z="11946.429765183348" />
+            <Forward x="-0.4766889" y="-0.75336355" z="0.4530023" />
+            <Up x="0.877607" y="-0.4375803" z="0.195779219" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        
+        <!--Stations End-->
+        <!--Earth Pirates Start-->
+       <!--EasyStartPirate-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="EasyStartPirate">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="54463.406942998678" y="-26970.760161526377" z="7153.233246374225" />
+            <Forward x="0.295431584" y="0.749248266" z="0.5927455" />
+            <Up x="0.8897612" y="-0.4417295" z="0.1148916" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <!--EasyStartPirate-->
+        
+        <!--Large stations-->
+
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="61078.8559184868" y="304.48050855255252" z="76.648849068735927" />
+            <Forward x="0.000570565462" y="-0.8630518" z="0.5051151" />
+            <Up x="0.999965966" y="0.004649805" z="0.006815232" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="12381.33718054251" y="2245.2794577811328" z="-59021.062062025623" />
+            <Forward x="-7.45058E-09" y="-0.9995022" z="-0.03154982" />
+            <Up x="0.205967441" y="0.0308733545" z="-0.9780717" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031909.5075085817" y="192814.19508191379" z="1630722.5835855885" />
+            <Forward x="0.74459666" y="-0.0123692174" z="-0.667400062" />
+            <Up x="0.0111695658" y="0.9999192" z="-0.00607041642" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031145.6832466905" y="67770.37305508049" z="1630669.6673516491" />
+            <Forward x="0.8593517" y="-0.005082581" z="0.5113598" />
+            <Up x="-0.000276339182" y="-0.999955058" z="-0.009474504" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-137.45370353856927" y="970.644014749422" z="60026.347302292808" />
+            <Forward x="1.65309757E-08" y="0.99989295" z="-0.0146316616" />
+            <Up x="-0.00134304387" y="0.0146316485" z="0.999892056" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="7098.35720574228" y="61004.9248977012" z="-611.42334038033653" />
+            <Forward x="0.8850952" y="-0.108371124" z="-0.452617019" />
+            <Up x="0.116911866" y="0.993100047" z="-0.00915838" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1025543.9159397888" y="131393.66314332685" z="1569327.9101575161" />
+            <Forward x="0.993039846" y="0.07750428" z="-0.0886848" />
+            <Up x="-0.08927881" y="0.0042263316" z="-0.9959977" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="970243.05198787153" y="135463.03842866112" z="1631109.3515744896" />
+            <Forward x="-0.005427721" y="-0.0750942752" z="0.9971617" />
+            <Up x="-0.997117043" y="0.0758785754" z="0.0002867874" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1026707.121301875" y="134661.34996905774" z="1692154.8128400468" />
+            <Forward x="0.0737580359" y="0.9955651" z="-0.0583942719" />
+            <Up x="-0.0686925948" y="0.06348644" z="0.9956158" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1094121.8763727974" y="131257.30636292649" z="1631178.3282990681" />
+            <Forward x="0.000167518854" y="-0.462842345" z="-0.8864406" />
+            <Up x="0.9999939" y="0.00316888513" z="-0.00146561034" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="127397.97641241916" y="192596.21553059886" z="5732854.5733288135" />
+            <Forward x="-0.6684062" y="-0.0604389049" z="0.7413369" />
+            <Up x="-0.0582313165" y="0.9978861" z="0.0288518965" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="71084.323228363326" y="131208.58553090374" z="5729608.0235379748" />
+            <Forward x="-0.0263404381" y="-0.4164644" z="0.9087704" />
+            <Up x="-0.9996177" y="0.00333192013" z="-0.0274466947" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="132151.17204073319" y="131418.51601410398" z="5670847.2544597937" />
+            <Forward x="-0.5625662" y="0.8267338" z="-0.00551556749" />
+            <Up x="0.0176629946" y="0.00534873" z="-0.9998297" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="192159.48363428758" y="131102.22896369317" z="5729852.5665712161" />
+            <Forward x="7.921645E-10" y="-0.9999982" z="-0.00190471846" />
+            <Up x="0.9997694" y="4.09053537E-05" z="-0.0214753468" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="130400.06781856823" y="70105.5352822236" z="5723990.0812982814" />
+            <Forward x="0.440335721" y="-0.1075493" z="0.8913684" />
+            <Up x="-0.0104168495" y="-0.9933447" z="-0.114707477" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="129157.01369968509" y="131310.748428818" z="5791058.4390608119" />
+            <Forward x="0.948459744" y="0.3154086" z="0.0306842588" />
+            <Up x="-0.03324812" y="0.002749841" z="0.999443352" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        
+
+        <!--Large stations-->
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyMarsStart</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_MarsEasyStart</DisplayName>
+      <Description>Description_Scenario_MarsEasyStart</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyMars2.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="996299.47381259163" y="100075.79295324642" z="1673285.2129542227" />
+            <Forward x="0.6732024" y="-0.7393665" z="0.0116489744" />
+            <Up x="-0.5531556" y="-0.49307555" z="0.671487451" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <!--Planets Start-->
+        <Operation xsi:type="CreatePlanet" DefinitionName ="EarthLike">
+          <PositionCenter x="0" y="0" z="-0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Moon">
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Alien">
+          <PositionCenter x="131072" y="131072" z="5731072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Titan">
+          <PositionMinCorner x="20000" y="210000" z="5780000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Mars">
+          <PositionCenter x="1031072" y="131072" z="1631072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet"  DefinitionName ="Europa" >
+          <PositionMinCorner x="900000" y="0" z="1600000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+        <!--Planets End-->
+        <!--Stations Start-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Monolith">
+          <Transform>
+            <Position x="1036328.9270927134" y="118785.44457274556" z="1695105.8429506391" />
+            <Forward x="-1.02642839E-09" y="0.982051551" z="0.188612774" />
+            <Up x="0.081991896" y="-0.187977716" z="0.978745" />            
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Platform4328">
+          <Transform>
+            <Position x="15673.795877106986" y="127220.41797561164" z="-111785.89168048142" />
+            <Forward x="3.26201566E-10" y="0.195492089" z="0.980705261" />
+            <Up x="-0.07514363" y="-0.9779326" z="0.194939375" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="MarsEasyStation">
+          <Transform>
+            <Position x="996271.601637375" y="100100.487133735" z="1673278.4014846678" />
+            <Forward x="0.3750842" y="0.5681328" z="0.7324868" />
+            <Up x="-0.555547357" y="-0.494786739" z="0.6682464" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Ore_Detection_Station_mk.1">
+          <Transform>
+            <Position x="995989.40954181482" y="99685.820808521254" z="1672858.5293602594" />
+            <Forward x="-4.917383E-07" y="-0.799661" z="-0.600451767" />
+            <Up x="-0.557270944" y="-0.498573333" z="0.6639832" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>  
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="CarrierShipProjector">
+          <Transform>
+            <Position x="996227.93062848609" y="100157.42360111032" z="1673294.1592618183" />
+            <Forward x="0.7420775" y="-0.6575797" z="0.130038127" />
+            <Up x="-0.5555474" y="-0.494786769" z="0.6682463" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="VehicleProjector">
+          <Transform>
+            <Position x="996266.70924157661" y="100128.23738141809" z="1673297.0565139011" />
+        <Forward x="0.7420775" y="-0.6575797" z="0.130038127" />
+        <Up x="-0.5555474" y="-0.494786769" z="0.6682463" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>  
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Atmospheric_Miner_mk.2">
+          <Transform>
+            <Position x="996210.84255848627" y="100122.97268604996" z="1673256.1076532314" />
+        <Forward x="-0.5758183" y="0.809053957" z="0.117749736" />
+        <Up x="-0.554517865" y="-0.4923072" z="0.6709274" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Constructor_mk.1">
+          <Transform>
+            <Position x="996254.923425216" y="100088.42290372032" z="1673258.7429132436" />
+        <Forward x="0.740837634" y="-0.6594795" z="0.127461076" />
+        <Up x="-0.5553964" y="-0.4947256" z="0.6684171" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Deterrent_mk.1">
+          <Transform>
+            <Position x="996336.38031352684" y="100020.86780376305" z="1673275.5488231061" />
+            <Forward x="0.380341351" y="0.5743031" z="0.7249251" />
+            <Up x="-0.5579484" y="-0.4826402" z="0.675094068" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        
+        <!--Stations End-->
+        <!--Earth Pirates Start-->
+       <!--EasyStartPirate-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="EasyStartPirate">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="991645.05648319342" y="101529.14048006725" z="1669997.4110211735" />
+        <Forward x="0.777740359" y="-0.409610242" z="0.476801246" />
+        <Up x="-0.627918839" y="-0.4713371" z="0.6193216" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="61078.8559184868" y="304.48050855255252" z="76.648849068735927" />
+            <Forward x="0.000570565462" y="-0.8630518" z="0.5051151" />
+            <Up x="0.999965966" y="0.004649805" z="0.006815232" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="12381.33718054251" y="2245.2794577811328" z="-59021.062062025623" />
+            <Forward x="-7.45058E-09" y="-0.9995022" z="-0.03154982" />
+            <Up x="0.205967441" y="0.0308733545" z="-0.9780717" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031909.5075085817" y="192814.19508191379" z="1630722.5835855885" />
+            <Forward x="0.74459666" y="-0.0123692174" z="-0.667400062" />
+            <Up x="0.0111695658" y="0.9999192" z="-0.00607041642" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031145.6832466905" y="67770.37305508049" z="1630669.6673516491" />
+            <Forward x="0.8593517" y="-0.005082581" z="0.5113598" />
+            <Up x="-0.000276339182" y="-0.999955058" z="-0.009474504" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-137.45370353856927" y="970.644014749422" z="60026.347302292808" />
+            <Forward x="1.65309757E-08" y="0.99989295" z="-0.0146316616" />
+            <Up x="-0.00134304387" y="0.0146316485" z="0.999892056" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="7098.35720574228" y="61004.9248977012" z="-611.42334038033653" />
+            <Forward x="0.8850952" y="-0.108371124" z="-0.452617019" />
+            <Up x="0.116911866" y="0.993100047" z="-0.00915838" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1025543.9159397888" y="131393.66314332685" z="1569327.9101575161" />
+            <Forward x="0.993039846" y="0.07750428" z="-0.0886848" />
+            <Up x="-0.08927881" y="0.0042263316" z="-0.9959977" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="970243.05198787153" y="135463.03842866112" z="1631109.3515744896" />
+            <Forward x="-0.005427721" y="-0.0750942752" z="0.9971617" />
+            <Up x="-0.997117043" y="0.0758785754" z="0.0002867874" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1026707.121301875" y="134661.34996905774" z="1692154.8128400468" />
+            <Forward x="0.0737580359" y="0.9955651" z="-0.0583942719" />
+            <Up x="-0.0686925948" y="0.06348644" z="0.9956158" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1094121.8763727974" y="131257.30636292649" z="1631178.3282990681" />
+            <Forward x="0.000167518854" y="-0.462842345" z="-0.8864406" />
+            <Up x="0.9999939" y="0.00316888513" z="-0.00146561034" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="127397.97641241916" y="192596.21553059886" z="5732854.5733288135" />
+            <Forward x="-0.6684062" y="-0.0604389049" z="0.7413369" />
+            <Up x="-0.0582313165" y="0.9978861" z="0.0288518965" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="71084.323228363326" y="131208.58553090374" z="5729608.0235379748" />
+            <Forward x="-0.0263404381" y="-0.4164644" z="0.9087704" />
+            <Up x="-0.9996177" y="0.00333192013" z="-0.0274466947" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="132151.17204073319" y="131418.51601410398" z="5670847.2544597937" />
+            <Forward x="-0.5625662" y="0.8267338" z="-0.00551556749" />
+            <Up x="0.0176629946" y="0.00534873" z="-0.9998297" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="192159.48363428758" y="131102.22896369317" z="5729852.5665712161" />
+            <Forward x="7.921645E-10" y="-0.9999982" z="-0.00190471846" />
+            <Up x="0.9997694" y="4.09053537E-05" z="-0.0214753468" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="130400.06781856823" y="70105.5352822236" z="5723990.0812982814" />
+            <Forward x="0.440335721" y="-0.1075493" z="0.8913684" />
+            <Up x="-0.0104168495" y="-0.9933447" z="-0.114707477" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="129157.01369968509" y="131310.748428818" z="5791058.4390608119" />
+            <Forward x="0.948459744" y="0.3154086" z="0.0306842588" />
+            <Up x="-0.03324812" y="0.002749841" z="0.999443352" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyAlienStart</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_AlienEasyStart</DisplayName>
+      <Description>Description_Scenario_AlienEasyStart</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyAlien.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>        
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="123729.48400727153" y="128037.02871830252" z="5791538.5108227292" />
+            <Forward x="0.2612944" y="-0.965066135" z="-0.0193015859" />
+            <Up x="-0.121133655" y="-0.0526223555" z="0.9912404" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <!--Planets Start-->
+        <Operation xsi:type="CreatePlanet" DefinitionName ="EarthLike">
+          <PositionCenter x="0" y="0" z="-0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Moon">
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Alien">
+          <PositionCenter x="131072" y="131072" z="5731072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Titan">
+          <PositionMinCorner x="20000" y="210000" z="5780000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Mars">
+          <PositionCenter x="1031072" y="131072" z="1631072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet"  DefinitionName ="Europa" >
+          <PositionMinCorner x="900000" y="0" z="1600000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+        <!--Planets End-->
+        <!--Stations Start-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Monolith">
+          <Transform>
+            <Position x="1036328.9270927134" y="118785.44457274556" z="1695105.8429506391" />
+            <Forward x="-1.02642839E-09" y="0.982051551" z="0.188612774" />
+            <Up x="0.081991896" y="-0.187977716" z="0.978745" />            
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Platform4328">
+          <Transform>
+            <Position x="15673.795877106986" y="127220.41797561164" z="-111785.89168048142" />
+            <Forward x="3.26201566E-10" y="0.195492089" z="0.980705261" />
+            <Up x="-0.07514363" y="-0.9779326" z="0.194939375" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="AlienEasyStation">
+          <Transform>
+            <Position x="123769.35935822368" y="128119.6529172161" z="5791542.2375149289" />
+        <Forward x="0.9923989" y="-0.005869687" z="0.122922368" />
+        <Up x="-0.123062432" y="-0.047338102" z="0.991269231" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Ore_Detection_Station_mk.1">
+          <Transform>
+            <Position x="995989.40954181482" y="99685.820808521254" z="1672858.5293602594" />
+            <Forward x="-4.917383E-07" y="-0.799661" z="-0.600451767" />
+            <Up x="-0.557270944" y="-0.498573333" z="0.6639832" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="CarrierShipProjector">
+          <Transform>
+            <Position x="123810.71221798882" y="128031.39164646741" z="5791549.8346944805" />
+        <Forward x="-4.91738263E-07" y="0.9988617" z="0.0477008522" />
+        <Up x="-0.123062588" y="-0.0473383367" z="0.991269231" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="VehicleProjector">
+          <Transform>
+            <Position x="123811.26283329949" y="128079.92743786451" z="5791547.0090552922" />
+        <Forward x="-4.91738263E-07" y="0.9988617" z="0.0477008522" />
+        <Up x="-0.123062588" y="-0.0473383367" z="0.991269231" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Atmospheric_Miner_mk.2">
+          <Transform>
+            <Position x="123729.35677516053" y="128126.78102019729" z="5791539.7069103373" />
+        <Forward x="-0.01700842" y="-0.998568237" z="-0.05071622" />
+        <Up x="-0.123090379" y="-0.04824654" z="0.991221964" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Constructor_mk.1">
+          <Transform>
+            <Position x="123728.89362514141" y="128179.02998233482" z="5791546.3362800013" />
+        <Forward x="-0.0122032" y="-0.9987799" z="-0.0478514172" />
+        <Up x="-0.123045363" y="-0.04599134" z="0.9913348" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Deterrent_mk.1">
+          <Transform>
+            <Position x="123727.01585566043" y="128087.86906313611" z="5791537.0973101947" />
+            <Forward x="0.0120661948" y="-0.9981888" z="-0.05893646" />
+            <Up x="-0.122785218" y="-0.05997378" z="0.9906195" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        
+        <!--Stations End-->
+        <!--Earth Pirates Start-->
+       <!--EasyStartPirate-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="EasyStartPirate">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="123742.43608987247" y="123797.49303916175" z="5790452.8491755873" />
+        <Forward x="0.8526887" y="-0.520744145" z="0.0418026559" />
+        <Up x="-0.12235903" y="-0.121281348" z="0.985047758" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="61078.8559184868" y="304.48050855255252" z="76.648849068735927" />
+            <Forward x="0.000570565462" y="-0.8630518" z="0.5051151" />
+            <Up x="0.999965966" y="0.004649805" z="0.006815232" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="12381.33718054251" y="2245.2794577811328" z="-59021.062062025623" />
+            <Forward x="-7.45058E-09" y="-0.9995022" z="-0.03154982" />
+            <Up x="0.205967441" y="0.0308733545" z="-0.9780717" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031909.5075085817" y="192814.19508191379" z="1630722.5835855885" />
+            <Forward x="0.74459666" y="-0.0123692174" z="-0.667400062" />
+            <Up x="0.0111695658" y="0.9999192" z="-0.00607041642" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031145.6832466905" y="67770.37305508049" z="1630669.6673516491" />
+            <Forward x="0.8593517" y="-0.005082581" z="0.5113598" />
+            <Up x="-0.000276339182" y="-0.999955058" z="-0.009474504" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-137.45370353856927" y="970.644014749422" z="60026.347302292808" />
+            <Forward x="1.65309757E-08" y="0.99989295" z="-0.0146316616" />
+            <Up x="-0.00134304387" y="0.0146316485" z="0.999892056" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="7098.35720574228" y="61004.9248977012" z="-611.42334038033653" />
+            <Forward x="0.8850952" y="-0.108371124" z="-0.452617019" />
+            <Up x="0.116911866" y="0.993100047" z="-0.00915838" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1025543.9159397888" y="131393.66314332685" z="1569327.9101575161" />
+            <Forward x="0.993039846" y="0.07750428" z="-0.0886848" />
+            <Up x="-0.08927881" y="0.0042263316" z="-0.9959977" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="970243.05198787153" y="135463.03842866112" z="1631109.3515744896" />
+            <Forward x="-0.005427721" y="-0.0750942752" z="0.9971617" />
+            <Up x="-0.997117043" y="0.0758785754" z="0.0002867874" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1026707.121301875" y="134661.34996905774" z="1692154.8128400468" />
+            <Forward x="0.0737580359" y="0.9955651" z="-0.0583942719" />
+            <Up x="-0.0686925948" y="0.06348644" z="0.9956158" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1094121.8763727974" y="131257.30636292649" z="1631178.3282990681" />
+            <Forward x="0.000167518854" y="-0.462842345" z="-0.8864406" />
+            <Up x="0.9999939" y="0.00316888513" z="-0.00146561034" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="127397.97641241916" y="192596.21553059886" z="5732854.5733288135" />
+            <Forward x="-0.6684062" y="-0.0604389049" z="0.7413369" />
+            <Up x="-0.0582313165" y="0.9978861" z="0.0288518965" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="71084.323228363326" y="131208.58553090374" z="5729608.0235379748" />
+            <Forward x="-0.0263404381" y="-0.4164644" z="0.9087704" />
+            <Up x="-0.9996177" y="0.00333192013" z="-0.0274466947" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="132151.17204073319" y="131418.51601410398" z="5670847.2544597937" />
+            <Forward x="-0.5625662" y="0.8267338" z="-0.00551556749" />
+            <Up x="0.0176629946" y="0.00534873" z="-0.9998297" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="192159.48363428758" y="131102.22896369317" z="5729852.5665712161" />
+            <Forward x="7.921645E-10" y="-0.9999982" z="-0.00190471846" />
+            <Up x="0.9997694" y="4.09053537E-05" z="-0.0214753468" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="130400.06781856823" y="70105.5352822236" z="5723990.0812982814" />
+            <Forward x="0.440335721" y="-0.1075493" z="0.8913684" />
+            <Up x="-0.0104168495" y="-0.9933447" z="-0.114707477" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="129157.01369968509" y="131310.748428818" z="5791058.4390608119" />
+            <Forward x="0.948459744" y="0.3154086" z="0.0306842588" />
+            <Up x="-0.03324812" y="0.002749841" z="0.999443352" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyMoonStart</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_MoonEasyStart</DisplayName>
+      <Description>Description_Scenario_MoonEasyStart</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyMoon.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>        
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="13316.513142883661" y="143936.71923123594" z="-108892.06774150334" />
+            <Forward x="0.195645019" y="-0.461525381" z="0.865284562" />
+            <Up x="-0.325562745" y="0.801729262" z="0.5012376" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <!--Planets Start-->
+        <Operation xsi:type="CreatePlanet" DefinitionName ="EarthLike">
+          <PositionCenter x="0" y="0" z="-0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Moon">
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Alien">
+          <PositionCenter x="131072" y="131072" z="5731072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Titan">
+          <PositionMinCorner x="20000" y="210000" z="5780000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Mars">
+          <PositionCenter x="1031072" y="131072" z="1631072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet"  DefinitionName ="Europa" >
+          <PositionMinCorner x="900000" y="0" z="1600000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+        <!--Planets End-->
+        <!--Stations Start-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Monolith">
+          <Transform>
+            <Position x="1036328.9270927134" y="118785.44457274556" z="1695105.8429506391" />
+            <Forward x="-1.02642839E-09" y="0.982051551" z="0.188612774" />
+            <Up x="0.081991896" y="-0.187977716" z="0.978745" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Platform4328">
+          <Transform>
+            <Position x="15673.795877106986" y="127220.41797561164" z="-111785.89168048142" />
+            <Forward x="3.26201566E-10" y="0.195492089" z="0.980705261" />
+            <Up x="-0.07514363" y="-0.9779326" z="0.194939375" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="MoonEasyStation">
+          <Transform>
+            <Position x="13364.292210876825" y="143959.53573857542" z="-108908.20626990996" />
+            <Forward x="-0" y="0.538320839" z="-0.84274" />
+            <Up x="-0.323980153" y="0.797285855" z="0.509285867" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Ore_Detection_Station_mk.1">
+          <Transform>
+            <Position x="12429.603871237796" y="142903.001718533" z="-108128.0573916284" />
+            <Forward x="-0.90707165" y="-0.32202965" z="-0.2711418" />
+            <Up x="-0.420976222" y="0.6938735" z="0.584224761" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="VehicleProjector">
+          <Transform>
+            <Position x="13430.563532281403" y="143927.52136650053" z="-108813.0753079948" />
+            <Forward x="0.9460639" y="0.273031" z="0.174405232" />
+            <Up x="-0.3239801" y="0.797285855" z="0.509285867" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Drill_Ship_Moon_mk.1">
+          <Transform>
+            <Position x="13302.403895369855" y="143933.129331034" z="-108892.39246403836" />
+            <Forward x="-0.9456294" y="-0.28305465" z="-0.160203025" />
+            <Up x="-0.32482928" y="0.796981454" z="0.509221435" />
+          </Transform>
+          <FactionTag>FSTC</FactionTag>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <!--Stations End-->
+        <!--Earth Pirates Start-->
+        <!--EasyStartPirate-->
+        <Operation xsi:type="AddShipPrefab" PrefabFile="EasyStartSpacePirate">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="15795.408685002007" y="145627.83884161297" z="-111714.57915031338" />
+            <Forward x="0.931522965" y="0.130777031" z="-0.339355767" />
+            <Up x="-0.06472677" y="0.97782886" z="0.199151129" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="61078.8559184868" y="304.48050855255252" z="76.648849068735927" />
+            <Forward x="0.000570565462" y="-0.8630518" z="0.5051151" />
+            <Up x="0.999965966" y="0.004649805" z="0.006815232" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-59972.987662947817" y="1261.1464104038298" z="-1293.493113052856" />
+            <Forward x="-0.0170553625" y="0.05915312" z="0.9981032" />
+            <Up x="-0.9994737" y="0.0265419278" z="-0.0186518021" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="12381.33718054251" y="2245.2794577811328" z="-59021.062062025623" />
+            <Forward x="-7.45058E-09" y="-0.9995022" z="-0.03154982" />
+            <Up x="0.205967441" y="0.0308733545" z="-0.9780717" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031909.5075085817" y="192814.19508191379" z="1630722.5835855885" />
+            <Forward x="0.74459666" y="-0.0123692174" z="-0.667400062" />
+            <Up x="0.0111695658" y="0.9999192" z="-0.00607041642" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1031145.6832466905" y="67770.37305508049" z="1630669.6673516491" />
+            <Forward x="0.8593517" y="-0.005082581" z="0.5113598" />
+            <Up x="-0.000276339182" y="-0.999955058" z="-0.009474504" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="-137.45370353856927" y="970.644014749422" z="60026.347302292808" />
+            <Forward x="1.65309757E-08" y="0.99989295" z="-0.0146316616" />
+            <Up x="-0.00134304387" y="0.0146316485" z="0.999892056" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="7098.35720574228" y="61004.9248977012" z="-611.42334038033653" />
+            <Forward x="0.8850952" y="-0.108371124" z="-0.452617019" />
+            <Up x="0.116911866" y="0.993100047" z="-0.00915838" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1025543.9159397888" y="131393.66314332685" z="1569327.9101575161" />
+            <Forward x="0.993039846" y="0.07750428" z="-0.0886848" />
+            <Up x="-0.08927881" y="0.0042263316" z="-0.9959977" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="970243.05198787153" y="135463.03842866112" z="1631109.3515744896" />
+            <Forward x="-0.005427721" y="-0.0750942752" z="0.9971617" />
+            <Up x="-0.997117043" y="0.0758785754" z="0.0002867874" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1026707.121301875" y="134661.34996905774" z="1692154.8128400468" />
+            <Forward x="0.0737580359" y="0.9955651" z="-0.0583942719" />
+            <Up x="-0.0686925948" y="0.06348644" z="0.9956158" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="1094121.8763727974" y="131257.30636292649" z="1631178.3282990681" />
+            <Forward x="0.000167518854" y="-0.462842345" z="-0.8864406" />
+            <Up x="0.9999939" y="0.00316888513" z="-0.00146561034" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Large_mk.2">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="127397.97641241916" y="192596.21553059886" z="5732854.5733288135" />
+            <Forward x="-0.6684062" y="-0.0604389049" z="0.7413369" />
+            <Up x="-0.0582313165" y="0.9978861" z="0.0288518965" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="71084.323228363326" y="131208.58553090374" z="5729608.0235379748" />
+            <Forward x="-0.0263404381" y="-0.4164644" z="0.9087704" />
+            <Up x="-0.9996177" y="0.00333192013" z="-0.0274466947" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="132151.17204073319" y="131418.51601410398" z="5670847.2544597937" />
+            <Forward x="-0.5625662" y="0.8267338" z="-0.00551556749" />
+            <Up x="0.0176629946" y="0.00534873" z="-0.9998297" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="192159.48363428758" y="131102.22896369317" z="5729852.5665712161" />
+            <Forward x="7.921645E-10" y="-0.9999982" z="-0.00190471846" />
+            <Up x="0.9997694" y="4.09053537E-05" z="-0.0214753468" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="130400.06781856823" y="70105.5352822236" z="5723990.0812982814" />
+            <Forward x="0.440335721" y="-0.1075493" z="0.8913684" />
+            <Up x="-0.0104168495" y="-0.9933447" z="-0.114707477" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Pirate_Base_Medium_mk.1">
+          <FactionTag>SPRT</FactionTag>
+          <Transform>
+            <Position x="129157.01369968509" y="131310.748428818" z="5791058.4390608119" />
+            <Forward x="0.948459744" y="0.3154086" z="0.0306842588" />
+            <Up x="-0.03324812" y="0.002749841" z="0.999443352" />
+          </Transform>
+          <UseFirstGridOrigin>true</UseFirstGridOrigin>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>StarSystem</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_StarSystem</DisplayName>
+      <Description>Description_Scenario_StarSystem</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PlaceholderPreviewStarSystem.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="AtmosphericLander">         
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <!--Planets Start-->
+        <Operation xsi:type="CreatePlanet" DefinitionName ="EarthLike">
+          <PositionCenter x="0" y="0" z="0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Moon">
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Alien">
+          <PositionCenter x="131072" y="131072" z="5731072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Titan">
+          <PositionMinCorner x="20000" y="210000" z="5780000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" DefinitionName ="Mars">
+          <PositionCenter x="1031072" y="131072" z="1631072" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet"  DefinitionName ="Europa" >
+          <PositionMinCorner x="900000" y="0" z="1600000" />
+          <Diameter>19000</Diameter>
+        </Operation>
+        <!--Planets End-->
+        <!--Stations Start-->
+        <!--Stations End-->
+        <!--Earth Pirates Start-->
+        <!--EasyStartPirate-->
+        <!--Earth Pirates End-->
+        <!--Mars Pirates Start-->
+        <!--Mars Pirates End-->
+        <!--Alien Pirates Start-->
+        <!--Alien Pirates End-->
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>Planet</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_Planet</DisplayName>
+      <Description>Description_Scenario_Planet</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewHabitablePlanet.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <SunDirection x="0" y="0" z="1"/>
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
+          <Transform>
+            <Position x="16753.240629495678" y="36680.468613601675" z="14070.47408505316" />
+            <Forward x="-0.5595269" y="0.5727671" z="0.5990555" />
+            <Up x="-0.6424482" y="0.156920686" z="-0.750090837" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="CreatePlanet" FolderName="EarthLike" DefinitionName ="EarthLike">
+          <PositionMinCorner x="0" y="0" z="0" />
+          <Diameter>120000</Diameter>
+        </Operation>
+
+        <Operation xsi:type="CreatePlanet" FolderName="Moon" DefinitionName ="Moon">
+          <PositionCenter x="0" y="0" z="100000" />
+          <Diameter> 19000</Diameter>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyStart1</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_EasyStart1</DisplayName>
+      <Description>Description_Scenario_EasyStart1</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyStart1.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -131,14 +2714,14 @@
       <WorldGeneratorOperations>
         <Operation xsi:type="AddShipPrefab" PrefabFile="MinerSmallShip">
           <Transform>
-            <Position x="9.5" y="3" z="40" />
+            <Position x="9.6771084233332658" y="-3" z="40.151000636928075" />
             <Forward x="0" y="0" z="-1" />
             <Up x="0" y="1" z="0" />
           </Transform>
         </Operation>
         <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipRedQS1">
           <Transform>
-            <Position x="-33" y="4.8" z="-65.4" />
+            <Position x="-32" y="1.5" z="-64" />
             <Forward x="0" y="0" z="-1" />
             <Up x="0" y="1" z="0" />
           </Transform>
@@ -150,16 +2733,16 @@
             <Up x="0" y="1" z="0" />
           </Transform>
         </Operation>
-        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2" RandomRadius="3">
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
           <Transform>
-            <Position x="0" y="3" z="40" />
+            <Position x="0" y="-3" z="40" />
             <Forward x="0" y="0" z="-1" />
             <Up x="0" y="1" z="0" />
           </Transform>
         </Operation>
         <Operation xsi:type="AddShipPrefab" PrefabFile="ConstructionShip">
           <Transform>
-            <Position x="19" y="3" z="40" />
+            <Position x="19" y="-3" z="40" />
             <Forward x="0" y="0" z="-1" />
             <Up x="0" y="1" z="0" />
           </Transform>
@@ -189,13 +2772,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
-
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -205,7 +2820,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -215,7 +2830,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -225,42 +2840,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -286,7 +2871,92 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
-      
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -378,12 +3048,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
-           <SurvivalDefaultToolbar>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -393,7 +3096,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -403,7 +3106,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -413,42 +3116,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -474,6 +3147,92 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true" />
       </PossibleStartingStates>
@@ -488,6 +3247,269 @@
         <Operation xsi:type="AddAsteroidPrefab" PrefabFile="VerticalIsland_128x128x128" Name="BaseAsteroid1">
           <Position x="-20" y="-110" z="-60" />
         </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>DebugStart</SubtypeId>
+      </Id>
+      <Public>false</Public>
+      <DisplayName>DisplayName_Scenario_DebugStart</DisplayName>
+      <Description>Description_Scenario_DebugStart</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyStart1.dds</Icon>
+      <AsteroidClusters Enabled="false" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+      </SurvivalModeWeapons>
+      <CreativeModeComponents>
+        <Component amount="20">SteelPlate</Component>
+      </CreativeModeComponents>
+      <CreativeModePhysicalItems>
+        <PhysicalItem amount="8.45" itemType="Ore">Iron</PhysicalItem>
+        <PhysicalItem amount="10.1" itemType="Ingot">Silver</PhysicalItem>
+        <PhysicalItem amount="0.5" itemType="OxygenBottle">OxygenBottle</PhysicalItem>
+        <PhysicalItem amount="0.2" itemType="GasBottle">HydrogenBottle</PhysicalItem>
+      </CreativeModePhysicalItems>
+      <CreativeModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </CreativeModeAmmoItems>
+      <SurvivalModeComponents>
+        <Component amount="50">SteelPlate</Component>
+      </SurvivalModeComponents>
+      <SurvivalModePhysicalItems>
+        <PhysicalItem amount="15.45" itemType="Ore">Iron</PhysicalItem>
+        <PhysicalItem amount="20.1" itemType="Ingot">Silver</PhysicalItem>
+        <PhysicalItem amount="0.6" itemType="OxygenBottle">OxygenBottle</PhysicalItem>
+        <PhysicalItem amount="0.3" itemType="GasBottle">HydrogenBottle</PhysicalItem>
+      </SurvivalModePhysicalItems>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
+      <SurvivalDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>WelderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AngleGrinderItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>HandDrillItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_SolarPanel</TypeId>
+                <SubtypeId>LargeBlockSolarPanel</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_BatteryBlock</TypeId>
+                <SubtypeId>LargeBlockBatteryBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>        
+      </CreativeDefaultToolbar>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="0" y="-3.5" z="0" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="MinerSmallShip">
+          <Transform>
+            <Position x="9.5" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2" RandomRadius="3">
+          <Transform>
+            <Position x="0" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="ConstructionShip">
+          <Transform>
+            <Position x="19" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddObjectsPrefab" PrefabFile="EasyStart1Objects" />
+        <Operation xsi:type="SetupBasePrefab" PrefabFile="BaseEasyStart1" />
       </WorldGeneratorOperations>
     </ScenarioDefinition>
     <ScenarioDefinition>
@@ -511,12 +3533,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -526,7 +3581,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -536,7 +3591,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -546,42 +3601,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -607,6 +3632,92 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
           <Transform>
@@ -650,12 +3761,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -665,7 +3809,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -675,7 +3819,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -685,42 +3829,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -746,6 +3860,92 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
           <Transform>
@@ -792,12 +3992,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -807,7 +4040,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -817,7 +4050,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -827,42 +4060,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -888,6 +4091,92 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="RespawnShip" />
       </PossibleStartingStates>
@@ -901,6 +4190,7 @@
       <Description>Description_Scenario_EmptyWorld</Description>
       <Icon>Textures\GUI\Icons\scenarios\PreviewEmptyWorld.dds</Icon>
       <AsteroidClusters Enabled="false" />
+      <DefaultEnvironment>SAFE</DefaultEnvironment>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
@@ -913,12 +4203,45 @@
         <Weapon>WelderItem</Weapon>
         <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
+      <SurvivalModeAmmoItems>
+        <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
+      </SurvivalModeAmmoItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -928,7 +4251,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>1</Index>
+            <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -938,7 +4261,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>2</Index>
+            <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -948,42 +4271,12 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>3</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>4</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>5</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
+                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
+                <SubtypeId>AutomaticRifleItem</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -1009,9 +4302,96 @@
           </Slot>
         </Slots>
       </SurvivalDefaultToolbar>
+      <CreativeDefaultToolbar>
+        <ToolbarType>Character</ToolbarType>
+        <SelectedSlot xsi:nil="true" />
+        <Slots>
+          <Slot>
+            <Index>0</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateStation</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>1</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateLargeShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>2</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
+                <SubtypeId>CreateSmallShip</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpit</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Reactor</TypeId>
+                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>6</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>7</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+        </Slots>
+      </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
       </PossibleStartingStates>
     </ScenarioDefinition>
-</Scenarios>
+
+  </Scenarios>
 </ScenarioDefinitions>

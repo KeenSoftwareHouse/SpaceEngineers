@@ -13,7 +13,8 @@ namespace Sandbox.Game.AI.Logic
 		SUCCESS,
 		FAILURE
 	}
-    public class MyHumanoidBotLogic : MyAgentLogic
+
+    public abstract class MyHumanoidBotLogic : MyAgentLogic
     {
         public MyHumanoidBot HumanoidBot { get { return m_bot as MyHumanoidBot; } }
 

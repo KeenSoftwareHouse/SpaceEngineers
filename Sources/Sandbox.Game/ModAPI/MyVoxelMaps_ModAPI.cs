@@ -7,9 +7,10 @@ using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
 using VRage.Voxels;
 using VRageMath;
-using IMyStorage = Sandbox.ModAPI.Interfaces.IMyStorage;
+using IMyStorage = VRage.ModAPI.IMyStorage;
 
 namespace Sandbox.Game.Entities
 {

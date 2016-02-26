@@ -5,11 +5,12 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Engine.Utils;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {
@@ -22,7 +23,7 @@ namespace Sandbox.Game.Weapons
         {
         }
 
-        public override void Init(Entities.MyEntity entity, MyLargeTurretBase turretBase)
+        public override void Init(MyEntity entity, MyLargeTurretBase turretBase)
         {
             base.Init(entity, turretBase);
 

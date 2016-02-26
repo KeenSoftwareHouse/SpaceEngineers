@@ -7,7 +7,9 @@ using VRageMath;
 using Sandbox;
 using Sandbox.Game.World;
 using Sandbox.Common;
+using VRage.Game;
 using VRage.Utils;
+using VRage.Game.Components;
 
 
 //  This class is responsible for holding list of dynamic lights, adding, removing and finally drawing on voxels or other models.

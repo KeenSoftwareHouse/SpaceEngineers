@@ -78,7 +78,7 @@ namespace Sandbox.Engine.Voxels
         const int m_sY = COPY_TABLE_SIZE;
         const int m_sZ = COPY_TABLE_SIZE * COPY_TABLE_SIZE;
 
-        private readonly MyStorageDataCache m_cache = new MyStorageDataCache();
+        private readonly MyStorageData m_cache = new MyStorageData();
 
         //private MyIsoMesherArgs m_args;
 
@@ -273,7 +273,7 @@ namespace Sandbox.Engine.Voxels
         }
 
         //  Linearly interpolates position, normal and material on poly-cube edge. Interpolated point is where an isosurface cuts an edge between two vertices, each with their own scalar value.
-        void GetVertexInterpolation(MyStorageDataCache cache, MyTemporaryVoxel inputVoxelA, MyTemporaryVoxel inputVoxelB, int edgeIndex)
+        void GetVertexInterpolation(MyStorageData cache, MyTemporaryVoxel inputVoxelA, MyTemporaryVoxel inputVoxelB, int edgeIndex)
         {
             MyEdge edge = m_edges[edgeIndex];
 
@@ -357,10 +357,10 @@ namespace Sandbox.Engine.Voxels
         {
             var voxelStart = args.GeometryCell.CoordInLod * MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
             var voxelEnd = voxelStart + MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS - 1;
-            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, true);
+            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, true, false);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck)
         {
 
             m_resultVerticesCounter = 0;
@@ -465,7 +465,7 @@ namespace Sandbox.Engine.Voxels
             return (MyIsoMesh)isomesh;
         }
 
-        private Vector3I ComputeTemporaryVoxelData(MyStorageDataCache cache, ref Vector3I coord0, int cubeIndex, int lod)
+        private Vector3I ComputeTemporaryVoxelData(MyStorageData cache, ref Vector3I coord0, int cubeIndex, int lod)
         {
             int coord0LinIdx = coord0.X * m_sX + coord0.Y * m_sY + coord0.Z * m_sZ;
 

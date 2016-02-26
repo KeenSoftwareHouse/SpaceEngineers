@@ -7,7 +7,10 @@ namespace VRage
 {
     public static class MyCompilationSymbols
     {
-        public const bool PerformanceProfiling = true;
+        public const bool PerformanceProfiling = false;
+
+        public const bool ProfileFromStart = false;
+        public const bool ProfileWorkingSetMemory = false;
 
         public const bool EnableSharpDxObjectTracking = false;
 

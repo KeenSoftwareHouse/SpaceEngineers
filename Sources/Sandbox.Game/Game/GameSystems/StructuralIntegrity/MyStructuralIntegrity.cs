@@ -142,11 +142,11 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             details.SetParticleMass(10000);
             //details.ZeroColidingParticleVelocity();
             details.Flag = details.Flag | HkdFractureImpactDetails.Flags.FLAG_DONT_RECURSE;
-            if (m_cubeGrid.Physics.HavokWorld.DestructionWorld != null)
+            if (m_cubeGrid.GetPhysicsBody().HavokWorld.DestructionWorld != null)
             {
                 MyPhysics.FractureImpactDetails destruction = new MyPhysics.FractureImpactDetails();
                 destruction.Details = details;
-                destruction.World = m_cubeGrid.Physics.HavokWorld;
+                destruction.World = m_cubeGrid.GetPhysicsBody().HavokWorld;
                 destruction.Entity = m_cubeGrid;
                 destruction.ContactInWorld = worldCenter;
                 MyPhysics.EnqueueDestruction(destruction);

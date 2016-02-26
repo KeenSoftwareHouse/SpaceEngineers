@@ -15,10 +15,10 @@ namespace Sandbox.Common
         //  This is version of application
         //  FINAL BUILD VALUE: Increase before every major build.
 
-        public static MyVersion APP_VERSION = 01103001;        
+        public static MyVersion APP_VERSION = 01124001; 
 
         // For OnLive, CiiNOW and other cloud gaming services (disabled HW cursor, editor, multiplayer)
-        public const bool   IS_CLOUD_GAMING = false;
+        public const bool IS_CLOUD_GAMING = false;
 
         // Official builds are built by builder image, always obfuscated
         // Use this constant for example to decide whether post analytics to official stats or not
@@ -41,7 +41,7 @@ namespace Sandbox.Common
 #endif
 
         public const int IP_ADDRESS_ANY = 0;
-        
+
         public const short DEDICATED_SERVER_PORT = 27015;
         public const short DEDICATED_STEAM_AUTH_PORT = 8766;
     }

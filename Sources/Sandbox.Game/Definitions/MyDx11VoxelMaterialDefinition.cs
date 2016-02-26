@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 
 namespace Medieval.Definitions

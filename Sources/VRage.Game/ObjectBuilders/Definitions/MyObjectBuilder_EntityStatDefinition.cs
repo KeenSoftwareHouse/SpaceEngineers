@@ -1,9 +1,8 @@
 ﻿using ProtoBuf;
 using System.Xml.Serialization;
-using VRage;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
 	[ProtoContract]
 	[MyObjectBuilderDefinition]
@@ -20,6 +19,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
 			[ProtoMember]
 			public SerializableVector3I Color = new SerializableVector3I(255, 255, 255);
+
+            [ProtoMember]
+            public float CriticalRatio = 0f;
+
+            [ProtoMember]
+            public bool DisplayCriticalDivider = false;
+
+            [ProtoMember]
+            public SerializableVector3I CriticalColorFrom = new SerializableVector3I(155, 0, 0);
+
+            [ProtoMember]
+            public SerializableVector3I CriticalColorTo = new SerializableVector3I(255, 0, 0);
 		}
 
 		[ProtoMember]
@@ -29,7 +40,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 		public float MaxValue = 100;
 
 	    [ProtoMember]
-        public float DefaultValue = 100f;
+        public float DefaultValue = float.NaN;
 
 		[ProtoMember, XmlAttribute(AttributeName = "EnabledInCreative")]
 		public bool EnabledInCreative = true;

@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
@@ -13,6 +12,10 @@ using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.AI;
+using VRage.Game.Entity;
+using Sandbox.Engine.Utils;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
@@ -88,7 +91,7 @@ namespace Sandbox.Game.Entities
             return closestDistanceSq != double.MaxValue;
         }
 
-        public static bool FindClosestTreeInPlaceArea(Vector3D fromPosition, long entityId, out ItemInfo result)
+        public static bool FindClosestTreeInPlaceArea(Vector3D fromPosition, long entityId, MyHumanoidBot bot, out ItemInfo result)
 		{
             result = default(ItemInfo);
             MyPlaceArea area = MyPlaceArea.FromEntity(entityId);
@@ -96,7 +99,7 @@ namespace Sandbox.Game.Entities
                 return false;
 
             var areaBoundingBox = area.WorldAABB;
-            var entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
+            var entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox, true);
 
             double closestDistanceSq = double.MaxValue;
 
@@ -111,6 +114,9 @@ namespace Sandbox.Game.Entities
                 foreach (var tree in m_tmpEnvItemList)
                 {
                     if (!area.TestPoint(tree.Transform.Position))
+                        continue;
+
+                    if (!bot.AgentLogic.AiTarget.IsTreeReachable(entity, tree.LocalId))
                         continue;
 
                     double distanceSq = Vector3D.DistanceSquared(fromPosition, tree.Transform.Position);
@@ -152,12 +158,12 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
-        public static bool FindClosestFracturedTreeInRadius(Vector3D fromPosition, double radius, out EntityInfo result)
+        public static bool FindClosestFracturedTreeInRadius(Vector3D fromPosition, double radius, MyHumanoidBot bot, out EntityInfo result)
         {
-            return FindClosestFracturedTreeInternal(fromPosition, fromPosition, radius, null, out result);
+            return FindClosestFracturedTreeInternal(fromPosition, fromPosition, radius, null, bot, out result);
         }
 
-        public static bool FindClosestFracturedTreeInArea(Vector3D fromPosition, long areaEntityId, out EntityInfo result)
+        public static bool FindClosestFracturedTreeInArea(Vector3D fromPosition, long areaEntityId, MyHumanoidBot bot, out EntityInfo result)
         {
             result = default(EntityInfo);
 
@@ -168,10 +174,10 @@ namespace Sandbox.Game.Entities
             double radius = (double)areaBB.HalfExtents.Length();
 
 
-			return FindClosestFracturedTreeInternal(fromPosition, areaBB.Center, radius, area, out result); ;
+			return FindClosestFracturedTreeInternal(fromPosition, areaBB.Center, radius, area, bot, out result); ;
         }
 
-        private static bool FindClosestFracturedTreeInternal(Vector3D fromPosition, Vector3D searchCenter, double searchRadius, MyPlaceArea area, out EntityInfo result)
+        private static bool FindClosestFracturedTreeInternal(Vector3D fromPosition, Vector3D searchCenter, double searchRadius, MyPlaceArea area, MyHumanoidBot bot, out EntityInfo result)
         {
             result = default(EntityInfo);
 
@@ -194,6 +200,9 @@ namespace Sandbox.Game.Entities
                 }
 
                 if (IsFracturedTreeStump(fracture))
+                    continue;
+
+                if (!bot.AgentLogic.AiTarget.IsEntityReachable(fracture))
                     continue;
 
                 Vector3D positionInTrunkLocal = Vector3D.Transform(fromPosition, fracture.PositionComp.WorldMatrixNormalizedInv);
@@ -300,7 +309,7 @@ namespace Sandbox.Game.Entities
                     return false;
 
                 var areaBoundingBox = area.WorldAABB;
-                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
+                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox, true);
 
                 MyEntity closestObject = null;
                 MySlimBlock first = null;
@@ -465,7 +474,7 @@ namespace Sandbox.Game.Entities
             return m_retvalCollectibleInfos;
         }
 
-        public static MyCubeGrid TryGetAsComponent(MyEntity entity, out MyCubeBlock block, bool blockManipulatedEntity = true )
+        public static MyCubeGrid TryGetAsComponent(MyEntity entity, out MyCubeBlock block, bool blockManipulatedEntity = true, Vector3D? hitPosition = null)
         {
             block = null;
 
@@ -478,22 +487,40 @@ namespace Sandbox.Game.Entities
             var grid = entity as MyCubeGrid;
             if (grid == null) return null;
             if (grid.GridSizeEnum != MyCubeSize.Small) return null;
-            if (grid.CubeBlocks.Count != 1) return null;
-            if (grid.IsStatic) return null;
-            if (!MyCubeGrid.IsGridInCompleteState(grid)) return null;
+            MyCubeGrid returnedGrid = null;
 
-            var enumerator = grid.CubeBlocks.GetEnumerator();
-            enumerator.MoveNext();
-            block = enumerator.Current.FatBlock;
-            enumerator.Dispose();
+            if (MyFakes.ENABLE_GATHERING_SMALL_BLOCK_FROM_GRID && hitPosition != null)
+            {
+                var gridLocalPos = Vector3D.Transform(hitPosition.Value, grid.PositionComp.WorldMatrixNormalizedInv);
+                Vector3I cubePosition;
+                grid.FixTargetCube(out cubePosition, gridLocalPos / grid.GridSize);
+                MySlimBlock slimBlock = grid.GetCubeBlock(cubePosition);
+                if (slimBlock != null && slimBlock.IsFullIntegrity)
+                    block = slimBlock.FatBlock;
+            }
+            else
+            {
+                if (grid.CubeBlocks.Count != 1) return null;
+                if (grid.IsStatic) return null;
+                if (!MyCubeGrid.IsGridInCompleteState(grid)) return null;
+                if (MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(grid)) return null;
+
+                var enumerator = grid.CubeBlocks.GetEnumerator();
+                enumerator.MoveNext();
+                block = enumerator.Current.FatBlock;
+                enumerator.Dispose();
+
+                returnedGrid = grid;
+            }
+
             if (block == null) return null;
 
             if (!MyDefinitionManager.Static.IsComponentBlock(block.BlockDefinition.Id)) return null;
             if (block.IsSubBlock) return null;
-            if (block.GetSubBlocks().Count() > 0) return null;
+            var subBlocks = block.GetSubBlocks();
+            if (subBlocks.HasValue && subBlocks.Count() > 0) return null;
 
-            if (MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(grid)) return null;
-            return grid;
+            return returnedGrid;
         }
 
         private static void FindFracturedTreesInternal(Vector3D fromPosition, MyPlaceArea area, BoundingSphereD sphere)
@@ -547,7 +574,7 @@ namespace Sandbox.Game.Entities
             List<MyEntity> entities = null;
             try
             {
-                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
+                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox, true);
 
                 for (int i = entities.Count - 1; i >= 0; i--)
                 {
@@ -587,10 +614,10 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                if (entities.Count() == 0)
+                if (entities.Count == 0)
                     return false;
 
-                int randIdx = (int)Math.Round(MyRandom.Instance.NextFloat() * (entities.Count() - 1));
+                int randIdx = (int)Math.Round(MyRandom.Instance.NextFloat() * (entities.Count - 1));
                 var selectedEntity = entities[randIdx];
                 result.EntityId = selectedEntity.EntityId;
 
@@ -628,7 +655,7 @@ namespace Sandbox.Game.Entities
             List<MyEntity> entities = null;
             try
             {
-                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox);
+                entities = MyEntities.GetEntitiesInAABB(ref areaBoundingBox, true);
 
                 m_tmpItemInfoList.Clear();
                 foreach (var entity in entities)

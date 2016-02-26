@@ -1,6 +1,5 @@
 ﻿using System.Xml.Serialization;
 using ProtoBuf;
-using Sandbox.Definitions;
 using VRage.Serialization;
 using VRage.Utils;
 
@@ -18,7 +17,7 @@ namespace VRage.ObjectBuilders
         [NoSerialize]
         public string TypeIdString
         {
-            get { return TypeId.ToString(); }
+            get { return !TypeId.IsNull ? TypeId.ToString() : "(null)"; }
             set { TypeId = MyObjectBuilderType.ParseBackwardsCompatible(value); }
         }
 

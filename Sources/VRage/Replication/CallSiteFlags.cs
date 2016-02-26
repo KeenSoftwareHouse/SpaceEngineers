@@ -14,5 +14,6 @@ namespace VRage.Network
         Reliable = 0x8,
         RefreshReplicable = 0x10, // Will test conditions for replicable and optionally replicable it to clients before sending event
         BroadcastExcept = 0x20,
+        Blocking = 0x40,
     }
 }

@@ -19,6 +19,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Trace;
 
@@ -135,6 +136,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool Battle
+        {
+            get;
+            set;
+        }
+
+        public override float BattleRemainingTime
         {
             get;
             set;
@@ -320,6 +327,11 @@ namespace Sandbox.Engine.Multiplayer
                 {
                     MyServerDebugCommands.Process(msg.Text, msg.Author);
                 }
+            }
+            if(msg.Text.Contains("+43Dump"))
+            {
+                MySession.InitiateDump();
+                return;
             }
 
             SendControlMessageToAll(ref msg, msg.Author);

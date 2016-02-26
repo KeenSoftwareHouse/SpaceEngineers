@@ -7,6 +7,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using VRageMath;
 using VRageRender;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Weapons.Guns
 {

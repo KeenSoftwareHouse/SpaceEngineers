@@ -12,6 +12,6 @@ float compute_voxel_ambient_occlusion(float perVertexAmbient, float distance)
 #else
 	const float ambientMultiplier = 1;
 #endif
-	float ambient = frame_.EnableVoxelAo * (perVertexAmbient - frame_.VoxelAoMin) * rcp(frame_.VoxelAoMax - frame_.VoxelAoMin) + frame_.VoxelAoOffset;
+	float ambient = frame_.EnableVoxelAo * ((perVertexAmbient - frame_.VoxelAoMin) * rcp(frame_.VoxelAoMax - frame_.VoxelAoMin) + frame_.VoxelAoOffset);
 	return saturate(1 - ambient * ambientMultiplier);
 }

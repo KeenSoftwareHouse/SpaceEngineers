@@ -7,6 +7,16 @@ using VRage.Data.Audio;
 
 namespace VRage
 {
+    [ProtoContract, XmlType("DistantSound")]
+    public sealed class DistantSound
+    {
+        [ProtoMember, XmlAttribute]
+        public float distance;
+
+        [ProtoMember, XmlAttribute]
+        public String sound;
+    };
+
     [ProtoContract, XmlType("Wave")]
     public sealed class MyAudioWave
     {

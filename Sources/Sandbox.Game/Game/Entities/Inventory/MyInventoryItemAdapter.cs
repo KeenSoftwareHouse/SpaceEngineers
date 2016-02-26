@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.ModAPI;
+using VRage.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities.Inventory
 {

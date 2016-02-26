@@ -14,11 +14,13 @@ using System.Diagnostics;
 using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.Game;
 using VRageMath;
 using VRage.Utils;
 using VRage.Game.Entity.UseObject;
 using VRage.ModAPI;
 using VRage.Library.Utils;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -60,7 +62,7 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         List<Sandbox.Definitions.MyLCDTextureDefinition> m_selectedTexturesToDraw = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
-        static List<Sandbox.Definitions.MyLCDTextureDefinition> m_definitions = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
+        List<Sandbox.Definitions.MyLCDTextureDefinition> m_definitions = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
         List<MyGuiControlListbox.Item> m_selectedTextures = null;
         List<MyGuiControlListbox.Item> m_selectedTexturesToRemove = null;
 
@@ -298,7 +300,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         internal new MyRenderComponentTextPanel Render
         {
-            get { return (MyRenderComponentTextPanel)base.Render; }
+            get { return base.Render as MyRenderComponentTextPanel; }
             set { base.Render = value; }
         }
 
@@ -466,6 +468,10 @@ namespace Sandbox.Game.Entities.Blocks
         {
             for (int j = 0; j < selection.Length; ++j)
             {
+                if (selection[j] >= m_definitions.Count)
+                {
+                    continue;
+                }
                 m_selectedTexturesToDraw.Add(m_definitions[selection[j]]);
             }
             m_currentPos = 0;
@@ -476,9 +482,35 @@ namespace Sandbox.Game.Entities.Blocks
         {
             for (int j = 0; j < selection.Length; ++j)
             {
+                if (selection[j] >= m_definitions.Count)
+                {
+                    continue;
+                }
                 m_selectedTexturesToDraw.Remove(m_definitions[selection[j]]);
             }
             m_currentPos = 0;
+
+            if (m_selectedTexturesToDraw.Count == 0)
+            {
+                if (CheckIsWorking() == false)
+                {
+                    if (ShowTextOnScreen)
+                    {
+                        Render.ReleaseRenderTexture();
+                    }
+                    Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
+                }
+                else
+                {
+                    if (ShowTextOnScreen == false)
+                    {
+                        Render.ChangeTexture(GetPathForID(DEFAULT_ONLINE_TEXTURE));
+                    }
+                    m_previousTextureID = null;
+                    m_forceUpdateText = ShowTextOnScreen;
+                }
+            }
+
             RaisePropertiesChanged();
         }
 
@@ -486,6 +518,11 @@ namespace Sandbox.Game.Entities.Blocks
         {
             UpdateText();
             UpdateIsWorking();
+            if(Render == null)
+            {
+                Debug.Fail("Closed entity!");
+                return;
+            }
             if (CheckIsWorking() == false)
             {
                 if (ShowTextOnScreen)
@@ -507,12 +544,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+            return base.CheckIsWorking() && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId);
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
-			ResourceSink.Update();
+            ResourceSink.Update();
             if (IsFunctional)
             {
                 if (ShowTextOnScreen == false)
@@ -652,6 +689,13 @@ namespace Sandbox.Game.Entities.Blocks
         {
             SyncFlag = true;
 
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+             BlockDefinition.ResourceSinkGroup,
+             BlockDefinition.RequiredPowerInput,
+             () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
 
             MyObjectBuilder_TextPanel ob = (MyObjectBuilder_TextPanel)objectBuilder;
@@ -671,7 +715,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             FontColor = ob.FontColor;
             BackgroundColor = ob.BackgroundColor;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             Render.NeedsDrawFromParent = true;
             this.ChangeInterval = ob.ChangeInterval;
             FontSize = ob.FontSize;
@@ -693,14 +737,9 @@ namespace Sandbox.Game.Entities.Blocks
                 RaisePropertiesChanged();
             }
 
-			var sinkComp = new MyResourceSinkComponent();
-			sinkComp.Init(
-             BlockDefinition.ResourceSinkGroup,
-             BlockDefinition.RequiredPowerInput,
-			 () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
-	        ResourceSink = sinkComp;
-			ResourceSink.Update();
-			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            
+            ResourceSink.Update();
+            ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
@@ -772,7 +811,7 @@ namespace Sandbox.Game.Entities.Blocks
                                      styleEnum: MyMessageBoxStyleEnum.Info,
                                      callback: OnClosedMessageBox,
                                      buttonType: MyMessageBoxButtonsType.YES_NO,
-                                     messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTooLongText)));
+                                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextTooLongText)));
             }
             else
             {
@@ -799,11 +838,19 @@ namespace Sandbox.Game.Entities.Blocks
             MyGuiScreenGamePlay.ActiveGameplayScreen = MyGuiScreenGamePlay.TmpGameplayScreenHolder;
             MyGuiScreenGamePlay.TmpGameplayScreenHolder = null;
             MySession.Static.Gpss.ScanText(m_textBox.Description.Text.ToString(), PublicTitle);
-            SyncObject.SendChangeDescriptionMessage(m_textBox.Description.Text, isPublic);
-            SyncObject.SendChangeOpenMessage(false);
+
+            foreach (var block in CubeGrid.CubeBlocks)
+            {
+                if (block.FatBlock != null && block.FatBlock.EntityId == EntityId)
+                {
+                    SyncObject.SendChangeDescriptionMessage(m_textBox.Description.Text, isPublic);
+                    SyncObject.SendChangeOpenMessage(false);
+                    return;
+                }
+            }
         }
 
-        protected override MySyncEntity OnCreateSync()
+        protected override MySyncComponentBase OnCreateSync()
         {
             return new MySyncTextPanel(this);
         }
@@ -824,22 +871,22 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 switch (relation)
                 {
-                    case Common.MyRelationsBetweenPlayerAndBlock.Enemies:
-                    case Common.MyRelationsBetweenPlayerAndBlock.Neutral:	// HACK: relation is neutral if sharing is set to none and we would like to access a faction text panel text field
-						if (MySession.Static.Factions.TryGetPlayerFaction(user.ControllerInfo.Controller.Player.Identity.IdentityId) == MySession.Static.Factions.TryGetPlayerFaction(IDModule.Owner) && 
-							actionEnum == UseActionEnum.Manipulate && IsAccessibleForFaction)
-							OnFactionUse(actionEnum, user);
-						else
-							OnEnemyUse(actionEnum, user);
+                    case VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies:
+                    case VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral:	// HACK: relation is neutral if sharing is set to none and we would like to access a faction text panel text field
+                        if (MySession.Static.Factions.TryGetPlayerFaction(user.ControllerInfo.Controller.Player.Identity.IdentityId) == MySession.Static.Factions.TryGetPlayerFaction(IDModule.Owner) &&
+                            actionEnum == UseActionEnum.Manipulate && IsAccessibleForFaction)
+                            OnFactionUse(actionEnum, user);
+                        else
+                            OnEnemyUse(actionEnum, user);
                         break;
-                    case Common.MyRelationsBetweenPlayerAndBlock.NoOwnership:
-                    case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
+                    case VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership:
+                    case VRage.Game.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)
                             OnOwnerUse(actionEnum, user);
                         else
                             OnFactionUse(actionEnum, user);
                         break;
-                    case Common.MyRelationsBetweenPlayerAndBlock.Owner:
+                    case VRage.Game.MyRelationsBetweenPlayerAndBlock.Owner:
                         OnOwnerUse(actionEnum, user);
                         break;
                 }
@@ -859,10 +906,14 @@ namespace Sandbox.Game.Entities.Blocks
                     else
                         Debug.Fail("Unknown state of text panel");
                 }
+                else if (actionEnum == UseActionEnum.OpenTerminal)
+                {
+                    MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
+                }
             }
             else
             {
-                if (user.ControllerInfo.Controller.Player == MySession.LocalHumanPlayer)
+                if (user.ControllerInfo.Controller.Player == MySession.Static.LocalHumanPlayer)
                 {
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 }
@@ -898,7 +949,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
 
-            if (user.ControllerInfo.Controller.Player == MySession.LocalHumanPlayer)
+            if (user.ControllerInfo.Controller.Player == MySession.Static.LocalHumanPlayer)
             {
                 if (!isAccessible)
                 {
@@ -962,20 +1013,20 @@ namespace Sandbox.Game.Entities.Blocks
         void UpdateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
 
         public bool IsInRange()
         {
-            MyCharacter player = MySession.LocalCharacter;
+            MyCharacter player = MySession.Static.LocalCharacter;
             if (player == null)
             {
                 return false;
@@ -1044,7 +1095,7 @@ namespace Sandbox.Game.Entities.Blocks
         public override void OnModelChange()
         {
             base.OnModelChange();
-			if (ResourceSink != null)
+            if (ResourceSink != null)
                 if (CheckIsWorking() == false)
                 {
                     if (ShowTextOnScreen)

@@ -1,15 +1,11 @@
 ﻿#region Using
 
 using ProtoBuf;
-using System.Xml.Serialization;
-using System;
-using System.Collections.Generic;
-using VRageMath;
 using VRage.ObjectBuilders;
 
 #endregion
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

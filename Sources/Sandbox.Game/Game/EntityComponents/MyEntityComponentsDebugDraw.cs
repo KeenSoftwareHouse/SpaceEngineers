@@ -1,8 +1,9 @@
 ﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using System;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -27,6 +28,55 @@ namespace VRage.Game.Components
 
                 BoundingSphereD bSphere = new BoundingSphereD(playerPos, 5.0f);
                 var entities = MyEntities.GetEntitiesInSphere(ref bSphere);
+                Vector3D lastEntityPos = Vector3D.Zero;
+                Vector3D offset = Vector3D.Zero;
+
+                var mat = MySector.MainCamera.ViewProjectionMatrix;
+
+                var fullscreenRect = Sandbox.Graphics.MyGuiManager.GetSafeGuiRectangle();
+                float aspect = (float)fullscreenRect.Height / fullscreenRect.Width;
+                float scaleX = 600;
+                float scaleY = scaleX * aspect;
+
+                Vector3D worldAxisPos = playerPos + 1.0f * fwVector;
+
+                // Draw the world-space axis in the middle of the screen
+                /*MyRenderProxy.DebugDrawArrow3D(worldAxisPos, worldAxisPos + Vector3D.Right * 0.1f, Color.Red, Color.Red, false, text: "World X");
+                MyRenderProxy.DebugDrawArrow3D(worldAxisPos, worldAxisPos + Vector3D.Up * 0.1f, Color.Green, Color.Green, false, text: "World Y");
+                MyRenderProxy.DebugDrawArrow3D(worldAxisPos, worldAxisPos + Vector3D.Backward * 0.1f, Color.Blue, Color.Blue, false, text: "World Z");*/
+
+                Vector3D posView = Vector3D.Transform(worldAxisPos, mat);
+                Vector3D rtView = Vector3D.Transform(worldAxisPos + Vector3D.Right * 0.1f, mat);
+                Vector3D upView = Vector3D.Transform(worldAxisPos + Vector3D.Up * 0.1f, mat);
+                Vector3D bwView = Vector3D.Transform(worldAxisPos + Vector3D.Backward * 0.1f, mat);
+                var center2D = new Vector2((float)posView.X * scaleX, (float)posView.Y * -scaleY * aspect);
+                var right2D = new Vector2((float)rtView.X * scaleX, (float)rtView.Y * -scaleY * aspect) - center2D;
+                var up2D = new Vector2((float)upView.X * scaleX, (float)upView.Y * -scaleY * aspect) - center2D;
+                var backward2D = new Vector2((float)bwView.X * scaleX, (float)bwView.Y * -scaleY * aspect) - center2D;
+
+                var frameSize = 150.0f;
+                var frameBR = Sandbox.Graphics.MyGuiManager.GetScreenCoordinateFromNormalizedCoordinate(new Vector2(1.0f, 1.0f));
+                var frameBL = frameBR + new Vector2(-frameSize, 0.0f);
+                var frameTR = frameBR + new Vector2(0.0f, -frameSize);
+                var frameTL = frameBR + new Vector2(-frameSize, -frameSize);
+                var frameCenter = (frameBR + frameTL) * 0.5f;
+
+                // Draw frame around the world-space axis
+                /*MyRenderProxy.DebugDrawLine2D(frameTL, frameTR, Color.White, Color.White);
+                MyRenderProxy.DebugDrawLine2D(frameTR, frameBR, Color.White, Color.White);
+                MyRenderProxy.DebugDrawLine2D(frameBR, frameBL, Color.White, Color.White);
+                MyRenderProxy.DebugDrawLine2D(frameBL, frameTL, Color.White, Color.White);*/
+
+                // Draw the world-space axis in the corner
+                MyRenderProxy.DebugDrawLine2D(frameCenter, frameCenter + right2D, Color.Red, Color.Red);
+                MyRenderProxy.DebugDrawLine2D(frameCenter, frameCenter + up2D, Color.Green, Color.Green);
+                MyRenderProxy.DebugDrawLine2D(frameCenter, frameCenter + backward2D, Color.Blue, Color.Blue);
+                MyRenderProxy.DebugDrawText2D(frameCenter + right2D, "World X", Color.Red, 0.5f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                MyRenderProxy.DebugDrawText2D(frameCenter + up2D, "World Y", Color.Green, 0.5f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                MyRenderProxy.DebugDrawText2D(frameCenter + backward2D, "World Z", Color.Blue, 0.5f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+
+                MyComponentsDebugInputComponent.DetectedEntities.Clear();
+
                 foreach (var entity in entities)
                 {
                     if (entity.PositionComp == null) continue;
@@ -35,12 +85,30 @@ namespace VRage.Game.Components
                     Vector3D pos2 = originalPos + upVector * 0.1f;
                     Vector3D pos = pos2 - rightVector * hoffset;
                     Vector3D viewVector = Vector3D.Normalize(originalPos - playerPos);
+
                     double dot = Vector3D.Dot(viewVector, fwVector);
                     if (dot < 0.9995)
                     {
+                        Vector3D rightObject = entity.PositionComp.WorldMatrix.Right * 0.3f;
+                        Vector3D upObject = entity.PositionComp.WorldMatrix.Up * 0.3f;
+                        Vector3D backwardObject = entity.PositionComp.WorldMatrix.Backward * 0.3f;
+
                         MyRenderProxy.DebugDrawSphere(originalPos, 0.01f, Color.White, 1.0f, false);
+                        MyRenderProxy.DebugDrawArrow3D(originalPos, originalPos + rightObject, Color.Red, Color.Red, false, text: "X");
+                        MyRenderProxy.DebugDrawArrow3D(originalPos, originalPos + upObject, Color.Green, Color.Green, false, text: "Y");
+                        MyRenderProxy.DebugDrawArrow3D(originalPos, originalPos + backwardObject, Color.Blue, Color.Blue, false, text: "Z");
                         continue;
                     }
+
+                    if (Vector3D.Distance(originalPos, lastEntityPos) < 0.01)
+                    {
+                        offset += rightVector * 0.3f;
+                        upVector = -upVector;
+                        pos2 = originalPos + upVector * 0.1f;
+                        pos = pos2 - rightVector * hoffset;
+                    }
+                    lastEntityPos = originalPos;
+                    
 
                     double dist = Vector3D.Distance(pos, playerPos);
                     double textSize = Math.Atan(fontSize / Math.Max(dist, 0.001));
@@ -67,6 +135,8 @@ namespace VRage.Game.Components
                     MyRenderProxy.DebugDrawLine3D(pos, topPos, Color.White, Color.White, false);
                     MyRenderProxy.DebugDrawLine3D(topPos, topPos + rightVector * 1.0f, Color.White, Color.White, false);
                     MyRenderProxy.DebugDrawText3D(currentPos, entity.GetType().ToString() + " - " + entity.DisplayName, Color.Orange, (float)textSize, false, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+
+                    MyComponentsDebugInputComponent.DetectedEntities.Add(entity);
 
                     foreach (var component in entity.Components)
                     {

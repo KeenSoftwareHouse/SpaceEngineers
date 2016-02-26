@@ -4,7 +4,7 @@ using VRageMath;
 using System.Collections.Generic;
 
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     
         [ProtoContract]

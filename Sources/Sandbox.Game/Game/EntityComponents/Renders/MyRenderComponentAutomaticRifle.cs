@@ -5,7 +5,7 @@ using System.Text;
 using Sandbox.Game.Weapons;
 using VRageMath;
 using Sandbox.Common.Components;
-using VRage.Components;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -26,7 +26,14 @@ namespace Sandbox.Game.Components
             MyGunBase rifleBase = m_rifleGun.GunBase;
             if (deltaTime <= rifleBase.MuzzleFlashLifeSpan)
             {
-                MyParticleEffects.GenerateMuzzleFlashLocal(Container.Entity, rifleBase.GetMuzzleLocalPosition(), Vector3.Forward, 0.2f, 0.3f);
+                if (MySandboxGame.Config.GraphicsRenderer == MySandboxGame.DirectX9RendererKey)
+                {
+                    MyParticleEffects.GenerateMuzzleFlashLocal(Container.Entity, rifleBase.GetMuzzleLocalPosition(), Vector3.Forward, 0.1f, 0.3f);
+                }
+                else
+                {
+                    MyParticleEffects.GenerateMuzzleFlash(rifleBase.GetMuzzleWorldPosition(), rifleBase.GetMuzzleWorldMatrix().Forward, 0.1f, 0.3f);
+                }
             }
         }
         #endregion

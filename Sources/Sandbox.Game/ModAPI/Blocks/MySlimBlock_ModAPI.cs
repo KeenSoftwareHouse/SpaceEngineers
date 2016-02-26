@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -83,7 +84,7 @@ namespace Sandbox.Game.Entities.Cube
             FullyDismount(outputInventory as MyInventory);
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_CubeBlock IMySlimBlock.GetCopyObjectBuilder()
+        MyObjectBuilder_CubeBlock IMySlimBlock.GetCopyObjectBuilder()
         {
             return GetCopyObjectBuilder();
         }
@@ -93,7 +94,7 @@ namespace Sandbox.Game.Entities.Cube
             GetMissingComponents(addToDictionary);
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_CubeBlock IMySlimBlock.GetObjectBuilder()
+        MyObjectBuilder_CubeBlock IMySlimBlock.GetObjectBuilder()
         {
             return GetObjectBuilder();
         }
@@ -167,7 +168,7 @@ namespace Sandbox.Game.Entities.Cube
             SpawnConstructionStockpile();
         }
 
-        void IMySlimBlock.MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags)
+        void IMySlimBlock.MoveItemsFromConstructionStockpile(IMyInventory toInventory, MyItemFlags flags)
         {
             MoveItemsFromConstructionStockpile(toInventory as MyInventory, flags);
         }

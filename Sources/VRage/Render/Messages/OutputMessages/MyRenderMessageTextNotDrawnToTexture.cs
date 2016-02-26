@@ -5,10 +5,10 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageTextNotDrawnToTexture : IMyRenderMessage
+    public class MyRenderMessageTextNotDrawnToTexture : MyRenderMessageBase
     {
         public long EntityId;
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.TextNotDrawnToTexture; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.TextNotDrawnToTexture; } }
     }
 }

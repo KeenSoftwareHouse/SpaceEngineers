@@ -1,4 +1,5 @@
-#include <brdf.h>
+#include <Lighting/brdf.h>
+#include <Math/Color.h>
 #include <alphamaskViews.h>
 
 float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
@@ -16,7 +17,11 @@ float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
 	return float3x3(T * invmax, B * invmax, N);
 }
 
-float3 colorize_1(float3 texcolor, float3 hsvmask, float coloring) {
+float3 colorize_1(float3 texcolor, float3 hsvmask, float coloring) 
+{
+	if (hsvmask.x == 0 && hsvmask.y == -1 && hsvmask.z == -1)
+		return texcolor;
+
 	float3 coloringc = hsv_to_rgb(float3(hsvmask.x, 1, 1)); // TODO: probably won't optimize by itself
 
 	// applying coloring & convert for masking
@@ -75,55 +80,53 @@ float4 sampleTree(int index, float3 cDir)
 
 
 
-
-
 void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
-	
-	if (object_.facing != 3)
-	{
+    float facing = 0;
+
+#ifndef USE_VOXEL_DATA
+    facing = object_.facing;
+#endif
+    if ( facing != 3 )
+    {
 #if !defined(MS_SAMPLE_COUNT) || defined(DEPTH_ONLY)
 
-		float alpha = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0).x;
-		if (alpha < 0.5f)
-		{
-			DISCARD_PIXEL;
-		}
+        float alpha = AlphamaskTexture.Sample(TextureSampler, pixel.custom.texcoord0).x;
+        if ( alpha < 0.5f )
+        {
+            DISCARD_PIXEL;
+        }
 
 #else
 
-		output.coverage = 0;
-		[unroll]
-		for (int s = 0; s < MS_SAMPLE_COUNT; s++)
-		{
-			float2 sample_texcoord = EvaluateAttributeAtSample(pixel.custom.texcoord0, s);
-			float alpha = AlphamaskTexture.Sample(TextureSampler, sample_texcoord).x;
-			output.coverage |= (alpha > 0.5f) ? (uint(1) << s) : 0;
-		}
+        output.coverage = 0;
+        [unroll]
+        for ( int s = 0; s < MS_SAMPLE_COUNT; s++ )
+        {
+            float2 sample_texcoord = EvaluateAttributeAtSample(pixel.custom.texcoord0, s);
+            float alpha = AlphamaskTexture.Sample(TextureSampler, sample_texcoord).x;
+            output.coverage |= (alpha > 0.5f) ? (uint(1) << s) : 0;
+        }
 
 #endif
-	}
+    }
 
-
-	
-	float4 cm = 0;
-	float alpha = 0;
-
+    float4 cm = 0;
+    float alpha = 0;
+    float3 keyColor = pixel.key_color.xyz;
 
 #ifndef DEPTH_ONLY
-	//float4 cm = float4(pixel.custom.texcoord0.xy, 0, 1);
-	//float4 cm = float4(pixel.custom.cDir.xy, 0, 1);
-	float4 extras = AmbientOcclusionTexture.Sample(TextureSampler, pixel.custom.texcoord0);
-	float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+    //float4 cm = float4(pixel.custom.texcoord0.xy, 0, 1);
+    //float4 cm = float4(pixel.custom.cDir.xy, 0, 1);
+    float4 extras = AmbientOcclusionTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+    float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 #endif
 
-	
-	float2 texCoords = pixel.custom.texcoord0;
 
+    float2 texCoords = pixel.custom.texcoord0;
 
-	if (object_.facing == 3)
+    if ( facing == 3 )
 	{
-	
 		//float3 p0 = (pixel.custom.cDir * 20 - pixel.custom.world_pos) / 20.0;
 		float3 p0 = pixel.custom.cDir / 20; //scaled tree
 		//float3 camDir = normalize(pixel.custom.cDir);
@@ -142,25 +145,6 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
 		float3 offsetDir = 0;
 		float3 p = p0;
-
-		/*if (cmIt.a > 0.2)
-		{
-			cmIt.r /= (cmIt.a == 0.0 ? 1.0 : cmIt.a);
-			float t = (cmIt.r * (2.0 * sqrt(2.0)) - sqrt(2.0));
-			t = 1.0 - t;
-			p = p0 - 0.25 * camDirW * t;
-
-			cm1 = sampleColor(pixel.custom.view_indices.x, p);
-			cm2 = sampleColor(pixel.custom.view_indices.y, p);
-			cm3 = sampleColor(pixel.custom.view_indices.z, p);
-
-			cmIt = (cm1 * pixel.custom.view_blends.x + cm2 * pixel.custom.view_blends.y + cm3 * pixel.custom.view_blends.z);
-
-			cmIt.r /= (cmIt.a == 0.0 ? 1.0 : cmIt.a);
-			t = (cmIt.r * (2.0 * sqrt(2.0)) - sqrt(2.0));
-			t = 1.0 - t;
-			p = p0 - 0.15 * camDirW * t;
-		}*/
 
 		cm = cmIt;
 		alpha = tIt.w;
@@ -183,7 +167,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 			float d = (lm.r * (2.0 * sqrt(2.0)) - sqrt(2.0)) - dot(normalize(newP), pixel.custom.lDir);
 			float kc = 1 - exp(-10.0*max(d, 0.0));
 
-			ng = float4(0, 0, 1, 0.5);
+			ng = float4(0, 0, 1, 0.125);
 
 			extras = float4(tIt.z, 0, 0, 0);
 		/*	if (pixel.custom.view_indices.x > 181)
@@ -194,6 +178,8 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 */
 			//cm.xyz = calculate_shadow_fast_aprox(newP);
 			//cm.xyz = lerp(cm.xyz, pixel.key_color, tIt.r);
+			extras.w = tIt.r;
+			//keyColor *= keyColor * keyColor;
 
 			cm.w = 0;
 
@@ -239,7 +225,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 		//x = -proj43 / (depth + proj33);
 		//depth = -proj43 / x - proj33;
 
-		float linearDepth = -proj43 / (pixel.screen_position.z + proj33);
+        float linearDepth = linearize_depth(output.depth, proj33, proj43);
 		float newDepth = linearDepth + 20 * cm.w * cm.w * cm.w;
 
 		output.depth = -proj43 / newDepth - proj33;
@@ -285,7 +271,8 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	}
 	else 
 	{
-		output.base_color = colorize_1(cm.xyz, pixel.key_color.xyz, color_mask);
+		output.base_color = colorize_1(cm.xyz, keyColor, color_mask);
+		//output.base_color = pixel.key_color.xyz;
 	}
 
 	
@@ -310,7 +297,7 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 	// bc7 compression artifacts can give byte value 1 for 0, which should more visible than small shift
 	output.emissive = max(output.emissive, saturate(extras.y - 1 / 255. + pixel.emissive));
 
-	if (object_.facing)
+    if ( facing )
 	{
 		output.id = 2;
 	}
@@ -318,9 +305,8 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
 #endif
 
-#ifdef DITHERED
-
-	float tex_dither = Dither8x8[(uint2)pixel.screen_position.xy % 8];
+#ifdef DITHERED_LOD
+	float tex_dither = rand(pixel.screen_position.xy);
 	float object_dither = abs(pixel.custom_alpha);
 
 	if (object_dither > 1)

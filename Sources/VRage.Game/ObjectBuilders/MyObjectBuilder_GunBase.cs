@@ -1,14 +1,11 @@
 ﻿using ProtoBuf;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 using VRage.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -18,6 +15,7 @@ namespace Sandbox.Common.ObjectBuilders
         public class RemainingAmmoIns
         {
             [XmlAttribute]
+            [Nullable]
             public string SubtypeName;
 
             [XmlAttribute]

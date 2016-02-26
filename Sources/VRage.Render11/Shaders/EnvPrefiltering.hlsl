@@ -1,35 +1,7 @@
-#ifndef ENV_PREFILTERING__
-#define ENV_PREFILTERING__
-
-#include <common.h>
-#include <brdf.h>
-
-TextureCube<float4> ProbeTex : register( t0 );
-Texture2DArray<float4> PrevMipmap : register( t0 );
-RWTexture2DArray<float4> UAOutput : register( u0 );
-
-cbuffer Constants : register( b1 )
-{
-	uint SamplesNum; // power of 2
-	uint EnvProbeRes;
-	uint MipResolution;
-	uint FaceId;
-	float Gloss_Blend;
-}
+#include <EnvPrefiltering.h>
 
 [numthreads(8, 8, 1)]
-void buildMipmap(uint3 dispatchThreadID : SV_DispatchThreadID) {
-	uint2 texel = dispatchThreadID.xy;
-
-	UAOutput[uint3(texel, 0)] = (
-	 	PrevMipmap[uint3(texel * 2, 0)] + 
-	 	PrevMipmap[uint3(texel * 2 + uint2(1, 0), 0)] + 
-	 	PrevMipmap[uint3(texel * 2 + uint2(0, 1), 0)] + 
-	 	PrevMipmap[uint3(texel * 2 + uint2(1, 1), 0)]) * 0.25;
-}
-
-[numthreads(8, 8, 1)]
-void prefilter(uint3 dispatchThreadID : SV_DispatchThreadID) {
+void __compute_shader(uint3 dispatchThreadID : SV_DispatchThreadID) {
 
 	uint2 texel = dispatchThreadID.xy;
 	float a = remap_gloss(Gloss_Blend);
@@ -75,19 +47,3 @@ void prefilter(uint3 dispatchThreadID : SV_DispatchThreadID) {
 	acc.xyz /= acc.w;
 	UAOutput[uint3(texel, 0)] = acc;
 }
-
-Texture2DArray<float3> Face0 : register( t0 );
-Texture2DArray<float3> Face1 : register( t1 );
-RWTexture2DArray<float3> BlendOutput : register( u0 );
-
-[numthreads(8, 8, 1)]
-void blend(uint3 dispatchThreadID : SV_DispatchThreadID) {
-	uint2 texel = dispatchThreadID.xy;
-
-	if(any(texel >= MipResolution)) return;
-
-	BlendOutput[uint3(texel, 0)] = lerp(Face0[uint3(texel, 0)].xyz, Face1[uint3(texel, 0)].xyz, Gloss_Blend);
-	//BlendOutput[uint3(texel, 0)] = abs(Face0[uint3(texel, 0)].xyz - Face1[uint3(texel, 0)].xyz);
-}
-
-#endif

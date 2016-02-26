@@ -10,6 +10,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRageRender;
 using System.Diagnostics;
 using Sandbox.Game.EntityComponents;
+using VRage.Game;
 using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
@@ -34,14 +35,14 @@ namespace Sandbox.Game.Entities.Blocks
             get { return (MyUpgradeModuleDefinition)base.BlockDefinition; }
         }
 
-        public override void Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
+        public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
             base.Init(builder, cubeGrid);
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             m_connectedBlocks = new Dictionary<ConveyorLinePosition, MyCubeBlock>();
-            m_dummies = new SortedDictionary<string,MyModelDummy>(Engine.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model).Dummies);
+            m_dummies = new SortedDictionary<string,MyModelDummy>(VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model).Dummies);
 
             InitDummies();
 
@@ -119,7 +120,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_connectedBlocks.Clear();
             m_connectionPositions = MyMultilineConveyorEndpoint.GetLinePositions(this, m_dummies, "detector_upgrade");
-            for (int i = 0; i < m_connectionPositions.Count(); i++)
+            for (int i = 0; i < m_connectionPositions.Length; i++)
             {
                 m_connectionPositions[i] = MyMultilineConveyorEndpoint.PositionToGridCoords(m_connectionPositions[i], this);
                 m_connectedBlocks.Add(m_connectionPositions[i], null);
@@ -367,7 +368,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get
             {
-                return (uint)m_upgrades.Count();
+                return (uint)m_upgrades.Length;
             }
         }
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.Generics;
 
 namespace Sandbox.Engine.Physics
@@ -34,7 +35,7 @@ namespace Sandbox.Engine.Physics
             job.m_args = args;
             args.Tracker.Add(args.DefId, job);
 
-            MyPrecalcComponent.EnqueueBack(job, true);
+            MyPrecalcComponent.EnqueueBack(job);
         }
         public MyBreakableShapeCloneJob():base(true) {}
 

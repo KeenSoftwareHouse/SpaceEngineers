@@ -6,11 +6,13 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -29,6 +31,8 @@ namespace Sandbox.Game.EntityComponents
             set { m_tmpConnectedEntity = (MyEntity)value; } 
         }
 
+        public new MyEntity Entity { get { return base.Entity as MyEntity; } }
+
 	    struct PerTypeData
 	    {
 	        public float CurrentInput;
@@ -41,7 +45,11 @@ namespace Sandbox.Game.EntityComponents
 
 	    private PerTypeData[] m_dataPerType;
 
-	    private static readonly List<MyResourceSinkInfo> m_singleHelperList = new List<MyResourceSinkInfo>();
+        private readonly Dictionary<MyDefinitionId, int> m_resourceTypeToIndex = new Dictionary<MyDefinitionId, int>(1, MyDefinitionId.Comparer);
+        private readonly List<MyDefinitionId> m_resourceIds = new List<MyDefinitionId>(1);
+
+        [ThreadStatic]
+        private static List<MyResourceSinkInfo> m_singleHelperList;
 
         #region Properties
         /// <summary>
@@ -57,13 +65,11 @@ namespace Sandbox.Game.EntityComponents
         /// demand under stress.
         /// </summary>
         public float MaxRequiredInput { get { return m_dataPerType[0].MaxRequiredInput; } set { m_dataPerType[0].MaxRequiredInput = value; } }
-        public float RequiredInput { get { return m_dataPerType[0].RequiredInput; } }
+        public float RequiredInput { get { return m_dataPerType[0].RequiredInput; } }   // TODO: Remove these properties
         public float SuppliedRatio { get { return m_dataPerType[0].SuppliedRatio; } }
         public float CurrentInput { get { return m_dataPerType[0].CurrentInput; } }
         public bool IsPowered { get { return m_dataPerType[0].IsPowered; } }
 
-		private readonly Dictionary<MyDefinitionId, int> m_resourceTypeToIndex = new Dictionary<MyDefinitionId, int>(1); 
-		private readonly List<MyDefinitionId> m_resourceIds = new List<MyDefinitionId>(1);
         public override ListReader<MyDefinitionId> AcceptedResources { get { return new ListReader<MyDefinitionId>(m_resourceIds); } }
         #endregion
 
@@ -71,7 +77,12 @@ namespace Sandbox.Game.EntityComponents
         public event MyResourceAvailableDelegate ResourceAvailable;
         public MyCurrentResourceInputChangedDelegate CurrentInputChanged;
         public event Action IsPoweredChanged;
-        public event Action<MyResourceSinkComponent> OnAddType;
+
+        // Called after all processing for adding a new type has been done
+        public event Action<MyResourceSinkComponent, MyDefinitionId> OnAddType;
+
+        // Called before all processing for removing a type has been done
+        public event Action<MyResourceSinkComponent, MyDefinitionId> OnRemoveType;
 
 		public MyResourceSinkComponent(int initialAllocationSize = 1)
 		{
@@ -80,6 +91,7 @@ namespace Sandbox.Game.EntityComponents
 
 		public void Init(MyStringHash group, float maxRequiredInput, Func<float> requiredInputFunc)	// MK: TODO: Remove this
 		{
+            MyUtils.Init(ref m_singleHelperList);
             m_singleHelperList.Add(new MyResourceSinkInfo { ResourceTypeId = MyResourceDistributorComponent.ElectricityId, MaxRequiredInput = maxRequiredInput, RequiredInputFunc = requiredInputFunc });
             Init(group, m_singleHelperList);
             m_singleHelperList.Clear();
@@ -87,6 +99,7 @@ namespace Sandbox.Game.EntityComponents
 
 	    public void Init(MyStringHash group, MyResourceSinkInfo sinkData)
 	    {
+            MyUtils.Init(ref m_singleHelperList);
 	        m_singleHelperList.Add(sinkData);
 	        Init(group, m_singleHelperList);
 	        m_singleHelperList.Clear();
@@ -102,6 +115,7 @@ namespace Sandbox.Game.EntityComponents
 
             m_resourceTypeToIndex.Clear();
             m_resourceIds.Clear();
+            ClearAllCallbacks();
 
 			int resourceIndexCounter = 0;
             for (int dataIndex = 0; dataIndex < sinkData.Count; ++dataIndex)
@@ -115,7 +129,10 @@ namespace Sandbox.Game.EntityComponents
 
 	    public void AddType(ref MyResourceSinkInfo sinkData)
 	    {
-	        var newDataPerType = new PerTypeData[m_dataPerType.Length + 1];
+            if (m_resourceIds.Contains(sinkData.ResourceTypeId) || m_resourceTypeToIndex.ContainsKey(sinkData.ResourceTypeId))
+                return;
+
+            var newDataPerType = new PerTypeData[m_resourceIds.Count + 1];
 	        for (int dataIndex = 0; dataIndex < m_dataPerType.Length; ++dataIndex)
 	        {
 	            newDataPerType[dataIndex] = m_dataPerType[dataIndex];
@@ -128,8 +145,33 @@ namespace Sandbox.Game.EntityComponents
 	        };
             m_resourceIds.Add(sinkData.ResourceTypeId);
             m_resourceTypeToIndex.Add(sinkData.ResourceTypeId, m_dataPerType.Length - 1);
-	        OnAddType(this);
+            if(OnAddType != null)
+	            OnAddType(this, sinkData.ResourceTypeId);
 	    }
+
+
+        public void RemoveType(ref MyDefinitionId resourceType)
+        {
+            if(!m_resourceIds.Contains(resourceType))
+                return;
+
+            if (OnRemoveType != null)
+                OnRemoveType(this, resourceType);
+
+            var newDataPerType = new PerTypeData[m_resourceIds.Count - 1];
+            int typeIndex = GetTypeIndex(resourceType);
+            int destinationIndex = 0;
+            for(int dataIndex = 0; dataIndex < m_dataPerType.Length; ++dataIndex, ++destinationIndex)
+            {
+                if (dataIndex == typeIndex)
+                    continue;
+
+                newDataPerType[destinationIndex] = m_dataPerType[dataIndex];
+            }
+            m_dataPerType = newDataPerType;
+            m_resourceIds.Remove(resourceType);
+            m_resourceTypeToIndex.Remove(resourceType);
+        }
 
 	    private void AllocateData(int allocationSize)
 		{
@@ -139,7 +181,7 @@ namespace Sandbox.Game.EntityComponents
         /// <summary>
         /// This should be called only from MyResourceDistributor.
         /// </summary>
-        public override void SetInputFromDistributor(MyDefinitionId resourceTypeId, float newResourceInput, bool isAdaptible)
+        public override void SetInputFromDistributor(MyDefinitionId resourceTypeId, float newResourceInput, bool isAdaptible, bool fireEvents = true)
         {
 	        int typeIndex = GetTypeIndex(resourceTypeId);
             float newSuppliedRatio;
@@ -152,8 +194,14 @@ namespace Sandbox.Game.EntityComponents
             }
             else
             {
-                newIsPowered = m_dataPerType[typeIndex].RequiredInput == 0f;
-                newSuppliedRatio = (m_dataPerType[typeIndex].RequiredInput == 0 ? 1f : 0f);
+                newIsPowered = false;
+                newSuppliedRatio = 0f;
+
+                if (MyPerGameSettings.Game == GameEnum.ME_GAME) // This is needed in medieval because of character jetpack. 
+                {
+                    newIsPowered = m_dataPerType[typeIndex].RequiredInput == 0f;
+                    newSuppliedRatio = (m_dataPerType[typeIndex].RequiredInput == 0 ? 1f : 0f);
+                }
             }
 
             bool currentInputChanged = newResourceInput != m_dataPerType[typeIndex].CurrentInput;
@@ -163,10 +211,13 @@ namespace Sandbox.Game.EntityComponents
             m_dataPerType[typeIndex].SuppliedRatio = newSuppliedRatio;
             m_dataPerType[typeIndex].CurrentInput = newResourceInput;
 
-            if (currentInputChanged && CurrentInputChanged != null)
-                CurrentInputChanged(resourceTypeId, oldInput, this);
-            if (isPoweredChanged && IsPoweredChanged != null)
-                IsPoweredChanged();
+            if (fireEvents)
+            {
+                if (currentInputChanged && CurrentInputChanged != null)
+                    CurrentInputChanged(resourceTypeId, oldInput, this);
+                if (isPoweredChanged && IsPoweredChanged != null)
+                    IsPoweredChanged();
+            }
         }
 
         public override bool IsPowerAvailable(MyDefinitionId resourceTypeId, float power)
@@ -223,6 +274,15 @@ namespace Sandbox.Game.EntityComponents
 				RequiredInputChanged(resourceTypeId, this, oldValue, newRequiredInput);
 		}
 
+        /// <summary>
+        /// Change the required input function (callback) for given type of resource. It does not call it immediatelly to update required input value.
+        /// </summary>
+        public override void SetRequiredInputFuncByType(MyDefinitionId resourceTypeId, Func<float> newRequiredInputFunc)
+        {
+            int typeIndex = GetTypeIndex(resourceTypeId);
+            m_dataPerType[typeIndex].RequiredInputFunc = newRequiredInputFunc;
+        }
+
         public override float SuppliedRatioByType(MyDefinitionId resourceTypeId)
 		{
 			return m_dataPerType[GetTypeIndex(resourceTypeId)].SuppliedRatio;
@@ -254,6 +314,16 @@ namespace Sandbox.Game.EntityComponents
 
 	        Vector3 position = worldMatrix.Translation + worldMatrix.Up;
 	        MyRenderProxy.DebugDrawText3D(position, ToString(), Color.White, 0.5f, true, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+        }
+
+        private void ClearAllCallbacks()
+        {
+            RequiredInputChanged = null;
+            ResourceAvailable = null;
+            CurrentInputChanged = null;
+            IsPoweredChanged = null;
+            OnAddType = null;
+            OnRemoveType = null;
         }
 
 		public override string ComponentTypeDebugString { get { return "Resource Sink"; } }

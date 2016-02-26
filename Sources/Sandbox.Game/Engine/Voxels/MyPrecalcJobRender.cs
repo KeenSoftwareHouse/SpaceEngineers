@@ -1,4 +1,5 @@
 ﻿using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
@@ -25,40 +26,31 @@ namespace Sandbox.Engine.Voxels
             public MyCellCoord Cell;
             public UInt64 WorkId;
             public MyWorkTracker<ulong, MyPrecalcJobRender> RenderWorkTracker;
-            public bool IsHighPriority;
             public Func<int> Priority;
             public Action<Color> DebugDraw;
         }
 
         private static readonly MyDynamicObjectPool<MyPrecalcJobRender> m_instancePool = new MyDynamicObjectPool<MyPrecalcJobRender>(16);
 
+        public static bool UseIsoCache = false;
+        public static LRUCache<UInt64, MyIsoMesh> IsoMeshCache = new LRUCache<UInt64, MyIsoMesh>(4096);
+
+
         [ThreadStatic]
         private static MyRenderCellBuilder m_renderCellBuilder;
-        private static MyRenderCellBuilder RenderCellBuilder
-        {
-            get
-            {
-                if (m_renderCellBuilder == null)
-                    m_renderCellBuilder = new MyRenderCellBuilder();
-                return m_renderCellBuilder;
-            }
-        }
+        private static MyRenderCellBuilder RenderCellBuilder { get { return MyUtils.Init(ref m_renderCellBuilder); } }
 
-        private readonly List<MyClipmapCellBatch> m_batches = new List<MyClipmapCellBatch>();
+        private List<MyClipmapCellBatch> m_batches = new List<MyClipmapCellBatch>();
 
         private Args m_args;
         private volatile bool m_isCancelled;
 
         private MyClipmapCellMeshMetadata m_metadata;
 
+
         public Args Arguments
         {
             get { return m_args; }
-        }
-
-        public bool IsHighPriority
-        {
-            get { return m_args.IsHighPriority; }
         }
 
         public MyPrecalcJobRender() :
@@ -72,9 +64,13 @@ namespace Sandbox.Engine.Voxels
 
             job.m_isCancelled = false;
             job.m_args = args;
-            args.RenderWorkTracker.Add(args.WorkId, job);
 
-            MyPrecalcComponent.EnqueueBack(job, false /*job.m_args.IsHighPriority*/);
+            if (!args.RenderWorkTracker.Exists(args.WorkId))
+            {
+                args.RenderWorkTracker.Add(args.WorkId, job);
+            }
+
+            MyPrecalcComponent.EnqueueBack(job);
         }
 
         public override void DoWork()
@@ -89,26 +85,51 @@ namespace Sandbox.Engine.Voxels
                 m_metadata.LocalAabb = BoundingBox.CreateInvalid();
 
                 var cellSize = MyVoxelCoordSystems.RenderCellSizeInLodVoxels(m_args.Cell.Lod);
-                var min = m_args.Cell.CoordInLod * cellSize;
+                var min = m_args.Cell.CoordInLod * cellSize - 1;
                 var max = min + cellSize - 1
                     + 1 // overlap to neighbor so geometry is stitched together within same LOD
                     + 1 // extra overlap so there are more vertices for mapping to parent LOD
-                    + 1 // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
-                    ;
+                    + 1; // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
+                //    + 1 // why not
+                  //  + 1 // martin kroslak approved
 
-                MyIsoMesh highResMesh = MyPrecalcComponent.IsoMesher.Precalc(m_args.Storage, m_args.Cell.Lod, min, max, true, true);
+                var clipmapCellId = MyCellCoord.GetClipmapCellHash(m_args.ClipmapId, m_args.Cell.PackId64());
+                MyIsoMesh highResMesh = IsoMeshCache.Read(clipmapCellId);
+                    
+                if (highResMesh == null)
+                {
+                    highResMesh = MyPrecalcComponent.IsoMesher.Precalc(m_args.Storage, m_args.Cell.Lod, min, max, true, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION);
+                    if (UseIsoCache && highResMesh != null)
+                        IsoMeshCache.Write(clipmapCellId, highResMesh);
+                }
 
                 if (m_isCancelled || highResMesh == null)
                     return;
 
                 MyIsoMesh lowResMesh = null;
-  
-                // Less detailed mesh for vertex morph targets
-                min >>= 1;
-                max >>= 1;
-                min -= 1;
-                max += 1;
-               // lowResMesh = MyPrecalcComponent.IsoMesher.Precalc(m_args.Storage, m_args.Cell.Lod + 1, min, max, true, true);
+
+                if (m_args.Cell.Lod < 15  && MyFakes.ENABLE_VOXEL_LOD_MORPHING)
+                {
+                    var nextLodCell = m_args.Cell;
+                    nextLodCell.Lod++;
+                    clipmapCellId = MyCellCoord.GetClipmapCellHash(m_args.ClipmapId, nextLodCell.PackId64());
+
+                    lowResMesh = IsoMeshCache.Read(clipmapCellId);
+
+                    if (lowResMesh == null)
+                    {
+                        // Less detailed mesh for vertex morph targets
+                        min >>= 1;
+                        max >>= 1;
+                        min -= 1;
+                        max += 2;
+
+                        lowResMesh = MyPrecalcComponent.IsoMesher.Precalc(m_args.Storage, m_args.Cell.Lod + 1, min, max, true, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION);
+
+                        if (UseIsoCache && lowResMesh != null)
+                            IsoMeshCache.Write(clipmapCellId, lowResMesh);
+                    }
+                }
 
                 if (m_isCancelled)
                     return;
@@ -132,7 +153,7 @@ namespace Sandbox.Engine.Voxels
                 MyRenderProxy.UpdateClipmapCell(
                     m_args.ClipmapId,
                     ref m_metadata,
-                    m_batches);
+                    ref m_batches);
                 if (!IsValid)
                 {
                     // recompute the whole things when results are not valid
@@ -175,6 +196,7 @@ namespace Sandbox.Engine.Voxels
             get
             {
                 Debug.Assert(m_args.Priority != null, "Missing priority function!");
+
                 return m_isCancelled ? 0 : m_args.Priority();
             }
         }

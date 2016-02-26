@@ -15,6 +15,8 @@ using VRageMath;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Definitions;
 using Sandbox.Game.Weapons;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.GameSystems
 {

@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common;
+using Sandbox.Definitions;
 using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
@@ -7,9 +8,12 @@ using Sandbox.Graphics.GUI;
 using System;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Gui;
 using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 using Color = VRageMath.Color;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using Vector2 = VRageMath.Vector2;
@@ -24,24 +28,6 @@ using Vector2 = VRageMath.Vector2;
 //  end texture correct and without ends it's even faster (less rectangles to draw)
 namespace Sandbox.Game.Gui
 {
-    //  This enums must have same name as source texture files used to create texture atlas (only ".tga" files are supported)
-    //  IMPORTANT: If you change order or names in this enum, update it also in MyEnumsToStrings
-    public enum MyHudTexturesEnum : byte
-    {
-        corner,
-        crosshair,
-        HudOre,
-        Target_enemy,
-        Target_friend,
-        Target_neutral,
-        Target_me,
-        TargetTurret,
-        DirectionIndicator,
-        gravity_point_red,
-        gravity_point_white,
-        gravity_arrow,
-    }
-
     public class MyGuiScreenHudBase : MyGuiScreenBase
     {
         protected string m_atlas;
@@ -114,28 +100,123 @@ namespace Sandbox.Game.Gui
             return ((normGuiPos * safeGuiSize + safeGuiOffset) - safeFullscreenOffset) / safeFullscreenSize;
         }
 
-        public static void DrawCrosshair(string atlas, MyAtlasTextureCoordinate textureCoord, MyHudCrosshair crosshair)
+        public static void HandleSelectedObjectHighlight(MyHudSelectedObject selection, MyHudObjectHighlightStyleData? data)
         {
-            Vector2 rightVector = new Vector2(crosshair.UpVector.Y, crosshair.UpVector.X);
+            if (selection.PreviousObject.Instance != null)
+                RemoveObjectHighlightInternal(ref selection.PreviousObject, true);
 
-            float hudSizeX = MyGuiManager.GetSafeFullscreenRectangle().Width / MyGuiManager.GetHudSize().X;
-            float hudSizeY = MyGuiManager.GetSafeFullscreenRectangle().Height / MyGuiManager.GetHudSize().Y;
-            var pos = crosshair.Position;
-            if (MyVideoSettingsManager.IsTripleHead())
-                pos.X += 1.0f;
+            switch (selection.State)
+            {
+                case MyHudSelectedObjectState.VisibleStateSet:
+                {
+                    if (selection.Visible && (selection.HighlightStyle == MyHudObjectHighlightStyle.HighlightStyle1
+                            || selection.VisibleRenderID != selection.CurrentObject.Instance.RenderObjectID))
+                        MyGuiScreenHudBase.DrawSelectedObjectHighlight(selection, data);
 
-            VRageRender.MyRenderProxy.DrawSpriteAtlas(
-                atlas,
-                pos,
-                textureCoord.Offset,
-                textureCoord.Size,
-                rightVector,
-                new Vector2(hudSizeX, hudSizeY),
-                crosshair.Color,
-                crosshair.HalfSize);
+                    break;
+                }
+                case MyHudSelectedObjectState.MarkedForVisible:
+                {
+                    MyGuiScreenHudBase.DrawSelectedObjectHighlight(selection, data);
+                    break;
+                }
+                case MyHudSelectedObjectState.MarkedForNotVisible:
+                {
+                    MyGuiScreenHudBase.RemoveObjectHighlight(selection);
+                    break;
+                }
+            }
         }
 
-        public static void DrawSelectedObjectHighlight(string atlasTexture, MyAtlasTextureCoordinate textureCoord, MyHudSelectedObject selection)
+        private static void DrawSelectedObjectHighlight(MyHudSelectedObject selection, MyHudObjectHighlightStyleData? data)
+        {
+            if (selection.InteractiveObject.RenderObjectID == -1)
+            {
+                // Invalid render object ID
+                return;
+            }
+
+            switch (selection.HighlightStyle)
+            {
+                case MyHudObjectHighlightStyle.HighlightStyle1:
+                {
+                    DrawSelectedObjectHighlight1(selection, data.Value.AtlasTexture, data.Value.TextureCoord);
+                    break;
+                }
+                case MyHudObjectHighlightStyle.HighlightStyle2:
+                {
+                    int[] sectionIndices = selection.SectionIndices;
+                    if (sectionIndices != null && selection.SectionIndices.Length == 0)
+                    {
+                        // There was a problem with sections look-up, fallback to previous highlight style
+                        DrawSelectedObjectHighlight1(selection, data.Value.AtlasTexture, data.Value.TextureCoord);
+                        break;
+                    }
+
+                    DrawSelectedObjectHighlight2(selection);
+                    break;
+                }
+            }
+
+            selection.Visible = true;
+        }
+
+        private static void RemoveObjectHighlight(MyHudSelectedObject selection)
+        {
+            RemoveObjectHighlightInternal(ref selection.CurrentObject, false);
+        
+            selection.Visible = false;
+            if (!selection.KeepObjectReference)
+                selection.CurrentObject.Reset();
+        }
+
+        private static void RemoveObjectHighlightInternal(ref MyHudSelectedObjectStatus status, bool reset)
+        {
+            switch (status.Style)
+            {
+                case MyHudObjectHighlightStyle.HighlightStyle2:
+                {
+                    MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, 0, null, null, null, null, -1);
+                    break;
+                }
+            }
+
+            if (reset)
+                status.Reset();
+        }
+
+        public override bool Update(bool hasFocus)
+        {
+            bool retval = base.Update(hasFocus);
+
+            if (MySandboxGame.Config.ShowCrosshair)
+            {
+                MyHud.Crosshair.Update();
+            }
+
+            return retval;
+        }
+
+        public override bool Draw()
+        {
+            bool retval = base.Draw();
+
+            if (MySandboxGame.Config.ShowCrosshair)
+            {
+                MyHud.Crosshair.Draw(m_atlas, m_atlasCoords);
+            }
+
+            return retval;
+        }
+
+        private static void DrawSelectedObjectHighlight2(MyHudSelectedObject selection)
+        {
+            Color color = MyDefinitionManager.Static.EnvironmentDefinition.ContourHighlightColor;
+            float thickness = MyDefinitionManager.Static.EnvironmentDefinition.ContourHighlightThickness;
+            MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, 0, null, selection.SectionIndices, null, color, thickness);
+        }
+
+        public static void DrawSelectedObjectHighlight1(MyHudSelectedObject selection, string atlasTexture, MyAtlasTextureCoordinate textureCoord)
         {
             var rect = MyGuiManager.GetSafeFullscreenRectangle();
 

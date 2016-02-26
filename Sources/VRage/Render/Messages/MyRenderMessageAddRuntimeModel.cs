@@ -3,13 +3,13 @@ using VRage;
 
 namespace VRageRender
 {    
-    public class MyRenderMessageAddRuntimeModel : IMyRenderMessage
+    public class MyRenderMessageAddRuntimeModel : MyRenderMessageBase
     {
         public string Name;
         public string ReplacedModel;
         public MyModelData ModelData = new MyModelData();
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.AddRuntimeModel; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.AddRuntimeModel; } }
     }
 }

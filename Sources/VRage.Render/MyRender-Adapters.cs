@@ -24,6 +24,8 @@ namespace VRageRender
                 var currentDisplayMode = d3d.GetAdapterDisplayMode(i);
                 result[i].CurrentDisplayMode = new MyDisplayMode { Height = currentDisplayMode.Height, Width = currentDisplayMode.Width, RefreshRate = currentDisplayMode.RefreshRate, AspectRatio = currentDisplayMode.AspectRatio };
                 result[i].DeviceName = details.DeviceName;
+                result[i].VendorId = details.VendorId;
+                result[i].DeviceId = details.DeviceId;
                 result[i].Description = details.Description;
                 result[i].Name = details.Description + " (" + details.DeviceName.Replace("\\", "").Replace(".", "") + ")";
                 result[i].SupportedDisplayModes = new MyDisplayMode[0];

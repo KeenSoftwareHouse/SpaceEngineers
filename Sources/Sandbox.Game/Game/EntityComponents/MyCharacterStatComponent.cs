@@ -1,10 +1,10 @@
-﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
 
@@ -25,7 +25,7 @@ namespace Sandbox.Game.Components
             }
         }
 
-		public float HealthRatio { get { var retVal = 1.0f; var health = Health; if (Health != null) retVal = health.Value/health.MaxValue; return retVal; } }
+        public float HealthRatio { get { var retVal = 1.0f; var health = Health; if (health != null) retVal = health.Value / health.MaxValue; return retVal; } }
 
 		public static readonly float LOW_HEALTH_RATIO = 0.2f;
 

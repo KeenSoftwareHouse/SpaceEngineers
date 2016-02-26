@@ -9,12 +9,13 @@ using VRageRender;
 using VRage.Native;
 using Sandbox.Game;
 using System.Diagnostics;
+using System;
 
 namespace Sandbox.Engine.Voxels
 {
     class MyDualContouringMesher : IMyIsoMesher
     {
-        private MyStorageDataCache m_cache = new MyStorageDataCache();
+        private MyStorageData m_cache = new MyStorageData();
         private MyIsoMesh m_buffer = new MyIsoMesh();
 
         const int AFFECTED_RANGE_OFFSET = -1;
@@ -42,98 +43,140 @@ namespace Sandbox.Engine.Voxels
                 + 1 // overlap to neighbor so geometry is stitched together within same LOD
                 + 1; // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
 
-            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true,true);
+            return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck = false)
         {
             // change range so normal can be computed at edges (expand by 1 in all directions)
             voxelStart -= 1;
             voxelEnd += 1;
-            m_cache.Resize(voxelStart, voxelEnd);
-            storage.ReadRange(m_cache, MyStorageDataTypeFlags.Content, lod, ref voxelStart, ref voxelEnd);
-            if (!m_cache.ContainsIsoSurface())
-            {
-                return null;
-            }
 
-            var center = (storage.Size / 2) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
-            var voxelSize = MyVoxelConstants.VOXEL_SIZE_IN_METRES * (1 << lod);
-            var vertexCellOffset = voxelStart - AffectedRangeOffset;
-            double numCellsHalf = 0.5 * (m_cache.Size3D.X - 3);
-            var posOffset = ((Vector3D)vertexCellOffset + numCellsHalf) * (double)voxelSize;
+            if (storage == null) return null;
 
-            if (generateMaterials)
+            using (storage.Pin())
             {
-                m_cache.ClearMaterials(0);
-            }
+                if (storage.Closed) return null;    
 
-            IsoMesher mesher = new IsoMesher();
-            ProfilerShort.Begin("Dual Contouring");
-            unsafe
-            {
-                fixed (byte* voxels = m_cache.Data)
+                MyVoxelRequestFlags request = MyVoxelRequestFlags.ContentChecked; // | (doNotCheck ? MyVoxelRequestFlags.DoNotCheck : 0);
+
+                bool readAmbient = false;
+
+                if (generateMaterials && storage.DataProvider != null && storage.DataProvider.ProvidesAmbient)
+                    readAmbient = true;
+
+                m_cache.Resize(voxelStart, voxelEnd);
+                if (readAmbient) m_cache.StoreOcclusion = true;
+
+                storage.ReadRange(m_cache, MyStorageDataTypeFlags.Content, lod, ref voxelStart, ref voxelEnd, ref request);
+
+                if (request.HasFlag(MyVoxelRequestFlags.EmptyContent) || request.HasFlag(MyVoxelRequestFlags.FullContent)
+                    || (!request.HasFlag(MyVoxelRequestFlags.ContentChecked) && !m_cache.ContainsIsoSurface()))
                 {
-                    var size3d = m_cache.Size3D;
-                    Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
-                    mesher.Calculate(size3d.X, (VoxelData*)voxels, m_buffer, useAmbient, posOffset - center);
+                    return null;
                 }
-            }
-            ProfilerShort.End();
 
-            if (generateMaterials)
-            {
-                using (MyVoxelMaterialRequestHelper.StartContouring())
+                var center = (storage.Size / 2) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+                var voxelSize = MyVoxelConstants.VOXEL_SIZE_IN_METRES * (1 << lod);
+                var vertexCellOffset = voxelStart - AffectedRangeOffset;
+                double numCellsHalf = 0.5 * (m_cache.Size3D.X - 3);
+                var posOffset = ((Vector3D)vertexCellOffset + numCellsHalf) * (double)voxelSize;
+
+                if (generateMaterials)
                 {
-                    storage.ReadRange(m_cache, MyStorageDataTypeFlags.Material, lod, ref voxelStart, ref voxelEnd);
-                    bool hasOcclusionHint = false;
+                    // 255 is the new black
+                    m_cache.ClearMaterials(255);
+                }
+
+                if (readAmbient)
+                    m_cache.Clear(MyStorageDataTypeEnum.Occlusion, 0);
+
+                IsoMesher mesher = new IsoMesher();
+                ProfilerShort.Begin("Dual Contouring");
+                unsafe
+                {
+                    fixed (byte* content = m_cache[MyStorageDataTypeEnum.Content])
+                    fixed (byte* material = m_cache[MyStorageDataTypeEnum.Material])
+                    {
+                        var size3d = m_cache.Size3D;
+                        Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
+                        mesher.Calculate(size3d.X, content, material, m_buffer, useAmbient, posOffset - center);
+                    }
+                }
+                ProfilerShort.End();
+
+                if (generateMaterials)
+                {
+                    request = 0;
+
+                    request |= MyVoxelRequestFlags.SurfaceMaterial;
+                    request |= MyVoxelRequestFlags.OneMaterial;
+
+                    var req = readAmbient ? MyStorageDataTypeFlags.Material | MyStorageDataTypeFlags.Occlusion : MyStorageDataTypeFlags.Material; 
+
+                    storage.ReadRange(m_cache, req, lod, ref voxelStart, ref voxelEnd, ref request);
+
                     FixCacheMaterial(voxelStart, voxelEnd);
                     unsafe
                     {
-                        fixed (byte* voxels = m_cache.Data)
+                        fixed (byte* content = m_cache[MyStorageDataTypeEnum.Content])
+                        fixed (byte* material = m_cache[MyStorageDataTypeEnum.Material])
                         {
+                            int materialOverride = request.HasFlag(MyVoxelRequestFlags.OneMaterial) ? m_cache.Material(0) : -1;
                             var size3d = m_cache.Size3D;
                             Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
-                            mesher.CalculateMaterials(size3d.X, (VoxelData*)voxels, hasOcclusionHint, -1);
+
+                            if (readAmbient)
+                                fixed (byte* ambient = m_cache[MyStorageDataTypeEnum.Occlusion])
+                                    mesher.CalculateMaterials(size3d.X, content, material, ambient, materialOverride);
+                            else
+                                mesher.CalculateMaterials(size3d.X, content, material, null, materialOverride);
                         }
+
                     }
                 }
-            }
-            else
-                m_cache.ClearMaterials(0);
+                else
+                    m_cache.ClearMaterials(0);
 
-            mesher.Finish(m_buffer);
+                mesher.Finish(m_buffer);
 
-            if (m_buffer.VerticesCount == 0 && m_buffer.Triangles.Count == 0)
-            {
-                return null;
-            }
-
-            ProfilerShort.Begin("Geometry post-processing");
-            {
-                var positions = m_buffer.Positions.GetInternalArray();
-                var vertexCells = m_buffer.Cells.GetInternalArray();
-                for (int i = 0; i < m_buffer.VerticesCount; i++)
+                if (m_buffer.VerticesCount == 0 || m_buffer.Triangles.Count == 0)
                 {
-                    Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
-                    vertexCells[i] += vertexCellOffset;
-                    Debug.Assert(vertexCells[i].IsInsideInclusive(voxelStart + 1, voxelEnd - 1));
+                    return null;
                 }
 
-                m_buffer.PositionOffset = posOffset;
-                m_buffer.PositionScale = new Vector3((float)(numCellsHalf * voxelSize));
-                m_buffer.CellStart = voxelStart + 1;
-                m_buffer.CellEnd = voxelEnd - 1;
-            }
-            ProfilerShort.End();
+                ProfilerShort.Begin("Geometry post-processing");
+                {
+                    var positions = m_buffer.Positions.GetInternalArray();
+                    var vertexCells = m_buffer.Cells.GetInternalArray();
+                    for (int i = 0; i < m_buffer.VerticesCount; i++)
+                    {
+                        Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
+                        vertexCells[i] += vertexCellOffset;
+                        Debug.Assert(vertexCells[i].IsInsideInclusive(voxelStart + 1, voxelEnd - 1));
+                    }
 
-            // Replace filled mesh with new one.
-            // This way prevents allocation of meshes which then end up empty.
-            var buffer = m_buffer;
-            m_buffer = new MyIsoMesh();
-            return buffer;
+                    m_buffer.PositionOffset = posOffset;
+                    m_buffer.PositionScale = new Vector3((float)(numCellsHalf * voxelSize));
+                    m_buffer.CellStart = voxelStart + 1;
+                    m_buffer.CellEnd = voxelEnd - 1;
+                }
+                ProfilerShort.End();
+
+                // Replace filled mesh with new one.
+                // This way prevents allocation of meshes which then end up empty.
+                var buffer = m_buffer;
+                m_buffer = new MyIsoMesh();
+                return buffer;
+            }
         }
 
+        private void ComputeAndAssignOcclusion()
+        {
+            
+        }
+
+        //[Conditional("DEBUG")]
         private void FixCacheMaterial(Vector3I voxelStart, Vector3I voxelEnd)
         {
             var mcount = Sandbox.Definitions.MyDefinitionManager.Static.VoxelMaterialCount;
@@ -141,11 +184,16 @@ namespace Sandbox.Engine.Voxels
             voxelStart = Vector3I.Zero;
             var it = new Vector3I.RangeIterator(ref voxelStart, ref voxelEnd);
             var pos = it.Current;
-            for(;it.IsValid();it.GetNext(out pos))
+            for (; it.IsValid(); it.GetNext(out pos))
             {
                 var lin = m_cache.ComputeLinear(ref pos);
-                if (m_cache.Material(lin) >= mcount)
-                    m_cache.Material(lin, 0);
+                var mat = m_cache.Material(lin);
+
+                if (mat >= mcount && mat != MyVoxelConstants.NULL_MATERIAL)
+                {
+                    //Debug.Fail(String.Format("VoxelData contains invalid materials (id: {0}).", m_cache.Material(lin)));
+                    m_cache.Material(lin, MyVoxelConstants.NULL_MATERIAL);
+                }
             }
         }
 

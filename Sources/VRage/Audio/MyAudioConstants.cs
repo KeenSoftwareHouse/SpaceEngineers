@@ -7,6 +7,8 @@ namespace VRage.Audio
         public const float MUSIC_MASTER_VOLUME_MAX = 1;
         public const float GAME_MASTER_VOLUME_MIN = 0;
         public const float GAME_MASTER_VOLUME_MAX = 1;
+        public const float VOICE_CHAT_VOLUME_MIN = 0;
+        public const float VOICE_CHAT_VOLUME_MAX = 1;
 
         public const float REVERB_MAX = 100;
 

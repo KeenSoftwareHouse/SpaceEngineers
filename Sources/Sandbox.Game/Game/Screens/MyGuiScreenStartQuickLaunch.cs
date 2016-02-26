@@ -7,6 +7,7 @@ using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
 using System;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;

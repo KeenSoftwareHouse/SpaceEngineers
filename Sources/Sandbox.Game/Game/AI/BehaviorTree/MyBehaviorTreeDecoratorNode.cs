@@ -1,9 +1,9 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {
@@ -15,6 +15,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         private MyBehaviorTreeState m_defaultReturnValue;
 
         private string m_decoratorLogicName;
+        public string GetName() { return m_decoratorLogicName; }
 
         private MyDecoratorDefaultReturnValues DecoratorDefaultReturnValue
         {
@@ -58,7 +59,9 @@ namespace Sandbox.Game.AI.BehaviorTree
                 m_decoratorLogic.Update(decoratorMemory.DecoratorLogicMemory);
                 if (m_decoratorLogic.CanRun(decoratorMemory.DecoratorLogicMemory))
                 {
-                    return TickChild(bot, botTreeMemory, decoratorMemory);
+                    MyBehaviorTreeState state = TickChild(bot, botTreeMemory, decoratorMemory);
+                    RecordRunningNodeName(state);
+                    return state;
                 }
                 else
                 {
@@ -66,12 +69,20 @@ namespace Sandbox.Game.AI.BehaviorTree
                         bot.BotMemory.ProcessLastRunningNode(this);
 
                     botTreeMemory.GetNodeMemoryByIndex(MemoryIndex).NodeState = m_defaultReturnValue;
+                    if (Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS && m_defaultReturnValue == MyBehaviorTreeState.RUNNING)
+                    {
+                        m_runningActionName = ParentName + m_decoratorLogicName;
+                    }
+                        
                     return m_defaultReturnValue;
                 }
             }
             else
             {
-                return TickChild(bot, botTreeMemory, decoratorMemory);
+                MyBehaviorTreeState state = TickChild(bot, botTreeMemory, decoratorMemory);
+                RecordRunningNodeName(state);
+                return state;
+                //return TickChild(bot, botTreeMemory, decoratorMemory);
             }
         }
 
@@ -85,7 +96,18 @@ namespace Sandbox.Game.AI.BehaviorTree
             {
                 bot.BotMemory.ForgetNode();
             }
+            RecordRunningNodeName(state);
             return state;
+        }
+
+        [Conditional("DEBUG")]
+        void RecordRunningNodeName(MyBehaviorTreeState state)
+        {
+            if (!Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS)
+                return;
+
+            if (state == MyBehaviorTreeState.RUNNING)
+                m_runningActionName = m_child.m_runningActionName;
         }
 
         public override void PostTick(IMyBot bot, MyPerTreeBotMemory botTreeMemory)
@@ -144,6 +166,11 @@ namespace Sandbox.Game.AI.BehaviorTree
                 result = (result * 397) ^ DecoratorDefaultReturnValue.GetHashCode();
                 return result;
             }
+        }
+
+        public override string ToString()
+        {
+            return "DEC: " + m_decoratorLogic.ToString();
         }
     }
 }

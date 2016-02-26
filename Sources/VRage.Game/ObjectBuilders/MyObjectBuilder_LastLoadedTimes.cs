@@ -3,7 +3,7 @@ using System;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

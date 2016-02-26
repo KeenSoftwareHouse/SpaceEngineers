@@ -29,9 +29,25 @@ namespace VRage.Utils
             if (condition == false)
             {
                 MyLog.Default.WriteLine("Assert: " + assertMessage);
+                SystemTrace.Fail(assertMessage);
             }
+        }
 
-            SystemTrace.Assert(condition, assertMessage);
+        /// <summary>
+        /// Logs the message on release and also displays a message on DEBUG.
+        /// </summary>
+        /// <param name="message"></param>
+        public static void FailRelease(string message)
+        {
+            MyLog.Default.WriteLine("Assert Fail: " + message);
+            SystemTrace.Fail(message);
+        }
+
+        public static void FailRelease(string format, params object[] args)
+        {
+            string message = String.Format(format, args);
+            MyLog.Default.WriteLine("Assert Fail: " + message);
+            SystemTrace.Fail(message);
         }
 
         /// <summary>

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -60,7 +62,7 @@ namespace Sandbox.Definitions
         {
             get
             {
-                return Frequency != 0.0f && m_spawnRadius != 0.0f && Prefabs.Count() != 0;
+                return Frequency != 0.0f && m_spawnRadius != 0.0f && Prefabs.Count != 0;
             }
         }
 
@@ -128,7 +130,7 @@ namespace Sandbox.Definitions
             var spawnGroupBuilder = base.GetObjectBuilder() as MyObjectBuilder_SpawnGroupDefinition;
 
             spawnGroupBuilder.Frequency = Frequency;
-            spawnGroupBuilder.Prefabs = new MyObjectBuilder_SpawnGroupDefinition.SpawnGroupPrefab[Prefabs.Count()];
+            spawnGroupBuilder.Prefabs = new MyObjectBuilder_SpawnGroupDefinition.SpawnGroupPrefab[Prefabs.Count];
 
             int i = 0;
             foreach (var prefab in Prefabs)
@@ -143,7 +145,7 @@ namespace Sandbox.Definitions
                 i++;
             }
 
-            spawnGroupBuilder.Voxels = new MyObjectBuilder_SpawnGroupDefinition.SpawnGroupVoxel[Voxels.Count()];
+            spawnGroupBuilder.Voxels = new MyObjectBuilder_SpawnGroupDefinition.SpawnGroupVoxel[Voxels.Count];
             i = 0;
             foreach (var prefab in Voxels)
             {

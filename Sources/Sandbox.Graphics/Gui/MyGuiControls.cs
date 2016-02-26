@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -7,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Graphics.GUI
@@ -103,6 +103,7 @@ namespace Sandbox.Graphics.GUI
         public void Add(MyGuiControlBase control)
         {
             Debug.Assert(!m_controls.Contains(control), "You must not add the same control multiple times.");
+            Debug.Assert(control != this.m_owner, "Can not insert itself!");
 
             MyGuiControlBase.Friend.SetOwner(control, m_owner);
             control.Name = ChangeToNonCollidingName(control.Name);

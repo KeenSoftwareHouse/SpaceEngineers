@@ -9,7 +9,6 @@ using ParallelTasks;
 using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -21,6 +20,7 @@ using VRage;
 using Sandbox.Game.Gui;
 using VRage.Utils;
 using VRage.FileSystem;
+using VRage.Game;
 
 namespace Sandbox.Game.Screens.Helpers
 {

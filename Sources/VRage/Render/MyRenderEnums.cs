@@ -52,7 +52,7 @@ namespace VRageRender
         UseCustomDrawMatrix = 1 << 7,
 
         /// <summary>
-        /// Use local AABB box for shadow LOD
+        /// Use local AABB box for shadow LOD, not used
         /// </summary>
         ShadowLodBox = 1 << 8,
 
@@ -60,6 +60,16 @@ namespace VRageRender
 		/// No culling of back faces
 		/// </summary>
 		NoBackFaceCulling = 1 << 9,
+
+        SkipInMainView = 1 << 10,
+    }
+
+    public static class MyRenderFlagsExtensions
+    {
+        public static bool HasFlags(this RenderFlags renderFlags, RenderFlags flags)
+        {
+            return (renderFlags & flags) == flags;
+        }
     }
 
 
@@ -75,6 +85,7 @@ namespace VRageRender
         LOD0,     //  Use when cell contains data without LOD, so they are as they are
         LOD1,         //  Use when cell contains LOD-ed data (less detail, ...)
         LOD_NEAR,    // Used for cockpit and weapons
+        LOD_BACKGROUND  //used for planets
     }
 
     /// <summary>
@@ -126,6 +137,13 @@ namespace VRageRender
         LOW = 3
     }
 
+    public enum MyGraphicsRenderer
+    {
+        NONE,
+        DX9,
+        DX11
+    }
+
     public enum MyRenderModuleEnum
     {
         Cockpit,
@@ -162,6 +180,7 @@ namespace VRageRender
         PhysicsPrunningStructure,
         NuclearExplosion,
         AttackingBots,
+        Atmosphere,
     }
 
     namespace Textures

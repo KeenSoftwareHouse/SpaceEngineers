@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -8,6 +10,11 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_OxygenGeneratorDefinition))]
     public class MyOxygenGeneratorDefinition : MyProductionBlockDefinition
     {
+        public struct MyGasGeneratorResourceInfo
+        {
+            public MyDefinitionId Id;
+            public float IceToGasRatio;
+        }
 		public float IceConsumptionPerSecond;
 
         public MySoundPair GenerateSound;
@@ -34,7 +41,7 @@ namespace Sandbox.Definitions
 	        {
 				ProducedGases = new List<MyGasGeneratorResourceInfo>(obDefinition.ProducedGases.Count);
 		        foreach(var producedGasInfo in obDefinition.ProducedGases)
-					ProducedGases.Add(producedGasInfo);
+					ProducedGases.Add(new MyGasGeneratorResourceInfo { Id = producedGasInfo.Id, IceToGasRatio = producedGasInfo.IceToGasRatio });
 	        }
         }
     }

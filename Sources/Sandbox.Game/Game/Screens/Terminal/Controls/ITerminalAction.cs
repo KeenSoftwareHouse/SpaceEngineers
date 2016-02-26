@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {

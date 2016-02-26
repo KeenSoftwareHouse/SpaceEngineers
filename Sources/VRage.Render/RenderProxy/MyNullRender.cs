@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Text;
 using Vector2 = VRageMath.Vector2;
 using VRage.Library.Utils;
-using VRageRender.RenderProxy;
+using VRage.Utils;
 
 #endregion
 
@@ -28,6 +28,8 @@ namespace VRageRender
         public string RootDirectory { get { return null; } set { } }
         public string RootDirectoryEffects { get { return null; } set { } }
         public string RootDirectoryDebug { get { return null; } set { } }
+
+        public MyLog Log { get { return null; } }
 
         public MyRenderFont TryGetFont(int id)
         {
@@ -72,7 +74,7 @@ namespace VRageRender
             m_profiler.SetAutocommit(false);
         }
 
-        public void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)
+        public void EnqueueMessage(MyRenderMessageBase message, bool limitMaxQueueSize)
         {
         }
 
@@ -80,7 +82,7 @@ namespace VRageRender
         {
         }
 
-        public void EnqueueOutputMessage(IMyRenderMessage message)
+        public void EnqueueOutputMessage(MyRenderMessageBase message)
         {
         }
 
@@ -168,5 +170,8 @@ namespace VRageRender
         }
 
         public void HandleFocusMessage(MyWindowFocusMessage msg) { }
+        public void GenerateShaderCache(bool clean, OnShaderCacheProgressDelegate onShaderCacheProgress)
+        {
+        }
     }
 }

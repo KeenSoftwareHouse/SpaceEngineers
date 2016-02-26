@@ -11,7 +11,8 @@ using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;
-
+using System.Diagnostics;
+using VRage.Game;
 
 #endregion
 
@@ -74,13 +75,22 @@ namespace Sandbox.Game.Gui
 		    if (m_groupNames == null)
 			    return;
 
+            MyResourceDistributorComponent.InitializeMappings();
 		    var distributionGroups = MyDefinitionManager.Static.GetDefinitionsOfType<MyResourceDistributionGroupDefinition>();
 
 			var sinkSubtypesToIndex = MyResourceDistributorComponent.SinkSubtypesToPriority;
 		    foreach (var distributionGroup in distributionGroups)
 		    {
-				if(!distributionGroup.IsSource)
-					m_groupNames[sinkSubtypesToIndex[distributionGroup.Id.SubtypeId]] = MyStringId.GetOrCompute(distributionGroup.Id.SubtypeName);
+                if (!distributionGroup.IsSource)
+                {
+                    int priorityIndex;
+                    if(!sinkSubtypesToIndex.TryGetValue(distributionGroup.Id.SubtypeId, out priorityIndex))
+                    {
+                        Debug.Fail("Sink subtype " + distributionGroup.Id.SubtypeName + " not found!");
+                        continue;
+                    }
+                    m_groupNames[priorityIndex] = MyStringId.GetOrCompute(distributionGroup.Id.SubtypeName);
+                }
 		    }
 
 		    /*      m_groupNames[(int)MyResourceSinkGroupEnum.Charging]     = MySpaceTexts.HudEnergyGroupCharging;

@@ -7,6 +7,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {
@@ -85,6 +86,11 @@ namespace Sandbox.Game.Weapons
         public int CurrentWeaponRateOfFire
         {
             get { return m_weaponDefinition.WeaponAmmoDatas[(int)AmmoDefinition.AmmoType].RateOfFire; }
+        }
+
+        public int CurrentWeaponBurstFireRate
+        {
+            get { return m_weaponDefinition.WeaponAmmoDatas[(int)AmmoDefinition.AmmoType].BurstFireRate; }
         }
 
         public int CurrentWeaponShootIntervalInMiliseconds

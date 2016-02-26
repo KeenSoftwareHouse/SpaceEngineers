@@ -97,6 +97,23 @@ namespace Sandbox.Game.AI.Pathfinding
             Debug.Assert(e.MoveNext() == false);
         }
 
+        public void GetVertices(out int indA, out int indB, out int indC, out Vector3 a, out Vector3 b, out Vector3 c)
+        {
+            var e = m_navMesh.Mesh.GetFace(m_triIndex).GetVertexEnumerator();
+
+            e.MoveNext();
+            indA = e.CurrentIndex;
+            a = e.Current;
+            e.MoveNext();
+            indB = e.CurrentIndex;
+            b = e.Current;
+            e.MoveNext();
+            indC = e.CurrentIndex;
+            c = e.Current;
+
+            Debug.Assert(e.MoveNext() == false);
+        }
+
         public void GetTransformed(ref MatrixI tform, out Vector3 newA, out Vector3 newB, out Vector3 newC)
         {
             var e = m_navMesh.Mesh.GetFace(m_triIndex).GetVertexEnumerator();
@@ -145,8 +162,8 @@ namespace Sandbox.Game.AI.Pathfinding
 
             int i = GetEdgeIndex(index);
             MyWingedEdgeMesh.Edge edge = mesh.GetEdge(i);
-            pred = mesh.GetVertex(edge.GetFacePredVertex(m_triIndex));
-            succ = mesh.GetVertex(edge.GetFaceSuccVertex(m_triIndex));
+            pred = mesh.GetVertexPosition(edge.GetFacePredVertex(m_triIndex));
+            succ = mesh.GetVertexPosition(edge.GetFaceSuccVertex(m_triIndex));
         }
 
         /// <summary>
@@ -170,6 +187,20 @@ namespace Sandbox.Game.AI.Pathfinding
             return false;
         }
 
+        public void FindDangerousVertices(List<int> output)
+        {
+            var e = m_navMesh.Mesh.GetFace(m_triIndex).GetVertexEnumerator();
+
+            int a, b, c;
+
+            e.MoveNext();
+            a = e.CurrentIndex;
+            e.MoveNext();
+            b = e.CurrentIndex;
+            e.MoveNext();
+            c = e.CurrentIndex;
+        }
+
         public int GetEdgeIndex(int index)
         {
             var enumerator = new MyWingedEdgeMesh.FaceEdgeEnumerator(m_navMesh.Mesh, m_triIndex);
@@ -186,14 +217,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         private static bool IsTriangleDangerous(int triIndex)
         {
-            if (MyPerGameSettings.NavmeshPresumesDownwardGravity)
-            {
-                return triIndex == -1;
-            }
-            else
-            {
-                return triIndex == -1;
-            }
+            return triIndex == -1;
         }
 
         #region MyNavigationPrimitive overrides

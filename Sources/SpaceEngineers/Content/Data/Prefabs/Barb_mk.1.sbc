@@ -1299,15 +1299,16 @@
 void Main(string argument) 
 { 
     Vector3D origin = new Vector3D(0, 0, 0); 
-    if (argument == null || argument == "") 
+    if (this.Storage == null || this.Storage == "") 
     { 
         origin = Me.GetPosition(); 
         this.Storage = origin.ToString(); 
     } 
     else 
     { 
-        Vector3D.TryParse(argument, out origin); 
+        Vector3D.TryParse(this.Storage, out origin); 
     } 
+ 
     GridTerminalSystem.GetBlocksOfType&lt;IMyRemoteControl&gt;(list); 
     if (list.Count &gt; 0) 
     { 
@@ -1326,22 +1327,26 @@ void Main(string argument)
             else 
             { 
                 bool hasUsableGun = false; 
-                for (int i = 0; i &lt; list.Count; ++i) 
-                { 
-                    var weapon = list[i]; 
-                    if (!weapon.IsFunctional) continue; 
-                    if (weapon.HasInventory() &amp;&amp; !weapon.GetInventory(0).IsItemAt(0)) continue; 
-                    hasUsableGun = true; 
-                } 
-                if (!hasUsableGun) 
-                { 
-                    gotoOrigin = true; 
-                } 
-            } 
-            if (Vector3D.DistanceSquared(player, origin) &gt; 20000 * 20000) 
+                for (int i = 0; i &lt; list.Count; ++i)
+                {
+                var weapon = list[i];
+                if (!weapon.IsFunctional) continue;
+                if (weapon.HasInventory() &amp;&amp; !weapon.GetInventory(0).IsItemAt(0)) continue;
+
+                hasUsableGun = true;
+                }
+
+                if (!hasUsableGun)
+                {
+                gotoOrigin = true;
+                }
+                }
+
+                if (Vector3D.DistanceSquared(player, origin) &gt; 20000 * 20000) 
             { 
                 gotoOrigin = true; 
             } 
+ 
             if (gotoOrigin) 
             { 
                 remote.AddWaypoint(origin, "Origin"); 

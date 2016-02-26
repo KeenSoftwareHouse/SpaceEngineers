@@ -266,6 +266,7 @@ namespace VRageRender
         //        }
         //    }
 
+        //    !!! Use either MyMapping or MyHwBuffers.ResizeAndUpdateVertexBuffer instead of direct access to UpdateSubresource (add ImmediateContext as param)
         //    DataBox srcData = new DataBox();
         //    fixed (ushort* I = indices)
         //    {

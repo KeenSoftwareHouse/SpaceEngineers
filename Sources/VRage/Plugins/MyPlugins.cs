@@ -20,7 +20,8 @@ namespace VRage.Plugins
         private static Assembly m_userPluginAssembly;
         private static Assembly m_sandboxAssembly; //TO BE REMOVED
         private static Assembly m_sandboxGameAssembly; // TO BE REMOVED
-
+        private static Assembly m_gameObjBuildersPlugin;
+        
         // for detecting missing unload
         private static MyPlugins m_instance;
 
@@ -38,8 +39,21 @@ namespace VRage.Plugins
         {
             get
             {
-                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                if (!GameAssemblyReady)
+                    return null;
+                Debug.Assert(Loaded || m_gamePluginAssembly.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_gamePluginAssembly;
+            }
+        }
+
+        public static Assembly GameObjectBuildersAssembly
+        {
+            get
+            {
+                if (!GameObjectBuildersAssemblyReady)
+                    return null;
+                Debug.Assert(Loaded || m_gameObjBuildersPlugin.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                return m_gameObjBuildersPlugin;
             }
         }
 
@@ -47,7 +61,9 @@ namespace VRage.Plugins
         {
             get
             {
-                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                if (!UserAssemblyReady)
+                    return null;
+                Debug.Assert(Loaded || m_userPluginAssembly.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_userPluginAssembly;
             }
         }
@@ -56,7 +72,9 @@ namespace VRage.Plugins
         {
             get
             {
-                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                if (!SandboxAssemblyReady)
+                    return null;
+                Debug.Assert(Loaded || m_sandboxAssembly.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_sandboxAssembly;
             }
         }
@@ -65,8 +83,42 @@ namespace VRage.Plugins
         {
             get
             {
-                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                if (m_sandboxGameAssembly == null)
+                    return null;
+                Debug.Assert(Loaded || m_sandboxGameAssembly.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_sandboxGameAssembly;
+            }
+        }
+
+        public static bool GameAssemblyReady
+        {
+            get
+            {
+                return m_gamePluginAssembly != null;
+            }
+        }
+
+        public static bool GameObjectBuildersAssemblyReady
+        {
+            get
+            {
+                return m_gameObjBuildersPlugin != null;
+            }
+        }
+
+        public static bool UserAssemblyReady
+        {
+            get
+            {
+                return m_userPluginAssembly != null;
+            }
+        }
+
+        public static bool SandboxAssemblyReady
+        {
+            get
+            {
+                return m_sandboxAssembly != null;
             }
         }
 
@@ -99,6 +151,13 @@ namespace VRage.Plugins
             Debug.Assert(m_gamePluginAssembly == null);
             if (gameAssemblyFile != null)
                 m_gamePluginAssembly = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameAssemblyFile));
+        }
+
+        public static void RegisterGameObjectBuildersAssemblyFile(string gameObjBuildersAssemblyFile)
+        {
+            Debug.Assert(m_gameObjBuildersPlugin == null);
+            if (gameObjBuildersAssemblyFile != null)
+                m_gameObjBuildersPlugin = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameObjBuildersAssemblyFile));
         }
 
         public static void RegisterSandboxAssemblyFile(string sandboxAssemblyFile)
@@ -162,6 +221,7 @@ namespace VRage.Plugins
             m_userPluginAssembly = null;
             m_sandboxAssembly = null;
             m_sandboxGameAssembly = null;
+            m_gameObjBuildersPlugin = null;
         }
 
         #region Leak detection using Dispose

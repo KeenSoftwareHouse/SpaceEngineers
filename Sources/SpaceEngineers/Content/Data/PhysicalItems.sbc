@@ -380,6 +380,67 @@
       <WeaponDefinitionId Subtype="AutomaticRifleGun" />
       <ShowAmmoCount>true</ShowAmmoCount>
     </PhysicalItem>
+
+    <PhysicalItem xsi:type="MyObjectBuilder_WeaponItemDefinition">
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>PreciseAutomaticRifleItem</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_PreciseAutomaticRifle</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponAutomaticRifle_Precise.dds</Icon>
+      <Size>
+        <X>0.8</X>
+        <Y>0.24</Y>
+        <Z>0.08</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>14</Volume>
+      <Model>Models\Weapons\PreciseAutomaticRifle.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <WeaponDefinitionId Subtype="PreciseAutomaticRifleGun" />
+      <ShowAmmoCount>true</ShowAmmoCount>
+    </PhysicalItem>
+
+    <PhysicalItem xsi:type="MyObjectBuilder_WeaponItemDefinition">
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>RapidFireAutomaticRifleItem</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_RapidFireAutomaticRifle</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponAutomaticRifle_RapidFire.dds</Icon>
+      <Size>
+        <X>0.8</X>
+        <Y>0.24</Y>
+        <Z>0.08</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>14</Volume>
+      <Model>Models\Weapons\RapidFireAutomaticRifle.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <WeaponDefinitionId Subtype="RapidFireAutomaticRifleGun" />
+      <ShowAmmoCount>true</ShowAmmoCount>
+    </PhysicalItem>
+
+    <PhysicalItem xsi:type="MyObjectBuilder_WeaponItemDefinition">
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>UltimateAutomaticRifleItem</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_EliteAutomaticRifle</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponAutomaticRifle_Elite.dds</Icon>
+      <Size>
+        <X>0.8</X>
+        <Y>0.24</Y>
+        <Z>0.08</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>14</Volume>
+      <Model>Models\Weapons\UltimateAutomaticRifle.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <WeaponDefinitionId Subtype="UltimateAutomaticRifleGun" />
+      <ShowAmmoCount>true</ShowAmmoCount>
+    </PhysicalItem>
+    
     <PhysicalItem xsi:type="MyObjectBuilder_OxygenContainerDefinition">
       <Id>
         <TypeId>OxygenContainerObject</TypeId>
@@ -444,6 +505,60 @@
     <PhysicalItem>
       <Id>
         <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>Welder2Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder2</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder_1.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>5</Mass>
+      <Volume>8</Volume>
+      <Model>Models\Weapons\WelderMk2.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longer reach and faster welding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>Welder3Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder3</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder_2.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>5</Mass>
+      <Volume>8</Volume>
+      <Model>Models\Weapons\WelderMk3.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longer reach and faster welding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>Welder4Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Welder4</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponWelder_3.dds</Icon>
+      <Size>
+        <X>0.4</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>5</Mass>
+      <Volume>8</Volume>
+      <Model>Models\Weapons\WelderMk4.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longest reach and fastest welding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
         <SubtypeId>AngleGrinderItem</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_AngleGrinder</DisplayName>
@@ -461,6 +576,60 @@
     <PhysicalItem>
       <Id>
         <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>AngleGrinder2Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_AngleGrinder2</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponGrinder_1.dds</Icon>
+      <Size>
+        <X>0.5</X>
+        <Y>0.3</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>20</Volume>
+      <Model>Models\Weapons\AngleGrinderMk2.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longer reach and faster grinding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>AngleGrinder3Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_AngleGrinder3</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponGrinder_2.dds</Icon>
+      <Size>
+        <X>0.5</X>
+        <Y>0.3</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>20</Volume>
+      <Model>Models\Weapons\AngleGrinderMk3.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longer reach and faster grinding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>AngleGrinder4Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_AngleGrinder4</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponGrinder_3.dds</Icon>
+      <Size>
+        <X>0.5</X>
+        <Y>0.3</Y>
+        <Z>0.2</Z>
+      </Size>
+      <Mass>3</Mass>
+      <Volume>20</Volume>
+      <Model>Models\Weapons\AngleGrinderMk4.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Longest reach and fastest grinding</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
         <SubtypeId>HandDrillItem</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_HandDrill</DisplayName>
@@ -474,6 +643,60 @@
       <Volume>25</Volume>
       <Model>Models\Weapons\HandDrill.mwm</Model>
       <PhysicalMaterial>Metal</PhysicalMaterial>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>HandDrill2Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_HandDrill2</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponDrill_1.dds</Icon>
+      <Size>
+        <X>1.2</X>
+        <Y>0.6</Y>
+        <Z>0.3</Z>
+      </Size>
+      <Mass>22</Mass>
+      <Volume>25</Volume>
+      <Model>Models\Weapons\HandDrillMk2.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Wider cutout, faster mining</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>HandDrill3Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_HandDrill3</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponDrill_2.dds</Icon>
+      <Size>
+        <X>1.2</X>
+        <Y>0.6</Y>
+        <Z>0.3</Z>
+      </Size>
+      <Mass>22</Mass>
+      <Volume>25</Volume>
+      <Model>Models\Weapons\HandDrillMk3.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Wider cutout, faster mining</ExtraInventoryTooltipLine>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>PhysicalGunObject</TypeId>
+        <SubtypeId>HandDrill4Item</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_HandDrill4</DisplayName>
+      <Icon>Textures\GUI\Icons\WeaponDrill_3.dds</Icon>
+      <Size>
+        <X>1.2</X>
+        <Y>0.6</Y>
+        <Z>0.3</Z>
+      </Size>
+      <Mass>22</Mass>
+      <Volume>25</Volume>
+      <Model>Models\Weapons\HandDrillMk4.mwm</Model>
+      <PhysicalMaterial>Metal</PhysicalMaterial>
+      <ExtraInventoryTooltipLine>Widest cutout, fastest mining</ExtraInventoryTooltipLine>
     </PhysicalItem>
     <PhysicalItem>
       <Id>
@@ -848,24 +1071,6 @@
         <Model>Models\Environment\Bushes\SnowPineBushMedium.mwm</Model>
         <PhysicalMaterial>Wood</PhysicalMaterial>
         <CanSpawnFromScreen>false</CanSpawnFromScreen>
-    </PhysicalItem>
-    <PhysicalItem>
-      <Id>
-        <TypeId>EntityBase</TypeId>
-        <SubtypeId>AstronautBackpack</SubtypeId>
-      </Id>
-      <DisplayName>DisplayName_AstronautBackpack</DisplayName>
-      <Icon>Textures\GUI\Icons\AstronautBackpack.dds</Icon>
-      <Size>
-        <X>0.3</X>
-        <Y>1.0</Y>
-        <Z>0.2</Z>
-      </Size>
-      <Mass>5</Mass>
-      <Volume>60</Volume>
-      <Model>Models\Characters\Astronaut\AstronautBackpack.mwm</Model>
-      <Public>false</Public>
-      <CanSpawnFromScreen>false</CanSpawnFromScreen>
     </PhysicalItem>
   </PhysicalItems>
 </Definitions>

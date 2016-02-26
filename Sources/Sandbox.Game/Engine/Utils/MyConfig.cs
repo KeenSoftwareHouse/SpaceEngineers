@@ -28,20 +28,21 @@ using Sandbox.Graphics;
 using VRageRender;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
-using VRage;
 using VRage.Audio;
+using Sandbox.Game;
+using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+using ProtoBuf;
+using System.Diagnostics;
+using VRage.Game;
 
 namespace Sandbox.Engine.Utils
 {
     public class MyConfig : MyConfigBase, Sandbox.ModAPI.IMyConfig
     {
         //  Constants for mapping between our get/set properties and parameters inside the config file
-        readonly string USERNAME = "Username";
-        readonly string PASSWORD = "Password";
-        readonly string LAST_LOGIN_WAS_SUCCESSFUL = "LastLoginWasSuccessful";
-        readonly string REMEBER_USERNAME_AND_PASSWORD = "RememberUsernameAndPassword";
-        readonly string AUTOLOGIN = "Autologin";
         readonly string DX9_RENDER_QUALITY = "RenderQuality";
+        readonly string VOXEL_QUALITY = "VoxelQuality";
         readonly string FIELD_OF_VIEW = "FieldOfView";
         readonly string ENABLE_DAMAGE_EFFECTS = "EnableDamageEffects";
         readonly string RENDER_INTERPOLATION = "RenderInterpolation";
@@ -54,6 +55,7 @@ namespace Sandbox.Engine.Utils
         readonly string HARDWARE_CURSOR = "HardwareCursor";
         readonly string GAME_VOLUME = "GameVolume";
         readonly string MUSIC_VOLUME = "MusicVolume";
+        readonly string VOICE_CHAT_VOLUME = "VoiceChatVolume";
         readonly string LANGUAGE = "Language";
         readonly string CONTROLS_HINTS = "ControlsHints";
         readonly string ROTATION_HINTS = "RotationHints";
@@ -62,10 +64,6 @@ namespace Sandbox.Engine.Utils
         readonly string CONTROLS_GENERAL = "ControlsGeneral";
         readonly string CONTROLS_BUTTONS = "ControlsButtons";
         readonly string SCREENSHOT_SIZE_MULTIPLIER = "ScreenshotSizeMultiplier";
-        readonly string LAST_FRIEND_NAME = "LastFriendSectorName";
-        readonly string LAST_FRIEND_SECTOR_USER_ID = "LastFriendSectorUserId";
-        readonly string LAST_FRIEND_SECTOR_POSITION = "LastFriendSectorPosition";
-        readonly string LAST_MY_SANDBOX_SECTOR = "LastMySandboxSector";
         readonly string FIRST_TIME_RUN = "FirstTimeRun";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
         readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
@@ -78,84 +76,41 @@ namespace Sandbox.Engine.Utils
         readonly string MULTIPLAYER_SHOWCOMPATIBLE = "MultiplayerShowCompatible";
         readonly string COMPRESS_SAVE_GAMES = "CompressSaveGames";
         readonly string SHOW_PLAYER_NAMES_ON_HUD = "ShowPlayerNamesOnHud";
+        readonly string RELEASING_ALT_RESETS_CAMERA = "ReleasingAltResetsCamera";
         readonly string LAST_CHECKED_VERSION = "LastCheckedVersion";
         readonly string WINDOW_MODE = "WindowMode";
+        readonly string MOUSE_CAPTURE = "CaptureMouse";
         readonly string HUD_WARNINGS = "HudWarnings";
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
-        readonly string TONEMAPPING = "Tonemapping";
+        //readonly string TONEMAPPING = "Tonemapping";
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
         readonly string GRASS_DENSITY = "GrassDensity";
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
         readonly string ENABLE_VOICE_CHAT = "VoiceChat";
+        readonly string ENABLE_MUTE_WHEN_NOT_IN_FOCUS = "EnableMuteWhenNotInFocus";
         readonly string UI_TRANSPARENCY = "UiTransparency";
         readonly string UI_BK_TRANSPARENCY = "UiBkTransparency";
+        readonly string TUTORIALS_FINISHED = "TutorialsFinished";
+        readonly string MUTED_PLAYERS = "MutedPlayers";
+        readonly string DONT_SEND_VOICE_PLAYERS = "DontSendVoicePlayers";
+        readonly string LOW_MEM_SWITCH_TO_LOW = "LowMemSwitchToLow";
+
+        public enum LowMemSwitch
+        {
+            ARMED = 0,
+            TRIGGERED,
+            USER_SAID_NO
+        }
 
         public MyConfig(string fileName)
             : base(fileName)
         {
         }
-
-        public Vector3I LastSandboxSector
-        {
-            get
-            {
-                return GetParameterValueVector3I(LAST_MY_SANDBOX_SECTOR);
-            }
-            set
-            {
-                LastFriendSectorUserId = null;
-                SetParameterValue(LAST_MY_SANDBOX_SECTOR, value);
-            }
-        }
-
-        public string LastFriendName
-        {
-            get
-            {
-                return GetParameterValue(LAST_FRIEND_NAME);
-            }
-            set
-            {
-                SetParameterValue(LAST_FRIEND_NAME, value);
-            }
-        }
-
-        public Vector3I LastFriendSectorPosition
-        {
-            get
-            {
-                return GetParameterValueVector3I(LAST_FRIEND_SECTOR_POSITION);
-            }
-            set
-            {
-                SetParameterValue(LAST_FRIEND_SECTOR_POSITION, value);
-            }
-        }
-
-        public int? LastFriendSectorUserId
-        {
-            get
-            {
-                int result;
-                if(int.TryParse(GetParameterValue(LAST_FRIEND_SECTOR_USER_ID), out result))
-                {
-                    return result;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                SetParameterValue(LAST_FRIEND_SECTOR_USER_ID, value);
-            }
-        }
-
+        
         public bool NeedShowTutorialQuestion
         {
             get
@@ -194,73 +149,6 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public string Username
-        {
-            get
-            {
-                return GetParameterValue(USERNAME);
-            }
-
-            set
-            {
-                SetParameterValue(USERNAME, value);
-            }
-        }
-
-        //  This property accepts password in a decrypted form, but then stores it in memory and file in an encrypted form
-        //  It also returns password in a decrypted form.
-        public string Password
-        {
-            get
-            {
-                return MyEncryptionSymmetricRijndael.DecryptString(GetParameterValue(PASSWORD), MyConfigConstants.SYMMETRIC_PASSWORD);
-            }
-
-            set
-            {
-                SetParameterValue(PASSWORD, MyEncryptionSymmetricRijndael.EncryptString(value, MyConfigConstants.SYMMETRIC_PASSWORD));
-            }
-        }
-
-        public bool LastLoginWasSuccessful
-        {
-            get
-            {
-                return MyUtils.GetBoolFromString(GetParameterValue(LAST_LOGIN_WAS_SUCCESSFUL), false);
-            }
-
-            set
-            {
-                SetParameterValue(LAST_LOGIN_WAS_SUCCESSFUL, value);
-            }
-        }
-
-        public bool RememberUsernameAndPassword
-        {
-            get
-            {
-                return MyUtils.GetBoolFromString(GetParameterValue(REMEBER_USERNAME_AND_PASSWORD), true);
-            }
-
-            set
-            {
-                SetParameterValue(REMEBER_USERNAME_AND_PASSWORD, value);
-            }
-        }
-
-        public bool Autologin
-        {
-            get
-            {
-                return MyUtils.GetBoolFromString(GetParameterValue(AUTOLOGIN), true);
-            }
-
-            set
-            {
-                SetParameterValue(AUTOLOGIN, value);
-            }
-        }
-
         public MyRenderQualityEnum? Dx9RenderQuality
         {
             get
@@ -276,6 +164,12 @@ namespace Sandbox.Engine.Utils
             {
                 SetParameterValue(DX9_RENDER_QUALITY, (int)value);
             }
+        }
+
+        public MyRenderQualityEnum? VoxelQuality
+        {
+            get { return GetOptionalEnum<MyRenderQualityEnum>(VOXEL_QUALITY); }
+            set { SetOptionalEnum(VOXEL_QUALITY, value); }
         }
 
         public bool RenderInterpolation
@@ -357,29 +251,17 @@ namespace Sandbox.Engine.Utils
             set { SetOptionalEnum(FOLIAGE_DETAILS, value); }
         }
 
-        public bool? MultithreadedRendering
-        {
-            get { return MyUtils.GetBoolFromString(GetParameterValue(MULTITHREADED_RENDERING)); }
-            set
-            {
-                if (value.HasValue)
-                    SetParameterValue(MULTITHREADED_RENDERING, value.Value);
-                else
-                    RemoveParameterValue(MULTITHREADED_RENDERING);
-            }
-        }
-
-        public bool? Tonemapping
-        {
-            get { return MyUtils.GetBoolFromString(GetParameterValue(TONEMAPPING)); }
-            set
-            {
-                if (value.HasValue)
-                    SetParameterValue(TONEMAPPING, value.Value);
-                else
-                    RemoveParameterValue(TONEMAPPING);
-            }
-        }
+        //public bool? Tonemapping
+        //{
+        //    get { return MyUtils.GetBoolFromString(GetParameterValue(TONEMAPPING)); }
+        //    set
+        //    {
+        //        if (value.HasValue)
+        //            SetParameterValue(TONEMAPPING, value.Value);
+        //        else
+        //            RemoveParameterValue(TONEMAPPING);
+        //    }
+        //}
 
         public int? ScreenWidth
         {
@@ -434,6 +316,20 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(WINDOW_MODE, (byte)value);
+            }
+        }
+
+        public bool CaptureMouse
+        {
+            get
+            {
+                var paramValue = GetParameterValue(MOUSE_CAPTURE);
+                if (paramValue.Equals("False")) return false;
+                return true;
+            }
+            set
+            {
+                SetParameterValue(MOUSE_CAPTURE, value.ToString());
             }
         }
 
@@ -500,6 +396,18 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(MUSIC_VOLUME, value);
+            }
+        }
+
+        public float VoiceChatVolume
+        {
+            get
+            {
+                return MyUtils.GetFloatFromString(GetParameterValue(VOICE_CHAT_VOLUME), MyAudioConstants.VOICE_CHAT_VOLUME_MAX);
+            }
+            set
+            {
+                SetParameterValue(VOICE_CHAT_VOLUME, value);
             }
         }
 
@@ -626,14 +534,60 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public SerializableDictionary<string, object> DebugInputComponents
+        [ProtoContract]
+        public struct MyDebugInputData
+        {
+            [ProtoMember]
+            public bool Enabled;
+
+            [ProtoMember]
+            public string SerializedData;
+
+            public object Data
+            {
+                get { return Decode64AndDeserialize(SerializedData); }
+                set { SerializedData = SerialiazeAndEncod64(value); }
+            }
+
+            public bool ShouldSerializeData()
+            {
+                return false;
+            }
+        }
+
+        private static string SerialiazeAndEncod64(object p)
+        {
+            if (p == null) return "";
+            MemoryStream ms = new MemoryStream();
+            BinaryFormatter bf = new BinaryFormatter();
+            bf.Serialize(ms, p);
+
+            return Convert.ToBase64String(ms.GetBuffer());
+        }
+
+        private static object Decode64AndDeserialize(string p)
+        {
+            if (p == null || p.Length == 0) return null;
+
+            byte[] bytes = Convert.FromBase64String(p);
+
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream(bytes);
+            return bf.Deserialize(ms);
+        }
+
+        public SerializableDictionary<string, MyDebugInputData> DebugInputComponents
         {
             get
             {
                 if (!m_values.Dictionary.ContainsKey(DEBUG_INPUT_COMPONENTS))
-                    m_values.Dictionary.Add(DEBUG_INPUT_COMPONENTS, new SerializableDictionary<string, object>());
+                    m_values.Dictionary.Add(DEBUG_INPUT_COMPONENTS, new SerializableDictionary<string, MyDebugInputData>());
+                else if (!(m_values.Dictionary[DEBUG_INPUT_COMPONENTS] is SerializableDictionary<string, MyDebugInputData>))
+                {
+                    m_values.Dictionary[DEBUG_INPUT_COMPONENTS] = new SerializableDictionary<string, MyDebugInputData>();
+                }
 
-                return GetParameterValueDictionary(DEBUG_INPUT_COMPONENTS);
+                return GetParameterValueT<SerializableDictionary<string, MyDebugInputData>>(DEBUG_INPUT_COMPONENTS);
             }
 
             set
@@ -748,6 +702,12 @@ namespace Sandbox.Engine.Utils
             set { SetParameterValue(SHOW_PLAYER_NAMES_ON_HUD, value); }
         }
 
+        public bool ReleasingAltResetsCamera
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(RELEASING_ALT_RESETS_CAMERA), true); }
+            set { SetParameterValue(RELEASING_ALT_RESETS_CAMERA, value); }
+        }
+
         public int LastCheckedVersion
         {
             get
@@ -773,7 +733,23 @@ namespace Sandbox.Engine.Utils
             set { SetParameterValue(UI_BK_TRANSPARENCY, value); }
         }
 
+        public List<string> TutorialsFinished
+        {
+            get
+            {
+                if (!m_values.Dictionary.ContainsKey(TUTORIALS_FINISHED))
+                    m_values.Dictionary.Add(TUTORIALS_FINISHED, new List<string>());
+                return GetParameterValueT <List<string>>(TUTORIALS_FINISHED);
+            }
+            set
+            {
+                System.Diagnostics.Debug.Assert(false);
+                //SetParameterValue(TUTORIALS_UNLOCKED, value);
+            }
+        }
+
         public bool HudWarnings
+
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(HUD_WARNINGS), true); }
             set { SetParameterValue(HUD_WARNINGS, value); }
@@ -785,7 +761,13 @@ namespace Sandbox.Engine.Utils
             set { SetParameterValue(ENABLE_VOICE_CHAT, value); }
         }
 
-        public MyStringId? GraphicsRenderer
+        public bool EnableMuteWhenNotInFocus
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS), true); }
+            set { SetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS, value); }
+        }
+
+        public MyStringId GraphicsRenderer
         {
             get
             {
@@ -793,17 +775,158 @@ namespace Sandbox.Engine.Utils
                 if (id != MyStringId.NullOrEmpty)
                     return id;
                 else
-                    return null;
+                    return MyPerGameSettings.DefaultGraphicsRenderer;
             }
             set
             {
-                if (value.HasValue)
-                    SetParameterValue(GRAPHICS_RENDERER, value.Value.ToString());
-                else
-                    RemoveParameterValue(GRAPHICS_RENDERER);
+                SetParameterValue(GRAPHICS_RENDERER, value.ToString());
             }
         }
 
+        HashSet<ulong> GetSeparatedValues(string key, ref HashSet<ulong> cache, ref bool cacheInitedFlag)
+        {
+            if (cacheInitedFlag)
+                // cached value is returned
+                return cache;
+
+            // getting of value
+            string list = "";
+            if (!m_values.Dictionary.ContainsKey(key))
+                m_values.Dictionary.Add(key, "");
+            else
+                list = GetParameterValue(key);
+
+            HashSet<ulong> ret = new HashSet<ulong>();
+            // parsing
+            string[] values = list.Split(m_numberSeparator);
+            foreach (string num in values)
+                if (num.Length > 0)
+                    ret.Add(Convert.ToUInt64(num));
+
+            cache = ret;   // caching of value
+            cacheInitedFlag = true;
+            return ret;
+        }
+        void SetSeparatedValues(string key, HashSet<ulong> value, ref HashSet<ulong> cache, ref bool cacheInitedFlag)
+        {
+            // caching of actual value
+            cache = value;
+
+            // storing of value
+            string val = "";
+            foreach (ulong id in value)
+            {
+                val += id.ToString() + m_numberSeparator;
+            }
+            SetParameterValue(key, val);
+        }
+
+
+        const char m_numberSeparator = ',';                             // separator between player ids
+        private HashSet<ulong> m_mutedPlayers = new HashSet<ulong>();   // cached muted players for quicker access
+        private bool m_mutedPlayersInited = false;                      // initialization flag
+        public HashSet<ulong> MutedPlayers
+        {
+            get
+            {
+                return GetSeparatedValues(MUTED_PLAYERS, ref m_mutedPlayers, ref m_mutedPlayersInited);
+            }
+            set
+            {
+                SetSeparatedValues(MUTED_PLAYERS, value, ref m_mutedPlayers, ref m_mutedPlayersInited);
+            }
+
+            //get 
+            //{
+            //    if (m_mutedPlayersInited)
+            //        // cached value is returned
+            //        return m_mutedPlayers;
+
+            //    // getting of value
+            //    string playerList = "";
+            //    if (!m_values.Dictionary.ContainsKey(MUTED_PLAYERS))
+            //        m_values.Dictionary.Add(MUTED_PLAYERS, "");
+            //    else
+            //        playerList = GetParameterValue(MUTED_PLAYERS);
+
+            //    HashSet<ulong> players = new HashSet<ulong>();
+            //    // parsing
+            //    string[] values = playerList.Split(m_numberSeparator);
+            //    foreach (string num in values)
+            //        if ( num.Length > 0 )
+            //            players.Add(Convert.ToUInt64(num));
+
+            //    m_mutedPlayers = players;   // caching of value
+            //    m_mutedPlayersInited = true;
+            //    return players;
+            //}
+            //set
+            //{
+            //    // caching of actual value
+            //    m_mutedPlayers = value;
+
+            //    // storing of value
+            //    string val = "";
+            //    foreach (ulong id in value)
+            //    {
+            //        val += id.ToString() + m_numberSeparator;
+            //    }
+            //    SetParameterValue(MUTED_PLAYERS, val);
+            //}
+        }
+
+
+
+        private HashSet<ulong> m_dontSendVoicePlayers = new HashSet<ulong>();   // cached players that don't want receive voice from this player 
+        private bool m_dontSendVoicePlayersInited = false;                      // initialization flag
+        public HashSet<ulong> DontSendVoicePlayers // players that don't want receive voice from this player
+        {
+            get
+            {
+                return GetSeparatedValues(DONT_SEND_VOICE_PLAYERS, ref m_dontSendVoicePlayers, ref m_dontSendVoicePlayersInited);
+            }
+            set
+            {
+                SetSeparatedValues(DONT_SEND_VOICE_PLAYERS, value, ref m_dontSendVoicePlayers, ref m_dontSendVoicePlayersInited);
+            }
+        }
+
+        public LowMemSwitch LowMemSwitchToLow
+        {
+            get
+            {
+                return (LowMemSwitch)MyUtils.GetIntFromString(GetParameterValue(LOW_MEM_SWITCH_TO_LOW), (int)LowMemSwitch.ARMED);
+            }
+
+            set
+            {
+                SetParameterValue(LOW_MEM_SWITCH_TO_LOW, (int)value);
+            }
+        }
+        public bool IsSetToLowQuality()
+        {
+            if (AnisotropicFiltering == MyTextureAnisoFiltering.NONE &&
+                AntialiasingMode == MyAntialiasingMode.NONE &&
+                FoliageDetails == MyFoliageDetails.DISABLED &&
+                ShadowQuality == MyShadowsQuality.LOW &&
+                TextureQuality == MyTextureQuality.LOW &&
+                Dx9RenderQuality == MyRenderQualityEnum.LOW &&
+                VoxelQuality == MyRenderQualityEnum.LOW)
+                return true;
+            return false;
+        }
+        public void SetToLowQuality()
+        {
+            AnisotropicFiltering = MyTextureAnisoFiltering.NONE;
+            AntialiasingMode = MyAntialiasingMode.NONE;
+            FoliageDetails = MyFoliageDetails.DISABLED;
+            ShadowQuality = MyShadowsQuality.LOW;
+            TextureQuality = MyTextureQuality.LOW;
+            Dx9RenderQuality = MyRenderQualityEnum.LOW;
+            VoxelQuality = MyRenderQualityEnum.LOW;
+        }
+
+        
         #region ModAPI
         MyTextureAnisoFiltering? ModAPI.IMyConfig.AnisotropicFiltering
         {
@@ -847,7 +970,7 @@ namespace Sandbox.Engine.Utils
 
         SerializableDictionary<string, object> ModAPI.IMyConfig.DebugInputComponents
         {
-            get { return DebugInputComponents; }
+            get { return null; }
         }
 
         bool ModAPI.IMyConfig.DisableHeadbob
@@ -900,11 +1023,6 @@ namespace Sandbox.Engine.Utils
             get { return MinimalHud; }
         }
 
-        bool? ModAPI.IMyConfig.MultithreadedRendering
-        {
-            get { return MultithreadedRendering; }
-        }
-
         float ModAPI.IMyConfig.MusicVolume
         {
             get { return MusicVolume; }
@@ -928,6 +1046,22 @@ namespace Sandbox.Engine.Utils
         MyRenderQualityEnum? ModAPI.IMyConfig.RenderQuality
         {
             get { return Dx9RenderQuality; }
+        }
+
+        MyGraphicsRenderer ModAPI.IMyConfig.GraphicsRenderer
+        {
+            get
+            {
+                var renderer = GraphicsRenderer;
+                if(renderer.HasValue)
+                {
+                    if (renderer.Value == MyStringId.GetOrCompute("DirectX 11"))
+                        return MyGraphicsRenderer.DX11;
+                    else if(renderer.Value == MyStringId.GetOrCompute("DirectX 9"))
+                        return MyGraphicsRenderer.DX9;
+                }
+                return MyGraphicsRenderer.NONE;
+            }
         }
 
         bool ModAPI.IMyConfig.RotationHints
@@ -978,6 +1112,11 @@ namespace Sandbox.Engine.Utils
         MyWindowModeEnum ModAPI.IMyConfig.WindowMode
         {
             get { return WindowMode; }
+        }
+
+        bool ModAPI.IMyConfig.CaptureMouse
+        {
+            get { return CaptureMouse; }
         }
         #endregion
     }

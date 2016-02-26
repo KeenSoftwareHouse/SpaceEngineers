@@ -1,10 +1,6 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRageMath;
+﻿using System.Diagnostics;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
@@ -20,22 +16,26 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_initialShader = MyShaders.CreateCs("luminance_reduction.hlsl", "luminance_init", MyShaderHelpers.FormatMacros("NUMTHREADS 8"));
-            m_sumShader = MyShaders.CreateCs("luminance_reduction.hlsl", "luminance_reduce", MyShaderHelpers.FormatMacros("NUMTHREADS 8"));
-            m_finalShader = MyShaders.CreateCs("luminance_reduction.hlsl", "luminance_reduce", MyShaderHelpers.FormatMacros("NUMTHREADS 8", "_FINAL"));
+            var threadMacro = new[] {new ShaderMacro("NUMTHREADS", 8)};
+            m_initialShader = MyShaders.CreateCs("luminance_reduction_init.hlsl", threadMacro);
+            m_sumShader = MyShaders.CreateCs("luminance_reduction.hlsl", threadMacro);
+            m_finalShader = MyShaders.CreateCs("luminance_reduction.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8), new ShaderMacro("_FINAL", null) });
         }
 
         internal static MyBindableResource Run(MyBindableResource uav0, MyBindableResource uav1, MyBindableResource src,
-            MyBindableResource prevLum, MyBindableResource localAvgLum)
+            MyBindableResource prevLum)
         {
             var size = src.GetSize();
             var texelsNum = size.X * size.Y;
-            var mapping = MyMapping.MapDiscard(MyCommon.GetObjectCB(16));
-            mapping.stream.Write((uint)size.X);
-            mapping.stream.Write((uint)size.Y);
-            mapping.stream.Write(texelsNum);
-            mapping.stream.Write(MyRender11.Postprocess.EnableEyeAdaptation ? -1.0f : MyRender11.Postprocess.ConstantLuminance);
-
+            uint sizeX = (uint)size.X;
+            uint sizeY = (uint)size.Y;
+            float adaptationFactor = MyRender11.Postprocess.EnableEyeAdaptation ? -1.0f : MyRender11.Postprocess.ConstantLuminance;
+            var buffer = MyCommon.GetObjectCB(16);
+            var mapping = MyMapping.MapDiscard(buffer);
+            mapping.WriteAndPosition(ref sizeX);
+            mapping.WriteAndPosition(ref sizeY);
+            mapping.WriteAndPosition(ref texelsNum);
+            mapping.WriteAndPosition(ref adaptationFactor);
             mapping.Unmap();
 
             RC.CSSetCB(0, MyCommon.FrameConstants);
@@ -45,7 +45,7 @@ namespace VRageRender
             RC.BindSRV(0, src);
             RC.SetCS(m_initialShader);
 
-            RC.Context.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
 
             RC.SetCS(m_sumShader);
             int i = 0;
@@ -64,11 +64,11 @@ namespace VRageRender
                 RC.BindUAV(0, (i % 2 == 0) ? uav1 : uav0);
                 RC.BindSRV(0, (i % 2 == 0) ? uav0 : uav1);
 
-                RC.Context.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+                RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
 
                 //might not be exactly correct if we skip this
                 var dirty = (i % 2 == 0) ? uav0 : uav1;
-                RC.Context.ClearUnorderedAccessView((dirty as IUnorderedAccessBindable).UAV, new SharpDX.Int4(0, 0, 0, 0));
+                RC.DeviceContext.ClearUnorderedAccessView((dirty as IUnorderedAccessBindable).UAV, new SharpDX.Int4(0, 0, 0, 0));
 
                 i++;
             }
@@ -81,15 +81,15 @@ namespace VRageRender
             //mapping.Unmap();
 
             RC.BindUAV(0, (i % 2 == 0) ? uav1 : uav0);
-            RC.BindSRV(0, (i % 2 == 0) ? uav0 : uav1, prevLum);
+            RC.BindSRVs(0, (i % 2 == 0) ? uav0 : uav1, prevLum);
 
-            RC.Context.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
 
             RC.SetCS(null);
 
             var output = (i % 2 == 0) ? uav1 : uav0;
 
-            RC.Context.CopySubresourceRegion(output.m_resource, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), prevLum.m_resource, 0);
+            RC.DeviceContext.CopySubresourceRegion(output.m_resource, 0, new ResourceRegion(0, 0, 0, 1, 1, 1), prevLum.m_resource, 0);
 
             return output;
         }

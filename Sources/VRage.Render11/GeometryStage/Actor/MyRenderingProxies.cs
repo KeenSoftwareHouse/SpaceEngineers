@@ -1,19 +1,25 @@
 ﻿using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
 
-
 namespace VRageRender
 {
     struct MyDrawSubmesh
     {
+        [Flags]
+        internal enum MySubmeshFlags
+        {
+            None = 0,
+            Gbuffer = 1 << 0,
+            Depth = 1 << 1,
+            Forward = 1 << 2,
+            All = 7
+        }
+
         internal int IndexCount;
         internal int StartIndex;
         internal int BaseVertex;
@@ -21,66 +27,16 @@ namespace VRageRender
         //internal MyMaterialProxy Material;
         internal MyMaterialProxyId MaterialId;
         internal int[] BonesMapping;
+        internal MySubmeshFlags Flags;
 
-        internal MyDrawSubmesh(int indexCount, int startIndex, int baseVertex, MyMaterialProxyId materialId, int[] bonesMapping = null)
+        internal MyDrawSubmesh(int indexCount, int startIndex, int baseVertex, MyMaterialProxyId materialId, int[] bonesMapping = null, MySubmeshFlags flags = MySubmeshFlags.All)
         {
             IndexCount = indexCount;
             StartIndex = startIndex;
             BaseVertex = baseVertex;
             MaterialId = materialId;
             BonesMapping = bonesMapping;
-        }
-
-        internal static MyDrawSubmesh[] MergeSubmeshes(MyDrawSubmesh[] list)
-        {
-            Array.Sort(list, (x, y) => x.StartIndex.CompareTo(y.StartIndex));
-            List<MyDrawSubmesh> merged = new List<MyDrawSubmesh>();
-
-
-            //MyDrawSubmesh first = list[0];
-            //for (int i = 1; i < list.Length; i++)
-            //{
-            //    if (list[i].StartIndex == first.StartIndex + first.IndexCount && list[i].BaseVertex == first.BaseVertex)
-            //    {
-            //        first.IndexCount += list[i].IndexCount;
-            //    }
-            //    else
-            //    {
-            //        merged.Add(first);
-            //        first = list[i];
-            //    }
-            //}
-            //merged.Add(first);
-
-
-            // more aggresive
-            bool ok = true;
-            for (int i = 1; i < list.Length; i++)
-            {
-                if (list[i].BaseVertex != list[0].BaseVertex)
-                {
-                    ok = false;
-                    break;
-                }
-            }
-            if (!ok)
-            { 
-                return list;
-            }
-
-            MyDrawSubmesh m = list[0];
-            var last = list[list.Length - 1];
-            m.IndexCount = last.IndexCount + last.StartIndex - m.StartIndex;
-            merged.Add(m);
-
-            return merged.ToArray();
-        }
-
-        internal static MyDrawSubmesh[] MergeSubmeshes(MyDrawSubmesh[] listA, MyDrawSubmesh[] listB)
-        {
-            if(listA != null)
-                return MergeSubmeshes(listA.Concat(listB).ToArray());
-            return MergeSubmeshes(listB);
+            Flags = flags;
         }
     }
 
@@ -92,10 +48,34 @@ namespace VRageRender
         internal Format IndexFormat;
     }
 
+    /// <summary>
+    /// Contains data used for culling, but should not own any itself
+    /// </summary>
+    [PooledObject]
     class MyCullProxy
     {
-        internal UInt64 [] SortingKeys;
-        internal MyRenderableProxy [] Proxies;
+        internal ulong[] SortingKeys;
+        internal MyRenderableProxy [] RenderableProxies;
+        internal uint FirstFullyContainingCascadeIndex;
+        internal MyRenderableComponent Parent;
+        internal bool Updated;
+
+        internal uint OwnerID { get { return Parent != null ? Parent.Owner.ID : 0; } }
+
+        [PooledObjectCleaner]
+        public static void Clear(MyCullProxy cullProxy)
+        {
+            cullProxy.Clear();
+        }
+
+        internal void Clear()
+        {
+            SortingKeys = null;
+            RenderableProxies = null;
+            Updated = false;
+            FirstFullyContainingCascadeIndex = uint.MaxValue;
+            Parent = null;
+        }
     }
 
     enum MyMaterialType
@@ -118,15 +98,31 @@ namespace VRageRender
 		CastShadows = 1 << 5,
     }
 
-    // should NOT own any data!
+    internal static class MyRenderableProxyFlagsExtensions
+    {
+        internal static bool HasFlags(this MyRenderableProxyFlags proxyFlags, MyRenderableProxyFlags flag)
+        {
+            return (proxyFlags & flag) == flag;
+        }
+    }
+
+    /// <summary>
+    /// Contains data needed to render an actor or part of it.
+    /// Does not own any data
+    /// </summary>
+    [PooledObject]
     class MyRenderableProxy
     {
         internal const float NO_DITHER_FADE = Single.PositiveInfinity;
 
         internal MatrixD WorldMatrix;
-        internal MyObjectData ObjectData;
+        internal MyObjectDataCommon CommonObjectData;
+        internal MyObjectDataNonVoxel NonVoxelObjectData;
+        internal MyObjectDataVoxelCommon VoxelCommonObjectData;
+        internal Matrix[] SkinningMatrices;
 
         internal LodMeshId Mesh;
+        internal MyMergedLodMeshId MergedMesh;
         internal InstancingId Instancing;
 
         internal MyMaterialShadersBundleId DepthShaders;
@@ -137,12 +133,12 @@ namespace VRageRender
         //internal uint DrawMaterialIndex; // assigned every frame (frame uses subset of materials index by variable below)
         internal int PerMaterialIndex; // assigned on proxy rebuild
 
+        internal MyDrawSubmesh[] SectionSubmeshes;
+
         internal int InstanceCount;
         internal int StartInstance;
 
         internal bool InstancingEnabled { get { return Instancing != InstancingId.NULL; } }
-
-        internal Matrix[] SkinningMatrices;
 
         internal MyMaterialType Type;
         internal MyRenderableProxyFlags Flags;
@@ -155,31 +151,37 @@ namespace VRageRender
 
         internal MyStringId Material;
 
-		#region Methods
-		public bool SkipIfTooSmall()
-		{
-			if ((Flags & MyRenderableProxyFlags.SkipIfTooSmall) == MyRenderableProxyFlags.SkipIfTooSmall)
-			{
-				var distanceFromCamera = Vector3D.Distance(MyEnvironment.CameraPosition, WorldMatrix.Translation);
-				float cullRatio = MyRenderConstants.DISTANCE_CULL_RATIO;
-				if (Parent.m_owner.Aabb.HalfExtents.Length() < distanceFromCamera / cullRatio)
-					return true;
-			}
-			return false;
-		}
+        [PooledObjectCleaner]
+        public static void Clear(MyRenderableProxy renderableProxy)
+        {
+            renderableProxy.Clear();
+        }
 
-		public bool IsInViewDistance()
-		{
-			if ((Flags & MyRenderableProxyFlags.DrawOutsideViewDistance) == 0)
-			{
-                var distanceFromCamera = Parent.m_owner.CalculateCameraDistance();
-                if (distanceFromCamera > MyEnvironment.FarClipping)
-                    return false;
-			}
-
-			return true;
-		}
-		#endregion
+        internal void Clear()
+        {
+            WorldMatrix = MatrixD.Zero;
+            CommonObjectData = default(MyObjectDataCommon);
+            NonVoxelObjectData = MyObjectDataNonVoxel.Invalid;
+            VoxelCommonObjectData = MyObjectDataVoxelCommon.Invalid;
+            Mesh = LodMeshId.NULL;
+            MergedMesh = MyMergedLodMeshId.NULL;
+            Instancing = InstancingId.NULL;
+            DepthShaders = MyMaterialShadersBundleId.NULL;
+            Shaders = MyMaterialShadersBundleId.NULL;
+            ForwardShaders = MyMaterialShadersBundleId.NULL;
+            DrawSubmesh = default(MyDrawSubmesh);
+            PerMaterialIndex = 0;
+            SectionSubmeshes = null;
+            InstanceCount = 0;
+            StartInstance = 0;
+            SkinningMatrices = null;
+            Type = MyMaterialType.OPAQUE;
+            Flags = 0;
+            Lod = 0;
+            ObjectBuffer = null;
+            Parent = null;
+            Material = MyStringId.NullOrEmpty;
+        }
 	};
 
     struct MyConstantsPack
@@ -188,6 +190,18 @@ namespace VRageRender
         internal Buffer CB;
         internal int Version;
         internal MyBindFlag BindFlag;
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Data Length {0}, {1}, Version {2}, BindFlags {3}", 
+                Data != null ? Data.Length.ToString() : "null", 
+                CB != null ? string.Format("CB Desc (BindFlags {0}, CpuAccessFlags {1}, OptionFlags {2}, Usage {3}, SizeInBytes {4}, StructureByteStride {5})",
+                    CB.Description.BindFlags, CB.Description.CpuAccessFlags, CB.Description.OptionFlags, CB.Description.Usage, 
+                    CB.Description.SizeInBytes, CB.Description.StructureByteStride): "CB null",
+                Version, BindFlag
+            );
+        }
     }
 
     [Flags]
@@ -231,6 +245,9 @@ namespace VRageRender
         internal static readonly MyDrawSubmesh_2[] EmptyList = new MyDrawSubmesh_2[0];
     }
 
+    /// <summary>
+    /// Renderable proxies for merge-instancing
+    /// </summary>
     struct MyRenderableProxy_2
     {
         internal MyMaterialType MaterialType;
@@ -257,70 +274,26 @@ namespace VRageRender
         internal readonly static UInt64[] EmptyKeyList = new UInt64[0];
     }
 
-    
-
     static class MyProxiesFactory
     {
-        static MyObjectsPool<MyCullProxy> m_cullProxyPool = new MyObjectsPool<MyCullProxy>(100);
-        static MyObjectsPool<MyRenderableProxy> m_renderableProxyPool = new MyObjectsPool<MyRenderableProxy>(200);
-
-        internal static MyCullProxy CreateCullProxy()
-        {
-            MyCullProxy item;
-            m_cullProxyPool.AllocateOrCreate(out item);
-            return item;
-        }
-
-        internal static void Remove(MyCullProxy proxy)
-        {
-            m_cullProxyPool.Deallocate(proxy);
-        }
-
-        internal static MyRenderableProxy CreateRenderableProxy()
-        {
-            MyRenderableProxy item;
-            m_renderableProxyPool.AllocateOrCreate(out item);
-
-            //item.geometry = null;
-            item.Mesh = LodMeshId.NULL;
-            item.Instancing = InstancingId.NULL;
-            item.DepthShaders = MyMaterialShadersBundleId.NULL;
-            item.Shaders = MyMaterialShadersBundleId.NULL;
-            //item.depthOnlyShaders = null;
-            //item.shaders = null;
-            item.SkinningMatrices = null;
-            //item.depthOnlySubmeshes = null;
-            //item.submeshes = null;
-            item.InstanceCount = 0;
-            item.Flags = 0;
-            item.Type = MyMaterialType.OPAQUE;
-            item.ObjectBuffer = null;
-            item.Parent = null;
-            item.Lod = 0;
-
-            return item;
-        }
-
-        internal static void Remove(MyRenderableProxy proxy)
-        {
-            m_renderableProxyPool.Deallocate(proxy);
-        }
-
 		internal static MyRenderableProxyFlags GetRenderableProxyFlags(RenderFlags flags)
 		{
 			MyRenderableProxyFlags proxyFlags = MyRenderableProxyFlags.None;
 
-			if ((flags & RenderFlags.SkipIfTooSmall) == RenderFlags.SkipIfTooSmall)
+			if (flags.HasFlags(RenderFlags.SkipIfTooSmall))
 				proxyFlags |= MyRenderableProxyFlags.SkipIfTooSmall;
 
-			if ((flags & RenderFlags.DrawOutsideViewDistance) == RenderFlags.DrawOutsideViewDistance)
+            if (flags.HasFlags(RenderFlags.DrawOutsideViewDistance))
 				proxyFlags |= MyRenderableProxyFlags.DrawOutsideViewDistance;
 
-			if ((flags & RenderFlags.CastShadows) == RenderFlags.CastShadows)
+            if (flags.HasFlags(RenderFlags.CastShadows))
 				proxyFlags |= MyRenderableProxyFlags.CastShadows;
 
-			if ((flags & RenderFlags.NoBackFaceCulling) == RenderFlags.NoBackFaceCulling)
+            if (flags.HasFlags(RenderFlags.NoBackFaceCulling))
 				proxyFlags |= MyRenderableProxyFlags.DisableFaceCulling;
+
+            if (flags.HasFlags(RenderFlags.SkipInMainView) || !flags.HasFlags(RenderFlags.Visible))
+                proxyFlags |= MyRenderableProxyFlags.SkipInMainView;
 
 			return proxyFlags;
 		}

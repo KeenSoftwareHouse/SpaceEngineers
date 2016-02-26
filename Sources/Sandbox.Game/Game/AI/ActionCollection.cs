@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using Sandbox.Game.AI.BehaviorTree;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common;
 using System.Reflection;
 using VRage;
@@ -13,6 +12,7 @@ using Sandbox.Common.AI;
 using VRage.Utils;
 using VRage.Library.Utils;
 using Sandbox.Engine.AI;
+using VRage.Game;
 
 namespace Sandbox.Game.AI
 {

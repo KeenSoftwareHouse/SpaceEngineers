@@ -13,12 +13,12 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("fxaa.hlsl", "fxaa");
+            m_ps = MyShaders.CreatePs("fxaa.hlsl");
         }
 
         internal static void Run(MyBindableResource destination, MyBindableResource source)
         {
-            var context = MyRender11.Context;
+            var context = MyRender11.DeviceContext;
 
             context.OutputMerger.BlendState = null;
 

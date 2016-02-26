@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Sandbox.Common;
+using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
+using VRage.Game.Common;
 
 namespace Sandbox.Game.World
 {

@@ -4,6 +4,7 @@ using Sandbox.Game.Entities.Cube;
 using VRageMath;
 using VRageRender;
 using Sandbox.Common;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.Entities
 {

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Collections;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {

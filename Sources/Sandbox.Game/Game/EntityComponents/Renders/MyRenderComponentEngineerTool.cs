@@ -10,7 +10,8 @@ using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.World;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game;
 
 namespace Sandbox.Game.Components
 {
@@ -40,6 +41,11 @@ namespace Sandbox.Game.Components
         #endregion
         public void DrawHighlight()
         {
+            if (m_tool.GetTargetGrid() == null || m_tool.HasHitBlock == false)
+            {
+                return;
+            }
+
             var block = m_tool.GetTargetGrid().GetCubeBlock(m_tool.TargetCube);
             //Debug.Assert(block != null, "Call programmer");
             if (block == null) // This is just a workaround, so that the above assert does not crash the game on release

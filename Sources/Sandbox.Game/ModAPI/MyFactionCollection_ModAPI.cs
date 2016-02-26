@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.ModAPI;
 using Sandbox.Game.World;
+using VRage.Game;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -40,7 +41,7 @@ namespace Sandbox.Game.Multiplayer
             KickPlayerFromFaction(playerId);
         }
 
-        Common.MyRelationsBetweenFactions IMyFactionCollection.GetRelationBetweenFactions(long factionId1, long factionId2)
+        MyRelationsBetweenFactions IMyFactionCollection.GetRelationBetweenFactions(long factionId1, long factionId2)
         {
             return GetRelationBetweenFactions(factionId1, factionId2);
         }
@@ -147,7 +148,7 @@ namespace Sandbox.Game.Multiplayer
             remove { FactionCreated -= value; }
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_FactionCollection IMyFactionCollection.GetObjectBuilder()
+        MyObjectBuilder_FactionCollection IMyFactionCollection.GetObjectBuilder()
         {
             return GetObjectBuilder();
         }

@@ -42,7 +42,7 @@ namespace VRage
 
             var me = selector.Body as MemberExpression;
 
-            Debug.Assert(!(me.Member is PropertyInfo), "Creating member expression of property, this won't work when obfuscated!");
+            //Debug.Assert(!(me.Member is PropertyInfo), "Creating member expression of property, this won't work when obfuscated!");
             Exceptions.ThrowIf<ArgumentNullException>(me == null, "Selector must be a member access expression", "selector");
 
             return me.Member;

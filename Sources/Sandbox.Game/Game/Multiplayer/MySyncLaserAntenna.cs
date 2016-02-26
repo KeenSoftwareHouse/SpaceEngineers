@@ -10,6 +10,7 @@ using VRageMath;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Common.ObjectBuilders;
 using ProtoBuf;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Multiplayer
 {

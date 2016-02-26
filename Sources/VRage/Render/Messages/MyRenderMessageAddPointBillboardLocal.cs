@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageAddPointBillboardLocal : IMyRenderMessage
+    public class MyRenderMessageAddPointBillboardLocal : MyRenderMessageBase
     {
         public uint RenderObjectID;
         public string Material;
@@ -19,7 +19,7 @@ namespace VRageRender
         public bool Near;
         public bool Lowres;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.Draw; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.AddPointBillboardLocal; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.Draw; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.AddPointBillboardLocal; } }
     }
 }

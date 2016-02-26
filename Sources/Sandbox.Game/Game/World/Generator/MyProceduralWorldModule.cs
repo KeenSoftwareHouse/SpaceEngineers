@@ -8,6 +8,9 @@ using VRage.Library.Utils;
 using VRage.Noise;
 using VRage.Noise.Combiners;
 using VRageMath;
+using Sandbox.Common.ObjectBuilders;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -140,12 +143,12 @@ namespace Sandbox.Game.World.Generator
         {
             int hash = objectSeed.CellId.GetHashCode();
             hash = (hash * 397) ^ m_seed;
-            hash = (hash * 397) ^ objectSeed.Index;
-            hash = (hash * 397) ^ objectSeed.Seed;
+            hash = (hash * 397) ^ objectSeed.Params.Index;
+            hash = (hash * 397) ^ objectSeed.Params.Seed;
             return hash;
         }
 
-        public abstract void GenerateObjects(List<MyObjectSeed> list);
+        public abstract void GenerateObjects(List<MyObjectSeed> list, HashSet<MyObjectSeedParams> existingObjectsSeeds);
 
         protected void GenerateObjectSeeds(ref BoundingSphereD sphere)
         {
@@ -299,7 +302,7 @@ namespace Sandbox.Game.World.Generator
 
                 foreach (var objectSeed in m_tempObjectSeedList)
                 {
-                    if (objectSeed.Generated)
+                    if (objectSeed.Params.Generated)
                     {
                         CloseObjectSeed(objectSeed);
                     }

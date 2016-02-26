@@ -89,7 +89,7 @@
     <Compile Include="MyTransformD.cs" />
     <Compile Include="QuaternionD.cs" />
     <Compile Include="SerializationExtensions.cs" />
-    <Compile Include="Spatial\KDTree.cs" />
+    <Compile Include="Spatial\MyVector3DGrid.cs" />
     <Compile Include="Spatial\MyVector3Grid.cs" />
     <Compile Include="Vector2B.cs" />
     <Compile Include="Vector4D.cs" />

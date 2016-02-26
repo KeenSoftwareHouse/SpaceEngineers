@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions

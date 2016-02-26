@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using VRageMath;
 
 using Sandbox;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Platform;
 
@@ -12,6 +11,7 @@ using VRage;
 using VRage.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.World;
+using VRage.Game;
 
 namespace Sandbox.AppCode
 {
@@ -145,13 +145,21 @@ namespace Sandbox.AppCode
 
         public MatrixD GetSpectatorMatrix()
         {
-            MatrixD worldMatrix = MatrixD.Invert(MySpectatorCameraController.Static.GetViewMatrix());
+            MatrixD worldMatrix;
+            if (MySpectatorCameraController.Static != null)
+                worldMatrix = MatrixD.Invert(MySpectatorCameraController.Static.GetViewMatrix());
+            else worldMatrix = MatrixD.Identity;
             return worldMatrix;
         }
 
         public MyParticleGeneration AllocateGeneration()
         {
             return MyParticlesManager.GenerationsPool.Allocate();
+        }
+
+        public MyParticleLight AllocateParticleLight()
+        {
+            return MyParticlesManager.LightsPool.Allocate();
         }
 
         public MyParticleEffect CreateLibraryEffect()
@@ -203,14 +211,14 @@ namespace Sandbox.AppCode
         public void LoadDefinitions()
         {
             // this is needed for render materials to be loaded
-            MyDefinitionManager.Static.LoadData(new List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_Checkpoint.ModItem>());            
+            MyDefinitionManager.Static.LoadData(new List<MyObjectBuilder_Checkpoint.ModItem>());            
         }
 
 
 
         public float GetStepInSeconds()
         {
-            return MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            return VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
         }
     }
 }

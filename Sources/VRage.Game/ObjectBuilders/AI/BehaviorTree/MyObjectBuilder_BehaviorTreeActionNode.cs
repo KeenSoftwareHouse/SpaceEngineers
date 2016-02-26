@@ -3,7 +3,7 @@ using System;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     [Flags]
     public enum MyMemoryParameterType : byte

@@ -1,10 +1,10 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Graphics.GUI;
+﻿using Sandbox.Graphics.GUI;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using VRage.FileSystem;
+using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;

@@ -98,25 +98,6 @@ namespace VRageRender
         internal float Falloff;
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 64)]
-    struct MySpotlightConstants
-    {
-        [FieldOffset(0)]
-        internal Vector3 Position;
-        [FieldOffset(12)]
-        internal float Range;
-        [FieldOffset(16)]
-        internal Vector3 Color;
-        [FieldOffset(28)]
-        internal float Aperture;
-        [FieldOffset(32)]
-        internal Vector3 Direction;
-        [FieldOffset(44)]
-        internal uint Id;
-        [FieldOffset(48)]
-        internal Vector3 Up;
-    }
-
     struct LightId
     {
         internal int Index;
@@ -133,7 +114,6 @@ namespace VRageRender
 
         internal static readonly LightId NULL = new LightId { Index = -1 };
 
-
         internal Vector3D Position { get { return MyLights.Lights.Data[Index].Position; } }
         internal Vector3D LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
         internal Vector3D PositionWithOffset { get { return MyLights.Lights.Data[Index].PositionWithOffset; } }
@@ -143,6 +123,22 @@ namespace VRageRender
         internal float ShadowDistance { get { return MyLights.Lights.Data[Index].ShadowsDistance; } }
         internal float ViewerDistanceSquared { get { return (float)(PositionWithOffset - MyEnvironment.CameraPosition).LengthSquared(); } }
         internal int ParentGID { get { return MyLights.Lights.Data[Index].ParentGID; } }
+
+        #region Equals
+        public class MyLightIdComparerType : IEqualityComparer<LightId>
+        {
+            public bool Equals(LightId left, LightId right)
+            {
+                return left == right;
+            }
+
+            public int GetHashCode(LightId lightId)
+            {
+                return lightId.Index;
+            }
+        }
+        public static MyLightIdComparerType Comparer = new MyLightIdComparerType();
+        #endregion
     }
 
     class MyLights
@@ -158,11 +154,11 @@ namespace VRageRender
         static MyPointlightInfo[] Pointlights = new MyPointlightInfo[256];
         internal static MySpotlightInfo[] Spotlights = new MySpotlightInfo[256];
 
-        static HashSet<LightId> DirtyPointlights = new HashSet<LightId>();
-        internal static HashSet<LightId> DirtySpotlights = new HashSet<LightId>();
+        static HashSet<LightId> DirtyPointlights = new HashSet<LightId>(LightId.Comparer);
+        internal static HashSet<LightId> DirtySpotlights = new HashSet<LightId>(LightId.Comparer);
 
-        internal static Dictionary<LightId, HashSet<uint>> IgnoredEntitites = new Dictionary<LightId, HashSet<uint>>();
-        internal static Dictionary<LightId, MyGlareDesc> Glares = new Dictionary<LightId, MyGlareDesc>();
+        internal static Dictionary<LightId, HashSet<uint>> IgnoredEntitites = new Dictionary<LightId, HashSet<uint>>(LightId.Comparer);
+        internal static Dictionary<LightId, MyGlareDesc> Glares = new Dictionary<LightId, MyGlareDesc>(LightId.Comparer);
 
         internal static LightId Create(uint GID)
         {
@@ -421,6 +417,12 @@ namespace VRageRender
 
         internal static void WritePointlightConstants(LightId lid, ref MyPointlightConstants data)
         {
+            if(lid == LightId.NULL)
+            {
+                data = default(MyPointlightConstants);
+                return;
+            }
+
             data.VsPosition = Vector3.Transform(Lights.Data[lid.Index].PositionWithOffset - MyEnvironment.CameraPosition, ref MyEnvironment.ViewAt0);
             data.Range = Pointlights[lid.Index].Range;
             data.Color = Pointlights[lid.Index].Color;

@@ -13,9 +13,9 @@ using Sandbox.Common;
 using Sandbox.Game.Debugging;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Graphics;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Engine.Physics;
 using VRage.Win32;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
@@ -69,7 +69,7 @@ namespace Sandbox.Game.Gui
             double secondsFromStart = MyPerformanceCounter.TicksToMs(m_ticks - m_startTime) / 1000;
             if (secondsFromStart > 1)
             {
-                double updateLagOverMeasureTime = (secondsFromStart - m_frameCounter * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                double updateLagOverMeasureTime = (secondsFromStart - m_frameCounter * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
                 m_updateLag = updateLagOverMeasureTime / secondsFromStart * 1000;
 
                 m_startTime = m_ticks;
@@ -88,6 +88,7 @@ namespace Sandbox.Game.Gui
             Stats.Timing.Write("FPS", MyFpsManager.GetFps(), VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Increment("UPS", 1000);
             Stats.Timing.Write("Simulation speed", Sandbox.Engine.Physics.MyPhysics.SimulationRatio, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 2);
+            Stats.Timing.Write("Server simulation speed", Sync.ServerSimulationRatio, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 2);
             Stats.Timing.WriteFormat("Frame time: {0} ms", MyFpsManager.FrameTime, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 1);
             Stats.Timing.WriteFormat("Frame avg time: {0} ms", MyFpsManager.FrameTimeAvg, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 1);
             Stats.Timing.WriteFormat("Frame min time: {0} ms", MyFpsManager.FrameTimeMin, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 1);
@@ -96,7 +97,7 @@ namespace Sandbox.Game.Gui
             Stats.Timing.Write("GC Memory", GC.GetTotalMemory(false), VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
-            Stats.Timing.Write("  particles total", MyParticlesManager.m_ParticlesTotal, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+            Stats.Timing.Write("  particles total", MyParticlesManager.ParticlesTotal, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 
             if (MyPhysics.Clusters != null)
             {

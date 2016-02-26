@@ -8,7 +8,9 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 
@@ -42,7 +44,7 @@ namespace Sandbox.Game.Entities
             this.InitSpherePhysics(MyMaterialType.METAL, Vector3.Zero, 0.5f, 100,
                            MyPerGameSettings.DefaultLinearDamping,
                            MyPerGameSettings.DefaultAngularDamping, 
-                           MyPhysics.DefaultCollisionLayer,
+                           MyPhysics.CollisionLayers.DefaultCollisionLayer,
                            RigidBodyFlag.RBF_DEFAULT);
 
             Render.SkipIfTooSmall = false;
@@ -208,7 +210,7 @@ namespace Sandbox.Game.Entities
 
         }
 
-        public void Sprint()
+        public void Sprint(bool enabled)
         {
         }
 

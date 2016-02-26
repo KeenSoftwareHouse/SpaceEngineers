@@ -7,6 +7,8 @@ using Microsoft.Win32;
 
 using Sandbox;
 using SteamSDK;
+using System.Diagnostics;
+using VRage.Utils;
 
 namespace Sandbox.Engine.Networking
 {
@@ -63,13 +65,24 @@ namespace Sandbox.Engine.Networking
         {
             get
             {
-                return MySandboxGame.Services != null && MySandboxGame.Services.SteamService != null ? MySandboxGame.Services.SteamService.UserId : 0;
+                return MySandboxGame.Services != null && MySandboxGame.Services.SteamService != null ? MySandboxGame.Services.SteamService.UserId : ulong.MaxValue;
             }
         }
 
         public static string UserName { get { return MySandboxGame.Services.SteamService.UserName; } }
         public static Universe UserUniverse { get { return MySandboxGame.Services.SteamService.UserUniverse; } }
-        public static string BranchName { get { return MySandboxGame.Services.SteamService.BranchName; } }
+        public static string BranchName {
+            get
+            {
+                if (MySandboxGame.Services == null || MySandboxGame.Services.SteamService == null)
+                {
+                    Debug.Fail("MySandboxGame.Services.SteamService not running?");
+                    MyLog.Default.WriteLine("ERROR: branch name cannot be resolved, services=" + MySandboxGame.Services);
+                    return "ERROR";
+                }
+                return MySandboxGame.Services.SteamService.BranchName; 
+            } 
+        }
 
         public static void OpenOverlayUrl(string url)
         {

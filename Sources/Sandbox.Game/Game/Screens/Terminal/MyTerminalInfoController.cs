@@ -17,8 +17,10 @@ using System.Linq;
 using System.Text;
 using Sandbox.Game.GameSystems;
 using VRage;
+using VRage.Game;
 using VRage.Trace;
 using VRageMath;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {
@@ -138,12 +140,15 @@ namespace Sandbox.Game.Gui
             if (m_grid == null || m_grid.Physics == null)
             {
                 convertBtn.Enabled = false;
-                MyGuiControlLabel noShip = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenTerminalError_ShipNotConnected), font: Common.MyFontEnum.Red);
+                MyGuiControlLabel noShip = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenTerminalError_ShipNotConnected), font: MyFontEnum.Red);
                 list.Controls.Add(noShip);
                 return;
             }
 
             if (!m_grid.IsStatic || m_grid.MarkedForClose)
+                convertBtn.Enabled = false;
+
+            if (!m_grid.BigOwners.Contains(MySession.Static.LocalPlayerId))
                 convertBtn.Enabled = false;
 
             var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
@@ -212,7 +217,7 @@ namespace Sandbox.Game.Gui
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship
         private bool IsPlayerOwner(MyCubeGrid grid)
         {
-            return grid != null && grid.BigOwners.Contains(MySession.LocalPlayerId);            
+            return grid != null && grid.BigOwners.Contains(MySession.Static.LocalPlayerId);            
         }
 
         void showAntenaGizmos_IsCheckedChanged(MyGuiControlCheckbox obj)
@@ -235,20 +240,21 @@ namespace Sandbox.Game.Gui
         {
             MyCubeGrid.ShowGridPivot = obj.IsChecked;
         }
+
         void setDestructibleBlocksBtn_IsCheckedChanged(MyGuiControlCheckbox obj)
         {
-            m_grid.SyncObject.SetDestructibleBlocks(obj.IsChecked);
+            m_grid.DestructibleBlocks = obj.IsChecked;
         }
 
         void convertBtn_ButtonClicked(MyGuiControlButton obj)
         {
-            m_grid.SyncObject.RequestConversionToShip();
+            m_grid.RequestConversionToShip();
         }
 
         void renameBtn_ButtonClicked(MyGuiControlButton obj)
         {
             var textForm = (MyGuiControlTextbox)m_infoPage.Controls.GetControlByName("RenameShipText");
-            m_grid.SyncObject.ChangeDisplayNameRequest(m_grid, textForm.Text);
+            m_grid.ChangeDisplayNameRequest(textForm.Text);
             
         }
 

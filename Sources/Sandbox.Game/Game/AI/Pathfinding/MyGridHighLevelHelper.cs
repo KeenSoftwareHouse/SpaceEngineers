@@ -26,6 +26,10 @@ namespace Sandbox.Game.AI.Pathfinding
         private Dictionary<Vector3I, List<int>> m_triangleRegistry; // Belongs to the grid navigation mesh
         private MyNavmeshComponents m_components;
 
+        // Stores triangles of all components for us to be able to set their component index. "null" values separate components (to avoid having to allocate more lists)
+        private List<MyNavigationTriangle> m_tmpComponentTriangles = new List<MyNavigationTriangle>();
+        private List<int> m_tmpNeighbors = new List<int>();
+
         private static HashSet<int> m_tmpCellTriangles = new HashSet<int>();
         private static MyGridHighLevelHelper m_currentHelper = null;
 
@@ -75,11 +79,6 @@ namespace Sandbox.Game.AI.Pathfinding
             for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out pos))
             {
                 m_changedCells.Add(pos);
-
-                MyCellCoord cellCoord = new MyCellCoord(0, pos);
-                ulong packedCell = cellCoord.PackId64();
-
-                TryClearCell(packedCell);
             }
         }
 
@@ -93,11 +92,6 @@ namespace Sandbox.Game.AI.Pathfinding
             List<int> triangles = null;
             foreach (var cell in m_changedCells)
             {
-                MyCellCoord cellCoord = new MyCellCoord(0, cell);
-                ulong packedCell = cellCoord.PackId64();
-
-                m_components.OpenCell(packedCell);
-
                 min = CellToLowestCube(cell);
                 max = min + m_cellSize - Vector3I.One;
 
@@ -113,10 +107,17 @@ namespace Sandbox.Game.AI.Pathfinding
                     }
                 }
 
+                if (m_tmpCellTriangles.Count == 0) continue;
+
+                MyCellCoord cellCoord = new MyCellCoord(0, cell);
+                ulong packedCell = cellCoord.PackId64();
+                m_components.OpenCell(packedCell);
+
                 long timeBegin = m_mesh.GetCurrentTimestamp() + 1;
                 long timeEnd = timeBegin;
                 m_currentComponentRel = 0;
 
+                m_tmpComponentTriangles.Clear();
                 foreach (var triIndex in m_tmpCellTriangles)
                 {
                     // Skip already visited triangles
@@ -133,12 +134,11 @@ namespace Sandbox.Game.AI.Pathfinding
 
                     // Find connected component from an unvisited triangle and mark its connections
                     m_components.AddComponentTriangle(triangle, triangle.Center);
-                    triangle.ComponentIndex = m_components.OpenComponentIndex;
+                    triangle.ComponentIndex = m_currentComponentRel;
+                    m_tmpComponentTriangles.Add(triangle);
                     m_mesh.PrepareTraversal(triangle, null, m_processTrianglePredicate);
-
-                    var primitiveEnum = m_mesh.GetEnumerator();
-                    while (primitiveEnum.MoveNext());
-                    primitiveEnum.Dispose();
+                    m_mesh.PerformTraversal();
+                    m_tmpComponentTriangles.Add(null);
 
                     m_components.CloseComponent();
 
@@ -155,8 +155,30 @@ namespace Sandbox.Game.AI.Pathfinding
                 MyNavmeshComponents.ClosedCellInfo cellInfo = new MyNavmeshComponents.ClosedCellInfo();
                 m_components.CloseAndCacheCell(ref cellInfo);
 
-                // Add new component primitives 
-                if (cellInfo.NewCell)
+                // Renumber triangles from the old indices to the newly assigned index from m_components
+                int componentIndex = cellInfo.StartingIndex;
+                foreach (var triangle in m_tmpComponentTriangles)
+                {
+                    if (triangle == null)
+                    {
+                        componentIndex++;
+                        continue;
+                    }
+                    triangle.ComponentIndex = componentIndex;
+                }
+                m_tmpComponentTriangles.Clear();
+
+                // Remove old component primitives
+                if (!cellInfo.NewCell && cellInfo.ComponentNum != cellInfo.OldComponentNum)
+                {
+                    for (int i = 0; i < cellInfo.OldComponentNum; ++i)
+                    {
+                        m_mesh.HighLevelGroup.RemovePrimitive(cellInfo.OldStartingIndex + i);
+                    }
+                }
+
+                // Add new component primitives
+                if (cellInfo.NewCell || cellInfo.ComponentNum != cellInfo.OldComponentNum)
                 {
                     for (int i = 0; i < cellInfo.ComponentNum; ++i)
                     {
@@ -164,20 +186,52 @@ namespace Sandbox.Game.AI.Pathfinding
                     }
                 }
 
+                // Update existing component primitives
+                if (!cellInfo.NewCell && cellInfo.ComponentNum == cellInfo.OldComponentNum)
+                {
+                    for (int i = 0; i < cellInfo.ComponentNum; ++i)
+                    {
+                        var primitive = m_mesh.HighLevelGroup.GetPrimitive(cellInfo.StartingIndex + i);
+                        primitive.UpdatePosition(m_components.GetComponentCenter(i));
+                    }
+                }
+
                 // Connect new components with the others in the neighboring cells
                 for (int i = 0; i < cellInfo.ComponentNum; ++i)
                 {
-                    foreach (var otherComponent in m_currentCellConnections[i])
+                    int compIndex = cellInfo.StartingIndex + i;
+
+                    var primitive = m_mesh.HighLevelGroup.GetPrimitive(compIndex);
+                    primitive.GetNeighbours(m_tmpNeighbors);
+
+                    // Connect to disconnected components
+                    foreach (var connection in m_currentCellConnections[i])
                     {
-                        m_mesh.HighLevelGroup.ConnectPrimitives(cellInfo.StartingIndex + i, otherComponent);
+                        if (!m_tmpNeighbors.Remove(connection))
+                        {
+                            m_mesh.HighLevelGroup.ConnectPrimitives(compIndex, connection);
+                        }
                     }
+
+                    // Disconnect neighbors that should be no longer connected
+                    foreach (var neighbor in m_tmpNeighbors)
+                    {
+                        // Only disconnect from the other cell if it is expanded and there was no connection found
+                        var neighborPrimitive = m_mesh.HighLevelGroup.TryGetPrimitive(neighbor);
+                        if (neighborPrimitive != null && neighborPrimitive.IsExpanded)
+                        {
+                            m_mesh.HighLevelGroup.DisconnectPrimitives(compIndex, neighbor);
+                        }
+                    }
+
+                    m_tmpNeighbors.Clear();
                     m_currentCellConnections[i].Clear();
                 }
 
                 // Set all the components as expanded
                 for (int i = 0; i < cellInfo.ComponentNum; ++i)
                 {
-                    int componentIndex = cellInfo.StartingIndex + i;
+                    componentIndex = cellInfo.StartingIndex + i;
                     var component = m_mesh.HighLevelGroup.GetPrimitive(componentIndex);
                     if (component != null)
                     {
@@ -214,7 +268,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (m_tmpCellTriangles.Contains(triangle.Index))
             {
                 m_components.AddComponentTriangle(triangle, triangle.Center);
-                triangle.ComponentIndex = m_components.OpenComponentIndex;
+                m_tmpComponentTriangles.Add(triangle);
                 return true;
             }
             else
@@ -263,11 +317,11 @@ namespace Sandbox.Game.AI.Pathfinding
                 return;
             }
 
-            for (int i = 0; i < cellInfo.ComponentNum; ++i)
+            /*for (int i = 0; i < cellInfo.ComponentNum; ++i)
             {
                 int componentIndex = cellInfo.StartingIndex + i;
                 m_mesh.HighLevelGroup.RemovePrimitive(componentIndex);
-            }
+            }*/
 
             m_components.ClearCell(packedCoord, ref cellInfo);
         }

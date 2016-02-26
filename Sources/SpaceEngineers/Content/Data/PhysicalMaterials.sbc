@@ -48,12 +48,42 @@
 				<SubtypeId>Character</SubtypeId>
 			</Id>
 		</PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Spider</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
+	<PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Cyberhound</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
 		<PhysicalMaterial>
 			<Id>
 				<TypeId>PhysicalMaterialDefinition</TypeId>
 				<SubtypeId>RifleBullet</SubtypeId>
 			</Id>
 		</PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Grinder</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>HandDrill</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>ShipDrill</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
 		<PhysicalMaterial>
 			<Id>
 				<TypeId>PhysicalMaterialDefinition</TypeId>
@@ -66,5 +96,11 @@
 				<SubtypeId>ExpBullet</SubtypeId>
 			</Id>
 		</PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Tree</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
 	</PhysicalMaterials>
 </Definitions>

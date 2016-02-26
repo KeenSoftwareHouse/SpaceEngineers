@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Prefabs>
-    <Prefab>
+    <Prefab xsi:type="MyObjectBuilder_PrefabDefinition">
       <Id>
         <TypeId>MyObjectBuilder_PrefabDefinition</TypeId>
         <SubtypeId>MinerSmallShip</SubtypeId>
       </Id>
       <CubeGrids>
         <CubeGrid>
-          <EntityId>174828515794610364</EntityId>
+          <EntityId>85988347379333324</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
           <PositionAndOrientation>
-            <Position x="8.6091575752743665" y="3.0425670998756686" z="38.722930903124507" />
-            <Forward x="0.00524177728" y="-0.0363259278" z="-0.9993262" />
-            <Up x="0.0101151429" y="0.999290764" z="-0.0362715833" />
+            <Position x="96.241709792173424" y="-126.48295378228613" z="48.49339254579354" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
           </PositionAndOrientation>
+          <EntityDefinitionId xsi:nil="true" />
           <GridSizeEnum>Small</GridSizeEnum>
           <CubeBlocks>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -22,19 +23,17 @@
               <Min x="-2" y="2" z="4" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>152745028097095132</EntityId>
+              <EntityId>125678083495410946</EntityId>
               <Min x="2" y="4" z="6" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 10</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -42,78 +41,97 @@
               <Min x="-2" y="4" z="2" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>177463931274551086</EntityId>
+              <EntityId>131327981581839780</EntityId>
               <Min x="1" y="4" z="4" />
               <BlockOrientation Forward="Right" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 4</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="4" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_BatteryBlock">
               <SubtypeName>SmallBlockBatteryBlock</SubtypeName>
-              <EntityId>163934703393724362</EntityId>
+              <EntityId>130731295231186941</EntityId>
               <Min x="-1" y="2" z="5" />
               <BlockOrientation Forward="Left" Up="Forward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>false</Enabled>
-              <CurrentStoredPower>0.36</CurrentStoredPower>
-              <ProducerEnabled>false</ProducerEnabled>
+              <CurrentStoredPower>1.08</CurrentStoredPower>
+              <ProducerEnabled>true</ProducerEnabled>
               <MaxStoredPower>0</MaxStoredPower>
               <SemiautoEnabled>false</SemiautoEnabled>
+              <OnlyDischargeEnabled>false</OnlyDischargeEnabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>159832344030507865</EntityId>
+              <EntityId>106608855979333200</EntityId>
               <Min x="-2" y="3" z="7" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ShipConnector">
               <SubtypeName>ConnectorMedium</SubtypeName>
-              <EntityId>205584429840052501</EntityId>
+              <EntityId>117203942623616419</EntityId>
               <Min x="-1" y="2" z="10" />
               <BlockOrientation Forward="Backward" Up="Up" />
               <ColorMaskHSV x="0" y="-0.95" z="0.4" />
               <ShareMode>All</ShareMode>
               <DeformationRatio>0.5</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>1.152</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive CanSend</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>1.152</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive CanSend</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
+              <MasterToSlaveTransform xsi:nil="true" />
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_OreDetector">
               <SubtypeName>SmallBlockOreDetector</SubtypeName>
-              <EntityId>172573767081649655</EntityId>
+              <EntityId>108612149679443455</EntityId>
               <Min x="0" y="3" z="1" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Ore Detector 2</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <DetectionRadius>50</DetectionRadius>
               <BroadcastUsingAntennas>false</BroadcastUsingAntennas>
@@ -121,68 +139,71 @@
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="2" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="4" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
               <SubtypeName>SmallBlockConveyor</SubtypeName>
-              <EntityId>191942811154827122</EntityId>
+              <EntityId>118382449234702693</EntityId>
               <Min x="-2" y="3" z="8" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>207892473204866286</EntityId>
+              <EntityId>77739799108259820</EntityId>
               <Min x="2" y="3" z="5" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
               <SubtypeName>SmallBlockConveyor</SubtypeName>
-              <EntityId>202757107349701159</EntityId>
+              <EntityId>112426399622021810</EntityId>
               <Min x="-2" y="3" z="6" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>170477882853506172</EntityId>
+              <EntityId>112335467124212343</EntityId>
               <Min x="2" y="3" z="7" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
               <SubtypeName>SmallBlockSmallGenerator</SubtypeName>
-              <EntityId>168308588045290644</EntityId>
+              <EntityId>93063187073095060</EntityId>
               <Min x="2" y="4" z="5" />
               <BlockOrientation Forward="Right" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>0.125</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>0.125</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -190,83 +211,65 @@
               <Min x="2" y="2" z="2" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorSlope</SubtypeName>
               <Min x="2" y="2" z="3" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorSlope</SubtypeName>
               <Min x="2" y="2" z="4" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="2" z="1" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCornerInv</SubtypeName>
               <Min x="-2" y="4" z="1" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="4" z="1" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorSlope</SubtypeName>
               <Min x="2" y="4" z="2" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCornerInv</SubtypeName>
               <Min x="2" y="4" z="3" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCornerInv</SubtypeName>
               <Min x="-2" y="4" z="3" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>201961072338437127</EntityId>
+              <EntityId>114606092599282808</EntityId>
               <Min x="-2" y="4" z="4" />
               <BlockOrientation Forward="Left" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 3</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -274,47 +277,40 @@
               <Min x="-2" y="2" z="2" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorSlope</SubtypeName>
               <Min x="-2" y="2" z="3" />
               <BlockOrientation Forward="Up" Up="Left" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="2" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>197611395149616810</EntityId>
+              <EntityId>73047177756412729</EntityId>
               <Min x="-1" y="2" z="4" />
               <BlockOrientation Forward="Down" Up="Left" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 8</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>195757457103366391</EntityId>
+              <EntityId>75303311332519138</EntityId>
               <Min x="0" y="3" z="4" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0" y="-0.95" z="0.4" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 7</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -322,147 +318,172 @@
               <Min x="-2" y="2" z="1" />
               <BlockOrientation Forward="Down" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="4" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
               <SubtypeName>SmallBlockSmallGenerator</SubtypeName>
-              <EntityId>185772929735411998</EntityId>
+              <EntityId>101987432704069504</EntityId>
               <Min x="-2" y="4" z="5" />
               <BlockOrientation Forward="Left" Up="Up" />
               <ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>0.125</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <CustomName>Small Reactor 2</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>0.125</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>207825453040736364</EntityId>
+              <EntityId>141653323198810487</EntityId>
               <Min x="-2" y="3" z="5" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
               <SubtypeName>SmallBlockConveyor</SubtypeName>
-              <EntityId>147504099364383342</EntityId>
+              <EntityId>102496561868819754</EntityId>
               <Min x="2" y="3" z="6" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
               <SubtypeName>SmallBlockConveyor</SubtypeName>
-              <EntityId>201421923562551950</EntityId>
+              <EntityId>79049653925719634</EntityId>
               <Min x="2" y="3" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>208010829157231309</EntityId>
+              <EntityId>128631072153839040</EntityId>
               <Min x="2" y="3" z="2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>213567246325727939</EntityId>
+              <EntityId>74477620153282977</EntityId>
               <Min x="2" y="3" z="3" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>149553309039906246</EntityId>
+              <EntityId>125981643554362548</EntityId>
               <Min x="2" y="3" z="4" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>146216438602874172</EntityId>
+              <EntityId>132183806915891682</EntityId>
               <Min x="-2" y="3" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>160623252336621644</EntityId>
+              <EntityId>73928354229228208</EntityId>
               <Min x="-2" y="3" z="2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>161742712853355334</EntityId>
+              <EntityId>76332701989601285</EntityId>
               <Min x="-2" y="3" z="3" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>188754580062162180</EntityId>
+              <EntityId>93994565376686886</EntityId>
               <Min x="-2" y="3" z="4" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CargoContainer">
               <SubtypeName>SmallBlockMediumContainer</SubtypeName>
-              <EntityId>186724293785175510</EntityId>
+              <EntityId>102438983479292645</EntityId>
               <Min x="-1" y="2" z="7" />
               <BlockOrientation Forward="Right" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>3.375</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive CanSend</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <ShowOnHUD>false</ShowOnHUD>
-              <Inventory>
-                <Items />
-                <nextItemId>0</nextItemId>
-              </Inventory>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
               <SubtypeName>SmallBlockSmallGenerator</SubtypeName>
-              <EntityId>189075923891327802</EntityId>
+              <EntityId>85493559247786780</EntityId>
               <Min x="-2" y="2" z="6" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items>
+                        <MyObjectBuilder_InventoryItem>
+                          <Amount>3.999824</Amount>
+                          <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                            <SubtypeName>Uranium</SubtypeName>
+                            <DurabilityHP xsi:nil="true" />
+                          </PhysicalContent>
+                          <ItemId>0</ItemId>
+                          <AmountDecimal>3.999824</AmountDecimal>
+                        </MyObjectBuilder_InventoryItem>
+                      </Items>
+                      <nextItemId>1</nextItemId>
+                      <Volume>0.125</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <CustomName>Small Reactor 3</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items>
@@ -470,24 +491,56 @@
                     <Amount>3.999824</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
                       <SubtypeName>Uranium</SubtypeName>
+                      <DurabilityHP xsi:nil="true" />
                     </PhysicalContent>
                     <ItemId>0</ItemId>
                     <AmountDecimal>3.999824</AmountDecimal>
                   </MyObjectBuilder_InventoryItem>
                 </Items>
                 <nextItemId>1</nextItemId>
+                <Volume>0.125</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Reactor">
               <SubtypeName>SmallBlockSmallGenerator</SubtypeName>
-              <EntityId>211708421675606163</EntityId>
+              <EntityId>84051877064546830</EntityId>
               <Min x="2" y="2" z="6" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items>
+                        <MyObjectBuilder_InventoryItem>
+                          <Amount>3.999824</Amount>
+                          <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
+                            <SubtypeName>Uranium</SubtypeName>
+                            <DurabilityHP xsi:nil="true" />
+                          </PhysicalContent>
+                          <ItemId>0</ItemId>
+                          <AmountDecimal>3.999824</AmountDecimal>
+                        </MyObjectBuilder_InventoryItem>
+                      </Items>
+                      <nextItemId>1</nextItemId>
+                      <Volume>0.125</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <CustomName>Small Reactor 4</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items>
@@ -495,12 +548,18 @@
                     <Amount>3.999824</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_Ingot">
                       <SubtypeName>Uranium</SubtypeName>
+                      <DurabilityHP xsi:nil="true" />
                     </PhysicalContent>
                     <ItemId>0</ItemId>
                     <AmountDecimal>3.999824</AmountDecimal>
                   </MyObjectBuilder_InventoryItem>
                 </Items>
                 <nextItemId>1</nextItemId>
+                <Volume>0.125</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
@@ -508,92 +567,75 @@
               <Min x="-2" y="2" z="5" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorCorner</SubtypeName>
               <Min x="2" y="2" z="5" />
               <BlockOrientation Forward="Up" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="2" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>182581747437694974</EntityId>
+              <EntityId>76751977147698882</EntityId>
               <Min x="-2" y="4" z="6" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 11</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Conveyor">
               <SubtypeName>SmallBlockConveyor</SubtypeName>
-              <EntityId>192730802182928025</EntityId>
+              <EntityId>105711677859068741</EntityId>
               <Min x="2" y="3" z="8" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>162744763604620867</EntityId>
+              <EntityId>128530318834979220</EntityId>
               <Min x="2" y="3" z="9" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>201405964787332269</EntityId>
+              <EntityId>103770586527369483</EntityId>
               <Min x="-2" y="3" z="9" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmallCurved</SubtypeName>
-              <EntityId>155886427786404693</EntityId>
+              <EntityId>108137231250865223</EntityId>
               <Min x="-2" y="3" z="10" />
               <BlockOrientation Forward="Backward" Up="Left" />
               <ColorMaskHSV x="0" y="-0.95" z="0.4" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmallCurved</SubtypeName>
-              <EntityId>179271354417506699</EntityId>
+              <EntityId>133190803268356931</EntityId>
               <Min x="2" y="3" z="10" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0" y="-0.95" z="0.4" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_RadioAntenna">
               <SubtypeName>SmallBlockRadioAntenna</SubtypeName>
-              <EntityId>151961772709972019</EntityId>
+              <EntityId>76083554279165603</EntityId>
               <Min x="-2" y="2" z="7" />
               <BlockOrientation Forward="Backward" Up="Right" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Miner</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <BroadcastRadius>500.387329</BroadcastRadius>
               <ShowShipName>false</ShowShipName>
@@ -601,13 +643,40 @@
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_OxygenGenerator">
               <SubtypeName>OxygenGeneratorSmall</SubtypeName>
-              <EntityId>147808301287487020</EntityId>
+              <EntityId>140627071091230405</EntityId>
               <Min x="-1" y="2" z="2" />
               <BlockOrientation Forward="Backward" Up="Down" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items>
+                        <MyObjectBuilder_InventoryItem>
+                          <Amount>1010</Amount>
+                          <PhysicalContent xsi:type="MyObjectBuilder_Ore">
+                            <SubtypeName>Ice</SubtypeName>
+                            <DurabilityHP xsi:nil="true" />
+                          </PhysicalContent>
+                          <ItemId>0</ItemId>
+                          <AmountDecimal>1010</AmountDecimal>
+                        </MyObjectBuilder_InventoryItem>
+                      </Items>
+                      <nextItemId>1</nextItemId>
+                      <Volume>1</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
               <Inventory>
                 <Items>
@@ -615,76 +684,82 @@
                     <Amount>1010</Amount>
                     <PhysicalContent xsi:type="MyObjectBuilder_Ore">
                       <SubtypeName>Ice</SubtypeName>
+                      <DurabilityHP xsi:nil="true" />
                     </PhysicalContent>
                     <ItemId>0</ItemId>
                     <AmountDecimal>1010</AmountDecimal>
                   </MyObjectBuilder_InventoryItem>
                 </Items>
                 <nextItemId>1</nextItemId>
+                <Volume>1</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanReceive</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmallCurved</SubtypeName>
-              <EntityId>145340268447772907</EntityId>
+              <EntityId>132662526662417675</EntityId>
               <Min x="1" y="3" z="1" />
               <BlockOrientation Forward="Left" Up="Forward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="2" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="2" y="4" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>211788724705698860</EntityId>
+              <EntityId>78342925827348305</EntityId>
               <Min x="2" y="3" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>163943474221543608</EntityId>
+              <EntityId>122307043860257839</EntityId>
               <Min x="2" y="3" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>194565972750021704</EntityId>
+              <EntityId>133707193666081710</EntityId>
               <Min x="2" y="3" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Cockpit">
               <SubtypeName>SmallBlockCockpit</SubtypeName>
-              <EntityId>190905466575611228</EntityId>
+              <EntityId>117199659753573847</EntityId>
               <Min x="-1" y="2" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>1</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanReceive CanSend</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <UseSingleWeaponMode>false</UseSingleWeaponMode>
+              <ControlWheels>true</ControlWheels>
               <Toolbar>
                 <ToolbarType>Character</ToolbarType>
                 <SelectedSlot xsi:nil="true" />
@@ -694,7 +769,7 @@
                     <Item />
                     <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
                       <Action>OnOff</Action>
-                      <BlockEntityId>150030956997992196</BlockEntityId>
+                      <BlockEntityId>119122962352285750</BlockEntityId>
                     </Data>
                   </Slot>
                   <Slot>
@@ -702,257 +777,238 @@
                     <Item />
                     <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
                       <Action>OnOff</Action>
-                      <BlockEntityId>168723250127589702</BlockEntityId>
+                      <BlockEntityId>143892854635976496</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>3</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff</Action>
+                      <BlockEntityId>88006087665409812</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>4</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>OnOff</Action>
+                      <BlockEntityId>108612149679443455</BlockEntityId>
+                    </Data>
+                  </Slot>
+                  <Slot>
+                    <Index>5</Index>
+                    <Item />
+                    <Data xsi:type="MyObjectBuilder_ToolbarItemTerminalBlock">
+                      <Action>SwitchLock</Action>
+                      <BlockEntityId>117203942623616419</BlockEntityId>
                     </Data>
                   </Slot>
                 </Slots>
-                <ColorMaskHSVList>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0</Y>
-                    <Z>0</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>0</Y>
-                    <Z>0.05</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.333333343</X>
-                    <Y>-0.48</Y>
-                    <Z>-0.25</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0</Y>
-                    <Z>0</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.122222222</X>
-                    <Y>-0.1</Y>
-                    <Z>0.26</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.95</Y>
-                    <Z>0.4</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.96</Y>
-                    <Z>-0.22</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.85</Y>
-                    <Z>0.2</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0</Y>
-                    <Z>0</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.333333343</X>
-                    <Y>-0.329999983</Y>
-                    <Z>-0.049999997</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.575</X>
-                    <Y>0.15</Y>
-                    <Z>0.2</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0.122222222</X>
-                    <Y>0.87</Y>
-                    <Z>0.29</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-1</Y>
-                    <Z>0</Z>
-                  </Vector3>
-                  <Vector3>
-                    <X>0</X>
-                    <Y>-0.809999943</Y>
-                    <Z>-0.3</Z>
-                  </Vector3>
-                </ColorMaskHSVList>
               </Toolbar>
               <SelectedGunId xsi:nil="true" />
+              <IsMainCockpit>false</IsMainCockpit>
+              <HorizonIndicatorEnabled>true</HorizonIndicatorEnabled>
+              <BuildToolbar>
+                <ToolbarType>Character</ToolbarType>
+                <SelectedSlot xsi:nil="true" />
+                <Slots />
+              </BuildToolbar>
               <PilotRelativeWorld>
-                <Position x="-0.35317966341972351" y="3.4908835887908936" z="-3.1728982925415039" />
-                <Forward x="-0.00179491169" y="-0.905998647" z="0.4232768" />
-                <Up x="-0.0341544673" y="0.423086077" z="0.9054456" />
+                <Position x="-2.2145917415618896" y="3.992185115814209" z="0.679897665977478" />
+                <Forward x="0.2874718" y="-0.949013531" z="-0.129357517" />
+                <Up x="0.9554089" y="0.2936457" z="-0.0310817119" />
+                <Orientation>
+                  <X>-0.401397258</X>
+                  <Y>-0.52364254</Y>
+                  <Z>-0.438243538</Z>
+                  <W>0.6104272</W>
+                </Orientation>
               </PilotRelativeWorld>
               <PilotGunDefinition xsi:nil="true" />
-              <IsInFirstPersonView>false</IsInFirstPersonView>
+              <IsInFirstPersonView>true</IsInFirstPersonView>
               <OxygenLevel>1</OxygenLevel>
+              <AttachedPlayerId xsi:nil="true" />
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>196285049865826153</EntityId>
+              <EntityId>102141255630896747</EntityId>
               <Min x="-1" y="3" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Drill">
               <SubtypeName>SmallBlockDrill</SubtypeName>
-              <EntityId>150030956997992196</EntityId>
+              <EntityId>119122962352285750</EntityId>
               <Min x="1" y="2" z="-8" />
               <BlockOrientation Forward="Forward" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>3.375</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanSend</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <CustomName>Drill 4</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>false</Enabled>
               <Inventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>3.375</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanSend</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="4" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="2" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="2" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="-2" y="4" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>163334102995113840</EntityId>
+              <EntityId>99888346108654267</EntityId>
               <Min x="-2" y="3" z="0" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>151149053224967753</EntityId>
+              <EntityId>91958668375326204</EntityId>
               <Min x="-2" y="3" z="-1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ConveyorConnector">
               <SubtypeName>ConveyorTubeSmall</SubtypeName>
-              <EntityId>182050570056852383</EntityId>
+              <EntityId>134797628658872555</EntityId>
               <Min x="-2" y="3" z="-2" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Drill">
               <SubtypeName>SmallBlockDrill</SubtypeName>
-              <EntityId>168723250127589702</EntityId>
+              <EntityId>143892854635976496</EntityId>
               <Min x="-3" y="2" z="-8" />
               <BlockOrientation Forward="Forward" Up="Left" />
               <ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
+              <ComponentContainer>
+                <Components>
+                  <ComponentData>
+                    <TypeId>MyInventoryBase</TypeId>
+                    <Component xsi:type="MyObjectBuilder_Inventory">
+                      <Items />
+                      <nextItemId>0</nextItemId>
+                      <Volume>3.375</Volume>
+                      <Mass>9223372036854.775807</Mass>
+                      <Size xsi:nil="true" />
+                      <InventoryFlags>CanSend</InventoryFlags>
+                      <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
+                    </Component>
+                  </ComponentData>
+                </Components>
+              </ComponentContainer>
               <CustomName>Drill 5</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>false</Enabled>
               <Inventory>
                 <Items />
                 <nextItemId>0</nextItemId>
+                <Volume>3.375</Volume>
+                <Mass>9223372036854.775807</Mass>
+                <Size xsi:nil="true" />
+                <InventoryFlags>CanSend</InventoryFlags>
+                <RemoveEntityOnEmpty>false</RemoveEntityOnEmpty>
               </Inventory>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Gyro">
               <SubtypeName>SmallBlockGyro</SubtypeName>
-              <EntityId>215454742577291253</EntityId>
+              <EntityId>100580672536371853</EntityId>
               <Min x="1" y="4" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Gyro">
               <SubtypeName>SmallBlockGyro</SubtypeName>
-              <EntityId>203991877102551090</EntityId>
+              <EntityId>109699601178774846</EntityId>
               <Min x="-1" y="4" z="1" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
               <ShareMode>All</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Gyroscope 2</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>164508750875162003</EntityId>
+              <EntityId>115138303446646004</EntityId>
               <Min x="1" y="2" z="4" />
               <BlockOrientation Forward="Down" Up="Forward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 7</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">
               <SubtypeName>SmallBlockArmorBlock</SubtypeName>
               <Min x="0" y="2" z="4" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Thrust">
               <SubtypeName>SmallBlockSmallThrust</SubtypeName>
-              <EntityId>175273155182986319</EntityId>
+              <EntityId>113088185388388471</EntityId>
               <Min x="0" y="2" z="-4" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <CustomName>Small Thruster 10</CustomName>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>true</Enabled>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_ReflectorLight">
               <SubtypeName>SmallBlockFrontLight</SubtypeName>
-              <EntityId>204035910277067663</EntityId>
+              <EntityId>88006087665409812</EntityId>
               <Min x="0" y="3" z="-3" />
-              <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
-              <ShareMode>None</ShareMode>
-              <DeformationRatio>0</DeformationRatio>
               <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+              <ShowInToolbarConfig>true</ShowInToolbarConfig>
               <Enabled>false</Enabled>
               <Radius>2</Radius>
               <Falloff>1</Falloff>
@@ -962,13 +1018,6 @@
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
           </CubeBlocks>
-          <IsStatic>false</IsStatic>
-          <Skeleton />
-          <LinearVelocity x="0" y="0" z="0" />
-          <AngularVelocity x="0" y="0" z="0" />
-          <XMirroxPlane xsi:nil="true" />
-          <YMirroxPlane xsi:nil="true" />
-          <ZMirroxPlane xsi:nil="true" />
           <ConveyorLines>
             <MyObjectBuilder_ConveyorLine>
               <StartPosition x="-2" y="3" z="6" />
@@ -1081,11 +1130,15 @@
               <ConveyorLineType>SMALL_LINE</ConveyorLineType>
             </MyObjectBuilder_ConveyorLine>
           </ConveyorLines>
-          <BlockGroups />
-          <Handbrake>false</Handbrake>
           <DisplayName>Small Ship 3064</DisplayName>
-          <CreatePhysics>true</CreatePhysics>
-          <EnableSmallToLargeConnections>true</EnableSmallToLargeConnections>
+          <OxygenAmount>
+            <float>0</float>
+            <float>0</float>
+            <float>0</float>
+          </OxygenAmount>
+          <DestructibleBlocks>true</DestructibleBlocks>
+          <IsRespawnGrid>false</IsRespawnGrid>
+          <LocalCoordSys>0</LocalCoordSys>
         </CubeGrid>
       </CubeGrids>
     </Prefab>

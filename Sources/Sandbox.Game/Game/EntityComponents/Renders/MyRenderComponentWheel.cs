@@ -2,12 +2,12 @@
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -31,7 +31,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 			m_lastEffectCreationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + 2*m_effectCreationInterval;
 		}
 
-		public bool TrySpawnParticle(Vector3D worldPosition)
+        public bool TrySpawnParticle(Vector3D worldPosition, MyParticleEffectsIDEnum particleEffect = MyParticleEffectsIDEnum.Collision_Meteor)
 		{
 			if (!MyFakes.ENABLE_DRIVING_PARTICLES)
 				return false;
@@ -47,7 +47,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 				return false;
 
 			MyParticleEffect drivingEffect = null;
-			if (!MyParticlesManager.TryCreateParticleEffect(51, out drivingEffect))
+            if (!MyParticlesManager.TryCreateParticleEffect((int)particleEffect, out drivingEffect))
 				return false;
 
 			m_lastEffectCreationTime = currentTime;

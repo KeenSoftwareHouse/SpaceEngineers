@@ -8,17 +8,12 @@ namespace Sandbox.Game.Entities.Blocks
 {
     class MyLaserReceiver : MyDataReceiver
     {
-        public MyLaserReceiver(MyEntity parent):base(parent)
-        {
-
-        }
-
         protected override void GetAllBroadcastersInMyRange(ref HashSet<MyDataBroadcaster> relayedBroadcasters, long localPlayerId, HashSet<long> gridsQueued)
         {
             
-            (Parent as MyLaserAntenna).AddBroadcastersContactingMe(ref relayedBroadcasters);
-            
-            var broadcaster = (Parent as MyLaserAntenna).GetOthersBroadcaster();
+            (Entity as MyLaserAntenna).AddBroadcastersContactingMe(ref relayedBroadcasters);
+
+            var broadcaster = (Entity as MyLaserAntenna).GetOthersBroadcaster();
             if (broadcaster != null)
             {
                 if (relayedBroadcasters.Contains(broadcaster))
@@ -27,7 +22,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (CanIUseIt(broadcaster, localPlayerId))
                 {
                     MyDataReceiver laserReceiver;
-                    if ((broadcaster.Parent as IMyComponentOwner<MyDataReceiver>).GetComponent(out laserReceiver))
+                    if (broadcaster.Container.TryGet<MyDataReceiver>(out laserReceiver))
                     {
                          laserReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
                     }

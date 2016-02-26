@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -9,6 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Pathfinding

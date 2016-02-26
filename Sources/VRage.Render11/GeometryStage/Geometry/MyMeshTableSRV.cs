@@ -1,14 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Diagnostics;
+using VRageRender.Vertex;
 
 namespace VRageRender
 {

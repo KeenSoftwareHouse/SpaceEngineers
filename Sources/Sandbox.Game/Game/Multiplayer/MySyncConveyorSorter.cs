@@ -9,6 +9,7 @@ using SteamSDK;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.World;
 using VRage.ObjectBuilders;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Multiplayer
 {

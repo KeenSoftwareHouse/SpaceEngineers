@@ -18,6 +18,8 @@ using VRageRender;
 using VRage.ObjectBuilders;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Game.Entity;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -26,7 +28,8 @@ namespace Sandbox.Game.Entities.Cube
     /// </summary>
     class MyMultiBlockClipboard : MyGridClipboardAdvanced
     {
-        private static List<Vector3> m_tmpCollisionPoints = new List<Vector3>();
+        private static List<Vector3D> m_tmpCollisionPoints = new List<Vector3D>();
+        private static List<MyEntity> m_tmpNearEntities = new List<MyEntity>();
 
 
         protected override bool AnyCopiedGridIsStatic
@@ -50,14 +53,13 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMultiBlockClipboard(MyPlacementSettings settings, bool calculateVelocity = true) : base(settings, calculateVelocity)
         {
-            EnableGridChangeToDynamic = false;
             m_useDynamicPreviews = false;
         }
 
-        public override void Deactivate()
+        public override void Deactivate(bool afterPaste = false)
         {
             m_multiBlockDefinition = null;
-            base.Deactivate();
+            base.Deactivate(afterPaste: afterPaste);
         }
 
         public override void Update()
@@ -69,11 +71,9 @@ namespace Sandbox.Game.Entities.Cube
 
             if (!m_visible)
             {
-                Hide();
+                ShowPreview(false);
                 return;
             }
-
-            Show();
 
             if (PreviewGrids.Count == 0)
                 return;
@@ -88,17 +88,21 @@ namespace Sandbox.Game.Entities.Cube
             FixSnapTransformationBase6();
 
             if (m_calculateVelocity)
-                m_objectVelocity = (m_pastePosition - m_pastePositionPrevious) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_objectVelocity = (m_pastePosition - m_pastePositionPrevious) / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
             m_canBePlaced = TestPlacement();
 
             if (!m_visible)
             {
-                Hide();
+                ShowPreview(false);
                 return;
             }
 
+            ShowPreview(true);
+
             TestBuildingMaterials();
+            m_canBePlaced &= CharacterHasEnoughMaterials;
+
             UpdatePreview();
 
             if (MyDebugDrawSettings.DEBUG_DRAW_COPY_PASTE)
@@ -142,6 +146,18 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
+        public override bool EntityCanPaste(MyEntity pastingEntity)
+        {
+            if (CopiedGrids.Count < 1) 
+                return false;
+
+            if(MySession.Static.IsAdminModeEnabled)
+                return true;
+
+            MyCubeBuilder.BuildComponent.GetMultiBlockPlacementMaterials(m_multiBlockDefinition);
+            return MyCubeBuilder.BuildComponent.HasBuildingMaterials(pastingEntity);
+        }
+
         private bool PasteGridsInDynamicMode(MyInventoryBase buildInventory, bool deactivate)
         {
             bool result;
@@ -150,11 +166,11 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var copiedGrid in CopiedGrids)
             {
                 gridStaticFlags.Add(copiedGrid.IsStatic);
-
                 copiedGrid.IsStatic = false;
+                BeforeCreateGrid(copiedGrid);
             }
 
-            result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate);
+            result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate, multiBlock: true);
 
             // Set static grid flag back
             for (int i = 0; i < CopiedGrids.Count; ++i)
@@ -171,6 +187,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 // First grid is forced static
                 MyObjectBuilder_CubeGrid originalCopiedGrid = CopiedGrids[0];
+                BeforeCreateGrid(originalCopiedGrid);
                 copiedGridsOrig.Add(originalCopiedGrid);
                 MatrixD previewGridWorldMatrix = PreviewGrids[0].WorldMatrix;
                 // Convert grid builder to static 
@@ -186,6 +203,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 1; i < CopiedGrids.Count; ++i)
             {
                 MyObjectBuilder_CubeGrid originalCopiedGrid = CopiedGrids[i];
+                BeforeCreateGrid(originalCopiedGrid);
                 copiedGridsOrig.Add(originalCopiedGrid);
                 MatrixD previewGridWorldMatrix = PreviewGrids[i].WorldMatrix;
                 previewGridsWorldMatrices.Add(previewGridWorldMatrix);
@@ -204,7 +222,7 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(CopiedGrids.Count == copiedGridsOrig.Count);
             Debug.Assert(CopiedGrids.Count == previewGridsWorldMatrices.Count);
 
-            bool result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate);
+            bool result = PasteGridInternal(buildInventory: buildInventory, deactivate: deactivate, multiBlock: true, touchingGrids: m_touchingGrids);
 
             // Set original grids back
             CopiedGrids.Clear();
@@ -282,6 +300,43 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        protected override void ChangeClipboardPreview(bool visible)
+        {
+            base.ChangeClipboardPreview(visible);
+
+            if (!visible)
+                return;
+
+            if (MySession.Static.SurvivalMode)
+            {
+                // Modify integrity of preview grid blocks to full integrity.
+                foreach (var grid in PreviewGrids)
+                {
+                    foreach (var block in grid.GetBlocks())
+                    {
+                        var compound = block.FatBlock as MyCompoundCubeBlock;
+                        if (compound != null)
+                        {
+                            foreach (var blockInCompound in compound.GetBlocks())
+                                SetBlockToFullIntegrity(blockInCompound);
+                        }
+                        else
+                        {
+                            SetBlockToFullIntegrity(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void SetBlockToFullIntegrity(MySlimBlock block)
+        {
+            var oldRatio = block.ComponentStack.BuildRatio;
+            block.ComponentStack.SetIntegrity(block.ComponentStack.MaxIntegrity, block.ComponentStack.MaxIntegrity);
+            if (block.BlockDefinition.ModelChangeIsNeeded(oldRatio, block.ComponentStack.BuildRatio))
+                block.UpdateVisual();
+        }
+
         private void UpdateHitEntity()
         {
             m_closestHitDistSq = float.MaxValue;
@@ -293,6 +348,8 @@ namespace Sandbox.Game.Entities.Cube
             BlockIdInCompound = null;
             RemoveBlocksInMultiBlock.Clear();
             m_dynamicBuildAllowed = false;
+            m_visible = false;
+            m_canBePlaced = false;
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
             {
@@ -451,16 +508,20 @@ namespace Sandbox.Game.Entities.Cube
             return rotationDelta;
         }
 
-        private bool TestPlacement()
+        private new bool TestPlacement()
         {
             bool retval = true;
+
+            m_touchingGrids.Clear();
 
             for (int i = 0; i < PreviewGrids.Count; ++i)
             {
                 var grid = PreviewGrids[i];
                 var settings = m_settings.GetGridPlacementSettings(grid);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding)
+                m_touchingGrids.Add(null);
+
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding && !MySession.Static.IsAdminModeEnabled)
                 {
                     if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
                     {
@@ -478,11 +539,11 @@ namespace Sandbox.Game.Entities.Cube
                         }
                     }
 
-                    /*if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
+                    /*if (!MySession.Static.SimpleSurvival && MySession.Static.ControlledEntity is MyCharacter)
                     {
                         foreach (var block in grid.GetBlocks())
                         {
-                            retval &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(block.BlockDefinition);
+                            retval &= (MySession.Static.ControlledEntity as MyCharacter).CanStartConstruction(block.BlockDefinition);
                             if (!retval)
                                 break;
                         }
@@ -551,6 +612,9 @@ namespace Sandbox.Game.Entities.Cube
                         if (!retval)
                             break;
                     }
+
+                    Debug.Assert(i == 0);
+                    m_touchingGrids[i] = DetectTouchingGrid();
                 }
                 else
                 {
@@ -559,7 +623,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 BoundingBoxD aabb = (BoundingBoxD)grid.PositionComp.LocalAABB;
-                MatrixD invGridWorlMatrix = grid.PositionComp.GetWorldMatrixNormalizedInv();
+                MatrixD invGridWorlMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
 
                 // Character collisions.
                 if (MySector.MainCamera != null)
@@ -583,6 +647,92 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             return retval;
+        }
+
+        /// <summary>
+        /// Detects a grid where multiblock can be merged.
+        /// </summary>
+        private MyCubeGrid DetectTouchingGrid()
+        {
+            if (PreviewGrids == null || PreviewGrids.Count == 0)
+                return null;
+
+            foreach (var block in PreviewGrids[0].CubeBlocks)
+            {
+                MyCubeGrid touchingGrid = DetectTouchingGrid(block);
+                if (touchingGrid != null)
+                    return touchingGrid;
+            }
+
+            return null;
+        }
+
+        private MyCubeGrid DetectTouchingGrid(MySlimBlock block)
+        {
+            if (MyCubeBuilder.Static.DynamicMode)
+                return null;
+
+            if (block == null)
+                return null;
+
+            if (block.FatBlock is MyCompoundCubeBlock)
+            {
+                foreach (var blockInCompound in (block.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                {
+                    MyCubeGrid touchingGrid = DetectTouchingGrid(blockInCompound);
+                    if (touchingGrid != null)
+                        return touchingGrid;
+                }
+
+                return null;
+            }
+
+            ProfilerShort.Begin("MultiBlockClipboard: DetectMerge");
+
+            float gridSize = block.CubeGrid.GridSize;
+            BoundingBoxD aabb;
+            block.GetWorldBoundingBox(out aabb);
+            // Inflate by half cube, so it will intersect for sure when there's anything
+            aabb.Inflate(gridSize / 2);
+
+            m_tmpNearEntities.Clear();
+            MyEntities.GetElementsInBox(ref aabb, m_tmpNearEntities);
+
+            var mountPoints = block.BlockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio);
+
+            try
+            {
+                for (int i = 0; i < m_tmpNearEntities.Count; i++)
+                {
+                    var grid = m_tmpNearEntities[i] as MyCubeGrid;
+                    if (grid != null && grid != block.CubeGrid && grid.Physics != null && grid.Physics.Enabled && grid.IsStatic && grid.GridSizeEnum == block.CubeGrid.GridSizeEnum)
+                    {
+                        Vector3I gridOffset = grid.WorldToGridInteger(m_pastePosition);
+                        if (!grid.CanMergeCubes(block.CubeGrid, gridOffset))
+                            continue;
+
+                        MatrixI transform = grid.CalculateMergeTransform(block.CubeGrid, gridOffset);
+                        Base6Directions.Direction forward = transform.GetDirection(block.Orientation.Forward);
+                        Base6Directions.Direction up = transform.GetDirection(block.Orientation.Up);
+                        MyBlockOrientation newOrientation = new MyBlockOrientation(forward, up);
+                        Quaternion newRotation;
+                        newOrientation.GetQuaternion(out newRotation);
+                        Vector3I newPosition = Vector3I.Transform(block.Position, transform);
+
+                        if (!MyCubeGrid.CheckConnectivity(grid, block.BlockDefinition, mountPoints, ref newRotation, ref newPosition))
+                            continue;
+
+                        return grid;
+                    }
+                }
+            }
+            finally
+            {
+                m_tmpNearEntities.Clear();
+                ProfilerShort.End();
+            }
+
+            return null;
         }
 
         private void UpdatePreview()
@@ -648,7 +798,7 @@ namespace Sandbox.Game.Entities.Cube
 
             base.SetupDragDistance();
 
-            if (MySession.Static.SurvivalMode)
+            if (MySession.Static.SurvivalMode && !MySession.Static.IsAdminModeEnabled)
                 m_dragDistance = MyCubeBuilder.Static.IntersectionDistance;
         }
 
@@ -660,7 +810,73 @@ namespace Sandbox.Game.Entities.Cube
             SetGridFromBuilder(grid, dragPointDelta, dragVectorLength);
         }
 
+        private void ShowPreview(bool show)
+        {
+            if (PreviewGrids.Count == 0)
+                return;
 
+            if (PreviewGrids[0].Render.Visible == show)
+                return;
 
+            PreviewGrids[0].Render.Visible = show;
+
+            foreach (var block in PreviewGrids[0].GetBlocks())
+            {
+                var compound = block.FatBlock as MyCompoundCubeBlock;
+                if (compound != null)
+                {
+                    compound.Render.UpdateRenderObject(show);
+
+                    foreach (var blockInCompound in compound.GetBlocks())
+                        if (blockInCompound.FatBlock != null)
+                            blockInCompound.FatBlock.Render.UpdateRenderObject(show);
+                }
+                else
+                {
+                    if (block.FatBlock != null)
+                        block.FatBlock.Render.UpdateRenderObject(show);
+                }
+            }
+        }
+
+        public static void TakeMaterialsFromBuilder(List<MyObjectBuilder_CubeGrid> blocksToBuild, MyEntity builder)
+        {
+            Debug.Assert(blocksToBuild.Count == 1);
+            if (blocksToBuild.Count == 0)
+                return;
+
+            // Search for multiblock definition.
+            var firstBlock = blocksToBuild[0].CubeBlocks.FirstOrDefault();
+            Debug.Assert(firstBlock != null);
+            if (firstBlock == null )
+                return;
+
+            MyDefinitionId multiBlockDefId;
+            var compound = firstBlock as MyObjectBuilder_CompoundCubeBlock;
+            if (compound != null)
+            {
+                Debug.Assert(compound.Blocks != null && compound.Blocks.Length > 0 && compound.Blocks[0].MultiBlockDefinition != null);
+                if (compound.Blocks == null || compound.Blocks.Length == 0 || compound.Blocks[0].MultiBlockDefinition == null)
+                    return;
+
+                multiBlockDefId = compound.Blocks[0].MultiBlockDefinition.Value;
+            }
+            else
+            {
+                Debug.Assert(firstBlock.MultiBlockDefinition != null);
+                if (firstBlock.MultiBlockDefinition == null)
+                    return;
+
+                multiBlockDefId = firstBlock.MultiBlockDefinition.Value;
+            }
+
+            MyMultiBlockDefinition multiBlockDefinition = MyDefinitionManager.Static.TryGetMultiBlockDefinition(multiBlockDefId);
+            Debug.Assert(multiBlockDefinition != null);
+            if (multiBlockDefinition == null)
+                return;
+
+            MyCubeBuilder.BuildComponent.GetMultiBlockPlacementMaterials(multiBlockDefinition);
+            MyCubeBuilder.BuildComponent.AfterMultiBlockBuild(builder);
+        }
     }
 }

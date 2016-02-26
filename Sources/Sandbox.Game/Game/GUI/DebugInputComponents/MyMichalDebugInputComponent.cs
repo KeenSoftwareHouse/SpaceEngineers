@@ -12,6 +12,8 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using System;
 using System.Collections.Generic;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
@@ -66,6 +68,7 @@ namespace Sandbox.Game.Gui
                 AddShortcut(MyKeys.OemPlus, true, true, false, false, () => "Next bot definition", NextBot);
                 AddShortcut(MyKeys.OemQuotes, true, true, false, false, () => "Reload bot definitions", ReloadDefinitions);
                 AddShortcut(MyKeys.OemComma, true, true, false, false, () => "RemoveAllTimbers", RemoveAllTimbers);
+                AddShortcut(MyKeys.N, true, true, false, false, () => "Cast long ray", ChangeAlgo);
            //     AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
             }
         }
@@ -91,6 +94,13 @@ namespace Sandbox.Game.Gui
 
             }
 
+            return true;
+        }
+
+        public bool CastLongRay = false;
+        private bool ChangeAlgo()
+        {
+            CastLongRay = !CastLongRay;
             return true;
         }
 
@@ -125,6 +135,8 @@ namespace Sandbox.Game.Gui
         public MyFloraElementDefinition SELECTED_FLORA = null;
         private int SELECTED_FLORA_IDX = 0;
 
+        private string multiplayerStats = string.Empty;
+
         public override bool HandleInput()
         {
             //float newState = MyInput.Static.GetJoystickAxisStateForGameplay(axis);
@@ -157,7 +169,7 @@ namespace Sandbox.Game.Gui
             //    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), formated, Color.Red, 0.5f);
             //    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 10.0f), "Packet type: " + (Reliable ? "Reliable" : "Unreliable"), Color.Red, 0.5f);
 
-            //    if (MySession.LocalCharacter != null)
+            //    if (MySession.Static.LocalCharacter != null)
             //    {
             //        var entities = MyEntities.GetEntities();
             //        foreach (var entity in entities)
@@ -171,16 +183,16 @@ namespace Sandbox.Game.Gui
             //        }
 
                     
-            //        var cameraController = MySession.GetCameraControllerEnum();
+            //        var cameraController = MySession.Static.GetCameraControllerEnum();
             //        string parsedName = "Camera controller enum: " + cameraController.ToString() + " => " + (MySession.Static.CameraController == null ? "NULL" : MySession.Static.CameraController.ToString());
-            //        var controlledEntity = "Controlled entity: " + (MySession.ControlledEntity == null ? "NULL" : MySession.ControlledEntity.ToString());
+            //        var controlledEntity = "Controlled entity: " + (MySession.Static.ControlledEntity == null ? "NULL" : MySession.Static.ControlledEntity.ToString());
             //        string customCubeGridString = "Custom grid creation: " + (CustomGridCreation ? "TRUE" : "FALSE");
             //        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 20.0f), parsedName, Color.Red, 0.5f);
             //        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 30.0f), controlledEntity, Color.Red, 0.5f);
             //        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 40.0f), customCubeGridString, Color.Red, 0.5f);
 
-            //        if (MySession.LocalCharacter != null)
-            //            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 50.0f), "Character pos: " + MySession.LocalCharacter.PositionComp.GetPosition().ToString(), Color.Red, 0.5f);
+            //        if (MySession.Static.LocalCharacter != null)
+            //            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 50.0f), "Character pos: " + MySession.Static.LocalCharacter.PositionComp.GetPosition().ToString(), Color.Red, 0.5f);
 
             //        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 60.0f), "Number of floating objects: " + (MyFloatingObjects.FloatingOreCount + MyFloatingObjects.FloatingItemCount), Color.Red, 0.5f);
             //        //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(50, 10f), "Zero position: " + MyEntities
@@ -222,9 +234,9 @@ namespace Sandbox.Game.Gui
             //            }
             //        }
 
-            //        if (MySession.LocalCharacter != null)
+            //        if (MySession.Static.LocalCharacter != null)
             //        {
-            //            var head = MySession.LocalCharacter.GetHeadMatrix(false);
+            //            var head = MySession.Static.LocalCharacter.GetHeadMatrix(false);
             //            var headPos = head.Translation - (Vector3D)head.Forward * 0.3;
             //            var dir = head.Forward;
             //            var from = headPos;
@@ -248,20 +260,23 @@ namespace Sandbox.Game.Gui
             //    }    
             //}
 #endregion
+
+            #region Debug draw enabled drawing
+
             if (DebugDraw)
             {
-                if (MySession.LocalCharacter != null)
+                if (MySession.Static.LocalCharacter != null)
                 {
-                  //  VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 20), "Character position: " + MySession.LocalCharacter.PositionComp.GetPosition().ToString(), Color.Red, 1.0f);
+                  //  VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 20), "Character position: " + MySession.Static.LocalCharacter.PositionComp.GetPosition().ToString(), Color.Red, 1.0f);
 
-                    HeadMatrix = MySession.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
+                    HeadMatrix = MySession.Static.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
                     VRageRender.MyRenderProxy.DebugDrawAxis(HeadMatrix, 1, false);
                     
 
                     string getheadmatrixString = string.Format("GetHeadMatrix({0}, {1}, {2}, {3})", (CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
                     VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 20), getheadmatrixString, Color.Red, 1.0f);
 
-                    var worldMat = MySession.LocalCharacter.WorldMatrix;
+                    var worldMat = MySession.Static.LocalCharacter.WorldMatrix;
                     var forw = worldMat.Forward;
                     var angle = MathHelper.ToRadians(15);
                     var cosAngle = Math.Cos(angle);
@@ -303,7 +318,7 @@ namespace Sandbox.Game.Gui
                             if (cubegrid.BlocksCount == 1)
                             {
                                 var first = cubegrid.GetCubeBlock(new Vector3I(0, 0, 0));
-                                if (first != null)
+                                if (first != null && first.FatBlock != null)
                                 {
                                     VRageRender.MyRenderProxy.DebugDrawText3D(first.FatBlock.PositionComp.GetPosition(), first.BlockDefinition.Id.SubtypeName, Color.Aqua, 1.0f, false);
                                     VRageRender.MyRenderProxy.DebugDrawPoint(first.FatBlock.PositionComp.GetPosition(), Color.Aqua, false);
@@ -360,6 +375,17 @@ namespace Sandbox.Game.Gui
                 var mousePosition = MyGuiManager.MouseCursorPosition;
                 VRageRender.MyRenderProxy.DebugDrawText2D(initVec, "Mouse coords: " + mousePosition.ToString(), Color.BlueViolet, 0.4f);
             }
+
+            #endregion
+
+            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 450), multiplayerStats, Color.Yellow, 0.6f);
+
+        }
+
+        public override void Update10()
+        {           
+            base.Update10();
+            multiplayerStats = Sandbox.Engine.Multiplayer.MyMultiplayer.GetMultiplayerStats();
         }
 
         private Vector3D? m_lineStart;
@@ -459,9 +485,9 @@ namespace Sandbox.Game.Gui
             CurrentHeadMatrixFlag++;
             if (CurrentHeadMatrixFlag > HeadMatrixFlag)
                 CurrentHeadMatrixFlag = HeadMatrixFlag;
-            if (MySession.LocalCharacter != null)
+            if (MySession.Static.LocalCharacter != null)
             {
-                HeadMatrix = MySession.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
+                HeadMatrix = MySession.Static.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
             }
             return true;
         }
@@ -471,18 +497,18 @@ namespace Sandbox.Game.Gui
             CurrentHeadMatrixFlag--;
             if (CurrentHeadMatrixFlag < 0)
                 CurrentHeadMatrixFlag = 0;
-            if (MySession.LocalCharacter != null)
+            if (MySession.Static.LocalCharacter != null)
             {
-                HeadMatrix = MySession.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
+                HeadMatrix = MySession.Static.LocalCharacter.GetHeadMatrix((CurrentHeadMatrixFlag & 1) == 1, (CurrentHeadMatrixFlag & 2) == 2, (CurrentHeadMatrixFlag & 4) == 4, (CurrentHeadMatrixFlag & 8) == 8);
             }
             return true;
         }
 
         private bool SpawnAnimalAroundPlayer()
         {
-            if (MySession.LocalCharacter != null)
+            if (MySession.Static.LocalCharacter != null)
             {
-                var position = MySession.LocalCharacter.PositionComp.GetPosition();
+                var position = MySession.Static.LocalCharacter.PositionComp.GetPosition();
                 var definition = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "NormalDeer"));
 
                 MyAIComponent.Static.SpawnNewBot(definition as MyAgentDefinition);
@@ -541,9 +567,9 @@ namespace Sandbox.Game.Gui
 
         private bool SpawnBot()
         {
-            if (MySession.LocalCharacter != null && m_selectedDefinition.HasValue)
+            if (MySession.Static.LocalCharacter != null && m_selectedDefinition.HasValue)
             {
-                var headMatrix = MySession.LocalCharacter.GetHeadMatrix(true);
+                var headMatrix = MySession.Static.LocalCharacter.GetHeadMatrix(true);
                 var position = headMatrix.Translation;
                 var definition = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "BarbarianTest"));
 

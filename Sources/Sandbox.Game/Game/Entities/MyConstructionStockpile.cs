@@ -8,7 +8,9 @@ using System.Linq;
 using System.Text;
 using Sandbox.Definitions;
 using VRage;
+using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Game.Entities
 {
@@ -19,6 +21,7 @@ namespace Sandbox.Game.Entities
         public int Amount;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]
         public MyObjectBuilder_PhysicalObject Content;
 
         public override string ToString()
@@ -39,12 +42,14 @@ namespace Sandbox.Game.Entities
             MyObjectBuilder_ConstructionStockpile objectBuilder;
 
             objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ConstructionStockpile>();
-            foreach (var item in m_items)
+            objectBuilder.Items = new MyObjectBuilder_StockpileItem[m_items.Count];
+            for (int index = 0; index < m_items.Count; index++)
             {
+                var item = m_items[index];
                 var itemBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_StockpileItem>();
                 itemBuilder.Amount = item.Amount;
                 itemBuilder.PhysicalContent = item.Content;
-                objectBuilder.Items.Add(itemBuilder);
+                objectBuilder.Items[index] = itemBuilder;
             }
 
             return objectBuilder;
@@ -90,7 +95,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsEmpty()
         {
-            return m_items.Count() == 0;
+            return m_items.Count == 0;
         }
 
         public void ClearSyncList()
@@ -123,7 +128,7 @@ namespace Sandbox.Game.Entities
                     break;
                 index++;
             }
-            if (index == m_items.Count())
+            if (index == m_items.Count)
             {
                 Debug.Assert(count < int.MaxValue, "Trying to add more items into construction stockpile than int.MaxValue");
                 if (count >= int.MaxValue) return false;
@@ -174,7 +179,7 @@ namespace Sandbox.Game.Entities
 
         private bool RemoveItemsInternal(int index, int count)
         {
-            if (index >= m_items.Count()) return false;
+            if (index >= m_items.Count) return false;
 
             if (m_items[index].Amount == count)
             {
@@ -241,7 +246,7 @@ namespace Sandbox.Game.Entities
         internal void Change(List<MyStockpileItem> items)
         {
             // We don't have to iterate over the newly added items, as they should not be stackable (server would have sent them together)
-            int originalCount = m_items.Count();
+            int originalCount = m_items.Count;
 
             foreach (var diffItem in items)
             {
@@ -266,7 +271,7 @@ namespace Sandbox.Game.Entities
             }
 
             // Remove items with zero count
-            for (int i = m_items.Count() - 1; i >= 0; --i)
+            for (int i = m_items.Count - 1; i >= 0; --i)
             {
                 if (m_items[i].Amount == 0)
                 {

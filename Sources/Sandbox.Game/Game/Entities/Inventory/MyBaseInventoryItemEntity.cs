@@ -3,7 +3,6 @@
 using System;
 using System.Text;
 using VRageMath;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Physics;
@@ -17,8 +16,10 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics;
 using Sandbox.Game.Components;
+using VRage.Game;
 using VRage.ObjectBuilders;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 #endregion
 

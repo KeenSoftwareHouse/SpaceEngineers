@@ -1,24 +1,9 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+﻿using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using VRage.Import;
-using VRage.Utils;
-
 using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Vector4 = VRageMath.Vector4;
 using Matrix = VRageMath.Matrix;
-using BoundingBox = VRageMath.BoundingBox;
-using SharpDX.Direct3D;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -38,8 +23,10 @@ namespace VRageRender
         internal Vector4 Row0;
         internal Vector4 Row1;
         internal Vector4 Row2;
+        internal uint DepthBias;
+        internal Vector3 __padding;
 
-        internal static MyPerInstanceData FromWorldMatrix(ref MatrixD matrix)
+        internal static MyPerInstanceData FromWorldMatrix(ref MatrixD matrix, uint depthBias)
         {
             var mat = (Matrix)matrix;
 
@@ -47,7 +34,8 @@ namespace VRageRender
             {
                 Row0 = new Vector4(mat.M11, mat.M21, mat.M31, mat.M41),
                 Row1 = new Vector4(mat.M12, mat.M22, mat.M32, mat.M42),
-                Row2 = new Vector4(mat.M13, mat.M23, mat.M33, mat.M43)
+                Row2 = new Vector4(mat.M13, mat.M23, mat.M33, mat.M43),
+                DepthBias = depthBias,
             };
         }
     }
@@ -114,14 +102,14 @@ namespace VRageRender
                 m_entities[ID].PageHandles.Add(pageHandle);
             }
 
-            m_perInstance.Data[instanceIndex] = MyPerInstanceData.FromWorldMatrix(ref MatrixD.Zero);
+            m_perInstance.Data[instanceIndex] = MyPerInstanceData.FromWorldMatrix(ref MatrixD.Zero, 0);
 
             m_tablesDirty = true;
         }
 
-        internal void UpdateEntity(uint ID, ref MatrixD matrix)
+        internal void UpdateEntity(uint ID, ref MatrixD matrix, uint depthBias)
         {
-            m_perInstance.Data[m_entities[ID].InstanceIndex] = MyPerInstanceData.FromWorldMatrix(ref matrix);
+            m_perInstance.Data[m_entities[ID].InstanceIndex] = MyPerInstanceData.FromWorldMatrix(ref matrix, depthBias);
 
             m_instancesDataDirty = true;
         }
@@ -155,7 +143,7 @@ namespace VRageRender
 
         internal unsafe void MoveToGPU()
         {
-            var context = MyImmediateRC.RC.Context;
+            var context = MyImmediateRC.RC.DeviceContext;
 
             if (m_tablesDirty)
             {
@@ -164,22 +152,9 @@ namespace VRageRender
                 fixed (void* ptr = array)
                 {
                     var intPtr = new IntPtr(ptr);
-
-                    if (m_indirectionBuffer != StructuredBufferId.NULL && m_indirectionBuffer.Capacity < array.Length)
-                    {
-                        MyHwBuffers.Destroy(m_indirectionBuffer);
-                        m_indirectionBuffer = StructuredBufferId.NULL;
-                        m_SRVs[0] = null;
-                    }
-                    if (m_indirectionBuffer == StructuredBufferId.NULL)
-                    {
-                        m_indirectionBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyInstancingTableEntry), false, intPtr);
-                        m_SRVs[0] = m_indirectionBuffer.Srv;
-                    }
-                    else
-                    {
-                        context.UpdateSubresource(new DataBox(intPtr, array.Length * sizeof(MyInstancingTableEntry), 0), m_indirectionBuffer.Buffer);
-                    }
+                    MyHwBuffers.ResizeAndUpdateStaticStructuredBuffer(ref m_indirectionBuffer, array.Length, sizeof(MyInstancingTableEntry), intPtr, 
+                        "MyMergeInstancing/Tables", context);
+                    m_SRVs[0] = m_indirectionBuffer.Srv;
                 }
 
                 m_tablesDirty = false;
@@ -207,7 +182,7 @@ namespace VRageRender
                     else
                     {
                         var mapping = MyMapping.MapDiscard(context, m_instanceBuffer.Buffer);
-                        mapping.stream.Write(intPtr, 0, array.Length * sizeof(MyPerInstanceData));
+                        mapping.WriteAndPosition(array, 0, array.Length);
                         mapping.Unmap();
                     }
                 }

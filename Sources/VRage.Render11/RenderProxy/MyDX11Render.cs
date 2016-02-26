@@ -8,6 +8,8 @@ using VRageMath;
 using VRageRender.Profiler;
 using Vector2 = VRageMath.Vector2;
 using VRage.Library.Utils;
+using VRage.Render11.Shader;
+using VRage.Utils;
 
 namespace VRageRender
 {
@@ -17,6 +19,7 @@ namespace VRageRender
         public string RootDirectoryEffects { get { return MyRender11.RootDirectoryEffects; } set { MyRender11.RootDirectoryEffects = value; } }
         public string RootDirectoryDebug { get { return MyRender11.RootDirectoryDebug; } set { MyRender11.RootDirectoryDebug = value; } }
 
+        public MyLog Log { get { return MyRender11.Log; } }
 
         public MyRenderSettings Settings { get { return MyRender11.Settings; } }
         public MySharedData SharedData { get { return MyRender11.SharedData; } }
@@ -111,7 +114,7 @@ namespace VRageRender
         public MyMessageQueue OutputQueue { get { return MyRender11.OutputQueue; } }
         public uint GlobalMessageCounter { get { return MyRender11.GlobalMessageCounter; } set { MyRender11.GlobalMessageCounter = value; } }
 
-        public void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)
+        public void EnqueueMessage(MyRenderMessageBase message, bool limitMaxQueueSize)
         {
             MyRender11.EnqueueMessage(message, limitMaxQueueSize);
         }
@@ -120,7 +123,7 @@ namespace VRageRender
         {
         }
 
-        public void EnqueueOutputMessage(IMyRenderMessage message)
+        public void EnqueueOutputMessage(MyRenderMessageBase message)
         {
             MyRender11.EnqueueOutputMessage(message);
         }
@@ -198,5 +201,9 @@ namespace VRageRender
             }
         }
 
+        public void GenerateShaderCache(bool clean, OnShaderCacheProgressDelegate onShaderCacheProgress)
+        {
+            MyShaderCacheGenerator.Generate(clean, onShaderCacheProgress);
+        }
     }
 }

@@ -2,7 +2,7 @@
 using VRage.ObjectBuilders;
 using System.Xml.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -16,6 +16,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
             [XmlAttribute]
             public string ShootSoundName;
+
+            [XmlAttribute]
+            public int BurstFireRate = 4;
         }
 
         [ProtoContract]

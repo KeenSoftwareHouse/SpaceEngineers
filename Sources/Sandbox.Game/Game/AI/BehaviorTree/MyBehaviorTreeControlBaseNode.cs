@@ -1,10 +1,11 @@
-﻿using Sandbox.Common.ObjectBuilders.AI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Utils;
 using VRageMath;
+using System.Diagnostics;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {
@@ -13,6 +14,7 @@ namespace Sandbox.Game.AI.BehaviorTree
     {
         protected List<MyBehaviorTreeNode> m_children;
         protected bool m_isMemorable;
+        protected string m_name;
 
         public abstract MyBehaviorTreeState SearchedValue { get; }
         public abstract MyBehaviorTreeState FinalValue { get; }
@@ -28,6 +30,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
             m_children = new List<MyBehaviorTreeNode>(controlBaseNode.BTNodes.Length);
             m_isMemorable = controlBaseNode.IsMemorable;
+            m_name = controlBaseNode.Name;
             foreach (var ob in controlBaseNode.BTNodes)
             {
                 var childInst = MyBehaviorTreeNodeFactory.CreateBTNode(ob);
@@ -42,6 +45,14 @@ namespace Sandbox.Game.AI.BehaviorTree
             for (int i = nodeMemory.InitialIndex; i < m_children.Count; i++)
             {
                 bot.BotMemory.RememberNode(m_children[i].MemoryIndex);
+                if (Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS)
+                {
+                    string childName = (m_children[i] is MyBehaviorTreeControlBaseNode) ? ((m_children[i] as MyBehaviorTreeControlBaseNode)).m_name : 
+                        (m_children[i] is MyBehaviorTreeActionNode)? (m_children[i] as MyBehaviorTreeActionNode).GetActionName(): 
+                        (m_children[i] is MyBehaviorTreeDecoratorNode)? (m_children[i] as MyBehaviorTreeDecoratorNode).GetName():
+                        "";                     // just variable for conditional debugging
+                    m_runningActionName = "";   // this line is good candidate for breakpoint is you want to debug special part of behavior tree
+                }
                 var state = m_children[i].Tick(bot, botTreeMemory);
                 if (state == SearchedValue || state == FinalValue)
                     m_children[i].PostTick(bot, botTreeMemory);
@@ -57,6 +68,7 @@ namespace Sandbox.Game.AI.BehaviorTree
                     {
                         bot.BotMemory.ForgetNode();
                     }
+                    RecordRunningNodeName(state, m_children[i]);
                     return state;
                 }
                 bot.BotMemory.ForgetNode();
@@ -65,6 +77,30 @@ namespace Sandbox.Game.AI.BehaviorTree
             nodeMemory.NodeState = FinalValue;
             nodeMemory.InitialIndex = 0;
             return FinalValue;
+        }
+
+        [Conditional("DEBUG")]
+        void RecordRunningNodeName(MyBehaviorTreeState state, MyBehaviorTreeNode node)
+        {
+            if (!Sandbox.Engine.Utils.MyDebugDrawSettings.DEBUG_DRAW_BOTS)
+                return;
+
+            m_runningActionName = "";
+            if (state == MyBehaviorTreeState.RUNNING)
+            {
+                if (node is MyBehaviorTreeActionNode)
+                {
+                    MyBehaviorTreeActionNode action = (MyBehaviorTreeActionNode)node;
+                    m_runningActionName = action.GetActionName();
+                }
+                else
+                {
+                    string str = node.m_runningActionName;
+                    if (str.Contains(ParentName))
+                        str = str.Replace(ParentName, m_name + "-");
+                    m_runningActionName = str;
+                }
+            }
         }
 
         public override void PostTick(IMyBot bot, MyPerTreeBotMemory botTreeMemory)
@@ -109,6 +145,11 @@ namespace Sandbox.Game.AI.BehaviorTree
                     result = (result * 397) ^ m_children[i].GetHashCode();
                 return result;
             }
+        }
+
+        public override string ToString()
+        {
+            return m_name;
         }
     }
 }

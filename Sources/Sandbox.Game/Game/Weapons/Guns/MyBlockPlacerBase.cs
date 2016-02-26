@@ -22,6 +22,7 @@ using Sandbox.Graphics;
 using Sandbox.Definitions;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.ObjectBuilders;
 
 #endregion
@@ -31,22 +32,24 @@ namespace Sandbox.Game.Weapons
     public abstract class MyBlockPlacerBase : MyEngineerToolBase
     {
         public static MyHudNotificationBase MissingComponentNotification =
-             new MyHudNotification(MySpaceTexts.NotificationMissingComponentToPlaceBlockFormat, font: MyFontEnum.Red, priority: 1);
+             new MyHudNotification(MyCommonTexts.NotificationMissingComponentToPlaceBlockFormat, font: MyFontEnum.Red, priority: 1);
 
         protected abstract MyBlockBuilderBase BlockBuilder { get; }
 
         protected int m_lastKeyPress;
         protected bool m_firstShot;
         protected bool m_closeAfterBuild;
+        MyHandItemDefinition m_definition;
 
         protected MyBlockPlacerBase(MyHandItemDefinition definition)
-            : base(definition, 0.5f, 500)
+            : base(500)
         {
+            m_definition = definition;
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
-            base.Init(objectBuilder);
+            base.Init(objectBuilder, m_definition.PhysicalItemId);
 
             Init(null, null, null, null, null);
             Render.CastShadows = true;
@@ -55,8 +58,8 @@ namespace Sandbox.Game.Weapons
             HasSecondaryEffect = false;
             HasPrimaryEffect = false;
             m_firstShot = true;
-
-            //PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)objectBuilder.Clone();
+            if (PhysicalObject!=null)
+                PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)objectBuilder.Clone();
         }
 
         public override bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
@@ -96,7 +99,11 @@ namespace Sandbox.Game.Weapons
                 }
 
                 if (!Owner.ControllerInfo.IsLocallyControlled())
-                    return;
+                {
+                    var val = Owner.IsUsing as MyCockpit;
+                    if (val != null && !val.ControllerInfo.IsLocallyControlled())
+                        return;
+                }
 
                 // Must have first component to start building
                 if (MyCubeBuilder.Static.CanStartConstruction(Owner))
@@ -107,7 +114,7 @@ namespace Sandbox.Game.Weapons
                 }
                 else
                 {
-                    if (!MySession.Static.Battle)
+                    if (!MySession.Static.Battle && MySession.Static.IsAdminModeEnabled==false)
                         OnMissingComponents(definition);
                 }
             }
@@ -126,19 +133,31 @@ namespace Sandbox.Game.Weapons
             base.EndShoot(action);
             m_firstShot = true;
 
+            if (CharacterInventory == null)
+            {
+                Debug.Fail("Character inventory was null !" );
+                return;
+            }
+
             MyCharacter character = CharacterInventory.Owner as MyCharacter;
+
+            if (character == null)
+            {
+                Debug.Fail("Character inventory was not owned by a character");
+                return;
+            }
+
             if (m_closeAfterBuild)
             {
-                Debug.Assert(character != null, "Character inventory was not owned by a character");
 
-                if (character.ControllerInfo.IsRemotelyControlled())
+                if (character.ControllerInfo != null && character.ControllerInfo.IsRemotelyControlled())
                     return;
 
                 character.SwitchToWeapon(null);
             }
             else
             {
-                if (MyPerGameSettings.UseAnimationInsteadOfIK)
+                if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
                     character.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
             }
         }
@@ -163,7 +182,7 @@ namespace Sandbox.Game.Weapons
 
             if (Owner != null)
             {
-                if (MyPerGameSettings.UseAnimationInsteadOfIK)
+                if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
                     Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f); 
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {

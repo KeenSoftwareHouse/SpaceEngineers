@@ -137,75 +137,77 @@ namespace Sandbox.Engine.Voxels
             return m_nodeFilter(root.Data);
         }
 
-        internal unsafe void ReadRange(MyStorageDataCache target, MyStorageDataTypeEnum type, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
+        internal unsafe void ReadRange(MyStorageData target, MyStorageDataTypeEnum type, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
         {
-            ProfilerShort.Begin("MySparseOctree2.ReadRangeToContent"); try {
-
-            int stackIdx = 0;
-            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
-            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
-            MyCellCoord data = new MyCellCoord(m_treeHeight - 1, ref Vector3I.Zero);
-            stack[stackIdx++] = data;
-
-            MyOctreeNode node;
-            Vector3I childPosRelative, min, max, nodePositionInChild;
-            int lodDiff;
-            while (stackIdx > 0)
+            ProfilerShort.Begin("MySparseOctree2.ReadRangeToContent"); try
             {
-                Debug.Assert(stackIdx <= stackSize);
-                data = stack[--stackIdx];
-                node = m_nodes[data.PackId32()];
 
-                lodDiff = data.Lod - lodIndex;
-                min = minInLod >> lodDiff;
-                max = maxInLod >> lodDiff;
-                nodePositionInChild = data.CoordInLod << 1;
-                min -= nodePositionInChild;
-                max -= nodePositionInChild;
-                for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
+                int stackIdx = 0;
+                int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+                MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+                MyCellCoord data = new MyCellCoord(m_treeHeight - 1, ref Vector3I.Zero);
+                stack[stackIdx++] = data;
+
+                MyOctreeNode node;
+                Vector3I childPosRelative, min, max, nodePositionInChild;
+                int lodDiff;
+                while (stackIdx > 0)
                 {
-                    ComputeChildCoord(i, out childPosRelative);
-                    if (!childPosRelative.IsInsideInclusive(ref min, ref max))
-                        continue;
-                    if (lodIndex < data.Lod && node.HasChild(i))
+                    Debug.Assert(stackIdx <= stackSize);
+                    data = stack[--stackIdx];
+                    node = m_nodes[data.PackId32()];
+
+                    lodDiff = data.Lod - lodIndex;
+                    min = minInLod >> lodDiff;
+                    max = maxInLod >> lodDiff;
+                    nodePositionInChild = data.CoordInLod << 1;
+                    min -= nodePositionInChild;
+                    max -= nodePositionInChild;
+                    for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
                     {
-                        Debug.Assert(stackIdx < stackSize);
-                        stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
-                    }
-                    else
-                    {
-                        var nodeData = node.Data[i];
-                        var childMin = nodePositionInChild + childPosRelative;
-                        if (lodDiff == 0)
+                        ComputeChildCoord(i, out childPosRelative);
+                        if (!childPosRelative.IsInsideInclusive(ref min, ref max))
+                            continue;
+                        if (lodIndex < data.Lod && node.HasChild(i))
                         {
-                            var write = writeOffset + childMin - minInLod;
-                            target.Set(type, ref write, nodeData);
+                            Debug.Assert(stackIdx < stackSize);
+                            stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
                         }
                         else
                         {
-                            childMin <<= lodDiff;
-                            var childMax = childMin + (1 << lodDiff) - 1;
-                            Vector3I.Max(ref childMin, ref minInLod, out childMin);
-                            Vector3I.Min(ref childMax, ref maxInLod, out childMax);
-                            for (int z = childMin.Z; z <= childMax.Z; ++z)
-                            for (int y = childMin.Y; y <= childMax.Y; ++y)
-                            for (int x = childMin.X; x <= childMax.X; ++x)
+                            var nodeData = node.Data[i];
+                            var childMin = nodePositionInChild + childPosRelative;
+                            if (lodDiff == 0)
                             {
-                                var write = writeOffset;
-                                write.X += x - minInLod.X;
-                                write.Y += y - minInLod.Y;
-                                write.Z += z - minInLod.Z;
+                                var write = writeOffset + childMin - minInLod;
                                 target.Set(type, ref write, nodeData);
+                            }
+                            else
+                            {
+                                childMin <<= lodDiff;
+                                var childMax = childMin + (1 << lodDiff) - 1;
+                                Vector3I.Max(ref childMin, ref minInLod, out childMin);
+                                Vector3I.Min(ref childMax, ref maxInLod, out childMax);
+                                for (int z = childMin.Z; z <= childMax.Z; ++z)
+                                    for (int y = childMin.Y; y <= childMax.Y; ++y)
+                                        for (int x = childMin.X; x <= childMax.X; ++x)
+                                        {
+                                            var write = writeOffset;
+                                            write.X += x - minInLod.X;
+                                            write.Y += y - minInLod.Y;
+                                            write.Z += z - minInLod.Z;
+                                            target.Set(type, ref write, nodeData);
+                                        }
                             }
                         }
                     }
                 }
-            }
 
-            } finally { ProfilerShort.End(); }
+            }
+            finally { ProfilerShort.End(); }
         }
 
-        internal void WriteRange(MyStorageDataCache source, MyStorageDataTypeEnum type, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
+        internal void WriteRange(MyStorageData source, MyStorageDataTypeEnum type, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
         {
             ProfilerShort.Begin("MySparseOctree2.WriteRange");
             WriteRange(new MyCellCoord(m_treeHeight - 1, Vector3I.Zero), m_defaultContent, source, type, ref readOffset, ref min, ref max);
@@ -215,7 +217,7 @@ namespace Sandbox.Engine.Voxels
         private unsafe void WriteRange(
             MyCellCoord cell,
             TLeafData defaultData,
-            MyStorageDataCache source,
+            MyStorageData source,
             MyStorageDataTypeEnum type,
             ref Vector3I readOffset,
             ref Vector3I min,
@@ -447,6 +449,148 @@ namespace Sandbox.Engine.Voxels
                 }
                 nodeCollection[key] = node;
             }
+        }
+
+        internal unsafe ContainmentType Intersect(ref BoundingBoxI box, bool lazy)
+        {
+            int stackIdx = 0;
+            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+            MyCellCoord data = new MyCellCoord(m_treeHeight - 1, ref Vector3I.Zero);
+            stack[stackIdx++] = data;
+
+            Vector3I minInLod = box.Min;
+            Vector3I maxInLod = box.Max;
+
+            MyOctreeNode node;
+            Vector3I childPosRelative, min, max, nodePositionInChild;
+            int lodDiff;
+
+            // TODO(DI): Add support for checking for containment somehow, this needs neighbourhood information which kinda sucks.
+
+            ContainmentType cont = ContainmentType.Disjoint;
+
+            while (stackIdx > 0)
+            {
+                Debug.Assert(stackIdx <= stackSize);
+                data = stack[--stackIdx];
+                node = m_nodes[data.PackId32()];
+
+                lodDiff = data.Lod;
+                min = minInLod >> lodDiff;
+                max = maxInLod >> lodDiff;
+                nodePositionInChild = data.CoordInLod << 1;
+                min -= nodePositionInChild;
+                max -= nodePositionInChild;
+                for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
+                {
+                    ComputeChildCoord(i, out childPosRelative);
+                    if (!childPosRelative.IsInsideInclusive(ref min, ref max))
+                        continue;
+                    if (data.Lod > 0 && node.HasChild(i))
+                        {
+                            Debug.Assert(stackIdx < stackSize);
+                            stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
+                        }
+                    else
+                    {
+                        var nodeData = node.Data[i];
+                        if (lodDiff == 0)
+                        {
+                            if (nodeData != 0) return ContainmentType.Intersects;
+                        }
+                        else
+                        {
+                            BoundingBoxI nodeBox;
+                            nodeBox.Min = nodePositionInChild + childPosRelative;
+                            nodeBox.Min <<= lodDiff;
+                            nodeBox.Max = nodeBox.Min + (1 << lodDiff) - 1;
+                            Vector3I.Max(ref nodeBox.Min, ref minInLod, out nodeBox.Min);
+                            Vector3I.Min(ref nodeBox.Max, ref maxInLod, out nodeBox.Max);
+
+                            bool res;
+                            nodeBox.Intersects(ref nodeBox, out res);
+
+                            if (res) return ContainmentType.Intersects;
+                        }
+                    }
+                }
+            }
+
+            return cont;
+        }
+
+        internal unsafe bool Intersect(ref LineD line, out double startOffset, out double endOffset)
+        {
+            startOffset = 0;
+            endOffset = 1;
+            return true;
+            /*
+            int stackIdx = 0;
+            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
+            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+            MyCellCoord data = new MyCellCoord(m_treeHeight - 1, ref Vector3I.Zero);
+            stack[stackIdx++] = data;
+
+            Vector3I minInLod = box.Min;
+            Vector3I maxInLod = box.Max;
+
+            MyOctreeNode node;
+            Vector3I childPosRelative, min, max, nodePositionInChild;
+            int lodDiff;
+
+            // TODO(DI): Add support for checking for containment somehow, this needs neighbourhood information which kinda sucks.
+
+            ContainmentType cont = ContainmentType.Disjoint;
+
+            while (stackIdx > 0)
+            {
+                Debug.Assert(stackIdx <= stackSize);
+                data = stack[--stackIdx];
+                node = m_nodes[data.PackId32()];
+
+                lodDiff = data.Lod;
+                min = minInLod >> lodDiff;
+                max = maxInLod >> lodDiff;
+                nodePositionInChild = data.CoordInLod << 1;
+                min -= nodePositionInChild;
+                max -= nodePositionInChild;
+                for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
+                {
+                    ComputeChildCoord(i, out childPosRelative);
+                    if (!childPosRelative.IsInsideInclusive(ref min, ref max))
+                        continue;
+                    if (data.Lod > 0 && node.HasChild(i))
+                    {
+                        Debug.Assert(stackIdx < stackSize);
+                        stack[stackIdx++] = new MyCellCoord(data.Lod - 1, nodePositionInChild + childPosRelative);
+                    }
+                    else
+                    {
+                        var nodeData = node.Data[i];
+                        if (lodDiff == 0)
+                        {
+                            if (nodeData != 0) return ContainmentType.Intersects;
+                        }
+                        else
+                        {
+                            BoundingBoxI nodeBox;
+                            nodeBox.Min = nodePositionInChild + childPosRelative;
+                            nodeBox.Min <<= lodDiff;
+                            nodeBox.Max = nodeBox.Min + (1 << lodDiff) - 1;
+                            Vector3I.Max(ref nodeBox.Min, ref minInLod, out nodeBox.Min);
+                            Vector3I.Min(ref nodeBox.Max, ref maxInLod, out nodeBox.Max);
+
+                            bool res;
+                            nodeBox.Intersects(ref nodeBox, out res);
+
+                            if (res) return ContainmentType.Intersects;
+                        }
+                    }
+                }
+            }
+
+            return cont;*/
         }
     }
 }

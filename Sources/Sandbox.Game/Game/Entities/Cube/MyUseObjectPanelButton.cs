@@ -7,6 +7,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Graphics.GUI;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -17,7 +18,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("panel")]
-    public class MyUseObjectPanelButton : IMyUseObject
+    public class MyUseObjectPanelButton : MyUseObjectBase
     {
         private readonly MyButtonPanel m_buttonPanel;
         private readonly Matrix m_localMatrix;
@@ -25,6 +26,7 @@ namespace Sandbox.Game.Entities.Cube
         MyGps m_buttonDesc = null;
 
         public MyUseObjectPanelButton(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
+            : base(owner, dummyData)
         {
             m_buttonPanel = owner as MyButtonPanel;
             m_localMatrix = dummyData.Matrix;
@@ -41,22 +43,22 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public float InteractiveDistance
+        public override float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
 
-        public MatrixD ActivationMatrix
+        public override MatrixD ActivationMatrix
         {
             get { return m_localMatrix * m_buttonPanel.WorldMatrix; }
         }
 
-        MatrixD IMyUseObject.WorldMatrix
+        public override MatrixD WorldMatrix
         {
             get { return m_buttonPanel.WorldMatrix; }
         }
 
-        int IMyUseObject.RenderObjectID
+        public override int RenderObjectID
         {
             get
             {
@@ -64,22 +66,22 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool ShowOverlay
+        public override bool ShowOverlay
         {
             get { return true; }
         }
 
-        public UseActionEnum SupportedActions
+        public override UseActionEnum SupportedActions
         {
             get { return UseActionEnum.Manipulate | UseActionEnum.OpenTerminal; }
         }
 
-        public bool ContinuousUsage
+        public override bool ContinuousUsage
         {
             get { return false; }
         }
 
-        public void Use(UseActionEnum actionEnum, IMyEntity entity)
+        public override void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             var user = entity as MyCharacter;
             switch(actionEnum)
@@ -112,7 +114,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public MyActionDescription GetActionInfo(UseActionEnum actionEnum)
+        public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
             m_buttonPanel.Toolbar.UpdateItem(m_index);
             var slot = m_buttonPanel.Toolbar.GetItemAtIndex(m_index);
@@ -138,7 +140,7 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         return new MyActionDescription()
                         {
-                            Text = MySpaceTexts.NotificationHintPressToUse,
+                            Text = MyCommonTexts.NotificationHintPressToUse,
                             FormatParams = new object[] { MyInput.Static.GetGameControl(MyControlsSpace.USE), slot.DisplayName },
                             IsTextControlHint = true,
                             JoystickFormatParams = new object[] { MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.USE), slot.DisplayName },
@@ -169,12 +171,12 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyUseObject.HandleInput() 
+        public override bool HandleInput() 
         {             
             return false; 
         }
 
-        bool IMyUseObject.PlayIndicatorSound
+        public override bool PlayIndicatorSound
         {
             get { return true; }
         }
@@ -187,7 +189,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void OnSelectionLost()
+        public override void OnSelectionLost()
         {
             RemoveButtonMarker();
         }

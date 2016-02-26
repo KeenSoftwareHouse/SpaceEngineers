@@ -10,15 +10,23 @@ namespace VRageRender
         public Vector3D PositionOffset;
         public Vector3 PositionScale;
         public BoundingBox LocalAabb;
+        public int BatchCount;
     }
 
-    public class MyRenderMessageUpdateClipmapCell : IMyRenderMessage
+    public class MyRenderMessageUpdateClipmapCell : MyRenderMessageBase
     {
         public uint ClipmapId;
         public MyClipmapCellMeshMetadata Metadata;
-        public readonly List<MyClipmapCellBatch> Batches = new List<MyClipmapCellBatch>();
+        public List<MyClipmapCellBatch> Batches = new List<MyClipmapCellBatch>();
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateClipmapCell; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateClipmapCell; } }
+
+        public override void Close()
+        {
+            base.Close();
+            Metadata = new MyClipmapCellMeshMetadata();
+            Batches.Clear();
+        }
     }
 }

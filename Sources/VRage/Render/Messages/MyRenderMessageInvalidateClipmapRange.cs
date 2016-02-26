@@ -2,13 +2,13 @@
 
 namespace VRageRender
 {
-    public class MyRenderMessageInvalidateClipmapRange : IMyRenderMessage
+    public class MyRenderMessageInvalidateClipmapRange : MyRenderMessageBase
     {
         public uint ClipmapId;
         public Vector3I MinCellLod0;
         public Vector3I MaxCellLod0;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.InvalidateClipmapRange; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.InvalidateClipmapRange; } }
     }
 }

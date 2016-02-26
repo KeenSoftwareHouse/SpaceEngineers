@@ -3,6 +3,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System;
 using System.Diagnostics;
+using VRage.Game.Entity;
 using VRageMath;
 
 namespace Sandbox.Game.Weapons

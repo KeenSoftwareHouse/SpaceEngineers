@@ -1,9 +1,8 @@
 ﻿using ProtoBuf;
 using System.ComponentModel;
-using VRage;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     public enum MyProjectileType
     {

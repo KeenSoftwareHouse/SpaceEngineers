@@ -221,7 +221,7 @@ namespace Sandbox.Game
             Vector3D pos = Vector3D.Zero;
             IMyEntity hitEntity = null;
 
-            var hitInfo = MyPhysics.CastRay(fromWorldPos, m_explosion.Center, MyPhysics.ExplosionRaycastLayer);
+            var hitInfo = MyPhysics.CastRay(fromWorldPos, m_explosion.Center, MyPhysics.CollisionLayers.ExplosionRaycastLayer);
             if (hitInfo.HasValue)
             {
                 hitEntity = (hitInfo.Value.HkHitInfo.Body.UserObject != null) ? ((MyPhysicsBody)hitInfo.Value.HkHitInfo.Body.UserObject).Entity : null;

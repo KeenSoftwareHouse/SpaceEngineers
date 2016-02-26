@@ -34,7 +34,7 @@ namespace Sandbox.Game.Gui
             m_searchChangedFunc += RefreshLANGameList;
             
             m_LANPage = m_selectedPage;
-            m_LANPage.SetToolTip(MyTexts.GetString(MySpaceTexts.JoinGame_TabTooltip_LAN));
+            m_LANPage.SetToolTip(MyTexts.GetString(MyCommonTexts.JoinGame_TabTooltip_LAN));
             
 
             RefreshLANGameList();
@@ -76,7 +76,7 @@ namespace Sandbox.Game.Gui
             m_gameTypeText.Clear();
             m_gameTypeToolTip.Clear();
             m_servers.Clear();
-            m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_LAN));
+            m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_LAN));
 
             MySandboxGame.Log.WriteLine("Requesting dedicated servers");
 
@@ -95,7 +95,7 @@ namespace Sandbox.Game.Gui
             AddServerItem(serverItem, 
                 delegate() 
                 {
-                    m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_LAN).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                    m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_LAN).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
         }

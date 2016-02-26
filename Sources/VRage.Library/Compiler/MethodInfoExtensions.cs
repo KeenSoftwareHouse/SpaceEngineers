@@ -9,7 +9,7 @@ namespace System
 {
     public static class MethodInfoExtensions
     {
-        public static TDelegate CreateDelegate<TDelegate>(this MethodInfo method, Object instance)
+        public static TDelegate CreateDelegate<TDelegate>(this MethodInfo method, object instance)
             where TDelegate : class
         {
             return CreateDelegate<TDelegate>(method,

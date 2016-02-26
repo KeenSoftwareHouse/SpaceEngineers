@@ -1,5 +1,6 @@
 ﻿
 using System;
+using VRageMath;
 
 namespace VRageRender
 {
@@ -64,6 +65,14 @@ namespace VRageRender
             Height = height;
         }
 
+        public MyViewport(Vector2I resolution)
+        {
+            OffsetX = 0;
+            OffsetY = 0;
+            Width = resolution.X;
+            Height = resolution.Y;
+        }
+
         public MyViewport(float x, float y, float width, float height)
         {
             OffsetX = x;
@@ -108,8 +117,10 @@ namespace VRageRender
         public bool EnableAsteroidShadows = false;
         public bool EnableFog = true;
 
+        public bool DebugRenderMergedCells = false;
         public bool DebugRenderClipmapCells = false;
         public static bool DebugClipmapLodColor = false;
+        public bool SkipLodUpdates = false;
 
         bool m_enableEnvironmentMapAmbient = true;
         public bool EnableEnvironmentMapAmbient
@@ -145,6 +156,9 @@ namespace VRageRender
         public static float VoxelAoMin = 0.600f;
         public static float VoxelAoMax = 1.000f;
         public static float VoxelAoOffset = 0.210f;
+        public MyRenderQualityEnum VoxelQuality;
+
+        public bool EnableVoxelMerging = false;
 
         public bool Wireframe = false;
         public bool EnableStencilOptimization = true;
@@ -177,17 +191,21 @@ namespace VRageRender
         public bool DisplayGbufferGlossiness = false;
         public bool DisplayGbufferMetalness = false;
         public bool DisplayGbufferMaterialID = false;
-        public bool DisplayAO = false;
+        public bool DisplayGbufferAO = false;
         public bool DisplayEmissive = false;
         public bool DisplayEdgeMask = false;
         public bool DisplayNDotL = false;
+        public bool DisplayStencil = false;
 
         public bool DisplayAmbientDiffuse = false;
         public bool DisplayAmbientSpecular = false;
+
+        public bool DrawParticleRenderTarget = false;
         
         public bool DisplayIDs = false;
         public bool DisplayAabbs = false;
-        public bool DrawOnlyMergedMeshes = false;
+        public bool DrawMergeInstanced = true;
+        public bool DrawNonMergeInstanced = true;
 
         public float TerrainDetailD0 = 5;
         public float TerrainDetailD1 = 40;
@@ -199,30 +217,33 @@ namespace VRageRender
         public bool GrassPostprocess = true;
         public float GrassPostprocessCloseDistance = 25f;
         public float GrassGeometryClippingDistance = 500f;
-        public float GrassGeometryScalingNearDistance = 100f;
-        public float GrassGeometryScalingFarDistance = 400f;
-        public float GrassGeometryDistanceScalingFactor = 4f;
+        public float GrassGeometryScalingNearDistance = 50f;
+        public float GrassGeometryScalingFarDistance = 350f;
+        public float GrassGeometryDistanceScalingFactor = 5f;
+        public float GrassMaxDrawDistance = 250;
 		public float GrassDensityFactor = 1.0f;
 
+        public int GameplayFrame;
+
         // Shadows
-		public float FarShadowDistanceOverride = -1.0f;	
-		public double LongShadowFactor = -1.0;          
 		public float ShadowFadeoutMultiplier = 0.0f;    // 1 - [Shadow opacity]
 
         public bool DisplayShadowsWithDebug = false;
+        public bool DrawCascadeTextures = false;
         public bool ShadowInterleaving = false;         // Blinking moving asteroids
 
         // Shadow cascades
         public int ShadowCascadeCount = 4;
         public bool ShowShadowCascadeSplits = false;
-        public bool UpdateCascadesEveryFrame = true;
-        public float ShadowCascadeMaxDistance = 1000.0f;
+        public bool UpdateCascadesEveryFrame = false;
+        public float ShadowCascadeMaxDistance = 300.0f;
         public float ShadowCascadeMaxDistanceMultiplierMedium = 2f;
         public float ShadowCascadeMaxDistanceMultiplierHigh = 3.5f;
 		public float ShadowCascadeSpreadFactor = 0.5f;
 		public float ShadowCascadeZOffset = 400;
         public bool[] ShadowCascadeFrozen;
         public float[] ShadowCascadeSmallSkipThresholds;
+
         /*public float Cascade0SmallSkipThreshold = 0;
         public float Cascade1SmallSkipThreshold = 730.0f;
         public float Cascade2SmallSkipThreshold = 730.0f;
@@ -235,8 +256,8 @@ namespace VRageRender
         public bool LoopObjectThenPass = false;
         public bool RenderThreadAsWorker = true;
 
-        public bool EnableTonemapping = true;
-        public bool DispalyHdrDebug = false;
+        //public bool EnableTonemapping = true;
+        public bool DisplayHdrDebug = false;
         public float AdaptationTau = 0.3f;
         public float LuminanceExposure = 0.51f;
         public float Contrast = 0.006f;
@@ -280,6 +301,7 @@ namespace VRageRender
             SkipLOD_1 = settings.SkipLOD_1;
 
             SkipVoxels = settings.SkipVoxels;
+            VoxelQuality = settings.VoxelQuality;
 
             //Debug properties
             ShowEnvironmentScreens = settings.ShowEnvironmentScreens;
@@ -299,9 +321,13 @@ namespace VRageRender
 
             DebugRenderClipmapCells = settings.DebugRenderClipmapCells;
 
+            EnableVoxelMerging = settings.EnableVoxelMerging;
+            DebugRenderMergedCells = settings.DebugRenderMergedCells;
+
             EnableEnvironmentMapAmbient = settings.EnableEnvironmentMapAmbient;
             EnableEnvironmentMapReflection = settings.EnableEnvironmentMapReflection;
 
+            ShadowCascadeCount = settings.ShadowCascadeCount;
             ShowShadowCascadeSplits = settings.ShowShadowCascadeSplits;
             ShadowInterleaving = settings.ShadowInterleaving;
             UpdateCascadesEveryFrame = settings.UpdateCascadesEveryFrame;
@@ -347,15 +373,20 @@ namespace VRageRender
             DisplayGbufferGlossiness = settings.DisplayGbufferGlossiness;
             DisplayGbufferMetalness = settings.DisplayGbufferMetalness;
             DisplayGbufferMaterialID = settings.DisplayGbufferMaterialID;
-            DisplayAO = settings.DisplayAO;
+            DisplayGbufferAO = settings.DisplayGbufferAO;
             DisplayEmissive = settings.DisplayEmissive;
             DisplayEdgeMask = settings.DisplayEdgeMask;
+            DisplayStencil = settings.DisplayStencil;
 
             DisplayAmbientDiffuse = settings.DisplayAmbientDiffuse;
             DisplayAmbientSpecular = settings.DisplayAmbientSpecular;
+
+            DrawParticleRenderTarget = settings.DrawParticleRenderTarget;
+
             DisplayIDs = settings.DisplayIDs;
             DisplayAabbs = settings.DisplayAabbs;
-            DrawOnlyMergedMeshes = settings.DrawOnlyMergedMeshes;
+            DrawMergeInstanced = settings.DrawMergeInstanced;
+            DrawNonMergeInstanced = settings.DrawNonMergeInstanced;
 
             TerrainDetailD0 = settings.TerrainDetailD0;
             TerrainDetailD1 = settings.TerrainDetailD1;
@@ -375,6 +406,7 @@ namespace VRageRender
             WindAzimuth = settings.WindAzimuth;
 
             DisplayShadowsWithDebug = settings.DisplayShadowsWithDebug;
+            DrawCascadeTextures = settings.DrawCascadeTextures;
             DisplayNDotL = settings.DisplayNDotL;
 
             EnableParallelRendering = settings.EnableParallelRendering;
@@ -384,8 +416,8 @@ namespace VRageRender
             LoopObjectThenPass = settings.LoopObjectThenPass;
             RenderThreadAsWorker = settings.RenderThreadAsWorker;
 
-            EnableTonemapping = settings.EnableTonemapping;
-            DispalyHdrDebug = settings.DispalyHdrDebug;
+            //EnableTonemapping = settings.EnableTonemapping;
+            DisplayHdrDebug = settings.DisplayHdrDebug;
             AdaptationTau = settings.AdaptationTau;
             LuminanceExposure = settings.LuminanceExposure;
             Contrast = settings.Contrast;
@@ -417,21 +449,20 @@ namespace VRageRender
 		private void CheckArrays(MyRenderSettings settings)
 		{
 			CheckArrays();
-			if (ShadowCascadeFrozen.Length < settings.ShadowCascadeFrozen.Length)
-				ShadowCascadeFrozen = new bool[settings.ShadowCascadeFrozen.Length];
+            Array.Resize(ref ShadowCascadeFrozen, settings.ShadowCascadeFrozen.Length);
             if (ShadowCascadeSmallSkipThresholds == null || (settings.ShadowCascadeSmallSkipThresholds != null && ShadowCascadeSmallSkipThresholds.Length < settings.ShadowCascadeSmallSkipThresholds.Length))
 				ShadowCascadeSmallSkipThresholds = new float[settings.ShadowCascadeSmallSkipThresholds.Length];
 		}
 
-		private void CheckArrays()
+		public void CheckArrays()
 		{
-			if (ShadowCascadeFrozen == null)
-				ShadowCascadeFrozen = new bool[ShadowCascadeCount];
-			if (ShadowCascadeSmallSkipThresholds == null)
+            Array.Resize(ref ShadowCascadeFrozen, ShadowCascadeCount);
+
+			if (ShadowCascadeSmallSkipThresholds == null || ShadowCascadeSmallSkipThresholds.Length < ShadowCascadeCount)
             {
 				ShadowCascadeSmallSkipThresholds = new float[ShadowCascadeCount];
 
-                if (ShadowCascadeCount == 4)
+                if (ShadowCascadeCount >= 4)
                 {
                     //NOTE(AF) This is a quick fix until shadows are implemented properly
                     ShadowCascadeSmallSkipThresholds[0] = 1000.0f;
@@ -439,6 +470,11 @@ namespace VRageRender
                     ShadowCascadeSmallSkipThresholds[2] = 200.0f;
                     ShadowCascadeSmallSkipThresholds[3] = 1000.0f;
                 }
+                // Testing
+                if (ShadowCascadeCount >= 5)
+                    ShadowCascadeSmallSkipThresholds[4] = 1000.0f;
+                if (ShadowCascadeCount >= 6)
+                    ShadowCascadeSmallSkipThresholds[5] = 1000.0f;
             }
 		}
 
@@ -522,11 +558,11 @@ namespace VRageRender
         //Dx11; All new renderers should be designed with these in mind.
         public MyAntialiasingMode AntialiasingMode;
         public MyShadowsQuality ShadowQuality;
-        public bool MultithreadingEnabled;
-        public bool TonemappingEnabled;
+        //public bool TonemappingEnabled;
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
+        public MyRenderQualityEnum VoxelQuality;
 
         bool IEquatable<MyRenderSettings1>.Equals(MyRenderSettings1 other)
         {
@@ -539,10 +575,10 @@ namespace VRageRender
                 InterpolationEnabled == other.InterpolationEnabled &&
                 GrassDensityFactor == other.GrassDensityFactor &&
                 Dx9Quality == other.Dx9Quality &&
+                VoxelQuality == other.VoxelQuality &&
                 AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
-                MultithreadingEnabled == other.MultithreadingEnabled &&
-                TonemappingEnabled == other.TonemappingEnabled &&
+             //   TonemappingEnabled == other.TonemappingEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&
                 FoliageDetails == other.FoliageDetails;

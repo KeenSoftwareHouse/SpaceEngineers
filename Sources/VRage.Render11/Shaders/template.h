@@ -1,4 +1,6 @@
-#include <common.h>
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
+
 #include <frame.h>
 
 #if defined(USE_MERGE_INSTANCING) || defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING) || defined(USE_GENERIC_INSTANCING)
@@ -33,29 +35,36 @@ float4 world_to_clip(float3 p)
 
 struct ObjectConstants
 {
-	float4 	matrix_row0;
-	float4 	matrix_row1;
-	float4 	matrix_row2;
-	float3 	key_color;	// color mask, can be hsv offset or rgb (depends on type of coloring)
-	float 	custom_alpha; // used for dithering, default = 0
+#ifndef USE_VOXEL_DATA
+    float   facing;
+    float2 	windScaleAndFreq;
+    float 	__paddingNonVoxelData;
+    float3 CenterOffset;
+    float __paddingNonVoxelData2;
+#elif defined(USE_VOXEL_DATA)
+    float   voxelLodSize;
+    float3 	voxel_offset;
+    float4 	massive_center_radius;
+    float3 	voxel_scale;
+    float 	__padding3;
+#endif
+    float4 	matrix_row0;
+    float4 	matrix_row1;
+    float4 	matrix_row2;
 
-	float3 	color_mul; 	// mostly for emissive, default = 1
-	float 	emissive;		// default = 0
-	uint 	material_index; // 0-255 material id (mostly for brdf etc), we pack it in gbuffer!
-	uint 	material_flags;
+    float3 	key_color;	// color mask, can be hsv offset or rgb (depends on type of coloring)
+    float 	custom_alpha; // used for dithering, default = 0
 
-	float   facing;
-	float   voxelLodSize;
-	float3 	voxel_offset;
-	float 	__padding1;
-	float3 	voxel_scale;
-	float 	__padding2;
-	float4 	massive_center_radius;
-	float2 	windScaleAndFreq;
-	float2 	__padding3;
+    float3 	color_mul; 	// mostly for emissive, default = 1
+    float 	emissive;		// default = 0
+
+    uint 	material_index; // 0-255 material id (mostly for brdf etc), we pack it in gbuffer!
+    uint 	material_flags;
+	uint	depth_bias;
+    float   _____padding;
 
 #ifdef USE_SKINNING
-	matrix bone_matrix[60];
+    matrix bone_matrix[60];
 #endif
 };
 
@@ -68,3 +77,5 @@ matrix get_object_matrix()
 {
 	return transpose(matrix(object_.matrix_row0, object_.matrix_row1, object_.matrix_row2, float4(0,0,0,1)));
 }
+
+#endif

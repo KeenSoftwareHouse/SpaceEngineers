@@ -9,6 +9,7 @@ using VRage.Utils;
 using System.Runtime.CompilerServices;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Game;
 
 
 namespace Sandbox.Engine.Utils

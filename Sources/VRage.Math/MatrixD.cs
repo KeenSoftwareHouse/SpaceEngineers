@@ -109,6 +109,43 @@ namespace VRageMath
         [FieldOffset(120)]
         public double M44;
 
+        public Vector3D Col0
+        {
+            get
+            {
+                Vector3D vector3;
+                vector3.X = this.M11;
+                vector3.Y = this.M21;
+                vector3.Z = this.M31;
+                return vector3;
+            }
+        }
+
+        public Vector3D Col1
+        {
+            get
+            {
+                Vector3D vector3;
+                vector3.X = this.M12;
+                vector3.Y = this.M22;
+                vector3.Z = this.M32;
+                return vector3;
+            }
+        }
+
+        public Vector3D Col2
+        {
+            get
+            {
+                Vector3D vector3;
+                vector3.X = this.M13;
+                vector3.Y = this.M23;
+                vector3.Z = this.M33;
+                return vector3;
+            }
+        }
+
+
         /// <summary>
         /// Gets and sets the up vector of the Matrix.
         /// </summary>

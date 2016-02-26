@@ -3,6 +3,7 @@ using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Screens.Helpers;
+using VRage.Game;
 using VRage.Serialization;
 
 namespace Sandbox.Game.Entities.Blocks

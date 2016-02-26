@@ -14,6 +14,7 @@ using VRageMath;
 using Sandbox.Game.GameSystems;
 using VRageRender;
 using Sandbox.Engine.Utils;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.AI
 {
@@ -32,7 +33,7 @@ namespace Sandbox.Game.AI
         private MyEntity m_aimTarget;
         private Vector3 m_rotationHint;
         private Vector3? m_relativeTarget; // serves as absolute target if m_aimTarget is null
-        private Random m_random = new Random();
+        private Random m_random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new Random(0):new Random();
 
         public Vector3 RotationHint { get { return m_rotationHint; } }
 
@@ -163,7 +164,7 @@ namespace Sandbox.Game.AI
                 if (gun != null)
                 {
                     float time;
-                    MyWeaponPrediction.GetPredictedTargetPosition(gun, bot, m_aimTarget, out transformedRelativeTarget, out time, MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyBehaviorTreeCollection.UPDATE_COUNTER);
+                    MyWeaponPrediction.GetPredictedTargetPosition(gun, bot, m_aimTarget, out transformedRelativeTarget, out time, VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyBehaviorTreeCollection.UPDATE_COUNTER);
                 }
             }
         }
@@ -236,6 +237,10 @@ namespace Sandbox.Game.AI
             Vector3D tip = pos2 + posAndOri.Forward;
             MyRenderProxy.DebugDrawArrow3D(tip, tip + m_rotationHint.X * 10.0f * posAndOri.Right, Color.Salmon, Color.Salmon, false, text: "Rot.X");
             MyRenderProxy.DebugDrawArrow3D(tip, tip - m_rotationHint.Y * 10.0f * posAndOri.Up, Color.LimeGreen, Color.LimeGreen, false, text: "Rot.Y");
+
+            var character = m_parent.BotEntity as MyCharacter;
+            if (character != null)
+                MyRenderProxy.DebugDrawSphere(character.AimedPoint, 0.2f, Color.Orange, 1, false);
         }
     }
 }

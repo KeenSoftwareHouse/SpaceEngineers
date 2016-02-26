@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRageMath;
-using VRageRender;
 using VRage.Utils;
-using VRage;
-using VRage.Library.Utils;
-using VRage.Components;
 using VRage.ModAPI;
+using Havok;
+using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Game.SessionComponents;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     //////////////////////////////////////////////////////////////////////////
     [Flags]
@@ -53,6 +49,7 @@ namespace VRage.Components
         APPLY_WORLD_FORCE
     }
 
+    [MyComponentType(typeof(MyPhysicsComponentBase))]
     public abstract class MyPhysicsComponentBase : MyEntityComponentBase
     {
 
@@ -74,7 +71,7 @@ namespace VRage.Components
 
         #region Properties
 
-        public IMyEntity Entity { get; set; }
+        public IMyEntity Entity { get; protected set; }
 
         public bool CanUpdateAccelerations { get; set; }
 
@@ -276,6 +273,24 @@ namespace VRage.Components
 
         public abstract float Friction { get; set; }
 
+        /// <summary>
+        /// Obtain/set (default) rigid body of this physics object.
+        /// </summary>
+        public abstract HkRigidBody RigidBody { get; protected set; }
+
+        /// <summary>
+        /// Obtain/set secondary rigid body of this physics object (not used by default, it is used sometimes on grids for kinematic layer).
+        /// </summary>
+        public abstract HkRigidBody RigidBody2 { get; protected set; }
+
+        public abstract HkdBreakableBody BreakableBody { get; set; }
+
+        public abstract bool IsMoving { get; }
+
+        public abstract Vector3 Gravity { get; }
+
+        public MyPhysicsComponentDefinitionBase Definition { get; private set; }
+
         #endregion
 
         #region Methods
@@ -337,7 +352,7 @@ namespace VRage.Components
 
         public abstract void CreateCharacterCollision(Vector3 center, float characterWidth, float characterHeight,
             float crouchHeight, float ladderHeight, float headSize, float headHeight,
-            MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, float maxLimit, bool networkProxy);
+            MatrixD worldTransform, float mass, ushort collisionLayer, bool isOnlyVertical, float maxSlope, float maxLimit, float maxSpeedRelativeToShip, bool networkProxy, float? maxForce);
 
         /// <summary>
         /// Debug draw of this physics object.
@@ -358,7 +373,21 @@ namespace VRage.Components
         public abstract void ForceActivate();
 
         public abstract void UpdateAccelerations();
-        
+
+        /// <summary>
+        /// Set the current linear and angular velocities of this physics body.
+        /// </summary>
+        public abstract void SetSpeeds(Vector3 linear, Vector3 angular);
+
+        /// <summary>
+        /// Converts global space position to local cluster space.
+        /// </summary>
+        public abstract Vector3D WorldToCluster(Vector3D worldPos);
+
+        /// <summary>
+        /// Converts local cluster position to global space.
+        /// </summary>
+        public abstract Vector3D ClusterToWorld(Vector3 clusterPos);
 
         #endregion
 
@@ -369,6 +398,8 @@ namespace VRage.Components
         public abstract bool HasRigidBody { get; }
 
         public abstract Vector3D CenterOfMassWorld { get; }
+
+        public abstract void UpdateFromSystem();
 
         #endregion
 
@@ -391,6 +422,67 @@ namespace VRage.Components
         public override string ComponentTypeDebugString
         {
             get { return "Physics"; }
+        }
+
+        public override void Init(MyComponentDefinitionBase definition)
+        {
+            base.Init(definition);
+
+            Definition = definition as MyPhysicsComponentDefinitionBase;
+            Debug.Assert(Definition != null);
+            if (Definition != null)
+            {
+                Flags = Definition.RigidBodyFlags;
+
+                if (Definition.LinearDamping != null)
+                    LinearDamping = Definition.LinearDamping.Value;
+
+                if (Definition.AngularDamping != null)
+                    AngularDamping = Definition.AngularDamping.Value;
+            }
+        }
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
+
+            // MyPhysicsComponentBase has its own Entity property which hides MyEntityComponentBase property!
+            Entity = Container.Entity;
+            Debug.Assert(Entity != null);
+
+            if (Definition != null)
+            {
+                if (Definition.UpdateFlags != 0)
+                    MyPhysicsComponentSystem.Static.Register(this);
+            }
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+
+            if (Definition != null && Definition.UpdateFlags != 0 && MyPhysicsComponentSystem.Static != null)
+                MyPhysicsComponentSystem.Static.Unregister(this);
+        }
+
+        public override bool IsSerialized()
+        {
+            return Definition != null && Definition.Serialize;
+        }
+
+        public override MyObjectBuilder_ComponentBase Serialize()
+        {
+            var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_PhysicsComponentBase;
+            builder.LinearVelocity = LinearVelocity;
+            builder.AngularVelocity = AngularVelocity;
+            return builder;
+        }
+
+        public override void Deserialize(MyObjectBuilder_ComponentBase baseBuilder)
+        {
+            var builder = baseBuilder as MyObjectBuilder_PhysicsComponentBase;
+            LinearVelocity = builder.LinearVelocity;
+            AngularVelocity = builder.AngularVelocity;
         }
     }
 }

@@ -103,6 +103,12 @@ namespace VRage.Generics
             m_marked.Add(item);
         }
 
+        // Marks all active items for deallocation.
+        public void MarkAllActiveForDeallocate()
+        {
+            m_marked.UnionWith(m_active);
+        }
+
         //  Deallocates objects marked for deallocation. If same object was marked twice or more times for
         //  deallocation, this method will handle it and deallocate it only once (rest is ignored).
         //  IMPORTANT: Call only when not iterating the pool!!!

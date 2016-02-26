@@ -12,6 +12,7 @@ using Sandbox.Definitions;
 using Sandbox.Graphics;
 using VRage.Utils;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 

@@ -18,228 +18,22 @@ using SteamSDK;
 using Sandbox.Game.Localization;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
+using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.Entities.Inventory;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage.ModAPI.Ingame;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Cube
 {
     /// <summary>
     /// Common base for Assembler and Refinery blocks
     /// </summary>
-    abstract class MyProductionBlock : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, Sandbox.ModAPI.Ingame.IMyProductionBlock
+    abstract class MyProductionBlock : MyFunctionalBlock, IMyConveyorEndpointBlock, Sandbox.ModAPI.Ingame.IMyProductionBlock, IMyInventoryOwner
     {
-        #region Sync class
-        [PreloadRequired]
-        public class ProductionBlockSync : MySyncEntity
-        {
-            MyProductionBlock Block;
-
-            static ProductionBlockSync()
-            {
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, AddQueueItemMsg>(OnAddQueueItemRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, AddQueueItemMsg>(OnAddQueueItemSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, RemoveQueueItemMsg>(OnRemoveQueueItemRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, RemoveQueueItemMsg>(OnRemoveQueueItemSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, MoveQueueItemMsg>(OnMoveQueueItemRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-                MySyncLayer.RegisterEntityMessage<ProductionBlockSync, MoveQueueItemMsg>(OnMoveQueueItemSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            }
-
-            public ProductionBlockSync(MyProductionBlock block)
-                : base(block)
-            {
-                Block = block;
-            }
-
-            [ProtoContract]
-            [MessageId(2477, P2PMessageEnum.Reliable)]
-            struct AddQueueItemMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long ProductionEntityId;
-                public long GetEntityId() { return ProductionEntityId; }
-                [ProtoMember]
-                public SerializableDefinitionId Blueprint;
-                [ProtoMember]
-                public MyFixedPoint Amount;
-                [ProtoMember]
-                public int Idx;
-            }
-
-            [MessageId(2478, P2PMessageEnum.Reliable)]
-            struct RemoveQueueItemMsg : IEntityMessage
-            {
-                public long ProductionEntityId;
-                public long GetEntityId() { return ProductionEntityId; }
-                public int Idx;
-                public MyFixedPoint Amount;
-                public float CurrentProgress;
-            }
-
-            [MessageId(2479, P2PMessageEnum.Reliable)]
-            struct MoveQueueItemMsg : IEntityMessage
-            {
-                public long ProductionEntityId;
-                public long GetEntityId() { return ProductionEntityId; }
-                public uint SrcItemId;
-                public int DstIdx;
-            }
-
-            [MessageId(2490, P2PMessageEnum.Reliable)]
-            struct ClearQueue : IEntityMessage
-            {
-                public long ProductionEntityId;
-                public long GetEntityId() { return ProductionEntityId; }
-            }
-
-            public void MoveQueueItemAnnounce(uint srcItemId, int dstIdx)
-            {
-                Debug.Assert(Sync.IsServer);
-
-                var msg = new MoveQueueItemMsg();
-                msg.SrcItemId = srcItemId;
-                msg.DstIdx = dstIdx;
-                msg.ProductionEntityId = Block.EntityId;
-
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            public void MoveQueueItemRequest(uint srcItemId, int dstIdx)
-            {
-                Debug.Assert(!Sync.IsServer);
-
-                var msg = new MoveQueueItemMsg();
-                msg.SrcItemId = srcItemId;
-                msg.DstIdx = dstIdx;
-                msg.ProductionEntityId = Block.EntityId;
-
-                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            static void OnMoveQueueItemRequest(ProductionBlockSync sync, ref MoveQueueItemMsg msg, MyNetworkClient sender)
-            {
-                sync.Block.MoveQueueItemRequest(msg.SrcItemId, msg.DstIdx);
-            }
-
-            static void OnMoveQueueItemSuccess(ProductionBlockSync sync, ref MoveQueueItemMsg msg, MyNetworkClient sender)
-            {
-                 sync.Block.MoveQueueItem(msg.SrcItemId, msg.DstIdx);
-            }
-
-            /// <summary>
-            /// idx - index to insert (-1 = last)
-            /// </summary>
-            public void AddQueueItemRequest(MyBlueprintDefinitionBase blueprint, MyFixedPoint amount, int idx = -1)
-            {
-                Debug.Assert(idx != -2, "No longer supported.");
-                var msg = new AddQueueItemMsg();
-                msg.Idx = idx;
-                msg.Blueprint = blueprint.Id;
-                msg.Amount = amount;
-                msg.ProductionEntityId = Block.EntityId;
-                
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            public void AddQueueItemAnnounce(MyBlueprintDefinitionBase blueprint, MyFixedPoint amount, int idx = -1)
-            {
-                Debug.Assert(idx != -2, "No longer supported.");
-                Debug.Assert(Sync.IsServer);
-                var msg = new AddQueueItemMsg();
-                msg.Idx = idx;
-                msg.Blueprint = blueprint.Id;
-                msg.Amount = amount;
-                msg.ProductionEntityId = Block.EntityId;
-
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            static void OnAddQueueItemRequest(ProductionBlockSync sync, ref AddQueueItemMsg msg, MyNetworkClient sender)
-            {
-                var blueprint = MyDefinitionManager.Static.GetBlueprintDefinition(msg.Blueprint);
-                Debug.Assert(blueprint != null, "Blueprint not present in the dictionary.");
-                if (blueprint != null)
-                {
-                    sync.Block.InsertQueueItem(msg.Idx, blueprint, msg.Amount);
-                    Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-                }
-            }
-
-            static void OnAddQueueItemSuccess(ProductionBlockSync sync, ref AddQueueItemMsg msg, MyNetworkClient sender)
-            {
-                sync.Block.InsertQueueItem(msg.Idx, MyDefinitionManager.Static.GetBlueprintDefinition(msg.Blueprint), msg.Amount);
-            }
-
-            public void RemoveQueueItemRequest(int idx, MyFixedPoint amount)
-            {
-                Debug.Assert(idx != -2, "No longer supported.");
-                var msg = new RemoveQueueItemMsg();
-                msg.Idx = idx;
-                msg.Amount = amount;
-                msg.ProductionEntityId = Block.EntityId;
-
-                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-
-            /// <summary>
-            /// idx - index to insert to (-1 = last)
-            /// </summary>
-            public void RemoveQueueItemAnnounce(int idx, MyFixedPoint amount, float progress = 0f)
-            {
-                Debug.Assert(idx != -2, "No longer supported.");
-                var msg = new RemoveQueueItemMsg();
-                msg.Idx = idx;
-                msg.Amount = amount;
-                msg.CurrentProgress = progress;
-                msg.ProductionEntityId = Block.EntityId;
-
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            static void OnRemoveQueueItemRequest(ProductionBlockSync sync, ref RemoveQueueItemMsg msg, MyNetworkClient sender)
-            {
-                if (!RemoveQueueItemTests(sync, msg)) return;
-                OnRemoveQueueItemInternal(sync, msg);
-
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-            }
-
-            static void OnRemoveQueueItemSuccess(ProductionBlockSync sync, ref RemoveQueueItemMsg msg, MyNetworkClient sender)
-            {
-                if (!RemoveQueueItemTests(sync, msg)) return;
-                OnRemoveQueueItemInternal(sync, msg);
-            }
-
-            private static bool RemoveQueueItemTests(ProductionBlockSync sync, RemoveQueueItemMsg msg)
-            {
-                Debug.Assert(msg.Idx != -2, "No longer supported.");
-
-                if (sync == null)
-                {
-                    MySandboxGame.Log.WriteLine("Queue sync object is null!");
-                    return false;
-                }
-                if (sync != null && sync.Block == null)
-                {
-                    MySandboxGame.Log.WriteLine("Block of queue sync object is null!");
-                    return false;
-                }
-                if (!sync.Block.m_queue.IsValidIndex(msg.Idx) && msg.Idx != -1)
-                {
-                    MySandboxGame.Log.WriteLine("Invalid queue index in the remove item message!");
-                    return false;
-                }
-
-                return true;
-            }
-
-            private static void OnRemoveQueueItemInternal(ProductionBlockSync sync, RemoveQueueItemMsg msg)
-            {
-                if (msg.Idx >= 0)
-                    sync.Block.RemoveQueueItem(msg.Idx);
-                else
-                    sync.Block.RemoveFirstQueueItem(msg.Amount, msg.CurrentProgress);
-            }
-        }
-        #endregion
-
+ 
         protected MySoundPair m_processSound = new MySoundPair();
 
         public struct QueueItem
@@ -256,6 +50,73 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return (MyProductionBlockDefinition)base.BlockDefinition; }
         }
+
+        private MyInventoryAggregate m_inventoryAggregate;
+        public MyInventoryAggregate InventoryAggregate
+        {
+            get
+            {                          
+                return m_inventoryAggregate;
+            }           
+            set
+            {
+                if (value != null)
+                {
+                    Components.Remove<MyInventoryBase>();
+                    Components.Add<MyInventoryBase>(value);
+                    Debug.Assert(m_inventoryAggregate == value, "Aggregate wasn't added");
+                }
+                else
+                {
+                    Debug.Fail("Null value passed!");
+                }
+            }
+        }
+
+        public  MyInventory InputInventory
+        {
+            get
+            {
+                return m_inputInventory;
+            }
+            protected set
+            {
+                if (!InventoryAggregate.ChildList.Contains(value))
+                {
+                    if (m_inputInventory != null)
+                    {
+                        Debug.Assert(InventoryAggregate.ChildList.Contains(m_inputInventory), "Input inventory got lost! It is not in the inventory aggregate!");
+                        InventoryAggregate.ChildList.RemoveComponent(m_inputInventory);
+                    }
+                    InventoryAggregate.ChildList.AddComponent(value);
+                }
+                Debug.Assert(InventoryCount <= 2, "Invalid insertion - too many inventories in aggregate");
+                Debug.Assert(m_inputInventory != null, "Input inventory wasn't set!");
+            }
+        }
+
+        public MyInventory OutputInventory
+        {
+            get
+            {
+                return m_outputInventory;
+            }
+            protected set
+            {
+                if (!InventoryAggregate.ChildList.Contains(value))
+                {
+                    if (m_outputInventory != null)
+                    {
+                        Debug.Assert(InventoryAggregate.ChildList.Contains(m_outputInventory), "Output inventory got lost! It is not in the inventory aggregate!");
+                        InventoryAggregate.ChildList.RemoveComponent(m_outputInventory);
+                    }
+                    InventoryAggregate.ChildList.AddComponent(value);
+                }                
+                Debug.Assert(InventoryCount <= 2, "Invalid insertion - too many inventories in aggregate");
+                Debug.Assert(m_outputInventory != null, "Output inventory wasn't set!");
+            }
+        }
+
         private MyInventory m_inputInventory;
         private MyInventory m_outputInventory;
         private int m_lastUpdateTime;
@@ -319,8 +180,8 @@ namespace Sandbox.Game.Entities.Cube
         static MyProductionBlock()
         {
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyProductionBlock>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConveyorSystem.Getter = (x) => (x as IMyInventoryOwner).UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => MySyncConveyors.SendChangeUseConveyorSystemRequest(x.EntityId, v);
+            useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
+            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem =  v;
             useConveyorSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConveyorSystem);
         }
@@ -329,7 +190,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<MyProductionBlock> QueueChanged;
         private string m_string;
-        protected bool m_useConveyorSystem;
+        protected readonly Sync<bool> m_useConveyorSystem;
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
         //Use NextItemID
@@ -350,40 +211,59 @@ namespace Sandbox.Game.Entities.Cube
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             IsProducing = false;
+            Components.ComponentAdded += OnComponentAdded;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
+
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(ProductionBlockDefinition.ResourceSinkGroup, ProductionBlockDefinition.OperationalPowerConsumption, ComputeRequiredPower);
+            sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
 
-            m_inputInventory = new MyInventory(
-                ProductionBlockDefinition.InventoryMaxVolume,
-                ProductionBlockDefinition.InventorySize,
-                MyInventoryFlags.CanReceive,
-                this);
-
-            m_outputInventory = new MyInventory(
-                ProductionBlockDefinition.InventoryMaxVolume,
-                ProductionBlockDefinition.InventorySize,
-                MyInventoryFlags.CanSend,
-                this);
-
             var ob = (MyObjectBuilder_ProductionBlock)objectBuilder;
-            if (ob.InputInventory != null)
-                InputInventory.Init(ob.InputInventory);
-            if (ob.OutputInventory != null)
-                OutputInventory.Init(ob.OutputInventory);
+
+            if (InventoryAggregate == null)
+            {
+                InventoryAggregate = new MyInventoryAggregate();
+            }
+
+            if (InputInventory == null)
+            {
+                InputInventory = new MyInventory(
+                    ProductionBlockDefinition.InventoryMaxVolume,
+                    ProductionBlockDefinition.InventorySize,
+                    MyInventoryFlags.CanReceive,
+                    this);
+                if (ob.InputInventory != null)
+                    InputInventory.Init(ob.InputInventory);                
+            }
+
+            Debug.Assert(InputInventory.Owner == this, "Ownership was not set!");
+
+            if (OutputInventory == null)
+            {
+                OutputInventory = new MyInventory(
+                    ProductionBlockDefinition.InventoryMaxVolume,
+                    ProductionBlockDefinition.InventorySize,
+                    MyInventoryFlags.CanSend,
+                    this);
+                if (ob.OutputInventory != null)
+                    OutputInventory.Init(ob.OutputInventory);
+            }
+
+            Debug.Assert(OutputInventory.Owner == this, "Ownership was not set!");
 
             m_nextItemId = ob.NextItemId;
             bool nextIdWasZero = m_nextItemId == 0;
 
             base.IsWorkingChanged += CubeBlock_IsWorkingChanged;
 
-			var sinkComp = new MyResourceSinkComponent();
-			sinkComp.Init(ProductionBlockDefinition.ResourceSinkGroup, ProductionBlockDefinition.OperationalPowerConsumption, ComputeRequiredPower);
-			sinkComp.IsPoweredChanged += Receiver_IsPoweredChanged;
-			ResourceSink = sinkComp;
+			
 			ResourceSink.Update();
 
 			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
@@ -412,7 +292,7 @@ namespace Sandbox.Game.Entities.Cube
                 UpdatePower();
             }
 
-            m_useConveyorSystem = ob.UseConveyorSystem;
+            m_useConveyorSystem.Value = ob.UseConveyorSystem;
 
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
@@ -469,14 +349,111 @@ namespace Sandbox.Game.Entities.Cube
 
         #region Multiplayer
 
-        public new ProductionBlockSync SyncObject
+        /// <summary>
+        /// Sends request to server to add item to queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="blueprint"></param>
+        /// <param name="ammount"></param>
+        /// <param name="idx">idx - index to insert (-1 = last).</param>
+        public void AddQueueItemRequest(MyBlueprintDefinitionBase blueprint, MyFixedPoint ammount, int idx = -1)
         {
-            get { return (ProductionBlockSync)base.SyncObject; }
+
+            SerializableDefinitionId serializableId = blueprint.Id;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddQueueItemRequest, idx, serializableId, ammount);
+
         }
 
-        protected override MySyncEntity OnCreateSync()
+        [Event, Reliable, Server]
+        private void OnAddQueueItemRequest(int idx, SerializableDefinitionId defId, MyFixedPoint ammount)
         {
-            return new ProductionBlockSync(this);
+            var blueprint = MyDefinitionManager.Static.GetBlueprintDefinition(defId);
+            Debug.Assert(blueprint != null, "Blueprint not present in the dictionary.");
+            if (blueprint != null)
+            {
+                this.InsertQueueItem(idx, blueprint, ammount);
+                MyMultiplayer.RaiseEvent(this, x => x.OnAddQueueItemSuccess, idx, defId, ammount);
+                
+            }
+        }
+
+        [Event, Reliable, Broadcast]
+        private void OnAddQueueItemSuccess(int idx, SerializableDefinitionId defId, MyFixedPoint ammount)
+        {
+            this.InsertQueueItem(idx, MyDefinitionManager.Static.GetBlueprintDefinition(defId), ammount);
+        }
+
+
+        /// <summary>
+        /// Sends request to server to move queue item. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="srcItemId"></param>
+        /// <param name="dstIdx"></param>
+        public void MoveQueueItemRequest(uint srcItemId, int dstIdx)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnMoveQueueItemCallback, srcItemId, dstIdx);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnMoveQueueItemCallback(uint srcItemId, int dstIdx)
+        {
+            this.MoveQueueItem(srcItemId, dstIdx);
+        }
+
+        [Event, Reliable, Server]
+        protected void ClearQueueRequest()
+        {
+            for (int i = m_queue.Count - 1; i >= 0; i--)
+            {
+                if (!RemoveQueueItemTests(i))
+                    continue;
+
+                MyFixedPoint ammount = 1;
+                MyMultiplayer.RaiseEvent(this, x => x.OnRemoveQueueItem, i, ammount, 0f);
+            }
+        }
+
+        /// <summary>
+        /// Sends request to server to remove item from queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <param name="amount"></param>
+        /// <param name="progress"></param>
+        public void RemoveQueueItemRequest(int idx, MyFixedPoint amount, float progress = 0f)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveQueueItemRequest, idx, amount, progress);
+        }
+
+        [Event, Reliable, Server]
+        private void OnRemoveQueueItemRequest(int idx, MyFixedPoint amount, float progress)
+        {
+            if (!RemoveQueueItemTests(idx)) 
+                return;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveQueueItem, idx, amount, progress);
+
+        }
+
+        private bool RemoveQueueItemTests(int idx)
+        {
+            Debug.Assert(idx != -2, "No longer supported.");
+
+            if (!this.m_queue.IsValidIndex(idx) && idx != -1)
+            {
+                MySandboxGame.Log.WriteLine("Invalid queue index in the remove item message!");
+                return false;
+            }
+
+            return true;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnRemoveQueueItem(int idx, MyFixedPoint amount, float progress)
+        {
+            if (idx >= 0)
+                this.RemoveQueueItem(idx);
+            else
+                this.RemoveFirstQueueItem(amount, progress);
         }
 
         #endregion
@@ -518,14 +495,7 @@ namespace Sandbox.Game.Entities.Cube
         protected void RemoveFirstQueueItemAnnounce(MyFixedPoint amount, float progress = 0f)
         {
             Debug.Assert(Sync.IsServer);
-
-            if (MyFakes.ENABLE_PRODUCTION_SYNC)
-            {
-                RemoveFirstQueueItem(amount, progress);
-                SyncObject.RemoveQueueItemAnnounce(-1, amount, progress);
-            }
-            else
-                RemoveFirstQueueItem(amount);
+            this.RemoveQueueItemRequest(-1, amount, progress);
         }
 
         protected virtual void RemoveFirstQueueItem(MyFixedPoint amount, float progress = 0f)
@@ -567,20 +537,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void InsertQueueItemRequest(int idx, MyBlueprintDefinitionBase blueprint, MyFixedPoint amount)
         {
-            if (MyFakes.ENABLE_PRODUCTION_SYNC)
-            {
-                if (Sync.IsServer)
-                {
-                    InsertQueueItem(idx, blueprint, amount);
-                    SyncObject.AddQueueItemAnnounce(blueprint, amount, idx);
-                }
-                else
-                    SyncObject.AddQueueItemRequest(blueprint, amount, idx);
-            }
-            else
-            {
-                InsertQueueItem(idx, blueprint, amount);
-            }
+            this.AddQueueItemRequest(blueprint, amount, idx); 
         }
 
         protected virtual void InsertQueueItem(int idx, MyBlueprintDefinitionBase blueprint, MyFixedPoint amount)
@@ -652,45 +609,19 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        public void RemoveQueueItemRequest(int itemIdx)
-        {
-            if (MyFakes.ENABLE_PRODUCTION_SYNC)
-            {
-                if (Sync.IsServer)
-                {
-                    RemoveQueueItem(itemIdx);
-                    SyncObject.RemoveQueueItemAnnounce(itemIdx, 1);
-                }
-                else
-                    SyncObject.RemoveQueueItemRequest(itemIdx, 1);
-            }
-            else
-                RemoveQueueItem(itemIdx);
-        }
-
         protected virtual void RemoveQueueItem(int itemIdx)
         {
+            if(itemIdx >= m_queue.Count)
+            {
+                Debug.Fail("Index out of bounds!");
+                VRage.Utils.MyLog.Default.WriteLine("Production block.RemoveQueueItem: Index out of bounds!");
+                return;
+            }
             m_queue.RemoveAt(itemIdx);
 
             UpdatePower();
 
             OnQueueChanged();
-        }
-
-        public void MoveQueueItemRequest(uint queueItemId, int targetIdx)
-        {
-            if (MyFakes.ENABLE_PRODUCTION_SYNC)
-            {
-                if (Sync.IsServer)
-                {
-                    MoveQueueItem(queueItemId, targetIdx);
-                    SyncObject.MoveQueueItemAnnounce(queueItemId, targetIdx);
-                }
-                else
-                    SyncObject.MoveQueueItemRequest(queueItemId, targetIdx);
-            }
-            else
-                MoveQueueItem(queueItemId, targetIdx);
         }
 
         protected virtual void MoveQueueItem(uint queueItemId, int targetIdx)
@@ -742,10 +673,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!Sync.IsServer)
                 return;
 
-            for (int i = m_queue.Count - 1; i >= 0; i--)
-            {
-                RemoveQueueItemRequest(i);
-            }
+            this.ClearQueueRequest();
 
             //while (m_queue.Count > 0)
                 //RemoveFirstQueueItemRequest(m_queue[0].Amount);
@@ -774,9 +702,6 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateProduction()
         {
-            if (!MyFakes.OCTOBER_RELEASE_REFINERY_ENABLED && !MyFakes.OCTOBER_RELEASE_ASSEMBLER_ENABLED)
-                return;
-
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 			if (ResourceSink.IsPowered)
             {
@@ -791,7 +716,8 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void Closing()
         {
-            m_soundEmitter.StopSound(true);
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
             base.Closing();
         }
 
@@ -804,69 +730,38 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            m_soundEmitter.Update();
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
-        #region IMyInventoryOwner
+        #region Inventory
 
-        String IMyInventoryOwner.DisplayNameText
-        {
-            get { return CustomName.ToString(); }
-        }
-
-        public int InventoryCount 
-        { 
-            get 
-            { 
-                return (MyFakes.OCTOBER_RELEASE_ASSEMBLER_ENABLED || MyFakes.OCTOBER_RELEASE_REFINERY_ENABLED) ? 2 : 1;
-            }
-        }
-
-        public MyInventory GetInventory(int index = 0)
+        public override MyInventoryBase GetInventoryBase(int index = 0)
         {
             switch (index)
             {
-                case 0: return m_inputInventory;
-                case 1: return m_outputInventory;
+                case 0: return InputInventory;
+                case 1: return OutputInventory;
                 default:
                     throw new InvalidBranchException();
             }
-        }
-
-        public void SetInventory(MyInventory inventory, int index)
-        {
-            switch (index)
-            {
-                case 0:  
-                    m_inputInventory = inventory;
-                    break;
-                case 1:  m_outputInventory = inventory;
-                    break;
-                default:
-                    throw new InvalidBranchException();
-            }
-        }
+        }        
 
         public override void OnRemovedByCubeBuilder()
         {
-            ReleaseInventory(m_inputInventory);
-            ReleaseInventory(m_outputInventory);
+            ReleaseInventory(InputInventory);
+            ReleaseInventory(OutputInventory);
             base.OnRemovedByCubeBuilder();
         }
 
         public override void OnDestroy()
         {
-            ReleaseInventory(m_inputInventory,true);
-            ReleaseInventory(m_outputInventory,true);
+            ReleaseInventory(InputInventory,true);
+            ReleaseInventory(OutputInventory,true);
             base.OnDestroy();
         }
 
-        public MyInventoryOwnerTypeEnum InventoryOwnerType
-        {
-            get { return MyInventoryOwnerTypeEnum.System; }
-        }
-
-        bool IMyInventoryOwner.UseConveyorSystem
+        bool UseConveyorSystem
         {
             get
             {
@@ -874,27 +769,71 @@ namespace Sandbox.Game.Entities.Cube
             }
             set
             {
-                m_useConveyorSystem = value;
+                m_useConveyorSystem.Value = value;
             }
         }
 
-        Sandbox.ModAPI.Interfaces.IMyInventory Sandbox.ModAPI.Interfaces.IMyInventoryOwner.GetInventory(int index)
+        private void OnComponentAdded(Type type, VRage.Game.Components.MyEntityComponentBase component)
         {
-           return GetInventory(index);
+            var aggregate = component as MyInventoryAggregate;
+            if (aggregate != null)
+            {                
+                m_inventoryAggregate = aggregate;
+                m_inventoryAggregate.BeforeRemovedFromContainer += OnInventoryAggregateRemoved;
+                m_inventoryAggregate.OnAfterComponentAdd += OnInventoryAddedToAggregate;
+                m_inventoryAggregate.OnBeforeComponentRemove += OnBeforeInventoryRemovedFromAggregate;
+
+                foreach (var inventory in m_inventoryAggregate.ChildList.Reader)
+                {
+                    MyInventory inv = inventory as MyInventory;
+                    OnInventoryAddedToAggregate(aggregate, inv);
+                }
+            }
+        }       
+
+        protected virtual void OnInventoryAddedToAggregate(MyInventoryAggregate aggregate, MyInventoryBase inventory)
+        {
+            if (m_inputInventory == null)
+            {
+                m_inputInventory = inventory as MyInventory;
+            }
+            else if (m_outputInventory == null)
+            {
+                m_outputInventory = inventory as MyInventory;
+            }
+            else
+            {
+                Debug.Fail("Adding inventory to aggregate, but input and output inventory is already set!");
+            }
         }
 
-        bool ModAPI.Interfaces.IMyInventoryOwner.UseConveyorSystem
+        private void OnInventoryAggregateRemoved(MyEntityComponentBase component)
         {
-            get
+            m_inputInventory = null;
+            m_outputInventory = null;
+            m_inventoryAggregate.BeforeRemovedFromContainer -= OnInventoryAggregateRemoved;
+            m_inventoryAggregate.OnAfterComponentAdd -= OnInventoryAddedToAggregate;
+            m_inventoryAggregate.OnBeforeComponentRemove -= OnBeforeInventoryRemovedFromAggregate;
+            m_inventoryAggregate = null;
+        }   
+
+        protected virtual void OnBeforeInventoryRemovedFromAggregate(MyInventoryAggregate aggregate, MyInventoryBase inventory)
+        {
+            if (inventory == m_inputInventory)
             {
-                return (this as IMyInventoryOwner).UseConveyorSystem;
+                m_inputInventory = null;
             }
-            set
+            else if (inventory == m_outputInventory)
             {
-                (this as IMyInventoryOwner).UseConveyorSystem = value;
+                m_outputInventory = null;
+            }
+            else
+            {
+                Debug.Fail("Removing inventory from aggregate, but isn't neither input nor output! This shouldn't happend.");
             }
         }
-        #endregion IMyInventoryObject
+
+        #endregion Inventory
 
         protected override void OnEnabledChanged()
         {
@@ -904,10 +843,6 @@ namespace Sandbox.Game.Entities.Cube
             if (IsWorking && IsProducing)
                 OnStartProducing();
         }
-
-        public MyInventory InputInventory { get { return m_inputInventory; } protected set { m_inputInventory = value; } }
-
-        public MyInventory OutputInventory { get { return m_outputInventory; } protected set { m_outputInventory = value; } }
      
         private float ComputeRequiredPower()
         {
@@ -944,14 +879,20 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void OnStartProducing()
         {
-            m_soundEmitter.PlaySound(m_processSound, false);
+            m_soundEmitter.PlaySound(m_processSound, true);
             var handle = StartedProducing;
             if (handle != null) handle();
         }
 
         protected void OnStopProducing()
         {
-            m_soundEmitter.StopSound(false);
+            if (IsWorking)
+            {
+                m_soundEmitter.StopSound(false);
+                m_soundEmitter.PlaySound(m_baseIdleSound, false, true);
+            }
+            else
+                m_soundEmitter.StopSound(false);
             var handle = StoppedProducing;
             if (handle != null) handle();
         }
@@ -971,8 +912,62 @@ namespace Sandbox.Game.Entities.Cube
         { 
             get 
             { 
-                return (this as IMyInventoryOwner).UseConveyorSystem;
+                return UseConveyorSystem;
             }
         }
+
+        #region IMyInventoryOwner implementation
+
+        int IMyInventoryOwner.InventoryCount
+        {
+            get { return InventoryCount; }
+        }
+
+        long IMyInventoryOwner.EntityId
+        {
+            get { return EntityId; }
+        }
+
+        bool IMyInventoryOwner.HasInventory
+        {
+            get { return HasInventory; }
+        }
+
+        bool IMyInventoryOwner.UseConveyorSystem
+        {
+            get
+            {
+                return UseConveyorSystem;
+            }
+            set
+            {
+                UseConveyorSystem = value;
+            }
+        }
+
+        IMyInventory IMyInventoryOwner.GetInventory(int index)
+        {
+            return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region Fixing inventory
+
+        public void FixInputOutputInventories(MyInventoryConstraint inputInventoryConstraint, MyInventoryConstraint outputInventoryConstraint)
+        {
+            if (m_inventoryAggregate.InventoryCount == 2)
+            {
+                return;
+            }
+
+            var fixedAggregate = MyInventoryAggregate.FixInputOutputInventories(m_inventoryAggregate, inputInventoryConstraint, outputInventoryConstraint);
+            Components.Remove<MyInventoryBase>();
+            m_outputInventory = null;
+            m_inputInventory = null;
+            Components.Add<MyInventoryBase>(fixedAggregate);
+        }
+
+        #endregion
     }
 }

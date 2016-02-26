@@ -13,6 +13,7 @@ namespace VRage.Network
     {
         public int FramesWithoutSync;
         public float Priority;
+        public StateGroupEnum GroupType;
 
         public readonly IMyReplicable Owner;
         public readonly NetworkId GroupId;
@@ -24,6 +25,7 @@ namespace VRage.Network
             Owner = owner;
             GroupId = groupId;
             Group = group;
+            GroupType = group.GroupType;
         }
 
         public override string ToString()

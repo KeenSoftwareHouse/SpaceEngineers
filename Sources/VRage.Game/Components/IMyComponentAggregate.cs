@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using VRage.Collections;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     /// <summary>
     /// When creating a new aggregate component type, derive from this interface so that you can use extension methods
@@ -22,6 +22,11 @@ namespace VRage.Components
     {
         public static void AddComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
         {
+            Debug.Assert(aggregate != component, "Can not add to itself!");
+            if (component.ContainerBase != null)
+            {
+                component.OnBeforeRemovedFromContainer();
+            }
             aggregate.ChildList.AddComponent(component);
             component.SetContainer(aggregate.ContainerBase);
             aggregate.AfterComponentAdd(component);
@@ -32,6 +37,7 @@ namespace VRage.Components
         /// </summary>
         public static void AttachComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
         {
+            Debug.Assert(aggregate != component, "Can not add to itself!");
             aggregate.ChildList.AddComponent(component);         
         }
 
@@ -46,7 +52,7 @@ namespace VRage.Components
             }
         }
 
-/// <summary>
+        /// <summary>
         /// Removes from list, but doesn't change ownership
         /// </summary>
         public static void DetachComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
@@ -98,21 +104,51 @@ namespace VRage.Components
 
         public bool RemoveComponent(MyComponentBase component)
         {
+            if (Contains(component))
+            {
+                component.OnBeforeRemovedFromContainer();                
+            }
+            else 
+            {
+                return false;
+            }
+
             if (m_components.Remove(component))
-            {              
+            {
                 return true;
             }
             foreach (var childComponent in m_components)
             {
                 if (childComponent is IMyComponentAggregate)
                 {
-                    if ((childComponent as IMyComponentAggregate).ChildList.RemoveComponent(component))
+                    var childAggregate = (childComponent as IMyComponentAggregate);                    
+                    if (childAggregate.ChildList.RemoveComponent(component))
                     {
                         return true;
                     }
                 }
             }
             return false;
-        }        
+        }
+        
+        public bool Contains(MyComponentBase component)
+        {
+            if (m_components.Contains(component))
+            {               
+                    return true;               
+            }
+            foreach (var childComponent in m_components)
+            {
+                if (childComponent is IMyComponentAggregate)
+                {
+                    var childAggregate = (childComponent as IMyComponentAggregate);
+                    if (childAggregate.ChildList.Contains(component))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

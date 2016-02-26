@@ -18,169 +18,46 @@ using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.Game;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Components;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TimerBlock))]
     internal class MyTimerBlock : MyFunctionalBlock, IMyTimerBlock
     {
-        [PreloadRequired]
-        internal class MySyncTimerBlock : MySyncEntity
-        {
-            [MessageIdAttribute(2457, P2PMessageEnum.Reliable)]
-            protected struct TriggerMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-            }
-
-            [MessageIdAttribute(2458, P2PMessageEnum.Reliable)]
-            protected struct ToggleMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public BoolBlit Start;
-            }
-
-            [MessageIdAttribute(2459, P2PMessageEnum.Reliable)]
-            protected struct SetTimerMsg : IEntityMessage
-            {
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                public int Time;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2460, P2PMessageEnum.Reliable)]
-            protected struct ChangeToolbarItemMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public ToolbarItem Item;
-
-                [ProtoMember]
-                public int Index;
-            }
-
-            private bool m_syncing;
-            public bool IsSyncing
-            {
-                get { return m_syncing; }
-            }
-
-            public void SendToolbarItemChanged(ToolbarItem item, int index)
-            {
-                if (m_syncing)
-                    return;
-                var msg = new ChangeToolbarItemMsg();
-                msg.EntityId = m_timer.EntityId;
-                msg.Item = item;
-                msg.Index = index;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            private static void OnToolbarItemChanged(MySyncTimerBlock sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
-            {
-                sync.m_syncing = true;
-                MyToolbarItem item = null;
-                if (msg.Item.EntityID != 0)
-                    item = ToolbarItem.ToItem(msg.Item);
-                sync.m_timer.Toolbar.SetItemAtIndex(msg.Index, item);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                    Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-            static MySyncTimerBlock()
-            {
-                MySyncLayer.RegisterEntityMessage<MySyncTimerBlock, TriggerMsg>(OnTriggered, MyMessagePermissions.ToServer| MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncTimerBlock, ToggleMsg>(OnToggle, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncTimerBlock, SetTimerMsg>(OnSetTimer, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterEntityMessage<MySyncTimerBlock, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            }
-
-            private MyTimerBlock m_timer;
-
-            public MySyncTimerBlock(MyTimerBlock timer)
-                : base(timer)
-            {
-                m_timer = timer;
-            }
-
-            public void Trigger()
-            {
-                Debug.Assert(!Sync.IsServer);
-
-                TriggerMsg msg = new TriggerMsg();
-                msg.EntityId = m_timer.EntityId;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            public void Toggle(bool start)
-            {
-                var msg = new ToggleMsg();
-                msg.EntityId = m_timer.EntityId;
-                msg.Start = start;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            public void SetTimer(int p)
-            {
-                var msg = new SetTimerMsg();
-                msg.EntityId = m_timer.EntityId;
-                msg.Time = p;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-
-                m_timer.SetTimer(p);
-            }
-
-            private static void OnTriggered(MySyncTimerBlock syncObject, ref TriggerMsg msg, MyNetworkClient sender)
-            {
-                MyTimerBlock.Trigger(syncObject.m_timer);
-                if (Sync.IsServer)
-                    Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-            private static void OnToggle(MySyncTimerBlock sync, ref ToggleMsg msg, MyNetworkClient sender)
-            {
-                if (msg.Start)
-                    sync.m_timer.Start();
-                else
-                    sync.m_timer.Stop();
-                if (Sync.IsServer)
-                    Sync.Layer.SendMessageToAll(ref msg);
-            }
-           
-            private static void OnSetTimer(MySyncTimerBlock sync, ref SetTimerMsg msg, MyNetworkClient sender)
-            {
-                sync.m_timer.SetTimer(msg.Time);
-                if (Sync.IsServer)
-                    Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-        }
-
         public MyToolbar Toolbar { get; set; }
-        protected MySyncTimerBlock TimerSyncObject { get { return SyncObject as MySyncTimerBlock; } }
 
         private int m_countdownMsCurrent;
         private int m_countdownMsStart;
-        public bool IsCountingDown { get; private set; }
+        readonly Sync<bool> m_isCountingDown;
+        public bool IsCountingDown 
+        { 
+            get
+            {
+                return m_isCountingDown;
+            }
+            private set
+            {
+                m_isCountingDown.Value = value;
+            }
+        }
 
         private static readonly List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
+        bool m_syncing = false;
+
+        readonly Sync<int> m_timerSync;
+        public MyTimerBlock()
+        {
+            m_timerSync.ValueChanged += (x) => TimerChanged();
+            m_isCountingDown.ValueChanged += (x) => CountDownChanged();
+            m_isCountingDown.ValidateNever();
+        }
 
         static MyTimerBlock()
         {
@@ -191,7 +68,7 @@ namespace Sandbox.Game.Entities.Blocks
             slider.DefaultValue = 10;
             slider.Enabled = (x) => !x.IsCountingDown;
             slider.Getter = (x) => x.TriggerDelay;
-            slider.Setter = (x, v) => x.TimerSyncObject.SetTimer((int)(Math.Round(v, 1) * 1000));
+            slider.Setter = (x, v) => x.m_timerSync.Value = ((int)(Math.Round(v, 1) * 1000));
             slider.Writer = (x, sb) => MyValueFormatter.AppendTimeExact(Math.Max(x.m_countdownMsStart, 1000) / 1000, sb);
             slider.EnableActions();
             MyTerminalControlFactory.AddControl(slider);
@@ -214,47 +91,66 @@ namespace Sandbox.Game.Entities.Blocks
                     MyGuiSandbox.AddScreen(screen);
                 }
             });
+
             MyTerminalControlFactory.AddControl(toolbarButton);
 
-            var triggerButton = new MyTerminalControlButton<MyTimerBlock>("TriggerNow", MySpaceTexts.BlockPropertyTitle_TimerTrigger, MySpaceTexts.BlockPropertyTitle_TimerTrigger, OnTrigger);
+            var triggerButton = new MyTerminalControlButton<MyTimerBlock>("TriggerNow", MySpaceTexts.BlockPropertyTitle_TimerTrigger, MySpaceTexts.BlockPropertyTitle_TimerTrigger, (x) => x.OnTrigger());
             triggerButton.EnableAction();
             MyTerminalControlFactory.AddControl(triggerButton);
-            
-            var startButton = new MyTerminalControlButton<MyTimerBlock>("Start", MySpaceTexts.BlockPropertyTitle_TimerStart, MySpaceTexts.BlockPropertyTitle_TimerStart, StartBtn);
+
+            var startButton = new MyTerminalControlButton<MyTimerBlock>("Start", MySpaceTexts.BlockPropertyTitle_TimerStart, MySpaceTexts.BlockPropertyTitle_TimerStart, (x) => x.StartBtn());
             startButton.EnableAction();
             MyTerminalControlFactory.AddControl(startButton);
 
-            var stopButton = new MyTerminalControlButton<MyTimerBlock>("Stop", MySpaceTexts.BlockPropertyTitle_TimerStop, MySpaceTexts.BlockPropertyTitle_TimerStop, StopBtn);
+            var stopButton = new MyTerminalControlButton<MyTimerBlock>("Stop", MySpaceTexts.BlockPropertyTitle_TimerStop, MySpaceTexts.BlockPropertyTitle_TimerStop, (x) => x.StopBtn());
             stopButton.EnableAction();
             MyTerminalControlFactory.AddControl(stopButton);
         }
 
-        private static void StopBtn(MyTimerBlock obj)
+        void TimerChanged()
         {
-            if (!obj.IsWorking)
-                return;
-            obj.Stop();
-            obj.TimerSyncObject.Toggle(false);
+            SetTimer(m_timerSync.Value);
         }
 
-        private static void StartBtn(MyTimerBlock obj)
+        void CountDownChanged()
         {
-            if (!obj.IsWorking)
-                return;
-            obj.Start();
-            obj.TimerSyncObject.Toggle(true);
+            if (m_isCountingDown.Value)
+            {
+                Start();
+            }
+            else
+            {
+                Stop();
+            }
         }
 
+        private void StopBtn()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.Stop);
+        }
+
+        private void StartBtn()
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.Start);
+        }
+
+        [Event, Reliable, Server]
         public void Stop()
         {
             IsCountingDown = false;
             NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
+            this.ClearMemory();
+        }
+
+        private void ClearMemory()
+        {
             m_countdownMsCurrent = 0;
             UpdateEmissivity();
             DetailedInfo.Clear();
             RaisePropertiesChanged();
         }
 
+        [Event, Reliable, Server]
         public void Start()
         {
             IsCountingDown = true;
@@ -264,22 +160,25 @@ namespace Sandbox.Game.Entities.Blocks
 
         void Toolbar_ItemChanged(MyToolbar self, MyToolbar.IndexArgs index)
         {
+            if (m_syncing)
+            {
+                return;
+            }
+
             Debug.Assert(self == Toolbar);
 
             var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
-            (SyncObject as MySyncTimerBlock).SendToolbarItemChanged(tItem, index.ItemIndex);
-            
+            MyMultiplayer.RaiseEvent(this, x => x.SendToolbarItemChanged, tItem, index.ItemIndex);
+
             if (m_shouldSetOtherToolbars)
             {
                 m_shouldSetOtherToolbars = false;
-                if (!(SyncObject as MySyncTimerBlock).IsSyncing)
+
+                foreach (var toolbar in m_openedToolbars)
                 {
-                    foreach (var toolbar in m_openedToolbars)
+                    if (toolbar != self)
                     {
-                        if (toolbar != self)
-                        {
-                            toolbar.SetItemAtIndex(index.ItemIndex, self.GetItemAtIndex(index.ItemIndex));
-                        }
+                        toolbar.SetItemAtIndex(index.ItemIndex, self.GetItemAtIndex(index.ItemIndex));
                     }
                 }
                 m_shouldSetOtherToolbars = true;
@@ -301,14 +200,19 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
         }
 
-        protected override MySyncEntity OnCreateSync()
-        {
-            return new MySyncTimerBlock(this);
-        }
-
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true;
+
+            var timerBlockDefinition = BlockDefinition as MyTimerBlockDefinition;
+
+            var sinkComp = new MyResourceSinkComponent();
+            sinkComp.Init(
+                timerBlockDefinition.ResourceSinkGroup,
+                0.0000001f,
+                () => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
+            ResourceSink = sinkComp;
+
             base.Init(objectBuilder, cubeGrid);
 
             var ob = objectBuilder as MyObjectBuilder_TimerBlock;
@@ -318,24 +222,20 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
             if (ob.JustTriggered) NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+
+            IsCountingDown = ob.IsCountingDown;
             m_countdownMsStart = ob.Delay;
             m_countdownMsCurrent = ob.CurrentTime;
+    
             if (m_countdownMsCurrent > 0)
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-	        var timerBlockDefinition = BlockDefinition as MyTimerBlockDefinition;
-
-			var sinkComp = new MyResourceSinkComponent();
-            sinkComp.Init(
-                timerBlockDefinition.ResourceSinkGroup,
-                0.0000001f,
-				() => (Enabled && IsFunctional) ? ResourceSink.MaxRequiredInput : 0f);
-	        ResourceSink = sinkComp;
+	       
+            ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 			ResourceSink.Update();
 
 			AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
-			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
         }
@@ -347,12 +247,14 @@ namespace Sandbox.Game.Entities.Blocks
             ob.JustTriggered = NeedsUpdate.HasFlag(MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
             ob.Delay = m_countdownMsStart;
             ob.CurrentTime = m_countdownMsCurrent;
+            ob.IsCountingDown = IsCountingDown;
             return ob;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
+            IsCountingDown = false;
             if (Sync.IsServer)
             {
                 for (int i = 0; i < Toolbar.ItemCount; ++i)
@@ -361,7 +263,6 @@ namespace Sandbox.Game.Entities.Blocks
                     Toolbar.ActivateItemAtIndex(i);
                 }
             }
-            IsCountingDown = false;
             UpdateEmissivity();
             DetailedInfo.Clear();
             RaisePropertiesChanged();
@@ -376,6 +277,11 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
+
+            // If it is not working, than it cannot operate
+            if (!this.IsWorking)
+                return;
+
             var before = m_countdownMsCurrent % 1000;
 
             if (m_countdownMsCurrent > 0)
@@ -409,39 +315,40 @@ namespace Sandbox.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        protected static void OnTrigger(MyTimerBlock obj)
+        protected void OnTrigger()
         {
-            if (!obj.IsWorking)
+            if (!IsWorking)
             {
                 return;
             }
 
-            obj.StopCountdown();
+            StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
-                obj.TimerSyncObject.Trigger();
+                MyMultiplayer.RaiseEvent(this, x => x.Trigger);
             }
         }
 
-        protected static void Trigger(MyTimerBlock obj)
+        [Event,Reliable,Server]
+        protected void Trigger()
         {
-            if (!obj.IsWorking)
+            if (!IsWorking)
             {
                 return;
             }
 
-            obj.StopCountdown();
+            StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
-                obj.UpdateEmissivity();
+                UpdateEmissivity();
             }
         }
 
@@ -474,6 +381,11 @@ namespace Sandbox.Game.Entities.Blocks
         private void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
+            // If no power, memory of the device is wiped.
+            if(!ResourceSink.IsPowered)
+            {
+                this.ClearMemory();
+            }
         }
 
         protected override bool CheckIsWorking()
@@ -511,5 +423,19 @@ namespace Sandbox.Game.Entities.Blocks
         }
         bool IMyTimerBlock.IsCountingDown { get { return IsCountingDown; } }
         float IMyTimerBlock.TriggerDelay { get { return TriggerDelay; } }
+
+        [Event, Reliable, Server, Broadcast]
+        void SendToolbarItemChanged(ToolbarItem sentItem, int index)
+        {
+            m_syncing = true;
+            MyToolbarItem item = null;
+            if (sentItem.EntityID != 0)
+            {
+                item = ToolbarItem.ToItem(sentItem);
+            }
+            Toolbar.SetItemAtIndex(index, item);
+            m_syncing = false;
+        }
+
     }
 }

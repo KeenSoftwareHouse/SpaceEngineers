@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders.AI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
+using VRage.Game;
 using VRage.Game.ObjectBuilders.AI;
 using VRage.ObjectBuilders;
 using VRage.Plugins;

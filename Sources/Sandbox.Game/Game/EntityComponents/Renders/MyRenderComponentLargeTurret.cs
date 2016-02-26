@@ -5,7 +5,7 @@ using System.Text;
 using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
 using VRageMath;
-using VRage.Components;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
 {

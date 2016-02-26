@@ -32,7 +32,7 @@ namespace Sandbox.Engine.Utils
         {
             MyControllerHelper.AddContext(CX_BASE);
             MyControllerHelper.AddControl(CX_BASE, MyControlsSpace.CONTROL_MENU, MyJoystickButtonsEnum.J07);
-            MyControllerHelper.AddControl(CX_BASE, MyControlsGUI.MAIN_MENU, MyJoystickButtonsEnum.J08);
+            //MyControllerHelper.AddControl(CX_BASE, MyControlsGUI.MAIN_MENU, MyJoystickButtonsEnum.J08);
         }
 
         private static void CreateForGUI()
@@ -63,13 +63,17 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_UP,           MyJoystickAxesEnum.RotationYneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_DOWN,         MyJoystickAxesEnum.RotationYpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.JUMP,                  MyJoystickButtonsEnum.J01);
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SLOT0,                 MyJoystickButtonsEnum.J02);
+            //MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SLOT0,                 MyJoystickButtonsEnum.J02);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.CROUCH,                MyJoystickButtonsEnum.J02);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.USE,                   MyJoystickButtonsEnum.J03);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.THRUSTS,               MyJoystickButtonsEnum.J04);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROLL_LEFT,             MyJoystickButtonsEnum.J05);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROLL_RIGHT,            MyJoystickButtonsEnum.J06);
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.CROUCH,                MyJoystickButtonsEnum.J09);
-            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.BUILD_MODE,            MyJoystickButtonsEnum.J10);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SPRINT,                MyJoystickButtonsEnum.J08);            
+            //MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.CROUCH,                MyJoystickButtonsEnum.J09);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SPRINT,                MyJoystickButtonsEnum.J09);
+            //MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.BUILD_MODE,            MyJoystickButtonsEnum.J10);
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.CAMERA_MODE,           MyJoystickButtonsEnum.J10);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.TOOLBAR_UP,            MyJoystickButtonsEnum.JDUp);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.TOOLBAR_DOWN,          MyJoystickButtonsEnum.JDDown);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.TOOLBAR_NEXT_ITEM,     MyJoystickButtonsEnum.JDRight);

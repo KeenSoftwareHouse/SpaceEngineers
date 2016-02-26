@@ -1,57 +1,61 @@
-﻿using System;
+﻿using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Inventory;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Graphics.GUI;
-using Sandbox.Game.Multiplayer;
-using System.Diagnostics;
-using Sandbox.Game.Gui;
-using Sandbox.Game.World;
-using Sandbox.Engine.Utils;
+using VRage;
+using VRage.Network;
 using VRageMath;
 using VRageRender;
-using Sandbox.Game.Components;
-using Sandbox.Game.Localization;
-using VRage.Network;
-using VRage.Library.Sync;
-using VRage;
+using VRage.ModAPI;
+using VRage.Game;
+using VRage.Game.Gui;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TerminalBlock))]
-    public partial class MyTerminalBlock : MyCubeBlock, IMyEventProxy
+    public partial class MyTerminalBlock : MySyncedBlock
     {
         static MyTerminalBlock()
         {
             var show = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
             show.Getter = (x) => x.m_showInTerminal;
-            show.Setter = (x, v) => x.RequestShowInTerminal(v);
+            show.Setter = (x, v) => x.ShowInTerminal = v;
             MyTerminalControlFactory.AddControl(show);
 
             var showConfig = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
             showConfig.Getter = (x) => x.m_showInToolbarConfig;
-            showConfig.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            showConfig.Setter = (x, v) => x.ShowInToolbarConfig = v;
             MyTerminalControlFactory.AddControl(showConfig);
 
-            var customName = new MyTerminalControlTextbox<MyTerminalBlock>("Name", MySpaceTexts.Name, MySpaceTexts.Blank);
+            var customName = new MyTerminalControlTextbox<MyTerminalBlock>("Name", MyCommonTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
-            customName.Setter = (x, v) => MySyncBlockHelpers.SendChangeNameRequest(x, v);
+            customName.Setter = (x, v) => x.SetCustomName(v);
             customName.SupportsMultipleBlocks = false;
             MyTerminalControlFactory.AddControl(customName);
 
             var onOffSwitch = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowOnHUD", MySpaceTexts.Terminal_ShowOnHUD, MySpaceTexts.Terminal_ShowOnHUDToolTip);
             onOffSwitch.Getter = (x) => x.ShowOnHUD;
-            onOffSwitch.Setter = (x, v) => x.RequestShowOnHUD(v);
+            onOffSwitch.Setter = (x, v) => x.ShowOnHUD = v;
             MyTerminalControlFactory.AddControl(onOffSwitch);
         }
 
-        private bool m_showOnHUD;
-        private bool m_showInTerminal;
-        private bool m_showInToolbarConfig;
+        private Sync<bool> m_showOnHUD;
+        private Sync<bool> m_showInTerminal;
+        private Sync<bool> m_showInToolbarConfig;
 
         /// <summary>
         /// Name in terminal
@@ -67,7 +71,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_showOnHUD != value)
                 {
-                    m_showOnHUD = value;
+                    m_showOnHUD.Value = value;
                     RaiseShowOnHUDChanged();
                 }
             }
@@ -80,7 +84,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_showInTerminal != value)
                 {
-                    m_showInTerminal = value;
+                    m_showInTerminal.Value = value;
                     RaiseShowInTerminalChanged();
                 }
             }
@@ -93,28 +97,13 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_showInToolbarConfig != value)
                 {
-                    m_showInToolbarConfig = value;
+                    m_showInToolbarConfig.Value = value;
                     RaiseShowInToolbarConfigChanged();
                 }
             }
         }
 
         public bool IsAccessibleForProgrammableBlock = true;
-
-        public void RequestShowOnHUD(bool enable)
-        {
-            MySyncBlockHelpers.SendShowOnHUDRequest(this, enable);
-        }
-
-        public void RequestShowInTerminal(bool enable)
-        {
-            MySyncBlockHelpers.SendShowInTerminalRequest(this, enable);
-        }
-
-        public void RequestShowInToolbarConfig(bool enable)
-        {
-            MySyncBlockHelpers.SendShowInToolbarConfigRequest(this, enable);
-        }
 
         /// <summary>
         /// Detailed text in terminal (on right side)
@@ -134,23 +123,15 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> ShowInTerminalChanged;
         public event Action<MyTerminalBlock> ShowInToolbarConfigChanged;
         public event Action<MyTerminalBlock, StringBuilder> AppendingCustomInfo;
-
-        public event Action<SyncBase> SyncPropertyChanged
-        {
-            add { SyncType.PropertyChanged += value; }
-            remove { SyncType.PropertyChanged -= value; }
-        }
-
-        public SyncType SyncType;
-
+        
         public MyTerminalBlock()
         {
-            CustomName = new StringBuilder();
             DetailedInfo = new StringBuilder();
             CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
+            
+            CustomName = new StringBuilder();
 
-            SyncType = SyncHelpers.Compose(this);
             SyncType.PropertyChanged += sync => RaisePropertiesChanged();
         }
 
@@ -204,7 +185,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public void SetCustomName(string text)
         {
-            MySyncBlockHelpers.SendChangeNameRequest(this, text);
+            UpdateCustomName(text);
+            MyMultiplayer.RaiseEvent(this, x => x.SetCustomNameEvent, text);
         }
 
         public void UpdateCustomName(string text)
@@ -216,9 +198,17 @@ namespace Sandbox.Game.Entities.Cube
                 DisplayNameText = text;
             }
         }
+
         public void SetCustomName(StringBuilder text)
         {
-            MySyncBlockHelpers.SendChangeNameRequest(this, text);
+            UpdateCustomName(text);
+            MyMultiplayer.RaiseEvent(this, x => x.SetCustomNameEvent,text.ToString());
+        }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        public void SetCustomNameEvent(String name)
+        {
+            UpdateCustomName(name);
         }
 
         public void UpdateCustomName(StringBuilder text)
@@ -239,8 +229,6 @@ namespace Sandbox.Game.Entities.Cube
             var handler = CustomNameChanged;
             if (handler != null) handler(this);
         }
-
-
 
         /// <summary>
         /// Call this when you change detailed info or other terminal properties
@@ -280,7 +268,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool HasLocalPlayerAccess()
         {
-            return HasPlayerAccess(MySession.LocalPlayerId);
+            return HasPlayerAccess(MySession.Static.LocalPlayerId);
         }
 
         public virtual bool HasPlayerAccess(long playerId)
@@ -288,7 +276,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!MyFakes.SHOW_FACTIONS_GUI)
                 return true;
 
-            MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(playerId);
+            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(playerId);
 
             bool accessAllowed = relation.IsFriendly();
             return accessAllowed;
@@ -314,8 +302,6 @@ namespace Sandbox.Game.Entities.Cube
                 OffsetText = true,
                 TargetMode = GetPlayerRelationToOwner(),
                 Entity = this,
-                Parent = CubeGrid,
-                RelativePosition = Vector3.Transform(PositionComp.GetPosition(), CubeGrid.PositionComp.WorldMatrixNormalizedInv),
                 BlinkingTime = allowBlink && IsBeingHacked ? MyGridConstants.HACKING_INDICATION_TIME_MS / 1000 : 0
             });
 
@@ -343,5 +329,41 @@ namespace Sandbox.Game.Entities.Cube
             CustomName.Clear();
             GetTerminalName(CustomName);
         }
+
+        #region Fixing inventory
+
+        protected void FixSingleInventory()
+        {
+            MyInventoryBase inventoryBase;
+            if (!Components.TryGet<MyInventoryBase>(out inventoryBase))
+                return;
+            MyInventoryAggregate aggregate = inventoryBase as MyInventoryAggregate;
+            MyInventory bestInventory = null;
+            if (aggregate != null)
+            {
+                foreach (var inventory in aggregate.ChildList.Reader)
+                {
+                    var myInventory = inventory as MyInventory;
+                    if (myInventory == null)
+                        continue;
+                    if (bestInventory == null)
+                    {
+                        bestInventory = myInventory;
+                    }
+                    else if (bestInventory.GetItemsCount() < myInventory.GetItemsCount())
+                    {
+                        bestInventory = myInventory;
+                    }
+                }
+            }
+            if (bestInventory != null)
+            {
+                Components.Remove<MyInventoryBase>();
+                Components.Add<MyInventoryBase>(bestInventory);
+            }
+        }
+
+        #endregion
+
     }
 }

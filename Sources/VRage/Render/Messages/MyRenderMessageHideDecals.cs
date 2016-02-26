@@ -6,13 +6,13 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageHideDecals : IMyRenderMessage
+    public class MyRenderMessageHideDecals : MyRenderMessageBase
     {
         public uint ID;
         public Vector3 Center;
         public float Radius;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.HideDecals; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.HideDecals; } }
     }
 }

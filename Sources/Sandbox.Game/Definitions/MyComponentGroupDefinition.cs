@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions

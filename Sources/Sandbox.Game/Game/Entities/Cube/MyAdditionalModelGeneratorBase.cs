@@ -18,6 +18,7 @@ using VRage.Import;
 using Sandbox.Common;
 using Sandbox.Game.World;
 using Sandbox.Engine.Utils;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -38,6 +39,15 @@ namespace Sandbox.Game.Entities.Cube
             Vector3I.Right,
             Vector3I.Backward,
             Vector3I.Left
+        };
+
+        // Right directions for Forward vectors
+        protected static Vector3I[] Rights = new Vector3I[] 
+        {
+            Vector3I.Right,
+            Vector3I.Backward,
+            Vector3I.Left,
+            Vector3I.Forward,
         };
 
         protected class MyGridInfo
@@ -96,9 +106,33 @@ namespace Sandbox.Game.Entities.Cube
                 return result;
             }
 
+            public override bool Equals(object ob)
+            {
+                if (ob is MyGeneratedBlockLocation)
+                {
+                    MyGeneratedBlockLocation other = (MyGeneratedBlockLocation)ob;
+                    return IsSameGeneratedBlockLocation(this, other);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            public override int GetHashCode()
+            {
+                return BlockDefinition.Id.GetHashCode() + 17 * Position.GetHashCode() + 137 * Orientation.GetHashCode();
+            }
         }
 
-        protected static readonly string BUILD_TYPE_WALL = "wall";
+        protected static readonly MyStringId BUILD_TYPE_WALL = MyStringId.GetOrCompute("wall");
+        private static readonly List<Tuple<MyCubeGrid.MyBlockLocation, MySlimBlock>> m_tmpLocationsAndRefBlocks = new List<Tuple<MyCubeGrid.MyBlockLocation, MySlimBlock>>();
+        private static readonly List<Vector3I> m_tmpLocations = new List<Vector3I>();
+        private static readonly List<Tuple<Vector3I, ushort>> m_tmpLocationsAndIds = new List<Tuple<Vector3I, ushort>>();
+
+        protected static readonly List<Vector3I> m_tmpPositionsAdd = new List<Vector3I>(32);
+        protected static readonly List<Vector3I> m_tmpPositionsRemove = new List<Vector3I>(32);
+        protected static readonly List<MyGeneratedBlockLocation> m_tmpLocationsRemove = new List<MyGeneratedBlockLocation>(32);
 
         protected MyCubeGrid m_grid;
         private bool m_enabled;
@@ -161,16 +195,32 @@ namespace Sandbox.Game.Entities.Cube
             Grid_OnBlockAdded(generatingBlock);
         }
 
+        public virtual void UpdateBeforeSimulation()
+        {
+            UpdateInternal();
+        }
+
         public virtual void UpdateAfterSimulation()
+        {
+            UpdateInternal();
+        }
+
+        private void UpdateInternal()
         {
             Debug.Assert(MyFakes.ENABLE_GENERATED_BLOCKS);
 
             if (m_addLocations.Count > 0)
             {
-                // Remove ather grid blocks.
+                // Remove other grid blocks.
                 m_addLocations.RemoveWhere(delegate(MyGeneratedBlockLocation loc)
                 {
                     return loc.RefBlock != null && loc.RefBlock.CubeGrid != m_grid;
+                });
+
+                // Check if the block can be placed to grid - must be before check the same remove/add
+                m_addLocations.RemoveWhere(delegate(MyGeneratedBlockLocation loc)
+                {
+                    return !m_grid.CanAddCube(loc.Position, loc.Orientation, loc.BlockDefinition, ignoreSame: true);
                 });
 
                 // Check the same remove/add blocks
@@ -190,31 +240,6 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         m_removeLocations.Remove(remLocSame.Value);
                         return true;
-                    }
-
-                    return false;
-                });
-
-                // Check if there is already placed the same block in the grid
-                m_addLocations.RemoveWhere(delegate(MyGeneratedBlockLocation loc)
-                {
-                    MySlimBlock existingBlock = m_grid.GetCubeBlock(loc.Position);
-                    if (existingBlock != null)
-                    {
-                        if (existingBlock.FatBlock is MyCompoundCubeBlock)
-                        {
-                            MyCompoundCubeBlock compoundBlock = existingBlock.FatBlock as MyCompoundCubeBlock;
-                            foreach (var blockInCompound in compoundBlock.GetBlocks())
-                            {
-                                if (blockInCompound.BlockDefinition == loc.BlockDefinition && blockInCompound.Orientation == loc.Orientation)
-                                    return true;
-                            }
-                        }
-                        else
-                        {
-                            if (existingBlock.BlockDefinition == loc.BlockDefinition && existingBlock.Orientation == loc.Orientation)
-                                return true;
-                        }
                     }
 
                     return false;
@@ -240,29 +265,37 @@ namespace Sandbox.Game.Entities.Cube
         public abstract void OnRemovedCube(MySlimBlock cube);
 
         /// <summary>
-        /// Return true if any not genrated cube exists in the given positions.
+        /// Return true if any not generated cube exists in the given positions.
         /// </summary>
-        protected bool CubeExistsOnPositions(Vector3I[] positions)
+        protected bool CubeExistsOnPositions(List<Vector3I> positions)
         {
             foreach (var pos in positions)
             {
-                MySlimBlock block = m_grid.GetCubeBlock(pos);
-                if (block != null)
+                if (CubeExistsOnPosition(pos))
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected bool CubeExistsOnPosition(Vector3I pos)
+        {
+            MySlimBlock block = m_grid.GetCubeBlock(pos);
+            if (block != null)
+            {
+                if (block.FatBlock is MyCompoundCubeBlock)
                 {
-                    if (block.FatBlock is MyCompoundCubeBlock)
+                    MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+                    foreach (var blockInCompound in compoundBlock.GetBlocks())
                     {
-                        MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-                        foreach (var blockInCompound in compoundBlock.GetBlocks())
-                        {
-                            if (!blockInCompound.BlockDefinition.IsGeneratedBlock)
-                                return true;
-                        }
-                    }
-                    else
-                    {
-                        if (!block.BlockDefinition.IsGeneratedBlock)
+                        if (!blockInCompound.BlockDefinition.IsGeneratedBlock)
                             return true;
                     }
+                }
+                else
+                {
+                    if (!block.BlockDefinition.IsGeneratedBlock)
+                        return true;
                 }
             }
 
@@ -297,7 +330,8 @@ namespace Sandbox.Game.Entities.Cube
             if (!m_enabled || !cube.CubeGrid.InScene || cube.BlockDefinition.IsGeneratedBlock
                 || (compoundBlock != null && compoundBlock.GetBlocksCount() == 0)
                 || (compoundBlock == null && MySession.Static.SurvivalMode && cube.ComponentStack.BuildRatio < cube.BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
-                || MyFakes.ENABLE_FRACTURE_COMPONENT && cube.FatBlock != null && cube.FatBlock.Components.Has<MyFractureComponentBase>())
+                || (MyFakes.ENABLE_FRACTURE_COMPONENT && cube.FatBlock != null && cube.FatBlock.Components.Has<MyFractureComponentBase>())
+                || (cube.FatBlock is MyFracturedBlock))
                 return false;
 
             return true;
@@ -306,9 +340,13 @@ namespace Sandbox.Game.Entities.Cube
         private void Grid_OnBlockAdded(MySlimBlock cube)
         {
             Debug.Assert(MyFakes.ENABLE_GENERATED_BLOCKS);
+            ProfilerShort.Begin("ModelGenerator.OnBlockAdded");
 
             if (!CanGenerateFromBlock(cube))
+            {
+                ProfilerShort.End();
                 return;
+            }
 
             Debug.Assert(cube.CubeGrid == m_grid);
 
@@ -326,18 +364,26 @@ namespace Sandbox.Game.Entities.Cube
             {
                 OnAddedCube(cube);
             }
+
+            ProfilerShort.End();
         }
 
         private void Grid_OnBlockRemoved(MySlimBlock cube)
         {
             Debug.Assert(MyFakes.ENABLE_GENERATED_BLOCKS);
+            ProfilerShort.Begin("ModelGenerator.OnBlockRemoved");
 
             if (!m_enabled || !cube.CubeGrid.InScene || cube.BlockDefinition.IsGeneratedBlock || ((cube.FatBlock is MyCompoundCubeBlock) && ((MyCompoundCubeBlock)cube.FatBlock).GetBlocksCount() == 0))
+            {
+                ProfilerShort.End();
                 return;
+            }
 
             Debug.Assert(cube.CubeGrid == m_grid);
 
             OnRemovedCube(cube);
+
+            ProfilerShort.End();
         }
 
         private void Grid_OnGridSplit(MyCubeGrid originalGrid, MyCubeGrid newGrid)
@@ -396,22 +442,24 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
-        /// Adds generated block to block locations. Block is not added if already exists in grid.
+        /// Adds generated block to add block locations.
         /// </summary>
         protected void AddGeneratedBlock(MySlimBlock refBlock, MyCubeBlockDefinition generatedBlockDefinition, Vector3I position, Vector3I forward, Vector3I up)
         {
             Debug.Assert(refBlock != null && !refBlock.BlockDefinition.IsGeneratedBlock);
+
+            var orientation = new MyBlockOrientation(Base6Directions.GetDirection(ref forward), Base6Directions.GetDirection(ref up));
             Debug.Assert(generatedBlockDefinition.Size == Vector3I.One);
             if (generatedBlockDefinition.Size == Vector3I.One)
-                m_addLocations.Add(new MyGeneratedBlockLocation(refBlock, generatedBlockDefinition, position, forward, up));
+                m_addLocations.Add(new MyGeneratedBlockLocation(refBlock, generatedBlockDefinition, position, orientation));
         }
 
         /// <summary>
         /// Removes generated blocks in the given locations.
         /// </summary>
-        protected void RemoveGeneratedBlock(MyStringId generatedBlockType, MyGeneratedBlockLocation[] locations)
+        protected void RemoveGeneratedBlock(MyStringId generatedBlockType, List<MyGeneratedBlockLocation> locations)
         {
-            if (locations == null)
+            if (locations == null || locations.Count == 0)
                 return;
 
             foreach (var location in locations)
@@ -481,26 +529,52 @@ namespace Sandbox.Game.Entities.Cube
 
         private void AddBlocks()
         {
-            HashSet<MyCubeGrid.MyBlockLocation> locations = new HashSet<MyCubeGrid.MyBlockLocation>();
+            Debug.Assert(m_tmpLocationsAndRefBlocks.Count == 0);
 
             Quaternion rotation;
             foreach (var loc in m_addLocations)
             {
                 loc.Orientation.GetQuaternion(out rotation);
                 MyCubeGrid.MyBlockLocation blockLocation = new MyCubeGrid.MyBlockLocation(
-                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.LocalPlayerId);
+                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.Static.LocalPlayerId);
 
-                locations.Add(blockLocation);
+                m_tmpLocationsAndRefBlocks.Add(new Tuple<MyCubeGrid.MyBlockLocation, MySlimBlock>(blockLocation, loc.RefBlock));
             }
 
-            foreach (var location in locations)
-                m_grid.BuildGeneratedBlock(location, Vector3I.Zero);
+            foreach (var location in m_tmpLocationsAndRefBlocks)
+            {
+                var block = m_grid.BuildGeneratedBlock(location.Item1, Vector3I.Zero);
+                if (block != null)
+                {
+                    var compound = block.FatBlock as MyCompoundCubeBlock;
+                    if (compound != null)
+                    {
+                        foreach (var blockInCompound in compound.GetBlocks())
+                        {
+                            Quaternion q;
+                            location.Item1.Orientation.GetQuaternion(out q);
+                            MyBlockOrientation r = new MyBlockOrientation(ref q);
+                            if (blockInCompound.Orientation == r && blockInCompound.BlockDefinition.Id == location.Item1.BlockDefinition)
+                            {
+                                block = blockInCompound;
+                                break;
+                            }
+                        }
+                    }
+
+                    var refBlock = location.Item2;
+                    if (block != null && block.BlockDefinition.IsGeneratedBlock && refBlock != null)
+                        block.SetGeneratedBlockIntegrity(refBlock);
+                }
+            }
+
+            m_tmpLocationsAndRefBlocks.Clear();
         }
 
         private void RemoveBlocks(bool removeLocalBlocks = true)
         {
-            List<Vector3I> locations = new List<Vector3I>();
-            List<Tuple<Vector3I, ushort>> locationsAndIds = new List<Tuple<Vector3I, ushort>>();
+            Debug.Assert(m_tmpLocations.Count == 0);
+            Debug.Assert(m_tmpLocationsAndIds.Count == 0);
 
             if (removeLocalBlocks)
             {
@@ -510,23 +584,23 @@ namespace Sandbox.Game.Entities.Cube
                         continue;
 
                     if (loc.BlockIdInCompound == null)
-                        locations.Add(loc.Position);
+                        m_tmpLocations.Add(loc.Position);
                     else
-                        locationsAndIds.Add(new Tuple<Vector3I, ushort>(loc.Position, loc.BlockIdInCompound.Value));
+                        m_tmpLocationsAndIds.Add(new Tuple<Vector3I, ushort>(loc.Position, loc.BlockIdInCompound.Value));
                 }
 
-                if (locations.Count > 0)
-                    m_grid.RazeGeneratedBlocks(locations);
+                if (m_tmpLocations.Count > 0)
+                    m_grid.RazeGeneratedBlocks(m_tmpLocations);
 
-                if (locationsAndIds.Count > 0)
-                    m_grid.RazeGeneratedBlocksInCompoundBlock(locationsAndIds);
+                if (m_tmpLocationsAndIds.Count > 0)
+                    m_grid.RazeGeneratedBlocksInCompoundBlock(m_tmpLocationsAndIds);
             }
 
             // Process split grids
             foreach (var gridInfo in m_splitGridInfos)
             {
-                locations.Clear();
-                locationsAndIds.Clear();
+                m_tmpLocations.Clear();
+                m_tmpLocationsAndIds.Clear();
 
                 foreach (var loc in m_removeLocations)
                 {
@@ -534,18 +608,44 @@ namespace Sandbox.Game.Entities.Cube
                         continue;
 
                     if (loc.BlockIdInCompound == null)
-                        locations.Add(loc.Position);
+                        m_tmpLocations.Add(loc.Position);
                     else
-                        locationsAndIds.Add(new Tuple<Vector3I, ushort>(loc.Position, loc.BlockIdInCompound.Value));
+                        m_tmpLocationsAndIds.Add(new Tuple<Vector3I, ushort>(loc.Position, loc.BlockIdInCompound.Value));
                 }
 
-                if (locations.Count > 0)
-                    gridInfo.Grid.RazeGeneratedBlocks(locations);
+                if (m_tmpLocations.Count > 0)
+                    gridInfo.Grid.RazeGeneratedBlocks(m_tmpLocations);
 
-                if (locationsAndIds.Count > 0)
-                    gridInfo.Grid.RazeGeneratedBlocksInCompoundBlock(locationsAndIds);
+                if (m_tmpLocationsAndIds.Count > 0)
+                    gridInfo.Grid.RazeGeneratedBlocksInCompoundBlock(m_tmpLocationsAndIds);
             }
 
+            m_tmpLocations.Clear();
+            m_tmpLocationsAndIds.Clear();
+        }
+
+        protected bool GeneratedBlockExists(Vector3I pos, MyBlockOrientation orientation, MyCubeBlockDefinition definition)
+        {
+            MySlimBlock block = m_grid.GetCubeBlock(pos);
+            if (block == null)
+                return false;
+
+            var cmpBlock = block.FatBlock as MyCompoundCubeBlock;
+            if (MyFakes.ENABLE_COMPOUND_BLOCKS && cmpBlock != null)
+            {
+                foreach (var blockInCompound in cmpBlock.GetBlocks())
+                {
+                    // The same block with the same orientation
+                    if (blockInCompound.BlockDefinition.Id.SubtypeId == definition.Id.SubtypeId && blockInCompound.Orientation == orientation)
+                        return true;
+                }
+
+                return false;
+            }
+            else
+            {
+                return block.BlockDefinition.Id.SubtypeId == definition.Id.SubtypeId && block.Orientation == orientation;
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -20,7 +22,6 @@ namespace Sandbox.Definitions
 	        ResourceSinkGroup = MyStringHash.GetOrCompute(cbuilder.ResourceSinkGroup);
             SensorRadius = cbuilder.SensorRadius;
             SensorOffset = cbuilder.SensorOffset;
-            DeformationRatio = 0.5f;
         }
     }
 }

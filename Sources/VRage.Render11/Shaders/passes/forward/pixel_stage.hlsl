@@ -8,9 +8,9 @@ struct PixelStageInput
 #endif
 };
 
-#include <brdf.h>
+#include <Lighting/brdf.h>
 #include <Surface.h>
-#include <LightingModel.h>
+#include <Lighting/LightingModel.h>
 
 #define CUSTOM_CASCADE_SLOT
 Texture2DArray<float> CSM : register( MERGE(t,60) );
@@ -26,8 +26,8 @@ SurfaceInterface surfaceFromMaterial(MaterialOutputInterface mat, float3 positio
 	surface.base_color = mat.base_color;
 	surface.metalness = mat.metalness;
 	surface.gloss = mat.gloss;
-	surface.albedo = surface_albedo(mat.base_color, mat.metalness);
-	surface.f0 = surface_f0(mat.base_color, mat.metalness);
+	surface.albedo = SurfaceAlbedo(mat.base_color, mat.metalness);
+	surface.f0 = SurfaceF0(mat.base_color, mat.metalness);
 	surface.id = mat.id;
 	surface.ao = mat.ao;
 	surface.emissive = mat.emissive;
@@ -47,7 +47,6 @@ SurfaceInterface surfaceFromMaterial(MaterialOutputInterface mat, float3 positio
 	return surface;
 }
 
-#ifdef CASCADES_NUM
 float4 shade_forward(SurfaceInterface surface, float3 position) {
 	float4 shaded = 0;
 
@@ -58,7 +57,6 @@ float4 shade_forward(SurfaceInterface surface, float3 position) {
 	shaded.w = 1;
 	return shaded;
 }
-#endif
 
 void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 

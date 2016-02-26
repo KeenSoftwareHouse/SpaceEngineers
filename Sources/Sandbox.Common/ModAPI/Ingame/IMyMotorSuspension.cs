@@ -13,6 +13,8 @@ namespace Sandbox.ModAPI.Ingame
 
         bool InvertSteer { get; }
 
+        bool InvertPropulsion { get; }
+
         float Damping { get; }
 
         float Strength { get; }

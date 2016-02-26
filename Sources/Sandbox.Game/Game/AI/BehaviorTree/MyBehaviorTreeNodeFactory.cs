@@ -1,14 +1,15 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
+using VRage.Game.Common;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {

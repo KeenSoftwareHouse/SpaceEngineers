@@ -284,7 +284,7 @@ namespace VRage.Utils
             /// </summary>
             public int VertexPred(int vertexIndex)
             {
-                Debug.Assert(vertexIndex == Vertex1 || vertexIndex == Vertex2, "Getting successor around a vertex in an incorrect edge table entry!");
+                Debug.Assert(vertexIndex == Vertex1 || vertexIndex == Vertex2, "Getting predecessor around a vertex in an incorrect edge table entry!");
                 return (vertexIndex == Vertex1) ? RightPred : LeftPred;
             }
 
@@ -469,6 +469,7 @@ namespace VRage.Utils
 
             public int GetNextVertexEdge(int vertexIndex)
             {
+                // This is correct. NEXT edge around a vertex is predecessor around the vertex in one of the faces
                 return m_entry.VertexPred(vertexIndex);
             }
 
@@ -479,8 +480,8 @@ namespace VRage.Utils
 
             public void ToRay(MyWingedEdgeMesh mesh, ref Ray output)
             {
-                Vector3 v1 = mesh.GetVertex(Vertex1);
-                Vector3 v2 = mesh.GetVertex(Vertex2);
+                Vector3 v1 = mesh.GetVertexPosition(Vertex1);
+                Vector3 v2 = mesh.GetVertexPosition(Vertex2);
                 output.Position = v1;
                 output.Direction = v2 - v1;
             }
@@ -520,6 +521,62 @@ namespace VRage.Utils
         /// <summary>
         /// Note: This is invalid after the mesh changes!
         /// </summary>
+        public struct VertexEdgeEnumerator
+        {
+            private int m_vertexIndex;
+            private int m_startingEdge;
+            private int m_currentEdgeIndex;
+            private MyWingedEdgeMesh m_mesh;
+            private Edge m_currentEdge;
+
+            public int CurrentIndex
+            {
+                get
+                {
+                    return m_currentEdgeIndex;
+                }
+            }
+
+            public Edge Current
+            {
+                get
+                {
+                    return m_currentEdge;
+                }
+            }
+
+            public VertexEdgeEnumerator(MyWingedEdgeMesh mesh, int index)
+            {
+                Debug.Assert(mesh.m_vertexTable.Count > index, "Index overflow when creating MyWingedEdgeMesh.VertexFaceEnumerator");
+                m_vertexIndex = index;
+                var vEntry = mesh.GetVertexEntry(m_vertexIndex);
+                m_startingEdge = vEntry.IncidentEdge;
+                m_mesh = mesh;
+                m_currentEdgeIndex = INVALID_INDEX;
+                m_currentEdge = new Edge();
+            }
+
+            public bool MoveNext()
+            {
+                if (m_currentEdgeIndex == INVALID_INDEX)
+                {
+                    m_currentEdgeIndex = m_startingEdge;
+                    m_currentEdge = m_mesh.GetEdge(m_startingEdge);
+                    return true;
+                }
+
+                int nextEdge = m_currentEdge.GetNextVertexEdge(m_vertexIndex);
+                if (nextEdge == m_startingEdge) return false;
+
+                m_currentEdgeIndex = nextEdge;
+                m_currentEdge = m_mesh.GetEdge(m_currentEdgeIndex);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Note: This is invalid after the mesh changes!
+        /// </summary>
         public struct FaceEdgeEnumerator
         {
             private MyWingedEdgeMesh m_mesh;
@@ -542,10 +599,12 @@ namespace VRage.Utils
                 if (m_currentEdge == INVALID_INDEX)
                 {
                     m_currentEdge = m_startingEdge;
+                    Debug.Assert(m_currentEdge != -1, "Inconsistent navmesh. Call Cestmir!");
                     return true;
                 }
 
                 m_currentEdge = m_mesh.GetEdgeEntry(m_currentEdge).FaceSucc(m_faceIndex);
+                Debug.Assert(m_currentEdge != -1, "Inconsistent navmesh. Call Cestmir!");
                 return (m_currentEdge != m_startingEdge);
             }
         }
@@ -573,6 +632,23 @@ namespace VRage.Utils
                     {
                         Debug.Assert(m_faceIndex == edgeEntry.RightFace);
                         return m_mesh.m_vertexTable[edgeEntry.Vertex1].VertexPosition;
+                    }
+                }
+            }
+
+            public int CurrentIndex
+            {
+                get
+                {
+                    var edgeEntry = m_mesh.GetEdgeEntry(m_currentEdge);
+                    if (m_faceIndex == edgeEntry.LeftFace)
+                    {
+                        return edgeEntry.Vertex2;
+                    }
+                    else
+                    {
+                        Debug.Assert(m_faceIndex == edgeEntry.RightFace);
+                        return edgeEntry.Vertex1;
                     }
                 }
             }
@@ -712,6 +788,12 @@ namespace VRage.Utils
             m_faceTable[index] = entry;
         }
 
+        private VertexTableEntry GetVertexEntry(int index)
+        {
+            CheckVertexIndexValid(index);
+            return m_vertexTable[index];
+        }
+
         public MyWingedEdgeMesh()
         {
             m_edgeTable    = new List<EdgeTableEntry>();
@@ -772,7 +854,12 @@ namespace VRage.Utils
             return new Face(this, faceIndex);
         }
 
-        public Vector3 GetVertex(int vertexIndex)
+        public VertexEdgeEnumerator GetVertexEdges(int vertexIndex)
+        {
+            return new VertexEdgeEnumerator(this, vertexIndex);
+        }
+
+        public Vector3 GetVertexPosition(int vertexIndex)
         {
             return m_vertexTable[vertexIndex].VertexPosition;
         }
@@ -787,6 +874,9 @@ namespace VRage.Utils
         /// <param name="faceUserData">User data for the newly created face</param>
         public int MakeEdgeFace(int vert1, int vert2, int edge1, int edge2, object faceUserData, out int newEdge)
         {
+            Debug.Assert(vert1 != vert2, "Making edge between one vertex!");
+            Debug.Assert(edge1 != edge2, "Creating a two-edged face!");
+
             newEdge  = AllocateEdge();
             int face = AllocateAndInsertFace(faceUserData, newEdge);
 
@@ -857,6 +947,8 @@ namespace VRage.Utils
         /// <param name="edge2">The edge that will be kept</param>
         public void MergeEdges(int edge1, int edge2)
         {
+            Debug.Assert(edge1 != edge2, "Merging the edge with itself!");
+
             // Load the data from the old edges
             EdgeTableEntry entry1 = GetEdgeEntry(edge1);
             EdgeTableEntry entry2 = GetEdgeEntry(edge2);
@@ -1033,6 +1125,8 @@ namespace VRage.Utils
 
         public void MergeAngle(int leftEdge, int rightEdge, int commonVert)
         {
+            Debug.Assert(leftEdge != rightEdge, "Merging angle between the same edge!");
+
             EdgeTableEntry leftEntry = GetEdgeEntry(leftEdge);
             EdgeTableEntry rightEntry = GetEdgeEntry(rightEdge);
 
@@ -1121,6 +1215,7 @@ namespace VRage.Utils
             do
             {
                 EdgeTableEntry edgeEntry = GetEdgeEntry(edge);
+                Debug.Assert(edgeEntry.FacePred(-1) != edgeEntry.FaceSucc(-1), "Closing a two-edged face! Only empty faces can have two edges!");
                 edgeEntry.AddFace(face);
                 SetEdgeEntry(edge, ref edgeEntry);
 
@@ -1250,6 +1345,29 @@ namespace VRage.Utils
             int v1, v2;
             edgeEntry.GetFaceVertices(faceIndex, out v1, out v2);
 
+            // Start with an edge entry and go clockwise around the face checking for neighboring faces that are already removed
+            //
+            //               edge     v1
+            //          o-------------o
+            //          |            /
+            //          |  removed  /
+            //         ...  face   / nextEdge
+            //                    /
+            //                   /
+            //             ...--o v2
+            //
+            //
+            // According to neighboring faces of the current and next edge, we have four possible scenarios:
+            // A) Both current and next edge have empty face as neighbor:
+            //        In this case, the shared vertex should be removed, because it means that the vertex has only two faces
+            // B) Current edge has empty face, next edge non-empty:
+            //        In this case, we are not creating a new empty face, we are just extending the old one.
+            // C) Current edge has non-empty face, next edge empty:
+            //        Analogous to B - we are just extending an existing empty face.
+            // D) Both edges have non-empty neighbors:
+            //        This seemingly easy situation has one quirk - there could be another empty face along the shared vertex triangle fan
+            //        In this case, we have to split the vertex into two (otherwise, we'd have a vertex with two empty faces in its fan
+            //        and that is forbidden).
             do
             {
                 int nextEdge = edgeEntry.FaceSucc(faceIndex);
@@ -1263,6 +1381,7 @@ namespace VRage.Utils
                     if (edge == firstEdge)
                         firstDeallocated = true;
                     DeallocateEdge(edge);
+                    // Case A)
                     if (nextEntry.VertexLeftFace(v2) == INVALID_INDEX)
                     {
                         if (nextEntry.VertexSucc(v1) == edge)
@@ -1286,6 +1405,7 @@ namespace VRage.Utils
                             m_vertexTable[v1] = vertexEntry;
                         }
                     }
+                    // Case B)
                     else
                     {
                         int lateralEdge = edgeEntry.FacePred(INVALID_INDEX);
@@ -1307,6 +1427,7 @@ namespace VRage.Utils
                 }
                 else
                 {
+                    // Case C)
                     if (nextEntry.VertexLeftFace(v2) == INVALID_INDEX)
                     {
                         int lateralEdge = nextEntry.FaceSucc(INVALID_INDEX);
@@ -1324,6 +1445,7 @@ namespace VRage.Utils
                         vertexEntry.IncidentEdge = edge;
                         m_vertexTable[v1] = vertexEntry;
                     }
+                    // Case D)
                     else
                     {
                         int edge2 = nextEntry.VertexSucc(v1);
@@ -1333,9 +1455,15 @@ namespace VRage.Utils
                             if (edge2Entry.VertexRightFace(v1) == INVALID_INDEX)
                             {
                                 int edge3 = edge2Entry.VertexSucc(v1);
-                                Debug.Assert(edge3 != edge, "First edge should not neighbor with empty face in this branch!");
+                                Debug.Assert(edge3 != edge, "First edge should not neighbor with empty face in this branch (should be case B) )!");
 
-                                Vector3 vertPos = m_vertexTable[v1].VertexPosition;
+                                VertexTableEntry v1Entry = m_vertexTable[v1];
+                                Vector3 vertPos = v1Entry.VertexPosition;
+
+                                // Fix the old vertex in case its incident edge lies in the newly created fan.
+                                v1Entry.IncidentEdge = nextEdge;
+                                m_vertexTable[v1] = v1Entry;
+
                                 int newV = AllocateAndInsertVertex(ref vertPos, edge3);
                                 
                                 EdgeTableEntry edge3Entry = GetEdgeEntry(edge3);
@@ -1809,39 +1937,46 @@ namespace VRage.Utils
         }
 
         [Conditional("DEBUG")]
-        private void CheckFaceIndexValidQuick(int index, HashSet<int> freeFaces)
-        {
-            if (!BASIC_CONSISTENCY_CHECKS) return;
-            Debug.Assert(index >= 0 && index < m_faceTable.Count);
-            Debug.Assert(!freeFaces.Contains(index));
-        }
-
-        [Conditional("DEBUG")]
-        private void CheckEdgeIndexValidQuick(int index, HashSet<int> freeEdges)
-        {
-            if (!BASIC_CONSISTENCY_CHECKS) return;
-            Debug.Assert(index >= 0 && index < m_edgeTable.Count);
-            Debug.Assert(!freeEdges.Contains(index));
-        }
-
-        [Conditional("DEBUG")]
-        private void CheckVertexIndexValidQuick(int index, HashSet<int> freeVertices)
+        private void CheckVertexIndexValid(int index)
         {
             if (!BASIC_CONSISTENCY_CHECKS) return;
             Debug.Assert(index >= 0 && index < m_vertexTable.Count);
-            Debug.Assert(!freeVertices.Contains(index));
+            int i = m_freeVertices;
+            while (i != INVALID_INDEX)
+            {
+                Debug.Assert(i != index);
+                i = m_vertexTable[i].NextFreeEntry;
+            }
         }
 
         [Conditional("DEBUG")]
-        public void CheckMeshConsistency()
+        public void CheckFaceIndexValidQuick(int index)
         {
-            if (!ADVANCED_CONSISTENCY_CHECKS) return;
+            if (!BASIC_CONSISTENCY_CHECKS) return;
+            Debug.Assert(index >= 0 && index < m_faceTable.Count);
+            Debug.Assert(!m_tmpFreeFaces.Contains(index));
+        }
 
+        [Conditional("DEBUG")]
+        public void CheckEdgeIndexValidQuick(int index)
+        {
+            if (!BASIC_CONSISTENCY_CHECKS) return;
+            Debug.Assert(index >= 0 && index < m_edgeTable.Count);
+            Debug.Assert(!m_tmpFreeEdges.Contains(index));
+        }
+
+        [Conditional("DEBUG")]
+        public void CheckVertexIndexValidQuick(int index)
+        {
+            if (!BASIC_CONSISTENCY_CHECKS) return;
+            Debug.Assert(index >= 0 && index < m_vertexTable.Count);
+            Debug.Assert(!m_tmpFreeVertices.Contains(index));
+        }
+
+        [Conditional("DEBUG")]
+        public void PrepareFreeEdgeHashset()
+        {
             m_tmpFreeEdges.Clear();
-            m_tmpFreeFaces.Clear();
-            m_tmpFreeVertices.Clear();
-
-            // Check for loops in free edges, faces and verts. Also, save sets of free indices for further checking
             int i = m_freeEdges;
             while (i != INVALID_INDEX)
             {
@@ -1849,20 +1984,43 @@ namespace VRage.Utils
                 i = m_edgeTable[i].NextFreeEntry;
                 Debug.Assert(!m_tmpFreeEdges.Contains(i));
             }
-            i = m_freeFaces;
+        }
+
+        [Conditional("DEBUG")]
+        public void PrepareFreeFaceHashset()
+        {
+            m_tmpFreeFaces.Clear();
+            int i = m_freeFaces;
             while (i != INVALID_INDEX)
             {
                 m_tmpFreeFaces.Add(i);
                 i = m_faceTable[i].NextFreeEntry;
                 Debug.Assert(!m_tmpFreeFaces.Contains(i));
             }
-            i = m_freeVertices;
+        }
+
+        [Conditional("DEBUG")]
+        public void PrepareFreeVertexHashset()
+        {
+            m_tmpFreeVertices.Clear();
+            int i = m_freeVertices;
             while (i != INVALID_INDEX)
             {
                 m_tmpFreeVertices.Add(i);
                 i = m_vertexTable[i].NextFreeEntry;
                 Debug.Assert(!m_tmpFreeVertices.Contains(i));
             }
+        }
+
+        [Conditional("DEBUG")]
+        public void CheckMeshConsistency()
+        {
+            if (!ADVANCED_CONSISTENCY_CHECKS) return;
+
+            // Check for loops in free edges, faces and verts. Also, save sets of free indices for further checking
+            PrepareFreeEdgeHashset();
+            PrepareFreeFaceHashset();
+            PrepareFreeVertexHashset();
 
             for (int j = 0; j < m_edgeTable.Count; ++j)
             {
@@ -1870,14 +2028,14 @@ namespace VRage.Utils
 
                 // Basic sanity checks for all edge indices
                 EdgeTableEntry entry = m_edgeTable[j];
-                if (entry.LeftFace != INVALID_INDEX) CheckFaceIndexValidQuick(entry.LeftFace, m_tmpFreeFaces);
-                if (entry.RightFace != INVALID_INDEX) CheckFaceIndexValidQuick(entry.RightFace, m_tmpFreeFaces);
-                CheckVertexIndexValidQuick(entry.Vertex1, m_tmpFreeVertices);
-                CheckVertexIndexValidQuick(entry.Vertex2, m_tmpFreeVertices);
-                CheckEdgeIndexValidQuick(entry.LeftPred, m_tmpFreeEdges);
-                CheckEdgeIndexValidQuick(entry.RightPred, m_tmpFreeEdges);
-                CheckEdgeIndexValidQuick(entry.LeftSucc, m_tmpFreeEdges);
-                CheckEdgeIndexValidQuick(entry.RightSucc, m_tmpFreeEdges);
+                if (entry.LeftFace != INVALID_INDEX) CheckFaceIndexValidQuick(entry.LeftFace);
+                if (entry.RightFace != INVALID_INDEX) CheckFaceIndexValidQuick(entry.RightFace);
+                CheckVertexIndexValidQuick(entry.Vertex1);
+                CheckVertexIndexValidQuick(entry.Vertex2);
+                CheckEdgeIndexValidQuick(entry.LeftPred);
+                CheckEdgeIndexValidQuick(entry.RightPred);
+                CheckEdgeIndexValidQuick(entry.LeftSucc);
+                CheckEdgeIndexValidQuick(entry.RightSucc);
 
                 Debug.Assert(entry.LeftFace != entry.RightFace);
                 Debug.Assert(entry.LeftSucc != j);
@@ -1896,7 +2054,7 @@ namespace VRage.Utils
                         (m_edgeTable[entry.LeftPred].Vertex1 == entry.Vertex2 && m_edgeTable[entry.LeftPred].Vertex2 == entry.Vertex1) ||
                         (m_edgeTable[entry.LeftPred].Vertex1 == entry.Vertex1 && m_edgeTable[entry.LeftPred].Vertex2 == entry.Vertex2)
                     );
-                    Debug.Assert(entry.LeftFace != INVALID_INDEX); // Two-edged faces can be only the empty ones
+                    Debug.Assert(entry.LeftFace == INVALID_INDEX); // Two-edged faces can be only the empty ones
                 }
                 else
                 {
@@ -1910,7 +2068,7 @@ namespace VRage.Utils
                         (m_edgeTable[entry.RightPred].Vertex1 == entry.Vertex2 && m_edgeTable[entry.RightPred].Vertex2 == entry.Vertex1) ||
                         (m_edgeTable[entry.RightPred].Vertex1 == entry.Vertex1 && m_edgeTable[entry.RightPred].Vertex2 == entry.Vertex2)
                     );
-                    Debug.Assert(entry.RightFace != INVALID_INDEX); // Two-edged faces can be only the empty ones
+                    Debug.Assert(entry.RightFace == INVALID_INDEX); // Two-edged faces can be only the empty ones
                 }
                 else
                 {
@@ -1923,6 +2081,49 @@ namespace VRage.Utils
                 Debug.Assert(m_edgeTable[entry.RightPred].VertexRightFace(entry.Vertex1) == entry.RightFace);
                 Debug.Assert(m_edgeTable[entry.LeftSucc].VertexLeftFace(entry.Vertex1) == entry.LeftFace);
                 Debug.Assert(m_edgeTable[entry.RightSucc].VertexLeftFace(entry.Vertex2) == entry.RightFace);
+            }
+
+            // Check that every vertex points to an existing edge
+            for (int i = 0; i < m_vertexTable.Count; ++i)
+            {
+                if (m_tmpFreeVertices.Contains(i)) continue;
+
+                VertexTableEntry v = m_vertexTable[i];
+
+                int emptyFaceCount = 0;
+
+                int incidentEdge = v.IncidentEdge;
+                CheckEdgeIndexValidQuick(incidentEdge);
+                EdgeTableEntry e = m_edgeTable[incidentEdge];
+                Debug.Assert(e.Vertex1 == i || e.Vertex2 == i, "Incident edge of vertex not pointing back at the vertex!");
+                if (e.VertexLeftFace(i) == INVALID_INDEX)
+                {
+                    emptyFaceCount++;
+                }
+
+                // Check triangle fans around vertices for free faces (there can only be one)
+                int nextEdge = e.VertexSucc(i);
+                while (nextEdge != incidentEdge)
+                {
+                    e = m_edgeTable[nextEdge];
+                    if (e.VertexLeftFace(i) == INVALID_INDEX)
+                    {
+                        emptyFaceCount++;
+                    }
+                    nextEdge = e.VertexSucc(i);
+                }
+
+                Debug.Assert(emptyFaceCount <= 1, "Every vertex triangle fan can only have one free face!");
+            }
+
+
+            // Check that every face points to an existing edge
+            for (int i = 0; i < m_faceTable.Count; ++i)
+            {
+                if (m_tmpFreeFaces.Contains(i)) continue;
+
+                FaceTableEntry face = m_faceTable[i];
+                CheckEdgeIndexValidQuick(face.IncidentEdge);
             }
         }
 

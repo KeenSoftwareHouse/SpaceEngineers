@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -12,19 +14,21 @@ namespace Sandbox.Definitions
         public float PowerNeededForJump;
         public double MaxJumpDistance;
         public double MaxJumpMass;
+        public float JumpDelay;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
 
-            var jumpDriveBuilder = builder as MyObjectBuilder_JumpDriveDefinition;
-			Debug.Assert(jumpDriveBuilder != null);
+            var ob = builder as MyObjectBuilder_JumpDriveDefinition;
+			Debug.Assert(ob != null);
 
-	        ResourceSinkGroup = MyStringHash.GetOrCompute(jumpDriveBuilder.ResourceSinkGroup);
-            RequiredPowerInput = jumpDriveBuilder.RequiredPowerInput;
-            PowerNeededForJump = jumpDriveBuilder.PowerNeededForJump;
-            MaxJumpDistance = jumpDriveBuilder.MaxJumpDistance;
-            MaxJumpMass = jumpDriveBuilder.MaxJumpMass;
+	        ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);
+            RequiredPowerInput = ob.RequiredPowerInput;
+            PowerNeededForJump = ob.PowerNeededForJump;
+            MaxJumpDistance = ob.MaxJumpDistance;
+            MaxJumpMass = ob.MaxJumpMass;
+            JumpDelay = ob.JumpDelay;
         }
     }
 }

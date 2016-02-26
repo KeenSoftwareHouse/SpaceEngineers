@@ -11,6 +11,7 @@ using Sandbox.Engine.Utils;
 using VRage.Utils;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
+using VRage.Game;
 
 namespace Sandbox.Game.Weapons
 {
@@ -69,7 +70,7 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateAfterSimulation()
         {
-            if (!MyFakes.ENABLE_INTERIOR_TURRETS || MyFakes.OCTOBER_RELEASE_DISABLE_WEAPONS_AND_TOOLS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
+            if (!MyFakes.ENABLE_INTERIOR_TURRETS || !Sandbox.Game.World.MySession.Static.WeaponsEnabled)
             {
                 RotateModels();
                 return;

@@ -65,6 +65,14 @@ namespace Sandbox.Game.World
             }
         }
 
+        bool IMyFaction.AcceptHumans
+        {
+            get
+            {
+                return AcceptHumans;
+            }
+        }
+
         long IMyFaction.FounderId
         {
             get

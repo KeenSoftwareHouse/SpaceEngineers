@@ -17,13 +17,17 @@ using Sandbox.Game.Multiplayer;
 using Sandbox;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Library.Utils;
 using VRageMath;
 using VRage.Utils;
 using VRage.ObjectBuilders;
 using Sandbox.Game.GameSystems;
 using VRage;
+using Sandbox.Game.Entities.Debris;
+using VRage.Game.Entity;
+using VRage.Game;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -32,6 +36,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
     /// </summary>
     [MyEntityType(typeof(MyObjectBuilder_TreesMedium), mainBuilder: false)]
     [MyEntityType(typeof(MyObjectBuilder_Trees), mainBuilder: true)]
+    [StaticEventOwner]
     public class MyTrees : MyEnvironmentItems
     {
         private struct MyCutTreeInfo
@@ -46,13 +51,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private const float MAX_TREE_CUT_DURATION = 60.0f;
 
-        private static MySoundPair m_soundTreeBreak;
-
-        static MyTrees()
-        {
-            m_soundTreeBreak = new MySoundPair("ImpTreeBreak");
-        }
-
+        private const int BrokenTreeLifeSpan = 20 * 1000;
+        
         public MyTrees() { }
 
         public override void DoDamage(float damage, int itemInstanceId, Vector3D position, Vector3 normal, MyStringHash type)
@@ -124,16 +124,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 				|| ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)) && ((MyFracturedPiece)entity).Physics != null;
 		}
 
-        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringHash myStringId)
+        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringHash myStringId, int userData)
         {
-            base.OnRemoveItem(instanceId, ref matrix, myStringId);
-
-            var emitter = MyAudioComponent.TryGetSoundEmitter();
-            if (emitter == null)
-                return;
-
-            emitter.SetPosition(matrix.Translation);
-            emitter.PlaySound(m_soundTreeBreak);
+            base.OnRemoveItem(instanceId, ref matrix, myStringId, userData);
         }
 
         private void CutTree(int itemInstanceId, Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier = 1.0f)
@@ -143,45 +136,87 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
             if (m_localIdToPhysicsShapeInstanceId.TryGetValue(itemInstanceId, out physicsInstanceId))
             {
+                MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
+                MyDefinitionId id = new MyDefinitionId(Definition.ItemDefinitionType, itemData.SubtypeId);
+                var itemDefinition = (MyTreeDefinition)MyDefinitionManager.Static.GetEnvironmentItemDefinition(id);
+
+                //Remove static tree
+                if (RemoveItem(itemInstanceId, physicsInstanceId, sync: true, immediateUpdate: true) && itemDefinition != null && itemDefinition.BreakSound != null && itemDefinition.BreakSound.Length > 0)
+                {
+                    MyMultiplayer.RaiseStaticEvent(s => PlaySound,hitWorldPosition,itemDefinition.BreakSound);
+                }
+                
+                //Create fractured tree
+                if (MyPerGameSettings.Destruction && VRage.Game.Models.MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes != null)
+                {
+                    if (itemDefinition.FallSound != null && itemDefinition.FallSound.Length > 0)
+                        CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier, new MySoundPair(itemDefinition.FallSound));
+                    else
+                        CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier);
+                }
+            }
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private static void PlaySound(Vector3D position, string cueName)
+        {
+            var emitter = MyAudioComponent.TryGetSoundEmitter();
+            if (emitter == null)
+                return;
+
+            emitter.SetPosition(position);
+            emitter.PlaySound(MySoundPair.GetCueId(cueName));            
+        }
+
+        protected override MyEntity DestroyItem(int itemInstanceId)
+        {
+            int physicsInstanceId;
+            if (m_localIdToPhysicsShapeInstanceId.TryGetValue(itemInstanceId, out physicsInstanceId))
+            {
                 //Remove static tree
                 MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
 
-                RemoveItem(itemInstanceId, physicsInstanceId, sync: true, immediateUpdate: true);
+                RemoveItem(itemInstanceId, physicsInstanceId, sync: false, immediateUpdate: true);
 
-                //Create fractured tree
-                MyDefinitionId id = new MyDefinitionId(Definition.ItemDefinitionType, itemData.SubtypeId);
-                var itemDefinition = MyDefinitionManager.Static.GetEnvironmentItemDefinition(id);
-                if (MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes != null)
+                ProfilerShort.Begin("Spawning tree");
+                // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
+                Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
+                //MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Scale = 1f, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
+                Vector3D pos = itemData.Transform.Position;
+                var s = itemData.Model.AssetName.Insert(itemData.Model.AssetName.Length - 4, "_broken");
+                MyEntity debris;
+                bool hasBrokenModel = false;
+
+                if (VRage.Game.Models.MyModels.GetModelOnlyData(s) != null)
                 {
-                     CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier);
+                    hasBrokenModel = true;
+                    debris = MyDebris.Static.CreateDebris(s);
                 }
                 else
-                {
-                    ProfilerShort.Begin("Spawning tree");
-                    // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
-                    Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
-                    MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
-                    Vector3D pos = itemData.Transform.Position;
-                    Vector3D gravity = -MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
-                    gravity.Normalize();
-
-                    MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
-                    ProfilerShort.End();
-                }
+                    debris = MyDebris.Static.CreateDebris(itemData.Model.AssetName);
+                var debrisLogic = (debris.GameLogic as Sandbox.Game.Entities.Debris.MyDebrisBase.MyDebrisBaseLogic);
+                debrisLogic.RandomScale = 1;
+                debrisLogic.LifespanInMiliseconds = BrokenTreeLifeSpan;
+                var m = MatrixD.CreateFromQuaternion(itemData.Transform.Rotation);
+                m.Translation = pos + m.Up * (hasBrokenModel ? 0 : 5);
+                debrisLogic.Start(m, Vector3.Zero, 1, false);
+                //MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
+                ProfilerShort.End();
+                return debris;
             }
-            
+            return null;
         }
 
-        private void CreateBreakableShape(MyEnvironmentItemDefinition itemDefinition, ref MyEnvironmentItemData itemData, ref Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier)
+        private void CreateBreakableShape(MyEnvironmentItemDefinition itemDefinition, ref MyEnvironmentItemData itemData, ref Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier, MySoundPair fallSound = null)
         {
-            var breakableShape = MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes[0].Clone();
+            var breakableShape = VRage.Game.Models.MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes[0].Clone();
             MatrixD world = itemData.Transform.TransformMatrix;
             breakableShape.SetMassRecursively(500);
             breakableShape.SetStrenghtRecursively(5000, 0.7f);
 
             breakableShape.GetChildren(m_childrenTmp);
 
-            var test = MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes;
+            var test = VRage.Game.Models.MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes;
 
             Vector3 hitLocalPosition = Vector3D.Transform(hitWorldPosition, MatrixD.Normalize(MatrixD.Invert(world)));
             float cutLocalYPosition = (float)(hitWorldPosition.Y - (double)itemData.Transform.Position.Y);
@@ -227,13 +262,13 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenBelow, forceMultiplier, true);
 
             if (childrenAbove.Count > 0)
-                CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenAbove, forceMultiplier, false);
+                CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenAbove, forceMultiplier, false, fallSound);
 
             m_childrenTmp.Clear();
         }
 
         public static void CreateFracturePiece(MyEnvironmentItemDefinition itemDefinition, HkdBreakableShape oldBreakableShape, MatrixD worldMatrix, Vector3 hitNormal, List<HkdShapeInstanceInfo> shapeList,
-            float forceMultiplier, bool canContainFixedChildren)
+            float forceMultiplier, bool canContainFixedChildren, MySoundPair fallSound = null)
         {
             bool containsFixedChildren = false;
             if (canContainFixedChildren)
@@ -244,7 +279,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
                     var t = worldMatrix.Translation + worldMatrix.Up * 1.5f;
                     var o = Quaternion.CreateFromRotationMatrix(worldMatrix.GetOrientation());
-                    MyPhysics.GetPenetrationsShape(shapeInst.Shape.GetShape(), ref t, ref o, m_tmpResults, MyPhysics.DefaultCollisionLayer);
+                    MyPhysics.GetPenetrationsShape(shapeInst.Shape.GetShape(), ref t, ref o, m_tmpResults, MyPhysics.CollisionLayers.DefaultCollisionLayer);
                     bool flagSet = false;
                     foreach (var res in m_tmpResults)
                     {
@@ -275,6 +310,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 ApplyImpulseToTreeFracture(ref worldMatrix, ref hitNormal, shapeList, ref compound, fp, forceMultiplier);
                 fp.Physics.ForceActivate();
+                if(fallSound != null)
+                    fp.StartFallSound(fallSound);
             }
         }
 

@@ -1,11 +1,10 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
 using VRageMath;
-using System.Xml.Serialization;
 using VRage.Data;
 using System.ComponentModel;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -46,5 +45,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public int Health = 100;
+
+        [ProtoMember, DefaultValue(null)]
+        public SerializableDefinitionId? DestroyedPieceId = null;
+        
+        [ProtoMember]
+        public int DestroyedPieces = 0;
+
+        [ProtoMember, DefaultValue(null)]
+        public string ExtraInventoryTooltipLine = null;
     }
 }

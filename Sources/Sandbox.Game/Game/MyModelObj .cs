@@ -4,6 +4,7 @@ using VRageMath;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using VRage.Game.Models;
 
 //  Class for loading OBJ files (3d models).
 

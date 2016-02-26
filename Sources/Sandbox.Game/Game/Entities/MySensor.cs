@@ -5,7 +5,6 @@ using System.Text;
 using Sandbox.Engine.Physics;
 using VRageMath;
 using VRage.Generics;
-using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.World;
 using System.Diagnostics;
 using Sandbox.Graphics;

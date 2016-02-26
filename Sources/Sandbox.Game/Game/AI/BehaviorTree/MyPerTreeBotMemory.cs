@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sandbox.Common.ObjectBuilders.AI;
 using VRage.Utils;
 using System.Diagnostics;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Collections;
+using VRage.Game;
 
 namespace Sandbox.Game.AI.BehaviorTree
 {

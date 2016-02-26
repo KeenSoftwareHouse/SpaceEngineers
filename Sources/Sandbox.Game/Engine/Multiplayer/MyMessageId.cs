@@ -17,5 +17,6 @@ namespace Sandbox.Engine.Multiplayer
         CLIENT_READY = 8, // Client -> Server, when world is loaded
         CLIENT_UPDATE = 9, // Client -> Server, client state (client physics, his context, state sync acks)
         REPLICATION_READY = 10, // Client -> Server, when replicable is ready on client
+        REPLICATION_STREAM_BEGIN = 11,
     }
 }

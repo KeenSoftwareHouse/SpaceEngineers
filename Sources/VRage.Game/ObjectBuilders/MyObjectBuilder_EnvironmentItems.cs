@@ -1,14 +1,10 @@
 ﻿using System.Xml.Serialization;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
-using System.Diagnostics;
 using VRage.ObjectBuilders;
-using VRage;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public class MyEnvironmentItemsAttribute : System.Attribute

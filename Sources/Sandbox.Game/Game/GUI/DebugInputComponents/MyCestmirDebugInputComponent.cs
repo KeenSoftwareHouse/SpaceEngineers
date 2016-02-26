@@ -23,6 +23,11 @@ using VRage.Library.Utils;
 using System.Linq;
 using VRage.ModAPI;
 using System.Diagnostics;
+using VRage.Network;
+using Sandbox.Common;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {
@@ -53,8 +58,8 @@ namespace Sandbox.Game.Gui
 
             this.Controls.Add(new MyGuiControlLabel(new Vector2(0.0f, -0.10f), text: "Select the name of the prefab that you want to spawn", originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             m_prefabs = new MyGuiControlCombobox(new Vector2(0.2f, 0.0f), new Vector2(0.3f, 0.05f), null, null, 10, null);
-            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
-            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
+            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
+            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
 
             foreach (var prefab in MyDefinitionManager.Static.GetPrefabDefinitions())
             {
@@ -83,18 +88,9 @@ namespace Sandbox.Game.Gui
             var pos = MySector.MainCamera.Position;
             var fwd = MySector.MainCamera.ForwardVector;
             var up = MySector.MainCamera.UpVector;
-           
-            MyPrefabManager.Static.SpawnPrefab(
-                prefabDefinition.Id.SubtypeName,
-                pos + fwd * 70.0f,
-                fwd,
-                up,
-                Vector3.Zero,
-                Vector3.Zero,
-                prefabDefinition.Id.SubtypeName,
-                Sandbox.ModAPI.SpawningOptions.None,
-                0,
-                true);
+
+            MatrixD placeMatrix = MatrixD.CreateWorld(pos + fwd * 70.0f, fwd, up);
+            MyMultiplayer.RaiseStaticEvent(s => MyCestmirDebugInputComponent.AddPrefabServer, prefabDefinition.Id.SubtypeName, placeMatrix);
 
             CloseScreen();
         }
@@ -130,8 +126,8 @@ namespace Sandbox.Game.Gui
 
             this.Controls.Add(new MyGuiControlLabel(new Vector2(0.0f, -0.10f), text: "Enter the number of a navmesh triangle to remove", originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             m_textbox = new MyGuiControlTextbox(new Vector2(0.2f, 0.0f), type: MyGuiControlTextboxType.DigitsOnly);
-            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
-            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
+            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
+            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
 
             this.Controls.Add(m_textbox);
             this.Controls.Add(m_confirmButton);
@@ -184,8 +180,8 @@ namespace Sandbox.Game.Gui
 
             this.Controls.Add(new MyGuiControlLabel(new Vector2(0.0f, -0.10f), text: "Enter the number of winged-edge mesh edge to view", originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER));
             m_textbox = new MyGuiControlTextbox(new Vector2(0.2f, 0.0f), type: MyGuiControlTextboxType.DigitsOnly);
-            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
-            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), Common.ObjectBuilders.Gui.MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
+            m_confirmButton = new MyGuiControlButton(new Vector2(0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Confirm"));
+            m_cancelButton = new MyGuiControlButton(new Vector2(-0.21f, 0.10f), MyGuiControlButtonStyleEnum.Default, new Vector2(0.2f, 0.05f), null, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, null, new System.Text.StringBuilder("Cancel"));
 
             this.Controls.Add(m_textbox);
             this.Controls.Add(m_confirmButton);
@@ -213,6 +209,7 @@ namespace Sandbox.Game.Gui
         }
     }
 
+    [StaticEventOwner]
     public class MyCestmirDebugInputComponent : MyDebugComponent
     {
         private bool m_drawSphere = false;
@@ -221,6 +218,10 @@ namespace Sandbox.Game.Gui
         private string m_string;
         private Vector3D m_point1;
         private Vector3D m_point2;
+
+        private MySmartPath m_smartPath;
+        private Vector3D m_currentTarget;
+        private List<Vector3D> m_pastTargets = new List<Vector3D>();
 
         public static int FaceToRemove;
         public static int BinIndex = -1;
@@ -259,7 +260,6 @@ namespace Sandbox.Game.Gui
         {
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Add prefab...", AddPrefab);
             AddShortcut(MyKeys.NumPad2, true, false, false, false, () => "Copy target grid position to clipboard", CaptureGridPosition);
-            //AddShortcut(MyKeys.L, true, false, false, false, () => "Test", EmitTestAction);
             if (MyPerGameSettings.EnableAi)
             {
                 //AddShortcut(MyKeys.L, true, false, false, false, () => "Test polygon intersection", Test2);
@@ -271,9 +271,9 @@ namespace Sandbox.Game.Gui
                 AddShortcut(MyKeys.NumPad4, true, false, false, false, () => "Remove bot", RemoveBot);
                 AddShortcut(MyKeys.NumPad5, true, false, false, false, () => "Find path for first bot", FindBotPath);
                 AddShortcut(MyKeys.NumPad6, true, false, false, false, () => "Find path between points", FindPath);
-                AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "All bots go to random beacon", AllBotsToRandomBeacon);
-                AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "All bots aim at me", AllBotsAimAtMe);
-                AddShortcut(MyKeys.NumPad9, true, false, false, false, () => "All bots look ahead", AllBotsLookAhead);
+                AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Find smart path between points", FindSmartPath);
+                AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "Get next smart path target", GetNextTarget);
+                AddShortcut(MyKeys.NumPad9, true, false, false, false, () => "Test", EmitTestAction);
                 AddShortcut(MyKeys.Add, true, false, false, false, () => "Next funnel segment",
                     delegate { Sandbox.Game.AI.Pathfinding.MyNavigationMesh.m_debugFunnelIdx++; return true; }
                 );
@@ -330,6 +330,30 @@ namespace Sandbox.Game.Gui
             var dialog = new MyGuiScreenDialogPrefabCheat();
             MyGuiSandbox.AddScreen(dialog);
             return true;
+        }
+
+        [Event, Reliable, Server]
+        public static void AddPrefabServer(string prefabId, MatrixD worldMatrix)
+        {
+            bool isDedicatedAdmin = MySandboxGame.IsDedicated && MySandboxGame.ConfigDedicated.Administrators.Contains(MyEventContext.Current.Sender.ToString());
+            if (isDedicatedAdmin || !MyFinalBuildConstants.IS_OFFICIAL || MyInput.Static.ENABLE_DEVELOPER_KEYS)
+            {
+                MyPrefabManager.Static.SpawnPrefab(
+                    prefabId,
+                    worldMatrix.Translation,
+                    worldMatrix.Forward,
+                    worldMatrix.Up,
+                    Vector3.Zero,
+                    Vector3.Zero,
+                    prefabId,
+                    Sandbox.ModAPI.SpawningOptions.None,
+                    0,
+                    true);
+            }
+            else
+            {
+                Debug.Assert(false, "Prefabs from clients will be pasted only in unofficial build or when developer keys are enabled!");
+            }
         }
 
         private bool CaptureGridPosition()
@@ -412,8 +436,10 @@ namespace Sandbox.Game.Gui
 
         private bool EmitTestAction()
         {
-            if (TestAction != null)
-                TestAction();
+            /*if (TestAction != null)
+                TestAction();*/
+
+            MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER = !MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER;
 
             return true;
         }
@@ -1089,7 +1115,7 @@ namespace Sandbox.Game.Gui
 
         private bool AddBot()
         {
-            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(MyObjectBuilder_BotDefinition), "SpaceSpider")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), "Cyberhound")) as MyAgentDefinition;
             MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
 
             return true;
@@ -1131,6 +1157,41 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
+        private bool FindSmartPath()
+        {
+            Vector3D? firstHit;
+            IMyEntity entity;
+            Raycast(out firstHit, out entity);
+
+            if (firstHit.HasValue)
+            {
+                m_point1 = m_point2;
+                m_point2 = firstHit.Value;
+//                MyAIComponent.Static.Pathfinding.FindPathLowlevel(m_point1, m_point2);
+                var shape = new MyDestinationSphere(ref m_point2, 3.0f);
+                if (m_smartPath != null)
+                {
+                    m_smartPath.Invalidate();
+                }
+                m_smartPath = MyAIComponent.Static.Pathfinding.FindPathGlobal(m_point1, shape);
+                m_pastTargets.Clear();
+                m_currentTarget = m_point1;
+                m_pastTargets.Add(m_currentTarget);
+            }
+            return true;
+        }
+
+        private bool GetNextTarget()
+        {
+            if (m_smartPath == null) return false;
+
+            float radius;
+            MyEntity relativeEntity;
+            m_smartPath.GetNextTarget(m_currentTarget, out m_currentTarget, out radius, out relativeEntity);
+            m_pastTargets.Add(m_currentTarget);
+            return true;
+        }
+
         private bool FindBotPath()
         {
             Vector3D? firstHit;
@@ -1142,63 +1203,6 @@ namespace Sandbox.Game.Gui
                 EmitPlacedAction(firstHit.Value, entity);
             }
 
-            return true;
-        }
-
-        private bool AllBotsLookAhead()
-        {
-            for (int j = 1; j < 100; ++j)
-            {
-                MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
-                if (bot != null)
-                    bot.Navigation.AimWithMovement();
-            }
-            return true;
-        }
-
-        private bool AllBotsAimAtMe()
-        {
-            for (int j = 1; j < 100; ++j)
-            {
-                MyAgentBot bot = MyAIComponent.Static.Bots.TryGetBot<MyAgentBot>(j);
-                if (bot != null)
-                    bot.Navigation.AimAt(MySession.LocalCharacter);
-            }
-            return true;
-        }
-
-        private bool AllBotsToRandomBeacon()
-        {
-            var ctrlEntity = MySession.ControlledEntity;
-            if (ctrlEntity != null)
-            {
-                var grid = ctrlEntity.Entity.Hierarchy.GetTopMostParent().Container.Entity as MyCubeGrid;
-                if (grid != null)
-                {
-                    List<MyCubeBlock> blocks = new List<MyCubeBlock>();
-                    foreach (var block in grid.CubeBlocks)
-                    {
-                        if (block.FatBlock == null) continue;
-                        if (!(block.FatBlock is MyBeacon)) continue;
-                        blocks.Add(block.FatBlock);
-                    }
-
-                    if (blocks.Count != 0)
-                    {
-                        int i = MyRandom.Instance.Next();
-                        if (i < 0) i = -i;
-                        i = i % blocks.Count;
-
-                        for (int j = 1; j < 100; ++j)
-                        {
-                            MySandboxBot bot = MyAIComponent.Static.Bots.TryGetBot<MySandboxBot>(j);
-                            if (bot != null)
-                                bot.Navigation.Goto(blocks[i].WorldMatrix.Translation, 0.0f, blocks[i]);
-                            else break;
-                        }
-                    }
-                }
-            }
             return true;
         }
 
@@ -1274,6 +1278,16 @@ namespace Sandbox.Game.Gui
             if (!MyDebugDrawSettings.ENABLE_DEBUG_DRAW) return;
 
             if (MyCubeBuilder.Static == null) return;
+
+            if (m_smartPath != null)
+            {
+                m_smartPath.DebugDraw();
+                VRageRender.MyRenderProxy.DebugDrawSphere(m_currentTarget, 2.0f, Color.HotPink, 1.0f, false);
+                for (int i = 1; i < m_pastTargets.Count; ++i)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(m_pastTargets[i], m_pastTargets[i - 1], Color.Blue, Color.Blue, false);
+                }
+            }
 
             var bb = MyCubeBuilder.Static.GetBuildBoundingBox();
             VRageRender.MyRenderProxy.DebugDrawOBB(bb, Color.Red, 0.25f, false, false);

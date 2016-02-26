@@ -17,11 +17,14 @@ namespace VRage.Audio
         float IMyAudio.VolumeMusic { get; set; }
         float IMyAudio.VolumeHud { get { return 0; } set { } }
         float IMyAudio.VolumeGame { get; set; }
+        float IMyAudio.VolumeVoiceChat { get; set; }
         bool IMyAudio.GameSoundIsPaused { get { return true; } }
         bool IMyAudio.Mute { get { return true; } set { } }
         bool IMyAudio.MusicAllowed { get { return false; } set { } }
         bool IMyAudio.EnableVoiceChat { get { return false; } set { } }
         event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
+
+        bool IMyAudio.IsValidTransitionCategory(MyStringId transitionCategory, MyStringId musicCategory) { return false; }
 
         List<MyStringId> IMyAudio.GetCategories() { return null; }
         MySoundData IMyAudio.GetCue(MyCueId cue) { return null; }
@@ -30,7 +33,7 @@ namespace VRage.Audio
         void IMyAudio.Resume() { }
         void IMyAudio.PauseGameSounds() { }
         void IMyAudio.ResumeGameSounds() { }
-        void IMyAudio.PlayMusic(MyMusicTrack? track) { }
+        void IMyAudio.PlayMusic(MyMusicTrack? track, int priorityForRandom) { }
         void IMyAudio.StopMusic() { }
         void IMyAudio.MuteHud(bool mute) { }
         bool IMyAudio.HasAnyTransition() { return false; }

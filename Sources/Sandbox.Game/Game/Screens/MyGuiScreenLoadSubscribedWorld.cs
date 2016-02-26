@@ -4,8 +4,6 @@ using System.Text;
 using System.Threading;
 using ParallelTasks;
 using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -15,6 +13,7 @@ using VRageMath;
 using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 
@@ -45,7 +44,7 @@ namespace Sandbox.Game.Gui
         {
             base.RecreateControls(constructor);
 
-            AddCaption(MySpaceTexts.ScreenCaptionWorkshop);
+            AddCaption(MyCommonTexts.ScreenCaptionWorkshop);
 
             var origin = new Vector2(-0.4375f, -0.3f);
             Vector2 buttonSize = MyGuiControlButton.GetVisualStyle(MyGuiControlButtonStyleEnum.Default).NormalTexture.MinSizeGui;
@@ -67,10 +66,10 @@ namespace Sandbox.Game.Gui
             Vector2 buttonDelta = MyGuiConstants.MENU_BUTTONS_POSITION_DELTA;
 
             // Load
-            Controls.Add(m_loadButton = MakeButton(buttonOrigin + buttonDelta * 0, MySpaceTexts.ScreenLoadSubscribedWorldCopyAndLoad, MySpaceTexts.ToolTipWorkshopCopyAndLoad, OnLoadClick));
-            Controls.Add(m_openInWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 1, MySpaceTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MySpaceTexts.ToolTipWorkshopOpenInWorkshop, OnOpenInWorkshopClick));
-            Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * 2, MySpaceTexts.ScreenLoadSubscribedWorldRefresh, MySpaceTexts.ToolTipWorkshopRefresh, OnRefreshClick));
-            Controls.Add(m_browseWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 3, MySpaceTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MySpaceTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick));
+            Controls.Add(m_loadButton = MakeButton(buttonOrigin + buttonDelta * 0, MyCommonTexts.ScreenLoadSubscribedWorldCopyAndLoad, MyCommonTexts.ToolTipWorkshopCopyAndLoad, OnLoadClick));
+            Controls.Add(m_openInWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 1, MyCommonTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MyCommonTexts.ToolTipWorkshopOpenInWorkshop, OnOpenInWorkshopClick));
+            Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * 2, MyCommonTexts.ScreenLoadSubscribedWorldRefresh, MyCommonTexts.ToolTipWorkshopRefresh, OnRefreshClick));
+            Controls.Add(m_browseWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 3, MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MyCommonTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick));
 
             m_loadButton.DrawCrossTextureWhenDisabled = false;
             m_openInWorkshopButton.DrawCrossTextureWhenDisabled = false;
@@ -211,7 +210,7 @@ namespace Sandbox.Game.Gui
 
         void FillList()
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginAction, endAction));
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginAction, endAction));
         }
 
         class LoadListResult : IMyAsyncResult
@@ -246,7 +245,7 @@ namespace Sandbox.Game.Gui
 
         private void AddHeaders()
         {
-            m_worldsTable.SetColumnName(0, MyTexts.Get(MySpaceTexts.Name));
+            m_worldsTable.SetColumnName(0, MyTexts.Get(MyCommonTexts.Name));
         }
 
         private void RefreshGameList()

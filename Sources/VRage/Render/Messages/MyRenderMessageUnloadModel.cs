@@ -2,11 +2,11 @@
 
 namespace VRageRender
 {    
-    public class MyRenderMessageUnloadModel : IMyRenderMessage
+    public class MyRenderMessageUnloadModel : MyRenderMessageBase
     {
         public string Name;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UnloadModel; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UnloadModel; } }
     }
 }

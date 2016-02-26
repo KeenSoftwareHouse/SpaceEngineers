@@ -37,18 +37,18 @@ namespace Sandbox.Game.Gui
                 .Append(MyTexts.GetString(off ?? MySpaceTexts.SwitchText_Off));
         }
 
-        public static void EnableActions<TBlock>(this MyTerminalControlSlider<TBlock> slider, float step = 0.05f)
+        public static void EnableActions<TBlock>(this MyTerminalControlSlider<TBlock> slider, float step = 0.05f, Func<TBlock, bool> enabled = null)
             where TBlock : MyTerminalBlock
         {
-            EnableActions(slider, MyTerminalActionIcons.INCREASE, MyTerminalActionIcons.DECREASE, step);
+            EnableActions(slider, MyTerminalActionIcons.INCREASE, MyTerminalActionIcons.DECREASE, step, enabled);
         }
 
-        public static void EnableActions<TBlock>(this MyTerminalControlSlider<TBlock> slider, string increaseIcon, string decreaseIcon, float step = 0.05f)
+        public static void EnableActions<TBlock>(this MyTerminalControlSlider<TBlock> slider, string increaseIcon, string decreaseIcon, float step = 0.05f, Func<TBlock, bool> enabled = null)
             where TBlock : MyTerminalBlock
         {
             var increaseName = Combine(MySpaceTexts.ToolbarAction_Increase, slider.Title);
             var decreaseName = Combine(MySpaceTexts.ToolbarAction_Decrease, slider.Title);
-            slider.EnableActions(increaseIcon, decreaseIcon, increaseName, decreaseName, step, null, null);
+            slider.EnableActions(increaseIcon, decreaseIcon, increaseName, decreaseName, step, null, null, enabled);
         }
 
         public static void EnableActionsWithReset<TBlock>(this MyTerminalControlSlider<TBlock> slider, float step = 0.05f)

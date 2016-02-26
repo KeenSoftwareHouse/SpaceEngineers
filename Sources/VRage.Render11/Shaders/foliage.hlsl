@@ -1,145 +1,130 @@
+// @define ROCK_FOLIAGE
+
+#ifdef ROCK_FOLIAGE
+#include <Foliage/RockFoliage.h>
+#else
+#include <Foliage/GrassFoliage.h>
+#endif
+
+#include <random.h>
+
 struct VertexStageIn
 {
-    float4 packed0 : TEXCOORD0;
-    float4 packed1 : TEXCOORD1;
+    float3 position : POSITION;
+    float4 packed1 : TEXCOORD0; // First two elements for normal, third for Id, fourth for seed
 };
 
 struct VertexStageOut
 {
-    float3 position : POSITION;
-    float3 normal   : NORMAL;
-    float3 color    : COLOR;
-    uint seed       : TEXCOORD;
+    float4 position          : POSITION;
+    float3 normal            : NORMAL;
+    float4 InstancePosition : TEXCOORD0;
+    uint IdSeed             : TEXCOORD1;    // First 8 bits for ID, last 24 for seed
 };
 
-struct PixelStage
+struct MaterialFoliage
 {
-    float4 position : SV_Position;
-    float3 normal   : NORMAL;    
-    float3 color    : COLOR;
+    float2 Scale; 
+    float ScaleVariation;   
+    uint TextureCount;
 };
 
-#include <template.h>
-#include <math.h>
-#include <random.h>
-
-float3 unpack_normal(float2 packed)
+cbuffer FoliageConstantBuffer : register( MERGE(b, FOLIAGE_SLOT) ) 
 {
-    float2 xy = packed * 255;
-    float zsign = xy.y > 127;
-    xy.y -= zsign * 128;    
-    xy /= float2(255, 127);
-    xy = xy * 2 - 1;
-    float z = sqrt(1-dot(xy, xy)) * (zsign ? 1 : -1);
-    return float3(xy, z).xzy;
+    MaterialFoliage FoliageConstants[256];
+};
+
+Texture2DArray FoliageArray : register ( t0 );
+Texture2DArray FoliageNormalArray : register (t1);
+
+void __vertex_shader(VertexStageIn input, out VertexStageOut output)
+{
+    output.position.xyz = mul(float4(input.position.xyz, 1), get_object_matrix()).xyz;
+    output.position.w = 1;
+    output.InstancePosition = float4(input.position, 1);
+    output.normal = normalize(UnpackNormal(input.packed1.xy));
+
+    output.IdSeed = dot((uint2)(input.packed1.zw * 0xFF), uint2(256, 1));
 }
 
-static const float3 index_to_color[] = {
-    {1,0,0},
-    {0,1,0},
-    {0,0,1},
-    {1,1,0},
-    {0,1,1},
-    {1,0,1},
-};
-
-void vs(VertexStageIn input, out VertexStageOut output)
+[maxvertexcount(MAX_GEOMETRY_VERTICES)]
+void __geometry_shader(point VertexStageOut input[1], inout TriangleStream<RenderingPixelInput> triangle_stream)
 {
-    output.position = mul(float4(input.packed0.xyz, 1), object_.world_matrix).xyz;
-    output.normal = normalize(unpack_normal(input.packed1.xy));
-    output.seed = f32tof16(input.packed0.w);
-    uint seed = output.seed;
-    output.color = float3(0.6, 0.9, 0.2) - float3(random2(seed) * 0.2f, random2(seed) * 0.3f, 0);
-}
+    float4 position = input[0].position;
+    float3 viewVector = get_camera_position() - position.xyz;
+    float viewVectorLength = length(viewVector);
+    const float far_clip = frame_.foliage_clipping_scaling.x;
 
-[maxvertexcount(7)] // (L-1) * 2 + 1
-void gs( point VertexStageOut input[1], inout TriangleStream<PixelStage> triangle_stream )
-{
-    static const int L = 4;
-
-    static const float blade_thickness = 0.025f;
-    static const float blade_len = 1.f;
-    static const float wind_force = 0.125f;
-    uint seed = input[0].seed;
-
-    float4 wind_t = float4(frame_.time.xxxx) * wind_force;
-    float4 wave = smooth_triangle_wave(wind_t);
-
-    // close enough 
-    float cosa = random2(seed);
-    float sina = sqrt(1 - cosa * cosa);
-
-    float3x3 rotation_basis = { float3(cosa, -sina, 0), float3(sina , cosa, 0), float3(0,0,1) };
-
-    PixelStage output;
-    output.color = input[0].color;
-    float3 base_position = input[0].position;
-    float3 N = input[0].normal;
-
-    float3 up = abs(N.y < 0.999) ? float3(0,1,0) : float3(1,0,0);
-    float3 tanx = normalize(cross(up, N));
-    float3 tany = cross(N, tanx);
-
-    float rotate = random2(seed);
-
-    float3x3 ONB = { tanx, tany, N };
-    ONB = mul(rotation_basis, ONB);
-
-    float3 p0 = float3(0,0,0);
-    float rescale = 1.25 - random2(seed) * 0.5;
-    float3 p1 = normalize(float3(wave.x * 2 - 1, 0, 1)) * blade_len * rescale; // in local space
-
-    float3 m0 = normalize(p1 - p0);
-    float3 m1 = normalize(m0 + float3(wave.x * 2 - 1, 0, 0));
-
-    p0 = 0;
-    p1 = normalize(float3(1,0,2)) * blade_len * rescale;
-    m0 = float3(0,0,1);
-    m1 = normalize(float3(1,0,1));
-
-    p1 = mul(p1, ONB);
-    m0 = mul(m0, ONB);
-    m1 = mul(m1, ONB);
-
-    float3 vr = mul(tany, ONB);
-    float3 p_r = vr * blade_thickness;
-
-    [unroll]
-    for(int l=0; l< L; l++)
+    [branch]
+    if ( viewVectorLength < far_clip && position.w )
     {
-        float t = l / (float)(L-1);
+        uint foliageId = input[0].IdSeed & 0xFF;
+        uint seed = input[0].IdSeed >> 8;
+        float2 hammersleySample = hammersley(seed, 256);
 
-        float3 p_l = cubic_hermit(p0, p1, m0, m1, t);
+        uint textureIndex = min(floor(hammersleySample.x * FoliageConstants[foliageId].TextureCount), FoliageConstants[foliageId].TextureCount);
 
-        float3 N;
-        N = normalize(cross(vr, cubic_hermit_tan(p0, p1, m0, m1, t)));
-        output.normal = N;
+        float2 scale = FoliageConstants[foliageId].Scale;
+        scale += FoliageConstants[foliageId].ScaleVariation * mad(2, hammersleySample.x, -1) * scale;
 
-        if(l<L-1)
-        {
-            float3 p = base_position + p_l + lerp(p_r, 0, t);
-            output.position = mul(float4(p, 1), projection_.view_proj_matrix); 
-            triangle_stream.Append(output);
+        float3 surfaceNormal = input[0].normal;
 
-            p = base_position + p_l + lerp(-p_r, 0, t);
-            output.position = mul(float4(p, 1), projection_.view_proj_matrix); 
-            triangle_stream.Append(output);
-        }
-        else
-        {
-            float3 p = base_position + cubic_hermit(0, p1, m0, m1, 1);
-            output.position = mul(float4(p, 1), projection_.view_proj_matrix); 
+        float3x3 onb = create_onb(surfaceNormal);
+        float3 tanx = onb[0];
+        float3 tany = onb[1];
 
-            triangle_stream.Append(output);        
-        }
+        float2 sinCosHammersley;
+        sincos(hammersleySample.y * M_PI * 2.0f, sinCosHammersley.x, sinCosHammersley.y);
+        onb = mul(rotate_z(sinCosHammersley.x, sinCosHammersley.y), onb);
 
+        const float angle_min = 0.5f * M_PI_4;
+        const float angle_max = M_PI_4 * 0.75f; 
+
+
+#ifndef ROCK_FOLIAGE
+        scale *= lerp(1, frame_.foliage_clipping_scaling.w, saturate((viewVectorLength - frame_.foliage_clipping_scaling.y) / frame_.foliage_clipping_scaling.z));
+#endif
+        float critical_point = far_clip * 0.5f;
+        const float bump = 1.5f;
+        scale *= min(mad(bump - 1.0f, smoothstep(0, critical_point, viewVectorLength), 1.0f), bump * smoothstep(0, far_clip - critical_point, far_clip - viewVectorLength));
+
+        float3 N = normalize(mad(3.0f, surfaceNormal, onb[1]));
+
+#ifdef ROCK_FOLIAGE
+        SpawnPebble(position.xyz, input[0].InstancePosition.xyz, onb, scale, textureIndex, hammersleySample, viewVectorLength, triangle_stream);
+#else
+
+        float3 viewVectorDirection = viewVector / viewVectorLength;
+        float f = dot(viewVectorDirection, N);
+		float angle = lerp(angle_max, angle_min, saturate(f + 0.2f));
+		onb = mul(rotate_x(angle), onb);
+        SpawnBillboard(position.xyz, input[0].InstancePosition.xyz, onb, scale, surfaceNormal, textureIndex, triangle_stream);
+#endif
     }
-    
-    triangle_stream.RestartStrip();
 }
 
 #include <gbuffer_write.h>
-void ps(PixelStage input, out GbufferOutput output, bool front_face : SV_IsFrontFace)
+void __pixel_shader(RenderingPixelInput input, out GbufferOutput output)
 {
-    gbuffer_write(output, input.color, 0, 0.85, input.normal, 1);
+    float4 colorSample = FoliageArray.Sample(TextureSampler, float3(input.texcoord));
+#ifdef ROCK_FOLIAGE
+#else
+    clip(colorSample.w - 0.5f);
+#endif
+	int material_id = 1;
+	float ao = 0.0f + 1.0f * (1 - input.texcoord.y);
+
+	float3 normal = input.normal;
+	float gloss = 0.1f;
+	float4 ng = FoliageNormalArray.Sample(TextureSampler, float3(input.texcoord));
+	gloss = ng.w;
+    float3 normalmap = mad(2.0f, ng.xyz, -1.0f) * float3(1, -1, 1);
+	
+	float3 tangent = input.tangent;
+	float3 binormal = cross(tangent, normal);
+	
+	float3x3 tangent_to_world = float3x3(tangent, binormal, normal);
+	normal = normalize(mul(normalmap, tangent_to_world));
+
+    gbuffer_write(output, colorSample.xyz, 0, gloss, normal, material_id, ao); // foliage material is forced in code to be in 1 index-slot
 }

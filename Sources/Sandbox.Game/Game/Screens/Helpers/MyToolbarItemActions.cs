@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {

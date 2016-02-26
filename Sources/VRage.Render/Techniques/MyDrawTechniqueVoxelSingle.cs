@@ -14,6 +14,11 @@ namespace VRageRender.Techniques
             var shader = MyRender.GetEffect(MyEffects.VoxelsMRT) as MyEffectVoxels;
             SetupBaseEffect(shader, setup, lodType);
 
+            if (lodType == MyLodTypeEnum.LOD_BACKGROUND)
+            {
+                shader.ApplyFar(MyRenderConstants.RenderQualityProfile.VoxelsRenderTechnique);
+            }
+            else
             {
                 shader.Apply();
             }
@@ -62,6 +67,10 @@ namespace VRageRender.Techniques
                 MyRenderSettings.VoxelAoMax,
                 MyRenderSettings.VoxelAoOffset);
 
+            if (lod == MyLodTypeEnum.LOD_BACKGROUND && renderElement.RenderObject is MyRenderVoxelCellBackground)
+            {
+                SetupAtmosphere(effectVoxels, renderElement.RenderObject as MyRenderVoxelCellBackground);
+            }
         }
 
         public override void SetupMaterial(MyEffectBase shader, MyRenderMeshMaterial material)
@@ -69,5 +78,35 @@ namespace VRageRender.Techniques
             throw new InvalidOperationException();
         }
 
+        static void SetupAtmosphere(MyEffectVoxels shader, MyRenderVoxelCellBackground element)
+        {
+            shader.SetHasAtmosphere(element.HasAtmosphere);
+
+            if (element.HasAtmosphere)
+            {
+                float depthScale = 0.2f;
+
+                shader.SetInnerRadius(element.PlanetRadius);
+                shader.SetOutherRadius(element.AtmosphereRadius);
+
+                float scaleAtmosphere = 1.0f / (element.AtmosphereRadius - element.PlanetRadius);
+
+                shader.SetScaleAtmosphere(scaleAtmosphere);
+                shader.SetScaleAtmosphereOverScaleDepth(scaleAtmosphere / depthScale);
+
+                Vector3 cameraToCenter = element.GetRelativeCameraPos(MyRenderCamera.Position);
+
+                shader.SetRelativeCameraPos(cameraToCenter);
+
+                shader.SetLightPos(-MySunGlare.GetSunDirection());
+                shader.SetIsInside(element.IsInside(MyRenderCamera.Position));
+
+                shader.SetScaleDepth(depthScale);
+
+                shader.SetPositonToLeftBottomOffset(element.PositiontoLeftBottomOffset);
+
+                shader.SetWavelength(element.AtmosphereWavelengths);
+            }
+        }
     }
 }

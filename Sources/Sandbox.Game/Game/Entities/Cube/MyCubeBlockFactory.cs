@@ -7,8 +7,11 @@ using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.Components;
+using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
+using VRage.Game.Common;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -42,7 +45,6 @@ namespace Sandbox.Game.Entities.Cube
             if (entity != null)
             {
                 MyEntityFactory.AddScriptGameLogic(entity, builder.TypeId, builder.SubtypeName);
-                MyEntities.RaiseEntityCreated(entity);
             }
             return obj;
         }

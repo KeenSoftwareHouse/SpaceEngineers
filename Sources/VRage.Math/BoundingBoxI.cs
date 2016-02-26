@@ -29,6 +29,16 @@ namespace VRageMath
         /// Creates an instance of BoundingBoxI.
         /// </summary>
         /// <param name="min">The minimum point the BoundingBoxI includes.</param><param name="max">The maximum point the BoundingBoxI includes.</param>
+        public BoundingBoxI(BoundingBox box)
+        {
+            this.Min = new Vector3I(box.Min);
+            this.Max = new Vector3I(box.Max);
+        }
+
+        /// <summary>
+        /// Creates an instance of BoundingBoxI.
+        /// </summary>
+        /// <param name="min">The minimum point the BoundingBoxI includes.</param><param name="max">The maximum point the BoundingBoxI includes.</param>
         public BoundingBoxI(Vector3I min, Vector3I max)
         {
             this.Min = min;
@@ -276,16 +286,14 @@ namespace VRageMath
         /// It's called 'Prunik'
         /// Result is invalid box when there's no intersection (Min > Max)
         /// </summary>
-        public BoundingBoxI Intersect(BoundingBoxI box)
+        public void IntersectWith(ref BoundingBoxI box)
         {
-            BoundingBoxI result;
-            result.Min.X = Math.Max(this.Min.X, box.Min.X);
-            result.Min.Y = Math.Max(this.Min.Y, box.Min.Y);
-            result.Min.Z = Math.Max(this.Min.Z, box.Min.Z);
-            result.Max.X = Math.Min(this.Max.X, box.Max.X);
-            result.Max.Y = Math.Min(this.Max.Y, box.Max.Y);
-            result.Max.Z = Math.Min(this.Max.Z, box.Max.Z);
-            return result;
+            Min.X = Math.Max(this.Min.X, box.Min.X);
+            Min.Y = Math.Max(this.Min.Y, box.Min.Y);
+            Min.Z = Math.Max(this.Min.Z, box.Min.Z);
+            Max.X = Math.Min(this.Max.X, box.Max.X);
+            Max.Y = Math.Min(this.Max.Y, box.Max.Y);
+            Max.Z = Math.Min(this.Max.Z, box.Max.Z);
         }
 
         /// <summary>

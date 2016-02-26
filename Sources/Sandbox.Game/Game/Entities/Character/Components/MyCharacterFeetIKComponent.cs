@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Animations;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Character.Components
@@ -13,6 +15,8 @@ namespace Sandbox.Game.Entities.Character.Components
     public class MyCharacterFeetIKComponent : MyCharacterComponent
     {
         #region Fields
+
+        private const float FEET_ABOVE_GROUND_OFFSET = 0.02f; // always place feet 2 cm over detected ground support
 
         int m_rootBone = 0;
         int m_leftHipBone = -1;
@@ -26,12 +30,12 @@ namespace Sandbox.Game.Entities.Character.Components
 
         #region Properties
 
-        public List<MyCharacterBone> Bones
+        public MyCharacterBone[] Bones
         {
             get
             {
                 if (Character == null) return null;
-                return Character.Bones;
+                return Character.AnimationController.CharacterBones;
             }
         }
 
@@ -69,13 +73,13 @@ namespace Sandbox.Game.Entities.Character.Components
         public override void OnAddedToContainer()
         {
             base.OnAddedToContainer();
-            Character.FindBone(CharacterDefinition.ModelRootBoneName, out m_rootBone);
-            Character.FindBone(CharacterDefinition.LeftHipBoneName, out m_leftHipBone);
-            Character.FindBone(CharacterDefinition.LeftKneeBoneName, out m_leftKneeBone);
-            Character.FindBone(CharacterDefinition.LeftAnkleBoneName, out m_leftAnkleBone);
-            Character.FindBone(CharacterDefinition.RightHipBoneName, out m_rightHipBone);
-            Character.FindBone(CharacterDefinition.RightKneeBoneName, out m_rightKneeBone);
-            Character.FindBone(CharacterDefinition.RightAnkleBoneName, out m_rightAnkleBone);
+            Character.AnimationController.FindBone(CharacterDefinition.ModelRootBoneName, out m_rootBone);
+            Character.AnimationController.FindBone(CharacterDefinition.LeftHipBoneName, out m_leftHipBone);
+            Character.AnimationController.FindBone(CharacterDefinition.LeftKneeBoneName, out m_leftKneeBone);
+            Character.AnimationController.FindBone(CharacterDefinition.LeftAnkleBoneName, out m_leftAnkleBone);
+            Character.AnimationController.FindBone(CharacterDefinition.RightHipBoneName, out m_rightHipBone);
+            Character.AnimationController.FindBone(CharacterDefinition.RightKneeBoneName, out m_rightKneeBone);
+            Character.AnimationController.FindBone(CharacterDefinition.RightAnkleBoneName, out m_rightAnkleBone);
             NeedsUpdateAfterSimulation = true;
         }
 
@@ -113,6 +117,7 @@ namespace Sandbox.Game.Entities.Character.Components
 
             MyFeetIKSettings feetSettings;
 
+            var characterBones = Character.AnimationController.CharacterBones;
             if (CharacterDefinition.FeetIKSettings.TryGetValue(MovementState, out feetSettings))
             {
                 // If Feet IK placement is enabled for this character movement state, let's calculate new foot positions
@@ -126,11 +131,11 @@ namespace Sandbox.Game.Entities.Character.Components
                         feetSettings.FootSize);
                 }
             }
-            else if (Character.Bones[m_rootBone].Translation != Vector3.Zero)
+            else if (characterBones[m_rootBone].Translation != Vector3.Zero)
             {
                 // Otherwise remove the applied translation on the root bone
-                Character.Bones[m_rootBone].Translation = Character.Bones[m_rootBone].Translation.LengthSquared() > 0.001f ? Character.Bones[m_rootBone].Translation * 0.1f : Vector3.Zero;
-                Character.Bones[m_rootBone].ComputeAbsoluteTransform();
+                characterBones[m_rootBone].Translation = characterBones[m_rootBone].Translation.LengthSquared() > 0.001f ? characterBones[m_rootBone].Translation * 0.1f : Vector3.Zero;
+                characterBones[m_rootBone].ComputeAbsoluteTransform();
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -138,7 +143,7 @@ namespace Sandbox.Game.Entities.Character.Components
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Storing bones transforms");
 
             // After the feet placement we need to save new bone transformations
-            for (int i = 0; i < Bones.Count; i++)
+            for (int i = 0; i < Bones.Length; i++)
             {
                 MyCharacterBone bone = Bones[i];
                 Character.BoneRelativeTransforms[i] = bone.ComputeBoneTransform();
@@ -173,13 +178,16 @@ namespace Sandbox.Game.Entities.Character.Components
         {
             Debug.Assert(footDimensions != Vector3.Zero, "void UpdateFeetPlacement(...) : foot dimensions can not be zero!");
 
+            // angle height above ground
             float ankleHeight = footDimensions.Y;
 
             // get the current foot matrix and location
             Matrix invWorld = Character.PositionComp.WorldMatrixInvScaled;
             MyCharacterBone rootBone = Bones[m_rootBone]; // root bone is used to transpose the model up or down
             Matrix modelRootBoneMatrix = rootBone.AbsoluteTransform;
+            // current model shift in local coords - this is not changed by animations
             float verticalShift = modelRootBoneMatrix.Translation.Y;
+            // current local feet matrices
             Matrix leftFootMatrix = Bones[m_leftAnkleBone].AbsoluteTransform;
             Matrix rightFootMatrix = Bones[m_rightAnkleBone].AbsoluteTransform;
 
@@ -188,14 +196,14 @@ namespace Sandbox.Game.Entities.Character.Components
             // we cast from the ground of the model space, assuming the model's local space up vector is in Y axis
             Vector3 leftFootGroundPosition = new Vector3(leftFootMatrix.Translation.X, 0, leftFootMatrix.Translation.Z);
             Vector3 rightFootGroundPosition = new Vector3(rightFootMatrix.Translation.X, 0, rightFootMatrix.Translation.Z);
-            Vector3 fromL = Vector3.Transform(leftFootGroundPosition, WorldMatrix);  // we get this position in the world
-            Vector3 fromR = Vector3.Transform(rightFootGroundPosition, WorldMatrix);
+            Vector3 fromLWrld = Vector3.Transform(leftFootGroundPosition, WorldMatrix);  // we get this position in the world
+            Vector3 fromRWrld = Vector3.Transform(rightFootGroundPosition, WorldMatrix);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("GetClosestFootPosition");
 
             // find the closest ground support, raycasting from Up to Down
-            var contactLeft = MyInverseKinematics.GetClosestFootSupportPosition(Character, null, fromL, upDirection, footDimensions, WorldMatrix, belowCharacterReachableDistance, aboveCharacterReachableDistance, Character.Physics.CharacterCollisionFilter);        // this returns world coordinates of support for left foot
-            var contactRight = MyInverseKinematics.GetClosestFootSupportPosition(Character, null, fromR, upDirection, footDimensions, WorldMatrix, belowCharacterReachableDistance, aboveCharacterReachableDistance, Character.Physics.CharacterCollisionFilter);
+            var contactLeftWrld = MyInverseKinematics.GetClosestFootSupportPosition(Character, null, fromLWrld, upDirection, footDimensions, WorldMatrix, belowCharacterReachableDistance, aboveCharacterReachableDistance, Character.Physics.CharacterCollisionFilter);        // this returns world coordinates of support for left foot
+            var contactRightWrld = MyInverseKinematics.GetClosestFootSupportPosition(Character, null, fromRWrld, upDirection, footDimensions, WorldMatrix, belowCharacterReachableDistance, aboveCharacterReachableDistance, Character.Physics.CharacterCollisionFilter);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
@@ -204,9 +212,9 @@ namespace Sandbox.Game.Entities.Character.Components
 
             // if we got hit only for one feet, we do nothing, but slowly return back root bone (character vertical shift) position if it was changed from original
             // that happends very likely when the support below is too far for one leg
-            if (contactLeft == null || contactRight == null)
+            if (contactLeftWrld == null || contactRightWrld == null)
             {
-                rootBone.Translation = modelRootBoneMatrix.Translation -= modelRootBoneMatrix.Translation * verticalShiftUpGain;
+                rootBone.Translation -= rootBone.Translation * verticalShiftUpGain;
                 rootBone.ComputeAbsoluteTransform();
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                 return;
@@ -215,26 +223,35 @@ namespace Sandbox.Game.Entities.Character.Components
             // Here we recalculate if we shift the root of the character to reach bottom or top
             // get the desired foot world coords
 
-            Vector3 supportL = contactLeft.Value.Position;
-            Vector3 supportR = contactRight.Value.Position;
+            Vector3 supportLWrld = contactLeftWrld.Value.Position;
+            Vector3 supportRWrld = contactRightWrld.Value.Position;
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_CLOSESTSUPPORTPOSITION)
             {
-                VRageRender.MyRenderProxy.DebugDrawText3D(supportL, "Foot support position", Color.Blue, 1, false);
-                VRageRender.MyRenderProxy.DebugDrawText3D(supportR, "Foot support position", Color.Blue, 1, false);
-                VRageRender.MyRenderProxy.DebugDrawSphere(supportL, 0.03f, Color.Blue, 0, false);
-                VRageRender.MyRenderProxy.DebugDrawSphere(supportR, 0.03f, Color.Blue, 0, false);
+                VRageRender.MyRenderProxy.DebugDrawText3D(supportLWrld, "Foot support position", Color.Blue, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawText3D(supportRWrld, "Foot support position", Color.Blue, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(supportLWrld, 0.03f, Color.Blue, 0, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(supportRWrld, 0.03f, Color.Blue, 0, false);
             }
 
-            // Get the vector between actual feet position and possible support in local model coords
-            //                                  local model space coord of desired position + shift it up of ankle heights
-            Vector3 leftAnkleDesiredPosition = Vector3.Transform(supportL, invWorld) + ((leftFootMatrix.Translation.Y - verticalShift) * upDirection);
-            Vector3 rightAnkleDesiredPosition = Vector3.Transform(supportR, invWorld) + ((rightFootMatrix.Translation.Y - verticalShift) * upDirection);
+            // If the terrain is slope we need to shift the desired position up a little..
+            float leftCrossProd = Vector3.Dot(WorldMatrix.Up, contactLeftWrld.Value.Normal);
+            float rightCrossProd = Vector3.Dot(WorldMatrix.Up, contactLeftWrld.Value.Normal);
+            float leftSlopeShiftFactor = (1f-leftCrossProd) * footDimensions.Z * 0.5f;
+            float rightSlopeShiftFactor = (1f-rightCrossProd) * footDimensions.Z * 0.5f;
+
+            // First get the local coords of the ankles as if were driven by animation only - correct it if root bone location was shifted
+            Vector3 leftAnklePosFromAnim = upDirection * (leftFootMatrix.Translation.Y - verticalShift);
+            Vector3 rightAnklePosFromAnim = upDirection * (rightFootMatrix.Translation.Y - verticalShift);
+
+            // Now compute the desired ankle's positions in the model's local space
+            Vector3 leftAnkleDesiredPosition = Vector3.Transform(supportLWrld, invWorld) + leftAnklePosFromAnim + (FEET_ABOVE_GROUND_OFFSET + leftSlopeShiftFactor) * upDirection;
+            Vector3 rightAnkleDesiredPosition = Vector3.Transform(supportRWrld, invWorld) + rightAnklePosFromAnim + (FEET_ABOVE_GROUND_OFFSET + rightSlopeShiftFactor) * upDirection;
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_DESIREDPOSITION)
             {
-                VRageRender.MyRenderProxy.DebugDrawText3D(supportL, "Ankle desired position", Color.Purple, 1, false);
-                VRageRender.MyRenderProxy.DebugDrawText3D(supportR, "Ankle desired position", Color.Purple, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawText3D(Vector3.Transform(leftAnkleDesiredPosition, WorldMatrix), "Ankle desired position", Color.Purple, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawText3D(Vector3.Transform(rightAnkleDesiredPosition, WorldMatrix), "Ankle desired position", Color.Purple, 1, false);
                 VRageRender.MyRenderProxy.DebugDrawSphere(Vector3.Transform(leftAnkleDesiredPosition, WorldMatrix), 0.03f, Color.Purple, 0, false);
                 VRageRender.MyRenderProxy.DebugDrawSphere(Vector3.Transform(rightAnkleDesiredPosition, WorldMatrix), 0.03f, Color.Purple, 0, false);
             }
@@ -242,6 +259,8 @@ namespace Sandbox.Game.Entities.Character.Components
             // Get the height of found support related to character's position in model's local space, assuming it's Y axis
             float leftAnkleDesiredHeight = leftAnkleDesiredPosition.Y;
             float rightAnkleDesiredHeight = rightAnkleDesiredPosition.Y;
+            float currentLeftAnkleHeight = leftFootMatrix.Translation.Y;
+            float currentRightAnkleHeight = rightFootMatrix.Translation.Y;
 
             // if we the distances are too big, so we will not be able to set the position, we can skip it
             if (Math.Abs(leftAnkleDesiredHeight - rightAnkleDesiredHeight) > aboveCharacterReachableDistance)
@@ -259,10 +278,17 @@ namespace Sandbox.Game.Entities.Character.Components
                 (Math.Max(leftAnkleDesiredHeight, rightAnkleDesiredHeight) - Math.Min(leftAnkleDesiredHeight, rightAnkleDesiredHeight) < aboveCharacterReachableDistance))
             {
                 // then we can try to reach down according to the difference
-                float distanceBelow = Math.Min(leftAnkleDesiredHeight, rightAnkleDesiredHeight) - ankleHeight;
+                float distanceBelow = Math.Min(leftAnkleDesiredHeight - currentLeftAnkleHeight, rightAnkleDesiredHeight - currentRightAnkleHeight);// -verticalShift;// -ankleHeight;
                 Vector3 verticalTranslation = upDirection * distanceBelow;
                 Vector3 translation = Vector3.Zero;
-                translation.Interpolate3(modelRootBoneMatrix.Translation, verticalTranslation, verticalShiftDownGain);
+                translation.Interpolate3(modelRootBoneMatrix.Translation, modelRootBoneMatrix.Translation + verticalTranslation, verticalShiftDownGain);
+
+                if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_DESIREDPOSITION)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(WorldMatrix.Translation, Vector3.Transform(upDirection * distanceBelow, WorldMatrix), Color.Purple, Color.Purple, false);
+                    VRageRender.MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation, "Computed height", Color.Purple, 1, false);
+                }
+
                 rootBone.Translation = modelRootBoneMatrix.Translation = translation;
                 rootBone.ComputeAbsoluteTransform();
             }
@@ -271,10 +297,10 @@ namespace Sandbox.Game.Entities.Character.Components
                     (rightAnkleDesiredHeight > ankleHeight) && (rightAnkleDesiredHeight < aboveCharacterReachableDistance))
                 {
                     // move up to reach the highest support
-                    float distanceAbove = Math.Max(leftAnkleDesiredHeight, rightAnkleDesiredHeight) - ankleHeight;
+                    float distanceAbove = Math.Max(leftAnkleDesiredHeight - currentLeftAnkleHeight, rightAnkleDesiredHeight - currentRightAnkleHeight);// -verticalShift;// -ankleHeight;
                     Vector3 verticalTranslation = upDirection * distanceAbove;
                     Vector3 translation = Vector3.Zero;
-                    translation.Interpolate3(modelRootBoneMatrix.Translation, verticalTranslation, verticalShiftUpGain);
+                    translation.Interpolate3(modelRootBoneMatrix.Translation, modelRootBoneMatrix.Translation + verticalTranslation, verticalShiftUpGain);
                     rootBone.Translation = modelRootBoneMatrix.Translation = translation;
                     rootBone.ComputeAbsoluteTransform();
                 }
@@ -313,7 +339,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     m_leftKneeBone,
                     m_leftAnkleBone,
                     leftAnkleDesiredPosition,
-                    contactLeft.Value.Normal,
+                    contactLeftWrld.Value.Normal,
                     footDimensions,
                     leftFootMatrix.Translation.Y - verticalShift <= ankleHeight);
 
@@ -323,7 +349,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     m_rightKneeBone,
                     m_rightAnkleBone,
                     rightAnkleDesiredPosition,
-                    contactRight.Value.Normal,
+                    contactRightWrld.Value.Normal,
                     footDimensions,
                     rightFootMatrix.Translation.Y - verticalShift <= ankleHeight);
 
@@ -378,9 +404,6 @@ namespace Sandbox.Game.Entities.Character.Components
                 // now rotate the model world to the rotation
                 if (rotation.IsValid()) finalAnkleTransform = WorldMatrix * rotation;
                 else finalAnkleTransform = WorldMatrix;
-                // but the position of this world will be different
-                finalAnkleTransform.Translation = Vector3.Transform(footPosition, WorldMatrix);
-
                 // compute transformation in model space
                 MatrixD invWorld = Character.PositionComp.WorldMatrixNormalizedInv;
                 finalAnkleTransform = finalAnkleTransform * invWorld;
@@ -390,9 +413,8 @@ namespace Sandbox.Game.Entities.Character.Components
 
                 // now it needs to be related to rig transform
                 finalAnkleTransform = originalAngleTransform.GetOrientation() * finalAnkleTransform.GetOrientation();
-
             }
-
+            
             finalAnkleTransform.Translation = footPosition;
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -411,9 +433,9 @@ namespace Sandbox.Game.Entities.Character.Components
                 Matrix debug = finalAnkleTransform * WorldMatrix;
                 Matrix debug2 = Bones[ankleBoneIndex].AbsoluteTransform * WorldMatrix;
                 VRageRender.MyRenderProxy.DebugDrawText3D(debug.Translation, "Final ankle position", Color.Red, 1.0f, false);
-                VRageRender.MyRenderProxy.DebugDrawOBB(Matrix.CreateScale(footDimensions) * debug, Color.Red, 1, false, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(debug.Translation, 0.02f, Color.Red, 1, false, false);
                 VRageRender.MyRenderProxy.DebugDrawText3D(debug2.Translation, "Actual ankle position", Color.Green, 1.0f, false);
-                VRageRender.MyRenderProxy.DebugDrawOBB(Matrix.CreateScale(footDimensions) * debug2, Color.Green, 1, false, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(debug2.Translation, 0.025f, Color.Green, 1, false, false);
                 VRageRender.MyRenderProxy.DebugDrawLine3D(debug.Translation, debug.Translation + debug.Forward * 0.5f, Color.Yellow, Color.Yellow, false);
                 VRageRender.MyRenderProxy.DebugDrawLine3D(debug.Translation, debug.Translation + debug.Up * 0.2f, Color.Purple, Color.Purple, false);
             }

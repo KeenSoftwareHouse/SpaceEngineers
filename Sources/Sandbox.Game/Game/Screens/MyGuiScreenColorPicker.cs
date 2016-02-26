@@ -43,8 +43,8 @@ namespace Sandbox.Game.Gui
             RecreateControls(true);
             m_oldPaletteList = new List<Vector3>();
 
-			Debug.Assert(MySession.LocalHumanPlayer != null, "Creating gui color picker without local human player!");
-			foreach (var element in MySession.LocalHumanPlayer.BuildColorSlots)
+			Debug.Assert(MySession.Static.LocalHumanPlayer != null, "Creating gui color picker without local human player!");
+			foreach (var element in MySession.Static.LocalHumanPlayer.BuildColorSlots)
 			{
 				m_oldPaletteList.Add(element);
 			}
@@ -214,7 +214,7 @@ namespace Sandbox.Game.Gui
                 CloseScreenNow();
             }
             
-			var humanPlayer = MySession.LocalHumanPlayer;
+			var humanPlayer = MySession.Static.LocalHumanPlayer;
 			if (humanPlayer != null && 
 				(MyInput.Static.IsNewLeftMousePressed() || MyControllerHelper.IsControl(Sandbox.Engine.Utils.MySpaceBindingCreator.CX_GUI, MyControlsGUI.ACCEPT, MyControlStateType.NEW_PRESSED)))
             {
@@ -234,7 +234,7 @@ namespace Sandbox.Game.Gui
 
         private void OnValueChange(MyGuiControlSlider sender)
         {
-			var humanPlayer = MySession.LocalHumanPlayer;
+			var humanPlayer = MySession.Static.LocalHumanPlayer;
 			if (humanPlayer == null)
 				return;
 
@@ -247,7 +247,7 @@ namespace Sandbox.Game.Gui
 
         private void OnDefaultsClick(MyGuiControlButton sender)
         {
-			var humanPlayer = MySession.LocalHumanPlayer;
+			var humanPlayer = MySession.Static.LocalHumanPlayer;
 			if (humanPlayer == null)
 				return;
 
@@ -260,7 +260,7 @@ namespace Sandbox.Game.Gui
 
         private void OnOkClick(MyGuiControlButton sender)
         {
-			var humanPlayer = MySession.LocalHumanPlayer;
+			var humanPlayer = MySession.Static.LocalHumanPlayer;
 			if (humanPlayer != null)
 			{
 				bool colorsChanged = false;
@@ -284,7 +284,7 @@ namespace Sandbox.Game.Gui
 
         private void OnCancelClick(MyGuiControlButton sender)
         {
-			var humanPlayer = MySession.LocalHumanPlayer;
+			var humanPlayer = MySession.Static.LocalHumanPlayer;
 			if (humanPlayer != null)
 				humanPlayer.SetBuildColorSlots(m_oldPaletteList);
 

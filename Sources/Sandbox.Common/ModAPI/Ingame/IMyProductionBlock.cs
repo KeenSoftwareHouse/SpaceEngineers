@@ -15,7 +15,6 @@ namespace Sandbox.ModAPI.Ingame
         void MoveQueueItemRequest(uint queueItemId, int targetIdx);
         uint NextItemId { get; }
         //event Action<IMyProductionBlock> QueueChanged;
-        void RemoveQueueItemRequest(int itemIdx);
         bool UseConveyorSystem { get; }
     }
 }

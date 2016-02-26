@@ -15,6 +15,7 @@ using Sandbox.Graphics;
 using VRage;
 using Sandbox.Common;
 using VRage;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -273,7 +274,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void CollectBlock(MySlimBlock block, MyPhysicsOption physicsOption, IDictionary<Vector3I, HkMassElement> massResults, bool allowSegmentation = true)
         {
-            if (!block.HasPhysics)
+            if (!block.HasPhysics || block.CubeGrid == null)
                 return;
 
             if (massResults != null)
@@ -307,7 +308,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (physicsOption != MyPhysicsOption.None)
                 {
-                    var havokShapes = block.FatBlock.ModelCollision.HavokCollisionShapes;
+                    HkShape[] havokShapes = null;
+                    if (block.FatBlock != null)
+                    {
+                        havokShapes = block.FatBlock.ModelCollision.HavokCollisionShapes;
+                    }
 
                     if ((havokShapes != null && havokShapes.Length > 0) && !MyFakes.ENABLE_SIMPLE_GRID_PHYSICS)
                     {

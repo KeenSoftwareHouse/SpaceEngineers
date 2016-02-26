@@ -16,7 +16,8 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Common.Components;
 using VRage.ModAPI;
-using VRage.Components;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Debris
 {
@@ -38,7 +39,7 @@ namespace Sandbox.Game.Entities.Debris
         {
             private IMyEntity Entity1;
             private RigidBodyFlag rigidBodyFlag;
-
+            private const float VoxelDensity = 260;
             public MyDebrisVoxelPhysics(IMyEntity Entity1, RigidBodyFlag rigidBodyFlag) : base(Entity1, rigidBodyFlag)
             {
             }
@@ -47,7 +48,8 @@ namespace Sandbox.Game.Entities.Debris
             {
                 var sphereShape = new HkSphereShape(((MyEntity)Entity).Render.GetModel().BoundingSphere.Radius * Entity.PositionComp.Scale.Value);
                 shape = sphereShape;
-                massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(sphereShape.Radius, 1);
+                var mass = SphereMass(sphereShape.Radius, VoxelDensity);
+                massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(sphereShape.Radius, mass);
             }
 
             public override void ScalePhysicsShape(ref HkMassProperties massProperties)
@@ -55,11 +57,17 @@ namespace Sandbox.Game.Entities.Debris
                 var shape = RigidBody.GetShape();
                 var sphereShape = (HkSphereShape)shape;
                 sphereShape.Radius = ((MyEntity)Entity).Render.GetModel().BoundingSphere.Radius * Entity.PositionComp.Scale.Value;
-                massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(sphereShape.Radius, 1);
+                var mass = SphereMass(sphereShape.Radius, VoxelDensity);
+                massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(sphereShape.Radius, mass);
 
                 RigidBody.SetShape(sphereShape);
                 RigidBody.SetMassProperties(ref massProperties);
                 RigidBody.UpdateShape();
+            }
+
+            private float SphereMass(float radius, float density)
+            {
+                return radius * radius * radius * MathHelper.Pi * 4 * 0.333f * density;
             }
         }
         internal class MyDebrisVoxelLogic : MyDebrisBase.MyDebrisBaseLogic

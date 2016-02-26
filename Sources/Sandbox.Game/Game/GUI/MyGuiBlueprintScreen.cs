@@ -3,7 +3,6 @@
 using ParallelTasks;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
@@ -30,6 +29,11 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
 using VRage.ObjectBuilders;
+using VRage.Collections;
+using VRage.Game;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
+
 #endregion
 
 
@@ -47,6 +51,7 @@ namespace Sandbox.Game.Gui
     { 
         public MyBlueprintTypeEnum Type;
         public ulong? PublishedItemId = null;
+        public MySteamWorkshop.SubscribedItem Item;
 
         public MyBlueprintItemInfo(MyBlueprintTypeEnum type, ulong? id = null)
         {
@@ -55,7 +60,7 @@ namespace Sandbox.Game.Gui
         }
     }
 
-    [PreloadRequired]
+    [StaticEventOwner]
     public class MyGuiBlueprintScreen : MyGuiBlueprintScreenBase
     {
         public static Task Task;
@@ -73,6 +78,7 @@ namespace Sandbox.Game.Gui
         private MyGuiControlButton m_screenshotButton;
         private MyGuiControlButton m_replaceButton;
         private MyGuiControlButton m_deleteButton;
+        private MyGuiControlButton m_okButton;
 
         private MyGuiControlTextbox m_searchBox;
         private MyGuiControlButton m_searchClear;
@@ -85,9 +91,13 @@ namespace Sandbox.Game.Gui
         private MyGuiControlRotatingWheel m_wheel;
         private MyGridClipboard m_clipboard;
 
+        static HashSet<ulong> m_downloadQueued = new HashSet<ulong>();
+        static MyConcurrentHashSet<ulong> m_downloadFinished = new MyConcurrentHashSet<ulong>();
+
+        static string TEMP_PATH = Path.Combine(m_workshopBlueprintFolder, "temp");
+
         private string[] filenames;
-       
-        
+           
 
         public static bool FirstTime
         {
@@ -97,32 +107,35 @@ namespace Sandbox.Game.Gui
 
         static MyGuiBlueprintScreen()
         {
-            MySyncLayer.RegisterMessage<ShareBlueprintMsg>(ShareBlueprintRequest, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
         }
 
-        static void ShareBlueprintRequest(ref ShareBlueprintMsg msg, MyNetworkClient sender)
+        [Event,Reliable,Server]
+        public static void ShareBlueprintRequest(ulong workshopId,string name,ulong sendToId,string senderName)
         {
-            if (Sync.IsServer && msg.SendToId != Sync.MyId)
+            if (Sync.IsServer && sendToId != Sync.MyId)
             {
-                Sync.Layer.SendMessage(ref msg, msg.SendToId);
+                MyMultiplayer.RaiseStaticEvent(x => ShareBlueprintRequestClient, workshopId, name, sendToId, senderName);
             }
             else
             {
-                var itemId = msg.WorkshopId;
-                var name = msg.Name;
-                var info = new MyBlueprintItemInfo(MyBlueprintTypeEnum.SHARED, id: itemId);
-                var item = new MyGuiControlListbox.Item(new StringBuilder(name.ToString()), userData: info, icon: MyGuiConstants.TEXTURE_BLUEPRINTS_ARROW.Normal);
-                item.ColorMask = new Vector4(0.7f);
-                if (!m_recievedBlueprints.Any(item2 => (item2.UserData as MyBlueprintItemInfo).PublishedItemId == (item.UserData as MyBlueprintItemInfo).PublishedItemId))
-                {
-                    m_recievedBlueprints.Add(item);
-                    m_blueprintList.Add(item);
-                    if (sender != null)
-                    {
-                        var notification = new MyHudNotificationDebug(sender.DisplayName + " just shared a blueprint with you.", 2500);
-                        MyHud.Notifications.Add(notification);
-                    }
-                }
+                ShareBlueprintRequestClient(workshopId, name, sendToId, senderName);
+            }
+        }
+
+        [Event, Reliable, Client]
+        static void ShareBlueprintRequestClient(ulong workshopId, string name, ulong sendToId, string senderName)
+        {
+            var itemId = workshopId;
+            var info = new MyBlueprintItemInfo(MyBlueprintTypeEnum.SHARED, id: itemId);
+            var item = new MyGuiControlListbox.Item(new StringBuilder(name.ToString()), userData: info, icon: MyGuiConstants.TEXTURE_BLUEPRINTS_ARROW.Normal);
+            item.ColorMask = new Vector4(0.7f);
+            if (!m_recievedBlueprints.Any(item2 => (item2.UserData as MyBlueprintItemInfo).PublishedItemId == (item.UserData as MyBlueprintItemInfo).PublishedItemId))
+            {
+                m_recievedBlueprints.Add(item);
+                m_blueprintList.Add(item);
+
+                var notification = new MyHudNotificationDebug(senderName + " just shared a blueprint with you.", 2500);
+                MyHud.Notifications.Add(notification);
             }
         }
 
@@ -151,6 +164,8 @@ namespace Sandbox.Game.Gui
                 m_downloadFromSteam = false;
             }
 
+            CreateTempDirectory();
+
             RecreateControls(true);
             
             m_blueprintList.ItemsSelected += OnSelectItem;
@@ -176,8 +191,8 @@ namespace Sandbox.Game.Gui
             Vector2 buttonOffset = new Vector2(0.15f, 0.035f);
             float width = 0.15f;
 
-            var okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale );
-            okButton.Position = buttonPosition;
+            m_okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale);
+            m_okButton.Position = buttonPosition;
 
             var cancelButton = CreateButton(width, new StringBuilder("Cancel"), OnCancel, textScale: m_textScale);
             cancelButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
@@ -280,7 +295,7 @@ namespace Sandbox.Game.Gui
                 }
                 else
                 {
-                    GetWorkshopItemsLocal();
+                    GetWorkshopItemsSteam();
                 }
             }
 
@@ -330,6 +345,20 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
+        void GetWorkshopItemsSteam()
+        {
+            for (int i = 0; i < m_subscribedItemsList.Count; i++)
+            {
+                MySteamWorkshop.SubscribedItem suscribedItem = m_subscribedItemsList[i];
+                MyAnalyticsHelper.ReportActivityStart(null, "show_blueprints", string.Empty, "gui", string.Empty);
+
+                String name = suscribedItem.Title;
+                var info = new MyBlueprintItemInfo(MyBlueprintTypeEnum.STEAM, suscribedItem.PublishedFileId) {Item = suscribedItem };
+                var item = new MyGuiControlListbox.Item(text: new StringBuilder(name), toolTip: name, userData: info, icon: MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP.Normal);
+                m_blueprintList.Add(item);
+            }
+        }
+
         void GetWorkshopItemsLocal()
         {
             var filePath = Path.Combine(m_workshopBlueprintFolder, "temp");
@@ -365,112 +394,95 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        void ExtractWorkShopItems()
+        bool IsExtracted(MySteamWorkshop.SubscribedItem subItem)
         {
-            ProfilerShort.Begin("Blueprint screen - Extracting bluepritns");
+            var extractPath = Path.Combine(TEMP_PATH, subItem.PublishedFileId.ToString());
+            return Directory.Exists(extractPath);
+        }
 
-            if (!Directory.Exists(m_workshopBlueprintFolder))
+        void ExtractWorkshopItem(MySteamWorkshop.SubscribedItem subItem)
+        {
+            string archive = Path.Combine(m_workshopBlueprintFolder, subItem.PublishedFileId.ToString() + m_workshopBlueprintSuffix);
+            var extractPath = Path.Combine(TEMP_PATH, subItem.PublishedFileId.ToString());
+
+            if (Directory.Exists(extractPath))
             {
-                Directory.CreateDirectory(m_workshopBlueprintFolder);
+                Directory.Delete(extractPath);
             }
-            var downloadedMods = Directory.GetFiles(m_workshopBlueprintFolder);
 
-            foreach (var mod in downloadedMods)
+            Directory.CreateDirectory(extractPath);
+            var extracted = MyZipArchive.OpenOnFile(archive);
+
+            var modInfo = new MyObjectBuilder_ModInfo();
+            modInfo.SubtypeName = subItem.Title;
+            modInfo.WorkshopId = subItem.PublishedFileId;
+            modInfo.SteamIDOwner = subItem.SteamIDOwner;
+
+            var infoFile = Path.Combine(TEMP_PATH,subItem.PublishedFileId.ToString(), "info.temp");
+            if (File.Exists(infoFile))
             {
-                var fileName = Path.GetFileNameWithoutExtension(mod);
-                var id = ulong.Parse(fileName);
-                if(!m_subscribedItemsList.Any(item => item.PublishedFileId == id))
+                File.Delete(infoFile);
+            }
+
+            var infoSuccess = MyObjectBuilderSerializer.SerializeXML(infoFile, false, modInfo);
+
+            if (extracted.FileExists("thumb.png"))
+            {
+                var stream = extracted.GetFile("thumb.png").GetStream();
+                if (stream != null)
                 {
-                    File.Delete(mod); 
-                }
-            }
-
-            var tempPath = Path.Combine(m_workshopBlueprintFolder, "temp");
-            if (Directory.Exists(tempPath))
-            {
-                Directory.Delete(tempPath, true);
-            }
-            var tempDir = Directory.CreateDirectory(tempPath);
-
-            foreach (var subItem in m_subscribedItemsList)
-            {
-                if (downloadedMods.Any(item => item.Contains(subItem.PublishedFileId.ToString())))
-                {
-                    string archive = Array.Find(downloadedMods, item => item.Contains(subItem.PublishedFileId.ToString()));
-
-                    var extractPath = Path.Combine(tempDir.FullName, subItem.PublishedFileId.ToString());
-
-                    if (!File.Exists(extractPath))
+                    using (var file = File.Create(Path.Combine(extractPath, "thumb.png")))
                     {
-                        Directory.CreateDirectory(extractPath);
-                        var extracted = MyZipArchive.OpenOnFile(archive);
-
-                        var modInfo = new MyObjectBuilder_ModInfo();
-                        modInfo.SubtypeName = subItem.Title;
-                        modInfo.WorkshopId = subItem.PublishedFileId;
-                        modInfo.SteamIDOwner = subItem.SteamIDOwner;
-
-
-                        var infoFile = Path.Combine(m_workshopBlueprintFolder, "temp", subItem.PublishedFileId.ToString(), "info.temp");
-                        if (File.Exists(infoFile))
-                        {
-                            File.Delete(infoFile);
-                        }
-                        var infoSuccess = MyObjectBuilderSerializer.SerializeXML(infoFile, false, modInfo);
-  
-                        if (extracted.FileExists("thumb.png"))
-                        {
-                            var stream = extracted.GetFile("thumb.png").GetStream();
-                            if (stream != null)
-                            {
-                                using (var file = File.Create(Path.Combine(extractPath, "thumb.png")))
-                                {
-                                    stream.CopyTo(file);
-                                }
-                            }
-                            stream.Close();
-                        }
-                        
-                        extracted.Dispose();
-
-                        var info = new MyBlueprintItemInfo(MyBlueprintTypeEnum.STEAM, subItem.PublishedFileId);
-                        var listItem = new MyGuiControlListbox.Item(text: new StringBuilder(subItem.Title), toolTip: subItem.Title, icon: MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP.Normal, userData: info);
-
-                        var itemIndex = m_blueprintList.Items.FindIndex(item => ((item.UserData as MyBlueprintItemInfo).PublishedItemId == (listItem.UserData as MyBlueprintItemInfo).PublishedItemId) && (item.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.STEAM);
-                        if (itemIndex == -1)
-                        {
-                            m_blueprintList.Add(listItem);
-                        }
+                        stream.CopyTo(file);
                     }
                 }
+                stream.Close();
             }
-            ProfilerShort.End();
+
+            extracted.Dispose();
+
+            var info = new MyBlueprintItemInfo(MyBlueprintTypeEnum.STEAM, subItem.PublishedFileId);
+            var listItem = new MyGuiControlListbox.Item(text: new StringBuilder(subItem.Title), toolTip: subItem.Title, icon: MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP.Normal, userData: info);
+
+            var itemIndex = m_blueprintList.Items.FindIndex(item => ((item.UserData as MyBlueprintItemInfo).PublishedItemId == (listItem.UserData as MyBlueprintItemInfo).PublishedItemId) && (item.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.STEAM);
+            if (itemIndex == -1)
+            {
+                m_blueprintList.Add(listItem);
+            }
+        }
+
+        DirectoryInfo CreateTempDirectory()
+        {
+            return Directory.CreateDirectory(TEMP_PATH);
         }
 
         void DownloadBlueprints()
-        {
+        {     
             ProfilerShort.Begin("Getting workshop blueprints.");
             m_downloadFromSteam = true;
             ProfilerShort.BeginNextBlock("downloading");
             m_subscribedItemsList.Clear();
             bool success = MySteamWorkshop.GetSubscribedBlueprintsBlocking(m_subscribedItemsList);
-            bool success2 = false;
+
             if (success)
             {
-                if (Directory.Exists(m_workshopBlueprintFolder))
+                Directory.CreateDirectory(m_workshopBlueprintFolder);
+
+                foreach(var item in m_subscribedItemsList)
                 {
-                    try
+                    string archive = Path.Combine(m_workshopBlueprintFolder, item.PublishedFileId.ToString() + m_workshopBlueprintSuffix);
+                    if (File.Exists(archive))
                     {
-                        Directory.Delete(m_workshopBlueprintFolder, true);
+                        m_downloadFinished.Add(item.PublishedFileId);
                     }
-                    catch (System.IO.IOException)
+                    else
                     {
+                        DownloadBlueprintFromSteam(item);
+                        m_downloadFinished.Add(item.PublishedFileId);
                     }
                 }
-                Directory.CreateDirectory(m_workshopBlueprintFolder);
-                success2 = MySteamWorkshop.DownloadBlueprintsBlocking(m_subscribedItemsList);
             }
-            if (success && success2)
+            if (success)
             {
                 m_needsExtract = true;
                 m_downloadFromSteam = false;
@@ -563,20 +575,45 @@ namespace Sandbox.Game.Gui
             var path = "";
             if (item != null)
             {
-                if ((item.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.LOCAL)
+                MyBlueprintItemInfo blueprintInfo = (item.UserData as MyBlueprintItemInfo);
+                if (blueprintInfo.Type == MyBlueprintTypeEnum.LOCAL)
                 {
-                    path = Path.Combine(m_localBlueprintFolder, item.Text.ToString(), "thumb.png");
-                    
+                    path = Path.Combine(m_localBlueprintFolder, item.Text.ToString(), "thumb.png");               
                 }
-                else if ((item.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.STEAM)
+                else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
                 {
-                    var id = (item.UserData as MyBlueprintItemInfo).PublishedItemId;
+                    var id = blueprintInfo.PublishedItemId;
                     if (id != null)
                     {
-                        path = Path.Combine(m_workshopBlueprintFolder, "temp", id.ToString(), "thumb.png");
+                        path = Path.Combine(TEMP_PATH, id.ToString(), "thumb.png");
+                        if (blueprintInfo.Item != null)
+                        {
+                            bool isQueued = m_downloadQueued.Contains(blueprintInfo.Item.PublishedFileId);
+                            bool isDownloaded = m_downloadFinished.Contains(blueprintInfo.Item.PublishedFileId);
+                            MySteamWorkshop.SubscribedItem worshopData = blueprintInfo.Item;
+                            if (isDownloaded && IsExtracted(worshopData) == false)
+                            {
+                                m_blueprintList.Enabled = false;
+                                m_okButton.Enabled = false;
+                                ExtractWorkshopItem(worshopData);
+                                m_blueprintList.Enabled = true;
+                                m_okButton.Enabled = true;
+                            }
+                            if (isQueued == false && isDownloaded == false)
+                            {
+                                m_blueprintList.Enabled = false;
+                                m_okButton.Enabled = false;
+                                m_downloadQueued.Add(blueprintInfo.Item.PublishedFileId);
+
+                                Task = Parallel.Start(() =>
+                                {
+                                    DownloadBlueprintFromSteam(worshopData);
+                                }, () => { OnBlueprintDownloadedThumbnail(worshopData); });
+                            }
+                        }
                     }
                 }
-                else if ((item.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.DEFAULT)
+                else if (blueprintInfo.Type == MyBlueprintTypeEnum.DEFAULT)
                 {
                     path = Path.Combine(m_defaultBlueprintFolder, item.Text.ToString(), "thumb.png");
                 }
@@ -657,6 +694,7 @@ namespace Sandbox.Game.Gui
                 m_selectedImage.BackgroundTexture = null;
             }
         }
+
         bool ValidateSelecteditem()
         {
             if (m_selectedItem == null)
@@ -675,8 +713,8 @@ namespace Sandbox.Game.Gui
 
             var path = "";
             MyObjectBuilder_Definitions prefab = null;
-            
-            if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.LOCAL)
+            MyBlueprintItemInfo blueprintInfo = (m_selectedItem.UserData as MyBlueprintItemInfo);
+            if (blueprintInfo.Type == MyBlueprintTypeEnum.LOCAL)
             {
                 path = Path.Combine(m_localBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                 if (File.Exists(path))
@@ -684,7 +722,7 @@ namespace Sandbox.Game.Gui
                     prefab = LoadPrefab(path);
                 }
             }
-            else if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.STEAM)
+            else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
             {
                 var id = (m_selectedItem.UserData as MyBlueprintItemInfo).PublishedItemId;
                 path = Path.Combine(m_workshopBlueprintFolder, id.ToString() + m_workshopBlueprintSuffix);
@@ -694,11 +732,11 @@ namespace Sandbox.Game.Gui
                 }
 
             }
-            else if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.SHARED)
+            else if (blueprintInfo.Type == MyBlueprintTypeEnum.SHARED)
             {
                 return false;
             }
-            else if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.DEFAULT)
+            else if (blueprintInfo.Type == MyBlueprintTypeEnum.DEFAULT)
             {
                 path = Path.Combine(m_defaultBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                 if (File.Exists(path))
@@ -734,7 +772,7 @@ namespace Sandbox.Game.Gui
 
             var cubeGrids = prefab.ShipBlueprints[0].CubeGrids;
 
-            if (cubeGrids == null || cubeGrids.Count() == 0)
+            if (cubeGrids == null || cubeGrids.Length == 0)
                 return false;
 
             var localBB = MyCubeGridExtensions.CalculateBoundingSphere(cubeGrids[0]);
@@ -757,9 +795,18 @@ namespace Sandbox.Game.Gui
                     {
                         if (block.Owner != 0)
                         {
-                            block.Owner = MySession.LocalPlayerId;
+                            block.Owner = MySession.Static.LocalPlayerId;
                         }
                     }
+                }
+            }
+
+            // Blueprint can have old (deprecated) fractured blocks, they have to be converted to fracture components. There is no version in blueprints.
+            if (MyFakes.ENABLE_FRACTURE_COMPONENT)
+            {
+                for (int i = 0; i < cubeGrids.Length; ++i)
+                {
+                    cubeGrids[i] = MyFracturedBlock.ConvertFracturedBlocksToComponents(cubeGrids[i]);
                 }
             }
 
@@ -825,26 +872,15 @@ namespace Sandbox.Game.Gui
         void OnItemDoubleClick(MyGuiControlListbox list)
         {
             m_selectedItem = list.SelectedItems[0];
-            var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
+            Ok();        
+        }
 
-            if (itemInfo.Type == MyBlueprintTypeEnum.SHARED)
+        private void CopyBlueprintAndClose()
+        {
+            var close = CopySelectedItemToClipboard();
+            if (close)
             {
-                OpenSharedBlueprint(itemInfo);
-            }
-            else
-            {
-                if (MySession.Static.SurvivalMode && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
-                {
-                    CloseScreen();
-                }
-                else
-                {
-                    var close = CopySelectedItemToClipboard();
-                    if (close)
-                    {
-                        CloseScreen();
-                    }
-                }
+                CloseScreen();
             }
         }
 
@@ -855,25 +891,33 @@ namespace Sandbox.Game.Gui
                 CloseScreen();
                 return;
             }
+
             var itemInfo = m_selectedItem.UserData as MyBlueprintItemInfo;
             if (itemInfo.Type == MyBlueprintTypeEnum.SHARED)
             {
                 OpenSharedBlueprint(itemInfo);
-                return;
             }
-
             else
             {
-                if (MySession.Static.SurvivalMode && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
+                if (MySession.Static.SurvivalMode && MySession.Static.IsAdminModeEnabled == false && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
                 {
                     CloseScreen();
                 }
                 else
                 {
-                    var close = CopySelectedItemToClipboard();
-                    if (close)
+                    if (itemInfo.Type == MyBlueprintTypeEnum.STEAM)
                     {
-                        CloseScreen();
+                        Task = Parallel.Start(() =>
+                        {
+                            if (MySteamWorkshop.IsBlueprintUpToDate(itemInfo.Item) == false)
+                            {
+                                DownloadBlueprintFromSteam(itemInfo.Item);
+                            }
+                        }, () => { CopyBlueprintAndClose(); });
+                    }
+                    else
+                    {
+                        CopyBlueprintAndClose();
                     }
                 }
             }
@@ -894,7 +938,8 @@ namespace Sandbox.Game.Gui
             m_selectedItem = null;
             m_detailsButton.Enabled = false;
             m_screenshotButton.Enabled = false;
-
+            m_downloadFinished.Clear();
+            m_downloadQueued.Clear();
             RefreshAndReloadBlueprintList();
         }
 
@@ -914,7 +959,8 @@ namespace Sandbox.Game.Gui
             }
             else if (!m_activeDetail)
             {
-                if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.LOCAL)
+                MyBlueprintItemInfo blueprintInfo = (m_selectedItem.UserData as MyBlueprintItemInfo);
+                if (blueprintInfo.Type == MyBlueprintTypeEnum.LOCAL)
                 {
                     var path = Path.Combine(m_localBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                     if (File.Exists(path))
@@ -957,7 +1003,7 @@ namespace Sandbox.Game.Gui
                                     ));
                     }
                 }
-                else if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.DEFAULT)
+                else if (blueprintInfo.Type == MyBlueprintTypeEnum.DEFAULT)
                 {
                     var path = Path.Combine(m_defaultBlueprintFolder, m_selectedItem.Text.ToString(), "bp.sbc");
                     if (File.Exists(path))
@@ -1000,43 +1046,89 @@ namespace Sandbox.Game.Gui
                                     ));
                     }
                 }
-                else if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.STEAM)
+                else if (blueprintInfo.Type == MyBlueprintTypeEnum.STEAM)
                 {
-                    var path2 = Path.Combine(m_workshopBlueprintFolder, (m_selectedItem.UserData as MyBlueprintItemInfo).PublishedItemId.ToString() + m_workshopBlueprintSuffix);
-                    if (File.Exists(path2))
+                    MySteamWorkshop.SubscribedItem workshopData = blueprintInfo.Item;
+                    Task = Parallel.Start(() => {
+                        if (MySteamWorkshop.IsBlueprintUpToDate(workshopData) == false) 
+                        { 
+                            DownloadBlueprintFromSteam(workshopData);
+                        } 
+                    }, () => { OnBlueprintDownloadedDetails(workshopData); });               
+                }
+            }
+        }
+
+        void DownloadBlueprintFromSteam(MySteamWorkshop.SubscribedItem item)
+        {
+            if (MySteamWorkshop.IsBlueprintUpToDate(item))
+            {
+                return;
+            }
+            MySteamWorkshop.DownloadBlueprintBlocking(item,false);
+            ExtractWorkshopItem(item);
+        }
+       
+        void OnBlueprintDownloadedDetails(MySteamWorkshop.SubscribedItem workshopDetails)
+        {
+            var path2 = Path.Combine(m_workshopBlueprintFolder, workshopDetails.PublishedFileId.ToString() + m_workshopBlueprintSuffix);
+            if (File.Exists(path2))
+            {
+                m_thumbnailImage.Visible = false;
+                m_detailScreen = new MyGuiDetailScreenSteam(
+                    callBack: delegate(MyGuiControlListbox.Item item)
                     {
-                        m_thumbnailImage.Visible = false;
-                        m_detailScreen = new MyGuiDetailScreenSteam(
-                            callBack: delegate(MyGuiControlListbox.Item item)
-                            {
-                                m_selectedItem = item;
-                                m_activeDetail = false;
-                                m_detailScreen = null;
-                                if (Task.IsComplete)
-                                {
-                                    RefreshBlueprintList();
-                                }
-                            },
-                            selectedItem: m_selectedItem,
-                            parent: this,
-                            thumbnailTexture: m_selectedImage.BackgroundTexture,
-                            textScale: m_textScale
-                            );
-                        m_activeDetail = true;
-                        MyScreenManager.InputToNonFocusedScreens = true;
-                        MyScreenManager.AddScreen(m_detailScreen);
-                    }
-                    else
+                        m_selectedItem = item;
+                        m_activeDetail = false;
+                        m_detailScreen = null;
+                        if (Task.IsComplete)
+                        {
+                            RefreshBlueprintList();
+                        }
+                    },
+                    selectedItem: m_selectedItem,
+                    parent: this,
+                    thumbnailTexture: m_selectedImage.BackgroundTexture,
+                    textScale: m_textScale
+                    );
+                m_activeDetail = true;
+                MyScreenManager.InputToNonFocusedScreens = true;
+                MyScreenManager.AddScreen(m_detailScreen);
+            }
+            else
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                            buttonType: MyMessageBoxButtonsType.OK,
+                            styleEnum: MyMessageBoxStyleEnum.Error,
+                            messageCaption: new StringBuilder("Error"),
+                            messageText: new StringBuilder("Cannot find the blueprint file.")
+                            ));
+            }
+        }
+
+        void OnBlueprintDownloadedThumbnail(MySteamWorkshop.SubscribedItem item)
+        {
+            m_okButton.Enabled = true;
+            m_blueprintList.Enabled = true;
+            string path =  Path.Combine(m_workshopBlueprintFolder, "temp",item.PublishedFileId.ToString(), "thumb.png");;
+            if (File.Exists(path))
+            {
+                m_thumbnailImage.SetTexture(path);
+                if (!m_activeDetail)
+                {
+                    if (m_thumbnailImage.BackgroundTexture != null)
                     {
-                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                    buttonType: MyMessageBoxButtonsType.OK,
-                                    styleEnum: MyMessageBoxStyleEnum.Error,
-                                    messageCaption: new StringBuilder("Error"),
-                                    messageText: new StringBuilder("Cannot find the blueprint file.")
-                                    ));
+                        m_thumbnailImage.Visible = true;
                     }
                 }
             }
+            else
+            {
+                m_thumbnailImage.Visible = false;
+                m_thumbnailImage.BackgroundTexture = null;
+            }
+            m_downloadQueued.Remove(item.PublishedFileId);
+            m_downloadFinished.Add(item.PublishedFileId);
         }
 
         public void TakeScreenshot(string name)
@@ -1086,7 +1178,7 @@ namespace Sandbox.Game.Gui
             prefab.CubeGrids = MyCubeBuilder.Static.Clipboard.CopiedGrids.ToArray();
             prefab.RespawnShip = false;
             prefab.DisplayName = MySteam.UserName;
-            prefab.OwnerSteamId = MySteam.UserId;
+            prefab.OwnerSteamId = Sync.MyId;
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
                 prefab.Points = MyBattleHelper.GetBattlePoints(prefab.CubeGrids);
             prefab.CubeGrids[0].DisplayName = name;
@@ -1128,7 +1220,6 @@ namespace Sandbox.Game.Gui
                 }));
         }
 
-
         void OnCreate(MyGuiControlButton button)
         {
             CreateFromClipboard();
@@ -1144,8 +1235,8 @@ namespace Sandbox.Game.Gui
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                 buttonType: MyMessageBoxButtonsType.YES_NO,
                 styleEnum: MyMessageBoxStyleEnum.Info,
-                messageCaption: MyTexts.Get(MySpaceTexts.BlueprintsMessageBoxTitle_Replace),
-                messageText: MyTexts.Get(MySpaceTexts.BlueprintsMessageBoxDesc_Replace),
+                messageCaption: MyTexts.Get(MyCommonTexts.BlueprintsMessageBoxTitle_Replace),
+                messageText: MyTexts.Get(MyCommonTexts.BlueprintsMessageBoxDesc_Replace),
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
                 {
                     if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
@@ -1167,7 +1258,6 @@ namespace Sandbox.Game.Gui
                     }
                 }));
         }
-
 
         protected override void OnClosed()
         {
@@ -1195,7 +1285,7 @@ namespace Sandbox.Game.Gui
                 m_wheel.Visible = false;
                 if (m_needsExtract)
                 {
-                    ExtractWorkShopItems();
+                    GetWorkshopItemsSteam();
                     m_needsExtract = false;
                     RefreshBlueprintList();
                 }
@@ -1217,6 +1307,5 @@ namespace Sandbox.Game.Gui
                 this.CloseScreen();
             }
         }
-
     }
 }

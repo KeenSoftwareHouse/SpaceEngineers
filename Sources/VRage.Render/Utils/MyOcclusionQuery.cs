@@ -22,6 +22,7 @@ using BoundingSphere = VRageMath.BoundingSphere;
 using BoundingFrustum = VRageMath.BoundingFrustum;
 using MathHelper = VRageMath.MathHelper;
 using VRage.Utils;
+using System.Diagnostics;
 
 #endregion
 
@@ -36,8 +37,8 @@ namespace VRageRender
         }
 
 
-        static HashSet<MyOcclusionQuery> m_existingQueries = new HashSet<MyOcclusionQuery>();
-        static Stack<MyOcclusionQuery> m_queriesStack = new Stack<MyOcclusionQuery>(256);
+        static readonly HashSet<MyOcclusionQuery> m_existingQueries = new HashSet<MyOcclusionQuery>();
+        static readonly Stack<MyOcclusionQuery> m_queriesStack = new Stack<MyOcclusionQuery>(256);
         static Device m_device;
 
         public static MyOcclusionQuery Get()
@@ -50,6 +51,12 @@ namespace VRageRender
             else
             {
                 query = MyOcclusionQuery.CreateQuery();
+                if(query == null)
+                {
+                    Debug.Fail("OcclusionQuery cannot be null!");
+                    return null;
+                }
+                
                 query.LoadContent(m_device);
                 m_existingQueries.Add(query);
             }

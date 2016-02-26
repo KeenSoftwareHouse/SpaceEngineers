@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element msdata:IsDataSet="true" name="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
-                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
-              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
-              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -124,66 +124,8 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Futás</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
-    <value>Biztosan ki akarsz lépni?</value>
-  </data>
-  <data name="AssignControlKeyboard" xml:space="preserve">
-    <value>Kérlek nyomj meg egy gombot</value>
-  </data>
-  <data name="AssignControlMouse" xml:space="preserve">
-    <value>Kérlek kattints egyet</value>
-  </data>
-  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
-    <value>Hang</value>
-  </data>
-  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
-    <value>Hangbeállítások</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Mégse</value>
-  </data>
-  <data name="CanNotAssignControl" xml:space="preserve">
-    <value>AZ IRÁNYÍGOMB NEM OSZTHATÓ KI</value>
-  </data>
-  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
-    <value>Legutóbbi folytatása</value>
-  </data>
-  <data name="ControlAlreadyAssigned" xml:space="preserve">
-    <value>{0} már hozzá van rendelve {1}.
-Felülírod az eredeti irányítást?</value>
-  </data>
-  <data name="ControlIsNotValid" xml:space="preserve">
-    <value>A megnyomott gomb nem hozzárendelhető az irányításhoz.</value>
-  </data>
-  <data name="ScreenCaptionControls" xml:space="preserve">
-    <value>Irányítás</value>
-  </data>
-  <data name="ScreenMenuButtonCredits" xml:space="preserve">
-    <value>Készítők</value>
-  </data>
-  <data name="KeysDelete" xml:space="preserve">
-    <value>Törlés</value>
-  </data>
-  <data name="KeysDown" xml:space="preserve">
-    <value>Le</value>
-  </data>
-  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
-    <value>Meg akarod tartani ezeket a beállításokat? {0} másodperc van hátra.</value>
-  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Fúró</value>
-  </data>
-  <data name="KeysEnd" xml:space="preserve">
-    <value>End</value>
-  </data>
-  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
-    <value>Kilépés a főmenübe</value>
-  </data>
-  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
-    <value>Kilépés a Windowsba</value>
-  </data>
-  <data name="FieldOfView" xml:space="preserve">
-    <value>Látótér</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Eszköz / Fegyver használata</value>
@@ -191,176 +133,11 @@ Felülírod az eredeti irányítást?</value>
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>Másodlagos mód</value>
   </data>
-  <data name="ScreenOptionsButtonGame" xml:space="preserve">
-    <value>Játék</value>
-  </data>
-  <data name="ScreenCaptionGameOptions" xml:space="preserve">
-    <value>Játékbeállítások</value>
-  </data>
-  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
-    <value>Gamepad</value>
-  </data>
-  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
-    <value>Analóg</value>
-  </data>
-  <data name="GameVolume" xml:space="preserve">
-    <value>Hangerő</value>
-  </data>
-  <data name="ControlTypeGeneral" xml:space="preserve">
-    <value>Általános</value>
-  </data>
-  <data name="HardwareCursor" xml:space="preserve">
-    <value>Hardveres kurzor</value>
-  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Világítás be / ki</value>
   </data>
-  <data name="ControlName_Help" xml:space="preserve">
-    <value>Segítség</value>
-  </data>
-  <data name="KeysHome" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="KeysInsert" xml:space="preserve">
-    <value>Beillesztés</value>
-  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Felszerelés</value>
-  </data>
-  <data name="InvertMouseX" xml:space="preserve">
-    <value>Az egér X tengelyének megfordítása</value>
-  </data>
-  <data name="InvertMouseY" xml:space="preserve">
-    <value>Az egér Y tengelyének megfordítása</value>
-  </data>
-  <data name="Joystick" xml:space="preserve">
-    <value>Joystick vagy gamepad</value>
-  </data>
-  <data name="JoystickButtonLeft" xml:space="preserve">
-    <value>JD Bal</value>
-  </data>
-  <data name="JoystickButtonRight" xml:space="preserve">
-    <value>JD Jobb</value>
-  </data>
-  <data name="JoystickButtonUp" xml:space="preserve">
-    <value>JD Fel</value>
-  </data>
-  <data name="JoystickButtonDown" xml:space="preserve">
-    <value>JD Le</value>
-  </data>
-  <data name="JoystickDeadzone" xml:space="preserve">
-    <value>Joystick holtterének szélessége</value>
-  </data>
-  <data name="JoystickExponent" xml:space="preserve">
-    <value>Joystick fokozatos pontossága</value>
-  </data>
-  <data name="JoystickSensitivity" xml:space="preserve">
-    <value>Joystick érzékenység</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
-    <value>Billentyűzet</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Nyelv</value>
-  </data>
-  <data name="KeysLeft" xml:space="preserve">
-    <value>Bal</value>
-  </data>
-  <data name="KeysLeftAlt" xml:space="preserve">
-    <value>Bal Alt</value>
-  </data>
-  <data name="KeysLeftControl" xml:space="preserve">
-    <value>Bal Ctrl</value>
-  </data>
-  <data name="LeftMouseButton" xml:space="preserve">
-    <value>Bal egérgomb</value>
-  </data>
-  <data name="KeysLeftShift" xml:space="preserve">
-    <value>Bal Shift</value>
-  </data>
-  <data name="LoadScreenButtonLoad" xml:space="preserve">
-    <value>Betöltés</value>
-  </data>
-  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
-    <value>BETÖLTÉS ... KÉRLEK VÁRJ</value>
-  </data>
-  <data name="MessageBoxCaptionError" xml:space="preserve">
-    <value>HIBA</value>
-  </data>
-  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
-    <value>KÉRLEK ERŐSÍTSD MEG</value>
-  </data>
-  <data name="MessageBoxCaptionExit" xml:space="preserve">
-    <value>KILÉPÉS</value>
-  </data>
-  <data name="MiddleMouseButton" xml:space="preserve">
-    <value>Középső egérgomb</value>
-  </data>
-  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
-    <value>Egér</value>
-  </data>
-  <data name="MouseSensitivity" xml:space="preserve">
-    <value>Egér érzékenység</value>
-  </data>
-  <data name="MouseXButton1" xml:space="preserve">
-    <value>MXB1</value>
-  </data>
-  <data name="MouseXButton2" xml:space="preserve">
-    <value>MXB2</value>
-  </data>
-  <data name="ControlTypeNavigation" xml:space="preserve">
-    <value>Navigáció</value>
-  </data>
-  <data name="ScreenCaptionNewWorld" xml:space="preserve">
-    <value>Új világ</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>Nem</value>
-  </data>
-  <data name="KeysNumPad0" xml:space="preserve">
-    <value>Num 0</value>
-  </data>
-  <data name="KeysNumPad1" xml:space="preserve">
-    <value>Num 1</value>
-  </data>
-  <data name="KeysNumPad2" xml:space="preserve">
-    <value>Num 2</value>
-  </data>
-  <data name="KeysNumPad3" xml:space="preserve">
-    <value>Num 3</value>
-  </data>
-  <data name="KeysNumPad4" xml:space="preserve">
-    <value>Num 4</value>
-  </data>
-  <data name="KeysNumPad5" xml:space="preserve">
-    <value>Num 5</value>
-  </data>
-  <data name="KeysNumPad6" xml:space="preserve">
-    <value>Num 6</value>
-  </data>
-  <data name="KeysNumPad7" xml:space="preserve">
-    <value>Num 7</value>
-  </data>
-  <data name="KeysNumPad8" xml:space="preserve">
-    <value>Num 8</value>
-  </data>
-  <data name="KeysNumPad9" xml:space="preserve">
-    <value>Num 9</value>
-  </data>
-  <data name="Ok" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ScreenCaptionOptions" xml:space="preserve">
-    <value>Beállítások</value>
-  </data>
-  <data name="KeysPageDown" xml:space="preserve">
-    <value>PgDown</value>
-  </data>
-  <data name="KeysPageUp" xml:space="preserve">
-    <value>PgUp</value>
-  </data>
-  <data name="RecommendedAspectRatio" xml:space="preserve">
-    <value>Ajánlott képarány: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Renderelés minősége</value>
@@ -373,24 +150,6 @@ Felülírod az eredeti irányítást?</value>
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normál</value>
-  </data>
-  <data name="Revert" xml:space="preserve">
-    <value>Alapértelmezett</value>
-  </data>
-  <data name="KeysRight" xml:space="preserve">
-    <value>Jobb</value>
-  </data>
-  <data name="KeysRightAlt" xml:space="preserve">
-    <value>Jobb Alt</value>
-  </data>
-  <data name="KeysRightControl" xml:space="preserve">
-    <value>Jobb Ctrl</value>
-  </data>
-  <data name="RightMouseButton" xml:space="preserve">
-    <value>Jobb egérgomb</value>
-  </data>
-  <data name="KeysRightShift" xml:space="preserve">
-    <value>Jobb Shift</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Gördülés balra (hajó / jetpack)</value>
@@ -410,188 +169,14 @@ Felülírod az eredeti irányítást?</value>
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Forgás fölfelé</value>
   </data>
-  <data name="SelectControl" xml:space="preserve">
-    <value>IRÁNYÍTÁS KIVÁLASZTÁSA</value>
-  </data>
-  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
-    <value>BEÜTEMEZETT SZERVER LEÁLLÁS</value>
-  </data>
-  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
-    <value>Sajnáljuk, de az általad kiválasztott beállításokat a hardvered nem támogatja.</value>
-  </data>
-  <data name="KeysSpace" xml:space="preserve">
-    <value>Szóköz</value>
-  </data>
-  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
-    <value>Játék indítása ... kérlek várj.</value>
-  </data>
-  <data name="ControlName_StrafeLeft" xml:space="preserve">
-    <value>Oldalazás balra</value>
-  </data>
-  <data name="ControlName_StrafeRight" xml:space="preserve">
-    <value>Oldalazás jobbra</value>
-  </data>
-  <data name="ControlTypeSystems1" xml:space="preserve">
-    <value>Rendszerek 1</value>
-  </data>
-  <data name="ControlTypeSystems2" xml:space="preserve">
-    <value>Rendszerek 2</value>
-  </data>
-  <data name="KeysTab" xml:space="preserve">
-    <value>Tab</value>
-  </data>
-  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
-    <value>Nem sikerült elindítani a böngészőt.</value>
-  </data>
-  <data name="UnknownControl_None" xml:space="preserve">
-    <value>semmi</value>
-  </data>
-  <data name="KeysUp" xml:space="preserve">
-    <value>Fel</value>
-  </data>
-  <data name="ControlName_UseOrInteract" xml:space="preserve">
-    <value>Használat / Interakció</value>
-  </data>
-  <data name="VerticalSync" xml:space="preserve">
-    <value>Vertical sync</value>
-  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Megjelenítés</value>
-  </data>
-  <data name="VideoMode" xml:space="preserve">
-    <value>Megjelenítési mód</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Megjelenítési beállítások</value>
   </data>
-  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
-    <value>Szerszámok / Fegyverek</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Igen</value>
-  </data>
-  <data name="Disabled" xml:space="preserve">
-    <value>Letiltva</value>
-  </data>
-  <data name="JoystickRotationXpos" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYpos" xml:space="preserve">
-    <value>JRY+</value>
-  </data>
-  <data name="JoystickRotationZpos" xml:space="preserve">
-    <value>JRZ+</value>
-  </data>
-  <data name="JoystickSlider1pos" xml:space="preserve">
-    <value>JS1+</value>
-  </data>
-  <data name="JoystickSlider2pos" xml:space="preserve">
-    <value>JS2+</value>
-  </data>
-  <data name="JoystickRotationXneg" xml:space="preserve">
-    <value>JRX-</value>
-  </data>
-  <data name="JoystickRotationYneg" xml:space="preserve">
-    <value>JRY-</value>
-  </data>
-  <data name="JoystickRotationZneg" xml:space="preserve">
-    <value>JRZ-</value>
-  </data>
-  <data name="JoystickSlider1neg" xml:space="preserve">
-    <value>JS1-</value>
-  </data>
-  <data name="JoystickSlider2neg" xml:space="preserve">
-    <value>JS2-</value>
-  </data>
-  <data name="KeysDecimal" xml:space="preserve">
-    <value>Num .</value>
-  </data>
-  <data name="KeysBackslash" xml:space="preserve">
-    <value>Fordított perjel</value>
-  </data>
-  <data name="KeysComma" xml:space="preserve">
-    <value>Vessző</value>
-  </data>
-  <data name="KeysMinus" xml:space="preserve">
-    <value>Mínusz jel</value>
-  </data>
-  <data name="KeysOpenBracket" xml:space="preserve">
-    <value>[</value>
-  </data>
-  <data name="KeysCloseBracket" xml:space="preserve">
-    <value>]</value>
-  </data>
-  <data name="KeysPeriod" xml:space="preserve">
-    <value>Pont</value>
-  </data>
-  <data name="KeysPipe" xml:space="preserve">
-    <value>Cső</value>
-  </data>
-  <data name="KeysPlus" xml:space="preserve">
-    <value>Plusz</value>
-  </data>
-  <data name="KeysQuestion" xml:space="preserve">
-    <value>Perjel</value>
-  </data>
-  <data name="KeysQuotes" xml:space="preserve">
-    <value>Idézőjel</value>
-  </data>
-  <data name="KeysSemicolon" xml:space="preserve">
-    <value>Kettőspont</value>
-  </data>
-  <data name="KeysTilde" xml:space="preserve">
-    <value>~</value>
-  </data>
-  <data name="KeysMultiply" xml:space="preserve">
-    <value>Num *</value>
-  </data>
-  <data name="KeysDivide" xml:space="preserve">
-    <value>Num /</value>
-  </data>
-  <data name="KeysAdd" xml:space="preserve">
-    <value>Num +</value>
-  </data>
-  <data name="KeysSubtract" xml:space="preserve">
-    <value>Num -</value>
-  </data>
-  <data name="KeysCapsLock" xml:space="preserve">
-    <value>Caps Lock</value>
-  </data>
-  <data name="KeysEnter" xml:space="preserve">
-    <value>Enter</value>
-  </data>
-  <data name="KeysBackspace" xml:space="preserve">
-    <value>Backspace</value>
-  </data>
-  <data name="ApplyingPleaseWait" xml:space="preserve">
-    <value>Változások alkalmazása ... kérem várjon</value>
-  </data>
-  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
-    <value>Megöltek</value>
-  </data>
-  <data name="MusicVolume" xml:space="preserve">
-    <value>Zene hangereje</value>
-  </data>
-  <data name="VideoAdapter" xml:space="preserve">
-    <value>Megjelenítő adapter</value>
-  </data>
-  <data name="DefaultFOV" xml:space="preserve">
-    <value>Alapértelmezett: {0:F1}</value>
-  </data>
-  <data name="WorldLoaded" xml:space="preserve">
-    <value>{0} Világ betöltve</value>
-  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Chat képernyő</value>
-  </data>
-  <data name="ControlName_Screenshot" xml:space="preserve">
-    <value>Képernyőmentés</value>
-  </data>
-  <data name="ControlName_PreviousColor" xml:space="preserve">
-    <value>Előző szín vagy Kamera</value>
-  </data>
-  <data name="ControlName_NextColor" xml:space="preserve">
-    <value>Következő szín vagy Kamera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminál / Felszerelés</value>
@@ -599,23 +184,14 @@ Felülírod az eredeti irányítást?</value>
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Hegesztő</value>
   </data>
-  <data name="WorldSaved" xml:space="preserve">
-    <value>A {0} világ mentésre került</value>
-  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>A célpont szétszedéséhez nyomj {0}-t</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>A célpont hegesztéséhez nyomd meg a {0}-t</value>
   </data>
-  <data name="Blueprints" xml:space="preserve">
-    <value>Tervrajzok</value>
-  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Vezérlőpult</value>
-  </data>
-  <data name="Factions" xml:space="preserve">
-    <value>Frakciók</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Összeszerelő</value>
@@ -891,23 +467,11 @@ Felülírod az eredeti irányítást?</value>
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>Fehér</value>
   </data>
-  <data name="BlueprintMaterials" xml:space="preserve">
-    <value>Tervrajz Anyagok</value>
-  </data>
-  <data name="ProductionQueue" xml:space="preserve">
-    <value>Termelési Sor</value>
-  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reaktor</value>
   </data>
-  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
-    <value>Beállítások Módosítása</value>
-  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Auto-gyógyulás</value>
-  </data>
-  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Egyéni Világ</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Leírás</value>
@@ -924,12 +488,6 @@ Felülírod az eredeti irányítást?</value>
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Biztonságos</value>
   </data>
-  <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Túl hosszú név (max. 128 karakter megengedett)</value>
-  </data>
-  <data name="ErrorNameTooShort" xml:space="preserve">
-    <value>A név túl rövid (minimum 5 karakter)</value>
-  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Baráti tűz</value>
   </data>
@@ -939,35 +497,11 @@ Felülírod az eredeti irányítást?</value>
   <data name="WorldSettings_GameMode" xml:space="preserve">
     <value>Játék mód</value>
   </data>
-  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
-    <value>Túlélés</value>
-  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Realisztikus x10</value>
   </data>
-  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
-    <value>Csatlakozás a világhoz</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Név</value>
-  </data>
-  <data name="WorldSettings_OnlineMode" xml:space="preserve">
-    <value>Online mód</value>
-  </data>
-  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
-    <value>Offline</value>
-  </data>
-  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
-    <value>Privát</value>
-  </data>
-  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
-    <value>Nyilvános</value>
-  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Jelszó</value>
-  </data>
-  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
-    <value>Gyorsindítás</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Hang az űrben</value>
@@ -1000,9 +534,6 @@ vagy ha ilyen nincs, akkor egy mentőhajóban, a szektor szélében.
 Túlélő x3: Túlélő mód háromszoros hátizsák kapacitással
 Túlélő x10: Túlélő mód tízszeres hátizsák kapacitással</value>
   </data>
-  <data name="ToolTipWorldSettingsName" xml:space="preserve">
-    <value>A névnek {0} és {1} között kell lennie alfanumerikus karakterekkel</value>
-  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>A játékod láthatósága
 Offline: A játék offline módban fut, nem szükséges internetkapcsolat
@@ -1016,18 +547,6 @@ Publikus: Bárki kapcsolódhat</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>Az űrben nem terjed a hang. Kapcsold be és a Földön lévőhöz hasonlóan fog terjedni a hang (még ha ez nem is realisztikus). Kikapcsolva csak azt hallod amit az asztronautád hall, így realisztikusabb hatást keltve.</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
-    <value>Biztos ki akarod törölni a következőt: '{0}'?</value>
-  </data>
-  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
-    <value>Világ Betöltése</value>
-  </data>
-  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
-    <value>Mentés Másként</value>
-  </data>
-  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
-    <value>Kreatív</value>
-  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Játékmód</value>
   </data>
@@ -1037,146 +556,14 @@ Publikus: Bárki kapcsolódhat</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Magányos Túlélő</value>
   </data>
-  <data name="PlayerCharacter" xml:space="preserve">
-    <value>Játékos Karakter</value>
-  </data>
-  <data name="WorldSettings_AutoSave" xml:space="preserve">
-    <value>Automatikus-Mentés</value>
-  </data>
-  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
-    <value>Auto-mentés menti a játékállásod minden {0}. percben, vagy amikor kilépsz a játékból.</value>
-  </data>
-  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
-    <value>El akarod menteni a játékod?</value>
-  </data>
-  <data name="SaveWorld" xml:space="preserve">
-    <value>Világ Elmentése</value>
-  </data>
-  <data name="ScreenMenuButtonSave" xml:space="preserve">
-    <value>Mentés</value>
-  </data>
-  <data name="SavingPleaseWait" xml:space="preserve">
-    <value>Mentés ... kérlek várj</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>Haladó</value>
-  </data>
-  <data name="AdvancedControls" xml:space="preserve">
-    <value>Haladó Irányítás</value>
-  </data>
-  <data name="ControlName_Backward" xml:space="preserve">
-    <value>Hátra</value>
-  </data>
-  <data name="BasicControls" xml:space="preserve">
-    <value>Alap Irányítás</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Bezárás</value>
-  </data>
-  <data name="ControlName_DownOrCrouch" xml:space="preserve">
-    <value>Le vagy Guggolás</value>
-  </data>
-  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
-    <value>Belsőnézet / Hátulnézet</value>
-  </data>
-  <data name="ControlName_Forward" xml:space="preserve">
-    <value>Előre</value>
-  </data>
-  <data name="NextPage" xml:space="preserve">
-    <value>Következő Oldal</value>
-  </data>
-  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Nyomj {0}-t segítséghez és súgóhoz</value>
-  </data>
-  <data name="PreviousPage" xml:space="preserve">
-    <value>Előző Oldal</value>
-  </data>
-  <data name="ShowControlsHints" xml:space="preserve">
-    <value>Irányítás tippek megjelenítése</value>
-  </data>
-  <data name="SteamGuide" xml:space="preserve">
-    <value>Oktatás</value>
-  </data>
-  <data name="ControlName_UpOrJump" xml:space="preserve">
-    <value>Fel vagy Ugrás</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
-    <value>Elem függőleges forgatása -</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
-    <value>Elem függőleges forgatása +</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
-    <value>Elem vízszintes forgatása -</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
-    <value>Elem vízszintes forgatása +</value>
-  </data>
-  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
-    <value>Elem dőlésének forgatása -</value>
-  </data>
-  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
-    <value>Elem dőlésének forgatása +</value>
-  </data>
-  <data name="ControlName_Slot0" xml:space="preserve">
-    <value>Levétel</value>
-  </data>
-  <data name="ControlName_Slot1" xml:space="preserve">
-    <value>Tárgy felvétele az 1. slotból</value>
-  </data>
-  <data name="ControlName_Slot2" xml:space="preserve">
-    <value>Tárgy felvétele az 2. slotból</value>
-  </data>
-  <data name="ControlName_Slot3" xml:space="preserve">
-    <value>Tárgy felvétele az 3. slotból</value>
-  </data>
-  <data name="ControlName_Slot4" xml:space="preserve">
-    <value>Tárgy kézbevétele a 4. helyről</value>
-  </data>
-  <data name="ControlName_Slot5" xml:space="preserve">
-    <value>Tárgy kézbevétele az 5. helyről</value>
-  </data>
-  <data name="ControlName_Slot6" xml:space="preserve">
-    <value>Tárgy kézbevétele a 6. helyről</value>
-  </data>
-  <data name="ControlName_Slot7" xml:space="preserve">
-    <value>Tárgy kézbevétele a 7. helyről</value>
-  </data>
-  <data name="ControlName_Slot8" xml:space="preserve">
-    <value>Tárgy kézbevétele a 8. helyről</value>
-  </data>
-  <data name="ControlName_Slot9" xml:space="preserve">
-    <value>Tárgy kézbevétele a 9. helyről</value>
-  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reaktorok be / ki</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Üres Világ</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
-    <value>Biztosan gyors betöltést akarsz végrehajtani?</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
-    <value>Biztosan gyors mentést akarsz végrehajtani?</value>
-  </data>
-  <data name="ControlName_ToolbarConfig" xml:space="preserve">
-    <value>Eszköztár konfiguráció</value>
-  </data>
-  <data name="ControlName_HoldToLookAround" xml:space="preserve">
-    <value>Tartsd lenyomva a körbenézéshez</value>
-  </data>
-  <data name="ControlName_HoldToSprint" xml:space="preserve">
-    <value>Tartsd lenyomva a futáshoz</value>
-  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Jetpack be / ki</value>
-  </data>
-  <data name="LoadingPleaseWait" xml:space="preserve">
-    <value>Betöltés ... kérlek várj</value>
-  </data>
-  <data name="NoPlaceToCreateGrid" xml:space="preserve">
-    <value>Nincs hely új blokk létrehozásához. Nézz üres tér felé.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Nincs elég anyag új blokk létrehozásához. Legalább egy acéllemez szükséges.</value>
@@ -1186,28 +573,6 @@ Publikus: Bárki kapcsolódhat</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Továbbító</value>
-  </data>
-  <data name="ControlName_HudOnOff" xml:space="preserve">
-    <value>HUD be / ki</value>
-  </data>
-  <data name="ScreenCubeBuilderHint" xml:space="preserve">
-    <value>Tipp: Húzz egy tárgyat egy eszköztár slotba és aktiváld egy numerikus billentyűvel.</value>
-  </data>
-  <data name="Saved" xml:space="preserve">
-    <value>Elmentve</value>
-  </data>
-  <data name="HideWeapon" xml:space="preserve">
-    <value>Fegyver elrejtése</value>
-  </data>
-  <data name="Thrust" xml:space="preserve">
-    <value>Tolóerő</value>
-  </data>
-  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
-    <value>Az egyik világ/mentés fájlja hibás és nem lehet betölteni.
-További részletek a napló fájlban.</value>
-  </data>
-  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
-    <value>A világ fájl sérült és nem lehet betölteni.</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminál</value>
@@ -1638,53 +1003,11 @@ További részletek a napló fájlban.</value>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>Nincs gravitáció</value>
   </data>
-  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
-    <value>Új világ készítése egyéni beállításokkal</value>
-  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Új világ készítése az alap beállítások használatával:
 Játék típusa: Kreatív mód
 Pályatípus: Könnyű indulás 1
 Auto-mentés: Bekapcsolva</value>
-  </data>
-  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
-    <value>Magasabb renderelési minőség szebb megjelenítést eredményez, nagyobb látótávolságot 
-és több speciális effektet - azonban több teljesítményt követel a számítógéptől (CPU és GPU).
-Ha játék nem fut simán, csökkentsd.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Válasz ki a grafikus adaptert és/vagy a monitort!</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
-    <value>Válassz képernyő felbontást. Javasoljuk, hogy olyan képarányt használj amit a monitorod támogat.
-Ha a játék nem fut simán, csökkentsd a felbontást.</value>
-  </data>
-  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
-    <value>A hardver egérmutató független a játék képfrissítésétől. Ajánljuk  a használatát.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
-    <value>A játék szinkronba áll a monitor frissítési arányával. Ajánljuk kikapcsolását.</value>
-  </data>
-  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
-    <value>Vízszintes látótér látószöge</value>
-  </data>
-  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
-    <value>A képernyőn lévő segítségek megjelenítése játék közben</value>
-  </data>
-  <data name="WorldNotSaved" xml:space="preserve">
-    <value>{0} világot nem sikerült elmenteni.</value>
-  </data>
-  <data name="NotificationMemoryOverload" xml:space="preserve">
-    <value>Nincs elég memória több tárgy hozzáadásához</value>
-  </data>
-  <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>A jelenleg használtnál jobb videokártya is van a gépedben. Kérjük ellenőrizd az NVIDIA/AMD irányítópult beállításait.</value>
-  </data>
-  <data name="MessageBoxCaptionWarning" xml:space="preserve">
-    <value>FIGYELEM</value>
-  </data>
-  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
-    <value>Ez megnyitja{0}-ot a böngésződben. A játék továbbra is futni fog. Folytatod?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Guggolás</value>
@@ -1758,48 +1081,6 @@ Ha a játék nem fut simán, csökkentsd a felbontást.</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Szeretnél az oktató videó megtekintésével kezdeni? Ne feledd, bármikor visszatérhetsz ha az "Oktatásokra" kattintasz a "Segítség" képernyőn (F1).</value>
   </data>
-  <data name="Loaded" xml:space="preserve">
-    <value>Betöltve</value>
-  </data>
-  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
-    <value>Jelenleg nincsenek mentett világok. Kérlek generálj egy új világot.</value>
-  </data>
-  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
-    <value>Oktató Videó</value>
-  </data>
-  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
-    <value>Mented a változásokat mielőtt kilépsz?</value>
-  </data>
-  <data name="ErrorNameAlreadyExists" xml:space="preserve">
-    <value>A név már használatban van. Kérlek válassz egy másik nevet.</value>
-  </data>
-  <data name="NotificationBuildingFormat" xml:space="preserve">
-    <value>Kocka lerakásához nyomj {0}-t</value>
-  </data>
-  <data name="NotificationColorFormat" xml:space="preserve">
-    <value>A szín megváltoztatásához nyomj {0}-t vagy {1}-t. Tarts lenyomva a(z) {2}-t a szín elfogadásához. Tartsd lenyomva a(z) {3}-t vagy a(z) {4}-t az ecsetméret növeléséhez.</value>
-  </data>
-  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
-    <value>Eltüntetheted a tippeket a Játékbeállításokban.</value>
-  </data>
-  <data name="NotificationHudHideFormat" xml:space="preserve">
-    <value>Nyomd meg a {0}-t a HUD elrejtéséhez/megjelenítéséhez.</value>
-  </data>
-  <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>A következő gombokat nyomd a forgatáshoz: {0}, {1}, {2}, {3}, {4}, {5}</value>
-  </data>
-  <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Az eszköztár konfigurálásához vagy új objektumok készítéséhez nyomj {0}-t</value>
-  </data>
-  <data name="NotificationSlotEquipFormat" xml:space="preserve">
-    <value>Nyomj {0}, {1}, {2}, ... a slotokból való felvételhez</value>
-  </data>
-  <data name="NotificationToolDisabled" xml:space="preserve">
-    <value>Ez az eszköz/fegyver le van tiltva</value>
-  </data>
-  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Nyomj {0}-t blokk hozzáadásához, {1}-t törléséhez. Tartsd lenyomva a(z) {2}-t gyors építéshez</value>
-  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Tartsd lenyomva egy elem festéséhez (kreatív mód)</value>
   </data>
@@ -1809,23 +1090,8 @@ Ha a játék nem fut simán, csökkentsd a felbontást.</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Közepes festőecset méret (kreatív mód)</value>
   </data>
-  <data name="ControlDescQuickLoad" xml:space="preserve">
-    <value>Gyors Betöltés</value>
-  </data>
-  <data name="ControlDescQuickSave" xml:space="preserve">
-    <value>Gyors Mentés</value>
-  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Nagyítás harmadik személy mód</value>
-  </data>
-  <data name="MouseWheel" xml:space="preserve">
-    <value>Egér Görgő</value>
-  </data>
-  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Fül tartalom:</value>
-  </data>
-  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
-    <value>Kreatív Mód</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>Új Nagy Hajó</value>
@@ -1835,15 +1101,6 @@ Ha a játék nem fut simán, csökkentsd a felbontást.</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>Új Állomás</value>
-  </data>
-  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
-    <value>Eszköztár konfigurálása (építőkockák hozzárendelése, eszközök és fegyverek)</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
-    <value>Eszköztár</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
-    <value>Eszköztár Konfiguráció</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Töltés</value>
@@ -1869,47 +1126,10 @@ Ha a játék nem fut simán, csökkentsd a felbontást.</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Segédrendszerek</value>
   </data>
-  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
-    <value>Steam Overlay letiltva</value>
-  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Kérlek engedélyezd a Steam Overlay-t a Steam kliensben: Settings, In-game fül, Enable Steam
 Community In-Game and in Steam Library, Space Engineers, Properties, Enable Steam
 Community In-Game</value>
-  </data>
-  <data name="LoadScreenButtonPublish" xml:space="preserve">
-    <value>Megosztás
-</value>
-  </data>
-  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
-    <value>A megosztás sikeres. Ha a Steam Overlay engedélyezve van, egy oldal nyílik meg, ahol szerkesztheted a tulajdonságokat, például cím, leírás és nyilvánosság (alapértelmezetten publikus).</value>
-  </data>
-  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
-    <value>A Steam Workshopon keresztüli megosztás sikertelen</value>
-  </data>
-  <data name="MessageBoxTextModPublished" xml:space="preserve">
-    <value>A publikálás sikeresen végbement. Ha be van kapcsolva a Steam Overlay, egy oldal fog megnyílni ahol szerkesztheted a címet, leírást vagy láthatóságot (alapértelmezetten nyílvános).</value>
-  </data>
-  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
-    <value>Nem sikerült megosztani a Steam Workshopban</value>
-  </data>
-  <data name="ProgressTextPublishingWorld" xml:space="preserve">
-    <value>Megosztás... kérem várjon.</value>
-  </data>
-  <data name="ProgressTextUploadingWorld" xml:space="preserve">
-    <value>Feltöltés... kérem várjon.</value>
-  </data>
-  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
-    <value>Feliratkozott Világok</value>
-  </data>
-  <data name="ProgressTextCreatingWorld" xml:space="preserve">
-    <value>Világ készítése ... kérem várjon.</value>
-  </data>
-  <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Feliratkozott világ betöltése</value>
-  </data>
-  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
-    <value>Ajánlás</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>Ha tetszik a Space Engineers, ajánlhatod a Steames barátaidnak a következő oldalon.
@@ -1918,52 +1138,6 @@ Az ajánlások segítenek növelni a közösséget. Köszönjük!
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Space Engineers ajánlása.</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
-    <value>VILÁG MEGOSZTVA</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
-    <value>VILÁG MEGOSZTÁSA SIKERTELEN</value>
-  </data>
-  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
-    <value>MOD PUBLIKÁLVA</value>
-  </data>
-  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
-    <value>MOD PUBLIKÁLÁSA SIKERTELEN</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Másolás és betöltés</value>
-  </data>
-  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
-    <value>A kiválasztott világ megosztása a Steam Workshopon keresztül.</value>
-  </data>
-  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
-    <value>A Steam Workshopon keresztül feliratkozott világok listájának megtekintése.</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
-    <value>VILÁG MEGOSZTÁSA</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>VILÁG FRISSÍTÉSE</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
-    <value>Biztosan fel akarod tölteni és megosztani a világot Steam Workshop-on?</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>Biztosan fel akarod tölteni és felülírni a kiválasztott világot a Steam Workshopon?</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
-    <value>MOD MEGOSZTÁSA</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
-    <value>MOD FRISSÍTÉSE</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
-    <value>Biztosan fel akarod tölteni és megosztani a modot Steam Workshop-on?
-Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
-    <value>Biztosan fel akarod tölteni és felülírni a kiválasztott modot a Steam Workshopon?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Nyomj {0}-t, hogy kiszállj a pilótafülkéből</value>
@@ -1992,12 +1166,6 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0} nem elérhető {1} számára</value>
   </data>
-  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
-    <value>Workshop böngészése</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
-    <value>Frissítés</value>
-  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Sarokcsiszoló</value>
   </data>
@@ -2012,12 +1180,6 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Hegesztő</value>
-  </data>
-  <data name="NotificationNoWeaponSelected" xml:space="preserve">
-    <value>Nincs fegyver kiválasztva</value>
-  </data>
-  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
-    <value>Átváltva a következőre '{0}'</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Használd a {0} és a {1} gombokat, hogy fel- vagy lemássz</value>
@@ -2046,39 +1208,6 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Csillapítók</value>
   </data>
-  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
-    <value>Tehetetlenségi csillapítók kikapcsolva</value>
-  </data>
-  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
-    <value>Tehetetlenségi csillapítók bekapcsolva</value>
-  </data>
-  <data name="LoadScreenButtonDelete" xml:space="preserve">
-    <value>Törlés</value>
-  </data>
-  <data name="ScreenCaptionEditSettings" xml:space="preserve">
-    <value>Beállítások Módosítása</value>
-  </data>
-  <data name="ScreenCaptionSaveAs" xml:space="preserve">
-    <value>Mentés másként</value>
-  </data>
-  <data name="ScreenMenuButtonHelp" xml:space="preserve">
-    <value>Súgó</value>
-  </data>
-  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
-    <value>Világ Betöltése</value>
-  </data>
-  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
-    <value>Új világ</value>
-  </data>
-  <data name="ScreenMenuButtonOptions" xml:space="preserve">
-    <value>Beállítások</value>
-  </data>
-  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
-    <value>Egyéni Világ</value>
-  </data>
-  <data name="ScreenOptionsButtonControls" xml:space="preserve">
-    <value>Irányítás</value>
-  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>Futómű:</value>
   </data>
@@ -2087,39 +1216,6 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Rögzített:</value>
-  </data>
-  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
-    <value>IRÁNYÍTÁS VISSZAÁLLÍTÁSA</value>
-  </data>
-  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
-    <value>Biztos hogy vissza szeretné állítani az alapértelmezett irányítást?</value>
-  </data>
-  <data name="ScreenshotFailed" xml:space="preserve">
-    <value>Képernyőmentés sikertelen</value>
-  </data>
-  <data name="ScreenshotSaved" xml:space="preserve">
-    <value>Pillanatkép {0} mentve</value>
-  </data>
-  <data name="ExportToObjComplete" xml:space="preserve">
-    <value>Exportálva ide: {0}</value>
-  </data>
-  <data name="ExportToObjFailed" xml:space="preserve">
-    <value>obj fájlba történő exportálás sikertelen</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
-    <value>Megnyitás a Workshop-ban</value>
-  </data>
-  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
-    <value>Steam Overlay megnyitása a Workshop képernyővel</value>
-  </data>
-  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Letöltöd a kiválasztott világot a számítógépre és betöltöd</value>
-  </data>
-  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
-    <value>Kiválasztott világ megnyitása a Workshop-ban Steam Overlay-en keresztül</value>
-  </data>
-  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
-    <value>Feliratkozott világok listájának frissítése</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>Futómű / Színválasztó</value>
@@ -2165,29 +1261,8 @@ Ezzel automatikusan elfogadod a workshop felhasználási feltételeit (lásd: ht
 Tömeg: {1} kg
 Térfogat: {2} L</value>
   </data>
-  <data name="SettingSymmetryX" xml:space="preserve">
-    <value>X tengely szimmetria: {0} elfogad, {1} visszavon</value>
-  </data>
-  <data name="SettingSymmetryXOffset" xml:space="preserve">
-    <value>X tengely szimmetria (eltolás): {0} elfogad, {1} visszavon</value>
-  </data>
-  <data name="SettingSymmetryY" xml:space="preserve">
-    <value>Y tengely szimmetria: {0} elfogad, {1} visszavon</value>
-  </data>
-  <data name="SettingSymmetryYOffset" xml:space="preserve">
-    <value>Y tengely szimmetria (eltolás): {0} elfogad, {1} visszavon</value>
-  </data>
-  <data name="SettingSymmetryZ" xml:space="preserve">
-    <value>Z tengely szimmetria: {0} elfogad, {1} visszavon</value>
-  </data>
-  <data name="SettingSymmetryZOffset" xml:space="preserve">
-    <value>Z tengely szimmetria (eltolás): {0} elfogad, {1} visszavon</value>
-  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Tehetetlenségi csillapítók</value>
-  </data>
-  <data name="NotificationPickupObject" xml:space="preserve">
-    <value>Nyomj {0}-t, hogy felvedd ezt: {1}</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Szimmetria használata</value>
@@ -2195,65 +1270,14 @@ Térfogat: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>Jeladó</value>
   </data>
-  <data name="CubeBuilderPasteNotification" xml:space="preserve">
-    <value>Nyomj bal egérgombot vagy Ctrl-V-t az objektum beillesztéséhez </value>
-  </data>
-  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
-    <value>Hiba történt az objektum(ok) betöltése közben. További részletek a napló fájlban.</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
-    <value>Biztos ki akarod törölni a kijelölt objektumot? (a másolat a vágólapon megmarad)</value>
-  </data>
-  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
-    <value>A világ betöltése közben a játék elérte a maximum felhasználható memóriát, így néhány objektum nem lett betöltve. Ha a Large World javítást használtad és nemrég frissítetted a játékot, lehet ki lett kapcsolva.</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
-    <value>Billentyűzet 2</value>
-  </data>
-  <data name="DialogTextDownloadingWorld" xml:space="preserve">
-    <value>Világ letöltése: {0}%</value>
-  </data>
-  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
-    <value>A világ letöltése sikertelen!</value>
-  </data>
-  <data name="DialogTextJoiningWorld" xml:space="preserve">
-    <value>Csatlakozás a világhoz</value>
-  </data>
-  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
-    <value>Csatlakozás a világhoz sikertelen, oka: {0}</value>
-  </data>
-  <data name="GpuUnderMinimumNotification" xml:space="preserve">
-    <value>Észleltük, hogy a grafikus kártyád a minimális rendszerkövetelményeket nem éri el, ez rossz teljesítményt vagy fagyást okozhat. Megértésedet köszönjük.</value>
-  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Bármilyen érc</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Uránium rúd</value>
   </data>
-  <data name="ShowRotationHints" xml:space="preserve">
-    <value>Forgatási útmutató megjelenítése</value>
-  </data>
-  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
-    <value>Forgatási útmutató megjelenítése</value>
-  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Motor</value>
-  </data>
-  <data name="UnknownControl_Unassigned" xml:space="preserve">
-    <value>[nincs hozzárendelve]</value>
-  </data>
-  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
-    <value>Építő mód</value>
-  </data>
-  <data name="ScreenOptionsGame_Line" xml:space="preserve">
-    <value>Sor</value>
-  </data>
-  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
-    <value>Síklap</value>
-  </data>
-  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
-    <value>Egyetlen blokk</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Nyomaték</value>
@@ -2349,9 +1373,6 @@ Térfogat: {2} L</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Rotor végsebessége: a rotor eddig a sebességig fog felgyorsulni.</value>
   </data>
-  <data name="ControlName_Suicide" xml:space="preserve">
-    <value>Öngyilkosság</value>
-  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Gerenda</value>
   </data>
@@ -2411,14 +1432,8 @@ Térfogat: {2} L</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Fényerősség</value>
   </data>
-  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
-    <value>Többjátékos szerver elindítása sikertelen, a hiba oka: {0}</value>
-  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>Nyomj {0}-t az ajtó kinyitásához</value>
-  </data>
-  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
-    <value>Az objektumot már valaki más használja</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Off</value>
@@ -2428,113 +1443,20 @@ Térfogat: {2} L</value>
     <value>On</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
-  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
-    <value>Barátok játékai</value>
-  </data>
-  <data name="ScreenCaptionPlayers" xml:space="preserve">
-    <value>Játékosok</value>
-  </data>
-  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
-    <value>Barátok</value>
-  </data>
-  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
-    <value>Privát</value>
-  </data>
-  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
-    <value>Nyilvános</value>
-  </data>
-  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
-    <value>Játékgazda</value>
-  </data>
-  <data name="ScreenPlayers_Invite" xml:space="preserve">
-    <value>Meghív</value>
-  </data>
-  <data name="ScreenPlayers_Kick" xml:space="preserve">
-    <value>Kirúg</value>
-  </data>
-  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
-    <value>Játékos neve</value>
-  </data>
-  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
-    <value>A játék már nem létezik.</value>
-  </data>
-  <data name="MessageBoxCaptionKicked" xml:space="preserve">
-    <value>KIRÚGVA</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
-    <value>A játékgazda kirúgott a játékból.</value>
-  </data>
-  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
-    <value>Barátok</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
-    <value>Biztos, hogy újra csatlakozol a jelenlegi többjátékos játékhoz?</value>
-  </data>
-  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
-    <value>Jelenleg offline módban vagy, a többjátékos mód letiltva. Változtasd meg át a beállításokat a főmenüben.</value>
-  </data>
-  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
-    <value>A Steam offline. Kérlek futtasd a Steam-et normál módban, vagy indítsd újra.</value>
-  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>A másolás-beillesztés lehetővé teszi, hogy hajót vagy állomást készíts közvetlenül a vágólapról</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Másolás/Beillesztés engedélyezése</value>
   </data>
-  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
-    <value>Kompatibilis verziók</value>
-  </data>
-  <data name="MaxPlayers" xml:space="preserve">
-    <value>Maximum játékosok</value>
-  </data>
-  <data name="DialogWaitingForWorldData" xml:space="preserve">
-    <value>Világ adatainak fogadása</value>
-  </data>
-  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
-    <value>Kapcsolódás a szerverhez sikertelen: {0}</value>
-  </data>
-  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
-    <value>Csatlakozás a szerverhez</value>
-  </data>
-  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
-    <value>Várakozás a szerver válaszára</value>
-  </data>
-  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
-    <value>A kiválasztott játék típus korlátozottabb mint az eredeti. Ez azt jelenti hogy elveszítheted néhány dolgodat! Biztosan meg akarod változtatni a játék típusát?</value>
-  </data>
-  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
-    <value>Barátok világai</value>
-  </data>
-  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
-    <value>Nyilvános világok</value>
-  </data>
-  <data name="ControlName_CubeColorChange" xml:space="preserve">
-    <value>Elem színének megváltoztatása</value>
-  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Fegyverek engedélyezve</value>
-  </data>
-  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
-    <value>Ez a fegyver le van tiltva</value>
-  </data>
-  <data name="ControlDescPlayersList" xml:space="preserve">
-    <value>Játékosok mutatása (csak többjátékos mód)</value>
-  </data>
-  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
-    <value>Játékosok</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>A Szerelőgép sérült vagy levált</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Átjárás</value>
-  </data>
-  <data name="ItemDamagedDescription" xml:space="preserve">
-    <value>(Sérült)</value>
-  </data>
-  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
-    <value>A szerver nem válaszol</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>A generátor gravitációs gyorsítása.</value>
@@ -2566,44 +1488,17 @@ Térfogat: {2} L</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Nyomj {0}-t az újratöltéshez és gyógyuláshoz</value>
   </data>
-  <data name="UnsupportedAspectRatio" xml:space="preserve">
-    <value>Nem támogatott képarány</value>
-  </data>
-  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
-    <value>Csak barátok léphetnek be a játékba.</value>
-  </data>
-  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
-    <value>A világ leírása</value>
-  </data>
-  <data name="CompressSaveGames" xml:space="preserve">
-    <value>Mentett játékok tömörítése.</value>
-  </data>
-  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
-    <value>Tömörítve legyenek-e a mentett játékok helytakarékosság érdekében</value>
-  </data>
-  <data name="Headbob" xml:space="preserve">
-    <value>Fejmozgás kikapcsolása</value>
-  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Ha be van kapcsolva, a játékosok képesek látni a játékosok neveit a karaktereik felett</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Játékosok neveinek megjelenítése</value>
   </data>
-  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
-    <value>Játékosok nevének megjelenítése</value>
-  </data>
-  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
-    <value>Játékos nevek mutatása a karakterük fölött. Ennek a világ beállításaiban is be kell kapcsolva lennie.</value>
-  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Eszköz eldobása</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Figyelem: Űrruha energiaszint alacsony. Létfenntartó rendszerek leállhatnak.</value>
-  </data>
-  <data name="NotificationInventoryFull" xml:space="preserve">
-    <value>A hátizsák megtelt</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Figyelem: Az űrruha energiaszintje kritikus. A létfenntartó-rendszer hamarosan leáll.</value>
@@ -2615,17 +1510,11 @@ Térfogat: {2} L</value>
     <value>Az űrben lebegő tárgyak maximális száma (ércek, alkatrészek)
 Figyelmeztetés - a 64-nél nagyobb értékek befolyásolhatják a játék sebességét</value>
   </data>
-  <data name="OutOfAmmo" xml:space="preserve">
-    <value>{0} kifogyott a lőszerből.</value>
-  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>Rakéta 200 mm</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm lőszer</value>
-  </data>
-  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
-    <value>{0} szükséges {1} építéséhez</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Aszteroidák</value>
@@ -2663,21 +1552,6 @@ Extrém: 16 nagy aszteroida, 80 kis aszteroida (csak 64-bit)</value>
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Hatótávolság</value>
   </data>
-  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Játékmód</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
-    <value>Játékosok</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
-    <value>Felhasználónév</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
-    <value>Világ</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
-    <value>Világ mérete</value>
-  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Bármilyen Szerelőgép által gyártott tárgy</value>
   </data>
@@ -2714,9 +1588,6 @@ Extrém: 16 nagy aszteroida, 80 kis aszteroida (csak 64-bit)</value>
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Kezdés egy elhagyott platformon aszteroida mellett hajók nélkül</value>
   </data>
-  <data name="MessageBoxTextSuicide" xml:space="preserve">
-    <value>Biztosan öngyilkos akarsz lenni?</value>
-  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Lezuhant Vörös Hajó</value>
   </data>
@@ -2731,15 +1602,6 @@ Extrém: 16 nagy aszteroida, 80 kis aszteroida (csak 64-bit)</value>
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Fémhulladék</value>
-  </data>
-  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
-    <value>A szerver készítője elhagyta a játékot</value>
-  </data>
-  <data name="NotificationRespawn" xml:space="preserve">
-    <value>Meghaltál. Újraéledés {0} másodpercen belül</value>
-  </data>
-  <data name="HudBlockInfo_Required" xml:space="preserve">
-    <value>Szükséges</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Nagy Hajó / Állomás</value>
@@ -2858,17 +1720,6 @@ Extrém: 16 nagy aszteroida, 80 kis aszteroida (csak 64-bit)</value>
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Ismétlés mód kikapcsolása/bekapcsolása</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
-    <value>Hátizsák mérete {0}x
-Szerelőgép gyorsasága {1}x
-Finomító gyorsasága {2}x</value>
-  </data>
-  <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Játékos kapcsolódott: {0}</value>
-  </data>
-  <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Játékos lekapcsolódott: {0}</value>
-  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>Hajtómű okozta károsodás</value>
   </data>
@@ -2881,29 +1732,17 @@ Finomító gyorsasága {2}x</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Szállítóhajók</value>
   </data>
-  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Eltérő verziószám. A Te játékverziód: {0}; A szerver játékverziója: {1}</value>
-  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Armageddon (nem élethű)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>Április elseje! Ne mondd el senkinek!</value>
   </data>
-  <data name="ShowCrosshair" xml:space="preserve">
-    <value>Célkereszt megjelenítése</value>
-  </data>
-  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
-    <value>Célkereszt megjelenítése</value>
-  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Mesterséges tömeg</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Vezérlőpult</value>
-  </data>
-  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
-    <value>Játékállás mentése</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Begyűjtő</value>
@@ -2950,12 +1789,6 @@ Finomító gyorsasága {2}x</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>Sík üveglap 3x3</value>
   </data>
-  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
-    <value>A magyar nyelv az SE közösségnek köszönhető.</value>
-  </data>
-  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
-    <value>Kattints több információért</value>
-  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Egy / Összes fegyver mód (pilótafülke)</value>
   </data>
@@ -2986,14 +1819,8 @@ Finomító gyorsasága {2}x</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>Inverz sík üveglap 3x3</value>
   </data>
-  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
-    <value>Nem található közvetlen kapcsolat.</value>
-  </data>
   <data name="Multiplayer_LastMsg" xml:space="preserve">
     <value>Nem érkezett üzenet a szervertől {0} másodperce.</value>
-  </data>
-  <data name="Multiplayer_NoConnection" xml:space="preserve">
-    <value>Kapcsolódás a szerverhez sikertelen.</value>
   </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Nyomj {0}-t a fegyvermód váltásához</value>
@@ -3004,9 +1831,6 @@ Finomító gyorsasága {2}x</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
-  <data name="GamePaused" xml:space="preserve">
-    <value>Játék szüneteltetve</value>
-  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>Abroncs (1x1)</value>
   </data>
@@ -3015,9 +1839,6 @@ Finomító gyorsasága {2}x</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Kerék 5x5</value>
-  </data>
-  <data name="ControlDescPauseGame" xml:space="preserve">
-    <value>Játék szüneteltetése (csak offline-módban)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Flex</value>
@@ -3031,18 +1852,8 @@ Finomító gyorsasága {2}x</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Csali</value>
   </data>
-  <data name="ControlName_PauseGame" xml:space="preserve">
-    <value>Játék szüneteltetése</value>
-  </data>
-  <data name="KeysPause" xml:space="preserve">
-    <value>Szünet</value>
-    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
-  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Mentés</value>
-  </data>
-  <data name="NotificationWeaponNotWorking" xml:space="preserve">
-    <value>A(z) {0} nem működik</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Lezárás</value>
@@ -3104,12 +1915,6 @@ Finomító gyorsasága {2}x</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Cél mozgó tárgyak</value>
   </data>
-  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
-    <value>Hozzáadandó mennyiség</value>
-  </data>
-  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
-    <value>Beállítandó érték</value>
-  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argument</value>
   </data>
@@ -3137,12 +1942,6 @@ Finomító gyorsasága {2}x</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>Nincs üzemanyag</value>
   </data>
-  <data name="NotificationHealthCritical" xml:space="preserve">
-    <value>Az életerő elérte a kritikus szintet. Keress fel egy orvosi szobát haladéktalanul!</value>
-  </data>
-  <data name="NotificationHealthLow" xml:space="preserve">
-    <value>Életerő alacsony.</value>
-  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Meteoreső érkezik.</value>
   </data>
@@ -3166,12 +1965,6 @@ Finomító gyorsasága {2}x</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Nyomj {0} gombot a leltár megnyitásához</value>
-  </data>
-  <data name="MultiplayerError_DifferentData" xml:space="preserve">
-    <value>A szerver játékadatai eltérnek a kliensedétől</value>
-  </data>
-  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
-    <value>A * jelű játékok adatai nem kompatibilisek</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>Info</value>
@@ -3213,108 +2006,17 @@ Finomító gyorsasága {2}x</value>
     <value>A kirajzolandó háromszögek száma. Technikai információ.
 A nagyobb számok kihatással vannak a teljesítményre.</value>
   </data>
-  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
-    <value>Játék admin</value>
-  </data>
-  <data name="MultiplayerJoinServers" xml:space="preserve">
-    <value>Csak dedikált</value>
-  </data>
-  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
-    <value>Felhasználó már csatlakozott</value>
-  </data>
-  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
-    <value>Nem vagy a {0} csoportban. Meg szeretnéd látogatni a csoport oldalát?</value>
-  </data>
-  <data name="MultiplayerErrorServerFull" xml:space="preserve">
-    <value>A szerver megtelt</value>
-  </data>
-  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
-    <value>Steam szerver offline, vagy szerver csoport nem létezik</value>
-  </data>
-  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
-    <value>Érvénytelen jegy</value>
-  </data>
-  <data name="MultiplayerJoinLANServers" xml:space="preserve">
-    <value>Csak LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
-    <value>Barátok</value>
-  </data>
-  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
-    <value>LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
-    <value>Játékok</value>
-  </data>
-  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
-    <value>Szerverek</value>
-  </data>
-  <data name="JoinGame_Title" xml:space="preserve">
-    <value>Csatlakozás a világhoz</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
-    <value>Ping</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
-    <value>Szerver</value>
-  </data>
-  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
-    <value>Máshonnan bejelentkezve</value>
-  </data>
-  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
-    <value>Nincs licensz, vagy lejárt licensz</value>
-  </data>
-  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
-    <value>Jegy már felhasználva</value>
-  </data>
-  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
-    <value>Jegy visszavonva</value>
-  </data>
-  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
-    <value>Felhasználó nem kapcsolódott</value>
-  </data>
-  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
-    <value>VAC bannolva</value>
-  </data>
-  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
-    <value>VAC ellenőrzés sikertelen</value>
-  </data>
-  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
-    <value>Engedélyezett csoportok</value>
-  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Összekapcsoló Blokk</value>
   </data>
-  <data name="NewsDownloadingFailed" xml:space="preserve">
-    <value>Hírek letöltése sikertelen</value>
-  </data>
-  <data name="MessageBoxCaptionInfo" xml:space="preserve">
-    <value>INFO</value>
-  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>A Space Engineers újabb verziója elérhető!</value>
-  </data>
-  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
-    <value>Helytelen szerver csoport azonosító. Az admin állítson be helyes azonosítót a szerver konfigban
-(a 0 kikapcsolja a csoportellenőrzést)</value>
-  </data>
-  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
-    <value>Helyi dedikált szerverek listája</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
-    <value>Játékos által indított játékok listája</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
-    <value>Online dedikált szerverek listája</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>Nézelődő mód engedélyezése ebben a világban</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>Nézelődő mód engedélyezése</value>
-  </data>
-  <data name="PlayerCharacterColor" xml:space="preserve">
-    <value>Játékos szín</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Fekete</value>
@@ -3337,9 +2039,6 @@ A nagyobb számok kihatással vannak a teljesítményre.</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Sárga</value>
   </data>
-  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
-    <value>Kinézet változtatásához nyomj {0}-t</value>
-  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>Hajtóművek irányítása</value>
   </data>
@@ -3355,60 +2054,20 @@ A nagyobb számok kihatással vannak a teljesítményre.</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Rotorok:</value>
   </data>
-  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
-    <value>Ablak mód</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
-    <value>Teljesképernyő</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
-    <value>Teljes képernyős ablak</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
-    <value>Ablak</value>
-  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Szakító erő</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Automata zár</value>
   </data>
-  <data name="SpectatorControls" xml:space="preserve">
-    <value>Nézelődés irányítások</value>
-  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Vissza az irányított karakterbe / piótafülkébe</value>
-  </data>
-  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Nézelődés fix nézőpontból</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Szabad nézelődés. A lövés és más akciók bekapcsolva maradnak</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Statikus nézelődés. A kamera statikus, de a karaktert  / pilótafülkét te irányítod</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
-    <value>Erről a szerverről bannoltak</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
-    <value>Errőr a szerverről bannoltak.
-Megnézed az admin profilját?</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
-    <value>A szerver adminja bannolt a szerverről.</value>
-  </data>
-  <data name="ScreenPlayers_Ban" xml:space="preserve">
-    <value>Ban</value>
-  </data>
-  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
-    <value>Térj vissza a játékterületre!</value>
-  </data>
-  <data name="NotificationLeavingWorld" xml:space="preserve">
-    <value>Vigyázat: {0:F1} méteren belül meghalsz!</value>
-  </data>
-  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
-    <value>Haladó világ beállítások</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Haladó</value>
@@ -3464,59 +2123,14 @@ Megnézed az admin profilját?</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Frakció előtag (3 betű)</value>
   </data>
-  <data name="Spectator" xml:space="preserve">
-    <value>Nézelődő</value>
-  </data>
-  <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta nézelődés</value>
-  </data>
-  <data name="SpectatorControls_Free" xml:space="preserve">
-    <value>Szabad nézelődés</value>
-  </data>
-  <data name="SpectatorControls_None" xml:space="preserve">
-    <value>Játékos irányítás</value>
-  </data>
-  <data name="SpectatorControls_Static" xml:space="preserve">
-    <value>Statikus nézelődés</value>
-  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Tömegközéppont mutatása</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
-    <value>Már van ilyen nevű frakció</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
     <value>A frakció rövidítésének pontosan 3 betűnek kell lennie</value>
   </data>
-  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Már van ilyen rövidítéssel rendelkező frakció</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>A frakció nevének legalább 4 karakter hosszúnak kell lennie</value>
-  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>El kel hagynod jelenlegi frakciód egy új létrehozása előtt</value>
-  </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Szerkesztés</value>
-  </data>
-  <data name="Kick" xml:space="preserve">
-    <value>Kidob</value>
-  </data>
-  <data name="Leader" xml:space="preserve">
-    <value>Vezető</value>
-  </data>
-  <data name="Member" xml:space="preserve">
-    <value>Tag</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
-    <value>Biztos kidobod '{0}' játékost a frakcióból?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
-    <value>Biztos el akarod hagyni '{0}' frakciót?</value>
-  </data>
-  <data name="Promote" xml:space="preserve">
-    <value>Előléptet</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>A szemétnek nyilvánított hajókat automatikusan törli, hogy jobban fusson a játék.
@@ -3529,41 +2143,14 @@ nem irányítják, nincs rajta orvosi szoba, és minden játékostól olyan mess
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Automata szemétkitörlés</value>
   </data>
-  <data name="Demote" xml:space="preserve">
-    <value>Lefokoz</value>
-  </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Hozzáférés megtagadva</value>
-  </data>
-  <data name="Founder" xml:space="preserve">
-    <value>Alapító</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Státusz</value>
-  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Privát info (csak tagok látják):</value>
-  </data>
-  <data name="Accept" xml:space="preserve">
-    <value>Elfogad</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value>(hozzáférés megtagadva)</value>
   </data>
-  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
-    <value>Biztosan beveszed '{0}'t a frakciódba?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
-    <value>Biztosan taggá fokozod le '{0}'-t?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
-    <value>Biztosan vezetővé lépteted elő '{0}'-t?</value>
-  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Frakció szerkesztése</value>
-  </data>
-  <data name="Applicant" xml:space="preserve">
-    <value>Jelentkező</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Ideiglenes hajó. Törlődik, ha kilépsz, vagy új hajóban éledsz.</value>
@@ -3573,9 +2160,6 @@ nem irányítják, nincs rajta orvosi szoba, és minden játékostól olyan mess
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Kezdőhajó törlése</value>
-  </data>
-  <data name="Tag" xml:space="preserve">
-    <value>Előtag</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>Ez a frakció békét kötne a te frakcióddal</value>
@@ -3640,18 +2224,6 @@ nem irányítják, nincs rajta orvosi szoba, és minden játékostól olyan mess
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Minden blokk tulajdonjogának visszaállítása</value>
-  </data>
-  <data name="SessionDeleteFailed" xml:space="preserve">
-    <value>Törlés sikertelen</value>
-  </data>
-  <data name="Medicals_Title" xml:space="preserve">
-    <value>Orvosi szobák</value>
-  </data>
-  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
-    <value>Biztosan át akarod váltani a tulajdonost {0}-ra?</value>
-  </data>
-  <data name="Respawn" xml:space="preserve">
-    <value>Újraéledés</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Akkumulátor</value>
@@ -3734,9 +2306,6 @@ nem irányítják, nincs rajta orvosi szoba, és minden játékostól olyan mess
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>Egy aktív antennának kapcsolódnia kell.</value>
   </data>
-  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
-    <value>Egyező játék adat</value>
-  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Békeajánlat elfogadása</value>
   </data>
@@ -3746,39 +2315,6 @@ Biztos vagy benne?</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Kezdőhajó</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Frissít</value>
-  </data>
-  <data name="PlayerInfo_Dead" xml:space="preserve">
-    <value>Halott</value>
-  </data>
-  <data name="ScreenMods_ActiveMods" xml:space="preserve">
-    <value>Aktív modok</value>
-  </data>
-  <data name="ScreenMods_AvailableMods" xml:space="preserve">
-    <value>Elérhető modok</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
-    <value>Mod kikapcsolása</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
-    <value>Minden mod kikapcsolása</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
-    <value>Mod aktiválása</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
-    <value>Minden mod aktiválása</value>
-  </data>
-  <data name="WorldSettings_Mods" xml:space="preserve">
-    <value>Modok</value>
-  </data>
-  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
-    <value>A kiválasztott mod megnyitása Steam Workshop overlayben</value>
-  </data>
-  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
-    <value>Feliratkozott modok listájának frissítése</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Ellenséges frakció</value>
@@ -3807,17 +2343,8 @@ Biztos vagy benne?</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Végtelen</value>
   </data>
-  <data name="JoinGame_SearchLabel" xml:space="preserve">
-    <value>Játék keresése</value>
-  </data>
-  <data name="JoinGame_SearchTooltip" xml:space="preserve">
-    <value>Adj meg legalább 3 karaktert a keresés megkezdéséhez</value>
-  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>Kliens tud menteni</value>
-  </data>
-  <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Modok letöltése... Kérlek várj.</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>Ha a kerék meg van hajtva.</value>
@@ -3830,9 +2357,6 @@ Biztos vagy benne?</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Kormányzás</value>
-  </data>
-  <data name="NotificationClientCannotSave" xml:space="preserve">
-    <value>Ezen a szerveren a kliens nem tud menteni</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>A keréknyomás változtatásával szabályozza a surlódást.</value>
@@ -3851,18 +2375,6 @@ Biztos vagy benne?</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Nem helyezhető el kerék.</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
-    <value>Mod mozgatása le</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
-    <value>Mod mozgatása fel</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
-    <value>Mod mozgatása legalulra</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
-    <value>Mod mozgatása legfelülre</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Te blokkod (nincs frakció)</value>
@@ -3924,12 +2436,6 @@ Biztos vagy benne?</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Sebesség</value>
   </data>
-  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
-    <value>Nem csoportosíthatsz olyan blokkokat, amelyekhez nincs hozzáférésed.</value>
-  </data>
-  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
-    <value>Nem törölhetsz olyan blokkcsoportokat, amelyekhez nincs hozzáférésed.</value>
-  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Használatban lévő akkumulátorok:</value>
   </data>
@@ -3990,12 +2496,6 @@ Biztos vagy benne?</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Hajtómű felülírása</value>
   </data>
-  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>Kidobtak a frakcióból.</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>Felvettek a frakcióba.</value>
-  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Kapcsoló</value>
   </data>
@@ -4038,12 +2538,6 @@ Biztos vagy benne?</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Fordulás felülírása</value>
   </data>
-  <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Előző eszköztár</value>
-  </data>
-  <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Következő eszköztár</value>
-  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Jelenlegi pozíció:</value>
   </data>
@@ -4058,33 +2552,6 @@ Biztos vagy benne?</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
     <value>Integetés</value>
-  </data>
-  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>A modok letöltése sikertelen! Ellenőrizd a modokat a világ beállításainál.</value>
-  </data>
-  <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Mod frissítések keresése ... kérlek várj.</value>
-  </data>
-  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Enable debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Betöltési hibanapló:</value>
-  </data>
-  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
-    <value>Modell bábuk</value>
-  </data>
-  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Csatolási pontok</value>
-  </data>
-  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>Nem történt betöltési hiba</value>
-  </data>
-  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Fizikai alapok</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Hajó nevének mutatása</value>
@@ -4110,53 +2577,14 @@ Biztos vagy benne?</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Kis Hajó</value>
   </data>
-  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Megnyitás új ablakban</value>
-  </data>
-  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Textúrák újratöltése</value>
-  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Közvetlen hozzáférés</value>
-  </data>
-  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Helyi modok nem használhatóak többjátékos módban. Használj műhely modokat helyette.</value>
-  </data>
-  <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Helyi mod</value>
-  </data>
-  <data name="ScreenMods_MissingDetails" xml:space="preserve">
-    <value>A mod részleteinek steamről való letöltése sikertelen</value>
-  </data>
-  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Hiányzó helyi mod</value>
-  </data>
-  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Műhely mod</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Ismeretlen</value>
   </data>
-  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Modellek újratöltése</value>
-  </data>
-  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Napló másolása vágólapra</value>
-  </data>
-  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Figyelem: {0:F1} méteren belül minden hajó törlődik!</value>
-  </data>
-  <data name="PlayerCharacterModel" xml:space="preserve">
-    <value>Játékos modell</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
-    <value>Modok</value>
-  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Nyomj {0}-t a panel gombjainak beállításához</value>
-  </data>
-  <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>Nyomj {0}-t {1} használatához</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Gravitációs mező sugara</value>
@@ -4189,41 +2617,14 @@ Biztos vagy benne?</value>
     <value>{0} definíciója számítógépet tartalmaz, de a blokk TypeId -je nem terminál blokk. Ez azt jelenti, hogy a blokknak lesz tulajdonosa, de tulajdonjogot nem lehet változtatni a terminálon.
 Tipp: Állítsd a TypeId -t olyan blokkra, ami megtalálható a terminálon, például a TerminalBlock</value>
   </data>
-  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Válasszd ki a szervert a modlista megtekintéséhez</value>
-  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Gomb panel</value>
-  </data>
-  <data name="ScreenMods_SearchLabel" xml:space="preserve">
-    <value>Keresés</value>
-  </data>
-  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Modlista nem elérhető</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Űrruha</value>
   </data>
-  <data name="HudWarnings" xml:space="preserve">
-    <value>HUD figyelmeztetések</value>
-  </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
     <value>{0} identitás hozzáadva</value>
-  </data>
-  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>Ezt a világot nem lehet betölteni, mert a játék egy újabb verziójában készült.</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>Ez a műhely elem nem a te tulajdonod. Ellenőrizd, hogy jó felhasználóval vagy-e bejelentkezve.</value>
-  </data>
-  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Vágólap mentése file-ba</value>
-  </data>
-  <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Vágólapon lévő hajók mentése file-ba</value>
-  </data>
-  <data name="AddNewNPC" xml:space="preserve">
-    <value>Új ellenséges identitás hozzáadása</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Alkatrészek</value>
@@ -4234,35 +2635,11 @@ Tipp: Állítsd a TypeId -t olyan blokkra, ami megtalálható a terminálon, pé
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
     <value>Kis blokkok</value>
   </data>
-  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
-    <value>Szerszámok</value>
-  </data>
-  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Címkék kiválasztása</value>
-  </data>
-  <data name="WorkshopTag_Animation" xml:space="preserve">
-    <value>Animáció</value>
-  </data>
-  <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Blokk</value>
-  </data>
-  <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Karakter</value>
-  </data>
-  <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Egyéb</value>
-  </data>
-  <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
-  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>Megtekint</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Kamera</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Nem lehet frissíteni, mert ez a mod nem a te tulajdonod.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Hiba az eredeti játéktartalmak betöltése közben, nem lehet betölteni:
@@ -4273,20 +2650,11 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Jeladás antennák használatával</value>
   </data>
-  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Néhány mod egy hiba miatt nem töltött be. Részletekért nyisd meg a naplófájlt, vagy futtasd a játékot egyjátékos módban, hogy hozzáférj a mod hibakereső képernyőhöz.</value>
-  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>Bármilyen tárgy, amit {0} elfogad</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>Bármilyen tárgy, amit {0} előállít.</value>
-  </data>
-  <data name="RenderIterpolation" xml:space="preserve">
-    <value>Render közbeiktatás</value>
-  </data>
-  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Csökkenti az akadozást, és folyamatosabbá teszi a játékot</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Termelés</value>
@@ -4296,9 +2664,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Nyomj {0}-t a kamera módból való kilépéshez</value>
-  </data>
-  <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Modcsomag</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Ívkemence</value>
@@ -4411,9 +2776,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>Bázisok érzékelése</value>
   </data>
-  <data name="CustomText" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Gravitációs mező mutatása</value>
   </data>
@@ -4446,12 +2808,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Aktiválásig hátravan:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Fülek eszközöknek és objektumoknak:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
-    <value>Keresés:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Újratölthető rakétavető</value>
@@ -4558,9 +2914,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Alapx50</value>
   </data>
-  <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Beillesztett objektum mozgatása</value>
-  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Töltési idő kikapcsolva</value>
   </data>
@@ -4572,21 +2925,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Pilótafülke blokkok</value>
-  </data>
-  <data name="WorkshopTag_Script" xml:space="preserve">
-    <value>Szkript</value>
-  </data>
-  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>A beillesztett tartomány néhány blokkja nem elérhető ebben a világban</value>
-  </data>
-  <data name="ConvertingObjs" xml:space="preserve">
-    <value>Modellek konvertálása. Kérlek várj.</value>
-  </data>
-  <data name="ConvertToObjDone" xml:space="preserve">
-    <value>Minden modell át lett konvertálva.</value>
-  </data>
-  <data name="ExportingToObj" xml:space="preserve">
-    <value>Modell exportálása. Kérlek várj.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Energia blokkok</value>
@@ -4603,17 +2941,11 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>Objektum elhelyezése</value>
   </data>
-  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>A beillesztett hajó olyan blokkokat is tartalmaz amelyek ebben a világban nem érhetőek el. Ezek a blokkok nem lesznek beillesztve. Ez a hajó szétszakadását is okozhatja. Biztosan beilleszted?</value>
-  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Aszteroidák</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Tételek</value>
-  </data>
-  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
-    <value>Ez a tétel nem érhető el ebben a világban</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Aszteroida</value>
@@ -4629,9 +2961,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Kooperatív mód</value>
-  </data>
-  <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Besegítés</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Lőszer összeszerelő</value>
@@ -4720,12 +3049,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Érvénytelen érték</value>
   </data>
-  <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Objektumok elhelyezése. Kérlek várj.</value>
-  </data>
-  <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Rendszerek 3</value>
-  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Ko-operatív mód be/kikapcsolása.</value>
   </data>
@@ -4744,9 +3067,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Aszteroida típusának kiválasztása</value>
   </data>
-  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>A {0} fegyverfajtára váltottál.</value>
-  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>Bármilyen lőszertartály, amit {0} elfogad</value>
   </data>
@@ -4755,24 +3075,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Kapcsolódás</value>
-  </data>
-  <data name="Thrust_Back" xml:space="preserve">
-    <value>Hátrafelé</value>
-  </data>
-  <data name="Thrust_Down" xml:space="preserve">
-    <value>Le</value>
-  </data>
-  <data name="Thrust_Forward" xml:space="preserve">
-    <value>Előre</value>
-  </data>
-  <data name="Thrust_Left" xml:space="preserve">
-    <value>Balra</value>
-  </data>
-  <data name="Thrust_Right" xml:space="preserve">
-    <value>Jobbra</value>
-  </data>
-  <data name="Thrust_Up" xml:space="preserve">
-    <value>Fel</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Valaki más használja ezt a hajót!</value>
@@ -4810,14 +3112,8 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Multiple grids are not supported. Only the largest grid will be used.</value>
   </data>
-  <data name="SelectBlueprint" xml:space="preserve">
-    <value>Kiválaszt</value>
-  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Show grid pivot</value>
-  </data>
-  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Hüvelykujj fel</value>
@@ -4836,9 +3132,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Steel Catwalk Two Sides</value>
-  </data>
-  <data name="AvailableBlueprints" xml:space="preserve">
-    <value>Elérhető Tervrajzok</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Kivetítés megtartása</value>
@@ -4888,18 +3181,6 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Gömb</value>
   </data>
-  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
-    <value>Sugár</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
-    <value>Szélesség</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
-    <value>Mélység</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
-    <value>Magasság</value>
-  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>A játékterületet egy megadott nagyságú kockára csökkenti.
 Minden a területet elhagyó objektum törlődik.
@@ -4923,9 +3204,6 @@ A területet elhagyó karakterek meghalnak.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Egyéni</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
-    <value>Távolság</value>
-  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Ismétlési idő</value>
   </data>
@@ -4941,26 +3219,11 @@ A területet elhagyó karakterek meghalnak.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Ismétlés időzítő:</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Ecset beállítások</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Átlátszóság</value>
-  </data>
-  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Forma beállítások</value>
-  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Automatikus terepszint</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Kapszula</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Hosszúság</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
-    <value>Sugár</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Riadó 1</value>
@@ -4995,32 +3258,8 @@ A területet elhagyó karakterek meghalnak.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Futás</value>
   </data>
-  <data name="ExportToObjModded" xml:space="preserve">
-    <value>A model modolt blokkokat tartalmaz. Csak alap blokkokból álló modellek exportálhatóak.</value>
-  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Rámpa</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Snap to voxel grid</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Terület</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Válassz tengelyt</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X tengely</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y tengely</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z tengely</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Anyag</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Végtelen: Nagy sűrűség.</value>
@@ -5128,7 +3367,7 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Új név megadása</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
-    <value/>
+    <value />
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
     <value>Biztosan közzéteszed ezt a szkriptet?</value>
@@ -5184,26 +3423,11 @@ A területet elhagyó karakterek meghalnak.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>A programozható blokk tulajdonosa megváltozott.Fordítsd le újra a programot.</value>
   </data>
-  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>Új üzenet a {0} frakció chatben</value>
-  </data>
-  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>Új globális chat üzenet</value>
-  </data>
-  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>Új üzenet tőle: {0}</value>
-  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>Közvetítés</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Kommunikáció</value>
-  </data>
-  <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Túl hosszú leírás (max. 8000 karakter megengedett)</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Leírás</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>Látótávolság</value>
@@ -5272,9 +3496,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
-  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Kategóriák kiválasztása</value>
-  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Leírás</value>
   </data>
@@ -5317,9 +3538,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Figyelem! Illegális adatok. A változtatások nem lesznek elmentve.</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>Látótávolság: {0}m</value>
-  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Only faction members can use faction-to-faction communications</value>
   </data>
@@ -5347,9 +3565,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Jelenlegi</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Project to voxel</value>
-  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Privát szöveg szerkesztése</value>
   </data>
@@ -5367,15 +3582,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Egyszeri lövés</value>
-  </data>
-  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Next voxel material</value>
-  </data>
-  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Previous voxel material</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Csak tulajdonosnak</value>
@@ -5395,15 +3601,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Hozzáférés típusa</value>
   </data>
-  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Are you sure you want to replace this blueprint with clipboard?</value>
-  </data>
-  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Cserél</value>
-  </data>
-  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Szöveg panel csak olvasható</value>
-  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Generált Blokkok</value>
   </data>
@@ -5422,17 +3619,8 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Eszköz rázkódás engedélyezése</value>
   </data>
-  <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Text is too long. Do you want to truncate it?</value>
-  </data>
-  <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Model Kimentés</value>
-  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>A szöveg túl hosszú, nem lesz elmentve.</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Show bounding box</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Konzol</value>
@@ -5563,19 +3751,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Lekerekített Döntött Nehéz Páncél</value>
   </data>
-  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
-Do you want to continue?</value>
-  </data>
-  <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Press {0} to rotate the block</value>
-  </data>
-  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} or {1} to toggle compound building</value>
-  </data>
-  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Press {0} to toggle dynamic building</value>
-  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Nehéz Páncél Körsarok</value>
   </data>
@@ -5584,9 +3759,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Nehéz Páncél Körlejtő</value>
-  </data>
-  <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Switch walk</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Csatlakoztatva</value>
@@ -5602,21 +3774,6 @@ Do you want to continue?</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>Searching for a laser at GPS coordinates </value>
-  </data>
-  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>The list of favorite servers</value>
-  </data>
-  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Kedvencek</value>
-  </data>
-  <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>Korábban játszott</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>The list of friends servers</value>
-  </data>
-  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>A korábban meglátogatott szerverek listája</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Könnyű Páncél Sarok 2x1x1</value>
@@ -5653,12 +3810,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Könnyű Páncélelem (lejtett, simított) 3x1x1</value>
-  </data>
-  <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Szerver hozzáadása a kedvencekhez</value>
-  </data>
-  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Szerver eltávolítása a kedvencekből</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Light Armor Corner 2x1x1 Base</value>
@@ -5750,15 +3901,6 @@ Do you want to continue?</value>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
   </data>
-  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>Press {0} to open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} or {1} to change voxel material</value>
-  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>These receivers are in radio range and can report their position.
 Their current state and target is in parenthesis:
@@ -5779,18 +3921,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Copy target's current or last known position into clipboard</value>
-  </data>
-  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
-  </data>
-  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Következő bot</value>
-  </data>
-  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Előző bot</value>
-  </data>
-  <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Botok beállításai</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Feketelista</value>
@@ -5827,9 +3957,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Eltávolítás</value>
-  </data>
-  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Botok beállításai</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Kis továbbító szűrő</value>
@@ -5951,9 +4078,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
-  </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
   </data>
@@ -5993,9 +4117,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Cannot remove helmet on this suit.</value>
   </data>
-  <data name="ReportBug" xml:space="preserve">
-    <value>Report a Bug</value>
-  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Helmet</value>
   </data>
@@ -6032,15 +4153,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
-  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
-    <value>Next toolbar item</value>
-  </data>
-  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
-    <value>Previous toolbar item</value>
-  </data>
-  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
-    <value>Tools / Weapons 2</value>
-  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Oxygen Output: </value>
   </data>
@@ -6049,12 +4161,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Random encounters</value>
-  </data>
-  <data name="ControlName_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="ScreenControlMenu_Title" xml:space="preserve">
-    <value>Control menu</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Show distance for enemy antennas</value>
@@ -6068,9 +4174,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="ControlName_ControlMenu" xml:space="preserve">
-    <value>Open control menu</value>
-  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Cryo Chamber</value>
   </data>
@@ -6079,21 +4182,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemValue_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ControlMenuItemValue_On" xml:space="preserve">
-    <value>On</value>
-  </data>
-  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
-    <value>Camera mode</value>
-  </data>
-  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
-    <value>FPP</value>
-  </data>
-  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
-    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Scenario Settings</value>
@@ -6161,32 +4249,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
-  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
-    <value>Suicide</value>
-  </data>
-  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
-    <value>Quick load / reconnect</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
-    <value>Show color picker</value>
-  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
-    <value>Show toolbar screen</value>
-  </data>
-  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
-    <value>Toggle HUD</value>
-  </data>
-  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
-    <value>Pause game</value>
-  </data>
-  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
-    <value>Feature is not available yet</value>
-  </data>
-  <data name="NotificationMaximumNumberBots" xml:space="preserve">
-    <value>Maximum number of bots has been reached</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Effectiveness Module</value>
@@ -6200,38 +4264,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="Hud_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} to toggle compound building</value>
-  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Extend</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Retract</value>
-  </data>
-  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
-    <value>Press {0} to access control menu</value>
-  </data>
-  <data name="NotificationJoystickMenus" xml:space="preserve">
-    <value>In order to show help or modify toolbar, open control menu</value>
-  </data>
-  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
-    <value>Press {0} or {1} to select toolbar slots</value>
-  </data>
-  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Press {0} to add block, press {1} to remove block</value>
-  </data>
-  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} to change voxel material</value>
-  </data>
-  <data name="Notification_GameplayOptions" xml:space="preserve">
-    <value>Press {0} to change Gameplay options</value>
-  </data>
-  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
-    <value>Change appearance</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Access control menu to open control panel of {0}</value>
@@ -6250,18 +4287,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
-    <value>Access control menu to open inventory of {0}</value>
-  </data>
-  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
-    <value>Press {0} to enter build mode</value>
-  </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
-  </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6314,92 +4339,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
   </data>
-  <data name="WorldSettings_Physics" xml:space="preserve">
-    <value>Physics</value>
-  </data>
-  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
-    <value>Fast</value>
-  </data>
-  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
-    <value>Precise</value>
-  </data>
-  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
-    <value>Higher settings improve simulation BUT directly affects performance.</value>
-  </data>
-  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
-    <value>Graphics options</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
-    <value>Anisotropic filtering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
-    <value>Anti-aliasing</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
-    <value>None</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
-    <value>Foliage details</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
-    <value>Disabled</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
-    <value>Multi-threaded rendering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
-    <value>Quality preset</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Shadow map resolution</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
-    <value>Texture quality</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
-    <value>Medium</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
@@ -6412,12 +4356,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
-  </data>
-  <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
-  </data>
-  <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>

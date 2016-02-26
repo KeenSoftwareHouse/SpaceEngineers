@@ -1,5 +1,6 @@
 ﻿using Havok;
 using ParallelTasks;
+using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,6 +26,8 @@ namespace Sandbox.Engine.Voxels
         private Dictionary<Vector3I, HkBvCompressedMeshShape> m_newShapes = new Dictionary<Vector3I, HkBvCompressedMeshShape>(Vector3I.Comparer);
         private volatile bool m_isCancelled;
 
+        public int Lod;
+
         public MyPrecalcJobPhysicsBatch() : base(true) { }
 
         public static void Start(MyVoxelPhysicsBody targetPhysics, ref HashSet<Vector3I> cellBatchForSwap)
@@ -35,7 +38,7 @@ namespace Sandbox.Engine.Voxels
             MyUtils.Swap(ref job.CellBatch, ref cellBatchForSwap);
             Debug.Assert(targetPhysics.RunningBatchTask == null);
             targetPhysics.RunningBatchTask = job;
-            MyPrecalcComponent.EnqueueBack(job, false);
+            MyPrecalcComponent.EnqueueBack(job);
         }
 
         public override void DoWork()
@@ -49,7 +52,7 @@ namespace Sandbox.Engine.Voxels
                     if (m_isCancelled)
                         break;
 
-                    var geometryData = m_targetPhysics.CreateMesh(storage, cell);
+                    var geometryData = m_targetPhysics.CreateMesh(storage, new MyCellCoord(Lod, cell));
                     if (m_isCancelled)
                         break;
 
@@ -77,7 +80,7 @@ namespace Sandbox.Engine.Voxels
             if (MyPrecalcComponent.Loaded && !m_isCancelled)
             {
                 Debug.Assert(m_targetPhysics.RunningBatchTask == this);
-                m_targetPhysics.OnBatchTaskComplete(m_newShapes);
+                m_targetPhysics.OnBatchTaskComplete(m_newShapes, Lod);
             }
 
             foreach (var newShape in m_newShapes.Values)

@@ -12,11 +12,13 @@ using System.Diagnostics;
 using Sandbox.Game.Gui;
 using Sandbox.ModAPI.Ingame;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemTerminalBlock))]
-    class MyToolbarItemTerminalBlock : MyToolbarItemActions
+    class MyToolbarItemTerminalBlock : MyToolbarItemActions, IMyToolbarItemEntity
     {
         private long m_blockEntityId;
         private bool m_wasValid;
@@ -148,6 +150,11 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 m_tmpStringBuilder.Clear();
             }
+        }
+
+        public bool CompareEntityIds(long id)
+        {
+            return id == m_blockEntityId;
         }
 
         public override bool Equals(object obj)

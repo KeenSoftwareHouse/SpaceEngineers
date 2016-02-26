@@ -5,6 +5,8 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 
 using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 using VRage.Utils;
 
@@ -16,16 +18,18 @@ namespace Sandbox.Definitions
         public class MyWeaponAmmoData
         {
             public int RateOfFire; // rounds per minute (round == 1 bullet)
+            public int BurstFireRate;
             public MySoundPair ShootSound;
             public int ShootIntervalInMiliseconds; // derivative of Rate of fire
 
-            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName)
+            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName, data.BurstFireRate)
             {
             }
 
-            public MyWeaponAmmoData(int rateOfFire, string soundName)
+            public MyWeaponAmmoData(int rateOfFire, string soundName, int burstFireRate)
             {
                 this.RateOfFire = rateOfFire;
+                this.BurstFireRate = burstFireRate;
                 this.ShootSound = new MySoundPair(soundName);
                 this.ShootIntervalInMiliseconds = (int)(1000 / (RateOfFire * oneSixtieth));
             }
@@ -114,7 +118,7 @@ namespace Sandbox.Definitions
 
                 if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    MyDefinitionErrors.Add(Context, errorMessage, ErrorSeverity.Critical);
+                    MyDefinitionErrors.Add(Context, errorMessage, TErrorSeverity.Critical);
                 }
             }
         }

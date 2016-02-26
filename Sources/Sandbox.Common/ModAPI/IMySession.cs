@@ -3,8 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.ModAPI
 {
@@ -18,11 +21,13 @@ namespace Sandbox.ModAPI
         //event Action<IMyCameraController, IMyCameraController> CameraAttachedToChanged;
         IMyCameraController CameraController { get; }
         bool CargoShipsEnabled { get; }
+        [Obsolete("Client saving not supported anymore")]
         bool ClientCanSave { get; }
         bool CreativeMode { get; }
         string CurrentPath { get; }
         string Description { get; set; }
         IMyCamera Camera { get; }
+        IMyPlayer LocalHumanPlayer { get; }
 
         /// <summary>
         /// Obtaining values from config is slow and can allocate memory!
@@ -32,14 +37,14 @@ namespace Sandbox.ModAPI
         void Draw();
         TimeSpan ElapsedPlayTime { get; }
         bool EnableCopyPaste { get; }
-        Sandbox.Common.ObjectBuilders.MyEnvironmentHostilityEnum EnvironmentHostility { get; }
+        MyEnvironmentHostilityEnum EnvironmentHostility { get; }
         DateTime GameDateTime { get; set; }
         void GameOver();
         void GameOver(MyStringId? customMessage);
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_Checkpoint GetCheckpoint(string saveName);
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_Sector GetSector();
+        MyObjectBuilder_Checkpoint GetCheckpoint(string saveName);
+        MyObjectBuilder_Sector GetSector();
         System.Collections.Generic.Dictionary<string, byte[]> GetVoxelMapsArray();
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_World GetWorld();
+        MyObjectBuilder_World GetWorld();
         float GrinderSpeedMultiplier { get; }
         float HackSpeedMultiplier { get; }
         float InventoryMultiplier { get; }
@@ -53,11 +58,11 @@ namespace Sandbox.ModAPI
         double MultiplayerLastMsg { get; set; }
         string Name { get; set; }
         float NegativeIntegrityTotal { get; set; }
-        Sandbox.Common.ObjectBuilders.MyOnlineModeEnum OnlineMode { get; }
+        MyOnlineModeEnum OnlineMode { get; }
         string Password { get; set; }
         float PositiveIntegrityTotal { get; set; }
         float RefinerySpeedMultiplier { get; }
-        void RegisterComponent(Sandbox.Common.MySessionComponentBase component, Sandbox.Common.MyUpdateOrder updateOrder, int priority);
+        void RegisterComponent(VRage.Game.Components.MySessionComponentBase component, VRage.Game.Components.MyUpdateOrder updateOrder, int priority);
         //void RegisterComponentsFromAssembly(System.Reflection.Assembly assembly);
         //bool Save(out MySessionSnapshot snapshot, string customSaveName = null);
         bool Save(string customSaveName = null);
@@ -75,7 +80,7 @@ namespace Sandbox.ModAPI
         void Unload();
         void UnloadDataComponents();
         void UnloadMultiplayer();
-        void UnregisterComponent(Sandbox.Common.MySessionComponentBase component);
+        void UnregisterComponent(VRage.Game.Components.MySessionComponentBase component);
         void Update(MyTimeSpan time);
         void UpdateComponents();
         bool WeaponsEnabled { get; }
@@ -84,11 +89,12 @@ namespace Sandbox.ModAPI
         IMyVoxelMaps VoxelMaps { get; }
         IMyPlayer Player { get; }
         IMyControllableEntity ControlledObject { get; }
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_SessionSettings SessionSettings { get;}
+        MyObjectBuilder_SessionSettings SessionSettings { get;}
         IMyFactionCollection Factions { get;}
         IMyDamageSystem DamageSystem { get; }
         IMyGpsCollection GPS { get; }
         event Action OnSessionReady;
         event Action OnSessionLoading;
+        BoundingBoxD WorldBoundaries { get; }
     }
 }

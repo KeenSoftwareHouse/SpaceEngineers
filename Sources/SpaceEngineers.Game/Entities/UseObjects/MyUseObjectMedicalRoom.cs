@@ -10,37 +10,39 @@ using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
     [MyUseObject("block")]
-    class MyUseObjectMedicalRoom : IMyUseObject
+    class MyUseObjectMedicalRoom : MyUseObjectBase
     {
         private MyMedicalRoom m_medicalRoom;
         private Matrix m_localMatrix;
 
         public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
+            : base(owner, dummyData)
         {
             m_medicalRoom = (MyMedicalRoom)owner;
             m_localMatrix = dummyData.Matrix;
         }
 
-        float IMyUseObject.InteractiveDistance
+        public override float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
 
-        MatrixD IMyUseObject.ActivationMatrix
+        public override MatrixD ActivationMatrix
         {
             get { return m_localMatrix * m_medicalRoom.WorldMatrix; }
         }
 
-        MatrixD IMyUseObject.WorldMatrix
+        public override MatrixD WorldMatrix
         {
             get { return m_medicalRoom.WorldMatrix; }
         }
 
-        int IMyUseObject.RenderObjectID
+        public override int RenderObjectID
         {
             get
             {
@@ -51,28 +53,28 @@ namespace SpaceEngineers.Game.Entities.UseObjects
             }
         }
 
-        bool IMyUseObject.ShowOverlay
+        public override bool ShowOverlay
         {
             get { return true; }
         }
 
-        UseActionEnum IMyUseObject.SupportedActions
+        public override UseActionEnum SupportedActions
         {
             get { return UseActionEnum.Manipulate | UseActionEnum.OpenTerminal; }
         }
 
-        bool IMyUseObject.ContinuousUsage
+        public override bool ContinuousUsage
         {
             get { return true; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
+        public override void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             var user = entity as MyCharacter;
             m_medicalRoom.Use(actionEnum, user);
         }
 
-        MyActionDescription IMyUseObject.GetActionInfo(UseActionEnum actionEnum)
+        public override MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
             switch (actionEnum)
             {
@@ -105,11 +107,11 @@ namespace SpaceEngineers.Game.Entities.UseObjects
             }
         }
 
-        bool IMyUseObject.HandleInput() { return false; }
+        public override bool HandleInput() { return false; }
 
-        void IMyUseObject.OnSelectionLost() { }
+        public override void OnSelectionLost() { }
 
-        bool IMyUseObject.PlayIndicatorSound
+        public override bool PlayIndicatorSound
         {
             get { return true; }
         }

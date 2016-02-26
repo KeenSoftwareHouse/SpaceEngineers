@@ -280,11 +280,9 @@ namespace VRageRender.Lights
 
             float drawingRadius = radius;
 
-            Debug.Assert(MyRender.CurrentRenderSetup.LodTransitionBackgroundStart != null, "lod transition is not set in render setup");
-            var startFadeout = MyRender.CurrentRenderSetup.LodTransitionBackgroundStart.Value;
+            var startFadeout = MyRenderCamera.NEAR_PLANE_FOR_BACKGROUND;
 
-            Debug.Assert(MyRender.CurrentRenderSetup.LodTransitionBackgroundEnd != null, "lod transition is not set in render setup");
-            var endFadeout = MyRender.CurrentRenderSetup.LodTransitionBackgroundEnd.Value;
+            var endFadeout = MyRenderCamera.FAR_PLANE_FOR_BACKGROUND;
 
             if (distance > startFadeout)
             {

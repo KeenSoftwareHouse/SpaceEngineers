@@ -30,6 +30,8 @@ namespace VRageRender
         public string RootDirectoryEffects { get { return MyRender.RootDirectoryEffects; } set { MyRender.RootDirectoryEffects = value; } }
         public string RootDirectoryDebug { get { return MyRender.RootDirectoryDebug; } set { MyRender.RootDirectoryDebug = value; } }
 
+        public MyLog Log { get { return MyRender.Log; } }
+
         public MyRenderFont TryGetFont(int id)
         {
             return MyRender.TryGetFont(id);
@@ -161,7 +163,7 @@ namespace VRageRender
         public MyMessageQueue OutputQueue { get { return MyRender.OutputQueue; } }
         public uint GlobalMessageCounter { get { return MyRender.GlobalMessageCounter; } set { MyRender.GlobalMessageCounter = value; } }
 
-        public void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)
+        public void EnqueueMessage(MyRenderMessageBase message, bool limitMaxQueueSize)
         {
             MyRender.EnqueueMessage(message, limitMaxQueueSize);
         }
@@ -171,7 +173,7 @@ namespace VRageRender
 //            MyRender.processmes
         }
 
-        public void EnqueueOutputMessage(IMyRenderMessage message)
+        public void EnqueueOutputMessage(MyRenderMessageBase message)
         {
             MyRender.EnqueueOutputMessage(message);
         }
@@ -203,5 +205,9 @@ namespace VRageRender
         }
 
         public void HandleFocusMessage(MyWindowFocusMessage msg) { }
+        public void GenerateShaderCache(bool clean, OnShaderCacheProgressDelegate onShaderCacheProgress)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

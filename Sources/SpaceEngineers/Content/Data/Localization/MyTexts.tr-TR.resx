@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element msdata:IsDataSet="true" name="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
-                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
-              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
-              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -124,66 +124,8 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Koşma</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
-    <value>Çıkmak istediğinizden emin misiniz?</value>
-  </data>
-  <data name="AssignControlKeyboard" xml:space="preserve">
-    <value>Lütfen bir tuşa basınız.</value>
-  </data>
-  <data name="AssignControlMouse" xml:space="preserve">
-    <value>Lütfen bir mouse tuşuna basınız.</value>
-  </data>
-  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
-    <value>Ses</value>
-  </data>
-  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
-    <value>Ses ayarları</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>İptal</value>
-  </data>
-  <data name="CanNotAssignControl" xml:space="preserve">
-    <value>KONTROL AYARLANAMIYOR</value>
-  </data>
-  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
-    <value>Kaldığın yerden devam et</value>
-  </data>
-  <data name="ControlAlreadyAssigned" xml:space="preserve">
-    <value>{0} zaten {1} tuşuna ayarlanmış. 
-Orijinal kontrol silinsin mi?</value>
-  </data>
-  <data name="ControlIsNotValid" xml:space="preserve">
-    <value>Bu tuş kontrollere ayarlanamaz.</value>
-  </data>
-  <data name="ScreenCaptionControls" xml:space="preserve">
-    <value>Kontroller</value>
-  </data>
-  <data name="ScreenMenuButtonCredits" xml:space="preserve">
-    <value>Emeği Geçenler</value>
-  </data>
-  <data name="KeysDelete" xml:space="preserve">
-    <value>Sil</value>
-  </data>
-  <data name="KeysDown" xml:space="preserve">
-    <value>Aşağı</value>
-  </data>
-  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
-    <value>Bu ayarları kaydetmek istiyor musunuz? {0} saniyeniz kaldı.</value>
-  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Matkap</value>
-  </data>
-  <data name="KeysEnd" xml:space="preserve">
-    <value>Bitir</value>
-  </data>
-  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
-    <value>Ana menüye git</value>
-  </data>
-  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
-    <value>Oyunu Kapat</value>
-  </data>
-  <data name="FieldOfView" xml:space="preserve">
-    <value>Görüş alanı</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Aleti Kullan / Silahı Ateşle</value>
@@ -191,176 +133,11 @@ Orijinal kontrol silinsin mi?</value>
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>İkincil Mod</value>
   </data>
-  <data name="ScreenOptionsButtonGame" xml:space="preserve">
-    <value>Oyun</value>
-  </data>
-  <data name="ScreenCaptionGameOptions" xml:space="preserve">
-    <value>Oyun Ayarları</value>
-  </data>
-  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
-    <value>Gamepad</value>
-  </data>
-  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
-    <value>Analog</value>
-  </data>
-  <data name="GameVolume" xml:space="preserve">
-    <value>Ses Seviyesi</value>
-  </data>
-  <data name="ControlTypeGeneral" xml:space="preserve">
-    <value>Genel</value>
-  </data>
-  <data name="HardwareCursor" xml:space="preserve">
-    <value>Donanım İmleci</value>
-  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Işıklar açık / kapalı</value>
   </data>
-  <data name="ControlName_Help" xml:space="preserve">
-    <value>Yardım</value>
-  </data>
-  <data name="KeysHome" xml:space="preserve">
-    <value>Ana sayfa</value>
-  </data>
-  <data name="KeysInsert" xml:space="preserve">
-    <value>Insert</value>
-  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Envanter</value>
-  </data>
-  <data name="InvertMouseX" xml:space="preserve">
-    <value>Farenin X eksenini ters çevir</value>
-  </data>
-  <data name="InvertMouseY" xml:space="preserve">
-    <value>Farenin Y eksenini ters çevir</value>
-  </data>
-  <data name="Joystick" xml:space="preserve">
-    <value>Joystick veya Gamepad</value>
-  </data>
-  <data name="JoystickButtonLeft" xml:space="preserve">
-    <value>JDSol</value>
-  </data>
-  <data name="JoystickButtonRight" xml:space="preserve">
-    <value>JDSağ</value>
-  </data>
-  <data name="JoystickButtonUp" xml:space="preserve">
-    <value>JDYukarı</value>
-  </data>
-  <data name="JoystickButtonDown" xml:space="preserve">
-    <value>JDAşağı</value>
-  </data>
-  <data name="JoystickDeadzone" xml:space="preserve">
-    <value>Joystick ölübölge genişliği</value>
-  </data>
-  <data name="JoystickExponent" xml:space="preserve">
-    <value>Joystick kademeli hassasiyeti</value>
-  </data>
-  <data name="JoystickSensitivity" xml:space="preserve">
-    <value>Joystick hassaslığı</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
-    <value>Klavye</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Dil</value>
-  </data>
-  <data name="KeysLeft" xml:space="preserve">
-    <value>Sol</value>
-  </data>
-  <data name="KeysLeftAlt" xml:space="preserve">
-    <value>Sol-Alt</value>
-  </data>
-  <data name="KeysLeftControl" xml:space="preserve">
-    <value>Sol-CTRL</value>
-  </data>
-  <data name="LeftMouseButton" xml:space="preserve">
-    <value>LMB</value>
-  </data>
-  <data name="KeysLeftShift" xml:space="preserve">
-    <value>Sol-Shift</value>
-  </data>
-  <data name="LoadScreenButtonLoad" xml:space="preserve">
-    <value>Yükle</value>
-  </data>
-  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
-    <value>YÜKLENİYOR ... LÜTFEN BEKLEYİN</value>
-  </data>
-  <data name="MessageBoxCaptionError" xml:space="preserve">
-    <value>HATA</value>
-  </data>
-  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
-    <value>LÜTFEN ONAYLAYIN</value>
-  </data>
-  <data name="MessageBoxCaptionExit" xml:space="preserve">
-    <value>ÇIKIŞ</value>
-  </data>
-  <data name="MiddleMouseButton" xml:space="preserve">
-    <value>MMB</value>
-  </data>
-  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
-    <value>Fare</value>
-  </data>
-  <data name="MouseSensitivity" xml:space="preserve">
-    <value>Fare hassasiyeti</value>
-  </data>
-  <data name="MouseXButton1" xml:space="preserve">
-    <value>MXB1</value>
-  </data>
-  <data name="MouseXButton2" xml:space="preserve">
-    <value>MXB2</value>
-  </data>
-  <data name="ControlTypeNavigation" xml:space="preserve">
-    <value>Navigasyon</value>
-  </data>
-  <data name="ScreenCaptionNewWorld" xml:space="preserve">
-    <value>Yeni Dünya</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>Hayır</value>
-  </data>
-  <data name="KeysNumPad0" xml:space="preserve">
-    <value>Num 0</value>
-  </data>
-  <data name="KeysNumPad1" xml:space="preserve">
-    <value>Num 1</value>
-  </data>
-  <data name="KeysNumPad2" xml:space="preserve">
-    <value>Num 2</value>
-  </data>
-  <data name="KeysNumPad3" xml:space="preserve">
-    <value>Num 3</value>
-  </data>
-  <data name="KeysNumPad4" xml:space="preserve">
-    <value>Num 4</value>
-  </data>
-  <data name="KeysNumPad5" xml:space="preserve">
-    <value>Num 5</value>
-  </data>
-  <data name="KeysNumPad6" xml:space="preserve">
-    <value>Num 6</value>
-  </data>
-  <data name="KeysNumPad7" xml:space="preserve">
-    <value>Num 7</value>
-  </data>
-  <data name="KeysNumPad8" xml:space="preserve">
-    <value>Num 8</value>
-  </data>
-  <data name="KeysNumPad9" xml:space="preserve">
-    <value>Num 9</value>
-  </data>
-  <data name="Ok" xml:space="preserve">
-    <value>TAMAM</value>
-  </data>
-  <data name="ScreenCaptionOptions" xml:space="preserve">
-    <value>Ayarlar</value>
-  </data>
-  <data name="KeysPageDown" xml:space="preserve">
-    <value>PgDown</value>
-  </data>
-  <data name="KeysPageUp" xml:space="preserve">
-    <value>PgUp</value>
-  </data>
-  <data name="RecommendedAspectRatio" xml:space="preserve">
-    <value>Önerilen en-boy oranı: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Görüntü işleme Kalitesi</value>
@@ -373,24 +150,6 @@ Orijinal kontrol silinsin mi?</value>
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normal</value>
-  </data>
-  <data name="Revert" xml:space="preserve">
-    <value>Varsayılanlar</value>
-  </data>
-  <data name="KeysRight" xml:space="preserve">
-    <value>Sağ</value>
-  </data>
-  <data name="KeysRightAlt" xml:space="preserve">
-    <value>Sağ-Alt</value>
-  </data>
-  <data name="KeysRightControl" xml:space="preserve">
-    <value>Sağ-CTRL</value>
-  </data>
-  <data name="RightMouseButton" xml:space="preserve">
-    <value>RMB</value>
-  </data>
-  <data name="KeysRightShift" xml:space="preserve">
-    <value>Sağ-Shift</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Sola döndür (Gemi / Jetpack)</value>
@@ -410,188 +169,14 @@ Orijinal kontrol silinsin mi?</value>
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Yukarı Çevir</value>
   </data>
-  <data name="SelectControl" xml:space="preserve">
-    <value>KONTROL SEÇ</value>
-  </data>
-  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
-    <value>PLANLANMIŞ SUNUCU KAPANMASI</value>
-  </data>
-  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
-    <value>Üzgünüz, fakat seçtiğiniz ayarlar donanımınızla uyumlu değildir.</value>
-  </data>
-  <data name="KeysSpace" xml:space="preserve">
-    <value>Boşluk</value>
-  </data>
-  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
-    <value>Oyun başlatılıyor ... Lütfen bekleyin.</value>
-  </data>
-  <data name="ControlName_StrafeLeft" xml:space="preserve">
-    <value>Sola yürü</value>
-  </data>
-  <data name="ControlName_StrafeRight" xml:space="preserve">
-    <value>Sağa yürü</value>
-  </data>
-  <data name="ControlTypeSystems1" xml:space="preserve">
-    <value>Sistemler 1</value>
-  </data>
-  <data name="ControlTypeSystems2" xml:space="preserve">
-    <value>Sistemler 2</value>
-  </data>
-  <data name="KeysTab" xml:space="preserve">
-    <value>Tab</value>
-  </data>
-  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
-    <value>Tarayıcı başlatılamadı.</value>
-  </data>
-  <data name="UnknownControl_None" xml:space="preserve">
-    <value>hiçbiri</value>
-  </data>
-  <data name="KeysUp" xml:space="preserve">
-    <value>Yukarı</value>
-  </data>
-  <data name="ControlName_UseOrInteract" xml:space="preserve">
-    <value>Kullan / Etkileşim Kur</value>
-  </data>
-  <data name="VerticalSync" xml:space="preserve">
-    <value>Dikey Senkronizasyon</value>
-  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Video</value>
-  </data>
-  <data name="VideoMode" xml:space="preserve">
-    <value>Video Modu</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Video Ayarları</value>
   </data>
-  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
-    <value>Aletler / Silahlar</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Evet</value>
-  </data>
-  <data name="Disabled" xml:space="preserve">
-    <value>Devre Dışı</value>
-  </data>
-  <data name="JoystickRotationXpos" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYpos" xml:space="preserve">
-    <value>JRY+</value>
-  </data>
-  <data name="JoystickRotationZpos" xml:space="preserve">
-    <value>JRZ+</value>
-  </data>
-  <data name="JoystickSlider1pos" xml:space="preserve">
-    <value>JS1+</value>
-  </data>
-  <data name="JoystickSlider2pos" xml:space="preserve">
-    <value>JS2+</value>
-  </data>
-  <data name="JoystickRotationXneg" xml:space="preserve">
-    <value>JRX-</value>
-  </data>
-  <data name="JoystickRotationYneg" xml:space="preserve">
-    <value>JRY-</value>
-  </data>
-  <data name="JoystickRotationZneg" xml:space="preserve">
-    <value>JRZ-</value>
-  </data>
-  <data name="JoystickSlider1neg" xml:space="preserve">
-    <value>JS1-</value>
-  </data>
-  <data name="JoystickSlider2neg" xml:space="preserve">
-    <value>JS2-</value>
-  </data>
-  <data name="KeysDecimal" xml:space="preserve">
-    <value>Num .</value>
-  </data>
-  <data name="KeysBackslash" xml:space="preserve">
-    <value>\</value>
-  </data>
-  <data name="KeysComma" xml:space="preserve">
-    <value>Virgül</value>
-  </data>
-  <data name="KeysMinus" xml:space="preserve">
-    <value>Eksi</value>
-  </data>
-  <data name="KeysOpenBracket" xml:space="preserve">
-    <value>[</value>
-  </data>
-  <data name="KeysCloseBracket" xml:space="preserve">
-    <value>]</value>
-  </data>
-  <data name="KeysPeriod" xml:space="preserve">
-    <value>Periyot</value>
-  </data>
-  <data name="KeysPipe" xml:space="preserve">
-    <value>Boru</value>
-  </data>
-  <data name="KeysPlus" xml:space="preserve">
-    <value>Artı</value>
-  </data>
-  <data name="KeysQuestion" xml:space="preserve">
-    <value>Taksim</value>
-  </data>
-  <data name="KeysQuotes" xml:space="preserve">
-    <value>"</value>
-  </data>
-  <data name="KeysSemicolon" xml:space="preserve">
-    <value>İki nokta üst üste</value>
-  </data>
-  <data name="KeysTilde" xml:space="preserve">
-    <value>~</value>
-  </data>
-  <data name="KeysMultiply" xml:space="preserve">
-    <value>Num *</value>
-  </data>
-  <data name="KeysDivide" xml:space="preserve">
-    <value>Num /</value>
-  </data>
-  <data name="KeysAdd" xml:space="preserve">
-    <value>Num +</value>
-  </data>
-  <data name="KeysSubtract" xml:space="preserve">
-    <value>Num -</value>
-  </data>
-  <data name="KeysCapsLock" xml:space="preserve">
-    <value>Caps Lock</value>
-  </data>
-  <data name="KeysEnter" xml:space="preserve">
-    <value>Enter</value>
-  </data>
-  <data name="KeysBackspace" xml:space="preserve">
-    <value>Backsp.</value>
-  </data>
-  <data name="ApplyingPleaseWait" xml:space="preserve">
-    <value>Değişiklikler uygulanıyor... lütfen bekleyin</value>
-  </data>
-  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
-    <value>Öldürüldün</value>
-  </data>
-  <data name="MusicVolume" xml:space="preserve">
-    <value>Müzik sesi</value>
-  </data>
-  <data name="VideoAdapter" xml:space="preserve">
-    <value>Video Bağdaştırıcısı</value>
-  </data>
-  <data name="DefaultFOV" xml:space="preserve">
-    <value>Varsayılan: {0:F1}</value>
-  </data>
-  <data name="WorldLoaded" xml:space="preserve">
-    <value>Dünya {0} yüklendi</value>
-  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Sohbet ekranı</value>
-  </data>
-  <data name="ControlName_Screenshot" xml:space="preserve">
-    <value>Ekran Görüntüsü</value>
-  </data>
-  <data name="ControlName_PreviousColor" xml:space="preserve">
-    <value>Önceki Renk veya Kamera</value>
-  </data>
-  <data name="ControlName_NextColor" xml:space="preserve">
-    <value>Sonraki Renk veya Kamera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminal / Envanter</value>
@@ -599,23 +184,14 @@ Orijinal kontrol silinsin mi?</value>
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Kaynak Makinesi</value>
   </data>
-  <data name="WorldSaved" xml:space="preserve">
-    <value>Dünya {0} kaydedildi</value>
-  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>Hedefi sökmek için {0} tuşuna basın</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>Hedefe kaynak yapmak için {0} tuşuna basın</value>
   </data>
-  <data name="Blueprints" xml:space="preserve">
-    <value>Planlar</value>
-  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Kontrol Paneli</value>
-  </data>
-  <data name="Factions" xml:space="preserve">
-    <value>Gruplar</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Montajcı</value>
@@ -891,23 +467,11 @@ Orijinal kontrol silinsin mi?</value>
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>Beyaz</value>
   </data>
-  <data name="BlueprintMaterials" xml:space="preserve">
-    <value>Plan Malzemeleri</value>
-  </data>
-  <data name="ProductionQueue" xml:space="preserve">
-    <value>Üretim Sırası</value>
-  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reaktör</value>
   </data>
-  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
-    <value>Ayarları Değiştir</value>
-  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Kendiliğinden iyileşme</value>
-  </data>
-  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Özel Dünya</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Açıklama</value>
@@ -924,12 +488,6 @@ Orijinal kontrol silinsin mi?</value>
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Güvenli</value>
   </data>
-  <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Ad çok uzun (max 128 karakter olmalı)</value>
-  </data>
-  <data name="ErrorNameTooShort" xml:space="preserve">
-    <value>Ad çok kısa (en az 5 karakter olmalıdır)</value>
-  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Dost ateşi</value>
   </data>
@@ -939,35 +497,11 @@ Orijinal kontrol silinsin mi?</value>
   <data name="WorldSettings_GameMode" xml:space="preserve">
     <value>Oyun mudu</value>
   </data>
-  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
-    <value>Hayatta Kalma</value>
-  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Gerçekçi x10</value>
   </data>
-  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
-    <value>Dünya'ya katıl</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Ad</value>
-  </data>
-  <data name="WorldSettings_OnlineMode" xml:space="preserve">
-    <value>Çevrimiçi modu</value>
-  </data>
-  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
-    <value>Çevrimdışı</value>
-  </data>
-  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
-    <value>Özel</value>
-  </data>
-  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
-    <value>Herkese açık</value>
-  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Şifre</value>
-  </data>
-  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
-    <value>Hızlı başlangıç</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Uzayda ses</value>
@@ -997,9 +531,6 @@ Hayatta Kalma Modu: Gerçekci envanter kapasitesi, işlem gereken hammadeler, ka
 Hayatta Kalma Modu x3: 3x envanter kapasitesi.
 Hayatta Kalma Modu x10: 10x envanter kapasitesi.</value>
   </data>
-  <data name="ToolTipWorldSettingsName" xml:space="preserve">
-    <value>İsim en az {0}, en fazla {1} tane harf ve rakamdan oluşmalı</value>
-  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>Oyununuzun görünürlüğü
 
@@ -1014,18 +545,6 @@ Genel: Tüm Steam oyuncuları oyuna katılabilir</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>Uzayda ses yoktur. Dünya benzeri ses koşulları yaratmak için aktif edebilirsiniz (Gerçekçi olmasa bile). Sadece astronotunuzun duyduğu sesleri duyabileceğiniz gerçekçi mod için kapatın.</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
-    <value>'{0}' silmek istediğinizden emin misiniz?</value>
-  </data>
-  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
-    <value>Dünya'yı Yükle</value>
-  </data>
-  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
-    <value>Farklı Kaydet</value>
-  </data>
-  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
-    <value>Yaratıcı</value>
-  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Senaryo</value>
   </data>
@@ -1035,146 +554,14 @@ Genel: Tüm Steam oyuncuları oyuna katılabilir</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Yalnız kazazede</value>
   </data>
-  <data name="PlayerCharacter" xml:space="preserve">
-    <value>Oyuncu Karakteri</value>
-  </data>
-  <data name="WorldSettings_AutoSave" xml:space="preserve">
-    <value>Otomatik Kayıt</value>
-  </data>
-  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
-    <value>Oto-kayıt, evrenin halini her {0} dakikada bir ya da oyundan çıkarken kaydeder.</value>
-  </data>
-  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
-    <value>İlerlemenizi kaydetmek istiyor musunuz?</value>
-  </data>
-  <data name="SaveWorld" xml:space="preserve">
-    <value>Dünyayı kaydet</value>
-  </data>
-  <data name="ScreenMenuButtonSave" xml:space="preserve">
-    <value>Kaydet</value>
-  </data>
-  <data name="SavingPleaseWait" xml:space="preserve">
-    <value>Kaydediliyor... Lütfen bekleyin</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>Gelişmiş</value>
-  </data>
-  <data name="AdvancedControls" xml:space="preserve">
-    <value>Gelişmiş Kontroller</value>
-  </data>
-  <data name="ControlName_Backward" xml:space="preserve">
-    <value>Geri</value>
-  </data>
-  <data name="BasicControls" xml:space="preserve">
-    <value>Temel Kontroller</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Kapat</value>
-  </data>
-  <data name="ControlName_DownOrCrouch" xml:space="preserve">
-    <value>Eğil veya Çömel.</value>
-  </data>
-  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
-    <value>Birinci-şahıs / Üçüncü-şahıs Bakışı</value>
-  </data>
-  <data name="ControlName_Forward" xml:space="preserve">
-    <value>İleri</value>
-  </data>
-  <data name="NextPage" xml:space="preserve">
-    <value>Sonraki Sayfa</value>
-  </data>
-  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Yardım ve rehberler için {0} tuşuna basın</value>
-  </data>
-  <data name="PreviousPage" xml:space="preserve">
-    <value>Önceki Sayfa</value>
-  </data>
-  <data name="ShowControlsHints" xml:space="preserve">
-    <value>Kontrol ipuçlarını göster</value>
-  </data>
-  <data name="SteamGuide" xml:space="preserve">
-    <value>Eğitimler</value>
-  </data>
-  <data name="ControlName_UpOrJump" xml:space="preserve">
-    <value>Yukarı Veya Zıpla</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
-    <value>Bloğu dikeyde çevir -</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
-    <value>Bloğu dikeyde çevir +</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
-    <value>Bloğu yatayda çevir -</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
-    <value>Bloğu yatayda çevir +</value>
-  </data>
-  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
-    <value>Bloğu sağa çevir</value>
-  </data>
-  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
-    <value>Bloğu sola çevir</value>
-  </data>
-  <data name="ControlName_Slot0" xml:space="preserve">
-    <value>Ekipmanı çıkar</value>
-  </data>
-  <data name="ControlName_Slot1" xml:space="preserve">
-    <value>1. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot2" xml:space="preserve">
-    <value>2. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot3" xml:space="preserve">
-    <value>3. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot4" xml:space="preserve">
-    <value>4. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot5" xml:space="preserve">
-    <value>5. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot6" xml:space="preserve">
-    <value>6. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot7" xml:space="preserve">
-    <value>7. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot8" xml:space="preserve">
-    <value>8. yuvadaki nesneyi kuşan</value>
-  </data>
-  <data name="ControlName_Slot9" xml:space="preserve">
-    <value>9. yuvadaki nesneyi kuşan</value>
-  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reaktörler Açık / Kapalı</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Boş Dünya</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
-    <value>Hızlı-yükleme yapmak istediğinizden emin misiniz?</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
-    <value>Hızlı kayıt yapmak istediğine emin misin?</value>
-  </data>
-  <data name="ControlName_ToolbarConfig" xml:space="preserve">
-    <value>Araç Çubuğu Yapılandır</value>
-  </data>
-  <data name="ControlName_HoldToLookAround" xml:space="preserve">
-    <value>Etrafa bakmak için basılı tutun</value>
-  </data>
-  <data name="ControlName_HoldToSprint" xml:space="preserve">
-    <value>Koşmak için basılı tutun</value>
-  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Jetpack Açık/Kapalı</value>
-  </data>
-  <data name="LoadingPleaseWait" xml:space="preserve">
-    <value>Yükleniyor... Lütfen bekleyin</value>
-  </data>
-  <data name="NoPlaceToCreateGrid" xml:space="preserve">
-    <value>Yeni bir blok oluşturmak için alan yok. Boş alana yönelin.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Yeni bir blok oluşturmak için yeterli malzemeniz yok. En az bir çelik plaka gerekiyor.</value>
@@ -1184,28 +571,6 @@ Genel: Tüm Steam oyuncuları oyuna katılabilir</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Konveyör</value>
-  </data>
-  <data name="ControlName_HudOnOff" xml:space="preserve">
-    <value>HUD Açık / Kapalı</value>
-  </data>
-  <data name="ScreenCubeBuilderHint" xml:space="preserve">
-    <value>İpucu:Seçeceğiniz Objeyi Araç Çubuğundaki Bir Bölüme Yerleştirin Ve Klavyedeki Ona Karşılık Gelen Tuşla Objeyi Seçin</value>
-  </data>
-  <data name="Saved" xml:space="preserve">
-    <value>Kaydedildi</value>
-  </data>
-  <data name="HideWeapon" xml:space="preserve">
-    <value>Silahı gizle</value>
-  </data>
-  <data name="Thrust" xml:space="preserve">
-    <value>İtiş</value>
-  </data>
-  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
-    <value>Dünya/kayıt dosyalarınızdan biri bozuldu ve yüklenemez.
-Detaylar için loglara bakınız.</value>
-  </data>
-  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
-    <value>Dünya dosyası bozulmuş ve yüklenemiyor</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1636,52 +1001,11 @@ Detaylar için loglara bakınız.</value>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>Yerçekimi yok</value>
   </data>
-  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
-    <value>Özel ayarlarla yeni bir dünya oluşturun</value>
-  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Varsayılan ayarlarla yeni bir evren yarat:
 Oyun Türü: Yaratıcı Modu
 Senaryo: Kolay Başlangıç 1
 Oto-kayıt: Açık</value>
-  </data>
-  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
-    <value>Yüksek görüntü işleme kalitesi daha iyi görsellere, daha geniş görüş alanına ve daha fazla özel efekte olanak verir, 
-fakat bilgisayarınızın performansını düşürebilir.(işlemci ve ekran kartı) 
-Eğer oyun akıcı değilse azaltın.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Bir grafik adaptörü yada monitör seç</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
-    <value>Bir ekran çözünürlüğü seçin. Monitörünüz ile uyumlu bir görüntü oranı seçmenizi tavsiye ediyoruz. Eğer oyun akıcı şekilde çalışmazsa ekran çözünürlüğünü düşürün.</value>
-  </data>
-  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
-    <value>Donanım fare imleci oyunun kare sayısından bağımsızdır. Açmanızı tavsiye ediyoruz.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
-    <value>Oyunu, monitörünüzün yenileme hızıyla senkronize eder. Bu özelliği kapatmanızı Öneriyoruz.</value>
-  </data>
-  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
-    <value>Yatay görüş açısı</value>
-  </data>
-  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
-    <value>Oynayış sırasında kontrol ipuçlarını ekranda göster</value>
-  </data>
-  <data name="WorldNotSaved" xml:space="preserve">
-    <value>Dünya '{0}' kaydedilemiyor.Bu, belleğe bilgi yazılırken oluşan problemlerden kaynaklanabilir. Bu dünyada daha fazla ilerlemek, ilermeninin kaybolması ile sonuçlanacaktır.Hata dosyasında bu hataya neyin sebep olduğu ile ilgili bilgilere erişebilirsiniz. </value>
-  </data>
-  <data name="NotificationMemoryOverload" xml:space="preserve">
-    <value>Yeni objeler eklemek için yeterince hafıza yok</value>
-  </data>
-  <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>Bilgisayarında oyunun çalışacağı daha iyi bir ekran kartı tespit ettik. Lütfen NVIDIA/AMD Kontrol Panel ayarlarını kontrol et.</value>
-  </data>
-  <data name="MessageBoxCaptionWarning" xml:space="preserve">
-    <value>UYARI</value>
-  </data>
-  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
-    <value>İnternet tarayıcınızda  www.SpaceEngineersGame.com/localization sayfası açılacak.Oyun çalışmaya devam edecek.Devam etmek istiyormusunuz?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Çömelme</value>
@@ -1755,48 +1079,6 @@ Eğer oyun akıcı değilse azaltın.</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Rehber videosunu izleyerek başlamak ister misiniz? Unutmayın: İstediğiniz zaman "Yardım" menüsünden "Rehberler"i seçerek buraya girebilirsiniz (aynı zamanda kısayol olarak F1'i de kullanabilirsiniz)</value>
   </data>
-  <data name="Loaded" xml:space="preserve">
-    <value>Yüklendi</value>
-  </data>
-  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
-    <value>Kayıt edilmiş dünya bulunmuyor. Lütfen yeni bir dünya oluşturarak başlayın.</value>
-  </data>
-  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
-    <value>Video Rehber</value>
-  </data>
-  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
-    <value>Çıkmadan önce değişiklikler kaydedilsin mi?</value>
-  </data>
-  <data name="ErrorNameAlreadyExists" xml:space="preserve">
-    <value>Ad kullanılıyor. Lütfen başka bir ad seçin.</value>
-  </data>
-  <data name="NotificationBuildingFormat" xml:space="preserve">
-    <value>{0} tuşuna basarak küpü yerleştir</value>
-  </data>
-  <data name="NotificationColorFormat" xml:space="preserve">
-    <value>{0} veya {1} tuşuna basarak renk değiştirebilirsiniz. {2} tuşuna basarak renk seçiminizi uygulayabilirsiniz .{3} veya {4} tuşuna basarak fırça boyutunu büyütebilirsiniz.</value>
-  </data>
-  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
-    <value>İpuçlarını görmek istemiyorsanız Oyun Ayarlarından ipuçlarını saklayabilirsiniz.</value>
-  </data>
-  <data name="NotificationHudHideFormat" xml:space="preserve">
-    <value>{0} tuşuna basarak HUD'u gizle/göster</value>
-  </data>
-  <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>{0}, {1}, {2}, {3}, {4}, {5} Tuşlarına Basarak Döndür</value>
-  </data>
-  <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Araç çubuğunu düzenlemek ya da yeni objeler yaratmak için {0} tuşuna basın</value>
-  </data>
-  <data name="NotificationSlotEquipFormat" xml:space="preserve">
-    <value>Envanterinizde ki Donanımları Kuşanmak İçin {0}, {1}, {2}, ... Tuşlarına Basınız.</value>
-  </data>
-  <data name="NotificationToolDisabled" xml:space="preserve">
-    <value>Bu Alet / Silah kullanılamaz</value>
-  </data>
-  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Blok eklemek için {0}'a basın, Bloğu kaldırmak için {1}'a basın. Hızlı inşaa etmek için {2} tuşunu basılı tutun</value>
-  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Blok'u boyamak için basılı tutun (Yaratıcı Mod)</value>
   </data>
@@ -1806,23 +1088,8 @@ Eğer oyun akıcı değilse azaltın.</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Orta Boy Boya Fırçası (Yaratıcı Mod)</value>
   </data>
-  <data name="ControlDescQuickLoad" xml:space="preserve">
-    <value>Hızlı Yükle</value>
-  </data>
-  <data name="ControlDescQuickSave" xml:space="preserve">
-    <value>Hızlı Kaydet</value>
-  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Üçüncü şahıs modunda yakınlaştır</value>
-  </data>
-  <data name="MouseWheel" xml:space="preserve">
-    <value>Fare tekerleği</value>
-  </data>
-  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Sekme içerik:</value>
-  </data>
-  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
-    <value>Yaratıcı Mod</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>Yeni Büyük Gemi</value>
@@ -1832,15 +1099,6 @@ Eğer oyun akıcı değilse azaltın.</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>Yeni İstasyon</value>
-  </data>
-  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
-    <value>Araç Çubuğunu Yapılandır ( Yapı Blokları,Aletler Ve Silahlar Atıyabilirsin)</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
-    <value>Araç Çubuğu</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
-    <value>Araç Çubuğunu Yapılandırma</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Şarj oluyor</value>
@@ -1866,46 +1124,10 @@ Eğer oyun akıcı değilse azaltın.</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Fayda</value>
   </data>
-  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
-    <value>Steam Arayüzü devre dışı</value>
-  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Steam'dan Steam Overlay'i etkinleştiriniz: Ayarlara gidip, Oyun İçi sekmesinden Oyun İçi Steam
  Topluluğunu Etkinleştirin ve Steam Kütüphanesi, Space Engineers, Özellikler, Oyun İçi Steam
  Topluluğunu Etkinleştirin.</value>
-  </data>
-  <data name="LoadScreenButtonPublish" xml:space="preserve">
-    <value>Yayınla</value>
-  </data>
-  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
-    <value>Yayın işlemi başarıyla gerçekleşti. Steam arayüzünüz aktifse; başlığı, açıklamayı ve görünürlüğü düzenleyebileceğiniz bir sayfa açılacak. (Varsayılan olarak herkese açık)</value>
-  </data>
-  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
-    <value>İçerik Steam Atölyesinde Paylaşılamadı.</value>
-  </data>
-  <data name="MessageBoxTextModPublished" xml:space="preserve">
-    <value>Yayınlama başarıyla tamamlandı. Steam Overlay etkinse açılan sayfada yayının başlık ve tanımını düzenleyebilir, görünürlük (varsayılan olarak herkese açık) ayarını değiştirebilirsin.</value>
-  </data>
-  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
-    <value> Steam Atölyesinde paylaşılamadı.</value>
-  </data>
-  <data name="ProgressTextPublishingWorld" xml:space="preserve">
-    <value>Yayınlanıyor...Lütfen Bekleyin.</value>
-  </data>
-  <data name="ProgressTextUploadingWorld" xml:space="preserve">
-    <value>Yükleniyor...Lütfen Bekleyin.</value>
-  </data>
-  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
-    <value>Atölye</value>
-  </data>
-  <data name="ProgressTextCreatingWorld" xml:space="preserve">
-    <value>Dünya yaratılıyor... Lütfen bekleyin.</value>
-  </data>
-  <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Workshop'dan indirilmiş bir Dünya yükle.</value>
-  </data>
-  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
-    <value>Tavsiye Et</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>Eğer Space Engineers'ı beğendiyseniz lütfen oyunu arkadaşlarınıza önerin.
@@ -1913,52 +1135,6 @@ Eğer oyun akıcı değilse azaltın.</value>
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Space Engineers'ı Öner</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
-    <value>DÜNYA YAYINLANDI</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
-    <value>DÜNYA PAYLAŞILAMADI</value>
-  </data>
-  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
-    <value>MOD YAYINLANDI</value>
-  </data>
-  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
-    <value>MOD PAYLAŞILAMADI</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Kopyala &amp; Yükle</value>
-  </data>
-  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
-    <value>Seçtiğin Dünya'yı Steam Atölyesinde Paylaş</value>
-  </data>
-  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
-    <value>Steam Workshop da takip ettiğim dünyaların listesine bak</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
-    <value>DÜNYA'YI PAYLAŞ</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>DÜNYAYI GÜNCELLE</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
-    <value>Seçili Dünya'yı Steam Workshop'da paylaşmak istediğinizden emin misiniz?</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>Seçilmiş dünyayı Steam Atölyesine yüklemek ve üzerine yazmak istediğine emin misin?</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
-    <value>MOD PAYLAŞILDI</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
-    <value>MODU GÜNCELLE</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
-    <value>Seçili modu Steam Atöylesi' nde paylaşmaya emin misiniz?
-Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (görmek için http://steamcommunity.com/sharedfiles/workshoplegalagreement)</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
-    <value>Bu modu Steam Atölyesi' ne yüklemeye ve bir öncekinin üzerine yazmaya emin misiniz?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Basarak {0} kokpitten çık</value>
@@ -1987,12 +1163,6 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0}, {1} için mevcut değil</value>
   </data>
-  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
-    <value>Atölye'ye Gözat</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
-    <value>Yenile</value>
-  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Taşlama</value>
   </data>
@@ -2007,12 +1177,6 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Kaynak Makinesi</value>
-  </data>
-  <data name="NotificationNoWeaponSelected" xml:space="preserve">
-    <value>Silah seçilmedi</value>
-  </data>
-  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
-    <value>'{0}' silah türüne geçildi</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Yukarı tırmanmak ve aşağı inmek için {0} ya da {1} tuşlarına basınız</value>
@@ -2041,39 +1205,6 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Sıfırlayıcılar:</value>
   </data>
-  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
-    <value>Eylemsizlik karşılayıcılar kapalı</value>
-  </data>
-  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
-    <value>Eylemsizlik karşılayıcılar Açık</value>
-  </data>
-  <data name="LoadScreenButtonDelete" xml:space="preserve">
-    <value>Sil</value>
-  </data>
-  <data name="ScreenCaptionEditSettings" xml:space="preserve">
-    <value>Ayarları Değiştir</value>
-  </data>
-  <data name="ScreenCaptionSaveAs" xml:space="preserve">
-    <value>Farklı Kaydet</value>
-  </data>
-  <data name="ScreenMenuButtonHelp" xml:space="preserve">
-    <value>Yardım</value>
-  </data>
-  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
-    <value>Dünya'yı Yükle</value>
-  </data>
-  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
-    <value>Yeni Dünya</value>
-  </data>
-  <data name="ScreenMenuButtonOptions" xml:space="preserve">
-    <value>Ayarlar</value>
-  </data>
-  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
-    <value>Özel Dünya</value>
-  </data>
-  <data name="ScreenOptionsButtonControls" xml:space="preserve">
-    <value>Kontroller</value>
-  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>İniş Takımları:</value>
   </data>
@@ -2082,39 +1213,6 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Kilitli:</value>
-  </data>
-  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
-    <value>Kontrolleri Sıfırla</value>
-  </data>
-  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
-    <value>Varsayılan Kontrol Seçeneklerini Sıfırlamak İstediğinize Emin Misiniz ?</value>
-  </data>
-  <data name="ScreenshotFailed" xml:space="preserve">
-    <value>Ekran Görüntüsü Alınamadı</value>
-  </data>
-  <data name="ScreenshotSaved" xml:space="preserve">
-    <value>Ekran Görüntüsü {0} kaydedildi.</value>
-  </data>
-  <data name="ExportToObjComplete" xml:space="preserve">
-    <value>{0} a çıkartıldı </value>
-  </data>
-  <data name="ExportToObjFailed" xml:space="preserve">
-    <value>Obj dosyasına ihraç başarısız</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
-    <value>Workshop'da aç</value>
-  </data>
-  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
-    <value>Steam Arayüzünde Workshop'ı aç</value>
-  </data>
-  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Seçilen Dünyayı Bilgisiyarınıza İndir Ve Yükle</value>
-  </data>
-  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
-    <value>Steam Arayüzünde seçili olan dünyayı aç</value>
-  </data>
-  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
-    <value>Abone Olduğun Dünyaların Listesini Yenile</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>İniş takımları / Renk seçici</value>
@@ -2160,29 +1258,8 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
 Ağırlık: {1} kg
 Hacim: {2} L</value>
   </data>
-  <data name="SettingSymmetryX" xml:space="preserve">
-    <value>Simetri X düzlemi: Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
-  <data name="SettingSymmetryXOffset" xml:space="preserve">
-    <value>Simetri X düzlemi (karşıt): Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
-  <data name="SettingSymmetryY" xml:space="preserve">
-    <value>Simetri Y düzlemi: Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
-  <data name="SettingSymmetryYOffset" xml:space="preserve">
-    <value>Simetri Y düzlemi (karşıt): Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
-  <data name="SettingSymmetryZ" xml:space="preserve">
-    <value>Simetri Z düzlemi: Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
-  <data name="SettingSymmetryZOffset" xml:space="preserve">
-    <value>Simetri Z düzlemi (karşıt): Ayarlamak için {0}, sıfırlamak için {1}</value>
-  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Eylemsizlik sıfırlayıcıları</value>
-  </data>
-  <data name="NotificationPickupObject" xml:space="preserve">
-    <value>{1} almak için {0} tuşuna basın</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Simetri kullan</value>
@@ -2190,66 +1267,14 @@ Hacim: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>İşaret Feneri</value>
   </data>
-  <data name="CubeBuilderPasteNotification" xml:space="preserve">
-    <value>Objeyi yapıştırmak için LMB veya CTRL+V'ye basın</value>
-  </data>
-  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
-    <value>Bir ya da daha fazla obje eklenirken bir hata oluştu. Daha fazla bilgi için son girdilere bakınız.</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
-    <value>Seçili objeyi silmek istediğinizden emin misiniz? (kopyası panoda saklanacaktır)</value>
-  </data>
-  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
-    <value>Dünya yüklenirken hafıza sınırına ulaşıldı ve bazı objeler yüklenemedi. Eğer Geniş Dünya çözümünü kullanıyorsanız ve oyun yakınlarda güncellenmiş ise, çözüm kapatılmış olabilir.</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
-    <value>Klavye 2</value>
-  </data>
-  <data name="DialogTextDownloadingWorld" xml:space="preserve">
-    <value>Evren indiriliyor: {0}%
-Evren boyutu: {1}</value>
-  </data>
-  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
-    <value>Dünya indirilirken hata oluştu!</value>
-  </data>
-  <data name="DialogTextJoiningWorld" xml:space="preserve">
-    <value>Dünyaya giriliyor</value>
-  </data>
-  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
-    <value>Dünyaya katılamadınız, sebep: {0}</value>
-  </data>
-  <data name="GpuUnderMinimumNotification" xml:space="preserve">
-    <value>Ekran kartınızın, minimum gerekli olandan daha aşağıda olduğunu tespit ettik ve bu performansa etki edebilir hatta oyunun durmasına da sebep olabilir. Anlayışınız için teşekkürler.</value>
-  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Herhangi bir tür cevher</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Uranyum Külçesi</value>
   </data>
-  <data name="ShowRotationHints" xml:space="preserve">
-    <value>Döndürme ipuçlarını göster</value>
-  </data>
-  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
-    <value>İnşa sırasında döndürme ipuçlarını göster</value>
-  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Rotor</value>
-  </data>
-  <data name="UnknownControl_Unassigned" xml:space="preserve">
-    <value>[atanmamış]</value>
-  </data>
-  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
-    <value>İnşa modu</value>
-  </data>
-  <data name="ScreenOptionsGame_Line" xml:space="preserve">
-    <value>Hat</value>
-  </data>
-  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
-    <value>Düzlem</value>
-  </data>
-  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
-    <value>Tek blok</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Tork</value>
@@ -2345,9 +1370,6 @@ Evren boyutu: {1}</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Hedef rotor hızı; hedefin hızına ulaşana kadar rotor hızı arttırılacak</value>
   </data>
-  <data name="ControlName_Suicide" xml:space="preserve">
-    <value>İntihar</value>
-  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Kiriş</value>
   </data>
@@ -2407,14 +1429,8 @@ Evren boyutu: {1}</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Işın yoğunluğu</value>
   </data>
-  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
-    <value>Çoklu oyuncu sunucusu açılamadı, hata: {0}</value>
-  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>{0} tuşuna basarak kapıyı aç</value>
-  </data>
-  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
-    <value>Obje başka biri tarafından kullanılıyor</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Kapat</value>
@@ -2424,113 +1440,20 @@ Evren boyutu: {1}</value>
     <value>Aç</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
-  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
-    <value>Arkadaşlarının Oyunları</value>
-  </data>
-  <data name="ScreenCaptionPlayers" xml:space="preserve">
-    <value>Oyuncular</value>
-  </data>
-  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
-    <value>Arkadaşlar</value>
-  </data>
-  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
-    <value>Özel</value>
-  </data>
-  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
-    <value>Herkese açık</value>
-  </data>
-  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
-    <value>Oyun sahibi</value>
-  </data>
-  <data name="ScreenPlayers_Invite" xml:space="preserve">
-    <value>Davet Et</value>
-  </data>
-  <data name="ScreenPlayers_Kick" xml:space="preserve">
-    <value>At</value>
-  </data>
-  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
-    <value>Oyuncu adı</value>
-  </data>
-  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
-    <value>Oyun artık mevcut değil.</value>
-  </data>
-  <data name="MessageBoxCaptionKicked" xml:space="preserve">
-    <value>ATILDIN</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
-    <value>Oyun sahibi tarafından oyundan atıldınız.</value>
-  </data>
-  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
-    <value>Arkadaşlar</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
-    <value>Geçerli çoklu oyuncu oyununa tekrar bağlanmak istediğinizden emin misiniz?</value>
-  </data>
-  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
-    <value>Şuan çevrimdışı modda olduğunuz için çoklu oyuncu kapalıdır. Menüden ayarları değiştirebilirsiniz.</value>
-  </data>
-  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
-    <value>Steam çevrimdışı. Lütfen Steam'i normal modda çalıştırın ya da problem devam ederse Steam'i yeniden başlatın</value>
-  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>Gemi ya da istasyonları kopyalayıp yapıştırmanızı sağlar</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Kopyala/Yapıştır'ı etkinleştir</value>
   </data>
-  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
-    <value>Uyumlu versiyonlar</value>
-  </data>
-  <data name="MaxPlayers" xml:space="preserve">
-    <value>Maksimum Oyuncular</value>
-  </data>
-  <data name="DialogWaitingForWorldData" xml:space="preserve">
-    <value>Dünya verileri bekleniyor</value>
-  </data>
-  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
-    <value>Sunucuya bağlantı başarısız oldu: {0}</value>
-  </data>
-  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
-    <value>Sunucuya bağlanılıyor</value>
-  </data>
-  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
-    <value>Sunucudan cevap bekleniyor</value>
-  </data>
-  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
-    <value>Seçilen oyun türü orjinal halinden daha sınırlı. Envanteriniz küçülebilir ve bu da bazı öğelerin kaybolmasına sebep olabilir. Oyun türünü değiştirmek istediğinize emin misiniz?</value>
-  </data>
-  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
-    <value>Dost dünyalar</value>
-  </data>
-  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
-    <value>Herkese açık dünyalar</value>
-  </data>
-  <data name="ControlName_CubeColorChange" xml:space="preserve">
-    <value>Blok rengini değiştir</value>
-  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Silahlar aktif</value>
-  </data>
-  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
-    <value>Dünya ayarlarında bu silah devre dışı</value>
-  </data>
-  <data name="ControlDescPlayersList" xml:space="preserve">
-    <value>Oyuncuları göster (sadece çoklu-oyuncu)</value>
-  </data>
-  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
-    <value>Oyuncular</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>Montajcı hasarlanmış ya da sökülmüş</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Geçit</value>
-  </data>
-  <data name="ItemDamagedDescription" xml:space="preserve">
-    <value>(Hasarlı)</value>
-  </data>
-  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
-    <value>Sunucu cevap vermiyor</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>Jeneratörün yerçekimsel ivmesi</value>
@@ -2562,44 +1485,17 @@ Evren boyutu: {1}</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Enerji doldurmak için {0} tuşunu basılı tutun</value>
   </data>
-  <data name="UnsupportedAspectRatio" xml:space="preserve">
-    <value>Desteklenmeyen en-boy oranı</value>
-  </data>
-  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
-    <value>Bu oyuna sadece arkadaşlar katılabilir</value>
-  </data>
-  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
-    <value>Dünya açıklaması</value>
-  </data>
-  <data name="CompressSaveGames" xml:space="preserve">
-    <value>Kaydedilmiş oyunları sıkıştır</value>
-  </data>
-  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
-    <value>Yerden kazanmak için kayıtlı oyunların diskte sıkıştırılıp sıkıştırılmayacağı</value>
-  </data>
-  <data name="Headbob" xml:space="preserve">
-    <value>Kafa oynamasını devredışı bırak</value>
-  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Aktif edildiğinde, her oyuncu diğer oyuncuların ismini karakterleri üzerinde görür</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Oyuncu isimlerini göster</value>
   </data>
-  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
-    <value>Oyuncu isimlerini göster</value>
-  </data>
-  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
-    <value>Oyuncu isimlerini karakterlerin üstünde göster. Bu özellik aynı zamanda evren ayarlarında da açık olmalı.</value>
-  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Eşyayı bırak</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Uyarı: Kıyafet enerjisi düşük. Hayat destek sistemleri çökebilir.</value>
-  </data>
-  <data name="NotificationInventoryFull" xml:space="preserve">
-    <value>Envanter dolu</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Dikkat: Enerji kritik seviyede. Yaşam destek ünitesi kapanabilir.</value>
@@ -2611,17 +1507,11 @@ Evren boyutu: {1}</value>
     <value>Uzayda savrulabilecek azami obje sayısı (cevher, külçe, bileşen)
 Dikkat - 64'ten yüksek değerler performansı önemli ölçüde etkileyebilir!</value>
   </data>
-  <data name="OutOfAmmo" xml:space="preserve">
-    <value>{0} mermisi bitti</value>
-  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>200mm Füze</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm</value>
-  </data>
-  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
-    <value>{1} i inşa etmek için {0} a ihtiyacın var</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Asteroidler</value>
@@ -2659,21 +1549,6 @@ Aşırı: 16 Büyük asteroid, 80 küçük asteroid, 64-bit gerektirir</value>
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Menzil</value>
   </data>
-  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Oyun modu</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
-    <value>Oyuncular</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
-    <value>Kullanıcı adı</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
-    <value>Dünya</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
-    <value>Dünya Boyutu</value>
-  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Montajcı tarafından üretilmiş bir eşya</value>
   </data>
@@ -2710,9 +1585,6 @@ Aşırı: 16 Büyük asteroid, 80 küçük asteroid, 64-bit gerektirir</value>
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Oyuna terk edilmiş bir asteroid platformunda, gemi olmadan, sıfırdan başlayın</value>
   </data>
-  <data name="MessageBoxTextSuicide" xml:space="preserve">
-    <value>İntihar etmek istediğinize emin misiniz?</value>
-  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Kaza yapmış kırmızı gemi</value>
   </data>
@@ -2727,15 +1599,6 @@ Aşırı: 16 Büyük asteroid, 80 küçük asteroid, 64-bit gerektirir</value>
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Hurda metal</value>
-  </data>
-  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
-    <value>Sunucu oyundan çıktı</value>
-  </data>
-  <data name="NotificationRespawn" xml:space="preserve">
-    <value>Öldün.{0} saniye içinde tekrar doğacaksın</value>
-  </data>
-  <data name="HudBlockInfo_Required" xml:space="preserve">
-    <value>Gerekli</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Büyük Gemi / İstasyon</value>
@@ -2854,17 +1717,6 @@ Aşırı: 16 Büyük asteroid, 80 küçük asteroid, 64-bit gerektirir</value>
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Tekrar Modunu aç yada kapat</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
-    <value>Envanter hacmi {0}x 
-Montajcı verimliliği {1}x 
-Rafineri hızı {2}x</value>
-  </data>
-  <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Oyuncu bağlandı : {0}</value>
-  </data>
-  <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Oyuncu bağlantısı kesildi: {0}</value>
-  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>İtici hasarı</value>
   </data>
@@ -2877,29 +1729,17 @@ Rafineri hızı {2}x</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Kargo gemileri</value>
   </data>
-  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Sunucu oyununun versiyonu başka, senin versiyonun {0}, sunucu versiyonu {1}</value>
-  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Armageddon (gerçekçi değil)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>1 Nisan! Kimseye söyleme!</value>
   </data>
-  <data name="ShowCrosshair" xml:space="preserve">
-    <value>İmleci göster</value>
-  </data>
-  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
-    <value>Silah imlecinin görünüp görünmeyeceğini belirler</value>
-  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Yapay Kütle</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Kontrol İstasyonu</value>
-  </data>
-  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
-    <value>Oyun zaten kaydediliyor.</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Toplayıcı</value>
@@ -2946,12 +1786,6 @@ Rafineri hızı {2}x</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>3x3 Tam Pencere</value>
   </data>
-  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
-    <value>* Oyuncu kitlesi tarafından çevrildi.</value>
-  </data>
-  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
-    <value>Daha fazla bilgi için tıklayın</value>
-  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Tek silah / Tüm silahlar modu (kokpit)</value>
   </data>
@@ -2982,14 +1816,8 @@ Rafineri hızı {2}x</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>3x3 Ters Tam Pencere</value>
   </data>
-  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
-    <value>Doğrudan bağlantı mevcut değil</value>
-  </data>
   <data name="Multiplayer_LastMsg" xml:space="preserve">
     <value>Sunucudan {0} saniye boyunca mesaj alınamadı.</value>
-  </data>
-  <data name="Multiplayer_NoConnection" xml:space="preserve">
-    <value>Sunucu bağlantısı yok.</value>
   </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Tek silah/Tüm silahlar modunu değiştirmek için {0} tuşuna basın.</value>
@@ -3000,9 +1828,6 @@ Rafineri hızı {2}x</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
-  <data name="GamePaused" xml:space="preserve">
-    <value>Oyun durduruldu</value>
-  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>1x1 Teker</value>
   </data>
@@ -3011,9 +1836,6 @@ Rafineri hızı {2}x</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>5x5 Teker</value>
-  </data>
-  <data name="ControlDescPauseGame" xml:space="preserve">
-    <value>Oyunu duraklat (Sadece çevirim dışı iken)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Öğütücü</value>
@@ -3027,18 +1849,8 @@ Rafineri hızı {2}x</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Yem</value>
   </data>
-  <data name="ControlName_PauseGame" xml:space="preserve">
-    <value>Oyunu durdur</value>
-  </data>
-  <data name="KeysPause" xml:space="preserve">
-    <value>Durdur</value>
-    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
-  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Kaydet</value>
-  </data>
-  <data name="NotificationWeaponNotWorking" xml:space="preserve">
-    <value>{0} çalışmıyor</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Kilitle</value>
@@ -3100,12 +1912,6 @@ Rafineri hızı {2}x</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Hedef hareketli nesneler</value>
   </data>
-  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
-    <value>Eklenecek miktar</value>
-  </data>
-  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
-    <value>Ayarlanacak değer</value>
-  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argument</value>
   </data>
@@ -3133,12 +1939,6 @@ Rafineri hızı {2}x</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>Yakıt Yok</value>
   </data>
-  <data name="NotificationHealthCritical" xml:space="preserve">
-    <value>Sağlık kritik seviyede.Derhal tıbbi yardım isteyin.</value>
-  </data>
-  <data name="NotificationHealthLow" xml:space="preserve">
-    <value>Sağlık düşük</value>
-  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Meteor yağmuru geliyor.</value>
   </data>
@@ -3162,12 +1962,6 @@ Rafineri hızı {2}x</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Envanteri açmak için {0} tuşuna basın</value>
-  </data>
-  <data name="MultiplayerError_DifferentData" xml:space="preserve">
-    <value>Bu sunucu senin sunucundan değişik oyun verilerine sahip</value>
-  </data>
-  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
-    <value>" Uyumsuz oyun verileri</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>Bilgi</value>
@@ -3208,108 +2002,17 @@ Rafineri hızı {2}x</value>
   <data name="TerminalTab_Info_TrianglesTooltip" xml:space="preserve">
     <value>Çizim için üçgen sayısı.Teknik bilgiler.Yüksek sayılar performansını etkileyebilir.</value>
   </data>
-  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
-    <value>Oyun Yöneticisi</value>
-  </data>
-  <data name="MultiplayerJoinServers" xml:space="preserve">
-    <value>Sadece Özel Sunucu</value>
-  </data>
-  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
-    <value>Kullanıcı zaten katılmış.</value>
-  </data>
-  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
-    <value>{0} grubunda değilsiniz. Grubun internet sayfasını gezmek ister misiniz?</value>
-  </data>
-  <data name="MultiplayerErrorServerFull" xml:space="preserve">
-    <value>Sunucu dolu</value>
-  </data>
-  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
-    <value>Steam sunucuları çevrimdışı veya sunucu grubu mevcut değil</value>
-  </data>
-  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
-    <value>Ticket geçersiz</value>
-  </data>
-  <data name="MultiplayerJoinLANServers" xml:space="preserve">
-    <value>Sadece Yerel Ağ</value>
-  </data>
-  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
-    <value>Arkadaşlar</value>
-  </data>
-  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
-    <value>Yerel Ağ</value>
-  </data>
-  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
-    <value>Oyunlar</value>
-  </data>
-  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
-    <value>Sunucular</value>
-  </data>
-  <data name="JoinGame_Title" xml:space="preserve">
-    <value>Dünya'ya katıl</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
-    <value>Gecikme</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
-    <value>Sunucu</value>
-  </data>
-  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
-    <value>Oturum başka bir yerden açık</value>
-  </data>
-  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
-    <value>Lisansınız yok veya lisans süresi doldu</value>
-  </data>
-  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
-    <value>Ticket zaten kullanılıyor</value>
-  </data>
-  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
-    <value>Ticket iptal edildi</value>
-  </data>
-  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
-    <value>Kullanıcı bağlı değil</value>
-  </data>
-  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
-    <value>VAC yasakladı</value>
-  </data>
-  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
-    <value>VAC zaman aşımına uğradı</value>
-  </data>
-  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
-    <value>İzin verilen gruplar</value>
-  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Blokları Birleştir</value>
   </data>
-  <data name="NewsDownloadingFailed" xml:space="preserve">
-    <value>Haber indirme başarısız</value>
-  </data>
-  <data name="MessageBoxCaptionInfo" xml:space="preserve">
-    <value>BİLGİ</value>
-  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>Space Engineers'ın yeni  sürümü yayınlandı!</value>
-  </data>
-  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
-    <value>Sunucu Grup ID si geçersiz, sunucu yöneticisi sunucu ayarlarından uygun bir grup ID si ayarlamalı
-(veya grup denetimini devre dışı bırakmak için 0 yapmalı)</value>
-  </data>
-  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
-    <value>Yerel özel sunucuların listesi</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
-    <value>Oyuncuların hazırladığı oyun listesi.</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
-    <value>İnternet özel sunucuları listesi</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>İzleyicileri etkinleşir</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>İzleyicileri etkinleşir</value>
-  </data>
-  <data name="PlayerCharacterColor" xml:space="preserve">
-    <value>Oyuncu rengi</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Siyah</value>
@@ -3332,9 +2035,6 @@ Rafineri hızı {2}x</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Sarı</value>
   </data>
-  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
-    <value>Görünümü değiştirmek için {0} basın</value>
-  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>İticileri Kontrol Et</value>
   </data>
@@ -3350,60 +2050,20 @@ Rafineri hızı {2}x</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Rotorlar:</value>
   </data>
-  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
-    <value>Pencere modu</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
-    <value>Tam Ekran</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
-    <value>Tam Ekran pencere</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
-    <value>Pencere</value>
-  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Fren Kuvveti</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Oto-kilit</value>
   </data>
-  <data name="SpectatorControls" xml:space="preserve">
-    <value>İzleyici Kontrolleri</value>
-  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Kontrol edilen karaktere / kokpitin içine geri dön</value>
-  </data>
-  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Kontrollü nesneye sabit bakış aöçısıyla izleyici</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Serbest izleyici. Ateş edebilirsin ve kontrol edilebilen objeleri kullanabilirsin</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Sabit izleyici. Karakteri / Kokpiti kontrol edebilirsin ama kamera sabit</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
-    <value>Bu sunucudan yasaklandın.</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
-    <value>Bu sunucudan yasaklandın.
-Yöneticinin profilini görüntülemek ister misiniz?</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
-    <value>Yönetici tarafından bu sunucudan yasaklandın.</value>
-  </data>
-  <data name="ScreenPlayers_Ban" xml:space="preserve">
-    <value>Yasakla</value>
-  </data>
-  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
-    <value>Oyun alanına geri dön!</value>
-  </data>
-  <data name="NotificationLeavingWorld" xml:space="preserve">
-    <value>Uyarı: {0:F1} metre sonra öleceksin!</value>
-  </data>
-  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
-    <value>Gelişmiş dünya ayarları</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Gelişmiş</value>
@@ -3459,59 +2119,14 @@ Yöneticinin profilini görüntülemek ister misiniz?</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Grup etiketi (En az 3 karakter)</value>
   </data>
-  <data name="Spectator" xml:space="preserve">
-    <value>İzleyici</value>
-  </data>
-  <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta izleyici</value>
-  </data>
-  <data name="SpectatorControls_Free" xml:space="preserve">
-    <value>Serbest izleyici</value>
-  </data>
-  <data name="SpectatorControls_None" xml:space="preserve">
-    <value>Oyuncu Kontrolü</value>
-  </data>
-  <data name="SpectatorControls_Static" xml:space="preserve">
-    <value>Sabit izleyici</value>
-  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Kütlenin merkezini göster</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
-    <value>Verilen grup ismi zaten var</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
     <value>Grup etiketi tam 3 karakter olmak zorunda</value>
   </data>
-  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Verilen grup etiketi zaten var</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>Grup ismi en az 4 karakter uzunluğunda olmalıdır</value>
-  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>Yeni bir grup oluşturmadan önce bulunduğunuz gruptan ayrılmalısınız</value>
-  </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Düzenle</value>
-  </data>
-  <data name="Kick" xml:space="preserve">
-    <value>At</value>
-  </data>
-  <data name="Leader" xml:space="preserve">
-    <value>Lider</value>
-  </data>
-  <data name="Member" xml:space="preserve">
-    <value>Üye</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
-    <value>'{0}' isimli oyuncuyu gruptan atmak istediğinize emin misiniz?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
-    <value> '{0}' isimli gruptan ayrılmak istediğinize emin misiniz?</value>
-  </data>
-  <data name="Promote" xml:space="preserve">
-    <value>Destek</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>Eğer seçili ise, gemiler çöp sayılacak ve oyunun daha hızlı olması için silinecektir.
@@ -3524,41 +2139,14 @@ kontrolsüz olması, revir olmaması ve tüm oyunculardan uzak olması durumunda
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Çöpü otomatik sil</value>
   </data>
-  <data name="Demote" xml:space="preserve">
-    <value>İndir</value>
-  </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Erişim engellendi</value>
-  </data>
-  <data name="Founder" xml:space="preserve">
-    <value>Kurucu</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Durum</value>
-  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Özel bilgi ( sadece üyelere görünür):</value>
-  </data>
-  <data name="Accept" xml:space="preserve">
-    <value>Kabul</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value>(erişim reddedildi)</value>
   </data>
-  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
-    <value>'{0}' isimli oyuncuyu gruba kabul etmek istediğinize emin misiniz?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
-    <value>{0} isimli oyuncuyu üyeliğe düşürmek istediğinizden eminmisiniz?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
-    <value>'{0}' isimli oyuncuyu lider olarak yükseltmek istediğinize eminmisiniz?</value>
-  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Grubu düzenle</value>
-  </data>
-  <data name="Applicant" xml:space="preserve">
-    <value>Başvuru sahibi</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Geçici gemi. Oyundan ayrıldığında veya yeniden doğduğunuzda silinecektir.</value>
@@ -3568,9 +2156,6 @@ kontrolsüz olması, revir olmaması ve tüm oyunculardan uzak olması durumunda
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Yeniden doğma gemilerini sil</value>
-  </data>
-  <data name="Tag" xml:space="preserve">
-    <value>Etiket</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>Bu grup, senin grubuna barış antlaşması teklif ediyor</value>
@@ -3635,18 +2220,6 @@ kontrolsüz olması, revir olmaması ve tüm oyunculardan uzak olması durumunda
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Tüm blokların sahipliğini hiç kimse olarak ayarla</value>
-  </data>
-  <data name="SessionDeleteFailed" xml:space="preserve">
-    <value>Oturum silme başarısız</value>
-  </data>
-  <data name="Medicals_Title" xml:space="preserve">
-    <value>Sağlık Odaları</value>
-  </data>
-  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
-    <value>Sahibin {0} olmasına emin misiniz?</value>
-  </data>
-  <data name="Respawn" xml:space="preserve">
-    <value>Yeniden doğma</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Pil</value>
@@ -3728,9 +2301,6 @@ kontrolsüz olması, revir olmaması ve tüm oyunculardan uzak olması durumunda
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>Aktif bir anten bağlantınız olmalıdır.</value>
   </data>
-  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
-    <value>Aynı oyun verisi</value>
-  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Barışı Kabulet</value>
   </data>
@@ -3740,39 +2310,6 @@ Dirilmek istiyor musun?</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Dirilme gemisi</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Yenile</value>
-  </data>
-  <data name="PlayerInfo_Dead" xml:space="preserve">
-    <value>ölü</value>
-  </data>
-  <data name="ScreenMods_ActiveMods" xml:space="preserve">
-    <value>Etkin modlar</value>
-  </data>
-  <data name="ScreenMods_AvailableMods" xml:space="preserve">
-    <value>Mevcut modlar</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
-    <value>Modu devre dışı bırak</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
-    <value>Bütün modları devre dışı bırak</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
-    <value>Modu aktifleştir</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
-    <value>Bütün modları aktifleştir</value>
-  </data>
-  <data name="WorldSettings_Mods" xml:space="preserve">
-    <value>Modlar</value>
-  </data>
-  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
-    <value>Seçili modu Steam Atölye Arayüzünde aç</value>
-  </data>
-  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
-    <value>Abone olduğun modların listesini yenile</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Düşman grup</value>
@@ -3801,17 +2338,8 @@ Dirilmek istiyor musun?</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Sınırsız</value>
   </data>
-  <data name="JoinGame_SearchLabel" xml:space="preserve">
-    <value>Oyun ara</value>
-  </data>
-  <data name="JoinGame_SearchTooltip" xml:space="preserve">
-    <value>Aramaya başlamak için en az 3 karakter girmelisin</value>
-  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>İstemciler kayıt edebilir.</value>
-  </data>
-  <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Modlar indiriliyor ... lütfen bekleyin.</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>Teker hareketli ise.</value>
@@ -3824,9 +2352,6 @@ Dirilmek istiyor musun?</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Yönetim</value>
-  </data>
-  <data name="NotificationClientCannotSave" xml:space="preserve">
-    <value>Bu sunucuda istemci kayıt yapamaz</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>Lastik basıncını değiştirip sürtünmeyi ayarlar.</value>
@@ -3845,18 +2370,6 @@ Dirilmek istiyor musun?</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Tekerlek yerleştirilemedi.</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
-    <value>Modu aşağıya taşı</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
-    <value>Modu yukarı taşı</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
-    <value>Modu en aşağıya taşı</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
-    <value>Modu en yukarı taşı</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Bloğun (grupsuz)</value>
@@ -3918,12 +2431,6 @@ Dirilmek istiyor musun?</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Sürat</value>
   </data>
-  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
-    <value>Erişim hakkın yoksa bloklardan grup oluşturamazsın.</value>
-  </data>
-  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
-    <value>Erişim hakkın yoksa blok grubunu silemezsin.</value>
-  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Kullanılan batarya sayısı: </value>
   </data>
@@ -3984,12 +2491,6 @@ Dirilmek istiyor musun?</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>İtme geçersiz</value>
   </data>
-  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>Grubunuz tarafından atıldınız.</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>Gruba kabul edildiniz</value>
-  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Düğme</value>
   </data>
@@ -4032,12 +2533,6 @@ Dirilmek istiyor musun?</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Yaw geçersiz kıl</value>
   </data>
-  <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Önceki araç çubuğu</value>
-  </data>
-  <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Sonraki araç çubuğu</value>
-  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Mevcut konum:</value>
   </data>
@@ -4052,33 +2547,6 @@ Dirilmek istiyor musun?</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
     <value>Dalga animasyonu</value>
-  </data>
-  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>Modlar indirilirken başarısız olundu.Lütfen dünya ayarlarından modları kontrol ediniz.</value>
-  </data>
-  <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Modlar güncellemeler için kontrol ediliyor...lütfen bekleyin.</value>
-  </data>
-  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Debug draw etkinleştir</value>
-  </data>
-  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Hata kaydı yükleniyor:</value>
-  </data>
-  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
-    <value>Model kuklalar</value>
-  </data>
-  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Bağlama noktaları</value>
-  </data>
-  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>Yükleme hatası yok</value>
-  </data>
-  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Fizik temel ögeleri </value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Gemi adını görüntüle </value>
@@ -4104,53 +2572,14 @@ Dirilmek istiyor musun?</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Küçük Gemi</value>
   </data>
-  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Yeni pencerede aç</value>
-  </data>
-  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Kapmaları yeniden yükle </value>
-  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Doğrudan erişim</value>
-  </data>
-  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Yerel eklentilere çok oyuncuda izin verilmez. Onun yerine Atölye ögelerini kullanın.</value>
-  </data>
-  <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Yerel mod</value>
-  </data>
-  <data name="ScreenMods_MissingDetails" xml:space="preserve">
-    <value>Mod detayları steamden alınamadı</value>
-  </data>
-  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Eksik yerel mod</value>
-  </data>
-  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Atölye modu</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Bilinmiyor</value>
   </data>
-  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Modelleri yeniden yükle </value>
-  </data>
-  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Günlüğü sistem panosuna kopyala </value>
-  </data>
-  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Uyarı:  {0:F1} metre içindeki bütün gemiler silinecek!</value>
-  </data>
-  <data name="PlayerCharacterModel" xml:space="preserve">
-    <value>Oyuncu modeli</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
-    <value>Eklentiler</value>
-  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Kurulum paneli için {0} tuşuna basın</value>
-  </data>
-  <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>{1} kullanmak için {0} a basın</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Yerçekimi alanı yarıçapı</value>
@@ -4183,41 +2612,14 @@ Dirilmek istiyor musun?</value>
     <value>{0} için bilgisayar tanımı içerir, terminal bloğu değilse.Bu demektir ki blok sahiplenebilir, fakat sahip terminalden değiştirilemez.
 İpucu: Terminalden ayarlamayı deneyin.Basit yolu terminali kullanmaktır.</value>
   </data>
-  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Mod listesini göstermek için sunucuyu seçin</value>
-  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Düğme Paneli</value>
-  </data>
-  <data name="ScreenMods_SearchLabel" xml:space="preserve">
-    <value>Ara</value>
-  </data>
-  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Eklenti listesi sunucudan alınamadı</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Uzay elbisesi</value>
   </data>
-  <data name="HudWarnings" xml:space="preserve">
-    <value>Hud Uyarıları</value>
-  </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
     <value>{0} kimlik ilave edildi</value>
-  </data>
-  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>Bu dünya yüklenemedi.Dünya oyunun daha yeni sürümünde oluşturulmuş.</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>Bu atölye ögesi size ait görünmüyor Doğru hesaptan giriş yaptığınıza emin olun</value>
-  </data>
-  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Panoyu dosyaya çıkart</value>
-  </data>
-  <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Panodaki gemileri dosyaya kaydet</value>
-  </data>
-  <data name="AddNewNPC" xml:space="preserve">
-    <value>Yeni düşman kimliği ekle </value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Bileşenler</value>
@@ -4228,35 +2630,11 @@ Dirilmek istiyor musun?</value>
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
     <value>Küçük blok</value>
   </data>
-  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
-    <value>Aletler</value>
-  </data>
-  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Etiketleri seç</value>
-  </data>
-  <data name="WorkshopTag_Animation" xml:space="preserve">
-    <value>Animasyon</value>
-  </data>
-  <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Blok</value>
-  </data>
-  <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Karakter</value>
-  </data>
-  <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Diğer</value>
-  </data>
-  <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
-  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>Görünüm</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Kamera </value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Eklentinin sahibi siz olmadığınız için güncellenemedi.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Orijinal oyun içeriği yükleme hatası, Dosya yüklenemedi:
@@ -4267,20 +2645,11 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Antenleri kullanarak yayın</value>
   </data>
-  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Bazı modlar hatalar yüzünden yüklenemedi.Kayıt dosyasına göz atın veya oyunu Tek oyunculu modda çalıştırıp mod debug ekranına giriş yapın.</value>
-  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>{0} Tarafından kabul edilen herhangi bir madde </value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>{0} Tarafından üretilen herhangi bir madde</value>
-  </data>
-  <data name="RenderIterpolation" xml:space="preserve">
-    <value>Render interpolation</value>
-  </data>
-  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Takılma azalır ve oyun akıcı hale gelir.</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Yapım</value>
@@ -4290,9 +2659,6 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Kamera görünümünden çıkmak için {0} tuşuna basın</value>
-  </data>
-  <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Mod Paketi</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Arc ocağı</value>
@@ -4405,9 +2771,6 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>İstasyonları algıla</value>
   </data>
-  <data name="CustomText" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Yer çekimi menzilini gözter</value>
   </data>
@@ -4440,12 +2803,6 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Tetikleme zamanı:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Araç ve nesnelerin sekmesi:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
-    <value>Arama:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Yeniden Doldurulabilir Roketatar</value>
@@ -4552,9 +2909,6 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Standart  x 50</value>
   </data>
-  <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Yapıştırılan nesneyi taşıyın</value>
-  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Bekleme süresi devre dışı</value>
   </data>
@@ -4566,21 +2920,6 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Kokpit Blokları</value>
-  </data>
-  <data name="WorkshopTag_Script" xml:space="preserve">
-    <value>Script</value>
-  </data>
-  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>Izgaraya yapıştırılan bazı bloklar bu dünya için mevcut değil</value>
-  </data>
-  <data name="ConvertingObjs" xml:space="preserve">
-    <value>Modeller dönüştürülüyor.Lütfen bekleyiniz.</value>
-  </data>
-  <data name="ConvertToObjDone" xml:space="preserve">
-    <value>Tüm modeller dönüştürüldü.</value>
-  </data>
-  <data name="ExportingToObj" xml:space="preserve">
-    <value>Modeller dışarı aktarılıyor.Lütfen bekleyiniz.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Güç Blokları</value>
@@ -4597,18 +2936,11 @@ Oyunu yeniden yüklemek sorunu çözmez çünkü steam bilinmeyen dosyaları sil
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>Yeniden Doğma Nesne</value>
   </data>
-  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>Yapıştırılan gemi bu dünyada bulunmayan bazı bloklar içeriyor.Bu bloklar eklenemeyecek, büyük ihtimalle geminin bölünmesine neden olucak.
-Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
-  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Asteroidler</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Eşyalar</value>
-  </data>
-  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
-    <value>Eşya bu dünyada mevcut değildir</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Asteroit</value>
@@ -4624,9 +2956,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Ortak Çalışma</value>
-  </data>
-  <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Diğerlerine Yardım</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Cephane Montajı</value>
@@ -4715,12 +3044,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Geçersiz miktar</value>
   </data>
-  <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Nesne dünyaya yerleştiriliyor. Lütfen bekleyin.</value>
-  </data>
-  <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Sistemler 3</value>
-  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Ortak çalışmayı entkinleştir yada devre dışı bırak</value>
   </data>
@@ -4739,9 +3062,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Asteroid Tipi Seçiniz</value>
   </data>
-  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>Silah değiştirildi: {0}</value>
-  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>{0} Tarafından kabul edilen herhangi bir cephane</value>
   </data>
@@ -4750,24 +3070,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Birleştirmek</value>
-  </data>
-  <data name="Thrust_Back" xml:space="preserve">
-    <value>Geri</value>
-  </data>
-  <data name="Thrust_Down" xml:space="preserve">
-    <value>Aşağı</value>
-  </data>
-  <data name="Thrust_Forward" xml:space="preserve">
-    <value>İleri</value>
-  </data>
-  <data name="Thrust_Left" xml:space="preserve">
-    <value>Sol</value>
-  </data>
-  <data name="Thrust_Right" xml:space="preserve">
-    <value>Sağ</value>
-  </data>
-  <data name="Thrust_Up" xml:space="preserve">
-    <value>Yukarı</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Bu gemiyi başkası kullanıyor!</value>
@@ -4805,14 +3107,8 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Çoklu ızgaralar desteklenmez. Sadece büyük ızgara kullanılacaktır.</value>
   </data>
-  <data name="SelectBlueprint" xml:space="preserve">
-    <value>Seç</value>
-  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Grid pivot göster</value>
-  </data>
-  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Thumb-Up</value>
@@ -4831,9 +3127,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>İki kenarlı çelik iskele</value>
-  </data>
-  <data name="AvailableBlueprints" xml:space="preserve">
-    <value>Mevcut Planlar</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Projeksiyona Devam Et</value>
@@ -4883,18 +3176,6 @@ Gerçekten bu gemiyi yapıştırmak istiyor musunuz?</value>
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Küre</value>
   </data>
-  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
-    <value>Yarıçap</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
-    <value>Genişlik</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
-    <value>Derinlik</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
-    <value>Yükseklik</value>
-  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>Seçildiğinde, oyun arenası sadece kenar uzunluğu belirlenen bir küp ile sınırlandırılacaktır.
 Arenanın dışına çıkan bütün nesneler kaybolacak.
@@ -4918,9 +3199,6 @@ Arenanın dışına çıkan bütün karakterler ölecek.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Özel</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
-    <value>Uzaklık</value>
-  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Oynatma süresi</value>
   </data>
@@ -4936,26 +3214,11 @@ Arenanın dışına çıkan bütün karakterler ölecek.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Zamanlayıcı:</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Fırça Ayarları</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Saydamlık</value>
-  </data>
-  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Biçim Ayarları</value>
-  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Otomatik arazi seviyesi</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Kapsül</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Uzunluk</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
-    <value>Yarıçap</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Uyarı 1</value>
@@ -4990,32 +3253,8 @@ Arenanın dışına çıkan bütün karakterler ölecek.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Çalıştır</value>
   </data>
-  <data name="ExportToObjModded" xml:space="preserve">
-    <value>Model modlu blok içerir.Sadece varsayılan bloklar dışarı aktarılacak.</value>
-  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Rampa</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Voksel düzlemine yapıştır</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Alan</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Ekseni seç</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X ekseni</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y ekseni</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z ekseni</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Materyal</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Sonsuz adet: Çok yoğun</value>
@@ -5123,7 +3362,7 @@ Arenanın dışına çıkan bütün karakterler ölecek.</value>
     <value>Yeni adınızı girin</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
-    <value/>
+    <value />
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
     <value>Bu script'i yayınlamak ister misiniz?</value>
@@ -5179,26 +3418,11 @@ Arenanın dışına çıkan bütün karakterler ölecek.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>Programlanabilir bloğun sahibi değişti. Lütfen programı yeniden yazın.</value>
   </data>
-  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>Gurup sohbetinde {0} yeni mesaj</value>
-  </data>
-  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>Yeni küresel chat mesajı</value>
-  </data>
-  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>{0} 'dan yeni mesaj</value>
-  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Yayın-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Haberleşme</value>
-  </data>
-  <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Açıklama çok uzun (max 8000 karakter olmalı)</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Açıklama</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>Görüş mesafesi</value>
@@ -5267,9 +3491,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
-  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Kategorileri seç</value>
-  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Açıklama</value>
   </data>
@@ -5312,9 +3533,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Uyarı: yasal olmayan veri.Değişiklikler kaydedilmeyecek.</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>Görüş mesafesi: {0}m</value>
-  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Sadece grup üyeleri gruptan-gruba komünikasyonları kullanabilir</value>
   </data>
@@ -5342,9 +3560,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Mevcut</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Voksele yansıt</value>
-  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Özel metni düzenleyin</value>
   </data>
@@ -5362,15 +3577,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Tek el ateş et</value>
-  </data>
-  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Sonraki voksel materyali</value>
-  </data>
-  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Voksel el ayarlarını aç</value>
-  </data>
-  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Önceki voksel materyali</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Sadece sahip</value>
@@ -5390,15 +3596,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Erişim türü</value>
   </data>
-  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Bu planı panodaki planla değiştirmek istiyor musunuz?</value>
-  </data>
-  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Değiştir</value>
-  </data>
-  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Metin paneli sadece okunur</value>
-  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Üretilmiş Bloklar</value>
   </data>
@@ -5417,17 +3614,8 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Aletlerin sallanmasını aktifleştir</value>
   </data>
-  <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Metin çok uzun. Kısaltmak isster misiniz?</value>
-  </data>
-  <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Modeli dışa aktar</value>
-  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>Metin çok uzun.Kaydedilemedi.</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Sınırlayıcı kutuyu göster</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Konsol</value>
@@ -5558,19 +3746,6 @@ Yüksek asteroid yoğunluğu olan dünyalarda büyük görüş mesafeleri tavsiy
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Yuvarlak Eğimli Zırh</value>
   </data>
-  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>Steam Overlay açılamadığı veya engellendiği için bu sayfa {0} İnternet tarayıcınızda açılacak.Oyun çalışmaya devam edecek.
-Devam etmek istiyor musunuz?</value>
-  </data>
-  <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Bloğu döndürmek için {0} bas</value>
-  </data>
-  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Bileşik bina arasında geçiş için {0} yada {1} basın</value>
-  </data>
-  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Dinamik inşa geçişi için {0} basın</value>
-  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Ağır Zırh Yuvarlak Köşeli</value>
   </data>
@@ -5579,9 +3754,6 @@ Devam etmek istiyor musunuz?</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Ağır Zırh Yuvarlak Eğimli</value>
-  </data>
-  <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Yürüyüşü değiştir</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Bağlı</value>
@@ -5598,21 +3770,6 @@ X'e doğru döndürülüyor</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>GPS koordinatındaki lazer aranıyor</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>Favori sunucuların listesi</value>
-  </data>
-  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Favoriler</value>
-  </data>
-  <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>Geçmiş</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>Arkadaş sunucuların listesi</value>
-  </data>
-  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>Daha önce ziyaret edilen sunucuların listesi</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Köşeli Hafif Zırh 2x1x1</value>
@@ -5649,12 +3806,6 @@ X'e doğru döndürülüyor</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Eğimli Hafif Zırh 3x1x1 Yumuşak</value>
-  </data>
-  <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Sunucuyu favorilerine ekle</value>
-  </data>
-  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Sunucuyu favorilerden kaldır</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Temel Köşeli Hafif Zırh 2x1x1</value>
@@ -5746,15 +3897,6 @@ X'e doğru döndürülüyor</value>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
   </data>
-  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>{0} 'a basarak voksel el ayarlarını aç</value>
-  </data>
-  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>{0} veya {1} e basarak voksel materyalini değiştir</value>
-  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>Alıcılar radyo menzili içinde ve yerlerini bildirmeye hazırlar.
 Şu anki durumu ve hedefleri parantez içinde:
@@ -5774,18 +3916,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Hedefin mevcut yada bilinen son konumunu panoya kopyala</value>
-  </data>
-  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Bot hata ayıklamayı etkinleştir</value>
-  </data>
-  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Sonraki bot</value>
-  </data>
-  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Önceki bot</value>
-  </data>
-  <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bot ayarları</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Kara liste</value>
@@ -5822,9 +3952,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Kaldır</value>
-  </data>
-  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bot ayarları</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Küçük Konveyör Sıralayıcısı</value>
@@ -5946,9 +4073,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
-  </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
   </data>
@@ -5988,9 +4112,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Cannot remove helmet on this suit.</value>
   </data>
-  <data name="ReportBug" xml:space="preserve">
-    <value>Report a Bug</value>
-  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Helmet</value>
   </data>
@@ -6027,15 +4148,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
-  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
-    <value>Next toolbar item</value>
-  </data>
-  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
-    <value>Previous toolbar item</value>
-  </data>
-  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
-    <value>Tools / Weapons 2</value>
-  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Oxygen Output: </value>
   </data>
@@ -6044,12 +4156,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Random encounters</value>
-  </data>
-  <data name="ControlName_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="ScreenControlMenu_Title" xml:space="preserve">
-    <value>Control menu</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Show distance for enemy antennas</value>
@@ -6063,9 +4169,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="ControlName_ControlMenu" xml:space="preserve">
-    <value>Open control menu</value>
-  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Cryo Chamber</value>
   </data>
@@ -6074,21 +4177,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemValue_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ControlMenuItemValue_On" xml:space="preserve">
-    <value>On</value>
-  </data>
-  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
-    <value>Camera mode</value>
-  </data>
-  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
-    <value>FPP</value>
-  </data>
-  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
-    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Scenario Settings</value>
@@ -6156,32 +4244,8 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
-  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
-    <value>Suicide</value>
-  </data>
-  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
-    <value>Quick load / reconnect</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
-    <value>Show color picker</value>
-  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
-    <value>Show toolbar screen</value>
-  </data>
-  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
-    <value>Toggle HUD</value>
-  </data>
-  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
-    <value>Pause game</value>
-  </data>
-  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
-    <value>Feature is not available yet</value>
-  </data>
-  <data name="NotificationMaximumNumberBots" xml:space="preserve">
-    <value>Maximum number of bots has been reached</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Effectiveness Module</value>
@@ -6195,38 +4259,11 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="Hud_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} to toggle compound building</value>
-  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Extend</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Retract</value>
-  </data>
-  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
-    <value>Press {0} to access control menu</value>
-  </data>
-  <data name="NotificationJoystickMenus" xml:space="preserve">
-    <value>In order to show help or modify toolbar, open control menu</value>
-  </data>
-  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
-    <value>Press {0} or {1} to select toolbar slots</value>
-  </data>
-  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Press {0} to add block, press {1} to remove block</value>
-  </data>
-  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} to change voxel material</value>
-  </data>
-  <data name="Notification_GameplayOptions" xml:space="preserve">
-    <value>Press {0} to change Gameplay options</value>
-  </data>
-  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
-    <value>Change appearance</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Access control menu to open control panel of {0}</value>
@@ -6245,18 +4282,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
-    <value>Access control menu to open inventory of {0}</value>
-  </data>
-  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
-    <value>Press {0} to enter build mode</value>
-  </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
-  </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6309,92 +4334,11 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
   </data>
-  <data name="WorldSettings_Physics" xml:space="preserve">
-    <value>Physics</value>
-  </data>
-  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
-    <value>Fast</value>
-  </data>
-  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
-    <value>Precise</value>
-  </data>
-  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
-    <value>Higher settings improve simulation BUT directly affects performance.</value>
-  </data>
-  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
-    <value>Graphics options</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
-    <value>Anisotropic filtering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
-    <value>Anti-aliasing</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
-    <value>None</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
-    <value>Foliage details</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
-    <value>Disabled</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
-    <value>Multi-threaded rendering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
-    <value>Quality preset</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Shadow map resolution</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
-    <value>Texture quality</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
-    <value>Medium</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
@@ -6407,12 +4351,6 @@ Listede olmayan lazerler için koordinatlara bağlanabilirsiniz.</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
-  </data>
-  <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
-  </data>
-  <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>

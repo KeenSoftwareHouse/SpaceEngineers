@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -25,7 +27,7 @@ namespace Sandbox.Definitions
 
             if (!String.IsNullOrEmpty(cbuilder.CharacterAnimationFile))
             {
-                MyDefinitionErrors.Add(Context, "<CharacterAnimation> tag must contain animation name (defined in Animations.sbc) not the file: " + cbuilder.CharacterAnimationFile, ErrorSeverity.Error);
+                MyDefinitionErrors.Add(Context, "<CharacterAnimation> tag must contain animation name (defined in Animations.sbc) not the file: " + cbuilder.CharacterAnimationFile, TErrorSeverity.Error);
             }
 
             System.Diagnostics.Debug.Assert(!string.IsNullOrEmpty(CharacterAnimation));

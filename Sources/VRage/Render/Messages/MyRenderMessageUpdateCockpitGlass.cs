@@ -2,14 +2,14 @@
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateCockpitGlass : IMyRenderMessage
+    public class MyRenderMessageUpdateCockpitGlass : MyRenderMessageBase
     {
         public bool Visible;
         public string Model;
         public MatrixD WorldMatrix;
         public float DirtAlpha;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateCockpitGlass; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateCockpitGlass; } }
     }
 }

@@ -1,3 +1,5 @@
+// @define NUMTHREADS 8
+
 #ifndef NUMTHREADS
 #define NUMTHREADS 1
 #endif
@@ -27,7 +29,7 @@ RWTexture1D<uint> Histogram	: register( u0 );
 static const uint NumThreads = NUMTHREADS_X * NUMTHREADS_Y;
 
 #include "Frame.h"
-#include <math.h>
+#include <Math/Color.h>
 
 cbuffer Constants : register( c1 )
 {
@@ -54,7 +56,7 @@ void store_value(float x) {
 }
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void build_histogram(uint3 dispatchThreadID : SV_DispatchThreadID) {
+void __compute_shader(uint3 dispatchThreadID : SV_DispatchThreadID) {
 	uint2 texel = dispatchThreadID.xy;
 	
 	if(all(texel < Texture_size)) {

@@ -91,7 +91,7 @@ namespace Sandbox.Engine.Voxels
             if (m_enableModulation && -m_detailSize < signedDistance && signedDistance < m_detailSize)
             {
                 Debug.Assert(m_detailFrequency != 0f);
-                float normalizer = m_detailFrequency * m_radius / distance;
+                float normalizer = m_detailFrequency * m_radius / (distance == 0 ? 1 : distance);
                 var tmp = localPosition * normalizer;
                 signedDistance += m_detailSize * (float)detailModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
             }

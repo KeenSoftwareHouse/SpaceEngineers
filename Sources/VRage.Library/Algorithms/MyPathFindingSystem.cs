@@ -431,6 +431,13 @@ namespace VRage.Algorithms
             m_enumerator.Init(this, startingVertex, vertexFilter, vertexTraversable, edgeTraversable);
         }
 
+        // Traverses the system using the given predicates from function PrepareTraversal
+        public void PerformTraversal()
+        {
+            while (m_enumerator.MoveNext());
+            m_enumerator.Dispose();
+        }
+
         private Enumerator GetEnumeratorInternal()
         {
             return m_enumerator;

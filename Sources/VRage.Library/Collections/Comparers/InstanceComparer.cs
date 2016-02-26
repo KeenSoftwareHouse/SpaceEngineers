@@ -9,8 +9,8 @@ namespace VRage
     /// <summary>
     /// Most probably fastest possible comparer which compares instances of objects
     /// </summary>
-    public class InstanceComparer<T>: IEqualityComparer<T>
-        where T:class
+    public class InstanceComparer<T> : IEqualityComparer<T>
+        where T : class
     {
         public static readonly InstanceComparer<T> Default = new InstanceComparer<T>();
 

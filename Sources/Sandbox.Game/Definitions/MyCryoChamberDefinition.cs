@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {

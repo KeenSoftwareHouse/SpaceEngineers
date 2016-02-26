@@ -1,12 +1,14 @@
 ﻿using Havok;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents.Renders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
@@ -44,7 +46,15 @@ namespace Sandbox.Game.Entities.Blocks
             value.EnableParticles = false;
             value.RubberDeformation = true;
 
-			var otherEntity = value.CollidingEntity;
+            if (value.CollidingEntity is MyVoxelBase)
+            {
+                MyVoxelBase voxel = value.CollidingEntity as MyVoxelBase;
+                Vector3D contactPosition = value.ContactPosition;
+                MyParticleEffectsIDEnum particleEffect = voxel.GetMaterialAt(ref contactPosition).ParticleEffect;
+
+                if (Render != null && particleEffect != MyParticleEffectsIDEnum.None) 
+                    Render.TrySpawnParticle(value.ContactPosition, particleEffect);
+            }
         }
     }
 }

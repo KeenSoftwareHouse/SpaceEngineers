@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
@@ -13,6 +12,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Voxels;
@@ -22,7 +23,7 @@ namespace Sandbox.Game.AI
 {
     public class MyAiTargetBase
     {
-        private const int UNREACHABLE_ENTITY_TIMEOUT = 60000;
+        private const int UNREACHABLE_ENTITY_TIMEOUT = 20000; // character target is currently transformed into Entity Target in SetTargetEntity function so UNREACHABLE_CHARACTER_TIMEOUT wasn't applied on characters at all...
         private const int UNREACHABLE_BLOCK_TIMEOUT = 60000;
         private const int UNREACHABLE_CHARACTER_TIMEOUT = 20000;
 
@@ -35,10 +36,13 @@ namespace Sandbox.Game.AI
         protected Vector3D m_targetPosition = Vector3D.Zero;
         protected Vector3I m_targetInVoxelCoord = Vector3I.Zero;
         protected ushort? m_compoundId = null;
+        protected int m_targetTreeId = 0;
 
         protected Dictionary<MyEntity, int> m_unreachableEntities = new Dictionary<MyEntity, int>();
+        protected Dictionary<Tuple<MyEntity, int>, int> m_unreachableTrees = new Dictionary<Tuple<MyEntity, int>, int>();
 
         protected static List<MyEntity> m_tmpEntities = new List<MyEntity>();
+        protected static List<Tuple<MyEntity, int>> m_tmpTrees = new List<Tuple<MyEntity, int>>();
         protected static List<MyPhysics.HitInfo> m_tmpHits = new List<MyPhysics.HitInfo>();
 
         public MyAiTargetEnum TargetType
@@ -49,6 +53,22 @@ namespace Sandbox.Game.AI
         public bool HasTarget()
         {
             return m_currentTarget != MyAiTargetEnum.NO_TARGET;
+        }
+
+        private void Clear()
+        {
+            m_currentTarget = MyAiTargetEnum.NO_TARGET;
+            m_targetEntity = null;
+            m_targetCube = Vector3I.Zero;
+            m_targetPosition = Vector3D.Zero;
+            m_targetInVoxelCoord = Vector3I.Zero;
+            m_compoundId = null;
+            m_targetTreeId = 0;
+        }
+
+        void SetMTargetPosition(Vector3D pos)
+        {
+            m_targetPosition = pos;
         }
 
         public MyCubeGrid TargetGrid
@@ -69,7 +89,37 @@ namespace Sandbox.Game.AI
         {
             get
             {
-                return m_targetPosition;
+                switch (m_currentTarget)
+                {
+                    case MyAiTargetEnum.NO_TARGET:
+                        return Vector3D.Zero;
+                    case MyAiTargetEnum.POSITION:
+                        return m_targetPosition;
+                    case MyAiTargetEnum.VOXEL:
+                        return m_targetPosition;//zxc?
+
+                    case MyAiTargetEnum.COMPOUND_BLOCK:
+                    case MyAiTargetEnum.CUBE:
+                        {
+                            MyCubeGrid target = m_targetEntity as MyCubeGrid;
+                            if (target == null) 
+                                return Vector3D.Zero;
+                            MySlimBlock block = target.GetCubeBlock(m_targetCube);
+                            if (block == null) 
+                                return Vector3D.Zero;
+                            return target.GridIntegerToWorld(block.Position);
+                        }
+
+                    case MyAiTargetEnum.ENVIRONMENT_ITEM:
+                        return m_targetEntity.PositionComp.GetPosition();
+                    case MyAiTargetEnum.CHARACTER:
+                    case MyAiTargetEnum.GRID:
+                    case MyAiTargetEnum.ENTITY:
+                        return m_targetEntity.PositionComp.GetPosition();
+                    default:
+                        Debug.Assert(false, "Unhandled target type");
+                        return Vector3D.Zero;
+                }
             }
         }
 
@@ -80,7 +130,7 @@ namespace Sandbox.Game.AI
                 Debug.Assert(m_currentTarget == MyAiTargetEnum.CUBE);
                 var cubeblock = GetCubeBlock();
                 Debug.Assert(cubeblock != null);
-                if (cubeblock.FatBlock != null)
+                if (cubeblock != null && cubeblock.FatBlock != null)
                 {
                     return cubeblock.FatBlock.PositionComp.WorldAABB.Center;
                 }
@@ -96,6 +146,121 @@ namespace Sandbox.Game.AI
         public bool IsTargetGridOrBlock(MyAiTargetEnum type)
         {
             return type == MyAiTargetEnum.CUBE || type == MyAiTargetEnum.GRID;
+        }
+
+        public virtual bool IsMemoryTargetValid(MyBBMemoryTarget targetMemory)
+        {
+            if (targetMemory == null) return false;
+            switch (targetMemory.TargetType)
+            {
+                case MyAiTargetEnum.CHARACTER:
+                    {
+                        MyCharacter target = null;
+                        if (MyEntities.TryGetEntityById(targetMemory.EntityId.Value, out target))
+                            return IsEntityReachable(target);
+                        else
+                            return false;
+                    }
+                case MyAiTargetEnum.CUBE:
+                case MyAiTargetEnum.COMPOUND_BLOCK:
+                    {
+                        MyCubeGrid target = null;
+                        if (MyEntities.TryGetEntityById(targetMemory.EntityId.Value, out target))
+                        {
+                            MySlimBlock block = target.GetCubeBlock(targetMemory.BlockPosition);
+                            if (block == null) return false;
+                            if (block.FatBlock != null)
+                                return IsEntityReachable(block.FatBlock);
+                            else
+                                return IsEntityReachable(target);
+                        }
+                        else
+                            return false;
+                    }
+                case MyAiTargetEnum.VOXEL:
+                case MyAiTargetEnum.ENVIRONMENT_ITEM:
+                    return true;
+                case MyAiTargetEnum.ENTITY:
+                case MyAiTargetEnum.GRID:
+                    MyEntity entity = null;
+                    if (MyEntities.TryGetEntityById(targetMemory.EntityId.Value, out entity))
+                        return IsEntityReachable(entity);
+                    else
+                        return false;
+                default:
+                    return false;
+            }
+        }
+
+        public Vector3D? GetMemoryTargetPosition(MyBBMemoryTarget targetMemory)
+        {
+            if (targetMemory == null) return null;
+            switch (targetMemory.TargetType)
+            {
+                case MyAiTargetEnum.CHARACTER:
+                case MyAiTargetEnum.ENTITY:
+                case MyAiTargetEnum.GRID:
+                    {
+                        MyCharacter target = null;
+                        if (MyEntities.TryGetEntityById(targetMemory.EntityId.Value, out target))
+                            return target.PositionComp.GetPosition();
+                        else
+                            return null;
+                    }
+                case MyAiTargetEnum.CUBE:
+                case MyAiTargetEnum.COMPOUND_BLOCK:
+                    {
+                        MyCubeGrid target = null;
+                        if (MyEntities.TryGetEntityById(targetMemory.EntityId.Value, out target) &&
+                            target.CubeExists(targetMemory.BlockPosition))
+                        {
+                            return target.GridIntegerToWorld(targetMemory.BlockPosition);
+                        }
+                        else
+                            return null;
+                    }
+                case MyAiTargetEnum.POSITION:
+                case MyAiTargetEnum.VOXEL:
+                case MyAiTargetEnum.ENVIRONMENT_ITEM:
+                    // CH: This seems wrong, but GetGotoPosition does the same weird thing.
+                    // I should look at this later and fix it if possible...
+                    return m_targetPosition;
+                case MyAiTargetEnum.NO_TARGET:
+                default:
+                    return null;
+            }
+        }
+
+        public virtual bool IsTargetValid()
+        {
+            switch (m_currentTarget)
+            {
+                case MyAiTargetEnum.CHARACTER:
+                    {
+                        MyCharacter target = m_targetEntity as MyCharacter;
+                        return target != null && IsEntityReachable(target);
+                    }
+                case MyAiTargetEnum.CUBE:
+                case MyAiTargetEnum.COMPOUND_BLOCK:
+                    {
+                        MyCubeGrid target = m_targetEntity as MyCubeGrid;
+                        if (target == null) return false;
+                        MySlimBlock block = target.GetCubeBlock(m_targetCube);
+                        if (block == null) return false;
+                        if (block.FatBlock != null)
+                            return IsEntityReachable(block.FatBlock);
+                        else
+                            return IsEntityReachable(target);
+                    }
+                case MyAiTargetEnum.VOXEL:
+                case MyAiTargetEnum.ENVIRONMENT_ITEM:
+                    return true;
+                case MyAiTargetEnum.ENTITY:
+                case MyAiTargetEnum.GRID:
+                    return IsEntityReachable(m_targetEntity);
+                default:
+                    return false;
+            }
         }
 
         public MyAiTargetBase(IMyEntityBot bot)
@@ -125,7 +290,7 @@ namespace Sandbox.Game.AI
             }
 
             m_targetCube = builder.TargetCube;
-            m_targetPosition = builder.TargetPosition;
+            SetMTargetPosition(builder.TargetPosition);
             m_compoundId = builder.CompoundId;
 
             if (builder.UnreachableEntities != null)
@@ -162,11 +327,28 @@ namespace Sandbox.Game.AI
 
         public virtual void UnsetTarget()
         {
-            m_currentTarget = MyAiTargetEnum.NO_TARGET;
-            m_targetEntity = null;
+            switch (m_currentTarget)
+            {
+                case MyAiTargetEnum.NO_TARGET:
+                case MyAiTargetEnum.CHARACTER:
+                case MyAiTargetEnum.ENTITY:
+                case MyAiTargetEnum.CUBE:
+                case MyAiTargetEnum.GRID:
+				case MyAiTargetEnum.ENVIRONMENT_ITEM:
+				case MyAiTargetEnum.VOXEL:
+                    if (m_targetEntity!=null)
+                        UnsetTargetEntity();
+                    break;
+            }
+            Debug.Assert(m_targetEntity == null);
+            Clear();
         }
 
         public virtual void DebugDraw()
+        {
+        }
+
+        public virtual void DrawLineToTarget(Vector3D from)
         {
         }
 
@@ -191,6 +373,18 @@ namespace Sandbox.Game.AI
             }
 
             m_tmpEntities.Clear();
+
+            m_tmpTrees.Clear();
+            foreach (var entity in m_unreachableTrees)
+            {
+                if (entity.Value - MySandboxGame.TotalGamePlayTimeInMilliseconds < 0)
+                    m_tmpTrees.Add(entity.Key);
+            }
+            foreach (var entity in m_tmpTrees)
+            {
+                RemoveUnreachableTree(entity);
+            }
+            m_tmpTrees.Clear();
         }
 
         private void AddUnreachableEntity(MyEntity entity, int timeout)
@@ -200,8 +394,17 @@ namespace Sandbox.Game.AI
             entity.OnClosing += RemoveUnreachableEntity;
         }
 
+        private void AddUnreachableTree(MyEntity entity, int treeId, int timeout)
+        {
+            m_unreachableTrees[new Tuple<MyEntity, int>(entity, treeId)] = MySandboxGame.TotalGamePlayTimeInMilliseconds + timeout;
+            entity.OnClosing -= RemoveUnreachableTrees;
+            entity.OnClosing += RemoveUnreachableTrees;
+        }
+
+
         public bool IsEntityReachable(MyEntity entity)
         {
+            if (entity == null) return false;
             bool parentsReachable = true;
             if (entity.Parent != null)
             {
@@ -209,11 +412,46 @@ namespace Sandbox.Game.AI
             }
             return parentsReachable && !m_unreachableEntities.ContainsKey(entity);
         }
+        public bool IsTreeReachable(MyEntity entity, int treeId)
+        {
+            if (entity == null) return false;
+            bool parentsReachable = true;
+            if (entity.Parent != null)
+            {
+                parentsReachable &= IsEntityReachable(entity.Parent);
+            }
+            return parentsReachable && !m_unreachableTrees.ContainsKey(new Tuple<MyEntity,int>(entity, treeId));
+        }
 
         private void RemoveUnreachableEntity(MyEntity entity)
         {
             entity.OnClosing -= RemoveUnreachableEntity;
             m_unreachableEntities.Remove(entity);
+        }
+        private void RemoveUnreachableTree(Tuple<MyEntity,int> tree)
+        {
+            m_unreachableTrees.Remove(tree);
+        }
+
+        private void RemoveUnreachableTrees(MyEntity entity)
+        {
+            entity.OnClosing -= RemoveUnreachableTrees;
+
+            m_tmpTrees.Clear();
+            foreach (var tree in m_unreachableTrees.Keys)
+            {
+                MyEntity ent = tree.Item1;
+                if ( ent == entity)
+                {
+                    m_tmpTrees.Add(tree);
+                }
+            }
+
+            foreach (var tre in m_tmpTrees)
+            {
+                RemoveUnreachableTree(tre);
+            }
+            m_tmpTrees.Clear();
         }
 
         public bool PositionIsNearTarget(Vector3D position, float radius)
@@ -221,11 +459,11 @@ namespace Sandbox.Game.AI
             Debug.Assert(HasTarget());
             if (!HasTarget()) return false;
 
-            Vector3D gotoPosition;
+            Vector3D targetPosition;
             float gotoRadius;
-            GetGotoPosition(position, out gotoPosition, out gotoRadius);
+            GetTargetPosition(position, out targetPosition, out gotoRadius);
 
-            return Vector3D.Distance(position, gotoPosition) <= radius + gotoRadius;
+            return Vector3D.Distance(position, targetPosition) <= radius + gotoRadius;
         }
 
         public void ClearUnreachableEntities()
@@ -246,12 +484,12 @@ namespace Sandbox.Game.AI
             {
                 Vector3D gotoPosition;
                 float radius;
-                GetGotoPosition(m_bot.Navigation.PositionAndOrientation.Translation, out gotoPosition, out radius);
+                GetTargetPosition(m_bot.Navigation.PositionAndOrientation.Translation, out gotoPosition, out radius);
                 m_bot.Navigation.Goto(gotoPosition, radius, m_targetEntity);
             }
         }
 
-        public void GotoTargetNoPath(float radius)
+        public void GotoTargetNoPath(float radius, bool resetStuckDetection = true)
         {
             Debug.Assert(HasTarget());
             if (!HasTarget()) return;
@@ -264,14 +502,14 @@ namespace Sandbox.Game.AI
             {
                 Vector3D gotoPosition;
                 float r;
-                GetGotoPosition(m_bot.Navigation.PositionAndOrientation.Translation, out gotoPosition, out r);
-                m_bot.Navigation.GotoNoPath(gotoPosition, radius + r);
+                GetTargetPosition(m_bot.Navigation.PositionAndOrientation.Translation, out gotoPosition, out r);
+                m_bot.Navigation.GotoNoPath(gotoPosition, radius + r, resetStuckDetection: resetStuckDetection);
             }
         }
 
-        public void GetGotoPosition(Vector3D startingPosition, out Vector3D gotoPosition, out float radius)
+        public void GetTargetPosition(Vector3D startingPosition, out Vector3D targetPosition, out float radius)
         {
-            gotoPosition = default(Vector3D);
+            targetPosition = default(Vector3D);
             radius = 0.0f;
 
             Debug.Assert(HasTarget());
@@ -279,7 +517,7 @@ namespace Sandbox.Game.AI
 
             if (m_currentTarget == MyAiTargetEnum.POSITION)
             {
-                gotoPosition = m_targetPosition;
+                targetPosition = m_targetPosition;
                 return;
             }
             else
@@ -293,7 +531,7 @@ namespace Sandbox.Game.AI
                     Vector3D localVec = GetLocalCubeProjectedPosition(ref startingPosition);
 
                     radius = (float)localVec.Length() * 0.3f;
-                    target = TargetCubeWorldPosition;
+                    target = TargetCubeWorldPosition + localVec;
 
                     //if (MyFakes.NAVMESH_PRESUMES_DOWNWARD_GRAVITY)
                     //{
@@ -302,7 +540,9 @@ namespace Sandbox.Game.AI
                 }
                 else if (m_currentTarget == MyAiTargetEnum.CHARACTER)
                 {
-                    radius = 0.5f;
+                    radius = 0.65f;
+                    var charPos = (m_targetEntity as MyCharacter).PositionComp;
+                    target = charPos.WorldVolume.Center;
                 }
                 else if (m_currentTarget == MyAiTargetEnum.ENVIRONMENT_ITEM)
                 {
@@ -315,19 +555,29 @@ namespace Sandbox.Game.AI
                 }
                 else if (m_currentTarget == MyAiTargetEnum.ENTITY)
                 {
-                    if (m_targetPosition != Vector3D.Zero)
+                    if ( m_targetPosition != Vector3D.Zero && m_targetEntity is MyFracturedPiece )
+                    {
+                        // can be here something different than a trunk?
                         target = m_targetPosition;
-
+                    }
                     radius = m_targetEntity.PositionComp.LocalAABB.HalfExtents.Length();
                 }
 
-                gotoPosition = target;
+                targetPosition = target;
             }
+        }
+
+        public Vector3D GetTargetPosition(Vector3D startingPosition)
+        {
+            float radius;
+            Vector3D targetPos;
+            GetTargetPosition(startingPosition, out targetPos, out radius);
+            return targetPos;
         }
 
         public void AimAtTarget()
         {
-            Debug.Assert(HasTarget());
+            //Debug.Assert(HasTarget());
             if (!HasTarget()) return;
 
             if (m_currentTarget == MyAiTargetEnum.POSITION || m_currentTarget == MyAiTargetEnum.VOXEL)
@@ -336,7 +586,7 @@ namespace Sandbox.Game.AI
             }
             else
             {
-                m_targetPosition = GetAimAtPosition(m_bot.Navigation.AimingPositionAndOrientation.Translation);
+                SetMTargetPosition(GetAimAtPosition(m_bot.Navigation.AimingPositionAndOrientation.Translation));
                 m_bot.Navigation.AimAt(m_targetEntity, m_targetPosition);
             }
         }
@@ -356,6 +606,11 @@ namespace Sandbox.Game.AI
                 {
                     AddUnreachableEntity(unreachableBlock.FatBlock, UNREACHABLE_BLOCK_TIMEOUT);
                 }
+            }
+            else if (m_targetEntity != null && m_targetEntity is MyTrees)
+            {
+                // record of unreacheable tree
+                AddUnreachableTree(m_targetEntity, m_targetTreeId, UNREACHABLE_ENTITY_TIMEOUT);
             }
             else if (m_targetEntity != null && m_currentTarget != MyAiTargetEnum.VOXEL)
             {
@@ -421,9 +676,9 @@ namespace Sandbox.Game.AI
                     else if (memoryTarget.TargetType == MyAiTargetEnum.ENTITY)
                     {
                         if (memoryTarget.Position.HasValue && entity is MyFracturedPiece)
-                            m_targetPosition = memoryTarget.Position.Value;
+                            SetMTargetPosition(memoryTarget.Position.Value);
                         else
-                            m_targetPosition = entity.PositionComp.GetPosition();
+                            SetMTargetPosition(entity.PositionComp.GetPosition());
 
                         SetTargetEntity(entity);
                         m_targetEntity = entity;
@@ -443,6 +698,7 @@ namespace Sandbox.Game.AI
                     else
                     {
                         SetTargetEntity(entity);
+                        //SetMTargetPosition(Vector3D.Zero);
                     }
                     return true;
                 }
@@ -467,23 +723,14 @@ namespace Sandbox.Game.AI
 
         protected virtual void SetTargetEntity(MyEntity entity)
         {
-            if (entity == null)
-            {
-                if (m_targetEntity != null)
-                {
-                    UnsetTargetEntity();
-                }
-                return;
-            }
-
             if (entity is MyCubeBlock)
             {
                 SetTargetBlock((entity as MyCubeBlock).SlimBlock);
             }
             else
             {
-                UnsetTarget();
-
+                if (m_targetEntity != null)
+                    UnsetTargetEntity();
                 m_targetEntity = entity;
 
                 if (entity is MyCubeGrid)
@@ -498,6 +745,10 @@ namespace Sandbox.Game.AI
                 else if (entity is MyVoxelBase)
                 {
                     m_currentTarget = MyAiTargetEnum.VOXEL;
+                }
+                else if (entity is MyEnvironmentItems)
+                {
+                    m_currentTarget = MyAiTargetEnum.ENVIRONMENT_ITEM;
                 }
                 else if (entity is MyEntity)
                 {
@@ -530,7 +781,7 @@ namespace Sandbox.Game.AI
             var block2 = GetCubeBlock();
             if (block2 == null)
             {
-                UnsetTarget();
+                UnsetTargetEntity();
             }
         }
 
@@ -538,14 +789,19 @@ namespace Sandbox.Game.AI
         {
             if (m_targetEntity != slimBlock.CubeGrid)
             {
-                UnsetTarget();
+                // We don't have to unset the target, because it will be done in SetTargetEntity
                 SetTargetEntity(slimBlock.CubeGrid);
             }
 
             m_targetCube = slimBlock.Position;
-
-
             m_currentTarget = MyAiTargetEnum.CUBE;
+        }
+
+        public MySlimBlock GetTargetBlock()
+        {
+            if (m_currentTarget != MyAiTargetEnum.CUBE) return null;
+            if (TargetGrid == null) return null;
+            return GetCubeBlock();
         }
 
         public void SetTargetTree(ref MyTrees.ItemInfo targetTree, long treesId)
@@ -556,15 +812,16 @@ namespace Sandbox.Game.AI
 
             UnsetTarget();
 
-            m_targetPosition = targetTree.Transform.Position;
+            SetMTargetPosition(targetTree.Transform.Position);
             m_targetEntity = entity;
+            m_targetTreeId = targetTree.LocalId;
             SetTargetEntity(entity);
         }
 
         public void SetTargetPosition(Vector3D pos)
         {
             UnsetTarget();
-            m_targetPosition = pos;
+            SetMTargetPosition(pos);
             m_currentTarget = MyAiTargetEnum.POSITION;
         }
 
@@ -573,7 +830,7 @@ namespace Sandbox.Game.AI
             UnsetTarget();
 
             MyVoxelCoordSystems.WorldPositionToVoxelCoord(voxelMap.PositionLeftBottomCorner, ref pos, out m_targetInVoxelCoord);
-            m_targetPosition = pos;
+            SetMTargetPosition(pos);
             m_currentTarget = MyAiTargetEnum.VOXEL;
         }
 
@@ -629,7 +886,8 @@ namespace Sandbox.Game.AI
                 }
                 else if (m_currentTarget == MyAiTargetEnum.CHARACTER)
                 {
-                    target = (m_targetEntity as MyCharacter).PositionComp.WorldVolume.Center;
+                    var charPos = (m_targetEntity as MyCharacter).PositionComp;
+                    target = Vector3D.Transform(charPos.LocalVolume.Center, charPos.WorldMatrix);
                 }
                 else if (m_currentTarget == MyAiTargetEnum.VOXEL)
                 {
@@ -637,12 +895,24 @@ namespace Sandbox.Game.AI
                 }
                 else if (m_currentTarget == MyAiTargetEnum.ENTITY)
                 {
-                    if (m_targetPosition != Vector3D.Zero)
+                    if (m_targetPosition != Vector3D.Zero && m_targetEntity is MyFracturedPiece)
+                    {
+                        // can be here something different than a trunk?
                         target = m_targetPosition;
+                    }
+
+                    //if (m_targetPosition != Vector3D.Zero)
+                    //    target = m_targetPosition;
                 }
 
                 return target;
             }
+        }
+
+        public virtual bool GetRandomDirectedPosition(Vector3D initPosition, Vector3D direction, out Vector3D outPosition)
+        {
+            outPosition = MySession.Static.LocalCharacter.PositionComp.GetPosition();
+            return true;
         }
 
         protected MySlimBlock GetCubeBlock()
@@ -656,7 +926,7 @@ namespace Sandbox.Game.AI
             }
             else
             {
-                return TargetGrid.GetCubeBlock(m_targetCube);
+                return TargetGrid != null ? TargetGrid.GetCubeBlock(m_targetCube) : null;
             }
         }
     }

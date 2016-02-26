@@ -1,18 +1,15 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Xml.Serialization;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using VRage.Utils;
 using VRageMath;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
-using VRage;
 using VRage.ModAPI;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Serialization;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -151,6 +148,10 @@ namespace Sandbox.Common.ObjectBuilders
         [Serialize(MyObjectFlags.Nullable)]
         public SerializableDefinitionId? MultiBlockDefinition = null;
         public bool ShouldSerializeMultiBlockDefinition() { return MultiBlockId != 0 && MultiBlockDefinition != null; }
+
+        [ProtoMember, DefaultValue(-1)]
+        [Serialize]
+        public int MultiBlockIndex = -1;
 
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]

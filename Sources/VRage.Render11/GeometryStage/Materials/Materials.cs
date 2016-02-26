@@ -70,14 +70,18 @@ namespace VRageRender
         internal Vector4 DistancesAndScaleFar0;
         internal Vector4 DistancesAndScaleFar1;
         internal Vector4 DistancesAndScaleFar2;
-        internal Vector2 DistancesAndScaleFar3;
-        internal Vector4 Far3Color;
+        internal Vector4 DistancesAndScaleFar31;
+        internal Vector4 DistancesAndScaleFar32;
+        internal Vector4 DistancesAndScaleFar33;
+        internal Vector4 Far3Color1;
+        internal Vector4 Far3Color2;
+        internal Vector4 Far3Color3;
 
         internal float ExtensionDetailScale0;
         internal float ExtensionDetailScale1;
         internal float ExtensionDetailScale2;
 
-        Vector3 _padding;        
+        float _padding;        
     }
 
     class MyVoxelMaterials1
@@ -159,9 +163,9 @@ namespace VRageRender
             return true;
         }
 
-        internal static void RebuildMaterialFoliageTable()
+        internal unsafe static void RebuildMaterialFoliageTable()
         {
-            var array = new MaterialFoliageConstantsElem[256];
+            var array = stackalloc MaterialFoliageConstantsElem[256];
             int N = Table.Length;
             for (int i = 0; i < N; i++)
             {
@@ -184,7 +188,8 @@ namespace VRageRender
                 };
             }
             var mapping = MyMapping.MapDiscard(MyCommon.MaterialFoliageTableConstants);
-            mapping.stream.WriteRange(array, 0, N);
+            for (int arrayIndex = 0; arrayIndex < N; ++arrayIndex)
+                mapping.WriteAndPosition(ref array[arrayIndex]);
             mapping.Unmap();
         }
 
@@ -243,8 +248,12 @@ namespace VRageRender
                 constantsData.DistancesAndScaleFar0 = Table[triple.I0].DistanceAndScaleFar;
                 constantsData.DistancesAndScaleFar1 = Table[triple.I1].DistanceAndScaleFar;
                 constantsData.DistancesAndScaleFar2 = triple.I2 >= 0 ? Table[triple.I2].DistanceAndScaleFar : Vector4.Zero;
-                constantsData.DistancesAndScaleFar3 = triple.I2 >= 0 ? Table[triple.I2].DistanceAndScaleFar3 : Vector2.Zero;
-                constantsData.Far3Color = triple.I2 >= 0 ? Table[triple.I2].Far3Color : Color.Black;
+                constantsData.DistancesAndScaleFar31 = new Vector4(Table[triple.I0].DistanceAndScaleFar3.X, Table[triple.I0].DistanceAndScaleFar3.Y, 0, 0);
+                constantsData.DistancesAndScaleFar32 = new Vector4(Table[triple.I1].DistanceAndScaleFar3.X, Table[triple.I1].DistanceAndScaleFar3.Y, 0, 0);
+                constantsData.DistancesAndScaleFar33 = triple.I2 >= 0 ? new Vector4(Table[triple.I2].DistanceAndScaleFar3.X, Table[triple.I2].DistanceAndScaleFar3.Y, 0, 0) : Vector4.Zero;
+                constantsData.Far3Color1 = Table[triple.I0].Far3Color.ToVector4();
+                constantsData.Far3Color2 = Table[triple.I1].Far3Color.ToVector4();
+                constantsData.Far3Color3 = triple.I2 >= 0 ? Table[triple.I2].Far3Color.ToVector4() : Vector4.Zero;
                 constantsData.ExtensionDetailScale0 = Table[triple.I0].ExtensionDetailScale;
                 constantsData.ExtensionDetailScale1 = Table[triple.I1].ExtensionDetailScale;
                 constantsData.ExtensionDetailScale2 = triple.I2 >= 0 ? Table[triple.I2].ExtensionDetailScale : 0;

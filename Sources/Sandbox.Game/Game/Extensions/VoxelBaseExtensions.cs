@@ -12,7 +12,7 @@ namespace Sandbox.Game.Entities
     public static class VoxelBaseExtensions
     {
 
-        public static MyVoxelMaterialDefinition GetMaterialAt(this MyVoxelBase self,ref Vector3D worldPosition)
+        public static MyVoxelMaterialDefinition GetMaterialAt(this MyVoxelBase self, ref Vector3D worldPosition)
         {
             Vector3D localHitPos;
             MyVoxelCoordSystems.WorldPositionToLocalPosition(worldPosition, self.PositionComp.WorldMatrix, MatrixD.Invert(self.PositionComp.WorldMatrix), self.SizeInMetresHalf, out localHitPos);

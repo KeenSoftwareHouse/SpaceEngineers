@@ -8,6 +8,8 @@ using Sandbox.Game.Entities.Cube;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
 using System;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 
 #endregion
@@ -64,7 +66,7 @@ namespace Sandbox.Game
         //  We have only Update method for explosions, because drawing of explosion is mantained by particles and lights itself
         public override void UpdateBeforeSimulation()
         {
-            int frameMs = MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
+            int frameMs = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
 
             foreach (var warhead in m_warheads)
             {

@@ -30,6 +30,11 @@ namespace VRageRender.Profiler
     /// </remarks>
     public abstract class MyRenderProfiler
     {
+        /// <summary>
+        /// Sorting order will sort the listed elements in the profiler by the specified ProfilerSortingOrder
+        /// </summary>
+        protected static RenderProfilerSortingOrder m_sortingOrder = RenderProfilerSortingOrder.MillisecondsLastFrame;
+
         public const string PerformanceProfilingSymbol = VRage.MyCompilationSymbols.PerformanceProfiling ? "WINDOWS" : "__RANDOM_UNDEFINED_PROFILING_SYMBOL__";
 
         private static bool m_profilerProcessingEnabled = VRage.MyCompilationSymbols.PerformanceProfiling;
@@ -48,7 +53,7 @@ namespace VRageRender.Profiler
         }
 
         protected static MyDrawArea m_milisecondsGraphScale = new MyDrawArea(0.49f, 0, (2 - 0.51f) / 2, 0.9f, 25);
-        protected static MyDrawArea m_memoryGraphScale = new MyDrawArea(0.49f, -0.7f, (2 - 0.51f) / 2, 0.6f, 0.001f);
+        protected static MyDrawArea m_memoryGraphScale = new MyDrawArea(0.49f, 0, (2 - 0.51f) / 2, 0.6f, 0.001f);
 
         protected static Color[] m_colors = { new Color(0,192,192), Color.Orange, Color.BlueViolet * 1.5f, Color.BurlyWood, Color.Chartreuse,
                                   Color.CornflowerBlue, Color.Cyan, Color.ForestGreen, Color.Fuchsia,
@@ -63,7 +68,7 @@ namespace VRageRender.Profiler
         protected StringBuilder m_text = new StringBuilder(100);
 
         // Set to true to track memory in Render Profiler
-        public const bool MemoryProfiling = false;
+        public const bool MemoryProfiling = VRage.MyCompilationSymbols.ProfileWorkingSetMemory;
 
         protected static MyProfiler.MyProfilerBlock m_fpsBlock;
         protected static float m_fpsPctg;
@@ -112,9 +117,11 @@ namespace VRageRender.Profiler
         protected static int m_levelLimit = -1;
         protected static bool m_useCustomFrame = false;
         protected static int m_frameLocalArea = MyProfiler.MAX_FRAMES;
+        private int m_currentDumpNumber = 0;
 
         static MyRenderProfiler()
         {
+            m_levelLimit = VRage.MyCompilationSymbols.ProfileFromStart ? -1 : 0;
             // Create block, some unique id
             m_fpsBlock = MyProfiler.CreateExternalBlock("FPS", -2);
         }
@@ -126,7 +133,7 @@ namespace VRageRender.Profiler
         {
             lock (m_threadProfilers)
             {
-                var profiler = new MyProfiler(m_threadProfilers.Count, memoryProfiling, name, axisName ?? "[ms]");
+                var profiler = new MyProfiler(memoryProfiling, name, axisName ?? "[ms]");
                 m_threadProfilers.Add(profiler);
                 profiler.SetNewLevelLimit(m_profilerProcessingEnabled ? m_levelLimit : 0);
                 if (m_selectedProfiler == null)
@@ -135,11 +142,50 @@ namespace VRageRender.Profiler
             }
         }
 
+        public static List<MyProfiler.MyProfilerBlock> GetSortedChildren(int frameToSortBy)
+        {
+            List<MyProfiler.MyProfilerBlock> sortedChildren = new List<MyProfiler.MyProfilerBlock>(m_selectedProfiler.SelectedRootChildren);
+
+            switch (m_sortingOrder)
+            {
+                case RenderProfilerSortingOrder.Id:
+                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    {
+                        return a.Id.CompareTo(b.Id);
+                    });
+                    break;
+                case RenderProfilerSortingOrder.MillisecondsLastFrame:
+                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    {
+                        // Sorts by milliseconds, in case of equal performance, sorts by ID instead
+                        int comparisonResult = b.Miliseconds[frameToSortBy].CompareTo(a.Miliseconds[frameToSortBy]);
+                        if (comparisonResult != 0) return comparisonResult;
+                        return a.Id.CompareTo(b.Id);
+                    });
+                    break;
+                case RenderProfilerSortingOrder.MillisecondsAverage:
+                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    {
+                        // Sorts by average milliseconds, in case of equal performance, sorts by ID instead
+                        int comparisonResult = b.averageMiliseconds.CompareTo(a.averageMiliseconds);
+                        if (comparisonResult != 0) return comparisonResult;
+                        return a.Id.CompareTo(b.Id);
+                    });
+                    break;
+            }
+
+            return sortedChildren;
+        }
+
         public static MyProfiler.MyProfilerBlock FindBlockByIndex(int index)
         {
-            var children = m_selectedProfiler.SelectedRootChildren;
+            var children = GetSortedChildren(m_selectedFrame);
             if (index >= 0 && index < children.Count)
                 return children[index];
+
+            if (index == -1 && m_selectedProfiler.SelectedRoot != null)
+                return m_selectedProfiler.SelectedRoot.Parent;
+
             return null;
         }
 
@@ -149,36 +195,25 @@ namespace VRageRender.Profiler
             return wrappedIndex > (lastValidFrame + MyProfiler.UPDATE_WINDOW); // Outside update window
         }
 
-        public static MyProfiler.MyProfilerBlock FindBlockByMax(int frameIndex, int lastValidFrame)
-        {
-            if (!IsValidIndex(frameIndex, lastValidFrame))
-                return null;
-
-            float max = float.MinValue;
-            MyProfiler.MyProfilerBlock block = null;
-
-            var children = m_selectedProfiler.SelectedRootChildren;
-            for (int i = 0; i < children.Count; i++)
-            {
-                var profilerBlock = children[i];
-                float val = profilerBlock.Miliseconds[frameIndex];
-                if (val > max)
-                {
-                    max = val;
-                    block = profilerBlock;
-                }
-            }
-            return block;
-        }
-
         public static void HandleInput(RenderProfilerCommand command, int index)
         {
             switch (command)
             {
                 case RenderProfilerCommand.Enable:
                     {
+                        if (!m_enabled)
+                        {
+                            m_enabled = true;
+                            m_profilerProcessingEnabled = true; // Enable when disabled and keep enabled
+                            SetLevel();
+                        }
+                        break;
+                    }
+
+                case RenderProfilerCommand.ToggleEnabled:
+                    {
                         // Enable or Disable profiler drawing
-                        if (m_enabled && m_selectedProfiler.SelectedRoot == null)
+                        if (m_enabled)
                         {
                             m_enabled = false;
                             m_useCustomFrame = false;
@@ -187,36 +222,27 @@ namespace VRageRender.Profiler
                         {
                             m_enabled = true;
                             m_profilerProcessingEnabled = true; // Enable when disabled and keep enabled
-                            SetLevel();
-                        }
-                        else
-                        {
-                            // Go to parent node
-                            if (m_selectedProfiler.SelectedRoot != null)
-                            {
-                                m_selectedProfiler.SelectedRoot = m_selectedProfiler.SelectedRoot.Parent;
-                            }
                         }
                         break;
                     }
+
+                case RenderProfilerCommand.JumpToRoot:
+                    m_selectedProfiler.SelectedRoot = null;
+                    break;
 
                 case RenderProfilerCommand.JumpToLevel:
                     {
-                        m_selectedProfiler.SelectedRoot = FindBlockByIndex(index - 1); // On screen it's indexed from 1 (zero is level up)
-                        break;
-                    }
-
-                case RenderProfilerCommand.FindMaxChild:
-                    {
-                        MyProfiler.MyProfilerBlock block;
-                        int lastFrameIndex;
-                        using (m_selectedProfiler.LockHistory(out lastFrameIndex))
+                        // Enable when disabled, added this for programmers who are too used to using the numpad 0 to open the profiler.
+                        if (index == 0 && !m_enabled)
                         {
-                            block = FindBlockByMax(m_selectedFrame, lastFrameIndex);
+                            m_enabled = true;
+                            m_profilerProcessingEnabled = true;
                         }
-                        if (block != null)
+                        else
                         {
-                            m_selectedProfiler.SelectedRoot = block;
+                            MyProfiler.MyProfilerBlock nextBlock = FindBlockByIndex(index - 1); // On screen it's indexed from 1 (zero is level up)
+                            if (nextBlock != null || (m_selectedProfiler.SelectedRoot != null && m_selectedProfiler.SelectedRoot.Parent == null))
+                                m_selectedProfiler.SelectedRoot = nextBlock;
                         }
                         break;
                     }
@@ -224,8 +250,6 @@ namespace VRageRender.Profiler
                 case RenderProfilerCommand.Pause:
                     {
                         Paused = !Paused;
-                        m_useCustomFrame = false; // Turn-off custom frame after ALT + ENTER
-
                         break;
                     }
 
@@ -257,19 +281,26 @@ namespace VRageRender.Profiler
                             {
                                 profiler.Reset();
                             }
+                            m_selectedFrame = 0;
                         }
                         break;
                     }
 
                 case RenderProfilerCommand.NextFrame:
                     {
-                        MyRenderProfiler.NextFrame();
+                        MyRenderProfiler.NextFrame(index);
                         break;
                     }
 
                 case RenderProfilerCommand.PreviousFrame:
                     {
-                        MyRenderProfiler.PreviousFrame();
+                        MyRenderProfiler.PreviousFrame(index);
+                        break;
+                    }
+
+                case RenderProfilerCommand.DisableFrameSelection:
+                    {
+                        m_useCustomFrame = false;
                         break;
                     }
 
@@ -283,6 +314,94 @@ namespace VRageRender.Profiler
                 case RenderProfilerCommand.DecreaseLevel:
                     {
                         m_levelLimit--;
+                        if (m_levelLimit < -1)
+                            m_levelLimit = -1;
+                        SetLevel();
+                        break;
+                    }
+
+                case RenderProfilerCommand.CopyPathToClipboard:
+                    {
+                        StringBuilder pathBuilder = new StringBuilder(200);
+                        MyProfiler.MyProfilerBlock currentBlock = m_selectedProfiler.SelectedRoot;
+
+                        while (currentBlock != null)
+                        {
+                            if (pathBuilder.Length > 0)
+                                pathBuilder.Insert(0, " > ");
+                            pathBuilder.Insert(0, currentBlock.Name);
+                            currentBlock = currentBlock.Parent;
+                        }
+
+                        if (pathBuilder.Length > 0)
+                        {
+                            // Clipboard can only be accessed from a thread on the STA apartment
+                            System.Threading.Thread thread = new System.Threading.Thread(() => System.Windows.Forms.Clipboard.SetText(pathBuilder.ToString()));
+                            thread.SetApartmentState(System.Threading.ApartmentState.STA);
+                            thread.Start();
+                            thread.Join();
+                        }
+                        break;
+                    }
+
+                case RenderProfilerCommand.TryGoToPathInClipboard:
+                    {
+                        string fullPath = string.Empty;
+
+                        Exception threadEx = null;
+                        System.Threading.Thread staThread = new System.Threading.Thread(
+                            delegate()
+                            {
+                                try
+                                {
+                                    fullPath = System.Windows.Forms.Clipboard.GetText();
+                                }
+
+                                catch (Exception ex)
+                                {
+                                    threadEx = ex;
+                                }
+                            });
+                        staThread.SetApartmentState(System.Threading.ApartmentState.STA);
+                        staThread.Start();
+                        staThread.Join();
+
+                        if (!string.IsNullOrEmpty(fullPath))
+                        {
+                            string[] split = fullPath.Split(new string[] { " > " }, StringSplitOptions.None);
+
+                            MyProfiler.MyProfilerBlock pathBlock = null;
+                            List<MyProfiler.MyProfilerBlock> blockSet = m_selectedProfiler.RootBlocks;
+                            for (int i = 0; i<split.Length; i++)
+                            {
+                                string blockName = split[i];
+                                MyProfiler.MyProfilerBlock oldPath = pathBlock;
+
+                                for (int j = 0; j<blockSet.Count; j++)
+                                {
+                                    MyProfiler.MyProfilerBlock block = blockSet[j];
+                                    if (block.Name == blockName)
+                                    {
+                                        pathBlock = block;
+                                        blockSet = pathBlock.Children;
+                                        break;
+                                    }
+                                }
+
+                                // If the path did not change, we cannot go any deeper, break out of this loop
+                                if (oldPath == pathBlock)
+                                    break;
+                            }
+
+                            if (pathBlock != null)
+                                m_selectedProfiler.SelectedRoot = pathBlock;
+                        }
+                        break;
+                    }
+
+                case RenderProfilerCommand.SetLevel:
+                    {
+                        m_levelLimit = index;
                         if (m_levelLimit < -1)
                             m_levelLimit = -1;
                         SetLevel();
@@ -305,6 +424,12 @@ namespace VRageRender.Profiler
                     m_milisecondsGraphScale.DecreaseYRange();
                     break;
 
+                case RenderProfilerCommand.ChangeSortingOrder:
+                    m_sortingOrder += 1;
+                    if (m_sortingOrder >= RenderProfilerSortingOrder.NumSortingTypes)
+                        m_sortingOrder = RenderProfilerSortingOrder.Id;
+                    break;
+
                 default:
                     System.Diagnostics.Debug.Assert(false, "Unknown command");
                     break;
@@ -323,22 +448,22 @@ namespace VRageRender.Profiler
             }
         }
 
-        static void PreviousFrame()
+        static void PreviousFrame(int step)
         {
             m_useCustomFrame = true;
 
-            m_selectedFrame--;
-            if (m_selectedFrame < 0)
-                m_selectedFrame = MyProfiler.MAX_FRAMES - 1;
+            m_selectedFrame -= step;
+            while (m_selectedFrame < 0)
+                m_selectedFrame += MyProfiler.MAX_FRAMES - 1;
         }
 
-        static void NextFrame()
+        static void NextFrame(int step)
         {
             m_useCustomFrame = true;
 
-            m_selectedFrame++;
-            if (m_selectedFrame >= MyProfiler.MAX_FRAMES)
-                m_selectedFrame = 0;
+            m_selectedFrame += step;
+            while (m_selectedFrame >= MyProfiler.MAX_FRAMES)
+                m_selectedFrame -= MyProfiler.MAX_FRAMES;
         }
 
         static void FindMax(float[] data, int start, int end, ref float max, ref int maxIndex)
@@ -485,6 +610,49 @@ namespace VRageRender.Profiler
             }
 
             ThreadProfiler.ProfileCustomValue(name, member, line, file, value, customTime, timeFormat, valueFormat);
+        }
+
+        internal void DestroyThread()
+        {
+            m_threadProfilers.Remove(m_threadProfiler);
+            if (m_selectedProfiler == m_threadProfiler)
+                m_selectedProfiler = m_threadProfilers.Count > 0 ? m_threadProfilers[0] : null;
+
+            m_threadProfiler = null;
+        }
+
+        public void SetLevel(int index)
+        {
+            m_levelLimit = index;
+            if (m_levelLimit < -1)
+                m_levelLimit = -1;
+            SetLevel();
+        }
+
+        public void Dump()
+        {
+            try
+            {
+                StringBuilder dump;
+                string path = null;
+                for (; m_currentDumpNumber < 100; m_currentDumpNumber++)
+                {
+                    path = string.Concat(VRage.FileSystem.MyFileSystem.UserDataPath, string.Format("\\dump{0}.xml", m_currentDumpNumber));
+                    if (!VRage.FileSystem.MyFileSystem.FileExists(path))
+                        break;
+                }
+                if (path == null)
+                    return;
+                var stream = VRage.FileSystem.MyFileSystem.OpenWrite(path);
+                if (stream == null)
+                    return;
+                var wr = new System.IO.StreamWriter(stream);
+                dump = ThreadProfiler.Dump();
+                wr.Write(dump);
+                wr.Close();
+                stream.Close();
+            }
+            catch { }
         }
     }
 }

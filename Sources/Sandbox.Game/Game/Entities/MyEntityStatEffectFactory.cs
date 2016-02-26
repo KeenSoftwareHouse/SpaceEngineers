@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Text;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
 using VRage.Game.ObjectBuilders;
+using VRage.Game.Common;
 
 namespace Sandbox.Game.Entities
 {

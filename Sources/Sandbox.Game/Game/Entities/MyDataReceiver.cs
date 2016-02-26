@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRageMath;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
-    abstract class MyDataReceiver
+    abstract class MyDataReceiver : MyEntityComponentBase
     {
         protected List<MyDataBroadcaster> m_broadcastersInRange = new List<MyDataBroadcaster>();
         protected HashSet<MyDataBroadcaster> m_relayedBroadcasters = new HashSet<MyDataBroadcaster>();
@@ -30,34 +32,24 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public MyEntity Parent { get; protected set; }
-
-        public MyDataReceiver(MyEntity parent)
-        {
-            Parent = parent;
-        }
-
         public static HashSet<MyDataReceiver> GetGridRadioReceivers(MyCubeGrid grid)
         {
-            return GetGridRadioReceivers(grid, MySession.LocalPlayerId);
+            return GetGridRadioReceivers(grid, MySession.Static.LocalPlayerId);
         }
 
         public static HashSet<MyDataReceiver> GetGridRadioReceivers(MyCubeGrid grid, long playerId)
         {
             HashSet<MyDataReceiver> output = new HashSet<MyDataReceiver>();
-            foreach (var block in grid.GetFatBlocks<MyCubeBlock>())
+            foreach (var block in grid.GetFatBlocks())
             {
-                if (block is IMyComponentOwner<MyDataReceiver>)
+                MyDataReceiver receiver;
+                if (block.Components.TryGet<MyDataReceiver>(out receiver))
                 {
-                    MyDataReceiver receiver;
-                    if ((block as IMyComponentOwner<MyDataReceiver>).GetComponent(out receiver))
+                    MyIDModule module;
+                    if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
                     {
-                        MyIDModule module;
-                        if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
-                        {
-                            if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
-                                output.Add(receiver);
-                        }
+                        if ((block as MyTerminalBlock).HasPlayerAccess(playerId) && module.Owner != 0)
+                            output.Add(receiver);
                     }
                 }
             }
@@ -69,7 +61,7 @@ namespace Sandbox.Game.Entities
         {
             m_relayedBroadcasters.Clear();
             m_relayerGrids.Clear();
-            UpdateBroadcastersInRange(m_relayedBroadcasters, MySession.LocalPlayerId, m_relayerGrids);
+            UpdateBroadcastersInRange(m_relayedBroadcasters, MySession.Static.LocalPlayerId, m_relayerGrids);
         }
 
         public HashSet<MyDataBroadcaster> GetRelayedBroadcastersForPlayer(long localPlayerId)
@@ -87,73 +79,72 @@ namespace Sandbox.Game.Entities
             if (!MyFakes.ENABLE_RADIO_HUD || !Enabled)
                 return;
 
-            if (Parent is IMyComponentOwner<MyDataBroadcaster>)
+            VRage.ProfilerShort.Begin("Relay");
+            MyDataBroadcaster radioBroadcaster;
+            if (Entity.Components.TryGet<MyDataBroadcaster>(out radioBroadcaster))
             {
-                MyDataBroadcaster radioBroadcaster;
-                if ((Parent as IMyComponentOwner<MyDataBroadcaster>).GetComponent(out radioBroadcaster))
-                {
-                    relayedBroadcasters.Add(radioBroadcaster);
-                }
+                relayedBroadcasters.Add(radioBroadcaster);
             }
-            
+            VRage.ProfilerShort.End();
+
+            VRage.ProfilerShort.Begin("UpdateBroadcasters");
             //add all from same grid:
-            MyCubeGrid grid=Parent.GetTopMostParent() as MyCubeGrid;
-            if (grid != null //astronaut has no grid
-                    && !gridsQueued.Contains(grid.EntityId))
+            MyCubeGrid grid = Entity.GetTopMostParent() as MyCubeGrid;
+            if (grid != null && !gridsQueued.Contains(grid.EntityId)) //astronaut has no grid
             {
                 gridsQueued.Add(grid.EntityId);
-                foreach (var block in grid.GetFatBlocks<MyCubeBlock>())
+                foreach (var block in grid.GetFatBlocks())
                 {
-                    if (block is IMyComponentOwner<MyDataBroadcaster>)
+                    MyDataBroadcaster broadcaster;
+                    if (block.Components.TryGet<MyDataBroadcaster>(out broadcaster))
                     {
-                        MyDataBroadcaster broadcaster;
-                        if ((block as IMyComponentOwner<MyDataBroadcaster>).GetComponent(out broadcaster))
+                        MyIDModule module;
+                        if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
                         {
-                            MyIDModule module;
-                            if ((block as IMyComponentOwner<MyIDModule>).GetComponent(out module))
+                            if ((block as MyTerminalBlock).HasPlayerAccess(localPlayerId) && module.Owner != 0
+                                && !relayedBroadcasters.Contains(broadcaster))
                             {
-                                if ((block as MyTerminalBlock).HasPlayerAccess(localPlayerId) && module.Owner != 0
-                                    && !relayedBroadcasters.Contains(broadcaster))
+                                relayedBroadcasters.Add(broadcaster);
+                                if (!CanIUseIt(broadcaster, localPlayerId))
+                                    continue;
+                                MyDataReceiver radioReceiver;
+                                if (broadcaster.Container.TryGet<MyDataReceiver>(out radioReceiver))
                                 {
-                                    relayedBroadcasters.Add(broadcaster);
-                                    if (!CanIUseIt(broadcaster, localPlayerId))
-                                        continue;
-                                    if (broadcaster.Parent is IMyComponentOwner<MyDataReceiver>)
-                                    {
-                                        MyDataReceiver radioReceiver;
-                                        if ((broadcaster.Parent as IMyComponentOwner<MyDataReceiver>).GetComponent(out radioReceiver))
-                                        {
-                                            radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
-                                        }
-                                    }
+                                    VRage.ProfilerShort.Begin("UpdateReceiver");
+                                    radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
+                                    VRage.ProfilerShort.End();
+
                                 }
                             }
                         }
                     }
                 }
             }
+            VRage.ProfilerShort.End();
 
-            //
+            VRage.ProfilerShort.Begin("GetAllBroadcastersInMyRange");
             GetAllBroadcastersInMyRange(ref relayedBroadcasters, localPlayerId, gridsQueued);
+            VRage.ProfilerShort.End();
         }
+
         abstract protected void GetAllBroadcastersInMyRange(ref HashSet<MyDataBroadcaster> relayedBroadcasters, long localPlayerId, HashSet<long> gridsQueued);
 
         public bool CanIUseIt(MyDataBroadcaster broadcaster, long localPlayerId)
         {
-            if (broadcaster.Parent is IMyComponentOwner<MyIDModule>)
+            if (broadcaster.Entity is IMyComponentOwner<MyIDModule>)
             {
                 MyIDModule broadcasterId;
-                if ((broadcaster.Parent as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
+                if ((broadcaster.Entity as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
                 {
-                    MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(localPlayerId);
-                    if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral || broadcasterId.Owner == 0)
+                    VRage.Game.MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(localPlayerId);
+                    if (relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies || relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral || broadcasterId.Owner == 0)
                         return false;
                 }
             }
-            if (broadcaster.Parent is MyCharacter)
+            if (broadcaster.Entity is MyCharacter)
             {
-                var relation = (broadcaster.Parent as MyCharacter).GetRelationTo(localPlayerId);
-                if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral)
+                var relation = (broadcaster.Entity as MyCharacter).GetRelationTo(localPlayerId);
+                if (relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies || relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral)
                     return false;
             }
             return true;
@@ -169,38 +160,39 @@ namespace Sandbox.Game.Entities
 
             foreach (var broadcaster in m_relayedBroadcasters)
             {
-                MyEntity entity = null;
-                if (MyEntities.TryGetEntityById(broadcaster.EntityId, out entity))
+                MyEntity entity = (MyEntity)broadcaster.Entity;
+                if (entity != null)
                 {
-                    if (!showMyself && entity == Parent)
+                    if (!showMyself && entity == Entity)
                         continue; //do not show myself
 
                     bool friendly = true;
-                    if (broadcaster.Parent is IMyComponentOwner<MyIDModule>)
+                    if (broadcaster.Entity is IMyComponentOwner<MyIDModule>)
                     {
                         MyIDModule broadcasterId;
-                        if ((broadcaster.Parent as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
+                        if ((broadcaster.Entity as IMyComponentOwner<MyIDModule>).GetComponent(out broadcasterId))
                         {
-                            MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(MySession.LocalPlayerId);
-                            if (relation == MyRelationsBetweenPlayerAndBlock.Enemies || relation == MyRelationsBetweenPlayerAndBlock.Neutral)
+                            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = broadcasterId.GetUserRelationToOwner(MySession.Static.LocalPlayerId);
+                            if (relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies || relation == VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral)
                                 friendly = false;
                         }
                     }
 
-                    MyLaserAntenna la = broadcaster.Parent as MyLaserAntenna;
+                    MyLaserAntenna la = broadcaster.Entity as MyLaserAntenna;
                     if (la != null && la.ShowOnHUD == false)
                         continue;
 
                     foreach (var hudParams in entity.GetHudParams(friendly))
                     {
-                        if (!m_entitiesOnHud.Contains(hudParams.Entity))
+                        MyEntity hudParamsEntity = hudParams.Entity as MyEntity;
+                        if (!m_entitiesOnHud.Contains(hudParamsEntity))
                         {
-                            m_entitiesOnHud.Add(hudParams.Entity);
+                            m_entitiesOnHud.Add(hudParamsEntity);
                             if (hudParams.BlinkingTime > 0)
-                                MyHud.HackingMarkers.RegisterMarker(hudParams.Entity, hudParams);
+                                MyHud.HackingMarkers.RegisterMarker(hudParamsEntity, hudParams);
                             else
-                                if (!MyHud.HackingMarkers.MarkerEntities.ContainsKey(hudParams.Entity))
-                                    MyHud.LocationMarkers.RegisterMarker(hudParams.Entity, hudParams);
+                                if (!MyHud.HackingMarkers.MarkerEntities.ContainsKey(hudParamsEntity))
+                                    MyHud.LocationMarkers.RegisterMarker(hudParamsEntity, hudParams);
                         }
                     }
                 }
@@ -218,5 +210,10 @@ namespace Sandbox.Game.Entities
             m_broadcastersInRange.Clear();
         }
 
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "MyDataReciever"; }
+        }
     }
 }

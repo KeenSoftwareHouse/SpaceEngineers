@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.World;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.ObjectBuilders;
+using VRage.ObjectBuilders;
 
 namespace World
 {
@@ -55,6 +59,10 @@ namespace World
 			{
 				CheckOxygenContainers(sector);
 			}
+
+            // TODO: this is disabled now because replication of MyEntity with components is not resolved, when you enable it make sure that corresponding 
+            // definitions are also changed (InventoryBagDefinition/.... to EntityBase/...)
+            //CheckInventoryBagEntity(sector);
 		}
 
 		#region 01100001 Oxygen 
@@ -117,5 +125,29 @@ namespace World
 		}
 
 		#endregion
+
+        private void CheckInventoryBagEntity(MyObjectBuilder_Sector sector)
+        {
+            List<int> removeList = new List<int>();
+            for (int i = 0; i < sector.SectorObjects.Count; ++i)
+            {
+                var entityOb = sector.SectorObjects[i];
+
+                if ((entityOb is MyObjectBuilder_ReplicableEntity) || (entityOb is MyObjectBuilder_InventoryBagEntity))
+                {
+                    var newBuilder = ConvertInventoryBagToEntityBase(entityOb);
+                    Debug.Assert(newBuilder != null);
+                    if (newBuilder != null)
+                        sector.SectorObjects[i] = newBuilder;
+                    else
+                        removeList.Add(i);
+                }
+            }
+
+            for (int i = removeList.Count - 1; i >= 0; --i)
+            {
+                sector.SectorObjects.RemoveAtFast(removeList[i]);
+            }
+        }
 	}
 }

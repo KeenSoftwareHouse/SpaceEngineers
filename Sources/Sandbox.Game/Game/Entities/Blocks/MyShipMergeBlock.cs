@@ -13,7 +13,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
@@ -142,7 +143,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void LoadDummies()
         {
-            var finalModel = Engine.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
+            var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
             foreach (var dummy in finalModel.Dummies)
             {
                 if (dummy.Key.ToLower().Contains("merge"))
@@ -160,7 +161,7 @@ namespace Sandbox.Game.Entities.Blocks
                     var detectorShape = CreateFieldShape(halfExtents);
                     Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                     Physics.IsPhantom = true;
-                    Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, world, null, MyPhysics.ObjectDetectionCollisionLayer);
+                    Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, world, null, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
                     Physics.Enabled = IsWorking;
                     Physics.RigidBody.ContactPointCallbackEnabled = true;
                     detectorShape.Base.RemoveReference();

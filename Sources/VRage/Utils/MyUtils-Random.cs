@@ -69,6 +69,15 @@ namespace VRage.Utils
             return center + radial * (Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent);
         }
 
+        public static Vector3D GetRandomDiscPosition(ref Vector3D center, double minRadius, double maxRadius, ref Vector3D tangent, ref Vector3D bitangent)
+        {
+            Debug.Assert(Vector3D.IsUnit(ref tangent));
+            Debug.Assert(Vector3D.IsUnit(ref bitangent));
+            double radial = Math.Sqrt(GetRandomDouble(minRadius * minRadius, maxRadius * maxRadius));
+            double angle = GetRandomDouble(0, 2 * MathHelper.Pi);
+            return center + radial * (Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent);
+        }
+
         public static Vector3 GetRandomBorderPosition(ref BoundingSphere sphere)
         {
             return sphere.Center + GetRandomVector3Normalized() * sphere.Radius;

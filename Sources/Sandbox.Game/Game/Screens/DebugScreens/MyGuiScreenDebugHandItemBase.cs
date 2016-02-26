@@ -9,7 +9,8 @@ using Sandbox.Game;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Gui;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Game.Gui
 {
@@ -28,7 +29,7 @@ namespace Sandbox.Game.Gui
 
         protected override void OnShow()
         {
-            m_playerCharacter = MySession.LocalCharacter;
+            m_playerCharacter = MySession.Static.LocalCharacter;
             if (m_playerCharacter != null)
             {
                 m_playerCharacter.OnWeaponChanged += OnWeaponChanged;
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Gui
         protected void SelectFirstHandItem()
         {
 
-            MyCharacter playerCharacter = MySession.LocalCharacter;
+            MyCharacter playerCharacter = MySession.Static.LocalCharacter;
             var weapon = playerCharacter.CurrentWeapon;
 
             if (weapon == null)

@@ -6,14 +6,20 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateRenderObject : IMyRenderMessage
+    public class MyRenderMessageUpdateRenderObject : MyRenderMessageBase
     {
         public uint ID;
         public MatrixD WorldMatrix;
         public bool SortIntoCulling;
         public BoundingBoxD? AABB;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateRenderObject; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderObject; } }
+
+        public override void Close()
+        {
+            AABB = null;
+            base.Close();
+        }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -61,7 +62,7 @@ namespace Sandbox.Graphics.GUI
             m_richTextsPool = new List<MyRichLabelText>(m_richTextsMax);
             for (int i = 0; i < m_richTextsMax; i++)
             {
-                m_richTextsPool.Add(new MyRichLabelText());
+                m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow });
             }
         }
 
@@ -86,7 +87,7 @@ namespace Sandbox.Graphics.GUI
                 m_richTextsPool.Capacity = m_richTextsMax;
                 for (int i = m_richTextsOffset + 1; i < m_richTextsMax; i++)
                 {
-                    m_richTextsPool.Add(new MyRichLabelText());
+                    m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow });
                 }
             }
         }
@@ -328,6 +329,12 @@ namespace Sandbox.Graphics.GUI
         {
             get { return m_maxLineWidth; }
             set { m_maxLineWidth = value; }
+        }
+
+        public bool ShowTextShadow
+        {
+            get;
+            set;
         }
 
         internal bool HandleInput(Vector2 position, float offset)

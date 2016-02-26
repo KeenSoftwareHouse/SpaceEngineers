@@ -46,7 +46,7 @@ namespace Sandbox.Game.Gui
             m_searchChangedFunc += RefreshFavoritesGameList;
 
             m_favoritesPage = m_selectedPage;
-            m_favoritesPage.SetToolTip(MyTexts.GetString(MySpaceTexts.JoinGame_TabTooltip_Favorites));
+            m_favoritesPage.SetToolTip(MyTexts.GetString(MyCommonTexts.JoinGame_TabTooltip_Favorites));
 
 
             RefreshFavoritesGameList();
@@ -88,7 +88,7 @@ namespace Sandbox.Game.Gui
             m_gameTypeText.Clear();
             m_gameTypeToolTip.Clear();
             m_servers.Clear();
-            m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Favorites));
+            m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Favorites));
 
             MySandboxGame.Log.WriteLine("Requesting dedicated servers");
 
@@ -115,7 +115,7 @@ namespace Sandbox.Game.Gui
             AddServerItem(serverItem, 
                 delegate() 
                 {
-                    m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                    m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MyCommonTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
                 },
                 isFiltered: false);
         }

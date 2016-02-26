@@ -23,8 +23,8 @@ namespace Sandbox.Game.Components
         }
         public override bool DebugDraw()
         {
-            if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
-                m_tool.Sensor.DebugDraw();
+           // if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
+              //  m_tool.Sensor.DebugDraw();
             // Debug cube
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC && m_tool.GetTargetGrid() != null)
             {

@@ -54,55 +54,55 @@ namespace Sandbox.Game.Localization
 
         private readonly MyUtilKeyToString[] m_keyToString = new MyUtilKeyToString[]
         {
-            new MyUtilKeyToStringLocalized(MyKeys.Left, MySpaceTexts.KeysLeft),
-            new MyUtilKeyToStringLocalized(MyKeys.Right, MySpaceTexts.KeysRight),
-            new MyUtilKeyToStringLocalized(MyKeys.Up, MySpaceTexts.KeysUp),
-            new MyUtilKeyToStringLocalized(MyKeys.Down, MySpaceTexts.KeysDown),
-            new MyUtilKeyToStringLocalized(MyKeys.Home, MySpaceTexts.KeysHome),
-            new MyUtilKeyToStringLocalized(MyKeys.End, MySpaceTexts.KeysEnd),
-            new MyUtilKeyToStringLocalized(MyKeys.Delete, MySpaceTexts.KeysDelete),
-            new MyUtilKeyToStringLocalized(MyKeys.Back, MySpaceTexts.KeysBackspace),
-            new MyUtilKeyToStringLocalized(MyKeys.Insert, MySpaceTexts.KeysInsert),
-            new MyUtilKeyToStringLocalized(MyKeys.PageDown, MySpaceTexts.KeysPageDown),
-            new MyUtilKeyToStringLocalized(MyKeys.PageUp, MySpaceTexts.KeysPageUp),
-            new MyUtilKeyToStringLocalized(MyKeys.LeftAlt, MySpaceTexts.KeysLeftAlt),
-            new MyUtilKeyToStringLocalized(MyKeys.LeftControl, MySpaceTexts.KeysLeftControl),
-            new MyUtilKeyToStringLocalized(MyKeys.LeftShift, MySpaceTexts.KeysLeftShift),
-            new MyUtilKeyToStringLocalized(MyKeys.RightAlt, MySpaceTexts.KeysRightAlt),
-            new MyUtilKeyToStringLocalized(MyKeys.RightControl, MySpaceTexts.KeysRightControl),
-            new MyUtilKeyToStringLocalized(MyKeys.RightShift, MySpaceTexts.KeysRightShift),
-            new MyUtilKeyToStringLocalized(MyKeys.CapsLock, MySpaceTexts.KeysCapsLock),
-            new MyUtilKeyToStringLocalized(MyKeys.Enter, MySpaceTexts.KeysEnter),
-            new MyUtilKeyToStringLocalized(MyKeys.Tab, MySpaceTexts.KeysTab),
-            new MyUtilKeyToStringLocalized(MyKeys.OemOpenBrackets, MySpaceTexts.KeysOpenBracket),
-            new MyUtilKeyToStringLocalized(MyKeys.OemCloseBrackets, MySpaceTexts.KeysCloseBracket),
-            new MyUtilKeyToStringLocalized(MyKeys.Multiply, MySpaceTexts.KeysMultiply),
-            new MyUtilKeyToStringLocalized(MyKeys.Subtract, MySpaceTexts.KeysSubtract),
-            new MyUtilKeyToStringLocalized(MyKeys.Add, MySpaceTexts.KeysAdd),
-            new MyUtilKeyToStringLocalized(MyKeys.Divide, MySpaceTexts.KeysDivide),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad0, MySpaceTexts.KeysNumPad0),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad1, MySpaceTexts.KeysNumPad1),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad2, MySpaceTexts.KeysNumPad2),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad3, MySpaceTexts.KeysNumPad3),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad4, MySpaceTexts.KeysNumPad4),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad5, MySpaceTexts.KeysNumPad5),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad6, MySpaceTexts.KeysNumPad6),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad7, MySpaceTexts.KeysNumPad7),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad8, MySpaceTexts.KeysNumPad8),
-            new MyUtilKeyToStringLocalized(MyKeys.NumPad9, MySpaceTexts.KeysNumPad9),
-            new MyUtilKeyToStringLocalized(MyKeys.Decimal, MySpaceTexts.KeysDecimal),
-            new MyUtilKeyToStringLocalized(MyKeys.OemBackslash, MySpaceTexts.KeysBackslash),
-            new MyUtilKeyToStringLocalized(MyKeys.OemComma, MySpaceTexts.KeysComma),
-            new MyUtilKeyToStringLocalized(MyKeys.OemMinus, MySpaceTexts.KeysMinus),
-            new MyUtilKeyToStringLocalized(MyKeys.OemPeriod, MySpaceTexts.KeysPeriod),
-            new MyUtilKeyToStringLocalized(MyKeys.OemPipe, MySpaceTexts.KeysPipe),
-            new MyUtilKeyToStringLocalized(MyKeys.OemPlus, MySpaceTexts.KeysPlus),
-            new MyUtilKeyToStringLocalized(MyKeys.OemQuestion, MySpaceTexts.KeysQuestion),
-            new MyUtilKeyToStringLocalized(MyKeys.OemQuotes, MySpaceTexts.KeysQuotes),
-            new MyUtilKeyToStringLocalized(MyKeys.OemSemicolon, MySpaceTexts.KeysSemicolon),
-            new MyUtilKeyToStringLocalized(MyKeys.OemTilde, MySpaceTexts.KeysTilde),
-            new MyUtilKeyToStringLocalized(MyKeys.Space, MySpaceTexts.KeysSpace),
-            new MyUtilKeyToStringLocalized(MyKeys.Pause, MySpaceTexts.KeysPause),
+            new MyUtilKeyToStringLocalized(MyKeys.Left, MyCommonTexts.KeysLeft),
+            new MyUtilKeyToStringLocalized(MyKeys.Right, MyCommonTexts.KeysRight),
+            new MyUtilKeyToStringLocalized(MyKeys.Up, MyCommonTexts.KeysUp),
+            new MyUtilKeyToStringLocalized(MyKeys.Down, MyCommonTexts.KeysDown),
+            new MyUtilKeyToStringLocalized(MyKeys.Home, MyCommonTexts.KeysHome),
+            new MyUtilKeyToStringLocalized(MyKeys.End, MyCommonTexts.KeysEnd),
+            new MyUtilKeyToStringLocalized(MyKeys.Delete, MyCommonTexts.KeysDelete),
+            new MyUtilKeyToStringLocalized(MyKeys.Back, MyCommonTexts.KeysBackspace),
+            new MyUtilKeyToStringLocalized(MyKeys.Insert, MyCommonTexts.KeysInsert),
+            new MyUtilKeyToStringLocalized(MyKeys.PageDown, MyCommonTexts.KeysPageDown),
+            new MyUtilKeyToStringLocalized(MyKeys.PageUp, MyCommonTexts.KeysPageUp),
+            new MyUtilKeyToStringLocalized(MyKeys.LeftAlt, MyCommonTexts.KeysLeftAlt),
+            new MyUtilKeyToStringLocalized(MyKeys.LeftControl, MyCommonTexts.KeysLeftControl),
+            new MyUtilKeyToStringLocalized(MyKeys.LeftShift, MyCommonTexts.KeysLeftShift),
+            new MyUtilKeyToStringLocalized(MyKeys.RightAlt, MyCommonTexts.KeysRightAlt),
+            new MyUtilKeyToStringLocalized(MyKeys.RightControl, MyCommonTexts.KeysRightControl),
+            new MyUtilKeyToStringLocalized(MyKeys.RightShift, MyCommonTexts.KeysRightShift),
+            new MyUtilKeyToStringLocalized(MyKeys.CapsLock, MyCommonTexts.KeysCapsLock),
+            new MyUtilKeyToStringLocalized(MyKeys.Enter, MyCommonTexts.KeysEnter),
+            new MyUtilKeyToStringLocalized(MyKeys.Tab, MyCommonTexts.KeysTab),
+            new MyUtilKeyToStringLocalized(MyKeys.OemOpenBrackets, MyCommonTexts.KeysOpenBracket),
+            new MyUtilKeyToStringLocalized(MyKeys.OemCloseBrackets, MyCommonTexts.KeysCloseBracket),
+            new MyUtilKeyToStringLocalized(MyKeys.Multiply, MyCommonTexts.KeysMultiply),
+            new MyUtilKeyToStringLocalized(MyKeys.Subtract, MyCommonTexts.KeysSubtract),
+            new MyUtilKeyToStringLocalized(MyKeys.Add, MyCommonTexts.KeysAdd),
+            new MyUtilKeyToStringLocalized(MyKeys.Divide, MyCommonTexts.KeysDivide),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad0, MyCommonTexts.KeysNumPad0),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad1, MyCommonTexts.KeysNumPad1),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad2, MyCommonTexts.KeysNumPad2),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad3, MyCommonTexts.KeysNumPad3),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad4, MyCommonTexts.KeysNumPad4),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad5, MyCommonTexts.KeysNumPad5),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad6, MyCommonTexts.KeysNumPad6),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad7, MyCommonTexts.KeysNumPad7),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad8, MyCommonTexts.KeysNumPad8),
+            new MyUtilKeyToStringLocalized(MyKeys.NumPad9, MyCommonTexts.KeysNumPad9),
+            new MyUtilKeyToStringLocalized(MyKeys.Decimal, MyCommonTexts.KeysDecimal),
+            new MyUtilKeyToStringLocalized(MyKeys.OemBackslash, MyCommonTexts.KeysBackslash),
+            new MyUtilKeyToStringLocalized(MyKeys.OemComma, MyCommonTexts.KeysComma),
+            new MyUtilKeyToStringLocalized(MyKeys.OemMinus, MyCommonTexts.KeysMinus),
+            new MyUtilKeyToStringLocalized(MyKeys.OemPeriod, MyCommonTexts.KeysPeriod),
+            new MyUtilKeyToStringLocalized(MyKeys.OemPipe, MyCommonTexts.KeysPipe),
+            new MyUtilKeyToStringLocalized(MyKeys.OemPlus, MyCommonTexts.KeysPlus),
+            new MyUtilKeyToStringLocalized(MyKeys.OemQuestion, MyCommonTexts.KeysQuestion),
+            new MyUtilKeyToStringLocalized(MyKeys.OemQuotes, MyCommonTexts.KeysQuotes),
+            new MyUtilKeyToStringLocalized(MyKeys.OemSemicolon, MyCommonTexts.KeysSemicolon),
+            new MyUtilKeyToStringLocalized(MyKeys.OemTilde, MyCommonTexts.KeysTilde),
+            new MyUtilKeyToStringLocalized(MyKeys.Space, MyCommonTexts.KeysSpace),
+            new MyUtilKeyToStringLocalized(MyKeys.Pause, MyCommonTexts.KeysPause),
 
             new MyUtilKeyToStringSimple(MyKeys.D0, "0"),
             new MyUtilKeyToStringSimple(MyKeys.D1, "1"),
@@ -151,7 +151,7 @@ namespace Sandbox.Game.Localization
 
         string IMyControlNameLookup.UnassignedText
         {
-            get { return MyTexts.GetString(MySpaceTexts.UnknownControl_Unassigned); }
+            get { return MyTexts.GetString(MyCommonTexts.UnknownControl_Unassigned); }
         }
 
         string IMyControlNameLookup.GetKeyName(MyKeys key)
@@ -175,11 +175,11 @@ namespace Sandbox.Game.Localization
         {
             switch (button)
             {
-                case MyMouseButtonsEnum.Left: return MyTexts.GetString(MySpaceTexts.LeftMouseButton);
-                case MyMouseButtonsEnum.Middle: return MyTexts.GetString(MySpaceTexts.MiddleMouseButton);
-                case MyMouseButtonsEnum.Right: return MyTexts.GetString(MySpaceTexts.RightMouseButton);
-                case MyMouseButtonsEnum.XButton1: return MyTexts.GetString(MySpaceTexts.MouseXButton1);
-                case MyMouseButtonsEnum.XButton2: return MyTexts.GetString(MySpaceTexts.MouseXButton2);
+                case MyMouseButtonsEnum.Left: return MyTexts.GetString(MyCommonTexts.LeftMouseButton);
+                case MyMouseButtonsEnum.Middle: return MyTexts.GetString(MyCommonTexts.MiddleMouseButton);
+                case MyMouseButtonsEnum.Right: return MyTexts.GetString(MyCommonTexts.RightMouseButton);
+                case MyMouseButtonsEnum.XButton1: return MyTexts.GetString(MyCommonTexts.MouseXButton1);
+                case MyMouseButtonsEnum.XButton2: return MyTexts.GetString(MyCommonTexts.MouseXButton2);
             }
             return MyTexts.GetString(MySpaceTexts.Blank);
         }
@@ -191,10 +191,10 @@ namespace Sandbox.Game.Localization
 
             switch (joystickButton)
             {
-                case MyJoystickButtonsEnum.JDLeft:  return MyTexts.GetString(MySpaceTexts.JoystickButtonLeft);
-                case MyJoystickButtonsEnum.JDRight: return MyTexts.GetString(MySpaceTexts.JoystickButtonRight);
-                case MyJoystickButtonsEnum.JDUp:    return MyTexts.GetString(MySpaceTexts.JoystickButtonUp);
-                case MyJoystickButtonsEnum.JDDown:  return MyTexts.GetString(MySpaceTexts.JoystickButtonDown);
+                case MyJoystickButtonsEnum.JDLeft:  return MyTexts.GetString(MyCommonTexts.JoystickButtonLeft);
+                case MyJoystickButtonsEnum.JDRight: return MyTexts.GetString(MyCommonTexts.JoystickButtonRight);
+                case MyJoystickButtonsEnum.JDUp:    return MyTexts.GetString(MyCommonTexts.JoystickButtonUp);
+                case MyJoystickButtonsEnum.JDDown:  return MyTexts.GetString(MyCommonTexts.JoystickButtonDown);
 
                 default:
                     return "JB" + ((int)joystickButton - 4);
@@ -211,16 +211,16 @@ namespace Sandbox.Game.Localization
                 case MyJoystickAxesEnum.Yneg: return "JY-";
                 case MyJoystickAxesEnum.Zpos: return "JZ+";
                 case MyJoystickAxesEnum.Zneg: return "JZ-";
-                case MyJoystickAxesEnum.RotationXpos: return MyTexts.GetString(MySpaceTexts.JoystickRotationXpos);
-                case MyJoystickAxesEnum.RotationXneg: return MyTexts.GetString(MySpaceTexts.JoystickRotationXneg);
-                case MyJoystickAxesEnum.RotationYpos: return MyTexts.GetString(MySpaceTexts.JoystickRotationYpos);
-                case MyJoystickAxesEnum.RotationYneg: return MyTexts.GetString(MySpaceTexts.JoystickRotationYneg);
-                case MyJoystickAxesEnum.RotationZpos: return MyTexts.GetString(MySpaceTexts.JoystickRotationZpos);
-                case MyJoystickAxesEnum.RotationZneg: return MyTexts.GetString(MySpaceTexts.JoystickRotationZneg);
-                case MyJoystickAxesEnum.Slider1pos: return MyTexts.GetString(MySpaceTexts.JoystickSlider1pos);
-                case MyJoystickAxesEnum.Slider1neg: return MyTexts.GetString(MySpaceTexts.JoystickSlider1neg);
-                case MyJoystickAxesEnum.Slider2pos: return MyTexts.GetString(MySpaceTexts.JoystickSlider2pos);
-                case MyJoystickAxesEnum.Slider2neg: return MyTexts.GetString(MySpaceTexts.JoystickSlider2neg);
+                case MyJoystickAxesEnum.RotationXpos: return MyTexts.GetString(MyCommonTexts.JoystickRotationXpos);
+                case MyJoystickAxesEnum.RotationXneg: return MyTexts.GetString(MyCommonTexts.JoystickRotationXneg);
+                case MyJoystickAxesEnum.RotationYpos: return MyTexts.GetString(MyCommonTexts.JoystickRotationYpos);
+                case MyJoystickAxesEnum.RotationYneg: return MyTexts.GetString(MyCommonTexts.JoystickRotationYneg);
+                case MyJoystickAxesEnum.RotationZpos: return MyTexts.GetString(MyCommonTexts.JoystickRotationZpos);
+                case MyJoystickAxesEnum.RotationZneg: return MyTexts.GetString(MyCommonTexts.JoystickRotationZneg);
+                case MyJoystickAxesEnum.Slider1pos: return MyTexts.GetString(MyCommonTexts.JoystickSlider1pos);
+                case MyJoystickAxesEnum.Slider1neg: return MyTexts.GetString(MyCommonTexts.JoystickSlider1neg);
+                case MyJoystickAxesEnum.Slider2pos: return MyTexts.GetString(MyCommonTexts.JoystickSlider2pos);
+                case MyJoystickAxesEnum.Slider2neg: return MyTexts.GetString(MyCommonTexts.JoystickSlider2neg);
             }
 
             return "";

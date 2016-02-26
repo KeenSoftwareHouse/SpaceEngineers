@@ -40,6 +40,8 @@ namespace VRageRender
             get { return m_inputRenderMessages.CurrentUpdateFrame; }
         }
 
+        public MyQueue<MyRenderMessageBase> MessagesForNextFrame = new MyQueue<MyRenderMessageBase>(128);
+
         // TODO: OP! This shouldn't be here, only methods (Enqueue should be sufficient)
         public MyMessageQueue RenderOutputMessageQueue
         {
@@ -113,6 +115,15 @@ namespace VRageRender
                 m_outputVisibleObjects.CommitWrite();
                 m_outputVisibleObjects.Write.Clear();
             }
+        }
+
+        public void CommitBasicRenderMessages()
+        {
+            m_inputRenderMessages.CommitUpdateFrame();
+            m_inputBillboards.CommitWrite();
+            m_inputBillboards.Write.Clear();
+            m_inputTriangleBillboards.CommitWrite();
+            m_inputTriangleBillboards.Write.Clear();
         }
     }
 }

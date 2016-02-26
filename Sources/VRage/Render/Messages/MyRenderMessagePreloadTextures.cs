@@ -5,13 +5,13 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessagePreloadTextures : IMyRenderMessage
+    public class MyRenderMessagePreloadTextures : MyRenderMessageBase
     {
         public string InDirectory;
         public bool Recursive;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.PreloadTextures; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.PreloadTextures; } }
 
     }
 }

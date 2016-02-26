@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Trace;
 

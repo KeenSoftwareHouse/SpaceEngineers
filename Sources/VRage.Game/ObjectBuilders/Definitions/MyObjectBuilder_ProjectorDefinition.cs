@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -11,5 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 	    public string ResourceSinkGroup;
         [ProtoMember]
         public float RequiredPowerInput;
+        [ProtoMember]
+        public string IdleSound;
     }
 }

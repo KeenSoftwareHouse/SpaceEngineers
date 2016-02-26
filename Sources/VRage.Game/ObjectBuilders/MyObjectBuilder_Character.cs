@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using ProtoBuf;
-using VRageMath;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using VRage.ObjectBuilders;
-using VRage;
 using VRage.Serialization;
 
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     public enum MyCharacterModelEnum
     {
@@ -21,7 +19,7 @@ namespace Sandbox.Common.ObjectBuilders
         Astronaut_White  = 6,
         Astronaut_Yellow = 7,
     }
-    
+
     public static class MyCharacterMovement
     {
         public const ushort MovementTypeMask      = 0x000f; // 4 bits (0 - 3) for movement type should be enough even for the future
@@ -68,13 +66,12 @@ namespace Sandbox.Common.ObjectBuilders
             return (ushort)((ushort)value & MovementDirectionMask);
         }
 
-		public static ushort GetSpeed(this MyCharacterMovementEnum value)
-		{
-			return (ushort)((ushort)value & MovementSpeedMask); 
-		}
+        public static ushort GetSpeed(this MyCharacterMovementEnum value)
+        {
+            return (ushort)((ushort)value & MovementSpeedMask); 
+        }
     }
 
-    // This enum references constants in MyCharacterMovement to enable bitwise operations and at the same time prevent duplicate values in the enum
     public enum MyCharacterMovementEnum : ushort
     {
         Standing   = MyCharacterMovement.Standing,
@@ -212,6 +209,9 @@ namespace Sandbox.Common.ObjectBuilders
         public float OxygenLevel = 1f;
 
         [ProtoMember]
+        public float EnvironmentOxygenLevel = 1f;
+
+        [ProtoMember]
         [Nullable]
         public List<StoredGas> StoredGases;
 
@@ -222,5 +222,13 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Nullable]
         public List<string> EnabledComponents = null;
+
+        [ProtoMember]
+        public ulong PlayerSteamId = 0;
+        [ProtoMember]
+        public int PlayerSerialId = 0;
+
+        [ProtoMember]
+        public bool IsPromoted;
     }
 }

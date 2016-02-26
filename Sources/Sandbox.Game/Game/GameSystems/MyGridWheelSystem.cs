@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Sandbox.Game.EntityComponents;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -173,7 +174,7 @@ namespace Sandbox.Game.GameSystems
 
         internal void InitControl()
         {
-            if (Sandbox.Game.World.MySession.ControlledEntity != null)
+            if (Sandbox.Game.World.MySession.Static.ControlledEntity != null)
                 foreach (var motor in m_wheels)
                     motor.InitControl();
         }

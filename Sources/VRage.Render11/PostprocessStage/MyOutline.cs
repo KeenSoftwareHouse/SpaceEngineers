@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Utils;
 using VRageMath;
 
@@ -12,56 +13,63 @@ namespace VRageRender
 {
     struct MyOutlineDesc {
         internal MyStringId Material;
+        internal int SectionIndex;
         internal Color Color;
-        internal Matrix? WorldToVolume;
+        internal float Thickness;
     }
 
     class MyOutline : MyImmediateRC
     {
-        internal static Dictionary<uint, List<MyOutlineDesc>> m_outlines = new Dictionary<uint, List<MyOutlineDesc>>();
-
-
-        static PixelShaderId m_blurH;
-        static PixelShaderId m_blurV;
+        private static Dictionary<uint, List<MyOutlineDesc>> m_outlines = new Dictionary<uint, List<MyOutlineDesc>>();
+        private static List<uint> m_keysToRemove = new List<uint>();
 
         internal static void Init()
         {
-            //m_copyPs = MyShaders.CreatePs("postprocess.hlsl", "copy");
-            //m_clearAlphaPs = MyShaders.CreatePs("postprocess.hlsl", "clear_alpha");
-
-            m_blurH = MyShaders.CreatePs("blur.hlsl", "blur_h", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()));
-            m_blurV = MyShaders.CreatePs("blur.hlsl", "blur_v");
         }
 
-        internal static void Add(uint ID, string materialName, Color outlineColor, Matrix? outlineVolume)
+        /// <param name="sectionIndex">-1 for all the mesh</param>
+        /// <param name="thickness">Zero or negative remove the outline</param>
+        internal static void HandleOutline(uint ID, string materialName, int sectionIndex, Color? outlineColor, float thickness)
         {
-            if (!m_outlines.ContainsKey(ID))
-            {
-                m_outlines[ID] = new List<MyOutlineDesc>();
-            }
-
-            m_outlines[ID].Add(new MyOutlineDesc { Material = X.TEXT(materialName), Color = outlineColor, WorldToVolume = outlineVolume });
+            if (thickness > 0)
+                Add(ID, materialName, sectionIndex, outlineColor.Value, thickness);
+            else
+                Remove(ID);
         }
 
-        internal static void Remove(uint ID, string materialName)
+        /// <param name="sectionIndex">-1 for all the mesh</param>
+        /// <param name="thickness">Zero or negative remove the outline</param>
+        internal static void HandleOutline(uint ID, string materialName, int[] sectionIndices, Color? outlineColor, float thickness)
         {
-            if (!m_outlines.ContainsKey(ID))
+            if (thickness > 0)
             {
-                return;
-            }
-
-            int index = -1;
-            for (int i = 0; i < m_outlines[ID].Count; ++i)
-            {
-                if( m_outlines[ID][i].Material.ToString() == materialName ) {
-                    index = i;
-                    break;
+                if (sectionIndices == null)
+                {
+                    Add(ID, materialName, -1, outlineColor.Value, thickness);
+                }
+                else
+                {
+                    foreach (int index in sectionIndices)
+                        Add(ID, materialName, index, outlineColor.Value, thickness);
                 }
             }
-
-            if(index != -1) {
-                m_outlines[ID].RemoveAtFast(index);
+            else
+            {
+                Remove(ID);
             }
+        }
+
+        private static void Add(uint ID, string materialName, int sectionIndex, Color outlineColor, float thickness)
+        {
+            if (!m_outlines.ContainsKey(ID))
+                m_outlines[ID] = new List<MyOutlineDesc>();
+
+            m_outlines[ID].Add(new MyOutlineDesc { Material = MyStringId.GetOrCompute(materialName), SectionIndex = sectionIndex, Color = outlineColor, Thickness = thickness });
+        }
+
+        private static void Remove(uint ID)
+        {
+            m_outlines.Remove(ID);
         }
 
         internal static bool AnyOutline()
@@ -71,6 +79,8 @@ namespace VRageRender
 
         internal static void Run()
         {
+            ProfilerShort.Begin("MyOutline.Run");
+            MyGpuProfiler.IC_BeginBlock("MyOutline.Run");
             // set resolved depth/ stencil
             // render all with proper depth-stencil state
             // blur
@@ -83,79 +93,138 @@ namespace VRageRender
             MyOutlinePass.Instance.Begin();
 
             RC.Clear();
-            RC.Context.VertexShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.Context.GeometryShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.Context.PixelShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.Context.ComputeShader.SetShaderResources(0, null, null, null, null, null, null);
+            RC.DeviceContext.VertexShader.SetShaderResources(0, null, null, null, null, null, null);
+            RC.DeviceContext.GeometryShader.SetShaderResources(0, null, null, null, null, null, null);
+            RC.DeviceContext.PixelShader.SetShaderResources(0, null, null, null, null, null, null);
+            RC.DeviceContext.ComputeShader.SetShaderResources(0, null, null, null, null, null, null);
 
             if (MyRender11.MultisamplingEnabled)
             {
-                RC.Context.ClearRenderTargetView(MyRender11.m_rgba8_ms.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
+                RC.DeviceContext.ClearRenderTargetView(MyRender11.m_rgba8_ms.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
 
-                RC.Context.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_ms.m_RTV);
+                RC.DeviceContext.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_ms.m_RTV);
             }
             else
             {
-                RC.Context.ClearRenderTargetView(MyRender11.m_rgba8_1.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
+                RC.DeviceContext.ClearRenderTargetView(MyRender11.m_rgba8_1.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
 
-                RC.Context.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_1.m_RTV);
+                RC.DeviceContext.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_1.m_RTV);
             }
 
-            OutlineConstantsLayout constants;
+            OutlineConstantsLayout constants = new OutlineConstantsLayout();
+            float maxThickness = 0f;
 
-            foreach (var kv in m_outlines)
+            foreach (var pair in m_outlines)
             {
-                var r = MyIDTracker<MyActor>.FindByID(kv.Key).GetRenderable();
-                var renderLod = r.m_lods[r.m_lod];
-
-                var submeshes = MyMeshes.GetLodMesh(r.GetModel(), r.m_lod).Info.PartsNum;
-                for (int i = 0; i < submeshes; i++)
+                MyActor actor = MyIDTracker<MyActor>.FindByID(pair.Key);
+                if (actor == null)  // If an actor has been removed without removing outlines, just remove the outlines too
                 {
-                    var part = MyMeshes.GetMeshPart(r.GetModel(), r.m_lod, i);
+                    m_keysToRemove.Add(pair.Key);
+                    continue;
+                }
 
-                    for (int j = 0; j < kv.Value.Count; ++j)
+                var renderableComponent = actor.GetRenderable();
+                var renderLod = renderableComponent.Lods[renderableComponent.CurrentLod];
+                var model = renderableComponent.GetModel();
+
+                LodMeshId currentModelId;
+                if (!MyMeshes.TryGetLodMesh(model, renderableComponent.CurrentLod, out currentModelId))
+                {
+                    Debug.Fail("Mesh for outlining not found!");
+                    continue;
+                }
+
+                foreach (MyOutlineDesc descriptor in pair.Value)
+                {
+                    if (descriptor.SectionIndex == -1)
                     {
-                        if (part.Info.Material.Info.Name == kv.Value[j].Material)
+                        RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
+                    }
+                    else
+                    {
+                        bool foundSection = RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
+                        if (!foundSection)
                         {
-                            constants.Color = kv.Value[j].Color.ToVector4();
-                            constants.WorldToVolume = kv.Value[j].WorldToVolume.HasValue ? kv.Value[j].WorldToVolume.Value : Matrix.Zero;
-
-                            var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
-                            mapping.stream.Write(constants);
-                            mapping.Unmap();
-
-                            RC.BindShaders(renderLod.HighlightShaders[i]);
-                            MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[i]);
+                            // Sometimes the actor changes the renderable model unexpectedly, for example
+                            // because of unmounting. Fallback on full model highlight in this case
+                            RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
                         }
                     }
                 }
             }
 
             MyOutlinePass.Instance.End();
-            RC.Context.OutputMerger.SetTargets(null as DepthStencilView, null as RenderTargetView);
             RC.SetBS(null);
-            if (MyRender11.MultisamplingEnabled)
-            {
-                RC.Context.PixelShader.SetShaderResource(0, MyRender11.m_rgba8_ms.m_SRV);
-            }
-            else
-            {
-                RC.Context.PixelShader.SetShaderResource(0, MyRender11.m_rgba8_1.m_SRV);
-            }
-            RC.Context.OutputMerger.SetTargets(null as DepthStencilView, MyRender11.m_rgba8_2.m_RTV);
-            RC.SetPS(m_blurH);
-            MyScreenPass.DrawFullscreenQuad();
 
-            RC.Context.PixelShader.SetShaderResource(0, null);
-            RC.Context.OutputMerger.SetTargets(null as DepthStencilView, MyRender11.m_rgba8_1.m_RTV);
-            RC.Context.PixelShader.SetShaderResource(0, MyRender11.m_rgba8_2.m_SRV);
-            RC.SetPS(m_blurV);
-            MyScreenPass.DrawFullscreenQuad();
+            foreach (var outlineKey in m_keysToRemove)
+                m_outlines.Remove(outlineKey);
 
-            RC.Context.OutputMerger.SetTargets(null as DepthStencilView, null as RenderTargetView);
-            RC.Context.PixelShader.SetShaderResource(0, null);
+            m_keysToRemove.SetSize(0);
+
+            ShaderResourceView initialSourceView = MyRender11.MultisamplingEnabled ? MyRender11.m_rgba8_ms.m_SRV : MyRender11.m_rgba8_1.m_SRV;
+            RenderTargetView renderTargetview = MyRender11.MultisamplingEnabled ? MyRender11.m_rgba8_ms.m_RTV : MyRender11.m_rgba8_1.m_RTV;
+
+            if (maxThickness > 0)
+            {
+                MyBlur.Run(renderTargetview, MyRender11.m_rgba8_2.m_RTV, MyRender11.m_rgba8_2.m_SRV, initialSourceView,
+                    (int)Math.Round(5 * maxThickness),
+                    MyBlur.MyBlurDensityFunctionType.Exponential, 0.25f,
+                    null, MyFoliageRenderingPass.GrassStencilMask);
+            }
+
+            MyGpuProfiler.IC_EndBlock();
+            ProfilerShort.End();
         }
 
+        private static void RecordMeshPartCommands(MeshId model, LodMeshId lodModelId,
+            MyRenderableComponent rendercomp, MyRenderLod renderLod,
+            MyOutlineDesc desc, ref OutlineConstantsLayout constants, ref float maxThickness)
+        {
+            var submeshCount = lodModelId.Info.PartsNum;
+            for (int submeshIndex = 0; submeshIndex < submeshCount; ++submeshIndex)
+            {
+                var part = MyMeshes.GetMeshPart(model, rendercomp.CurrentLod, submeshIndex);
 
+                maxThickness = Math.Max(desc.Thickness, maxThickness);
+                constants.Color = desc.Color.ToVector4();
+
+                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
+                mapping.WriteAndPosition(ref constants);
+                mapping.Unmap();
+
+                RC.BindShaders(renderLod.HighlightShaders[submeshIndex]);
+                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex]);
+            }
+        }
+
+        /// <returns>True if the section was found</returns>
+        private static bool RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
+            MyRenderableComponent rendercomp, MyRenderLod renderLod,
+            MyOutlineDesc desc, ref OutlineConstantsLayout constants, ref float maxThickness)
+        {
+            MeshSectionId sectionId;
+            bool found = MyMeshes.TryGetMeshSection(model, desc.SectionIndex, out sectionId);
+            if (!found)
+                return false;
+
+            MyMeshSectionInfo1 section = sectionId.Info;
+            MyMeshSectionPartInfo1[] meshes = section.Meshes;
+            for (int idx = 0; idx < meshes.Length; idx++)
+            {
+                maxThickness = Math.Max(desc.Thickness, maxThickness);
+                constants.Color = desc.Color.ToVector4();
+
+                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
+                mapping.WriteAndPosition(ref constants);
+                mapping.Unmap();
+
+                RC.BindShaders(renderLod.HighlightShaders[meshes[idx].PartIndex]);
+
+                MyRenderableProxy proxy = renderLod.RenderableProxies[meshes[idx].PartIndex];
+                MyOutlinePass.Instance.RecordCommands(proxy, meshes[idx].PartSubmeshIndex);
+            }
+
+            return true;
+        }
     }
 }

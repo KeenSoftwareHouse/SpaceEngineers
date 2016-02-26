@@ -10,6 +10,7 @@ using VRage.Common.Utils;
 using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {

@@ -31,7 +31,7 @@ namespace Sandbox.Engine.Networking
         {
             string[] tags = { WORKSHOP_MOD_TAG };
 
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextUploadingWorld,
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextUploadingWorld,
                 null,
                 () => new PublishUGCResult(localModFolder, publishedFileId, visibility, tags, callbackOnFinished),
                 endActionPublishUGC));
@@ -221,7 +221,7 @@ namespace Sandbox.Engine.Networking
             if (!publishedFileId.HasValue)
                 return;
 
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextDownloadingMods,
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.ProgressTextDownloadingMods,
                 null,
                 () => new DownloadUGCResult(publishedFileId.Value, callbackOnFinished),
                 endActionDownloadUGC));

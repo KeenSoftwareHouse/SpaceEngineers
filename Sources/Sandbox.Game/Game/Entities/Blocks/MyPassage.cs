@@ -4,8 +4,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
-using Sandbox.Graphics.TransparentGeometry;
-using VRage.Components;
+using VRage.Game.Components;
 using VRageMath;
 using VRageRender;
 
@@ -25,7 +24,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         //  Calculates intersection of line with any triangleVertexes in this model instance. Closest intersection and intersected triangleVertexes will be returned.
-        internal override bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        public override bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
         {
             t = null;
             return false;

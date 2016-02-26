@@ -8,13 +8,13 @@ namespace Sandbox.ModAPI
     public interface IMyPlayer
     {
         IMyNetworkClient Client { get; }
-        Sandbox.Common.MyRelationsBetweenPlayerAndBlock GetRelationTo(long playerId);
+        VRage.Game.MyRelationsBetweenPlayerAndBlock GetRelationTo(long playerId);
 
         HashSet<long> Grids { get; }
         void AddGrid(long gridEntityId);
         void RemoveGrid(long gridEntityId);
         IMyEntityController Controller { get; }
-        VRageMath.Vector3 GetPosition();
+        VRageMath.Vector3D GetPosition();
         ulong SteamUserId { get; }
         string DisplayName { get; }
         long PlayerID { get; }

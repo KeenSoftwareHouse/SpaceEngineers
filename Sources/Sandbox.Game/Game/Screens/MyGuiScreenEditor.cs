@@ -19,10 +19,12 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using Sandbox.Game.Screens;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyGuiScreenEditor : MyGuiScreenMission
+    public class MyGuiScreenEditor : MyGuiScreenText
     {
         private const int MAX_NUMBER_CHARACTERS = 100000;
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
@@ -60,7 +62,7 @@ namespace Sandbox.Game.Gui
         public override void RecreateControls(bool constructor) 
         {
             base.RecreateControls(constructor);
-            m_openWorkshopButton = new MyGuiControlButton(position: new Vector2(0.384f, 0.4f), size: MyGuiConstants.BACK_BUTTON_SIZE, text: MyTexts.Get(MySpaceTexts.ScreenLoadSubscribedWorldBrowseWorkshop), toolTip: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_BrowseWorkshop_Tooltip), onButtonClick: OpenWorkshopButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+            m_openWorkshopButton = new MyGuiControlButton(position: new Vector2(0.384f, 0.4f), size: MyGuiConstants.BACK_BUTTON_SIZE, text: MyTexts.Get(MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop), toolTip: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_BrowseWorkshop_Tooltip), onButtonClick: OpenWorkshopButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             Controls.Add(m_openWorkshopButton);
 
             m_okButton.Position = new Vector2(-0.016f, 0.4f);
@@ -185,7 +187,7 @@ namespace Sandbox.Game.Gui
                 {
                     int line = Convert.ToInt32(errorParts[2]) - m_editorWindow.MeasureNumLines(CODE_WRAPPER_BEFORE);
                     string description = errorParts[6];
-                    for (int i = 7; i < errorParts.Count(); ++i)
+                    for (int i = 7; i < errorParts.Length; ++i)
                     {
                         if (string.IsNullOrWhiteSpace(errorParts[i]))
                         {
@@ -209,7 +211,7 @@ namespace Sandbox.Game.Gui
             if (program != null && program.Length > 0)
             {
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
-                if (true == IlCompiler.CompileStringIngame("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
+                if (true == IlCompiler.CompileStringIngame(Path.Combine(MyFileSystem.UserDataPath, "IngameScript.dll"), new string[] { finalCode }, out assembly, errors))
                 {
                     return true;
                 }

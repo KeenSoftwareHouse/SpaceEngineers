@@ -12,14 +12,14 @@ namespace Sandbox.Engine.Voxels
     class MyProviderLeaf : IMyOctreeLeafNode
     {
         [ThreadStatic]
-        private static MyStorageDataCache m_filteredValueBuffer;
-        private static MyStorageDataCache FilteredValueBuffer
+        private static MyStorageData m_filteredValueBuffer;
+        private static MyStorageData FilteredValueBuffer
         {
             get
             {
                 if (m_filteredValueBuffer == null)
                 {
-                    m_filteredValueBuffer = new MyStorageDataCache();
+                    m_filteredValueBuffer = new MyStorageData();
                     m_filteredValueBuffer.Resize(Vector3I.One);
                 }
 
@@ -79,11 +79,11 @@ namespace Sandbox.Engine.Voxels
         {
             var filteredValueBuffer = FilteredValueBuffer;
             Debug.Assert(filteredValueBuffer.Size3D == Vector3I.One);
-            m_provider.ReadRange(filteredValueBuffer, m_dataType, ref Vector3I.Zero, m_cell.Lod, ref m_cell.CoordInLod, ref m_cell.CoordInLod);
+            m_provider.ReadRange(filteredValueBuffer, m_dataType.ToFlags(), ref Vector3I.Zero, m_cell.Lod, ref m_cell.CoordInLod, ref m_cell.CoordInLod);
             return filteredValueBuffer.Content(0);
         }
 
-        void IMyOctreeLeafNode.ReadRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
+        void IMyOctreeLeafNode.ReadRange(MyStorageData target, MyStorageDataTypeFlags types, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod, ref MyVoxelRequestFlags flags)
         {
             var lodShift = m_cell.Lod - lodIndex;
             var leafMinInLod = m_cell.CoordInLod << lodShift;
@@ -91,11 +91,22 @@ namespace Sandbox.Engine.Voxels
             var max = maxInLod + leafMinInLod;
             AssertRangeIsInside(lodIndex, ref min, ref max);
             ProfilerShort.Begin("MyProviderLeaf.ReadRange");
-            m_provider.ReadRange(target, m_dataType, ref writeOffset, lodIndex, ref min, ref max);
+            MyVoxelDataRequest req = new MyVoxelDataRequest() {
+                Target = target,
+                Offset = writeOffset,
+                Lod = lodIndex,
+                minInLod = min,
+                maxInLod = max,
+                RequestFlags = flags,
+                RequestedData = types
+            };
+
+            m_provider.ReadRange(ref req);
+            flags = req.Flags;
             ProfilerShort.End();
         }
 
-        void IMyOctreeLeafNode.WriteRange(MyStorageDataCache source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
+        void IMyOctreeLeafNode.WriteRange(MyStorageData source, ref Vector3I readOffset, ref Vector3I min, ref Vector3I max)
         {
             throw new NotSupportedException();
         }
@@ -108,6 +119,17 @@ namespace Sandbox.Engine.Voxels
         void IMyOctreeLeafNode.ReplaceValues(Dictionary<byte, byte> oldToNewValueMap)
         {
             // Do nothing. Done explicitly on provider.
+        }
+
+
+        public ContainmentType Intersect(ref BoundingBoxI box, bool lazy = false)
+        {
+            return m_provider.Intersect(box, lazy);
+        }
+
+        public bool Intersect(ref LineD line, out double startOffset, out double endOffset)
+        {
+            return m_provider.Intersect(ref line, out startOffset, out endOffset);
         }
     }
 }

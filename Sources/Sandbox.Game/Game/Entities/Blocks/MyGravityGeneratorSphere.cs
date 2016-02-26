@@ -17,6 +17,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 using Sandbox.Game.GameSystems;
+using VRage.Game;
 
 #endregion
 
@@ -30,20 +31,15 @@ namespace Sandbox.Game.Entities
             get { return (MyGravityGeneratorSphereDefinition)base.BlockDefinition; }
         }
 
-        private new MySyncGravityGeneratorSphere SyncObject;
         private const float DEFAULT_RADIUS = 100f;
-        private float m_radius = DEFAULT_RADIUS;
+        private readonly Sync<float> m_radius;
         public float Radius
         {
             get { return m_radius; }
             set
             {
-                if (m_radius != value)
-                {
-                    m_radius = value;
-                    UpdateFieldShape();
-                    RaisePropertiesChanged();
-                }
+
+                m_radius.Value = value;
             }
         }
 
@@ -53,6 +49,11 @@ namespace Sandbox.Game.Entities
         }
 
         private float m_defaultVolume;
+
+        public MyGravityGeneratorSphere()
+        {
+            m_radius.ValueChanged += (x) => UpdateFieldShape();
+        }
 
         static MyGravityGeneratorSphere()
         {
@@ -67,7 +68,7 @@ namespace Sandbox.Game.Entities
                     {
                         v = x.BlockDefinition.MinRadius;
                     }
-                    x.SyncObject.SendChangeGravityGeneratorRequest(v, x.GravityAcceleration);
+                    x.Radius = v;
                 };
                 fieldRadius.Normalizer = (x, v) =>
                 {
@@ -99,7 +100,7 @@ namespace Sandbox.Game.Entities
                 gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
                 gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
                 gravityAcceleration.Getter = (x) => x.GravityAcceleration;
-                gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(x.m_radius, v);
+                gravityAcceleration.Setter = (x, v) => x.GravityAcceleration =  v;
                 gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
                 gravityAcceleration.EnableActions();
                 MyTerminalControlFactory.AddControl(gravityAcceleration);
@@ -108,13 +109,11 @@ namespace Sandbox.Game.Entities
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            var builder = (MyObjectBuilder_GravityGeneratorSphere)objectBuilder;
-            m_radius = builder.Radius;
-            m_gravityAcceleration = builder.GravityAcceleration;
-
             base.Init(objectBuilder, cubeGrid);
-            
-            SyncObject = new MySyncGravityGeneratorSphere(this);
+
+            var builder = (MyObjectBuilder_GravityGeneratorSphere)objectBuilder;
+            m_radius.Value = builder.Radius;
+            m_gravityAcceleration.Value = builder.GravityAcceleration;
 
             m_defaultVolume = (float)(Math.Pow(DEFAULT_RADIUS, BlockDefinition.ConsumptionPower) * Math.PI * 0.75);
 	        
@@ -135,7 +134,6 @@ namespace Sandbox.Game.Entities
 		    {
 			    ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 			    ResourceSink.RequiredInputChanged += Receiver_RequiredInputChanged;
-			    ResourceSink.Update();
 				AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 		    }
 	    }
@@ -181,7 +179,7 @@ namespace Sandbox.Game.Entities
         protected override void UpdateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));

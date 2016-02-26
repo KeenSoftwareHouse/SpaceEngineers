@@ -13,6 +13,15 @@ namespace VRage.Network
         private static DBNull e = DBNull.Value;
         protected readonly MyTypeTable m_typeTable = new MyTypeTable();
 
+        protected static bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)
+        {
+            // Invoke locally when:
+            // A) Has server flag
+            // B) Has client flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
+            // C) Has broadcast flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
+            return site.HasServerFlag || (localClientEndpoint.HasValue && recipient == localClientEndpoint.Value && (site.HasClientFlag || site.HasBroadcastFlag));
+        }
+
         private bool TryGetInstanceCallSite<T>(Func<T, Delegate> callSiteGetter, T arg, out CallSite site)
         {
             var typeInfo = m_typeTable.Get(arg.GetType());
@@ -47,50 +56,58 @@ namespace VRage.Network
             return site;
         }
 
-        public void RaiseEvent<T1>(T1 arg1, Func<T1, Action> action, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2>(T1 arg1, T2 arg2, Func<T1, Action> action, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T2 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref e, ref e, ref e, ref e, ref e, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref e, ref e, ref e, ref e, ref e, ref e, ref arg2);
         }
 
-        public void RaiseEvent<T1, T2>(T1 arg1, Func<T1, Action<T2>> action, T2 arg2, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2, T3>(T1 arg1, T3 arg3, Func<T1, Action<T2>> action, T2 arg2, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T3 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref e, ref e, ref e, ref e, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref e, ref e, ref e, ref e, ref e, ref arg3);
+        }
+        
+        public void RaiseEvent<T1, T2, T3, T4>(T1 arg1, T4 arg4, Func<T1, Action<T2, T3>> action, T2 arg2, T3 arg3, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+            where T1 : IMyEventOwner
+            where T4 : IMyEventOwner
+        {
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref e, ref e, ref e, ref e, ref arg4);
         }
 
-        public void RaiseEvent<T1, T2, T3>(T1 arg1, Func<T1, Action<T2, T3>> action, T2 arg2, T3 arg3, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2, T3, T4, T5>(T1 arg1, T5 arg5, Func<T1, Action<T2, T3, T4>> action, T2 arg2, T3 arg3, T4 arg4, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T5 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref e, ref e, ref e, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref e, ref e, ref e, ref arg5);
         }
 
-        public void RaiseEvent<T1, T2, T3, T4>(T1 arg1, Func<T1, Action<T2, T3, T4>> action, T2 arg2, T3 arg3, T4 arg4, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2, T3, T4, T5, T6>(T1 arg1, T6 arg6, Func<T1, Action<T2, T3, T4, T5>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T6 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref e, ref e, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref e, ref e, ref arg6);
         }
 
-        public void RaiseEvent<T1, T2, T3, T4, T5>(T1 arg1, Func<T1, Action<T2, T3, T4, T5>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2, T3, T4, T5, T6, T7>(T1 arg1, T7 arg7, Func<T1, Action<T2, T3, T4, T5, T6>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T7 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref e, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref e, ref arg7);
         }
 
-        public void RaiseEvent<T1, T2, T3, T4, T5, T6>(T1 arg1, Func<T1, Action<T2, T3, T4, T5, T6>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        public void RaiseEvent<T1, T2, T3, T4, T5, T6, T7, T8>(T1 arg1, T8 arg8, Func<T1, Action<T2, T3, T4, T5, T6, T7>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
             where T1 : IMyEventOwner
+            where T8 : IMyEventOwner
         {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref e);
+            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref arg7, ref arg8);
         }
 
-        public void RaiseEvent<T1, T2, T3, T4, T5, T6, T7>(T1 arg1, Func<T1, Action<T2, T3, T4, T5, T6, T7>> action, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, EndpointId endpointId = default(EndpointId), float unreliablePriority = 1)
+        protected abstract void DispatchEvent<T1, T2, T3, T4, T5, T6, T7, T8>(CallSite callSite, EndpointId recipient, float unreliablePriority, ref T1 arg1, ref T2 arg2, ref T3 arg3, ref T4 arg4, ref T5 arg5, ref T6 arg6, ref T7 arg7, ref T8 arg8)
             where T1 : IMyEventOwner
-        {
-            DispatchEvent(GetCallSite(action, arg1), endpointId, unreliablePriority, ref arg1, ref arg2, ref arg3, ref arg4, ref arg5, ref arg6, ref arg7);
-        }
-
-        protected abstract void DispatchEvent<T1, T2, T3, T4, T5, T6, T7>(CallSite callSite, EndpointId recipient, float unreliablePriority, ref T1 arg1, ref T2 arg2, ref T3 arg3, ref T4 arg4, ref T5 arg5, ref T6 arg6, ref T7 arg7)
-            where T1 : IMyEventOwner;
+            where T8 : IMyEventOwner;
 
         /// <summary>
         /// Invokes event locally without validation and with empty Sender and ClientData.

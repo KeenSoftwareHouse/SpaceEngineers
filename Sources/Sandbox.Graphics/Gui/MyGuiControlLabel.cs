@@ -1,8 +1,8 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Gui;
 using System;
 using System.Text;
 using VRage;
+using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -179,6 +179,18 @@ namespace Sandbox.Graphics.GUI
             // String builder has priority when drawing.
             float maxWidth = AutoEllipsis ? Size.X : float.PositiveInfinity;
             MyGuiManager.DrawString(Font, TextForDraw, GetPositionAbsolute(), TextScaleWithLanguage, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), OriginAlign, maxTextWidth: maxWidth);
+        }
+
+        /// <summary>
+        /// Inserts newlines into text to make it fit size.
+        /// Works only on TextToDraw.
+        /// </summary>
+        public void Autowrap(float width)
+        {
+            if(TextToDraw != null)
+            {
+                TextToDraw.Autowrap(width, Font, TextScaleWithLanguage);
+            }
         }
 
         public Vector2 GetTextSize()

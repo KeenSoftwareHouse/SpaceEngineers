@@ -20,17 +20,20 @@ namespace Sandbox.Game.Entities
         NoContactDamage = 2,
     }
 
-    partial class MyCubeGridGroups : IMySceneComponent
+    public class MyCubeGridGroups : IMySceneComponent
     {
         public static MyCubeGridGroups Static;
 
         MyGroupsBase<MyCubeGrid>[] m_groupsByType;
-        
+
         public MyGroups<MyCubeGrid, MyGridLogicalGroupData> Logical = new MyGroups<MyCubeGrid, MyGridLogicalGroupData>(true);
         public MyGroups<MyCubeGrid, MyGridPhysicalGroupData> Physical = new MyGroups<MyCubeGrid, MyGridPhysicalGroupData>(true, MyGridPhysicalGroupData.IsMajorGroup);
         public MyGroups<MyCubeGrid, MyGridNoDamageGroupData> NoContactDamage = new MyGroups<MyCubeGrid, MyGridNoDamageGroupData>(true);
         // Groups for small block to large block connections.
         public MyGroups<MySlimBlock, MyBlockGroupData> SmallToLargeBlockConnections = new MyGroups<MySlimBlock, MyBlockGroupData>(false);
+
+        // Groups of dynamic connected grids (similar to physical, usually more groups smaller groups, because static grids no longer connect dynamic grids)
+        public MyGroups<MyCubeGrid, MyGridPhysicalDynamicGroupData> PhysicalDynamic = new MyGroups<MyCubeGrid, MyGridPhysicalDynamicGroupData>(false);
 
         private static readonly HashSet<object> m_tmpBlocksDebugHelper = new HashSet<object>();
 
@@ -60,6 +63,10 @@ namespace Sandbox.Game.Entities
         public void CreateLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child)
         {
             GetGroups(type).CreateLink(linkId, parent, child);
+            if (type == GridLinkTypeEnum.Physical && !parent.IsStatic && !child.IsStatic)
+            {
+                PhysicalDynamic.CreateLink(linkId, parent, child);
+            }
         }
 
         /// <summary>
@@ -68,7 +75,36 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public bool BreakLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child = null)
         {
+            PhysicalDynamic.BreakLink(linkId, parent, child);
             return GetGroups(type).BreakLink(linkId, parent, child);
+        }
+
+        public void UpdateDynamicState(MyCubeGrid grid)
+        {
+            var group = PhysicalDynamic.GetGroup(grid);
+            bool wasDynamic = group != null;
+            bool isDynamic = !grid.IsStatic;
+            if (wasDynamic && !isDynamic) // Became static, break all links
+            {
+                PhysicalDynamic.BreakAllLinks(grid);
+            }
+            else if (!wasDynamic && isDynamic) // Became dynamic, "copy" links from PhysicalGroup
+            {
+                var physNode = Physical.GetNode(grid);
+                if (physNode != null)
+                {
+                    foreach (var child in physNode.ChildLinks)
+                    {
+                        if (!child.Value.NodeData.IsStatic)
+                            PhysicalDynamic.CreateLink(child.Key, grid, child.Value.NodeData);
+                    }
+                    foreach (var parent in physNode.ParentLinks)
+                    {
+                        if (!parent.Value.NodeData.IsStatic)
+                            PhysicalDynamic.CreateLink(parent.Key, parent.Value.NodeData, grid);
+                    }
+                }
+            }
         }
 
         public MyGroupsBase<MyCubeGrid> GetGroups(GridLinkTypeEnum type)

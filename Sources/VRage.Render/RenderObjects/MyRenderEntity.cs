@@ -99,7 +99,7 @@ namespace VRageRender
                     {
                         var distance = MyUtils.GetSmallestDistanceToSphereAlwaysPositive(ref MyRenderCamera.Position, ref volume);
 
-                        if (distance > MyRenderConstants.RenderQualityProfile.LodTransitionDistanceBackgroundEnd)
+                        if (distance > MyRenderCamera.FAR_PLANE_DISTANCE)
                             return;
 
                         for (int i = 1; i < m_lods.Count; i++)

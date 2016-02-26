@@ -150,6 +150,12 @@ namespace Sandbox.Graphics.GUI
         public static readonly MyGuiCompositeTexture TEXTURE_INVENTORY_TRASH_NORMAL = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_trash.dds" } };
         public static readonly MyGuiCompositeTexture TEXTURE_INVENTORY_TRASH_HIGHLIGHT = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_trash_highlight.dds" } };
 
+        public static readonly MyGuiCompositeTexture TEXTURE_INVENTORY_SWITCH_NORMAL = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_bag.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_INVENTORY_SWITCH_HIGHLIGHT = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_bag_highlight.dds" } };
+
+        public static readonly MyGuiCompositeTexture TEXTURE_CRAFTING_SWITCH_NORMAL = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_hammer.dds" } };
+        public static readonly MyGuiCompositeTexture TEXTURE_CRAFTING_SWITCH_HIGHLIGHT = new MyGuiCompositeTexture() { LeftTop = new MyGuiSizedTexture() { SizePx = new Vector2(71f, 164f), Texture = @"Textures\GUI\Controls\screen_inventory_hammer_highlight.dds" } };
+
         public static readonly MyGuiCompositeTexture TEXTURE_TEXTBOX = new MyGuiCompositeTexture()
         {
             LeftTop = new MyGuiSizedTexture() { Texture = @"Textures\GUI\Controls\textbox_left.dds", SizePx = new Vector2(8f, 48f) },
@@ -697,10 +703,13 @@ namespace Sandbox.Graphics.GUI
         public const string CURSOR_HAND = "Textures\\GUI\\MouseCursorHand.dds";
 
         public const string FOG_SMALL = "Textures\\GUI\\FogSmall.dds";
+        public const string FOG_SMALL2 = "Textures\\GUI\\FogSmall2.dds";
+        public const string FOG_SMALL3 = "Textures\\GUI\\FogSmall3.dds";
 
         public const string PROGRESS_BAR = "Textures\\GUI\\ProgressBar.dds";
 
         public const string LOADING_TEXTURE = "Textures\\GUI\\screens\\screen_loading_wheel.dds";
+        public const string LOADING_TEXTURE_LOADING_SCREEN = "Textures\\GUI\\screens\\screen_loading_wheel_loading_screen.dds";
 
         // General gui constants
         public const float MOUSE_CURSOR_SPEED_MULTIPLIER = 1.3f;

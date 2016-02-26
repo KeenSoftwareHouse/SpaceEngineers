@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageSetCameraViewMatrix : IMyRenderMessage
+    public class MyRenderMessageSetCameraViewMatrix : MyRenderMessageBase
     {
         public MatrixD ViewMatrix;
         public Matrix ProjectionMatrix;
@@ -23,7 +23,7 @@ namespace VRageRender
 
         public MyTimeSpan UpdateTime;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SetCameraViewMatrix; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetCameraViewMatrix; } }
     }
 }

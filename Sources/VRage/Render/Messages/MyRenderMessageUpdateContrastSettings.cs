@@ -5,14 +5,14 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateContrastSettings : IMyRenderMessage
+    public class MyRenderMessageUpdateContrastSettings : MyRenderMessageBase
     {
         public bool Enabled;
         public float Contrast;
         public float Hue;
         public float Saturation;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateContrastSettings; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateContrastSettings; } }
     }
 }

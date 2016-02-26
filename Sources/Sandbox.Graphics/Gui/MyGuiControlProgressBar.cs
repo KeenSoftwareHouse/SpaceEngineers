@@ -1,4 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
+﻿using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 
@@ -16,16 +16,27 @@ namespace Sandbox.Graphics.GUI
         /// Value in specifying progress percentage in range from 0 to 1.
         /// </summary>
 		private float m_value = 1.0f;
-        public float Value { get { return m_value; } set { m_value = MathHelper.Clamp(value, 0.0f, 1.0f); }}
+        public float Value 
+        { 
+            get { return m_value; } 
+            set 
+            {
+                System.Diagnostics.Debug.Assert(!float.IsNaN(value), "Passing NaN value!");
+                m_value = MathHelper.Clamp(value, 0.0f, 1.0f); 
+            }
+        }
 
 		public bool IsHorizontal = true;
+
+        public bool EnableBorderAutohide = false;
+        public float BorderAutohideThreshold = 0.01f;
 
 		MyGuiControlPanel m_potentialBar;
 		public MyGuiControlPanel PotentialBar { get { return m_potentialBar; } }
 
 		private MyGuiControlPanel m_progressForeground;
 		public MyGuiControlPanel ForegroundBar { get { return m_progressForeground; } }
-
+        
 		private MyGuiControlPanel m_progressBarLine;
 		public MyGuiControlPanel ForegroundBarEndLine { get { return m_progressBarLine; } }
 
@@ -39,7 +50,9 @@ namespace Sandbox.Graphics.GUI
 										MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
 										MyGuiCompositeTexture backgroundTexture = null,
 										bool isHorizontal = true,
-										bool potentialBarEnabled = true)
+										bool potentialBarEnabled = true,
+                                        bool enableBorderAutohide = false,
+                                        float borderAutohideThreshold = 0.01f)
             : base( position: position,
                     size: size,
 					backgroundTexture: backgroundTexture,
@@ -49,6 +62,9 @@ namespace Sandbox.Graphics.GUI
         {
             ProgressColor = (progressBarColor.HasValue ? progressBarColor.Value : DEFAULT_PROGRESS_COLOR);
 			IsHorizontal = isHorizontal;
+            EnableBorderAutohide = enableBorderAutohide;
+            BorderAutohideThreshold = borderAutohideThreshold;
+
 			m_progressForeground = new MyGuiControlPanel(	position: new Vector2(-Size.X/2.0f, 0.0f),
 															originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
 															backgroundColor: ProgressColor);
@@ -70,6 +86,15 @@ namespace Sandbox.Graphics.GUI
 			var paddedSize = Size;
 			var progressFillSize = paddedSize * new Vector2((IsHorizontal ? Value : 1.0f), (IsHorizontal ? 1.0f : Value));
 			m_progressForeground.Size = progressFillSize;
+
+            if (EnableBorderAutohide && Value <= BorderAutohideThreshold)
+            {
+                m_progressForeground.BorderEnabled = false;
+            }
+            else
+            {
+                m_progressForeground.BorderEnabled = true;
+            }
 
 			base.Draw(transitionAlpha, backgroundTransitionAlpha);
 		}

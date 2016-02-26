@@ -3,6 +3,8 @@
 using Sandbox.Common;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
+using VRage.Game.Entity;
+using VRage.Game.Gui;
 
 
 #endregion
@@ -27,10 +29,10 @@ namespace Sandbox.Game.Gui
             m_removeList.Clear();
             foreach (var marker in m_markerEntities)
             {
-                if (m_blinkingTimes[marker.Key] <= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS) 
+                if (m_blinkingTimes[marker.Key] <= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS) 
                     m_removeList.Add(marker.Key);
                 else
-                    m_blinkingTimes[marker.Key] -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    m_blinkingTimes[marker.Key] -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             }
 
             foreach (var marker in m_removeList)

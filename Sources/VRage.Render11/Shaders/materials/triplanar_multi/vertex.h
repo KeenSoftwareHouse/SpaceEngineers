@@ -1,12 +1,16 @@
-#include <math.h>
+#include <Math/math.h>
 
 void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayload custom_output)
 {
-#ifdef DEPTH_ONLY
+#if defined(DEPTH_ONLY) && defined(USE_VOXEL_DATA)
 	// Because the ground has no thickness, we need to simulate some when the sun is underneath the surface
-	if (object_.massive_center_radius.w > 0 && dot(vertex.normal_object, frame_.directionalLightVec) > 0)
+	if (object_.massive_center_radius.w > 0)
 	{
-		vertex.position_clip -= normalize(world_to_clip(vertex.normal_object)) * 0.5;
+		float normalLightDot = dot(vertex.normal_object, frame_.directionalLightVec);
+		if (normalLightDot > 0)
+		{
+			vertex.position_clip -= normalize(world_to_clip(frame_.directionalLightVec)) * 0.15f;
+		}
 	}
 #endif
 
@@ -17,4 +21,5 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 	custom_output.ambient_occlusion = vertex.ambient_occlusion;
 	custom_output.distance = dist;
 	custom_output.world_matrix = vertex._local_matrix;
+	custom_output.dark_side = vertex.lDir.x;
 }

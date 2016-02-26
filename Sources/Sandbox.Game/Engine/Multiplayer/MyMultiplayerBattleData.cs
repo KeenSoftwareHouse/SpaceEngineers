@@ -28,6 +28,7 @@ namespace Sandbox.Engine.Multiplayer
 
         private readonly Dictionary<MyStringHash, string> m_mapKeyToValue = new Dictionary<MyStringHash, string>(MyStringHash.Comparer);
 
+        private static readonly MyStringHash BattleRemainingTimeTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleRemainingTimeTag);
         private static readonly MyStringHash BattleCanBeJoinedTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleCanBeJoinedTag);
         private static readonly MyStringHash BattleWorldWorkshopIdTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleWorldWorkshopIdTag);
         private static readonly MyStringHash BattleFaction1MaxBlueprintPointsTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleFaction1MaxBlueprintPointsTag);
@@ -42,6 +43,12 @@ namespace Sandbox.Engine.Multiplayer
         private static readonly MyStringHash BattleFaction1ReadyTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleFaction1ReadyTag);
         private static readonly MyStringHash BattleFaction2ReadyTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleFaction2ReadyTag);
         private static readonly MyStringHash BattleTimeLimitTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleTimeLimitTag);
+
+        public float BattleRemainingTime
+        {
+            get { return GetFloatValue(BattleRemainingTimeTagHash, 0); }
+            set { KeyValueChangedRequest(BattleRemainingTimeTagHash, value.ToString(CultureInfo.InvariantCulture)); }
+        }
 
         public bool BattleCanBeJoined
         {
@@ -139,7 +146,7 @@ namespace Sandbox.Engine.Multiplayer
             msg.Key = key;
             msg.Value = value;
 
-            OnKeyValueChanged(ref msg, MySteam.UserId);
+            OnKeyValueChanged(ref msg, Sync.MyId);
             m_multiplayer.SendControlMessageToAll(ref msg);
         }
 

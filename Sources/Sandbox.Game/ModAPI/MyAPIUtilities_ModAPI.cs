@@ -14,6 +14,8 @@ using Sandbox.Graphics.GUI;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using Sandbox.Game.Screens;
+using VRage.Game;
 
 
 namespace Sandbox.ModAPI
@@ -35,16 +37,16 @@ namespace Sandbox.ModAPI
             return type.Name;
         }
 
-        void IMyUtilities.ShowNotification(string message, int disappearTimeMs, Common.MyFontEnum font)
+        void IMyUtilities.ShowNotification(string message, int disappearTimeMs, MyFontEnum font)
         {
-            var not = new MyHudNotification(MySpaceTexts.CustomText, disappearTimeMs, font);
+            var not = new MyHudNotification(MyCommonTexts.CustomText, disappearTimeMs, font);
             not.SetTextFormatArguments( message);
             MyHud.Notifications.Add(not);
         }
 
-        IMyHudNotification IMyUtilities.CreateNotification(string message, int disappearTimeMs, Common.MyFontEnum font)
+        IMyHudNotification IMyUtilities.CreateNotification(string message, int disappearTimeMs, MyFontEnum font)
         {
-            var notification = new MyHudNotification(MySpaceTexts.CustomText, disappearTimeMs, font);
+            var notification = new MyHudNotification(MyCommonTexts.CustomText, disappearTimeMs, font);
             notification.SetTextFormatArguments(message);
             return notification as IMyHudNotification;
         }

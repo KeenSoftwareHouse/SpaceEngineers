@@ -14,6 +14,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Components;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -46,7 +48,7 @@ namespace Sandbox.Game.GameSystems
 
         public static MyFactionChatHistory GetFactionChatHistory(long localPlayerId, long factionId)
         {
-            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            var localFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             if (localFaction == null)
             {
                 return null;
@@ -133,10 +135,10 @@ namespace Sandbox.Game.GameSystems
 
         public MyChatSystem()
         {
-            m_newPlayerMessageNotification = new MyHudNotification(MySpaceTexts.NotificationNewPlayerChatMessage, 2000, level: MyNotificationLevel.Normal);
-            m_newFactionMessageNotification = new MyHudNotification(MySpaceTexts.NotificationNewFactionChatMessage, 2000, level: MyNotificationLevel.Normal);
+            m_newPlayerMessageNotification = new MyHudNotification(MyCommonTexts.NotificationNewPlayerChatMessage, 2000, level: MyNotificationLevel.Normal);
+            m_newFactionMessageNotification = new MyHudNotification(MyCommonTexts.NotificationNewFactionChatMessage, 2000, level: MyNotificationLevel.Normal);
 
-            m_newGlobalMessageNotification = new MyHudNotification(MySpaceTexts.NotificationNewGlobalChatMessage, 2000, level: MyNotificationLevel.Normal);
+            m_newGlobalMessageNotification = new MyHudNotification(MyCommonTexts.NotificationNewGlobalChatMessage, 2000, level: MyNotificationLevel.Normal);
         }
 
         void Factions_FactionStateChanged(MyFactionCollection.MyFactionStateChange change, long fromFactionId, long toFactionId, long playerId, long sender)
@@ -159,12 +161,12 @@ namespace Sandbox.Game.GameSystems
             {
                 handler(playerId);
             }
-            else if (senderId != MySession.LocalPlayerId)
+            else if (senderId != MySession.Static.LocalPlayerId)
             {
                 var identity = MySession.Static.Players.TryGetIdentity(senderId);
                 if (identity != null)
                 {
-                    MyPlayerChatHistory chatHistory = MyChatSystem.GetPlayerChatHistory(MySession.LocalPlayerId, senderId);
+                    MyPlayerChatHistory chatHistory = MyChatSystem.GetPlayerChatHistory(MySession.Static.LocalPlayerId, senderId);
                     if (chatHistory != null)
                     {
                         chatHistory.UnreadMessageCount++;
@@ -178,7 +180,7 @@ namespace Sandbox.Game.GameSystems
 
         public void OnNewFactionMessage(long factionId1, long factionId2, long senderId, bool showNotification)
         {
-            var localFactionId = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
+            var localFactionId = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
             if (localFactionId == null)
             {
                 Debug.Fail("OnNewFactionMessage should not be triggered if local player is not a member of a faction, or if this is DedicatedServer");
@@ -192,12 +194,12 @@ namespace Sandbox.Game.GameSystems
             {
                 handler(otherFactionId);
             }
-            else if (senderId != MySession.LocalPlayerId && showNotification)
+            else if (senderId != MySession.Static.LocalPlayerId && showNotification)
             {
                 var faction = MySession.Static.Factions.TryGetFactionById(otherFactionId);
                 if (faction != null)
                 {
-                    var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.LocalPlayerId, faction.FactionId);
+                    var chatHistory = MyChatSystem.GetFactionChatHistory(MySession.Static.LocalPlayerId, faction.FactionId);
                     if (chatHistory != null)
                     {
                         chatHistory.UnreadMessageCount++;
@@ -216,10 +218,10 @@ namespace Sandbox.Game.GameSystems
             {
                 handler();
             }
-            else if (senderId != MySession.LocalPlayerId)
+            else if (senderId != MySession.Static.LocalPlayerId)
             {
                 MyChatHistory chatHistory;
-                if (MySession.Static.ChatHistory.TryGetValue(MySession.LocalPlayerId, out chatHistory))
+                if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory))
                 {
                     chatHistory.GlobalChatHistory.UnreadMessageCount++;
                 }

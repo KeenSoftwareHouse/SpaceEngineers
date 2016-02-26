@@ -28,6 +28,7 @@ namespace VRageRender
         public readonly float Emissivity;
 
         public readonly float AlphaSaturation;
+        public readonly bool AlphaCutout;
 
         public Vector2 UVOffset;
         public Vector2 UVSize;
@@ -52,7 +53,8 @@ namespace VRageRender
             float AlphaMistingStart = 1,
             float AlphaMistingEnd = 4,
             float AlphaSaturation = 1,
-            float Reflectivity = 0)
+            float Reflectivity = 0,
+            bool AlphaCutout = false)
         {
             this.Name = Name;
             this.Texture = Texture;
@@ -66,6 +68,7 @@ namespace VRageRender
             this.AlphaMistingStart = AlphaMistingStart;
             this.AlphaMistingEnd = AlphaMistingEnd;
             this.AlphaSaturation = AlphaSaturation;
+            this.AlphaCutout = AlphaCutout;
             this.Color = Color;
             this.Reflectivity = Reflectivity;
 

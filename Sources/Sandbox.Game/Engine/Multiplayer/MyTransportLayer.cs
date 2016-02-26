@@ -575,6 +575,10 @@ namespace Sandbox.Engine.Multiplayer
         public void Clear()
         {
             MyNetworkReader.ClearHandler(MyMultiplayer.GameEventChannel);
+            if(m_buffer != null)
+            {
+                m_buffer.Clear();
+            }
         }
 
         public void ClearStats()

@@ -396,6 +396,11 @@ namespace VRage
         }
 
         [DebuggerStepThrough]
+        /**
+         * Two threads calling this at the same time can apparently deadlock waiting for shared readers to reach 1.
+         * 
+         * So this is basically useless because you can only use it if only if you can guarantee only one thread is calling it.
+         */
         public void SpinConvertSharedToExclusive()
         {
             int value;

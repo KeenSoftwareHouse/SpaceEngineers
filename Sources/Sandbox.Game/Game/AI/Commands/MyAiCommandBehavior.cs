@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Commands
@@ -44,9 +45,9 @@ namespace Sandbox.Game.AI.Commands
         private void ChangeTarget()
         {
             Vector3D cameraPos, cameraDir;
-            if (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Entity)
+            if (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity)
             {
-                var headMatrix = MySession.ControlledEntity.GetHeadMatrix(true, true);
+                var headMatrix = MySession.Static.ControlledEntity.GetHeadMatrix(true, true);
                 cameraPos = headMatrix.Translation;
                 cameraDir = headMatrix.Forward;
             }
@@ -57,7 +58,7 @@ namespace Sandbox.Game.AI.Commands
             }
 
             m_tmpHitInfos.Clear();
-            MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 20, m_tmpHitInfos, MyPhysics.ObjectDetectionCollisionLayer);
+            MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 20, m_tmpHitInfos, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
             if (m_tmpHitInfos.Count == 0)
                 return;
             foreach (var hitInfo in m_tmpHitInfos)

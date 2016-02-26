@@ -19,21 +19,31 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
+using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
+using VRage.Game.Entity;
 
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LaserAntenna))]
-    public partial class MyLaserAntenna : MyFunctionalBlock, IMyGizmoDrawableObject, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    public partial class MyLaserAntenna : MyFunctionalBlock, IMyGizmoDrawableObject
     {
         protected Color m_gizmoColor = new Vector4(0.1f, 0.1f, 0.0f, 0.1f);
         protected const float m_maxGizmoDrawDistance = 10000.0f;
 
-        MyLaserBroadcaster m_broadcaster;
-        MyLaserReceiver m_receiver;
+        MyLaserBroadcaster Broadcaster
+        {
+            get { return (MyLaserBroadcaster)Components.Get<MyDataBroadcaster>(); }
+            set { Components.Add<MyDataBroadcaster>(value); }
+        }
+        MyLaserReceiver Receiver
+        {
+            get { return (MyLaserReceiver)Components.Get<MyDataReceiver>(); }
+            set { Components.Add<MyDataReceiver>(value); }
+        }
 
         public enum StateEnum : byte
         {
@@ -140,17 +150,6 @@ namespace Sandbox.Game.Entities.Cube
         public bool EnableLongDrawDistance()
         {
             return true;
-        }
-
-        bool IMyComponentOwner<MyDataBroadcaster>.GetComponent(out MyDataBroadcaster component)
-        {
-            component = m_broadcaster;
-            return m_broadcaster != null;
-        }
-        bool IMyComponentOwner<MyDataReceiver>.GetComponent(out MyDataReceiver component)
-        {
-            component = m_receiver;
-            return m_receiver != null;
         }
 
         public new MyLaserAntennaDefinition BlockDefinition
@@ -377,17 +376,21 @@ namespace Sandbox.Game.Entities.Cube
         protected StringBuilder m_tempSB=new StringBuilder();
         protected void PopulatePossibleReceivers(ICollection<MyGuiControlListbox.Item> population,ICollection<MyGuiControlListbox.Item> selected)
         {
+            if(MySession.Static == null|| this.Closed)
+            {
+                return;
+            }
 
-            foreach (var laser in MySession.Static.m_lasers)
+            foreach (var laser in MySession.Static.LaserAntennas)
             {
                 if (laser.Key == this.EntityId)
                     continue;
 				if (!(laser.Value.Enabled && laser.Value.IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                     continue;
-                if (!m_receiver.CanIUseIt(laser.Value.m_broadcaster, this.OwnerId)
-                    || !laser.Value.m_receiver.CanIUseIt(m_broadcaster, laser.Value.OwnerId))
+                if (!Receiver.CanIUseIt(laser.Value.Broadcaster, this.OwnerId)
+                    || !laser.Value.Receiver.CanIUseIt(Broadcaster, laser.Value.OwnerId))
                     continue;
-                if (!m_receiver.RelayedBroadcasters.Contains(laser.Value.m_broadcaster))
+                if (!Receiver.RelayedBroadcasters.Contains(laser.Value.Broadcaster))
                     continue;
 
                 var item = new MyGuiControlListbox.Item(ref laser.Value.m_myStateText, null,null, laser.Value);
@@ -408,8 +411,16 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
+            ResourceSink = new MyResourceSinkComponent();
+            ResourceSink.Init(
+                BlockDefinition.ResourceSinkGroup,
+                BlockDefinition.PowerInputLasing,
+                UpdatePowerInput);
+
+            Broadcaster = new MyLaserBroadcaster();
+            Receiver = new MyLaserReceiver();
+
             base.Init(objectBuilder, cubeGrid);
-            MySession.Static.m_lasers.Add(EntityId, this);
 
             MyObjectBuilder_LaserAntenna ob = (MyObjectBuilder_LaserAntenna)objectBuilder;
 
@@ -450,14 +461,9 @@ namespace Sandbox.Game.Entities.Cube
 
             InitializationMatrix = PositionComp.LocalMatrix;
 
-			var sinkComp = new MyResourceSinkComponent();
-            sinkComp.Init(
-                BlockDefinition.ResourceSinkGroup, 
-                BlockDefinition.PowerInputLasing,
-                UpdatePowerInput);
-	        ResourceSink = sinkComp;
+		
 			ResourceSink.IsPoweredChanged += IsPoweredChanged;
-            MySession.OnReady += OnReadyAction;
+            ResourceSink.Update();
             OnClose += delegate { OnClosed(); };
             
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -465,14 +471,13 @@ namespace Sandbox.Game.Entities.Cube
             if (SlimBlock.CubeGrid.GridSize > 1.5f)//large grid variant has wider limit
                 m_MinElevation = -30 * (float)Math.PI / 180;
 
-            m_broadcaster = new MyLaserBroadcaster(this);
-            m_receiver = new MyLaserReceiver(this);
-            m_receiver.Enabled = IsWorking;
+        
+            Receiver.Enabled = IsWorking;
 
             UpdateEmissivity();
             UpdateMyStateText();
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         protected float NormalizeAngle(int angle)
@@ -527,9 +532,11 @@ namespace Sandbox.Game.Entities.Cube
             return Math.Abs((m_maxElevationRadians - Math.Max(m_minElevationRadians, m_MinElevation)) - MathHelper.TwoPi) > 0.01;
         }
 
-        public void OnReadyAction()
+        public override void UpdateOnceBeforeFrame()
         {
-			ResourceSink.Update();
+            base.UpdateOnceBeforeFrame();
+            MySession.Static.LaserAntennas.Add(EntityId, this);
+            ResourceSink.Update();
             UpdateEmissivity();
         }
 
@@ -542,7 +549,7 @@ namespace Sandbox.Game.Entities.Cube
         protected override void OnOwnershipChanged()
         {
             base.OnOwnershipChanged();
-            m_receiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
             UpdateVisuals();
         }
 
@@ -581,7 +588,7 @@ namespace Sandbox.Game.Entities.Cube
             base.UpdateAfterSimulation100();
 			if (!(Enabled && IsFunctional && ResourceSink.SuppliedRatio > 0.99f))
                 return;
-            m_receiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
             TryUpdateTargetCoords();
             m_canLaseTargetCoords = false;
             switch (State)
@@ -606,7 +613,7 @@ namespace Sandbox.Game.Entities.Cube
                     float minDist2 = float.MaxValue;
                     bool PermanentExists = false;
                     MyLaserAntenna permanentFound = null;
-                    foreach (var laser in MySession.Static.m_lasers)
+                    foreach (var laser in MySession.Static.LaserAntennas)
                     {
                         MyLaserAntenna other = laser.Value;
 						if (!(other.Enabled && other.IsFunctional && other.ResourceSink.SuppliedRatio > 0.99f))
@@ -614,8 +621,8 @@ namespace Sandbox.Game.Entities.Cube
                         if (other.m_IsPermanent && PermanentExists)//&&already found one
                             continue;
                         //is mine/factions?
-                        if (!m_receiver.CanIUseIt(other.m_broadcaster, this.OwnerId)
-                            || !other.m_receiver.CanIUseIt(m_broadcaster, other.OwnerId))
+                        if (!Receiver.CanIUseIt(other.Broadcaster, this.OwnerId)
+                            || !other.Receiver.CanIUseIt(Broadcaster, other.OwnerId))
                             continue;
                         if (other.EntityId == this.EntityId)
                             continue;//thats me!
@@ -688,8 +695,8 @@ namespace Sandbox.Game.Entities.Cube
                         IsInRange(target)
                         )
                     {
-                        if (!m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
-                            || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId))
+                        if (!Receiver.CanIUseIt(target.Broadcaster, this.OwnerId)
+                            || !target.Receiver.CanIUseIt(Broadcaster, target.OwnerId))
                             break;
                         if (target.Dist2To(this.m_targetCoords) > 10 * 10)//is target still where expected?
                             break;
@@ -720,8 +727,8 @@ namespace Sandbox.Game.Entities.Cube
 						|| (!(target.Enabled && target.IsFunctional && target.ResourceSink.SuppliedRatio > 0.99f))
                         || !target.m_rotationFinished
                         || !IsInRange(target)
-                        || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
-                        || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId)
+                        || !Receiver.CanIUseIt(target.Broadcaster, this.OwnerId)
+                        || !target.Receiver.CanIUseIt(Broadcaster, target.OwnerId)
                         || !LosTest(target.HeadPos)//target will make other half of line in its update
                         )
                         sync.ShiftMode(StateEnum.contact_Rec);//other side MIA
@@ -749,8 +756,8 @@ namespace Sandbox.Game.Entities.Cube
                         || target.m_targetId != EntityId
 						|| (!(target.Enabled && target.IsFunctional && target.ResourceSink.SuppliedRatio > 0.99f))
                         || !IsInRange(target)
-                        || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
-                        || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId)
+                        || !Receiver.CanIUseIt(target.Broadcaster, this.OwnerId)
+                        || !target.Receiver.CanIUseIt(Broadcaster, target.OwnerId)
                         )
                 return;
             m_canLaseTargetCoords = true;
@@ -780,7 +787,7 @@ namespace Sandbox.Game.Entities.Cube
                             sync.ShiftMode(StateEnum.idle);
                             return;//partner cheated us - we did not heard of each other for a while and he is with someone else now :-(
                         }
-                    if (m_receiver.RelayedBroadcasters.Contains(target.m_broadcaster))
+                    if (Receiver.RelayedBroadcasters.Contains(target.Broadcaster))
                     {
                         m_targetCoords = target.HeadPos;
                         if (0 != m_lastKnownTargetName.CompareTo(target.CustomName))
@@ -821,14 +828,14 @@ namespace Sandbox.Game.Entities.Cube
         {
             MyLaserAntenna la=GetOther();
             if (la != null)
-                return la.m_broadcaster;
+                return la.Broadcaster;
             return null;
         }
 
         public void AddBroadcastersContactingMe(ref HashSet<MyDataBroadcaster> broadcasters)
         {//adds all broadcasters trying to contact me
         //these will be received and updated, but they do not relay information about others (only two way established link can do that)
-            foreach (var laser in MySession.Static.m_lasers)
+            foreach (var laser in MySession.Static.LaserAntennas)
             {
                 if (laser.Key == this.EntityId)
                     continue;
@@ -838,8 +845,8 @@ namespace Sandbox.Game.Entities.Cube
                     continue;
                 if(laser.Value.State==StateEnum.contact_Rec)
                     if (Dist2To(laser.Value.m_targetCoords) < 10 * 10)//I am still where he expects
-                        if (!broadcasters.Contains(laser.Value.m_broadcaster))
-                            broadcasters.Add((MyDataBroadcaster)m_broadcaster);
+                        if (!broadcasters.Contains(laser.Value.Broadcaster))
+                            broadcasters.Add((MyDataBroadcaster)Broadcaster);
             }
         }
 
@@ -848,22 +855,22 @@ namespace Sandbox.Game.Entities.Cube
 			ResourceSink.Update();
             if (Enabled && State == StateEnum.connected)
                 sync.ShiftMode(StateEnum.rot_Rec);
-            m_receiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
             base.OnEnabledChanged();
         }
 
         protected override bool CheckIsWorking()
         {
-			return ResourceSink.IsPowered && base.CheckIsWorking();
+			return base.CheckIsWorking() && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId);
         }
 
         void IsPoweredChanged()
         {
-			ResourceSink.Update();
             UpdateIsWorking();
             if (State == StateEnum.connected && !IsWorking)
                 sync.ShiftMode(StateEnum.rot_Rec);
-            m_receiver.Enabled = IsWorking;
+            if (Receiver!=null)
+                Receiver.Enabled = IsWorking;
             m_rotationInterval_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             UpdateText();
             UpdateEmissivity();
@@ -886,7 +893,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void OnClosed()
         {
-            MySession.Static.m_lasers.Remove(EntityId);
+            MySession.Static.LaserAntennas.Remove(EntityId);
         }
 
         float UpdatePowerInput()
@@ -950,7 +957,7 @@ namespace Sandbox.Game.Entities.Cube
         private void UpdateText()
         {
             DetailedInfo.Clear();
-            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MyCommonTexts.BlockPropertiesText_Type));
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
@@ -1030,16 +1037,16 @@ namespace Sandbox.Game.Entities.Cube
                     break;
             }
             DoChangeMode(Mode);
-            m_receiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
         }
 
         internal void DoChangeMode(StateEnum Mode)
         {
             State = Mode;
             m_OnlyPermanentExists = false;
-            m_receiver.UpdateBroadcastersInRange();
-            if (MySession.LocalCharacter != null)
-                MySession.LocalCharacter.RadioReceiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
+            if (MySession.Static.LocalCharacter != null)
+                MySession.Static.LocalCharacter.RadioReceiver.UpdateBroadcastersInRange();
             receiversList.UpdateVisual();
             if(m_targetId!=null)
             {
@@ -1085,7 +1092,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (la == null)
                 return false;
-            return m_receiver.RelayedBroadcasters.Contains(la.m_broadcaster);
+            return Receiver.RelayedBroadcasters.Contains(la.Broadcaster);
         }
         protected bool IdleOther()
         {//switchech other side of link to idle if possible
@@ -1117,8 +1124,8 @@ namespace Sandbox.Game.Entities.Cube
             MyLaserAntenna target = GetLaserById(DestId);
             if (target == null)
                 return false;
-            if (!m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
-                || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId))
+            if (!Receiver.CanIUseIt(target.Broadcaster, this.OwnerId)
+                || !target.Receiver.CanIUseIt(Broadcaster, target.OwnerId))
                 return false;
             IdleOther();
             DoConnectTo(DestId);
@@ -1149,7 +1156,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_lastKnownTargetName.Clear().Append("???");
             }
 			ResourceSink.Update();
-            m_receiver.UpdateBroadcastersInRange();
+            Receiver.UpdateBroadcastersInRange();
             UpdateVisuals();
             UpdateText();
             UpdateEmissivity();

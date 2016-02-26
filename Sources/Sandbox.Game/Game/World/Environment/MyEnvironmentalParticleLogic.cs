@@ -2,7 +2,7 @@
 using VRage;
 using VRage.Game.ObjectBuilders;
 using VRageMath;
-using EnvironmentalParticleSettings = Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_EnvironmentDefinition.EnvironmentalParticleSettings;
+using EnvironmentalParticleSettings = VRage.Game.MyObjectBuilder_EnvironmentDefinition.EnvironmentalParticleSettings;
 
 namespace Sandbox.Game.World
 {

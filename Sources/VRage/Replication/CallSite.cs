@@ -23,6 +23,7 @@ namespace VRage.Network
         public bool HasBroadcastExceptFlag { get { return (CallSiteFlags & CallSiteFlags.BroadcastExcept) == CallSiteFlags.BroadcastExcept; } }
         public bool HasRefreshReplicableFlag { get { return (CallSiteFlags & CallSiteFlags.RefreshReplicable) == CallSiteFlags.RefreshReplicable; } }
         public bool IsReliable { get { return (CallSiteFlags & CallSiteFlags.Reliable) == CallSiteFlags.Reliable; } }
+        public bool IsBlocking { get { return (CallSiteFlags & CallSiteFlags.Blocking) == CallSiteFlags.Blocking; } }
 
         public CallSite(MySynchronizedTypeInfo owner, uint id, MethodInfo info, CallSiteFlags flags)
         {

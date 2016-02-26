@@ -2,6 +2,7 @@
 
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -84,7 +85,7 @@ namespace Sandbox.Graphics.GUI
                 MySandboxGame.Log.WriteLine("URL NOT ALLOWED: " + url);//gameplay may not be running yet, so no message box :-(
                 return;
             }
-            var confirmMessage = MyTexts.AppendFormat(new StringBuilder(), MySpaceTexts.MessageBoxTextOpenUrlOverlayNotEnabled, urlFriendlyName);
+            var confirmMessage = MyTexts.AppendFormat(new StringBuilder(), MyCommonTexts.MessageBoxTextOpenUrlOverlayNotEnabled, urlFriendlyName);
             OpenUrl(url, UrlOpenMode.SteamOrExternalWithConfirm, confirmMessage);
         }
 
@@ -103,7 +104,7 @@ namespace Sandbox.Graphics.GUI
 
             if (MyFakes.XBOX_PREVIEW)
             {
-                MyGuiSandbox.Show(MySpaceTexts.MessageBoxTextErrorFeatureNotAvailableYet, MySpaceTexts.MessageBoxCaptionError);
+                MyGuiSandbox.Show(MyCommonTexts.MessageBoxTextErrorFeatureNotAvailableYet, MyCommonTexts.MessageBoxCaptionError);
             }
             else
             {
@@ -113,8 +114,8 @@ namespace Sandbox.Graphics.GUI
                     {
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                             buttonType: MyMessageBoxButtonsType.YES_NO,
-                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                            messageText: confirmMessage ?? MyTexts.AppendFormat(new StringBuilder(), MySpaceTexts.MessageBoxTextOpenBrowser, url),
+                            messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                            messageText: confirmMessage ?? MyTexts.AppendFormat(new StringBuilder(), MyCommonTexts.MessageBoxTextOpenBrowser, url),
                             callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                             {
                                 if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
@@ -135,7 +136,7 @@ namespace Sandbox.Graphics.GUI
         {
             if (!MyBrowserHelper.OpenInternetBrowser(url))
             {
-                StringBuilder text = MyTexts.Get(MySpaceTexts.TitleFailedToStartInternetBrowser);
+                StringBuilder text = MyTexts.Get(MyCommonTexts.TitleFailedToStartInternetBrowser);
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(messageText: text, messageCaption: text));
             }
         }
@@ -204,6 +205,8 @@ namespace Sandbox.Graphics.GUI
         public static void AddScreen(MyGuiScreenBase screen)
         {
             Gui.AddScreen(screen);
+            if (MyAPIGateway.GuiControlCreated != null)
+                MyAPIGateway.GuiControlCreated(screen);
         }
 
         public static void RemoveScreen(MyGuiScreenBase screen)
@@ -273,10 +276,10 @@ namespace Sandbox.Graphics.GUI
         {
             return new MyGuiScreenMessageBox(
                 styleEnum, buttonType, messageText, messageCaption,
-                okButtonText ?? MySpaceTexts.Ok,
-                cancelButtonText ?? MySpaceTexts.Cancel,
-                yesButtonText ?? MySpaceTexts.Yes,
-                noButtonText ?? MySpaceTexts.No,
+                okButtonText ?? MyCommonTexts.Ok,
+                cancelButtonText ?? MyCommonTexts.Cancel,
+                yesButtonText ?? MyCommonTexts.Yes,
+                noButtonText ?? MyCommonTexts.No,
                 callback, timeoutInMiliseconds, focusedResult, canHideOthers, size);
         }
 

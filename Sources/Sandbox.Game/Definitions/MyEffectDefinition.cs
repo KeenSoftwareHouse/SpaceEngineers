@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Audio;
-using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,8 @@ using System.Linq;
 using System.Text;
 using VRage.Audio;
 using VRage.Data.Audio;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRageMath;
 
 namespace Sandbox.Definitions

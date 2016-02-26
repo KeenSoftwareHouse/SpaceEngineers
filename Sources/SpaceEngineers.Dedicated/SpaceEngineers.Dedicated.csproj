@@ -173,6 +173,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MedievalEngineers.ObjectBuilders\MedievalEngineers.ObjectBuilders.csproj">
+      <Project>{9e11ca22-11b8-42b1-acda-3747a3b2bdbd}</Project>
+      <Name>MedievalEngineers.ObjectBuilders</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
       <Name>Sandbox.Common</Name>
@@ -188,6 +192,10 @@
     <ProjectReference Include="..\SpaceEngineers.Game\SpaceEngineers.Game.csproj">
       <Project>{9f620aab-5008-4d91-8d8f-8be6cf26f926}</Project>
       <Name>SpaceEngineers.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj">
+      <Project>{e48feb99-6814-4947-8035-8c2b4066dd9b}</Project>
+      <Name>SpaceEngineers.ObjectBuilders</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Dedicated\VRage.Dedicated.csproj">
       <Project>{ba24cf8d-109d-4728-be1d-ad13af824093}</Project>

@@ -4,9 +4,10 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -18,6 +19,7 @@ namespace Sandbox.Game.Components
         private IMyVoxelDrawable m_voxelMap = null;
 
         private readonly MyWorkTracker<UInt64, MyPrecalcJobRender> m_renderWorkTracker = new MyWorkTracker<UInt64, MyPrecalcJobRender>();
+        private readonly MyWorkTracker<UInt64, MyPrecalcJobMerge> m_mergeWorkTracker = new MyWorkTracker<ulong, MyPrecalcJobMerge>(); 
 
         public uint ClipmapId
         {
@@ -32,24 +34,24 @@ namespace Sandbox.Game.Components
 
         public override void AddRenderObjects()
         {
-            var minCorner = (Vector3D)(Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner;
-            m_renderObjectIDs = new uint[] { MyRenderProxy.RENDER_ID_UNASSIGNED };
-
-            Debug.Assert((m_voxelMap.Size % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == Vector3I.Zero);
+            //Debug.Assert((m_voxelMap.Size % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == Vector3I.Zero);
             var clipmapSizeLod0 = m_voxelMap.Size / MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0);
+
+            var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
 
             SetRenderObjectID(0,
                 MyRenderProxy.CreateClipmap(
-                    MatrixD.CreateTranslation(minCorner),
+                    worldMatrix,
                     clipmapSizeLod0,
                     m_voxelMap.ScaleGroup,
-                    Vector3D.Zero, additionalFlags: RenderFlags.CastShadows));
+                    Vector3D.Zero, additionalFlags: RenderFlags.Visible | RenderFlags.CastShadows));
         }
 
         public override void InvalidateRenderObjects(bool sortIntoCulling = false)
         {
-            if (Visible)
+            if (Visible && m_renderObjectIDs[0] != MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
+                //var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
                 var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
                 MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling);
             }
@@ -57,8 +59,11 @@ namespace Sandbox.Game.Components
 
         public void UpdateCells()
         {
-            var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
-            MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling: false);
+            if (m_renderObjectIDs[0] != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                var worldMatrix = MatrixD.CreateWorld(m_voxelMap.PositionLeftBottomCorner, m_voxelMap.Orientation.Forward, m_voxelMap.Orientation.Up);
+                MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling: false);
+            }
         }
 
         public void InvalidateRange(Vector3I minVoxelChanged, Vector3I maxVoxelChanged)
@@ -81,6 +86,7 @@ namespace Sandbox.Game.Components
                 maxCellLod0 == ((m_voxelMap.Storage.Size - 1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0)))
             {
                 m_renderWorkTracker.InvalidateAll();
+                m_mergeWorkTracker.InvalidateAll();
             }
             else
             {
@@ -93,6 +99,7 @@ namespace Sandbox.Game.Components
                         it.IsValid(); it.GetNext(out cellCoord.CoordInLod))
                     {
                         m_renderWorkTracker.Invalidate(cellCoord.PackId64());
+                        m_mergeWorkTracker.Invalidate(cellCoord.PackId64());
                     }
                 }
             }
@@ -104,41 +111,49 @@ namespace Sandbox.Game.Components
                 Vector3I.Zero,
                 (m_voxelMap.Storage.Size -1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0));
             m_renderWorkTracker.InvalidateAll();
+            m_mergeWorkTracker.InvalidateAll();
         }
 
-        internal void OnCellRequest(MyCellCoord cell, bool highPriority, Func<int> priorityFunction, Action<Color> debugDraw)
+        internal void OnMeshMergeRequest(
+            uint clipmapId,
+            List<MyClipmapCellMeshMetadata> lodMeshMetadata,
+            MyCellCoord cellCoord,
+            Func<int> priorityFunction,
+            ulong workId,
+            List<MyClipmapCellBatch> batches)
+        {
+            MyPrecalcJobMerge.Start(new MyPrecalcJobMerge.Args
+            {
+                InBatches = new List<MyClipmapCellBatch>(batches),
+                ClipmapId = clipmapId,
+                WorkId = workId,
+                Cell = cellCoord,
+                LodMeshMetadata = new List<MyClipmapCellMeshMetadata>(lodMeshMetadata),
+                Priority = priorityFunction,
+                RenderWorkTracker = m_mergeWorkTracker,
+            });
+        }
+
+        internal void OnMeshMergeCancelled(uint clipmapId, ulong workId)
+        {
+            m_mergeWorkTracker.Cancel(workId);
+        }
+
+        internal void OnCellRequest(MyCellCoord cell, Func<int> priorityFunction, Action<Color> debugDraw)
         {
             ProfilerShort.Begin("OnCellRequest");
 
             try
             {
                 var workId = cell.PackId64();
-                MyPrecalcJobRender job;
-                if (m_renderWorkTracker.TryGet(workId, out job))
-                {
-                    if (!highPriority)
-                    { // low priority work, no need to do anything
-                        return;
-                    }
-
-                    if (job.IsHighPriority)
-                    { // both are high priorities, so just invalidate previous one
-                        m_renderWorkTracker.Invalidate(workId);
-                        return;
-                    }
-
-                    // high priority arrived while there was one with low priority ... just cancel lower one
-                    m_renderWorkTracker.Cancel(workId);
-                }
-
-                MyPrecalcJobRender.Start(new MyPrecalcJobRender.Args()
+          
+                MyPrecalcJobRender.Start(new MyPrecalcJobRender.Args
                 {
                     Storage = m_voxelMap.Storage,
                     ClipmapId = ClipmapId,
                     Cell = cell,
                     WorkId = workId,
                     RenderWorkTracker = m_renderWorkTracker,
-                    IsHighPriority = highPriority,
                     Priority = priorityFunction,
                     DebugDraw = debugDraw,
                 });

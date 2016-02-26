@@ -1,11 +1,6 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.AI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Sandbox.Common.ObjectBuilders.AI
+namespace VRage.Game
 {
     [ProtoContract]
     public class MyBBMemoryBool : MyBBMemoryValue

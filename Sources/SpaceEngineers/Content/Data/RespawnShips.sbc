@@ -4,6 +4,16 @@
     <Ship>
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>PlanetaryLander</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_PlanetaryLander</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>AtmosphericLander</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
         <SubtypeId>RespawnShip</SubtypeId>
       </Id>
       <DisplayName>DisplayName_RespawnShip_Yellow</DisplayName>

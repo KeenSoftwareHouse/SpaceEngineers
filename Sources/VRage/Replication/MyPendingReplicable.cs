@@ -11,5 +11,7 @@ namespace VRage.Replication
         public List<NetworkId> StateGroupIds = new List<NetworkId>();
         public int DebugCounter;
         public IMyReplicable DebugObject;
+        public bool IsStreaming;
+        public NetworkId StreamingGroupId;
     }
 }

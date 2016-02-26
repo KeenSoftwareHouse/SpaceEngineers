@@ -67,9 +67,14 @@ namespace VRageRender
         public MyTextureQuality MaxTextureQualitySupported;
         public MyAntialiasingMode MaxAntialiasingModeSupported;
 
+        public int VendorId;
+        public int DeviceId;
+
         public void LogInfo(Action<String> lineWriter)
         {
             lineWriter("Adapter: " + Name);
+            lineWriter("VendorId: " + VendorId);
+            lineWriter("DeviceId: " + DeviceId);
             lineWriter("Details: " + DeviceName);
             lineWriter("Description: " + Description);
         }

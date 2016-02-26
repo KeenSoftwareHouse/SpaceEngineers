@@ -41,15 +41,22 @@ namespace VRageRender
         internal static MyActor CreateSceneObject()
         {
             var actor = Create();
-            actor.AddComponent(MyComponentFactory<MyRenderableComponent>.Create());
+            actor.AddComponent<MyRenderableComponent>(MyComponentFactory<MyRenderableComponent>.Create());
+            return actor;
+        }
+
+        internal static MyActor CreateVoxelCell()
+        {
+            var actor = Create();
+            actor.AddComponent<MyRenderableComponent>(MyComponentFactory<MyVoxelRenderableComponent>.Create());
             return actor;
         }
 
         internal static MyActor CreateCharacter()
         {
             var actor = Create();
-            actor.AddComponent(MyComponentFactory<MyRenderableComponent>.Create());
-            actor.AddComponent(MyComponentFactory<MySkinningComponent>.Create());
+            actor.AddComponent<MyRenderableComponent>(MyComponentFactory<MyRenderableComponent>.Create());
+            actor.AddComponent<MySkinningComponent>(MyComponentFactory<MySkinningComponent>.Create());
             return actor;
         }
 
@@ -63,7 +70,7 @@ namespace VRageRender
         internal static MyActor CreateGroup()
         {
             var actor = Create();
-            actor.AddComponent(MyComponentFactory<MyGroupRootComponent>.Create());
+            actor.AddComponent < MyGroupRootComponent>(MyComponentFactory<MyGroupRootComponent>.Create());
             return actor;
         }
 

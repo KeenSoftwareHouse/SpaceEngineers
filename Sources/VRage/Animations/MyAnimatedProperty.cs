@@ -22,19 +22,11 @@ namespace VRage.Animations
         void AddKey(float time, object val);
         void RemoveKey(float time);
         void RemoveKey(int index);
-        //IEnumerable GetKeys();
         void ClearKeys();
         int GetKeysCount();        
         void SetKey(int index, float time);
-
-        /// <summary>
-        /// Warning this will do allocations, use only in editor!
-        /// </summary>
-        void EditorSetKey(int index, float time, object value);
-        /// <summary>
-        /// Warning this will do allocations, use only in editor!
-        /// </summary>
-        void EditorGetKey(int index, out float time, out object value);        
+        void SetKey(int index, float time, object value);
+        void GetKey(int index, out float time, out object value);        
     }
 
     [System.Reflection.Obfuscation(Feature = System.Reflection.Obfuscator.NoRename, Exclude = true, ApplyToMembers = true)]
@@ -115,6 +107,20 @@ namespace VRage.Animations
             public T Value;
             public float PrecomputedDiff;
             public float Time;
+
+            public ValueHolder Duplicate()
+            {
+                ValueHolder duplicate = new ValueHolder();
+                duplicate.Time = Time;
+                duplicate.PrecomputedDiff = PrecomputedDiff;
+
+                if (Value is IMyConstProperty)
+                    duplicate.Value = (T)((IMyConstProperty)Value).Duplicate();
+                else
+                    duplicate.Value = Value;
+
+                return duplicate;
+            }
         }
 
         #region Comparer
@@ -168,7 +174,7 @@ namespace VRage.Animations
         {
         }
 
-        object IMyConstProperty.EditorGetValue()
+        object IMyConstProperty.GetValue()
         {
             return null;
         }
@@ -280,19 +286,24 @@ namespace VRage.Animations
             }
         }
 
-        void IMyAnimatedProperty.EditorGetKey(int index, out float time, out object value)
+        void IMyAnimatedProperty.GetKey(int index, out float time, out object value)
         {
             T val;
             GetKey(index, out time, out val);
             value = val;
         }
 
-        void IMyAnimatedProperty.EditorSetKey(int index, float time, object value)
+        void IMyAnimatedProperty.SetKey(int index, float time, object value)
         {
             var key = m_keys[index];
             key.Time = time;
             key.Value = (T)value;
             m_keys[index] = key;
+
+            UpdateDiff(index-1);
+            UpdateDiff(index);
+            UpdateDiff(index+1);
+
             m_keys.Sort(m_keysComparer);
         }
 
@@ -301,6 +312,11 @@ namespace VRage.Animations
             var key = m_keys[index];
             key.Time = time;
             m_keys[index] = key;
+
+            UpdateDiff(index - 1);
+            UpdateDiff(index);
+            UpdateDiff(index + 1);
+
             m_keys.Sort(m_keysComparer);
         }
 
@@ -356,7 +372,7 @@ namespace VRage.Animations
         {
             //Calculate relative difference with previous value to faster calculation of interpolated values
             //(time - prevtime) / (nexttime - prevtime)
-            if (index == 0 || index >= m_keys.Count)
+            if (index < 1 || index >= m_keys.Count)
                 return;
 
             float time = m_keys[index].Time;
@@ -424,7 +440,7 @@ namespace VRage.Animations
 
             foreach (ValueHolder pair in m_keys)
             {
-                animatedTargetProp.AddKey(pair);
+                animatedTargetProp.AddKey(pair.Duplicate());
             }
         }
 

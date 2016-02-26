@@ -24,7 +24,7 @@ namespace VRage.Library.Collections
             int longOffsetEnd = (m_bitPosition + bitSize - 1) >> 6;
 
             ulong basemask = (ulong.MaxValue >> (64 - bitSize));
-            int placeOffset = m_bitPosition & ~0x40;
+            int placeOffset = m_bitPosition & 0x3F;
 
             ulong value = (m_buffer[longOffsetStart] >> placeOffset);
 
@@ -64,7 +64,15 @@ namespace VRage.Library.Collections
             ulong val = ReadInternal(sizeof(float) * 8);
             return *(float*)&val;
         }
-
+        
+        /// <summary>
+        /// Reads uniform-spaced float within -1,1 range with specified number of bits.
+        /// </summary>
+        public float ReadNormalizedSignedFloat(int bits)
+        {
+            return MyLibraryUtils.DenormalizeFloatCenter(ReadUInt32(bits), -1, 1, bits);
+        }
+        
         public decimal ReadDecimal()
         {
             decimal result;

@@ -333,7 +333,7 @@
         <Z>0.4</Z>
       </Size>
       <Mass>8</Mass>
-      <Volume>140</Volume>
+      <Volume>70</Volume>
       <Model>Models\Components\radio_communication_components_component.mwm</Model>
       <PhysicalMaterial>Metal</PhysicalMaterial>
       <MaxIntegrity>15</MaxIntegrity>

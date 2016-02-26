@@ -32,7 +32,7 @@ namespace Sandbox.Game.Screens.Helpers
             Func<IMyControllableEntity, bool> valueGetter,
             MyStringId label,
             MySupportKeysEnum supportKeys = MySupportKeysEnum.NONE)
-            : this(controlId, action, valueGetter, label, MySpaceTexts.ControlMenuItemValue_On, MySpaceTexts.ControlMenuItemValue_Off, supportKeys)
+            : this(controlId, action, valueGetter, label, MyCommonTexts.ControlMenuItemValue_On, MyCommonTexts.ControlMenuItemValue_Off, supportKeys)
         {
         }
 
@@ -174,7 +174,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_CameraMode); }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_CameraMode); }
         }
 
         public override void Activate()
@@ -185,9 +185,9 @@ namespace Sandbox.Game.Screens.Helpers
         public override void UpdateValue()
         {
             if (MySession.Static.CameraController.IsInFirstPersonView)
-                m_value = MyTexts.GetString(MySpaceTexts.ControlMenuItemValue_FPP);
+                m_value = MyTexts.GetString(MyCommonTexts.ControlMenuItemValue_FPP);
             else
-                m_value = MyTexts.GetString(MySpaceTexts.ControlMenuItemValue_TPP);
+                m_value = MyTexts.GetString(MyCommonTexts.ControlMenuItemValue_TPP);
         }
 
         public override void Next()
@@ -211,7 +211,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_PauseGame); }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_PauseGame); }
         }
 
         public override void Activate()
@@ -231,7 +231,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_CommitSuicide); ; }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_CommitSuicide); ; }
         }
 
         public override void Activate()
@@ -255,7 +255,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_QuickLoad); }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_QuickLoad); }
         }
 
         public override void Activate()
@@ -291,7 +291,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_ToggleHud); }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_ToggleHud); }
         }
 
         public override void Activate()
@@ -302,9 +302,9 @@ namespace Sandbox.Game.Screens.Helpers
         public override void UpdateValue()
         {
             if (!MyHud.MinimalHud)
-                m_value = MyTexts.GetString(MySpaceTexts.ControlMenuItemValue_On);
+                m_value = MyTexts.GetString(MyCommonTexts.ControlMenuItemValue_On);
             else
-                m_value = MyTexts.GetString(MySpaceTexts.ControlMenuItemValue_Off);
+                m_value = MyTexts.GetString(MyCommonTexts.ControlMenuItemValue_Off);
         }
 
         public override void Next()
@@ -327,7 +327,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_ShowColorPicker); }
+            get { return MyTexts.GetString(MyCommonTexts.ControlMenuItemLabel_ShowColorPicker); }
         }
 
         public override void Activate()

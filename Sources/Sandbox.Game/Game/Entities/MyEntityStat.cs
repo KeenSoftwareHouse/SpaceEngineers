@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Collections;
+using VRage.Game;
+using VRage.Game.Common;
 using VRage.Game.ObjectBuilders;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -38,6 +40,12 @@ namespace Sandbox.Game.Entities
         private float m_statRegenLeft = 0;
         public float StatRegenLeft { get { return m_statRegenLeft; } set { m_statRegenLeft = value; } }
 
+        private float m_regenAmountMultiplier = 1.0f;
+        private float m_regenAmountMultiplierDuration = 0;
+        private int m_regenAmountMultiplierTimeStart = 0;
+        private int m_regenAmountMultiplierTimeAlive = 0;
+        private bool m_regenAmountMultiplierActive = false;
+
         private MyStringHash m_statId;
         public MyStringHash StatId { get { return m_statId; } }
 
@@ -56,13 +64,23 @@ namespace Sandbox.Game.Entities
             Debug.Assert(definition != null);
             StatDefinition = definition;
 
-            m_maxValue = builder.MaxValue * 100.0f;
-            m_minValue = 0.0f;
+            System.Diagnostics.Debug.Assert(!float.IsNaN(definition.MaxValue) && !float.IsNaN(definition.MinValue) && !float.IsNaN(definition.DefaultValue), "Invalid values in stat definition!");
+
+            m_maxValue = definition.MaxValue;
+            m_minValue = definition.MinValue;
             m_currentValue = builder.Value * m_maxValue;
+            m_defaultValue = definition.DefaultValue;
             
             m_lastSyncValue = m_currentValue;
             m_statId = MyStringHash.GetOrCompute(definition.Name);
 
+            m_regenAmountMultiplier = builder.StatRegenAmountMultiplier;
+            m_regenAmountMultiplierDuration = builder.StatRegenAmountMultiplierDuration;
+            m_regenAmountMultiplierTimeStart = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            m_regenAmountMultiplierTimeAlive = 0;
+            m_regenAmountMultiplierActive = m_regenAmountMultiplierDuration > 0;
+
+            ClearEffects();
             if (builder.Effects != null)
             {
                 foreach (var effectBuilder in builder.Effects)
@@ -75,9 +93,9 @@ namespace Sandbox.Game.Entities
         public virtual MyObjectBuilder_EntityStat GetObjectBuilder()
         {
             var builder = new MyObjectBuilder_EntityStat();
-            MyEntityStatDefinition definition = MyDefinitionManager.Static.GetDefinition(new MyDefinitionId(builder.TypeId, StatId)) as MyEntityStatDefinition;
+            MyEntityStatDefinition definition = MyDefinitionManager.Static.GetDefinition(new MyDefinitionId(builder.TypeId, StatDefinition.Id.SubtypeId)) as MyEntityStatDefinition;
 
-            builder.SubtypeName = m_statId.ToString();
+            builder.SubtypeName = StatDefinition.Id.SubtypeName;
             Debug.Assert(definition != null);
             if (definition != null)
             {
@@ -89,6 +107,12 @@ namespace Sandbox.Game.Entities
             {
                 builder.Value = m_currentValue / m_maxValue;
                 builder.MaxValue = 1.0f;
+            }
+
+            if (m_regenAmountMultiplierActive)
+            {
+                builder.StatRegenAmountMultiplier = m_regenAmountMultiplier;
+                builder.StatRegenAmountMultiplierDuration = m_regenAmountMultiplierDuration;
             }
 
             builder.Effects = null;
@@ -114,6 +138,40 @@ namespace Sandbox.Game.Entities
             }
 
             return builder;
+        }
+
+        public void ApplyRegenAmountMultiplier(float amountMultiplier = 1.0f, float duration = 2.0f)
+        {
+            m_regenAmountMultiplier = amountMultiplier;
+            m_regenAmountMultiplierDuration = duration;
+            m_regenAmountMultiplierTimeStart = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            m_regenAmountMultiplierActive = duration > 0.0f;
+        }
+
+        public void ResetRegenAmountMultiplier()
+        {
+            m_regenAmountMultiplier = 1.0f;
+            m_regenAmountMultiplierActive = false;
+        }
+
+        private void UpdateRegenAmountMultiplier()
+        {
+            if (m_regenAmountMultiplierActive)
+            {
+                m_regenAmountMultiplierTimeAlive = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_regenAmountMultiplierTimeStart;
+                if (m_regenAmountMultiplierTimeAlive >= m_regenAmountMultiplierDuration * 1000)
+                {
+                    // reset to default
+                    m_regenAmountMultiplier = 1.0f;
+                    m_regenAmountMultiplierDuration = 0;
+                    m_regenAmountMultiplierActive = false;
+                }
+            }
+        }
+
+        public float GetEfficiencyMultiplier(float multiplier, float threshold)
+        {
+            return CurrentRatio < threshold ? multiplier : 1.0f;
         }
 
         public int AddEffect(float amount, float interval, float duration = -1.0f, float minRegenRatio = 0.0f, float maxRegenRatio = 1.0f)
@@ -150,6 +208,8 @@ namespace Sandbox.Game.Entities
         {
             m_syncFlag = false;
             Debug.Assert(m_tmpRemoveEffects.Count == 0, "Effect remove list not cleared!");
+            UpdateRegenAmountMultiplier();
+
             foreach (var effectPair in m_effects)
             {
                 var effect = effectPair.Value;
@@ -159,7 +219,10 @@ namespace Sandbox.Game.Entities
                     m_tmpRemoveEffects.Add(effectPair.Key);
                 }
                 if (Sync.IsServer && effect.Enabled)
-                    effect.Update();
+                    if (m_regenAmountMultiplierActive)
+                        effect.Update(m_regenAmountMultiplier);
+                    else
+                        effect.Update();
             }
             foreach (var key in m_tmpRemoveEffects)
                 RemoveEffect(key);
@@ -175,6 +238,7 @@ namespace Sandbox.Game.Entities
 
         private void SetValue(float newValue, object statChangeData)
         {
+            System.Diagnostics.Debug.Assert(!float.IsNaN(newValue) && !float.IsInfinity(newValue), "Invalid value!");
             float oldValue = m_currentValue;
             m_currentValue = MathHelper.Clamp(newValue, MinValue, MaxValue);
             if (OnStatChanged != null && newValue != oldValue)

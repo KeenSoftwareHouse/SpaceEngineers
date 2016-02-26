@@ -15,7 +15,7 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("depth_resolve.hlsl", "resolve_depth");
+            m_ps = MyShaders.CreatePs("depth_resolve.hlsl");
         }
 
         internal static void Run(MyBindableResource dst, MyBindableResource src)

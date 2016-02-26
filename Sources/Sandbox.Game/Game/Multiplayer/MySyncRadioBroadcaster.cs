@@ -8,6 +8,7 @@ using Sandbox.Game.World;
 using SteamSDK;
 using VRageMath;
 using Sandbox.Game.Entities.Cube;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -64,7 +65,7 @@ namespace Sandbox.Game.Multiplayer
         {
             var msg = new ChangeRadioAntennaMsg();
 
-            msg.EntityId = m_broadcaster.Parent.EntityId;
+            msg.EntityId = m_broadcaster.Entity.EntityId;
             msg.BroadcastRadius = broadcastRadius;
             msg.BroadcastOn = on;
 
@@ -75,8 +76,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            var broadcasterOwner = entity as IMyComponentOwner<MyDataBroadcaster>;
-            if (broadcasterOwner != null)
+            if (entity.Components.Has<MyDataBroadcaster>())
             {
                 Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
             }
@@ -86,7 +86,7 @@ namespace Sandbox.Game.Multiplayer
         {
             var msg = new ChangeRadioAntennaDisplayNameMsg();
 
-            msg.EntityId = m_broadcaster.Parent.EntityId;
+            msg.EntityId = m_broadcaster.Entity.EntityId;
             msg.ShowShipName = showShipName;
 
             Sync.Layer.SendMessageToServerAndSelf(ref msg, MyTransportMessageEnum.Request);
@@ -103,22 +103,19 @@ namespace Sandbox.Game.Multiplayer
                     Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
                 }
             }
-        
         }
-
 
         static void ChangeRadioBroadcasterSuccess(ref ChangeRadioAntennaMsg msg, MyNetworkClient sender)
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             MyDataBroadcaster broadcaster;
-            var broadcasterOwner = entity as IMyComponentOwner<MyDataBroadcaster>;
-            if (broadcasterOwner != null)
+            if (entity.Components.TryGet<MyDataBroadcaster>(out broadcaster))
             {
-                broadcasterOwner.GetComponent(out broadcaster);
-                (broadcaster as MyRadioBroadcaster).BroadcastRadius = msg.BroadcastRadius;
-                (broadcaster as MyRadioBroadcaster).Enabled = msg.BroadcastOn;
-                (broadcaster as MyRadioBroadcaster).WantsToBeEnabled = msg.BroadcastOn;
+                var radio = broadcaster as MyRadioBroadcaster;
+                radio.BroadcastRadius = msg.BroadcastRadius;
+                radio.Enabled = msg.BroadcastOn;
+                radio.WantsToBeEnabled = msg.BroadcastOn;
             }
         }
 

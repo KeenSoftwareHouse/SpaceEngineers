@@ -1,14 +1,13 @@
-﻿using Sandbox.Definitions;
-using VRage.ObjectBuilders;
+﻿using VRage.Game.Definitions;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.Audio
+namespace VRage.Game
 {
     [MyDefinitionType(typeof(MyObjectBuilder_CurveDefinition))]
     public class MyCurveDefinition : MyDefinitionBase
     {
         public Curve Curve;
-        protected override void Init(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_DefinitionBase builder)
+        protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
 

@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -41,7 +43,7 @@ namespace Sandbox.Game.Screens.Helpers
 				return false;
 
 			MyPlaceAreas.Static.AreaMarkerDefinition = Definition as MyAreaMarkerDefinition;
-			var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
+			var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
 			if (controlledObject != null)
 			{
 				controlledObject.SwitchToWeapon(null);
@@ -55,7 +57,7 @@ namespace Sandbox.Game.Screens.Helpers
 			return type == MyToolbarType.Character || type == MyToolbarType.Spectator;
 		}
 
-		public override MyToolbarItem.ChangeInfo Update(Entities.MyEntity owner, long playerID = 0)
+		public override MyToolbarItem.ChangeInfo Update(MyEntity owner, long playerID = 0)
 		{
 			var markerDefinition = MyPlaceAreas.Static.AreaMarkerDefinition;
 			WantsToBeSelected = markerDefinition != null && markerDefinition.Id.SubtypeId == (this.Definition as MyAreaMarkerDefinition).Id.SubtypeId;

@@ -52,15 +52,15 @@ namespace VRageMath
         /// Nodes are pooled and relocatable, so we use node indices rather than pointers.
         /// </summary>
         public const int NullNode = -1;
-        private int _freeList;
-        private int _insertionCount;
-        private int _nodeCapacity;
-        private int _nodeCount;
-        private DynamicTreeNode[] _nodes;
+        private int m_freeList;
+        private int m_insertionCount;
+        private int m_nodeCapacity;
+        private int m_nodeCount;
+        private DynamicTreeNode[] m_nodes;
 
         private Dictionary<int, DynamicTreeNode> _leafElementCache;
 
-        private int _root;
+        private int m_root;
 
         [ThreadStatic]
         private static Stack<int> m_queryStack;
@@ -92,17 +92,17 @@ namespace VRageMath
         /// constructing the tree initializes the node pool.
         public MyDynamicAABBTree(Vector3 extension, float aabbMultiplier = 1)
         {
-            _nodeCapacity = 256;
+            m_nodeCapacity = 256;
 
             m_extension = extension;
             m_aabbMultiplier = aabbMultiplier;
 
-            _nodes = new DynamicTreeNode[_nodeCapacity];
-            _leafElementCache = new Dictionary<int, DynamicTreeNode>(_nodeCapacity / 4);
+            m_nodes = new DynamicTreeNode[m_nodeCapacity];
+            _leafElementCache = new Dictionary<int, DynamicTreeNode>(m_nodeCapacity / 4);
 
-            for (int i = 0; i < _nodeCapacity; ++i)
+            for (int i = 0; i < m_nodeCapacity; ++i)
             {
-                _nodes[i] = new DynamicTreeNode();
+                m_nodes[i] = new DynamicTreeNode();
             }
 
             // Initialize stack for current thread
@@ -137,14 +137,14 @@ namespace VRageMath
                 int proxyId = AllocateNode();
 
                 // Fatten the aabb.
-                _nodes[proxyId].Aabb = aabb;
-                _nodes[proxyId].Aabb.Min -= m_extension;
-                _nodes[proxyId].Aabb.Max += m_extension;
-                _nodes[proxyId].UserData = userData;
-                _nodes[proxyId].UserFlag = userFlags;
-                _nodes[proxyId].Height = 0;
+                m_nodes[proxyId].Aabb = aabb;
+                m_nodes[proxyId].Aabb.Min -= m_extension;
+                m_nodes[proxyId].Aabb.Max += m_extension;
+                m_nodes[proxyId].UserData = userData;
+                m_nodes[proxyId].UserFlag = userFlags;
+                m_nodes[proxyId].Height = 0;
 
-                _leafElementCache[proxyId] = _nodes[proxyId];
+                _leafElementCache[proxyId] = m_nodes[proxyId];
 
                 InsertLeaf(proxyId, rebalance);
 
@@ -160,8 +160,8 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireExclusiveUsing())
             {
-                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-                System.Diagnostics.Debug.Assert(_nodes[proxyId].IsLeaf());
+                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+                System.Diagnostics.Debug.Assert(m_nodes[proxyId].IsLeaf());
 
                 _leafElementCache.Remove(proxyId);
 
@@ -183,10 +183,10 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireExclusiveUsing())
             {
-                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-                System.Diagnostics.Debug.Assert(_nodes[proxyId].IsLeaf());
+                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+                System.Diagnostics.Debug.Assert(m_nodes[proxyId].IsLeaf());
 
-                ContainmentType contType = _nodes[proxyId].Aabb.Contains(aabb);
+                ContainmentType contType = m_nodes[proxyId].Aabb.Contains(aabb);
                 if (contType == ContainmentType.Contains)
                 {
                     return false;
@@ -231,7 +231,7 @@ namespace VRageMath
                     b.Max.Z += d.Z;
                 }
 
-                _nodes[proxyId].Aabb = b;
+                m_nodes[proxyId].Aabb = b;
 
                 InsertLeaf(proxyId, true);
             }
@@ -247,26 +247,26 @@ namespace VRageMath
         /// <returns>the proxy user data or 0 if the id is invalid.</returns>
         public T GetUserData<T>(int proxyId)
         {
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-            return (T)_nodes[proxyId].UserData;
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+            return (T)m_nodes[proxyId].UserData;
         }
 
         public int GetRoot()
         {
-            return _root;
+            return m_root;
         }
 
         public int GetLeafCount(int proxyId)
         {
             int result = 0;
 
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
 
             Stack<int> stack = GetStack();
             stack.Push(proxyId);
 
 
-            //int g = CountLeaves(_root);
+            //int g = CountLeaves(m_root);
 
             while (stack.Count > 0)
             {
@@ -276,7 +276,7 @@ namespace VRageMath
                     continue;
                 }
 
-                DynamicTreeNode node = _nodes[nodeId];
+                DynamicTreeNode node = m_nodes[nodeId];
                                 
                 if (node.IsLeaf())
                 {
@@ -295,13 +295,13 @@ namespace VRageMath
 
         public void GetNodeLeaves(int proxyId, List<int> children)
         {
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
 
             Stack<int> stack = GetStack();
             stack.Push(proxyId);
 
 
-            //int g = CountLeaves(_root);
+            //int g = CountLeaves(m_root);
 
             while (stack.Count > 0)
             {
@@ -311,7 +311,7 @@ namespace VRageMath
                     continue;
                 }
 
-                DynamicTreeNode node = _nodes[nodeId];
+                DynamicTreeNode node = m_nodes[nodeId];
 
                 if (node.IsLeaf())
                 {
@@ -329,15 +329,15 @@ namespace VRageMath
 
         public BoundingBox GetAabb(int proxyId)
         {
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-            return _nodes[proxyId].Aabb;
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+            return m_nodes[proxyId].Aabb;
         }
 
         public void GetChildren(int proxyId, out int left, out int right)
         {
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-            left = _nodes[proxyId].Child1;
-            right = _nodes[proxyId].Child2;
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+            left = m_nodes[proxyId].Child1;
+            right = m_nodes[proxyId].Child2;
         }
 
         /// <summary>
@@ -347,8 +347,8 @@ namespace VRageMath
         /// <returns>the proxy user data or 0 if the id is invalid.</returns>
         uint GetUserFlag(int proxyId)
         {
-            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-            return _nodes[proxyId].UserFlag;
+            System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+            return m_nodes[proxyId].UserFlag;
         }
 
         /// <summary>
@@ -360,8 +360,8 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireSharedUsing())
             {
-                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-                fatAABB = _nodes[proxyId].Aabb;
+                System.Diagnostics.Debug.Assert(0 <= proxyId && proxyId < m_nodeCapacity);
+                fatAABB = m_nodes[proxyId].Aabb;
             }
         }
 
@@ -371,8 +371,8 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireSharedUsing())
             {
-                Stack<int> stack = new Stack<int>(256);
-                stack.Push(_root);
+                Stack<int> stack = GetStack();
+                stack.Push(m_root);
 
                 while (stack.Count > 0)
                 {
@@ -382,7 +382,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     if (node.Aabb.Intersects(aabb))
                     {
@@ -415,8 +415,8 @@ namespace VRageMath
                     return 0;
                 }
 
-                System.Diagnostics.Debug.Assert(0 <= nodeId && nodeId < _nodeCapacity);
-                DynamicTreeNode node = _nodes[nodeId];
+                System.Diagnostics.Debug.Assert(0 <= nodeId && nodeId < m_nodeCapacity);
+                DynamicTreeNode node = m_nodes[nodeId];
 
                 if (node.IsLeaf())
                 {
@@ -435,79 +435,79 @@ namespace VRageMath
         private int AllocateNode()
         {
             // Expand the node pool as needed.
-            if (_freeList == NullNode)
+            if (m_freeList == NullNode)
             {
-                System.Diagnostics.Debug.Assert(_nodeCount == _nodeCapacity);
+                System.Diagnostics.Debug.Assert(m_nodeCount == m_nodeCapacity);
 
                 // The free list is empty. Rebuild a bigger pool.
-                DynamicTreeNode[] oldNodes = _nodes;
-                _nodeCapacity *= 2;
-                _nodes = new DynamicTreeNode[_nodeCapacity];
-                Array.Copy(oldNodes, _nodes, _nodeCount);
+                DynamicTreeNode[] oldNodes = m_nodes;
+                m_nodeCapacity *= 2;
+                m_nodes = new DynamicTreeNode[m_nodeCapacity];
+                Array.Copy(oldNodes, m_nodes, m_nodeCount);
 
                 // Build a linked list for the free list. The parent
                 // pointer becomes the "next" pointer.
-                for (int i = _nodeCount; i < _nodeCapacity - 1; ++i)
+                for (int i = m_nodeCount; i < m_nodeCapacity - 1; ++i)
                 {
-                    _nodes[i] = new DynamicTreeNode();
-                    _nodes[i].ParentOrNext = i + 1;
-                    _nodes[i].Height = 1;
+                    m_nodes[i] = new DynamicTreeNode();
+                    m_nodes[i].ParentOrNext = i + 1;
+                    m_nodes[i].Height = 1;
                 }
-                _nodes[_nodeCapacity - 1] = new DynamicTreeNode();
-                _nodes[_nodeCapacity - 1].ParentOrNext = NullNode;
-                _nodes[_nodeCapacity - 1].Height = 1;
-                _freeList = _nodeCount;
+                m_nodes[m_nodeCapacity - 1] = new DynamicTreeNode();
+                m_nodes[m_nodeCapacity - 1].ParentOrNext = NullNode;
+                m_nodes[m_nodeCapacity - 1].Height = 1;
+                m_freeList = m_nodeCount;
             }
 
             // Peel a node off the free list.
-            int nodeId = _freeList;
-            _freeList = _nodes[nodeId].ParentOrNext;
-            _nodes[nodeId].ParentOrNext = NullNode;
-            _nodes[nodeId].Child1 = NullNode;
-            _nodes[nodeId].Child2 = NullNode;
-            _nodes[nodeId].Height = 0;
-            _nodes[nodeId].UserData = null;
-            ++_nodeCount;
+            int nodeId = m_freeList;
+            m_freeList = m_nodes[nodeId].ParentOrNext;
+            m_nodes[nodeId].ParentOrNext = NullNode;
+            m_nodes[nodeId].Child1 = NullNode;
+            m_nodes[nodeId].Child2 = NullNode;
+            m_nodes[nodeId].Height = 0;
+            m_nodes[nodeId].UserData = null;
+            ++m_nodeCount;
             return nodeId;
         }
 
         private void FreeNode(int nodeId)
         {
-            System.Diagnostics.Debug.Assert(0 <= nodeId && nodeId < _nodeCapacity);
-            System.Diagnostics.Debug.Assert(0 < _nodeCount);
-            _nodes[nodeId].ParentOrNext = _freeList;
-            _nodes[nodeId].Height = -1;
-            _nodes[nodeId].UserData = null;
-            _freeList = nodeId;
-            --_nodeCount;
+            System.Diagnostics.Debug.Assert(0 <= nodeId && nodeId < m_nodeCapacity);
+            System.Diagnostics.Debug.Assert(0 < m_nodeCount);
+            m_nodes[nodeId].ParentOrNext = m_freeList;
+            m_nodes[nodeId].Height = -1;
+            m_nodes[nodeId].UserData = null;
+            m_freeList = nodeId;
+            --m_nodeCount;
         }
 
         private void InsertLeaf(int leaf, bool rebalance)
         {
-            ++_insertionCount;
+            ++m_insertionCount;
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
             {
-                _root = leaf;
-                _nodes[_root].ParentOrNext = NullNode;
+                m_root = leaf;
+                m_nodes[m_root].ParentOrNext = NullNode;
                 return;
             }
 
             // Find the best sibling for this node
-            BoundingBox leafAABB = _nodes[leaf].Aabb;
+            BoundingBox leafAABB = m_nodes[leaf].Aabb;
             //Vector3 leafCenter = leafAABB.Min + (leafAABB.Max - leafAABB.Min) * 0.5f;
-            int index = _root;
-            while (_nodes[index].IsLeaf() == false)
+            int index = m_root;
+            while (m_nodes[index].IsLeaf() == false)
             {
-                int child1 = _nodes[index].Child1;
-                int child2 = _nodes[index].Child2;
+                int child1 = m_nodes[index].Child1;
+                int child2 = m_nodes[index].Child2;
 
                 if (rebalance)
                 {
-                    float area = _nodes[index].Aabb.Perimeter;
+                    float area = m_nodes[index].Aabb.Perimeter;
 
                     // Combined area
-                    BoundingBox combinedAABB = BoundingBox.CreateMerged(_nodes[index].Aabb, leafAABB);
+                    BoundingBox combinedAABB = BoundingBox.CreateMerged(m_nodes[index].Aabb, leafAABB);
                     float combinedArea = combinedAABB.Perimeter;
 
                     //Cost of creating a new parent for this node and the new leaf
@@ -519,35 +519,35 @@ namespace VRageMath
                     float inheritanceCost = 2.0f * (combinedArea - area);
                     //Cost of descending into child1
                     float cost1;
-                    if (_nodes[child1].IsLeaf())
+                    if (m_nodes[child1].IsLeaf())
                     {
                         BoundingBox aabb;
-                        BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child1].Aabb, out aabb);
+                        BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child1].Aabb, out aabb);
 
                         cost1 = aabb.Perimeter + inheritanceCost;
                     }
                     else
                     {
                         BoundingBox aabb;
-                        BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child1].Aabb, out aabb);
-                        float oldArea = _nodes[child1].Aabb.Perimeter;
+                        BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child1].Aabb, out aabb);
+                        float oldArea = m_nodes[child1].Aabb.Perimeter;
                         float newArea = aabb.Perimeter;
                         cost1 = (newArea - oldArea) + inheritanceCost;
                     }
 
                     //Cost of descending into child2
                     float cost2;
-                    if (_nodes[child2].IsLeaf())
+                    if (m_nodes[child2].IsLeaf())
                     {
                         BoundingBox aabb;
-                        BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child2].Aabb, out aabb);
+                        BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child2].Aabb, out aabb);
                         cost2 = aabb.Perimeter + inheritanceCost;
                     }
                     else
                     {
                         BoundingBox aabb;
-                        BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child2].Aabb, out aabb);
-                        float oldArea = _nodes[child2].Aabb.Perimeter;
+                        BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child2].Aabb, out aabb);
+                        float oldArea = m_nodes[child2].Aabb.Perimeter;
                         float newArea = aabb.Perimeter;
                         cost2 = newArea - oldArea + inheritanceCost;
                     }
@@ -573,10 +573,10 @@ namespace VRageMath
                     // Surface area heuristic
                     BoundingBox aabb1;
                     BoundingBox aabb2;
-                    BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child1].Aabb, out aabb1);
-                    BoundingBox.CreateMerged(ref leafAABB, ref _nodes[child2].Aabb, out aabb2);
-                    float norm1 = (_nodes[child1].Height + 1) * aabb1.Perimeter;
-                    float norm2 = (_nodes[child2].Height + 1) * aabb2.Perimeter;
+                    BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child1].Aabb, out aabb1);
+                    BoundingBox.CreateMerged(ref leafAABB, ref m_nodes[child2].Aabb, out aabb2);
+                    float norm1 = (m_nodes[child1].Height + 1) * aabb1.Perimeter;
+                    float norm2 = (m_nodes[child2].Height + 1) * aabb2.Perimeter;
 
                     if (norm1 < norm2)
                     {
@@ -592,43 +592,43 @@ namespace VRageMath
             int sibling = index;
 
             // Create a new parent for the siblings.
-            int oldParent = _nodes[index].ParentOrNext;
+            int oldParent = m_nodes[index].ParentOrNext;
             int newParent = AllocateNode();
-            _nodes[newParent].ParentOrNext = oldParent;
-            _nodes[newParent].UserData = null;
-            _nodes[newParent].Aabb = BoundingBox.CreateMerged(leafAABB, _nodes[sibling].Aabb);
-            _nodes[newParent].Height = _nodes[sibling].Height + 1;
+            m_nodes[newParent].ParentOrNext = oldParent;
+            m_nodes[newParent].UserData = null;
+            m_nodes[newParent].Aabb = BoundingBox.CreateMerged(leafAABB, m_nodes[sibling].Aabb);
+            m_nodes[newParent].Height = m_nodes[sibling].Height + 1;
 
             if (oldParent != NullNode)
             {
                 // The sibling was not the root.
-                if (_nodes[oldParent].Child1 == sibling)
+                if (m_nodes[oldParent].Child1 == sibling)
                 {
-                    _nodes[oldParent].Child1 = newParent;
+                    m_nodes[oldParent].Child1 = newParent;
                 }
                 else
                 {
-                    _nodes[oldParent].Child2 = newParent;
+                    m_nodes[oldParent].Child2 = newParent;
                 }
 
-                _nodes[newParent].Child1 = sibling;
-                _nodes[newParent].Child2 = leaf;
-                _nodes[index].ParentOrNext = newParent;
-                _nodes[leaf].ParentOrNext = newParent;
+                m_nodes[newParent].Child1 = sibling;
+                m_nodes[newParent].Child2 = leaf;
+                m_nodes[index].ParentOrNext = newParent;
+                m_nodes[leaf].ParentOrNext = newParent;
             }
             else
             {
                 // The sibling was the root.
-                _nodes[newParent].Child1 = sibling;
-                _nodes[newParent].Child2 = leaf;
-                _nodes[index].ParentOrNext = newParent;
-                _nodes[leaf].ParentOrNext = newParent;
-                _root = newParent;
+                m_nodes[newParent].Child1 = sibling;
+                m_nodes[newParent].Child2 = leaf;
+                m_nodes[index].ParentOrNext = newParent;
+                m_nodes[leaf].ParentOrNext = newParent;
+                m_root = newParent;
             }
 
 
             // Walk back up the tree fixing heights and AABBs            
-            index = _nodes[leaf].ParentOrNext;
+            index = m_nodes[leaf].ParentOrNext;
             while (index != NullNode)
             {
                 if (rebalance)
@@ -636,53 +636,53 @@ namespace VRageMath
                     index = Balance(index);
                 }
 
-                int child1 = _nodes[index].Child1;
-                int child2 = _nodes[index].Child2;
+                int child1 = m_nodes[index].Child1;
+                int child2 = m_nodes[index].Child2;
 
                 Debug.Assert(child1 != NullNode);
                 Debug.Assert(child2 != NullNode);
 
-                _nodes[index].Height = 1 + Math.Max(_nodes[child1].Height, _nodes[child2].Height);
-                BoundingBox.CreateMerged(ref _nodes[child1].Aabb, ref _nodes[child2].Aabb, out _nodes[index].Aabb);
-                index = _nodes[index].ParentOrNext;
+                m_nodes[index].Height = 1 + Math.Max(m_nodes[child1].Height, m_nodes[child2].Height);
+                BoundingBox.CreateMerged(ref m_nodes[child1].Aabb, ref m_nodes[child2].Aabb, out m_nodes[index].Aabb);
+                index = m_nodes[index].ParentOrNext;
             }
         }
 
         private void RemoveLeaf(int leaf)
         {
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
-            if (leaf == _root)
+            if (leaf == m_root)
             {
-                _root = NullNode;
+                m_root = NullNode;
                 return;
             }
 
-            int parent = _nodes[leaf].ParentOrNext;
-            int grandParent = _nodes[parent].ParentOrNext;
+            int parent = m_nodes[leaf].ParentOrNext;
+            int grandParent = m_nodes[parent].ParentOrNext;
             int sibling;
-            if (_nodes[parent].Child1 == leaf)
+            if (m_nodes[parent].Child1 == leaf)
             {
-                sibling = _nodes[parent].Child2;
+                sibling = m_nodes[parent].Child2;
             }
             else
             {
-                sibling = _nodes[parent].Child1;
+                sibling = m_nodes[parent].Child1;
             }
 
             if (grandParent != NullNode)
             {
                 // Destroy node2 and connect node1 to sibling.
-                if (_nodes[grandParent].Child1 == parent)
+                if (m_nodes[grandParent].Child1 == parent)
                 {
-                    _nodes[grandParent].Child1 = sibling;
+                    m_nodes[grandParent].Child1 = sibling;
                 }
                 else
                 {
-                    _nodes[grandParent].Child2 = sibling;
+                    m_nodes[grandParent].Child2 = sibling;
                 }
-                _nodes[sibling].ParentOrNext = grandParent;
+                m_nodes[sibling].ParentOrNext = grandParent;
                 FreeNode(parent);
 
 
@@ -692,19 +692,19 @@ namespace VRageMath
                 {
                     index = Balance(index);
 
-                    int child1 = _nodes[index].Child1;
-                    int child2 = _nodes[index].Child2;
+                    int child1 = m_nodes[index].Child1;
+                    int child2 = m_nodes[index].Child2;
 
-                    _nodes[index].Aabb = BoundingBox.CreateMerged(_nodes[child1].Aabb, _nodes[child2].Aabb);
-                    _nodes[index].Height = 1 + Math.Max(_nodes[child1].Height, _nodes[child2].Height);
+                    m_nodes[index].Aabb = BoundingBox.CreateMerged(m_nodes[child1].Aabb, m_nodes[child2].Aabb);
+                    m_nodes[index].Height = 1 + Math.Max(m_nodes[child1].Height, m_nodes[child2].Height);
 
-                    index = _nodes[index].ParentOrNext;
+                    index = m_nodes[index].ParentOrNext;
                 }
             }
             else
             {
-                _root = sibling;
-                _nodes[sibling].ParentOrNext = NullNode;
+                m_root = sibling;
+                m_nodes[sibling].ParentOrNext = NullNode;
                 FreeNode(parent);
             }
         }
@@ -716,10 +716,10 @@ namespace VRageMath
             using (m_rwLock.AcquireSharedUsing())
             {
 
-                if (_root == NullNode)
+                if (m_root == NullNode)
                     return 0;
 
-                return _nodes[_root].Height;
+                return m_nodes[m_root].Height;
             }
         }
 
@@ -729,7 +729,7 @@ namespace VRageMath
         public int Balance(int iA)
         {
             Debug.Assert(iA != NullNode);
-            DynamicTreeNode A = _nodes[iA];
+            DynamicTreeNode A = m_nodes[iA];
 
             if (A.IsLeaf() || A.Height < 2)
             {
@@ -738,11 +738,11 @@ namespace VRageMath
 
             int iB = A.Child1;
             int iC = A.Child2;
-            Debug.Assert(0 <= iB && iB < _nodeCapacity);
-            Debug.Assert(0 <= iC && iC < _nodeCapacity);
+            Debug.Assert(0 <= iB && iB < m_nodeCapacity);
+            Debug.Assert(0 <= iC && iC < m_nodeCapacity);
 
-            DynamicTreeNode B = _nodes[iB];
-            DynamicTreeNode C = _nodes[iC];
+            DynamicTreeNode B = m_nodes[iB];
+            DynamicTreeNode C = m_nodes[iC];
 
             int balance = C.Height - B.Height;
 
@@ -751,10 +751,10 @@ namespace VRageMath
             {
                 int iF = C.Child1;
                 int iG = C.Child2;
-                DynamicTreeNode F = _nodes[iF];
-                DynamicTreeNode G = _nodes[iG];
-                Debug.Assert(0 <= iF && iF < _nodeCapacity);
-                Debug.Assert(0 <= iG && iG < _nodeCapacity);
+                DynamicTreeNode F = m_nodes[iF];
+                DynamicTreeNode G = m_nodes[iG];
+                Debug.Assert(0 <= iF && iF < m_nodeCapacity);
+                Debug.Assert(0 <= iG && iG < m_nodeCapacity);
 
                 // Swap A and C
                 C.Child1 = iA;
@@ -765,19 +765,19 @@ namespace VRageMath
 
                 if (C.ParentOrNext != NullNode)
                 {
-                    if (_nodes[C.ParentOrNext].Child1 == iA)
+                    if (m_nodes[C.ParentOrNext].Child1 == iA)
                     {
-                        _nodes[C.ParentOrNext].Child1 = iC;
+                        m_nodes[C.ParentOrNext].Child1 = iC;
                     }
                     else
                     {
-                        Debug.Assert(_nodes[C.ParentOrNext].Child2 == iA);
-                        _nodes[C.ParentOrNext].Child2 = iC;
+                        Debug.Assert(m_nodes[C.ParentOrNext].Child2 == iA);
+                        m_nodes[C.ParentOrNext].Child2 = iC;
                     }
                 }
                 else
                 {
-                    _root = iC;
+                    m_root = iC;
                 }
 
                 // Rotate
@@ -813,10 +813,10 @@ namespace VRageMath
             {
                 int iD = B.Child1;
                 int iE = B.Child2;
-                DynamicTreeNode D = _nodes[iD];
-                DynamicTreeNode E = _nodes[iE];
-                Debug.Assert(0 <= iD && iD < _nodeCapacity);
-                Debug.Assert(0 <= iE && iE < _nodeCapacity);
+                DynamicTreeNode D = m_nodes[iD];
+                DynamicTreeNode E = m_nodes[iE];
+                Debug.Assert(0 <= iD && iD < m_nodeCapacity);
+                Debug.Assert(0 <= iE && iE < m_nodeCapacity);
 
                 // Swap A and B
                 B.Child1 = iA;
@@ -826,19 +826,19 @@ namespace VRageMath
                 // A's old parent should point to B
                 if (B.ParentOrNext != NullNode)
                 {
-                    if (_nodes[B.ParentOrNext].Child1 == iA)
+                    if (m_nodes[B.ParentOrNext].Child1 == iA)
                     {
-                        _nodes[B.ParentOrNext].Child1 = iB;
+                        m_nodes[B.ParentOrNext].Child1 = iB;
                     }
                     else
                     {
-                        Debug.Assert(_nodes[B.ParentOrNext].Child2 == iA);
-                        _nodes[B.ParentOrNext].Child2 = iB;
+                        Debug.Assert(m_nodes[B.ParentOrNext].Child2 == iA);
+                        m_nodes[B.ParentOrNext].Child2 = iB;
                     }
                 }
                 else
                 {
-                    _root = iB;
+                    m_root = iB;
                 }
 
                 // Rotate
@@ -880,13 +880,13 @@ namespace VRageMath
             if (clear)
                 elementsList.Clear();
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 //BoundingBox bbox = BoundingBoxHelper.InitialBox;
                 //BoundingBoxHelper.AddFrustum(ref frustum, ref bbox);
@@ -899,7 +899,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     //if (node.Aabb.Intersects(bbox))
                     {
@@ -914,7 +914,7 @@ namespace VRageMath
                             {
                                 int nodeIdToAdd = stack.Pop();
 
-                                DynamicTreeNode nodeToAdd = _nodes[nodeIdToAdd];
+                                DynamicTreeNode nodeToAdd = m_nodes[nodeIdToAdd];
 
                                 if (nodeToAdd.IsLeaf())
                                 {
@@ -965,7 +965,7 @@ namespace VRageMath
                 isInsideList.Clear();
             }
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
             { 
                 return;
             }
@@ -973,7 +973,7 @@ namespace VRageMath
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 //BoundingBox bbox = BoundingBoxHelper.InitialBox;
                 //BoundingBoxHelper.AddFrustum(ref frustum, ref bbox);
@@ -986,7 +986,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     //if (node.Aabb.Intersects(bbox))
                     {
@@ -1001,7 +1001,7 @@ namespace VRageMath
                             {
                                 int nodeIdToAdd = stack.Pop();
 
-                                DynamicTreeNode nodeToAdd = _nodes[nodeIdToAdd];
+                                DynamicTreeNode nodeToAdd = m_nodes[nodeIdToAdd];
 
                                 if (nodeToAdd.IsLeaf())
                                 {
@@ -1056,7 +1056,7 @@ namespace VRageMath
                 isInsideList.Clear();
             }
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
             {
                 return;
             }
@@ -1064,7 +1064,7 @@ namespace VRageMath
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 //BoundingBox bbox = BoundingBoxHelper.InitialBox;
                 //BoundingBoxHelper.AddFrustum(ref frustum, ref bbox);
@@ -1077,7 +1077,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     //if (node.Aabb.Intersects(bbox))
                     {
@@ -1092,7 +1092,7 @@ namespace VRageMath
                             {
                                 int nodeIdToAdd = stack.Pop();
 
-                                DynamicTreeNode nodeToAdd = _nodes[nodeIdToAdd];
+                                DynamicTreeNode nodeToAdd = m_nodes[nodeIdToAdd];
 
                                 if (nodeToAdd.IsLeaf())
                                 {
@@ -1148,13 +1148,13 @@ namespace VRageMath
             if (clear)
                 elementsList.Clear();
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 BoundingBox bbox = BoundingBox.CreateInvalid();
                 bbox.Include(ref frustum);
@@ -1167,7 +1167,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     if (node.Aabb.Intersects(bbox))
                     {
@@ -1182,7 +1182,7 @@ namespace VRageMath
                             {
                                 int nodeIdToAdd = stack.Pop();
 
-                                DynamicTreeNode nodeToAdd = _nodes[nodeIdToAdd];
+                                DynamicTreeNode nodeToAdd = m_nodes[nodeIdToAdd];
 
                                 if (nodeToAdd.IsLeaf())
                                 {
@@ -1230,13 +1230,13 @@ namespace VRageMath
             if (clear)
                 elementsList.Clear();
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 //BoundingBox bbox = BoundingBoxHelper.InitialBox;
                 //BoundingBoxHelper.AddFrustum(ref frustum, ref bbox);
@@ -1249,7 +1249,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     //if (node.Aabb.Intersects(bbox))
                     {
@@ -1264,7 +1264,7 @@ namespace VRageMath
                             {
                                 int nodeIdToAdd = stack.Pop();
 
-                                DynamicTreeNode nodeToAdd = _nodes[nodeIdToAdd];
+                                DynamicTreeNode nodeToAdd = m_nodes[nodeIdToAdd];
 
                                 if (nodeToAdd.IsLeaf())
                                 {
@@ -1310,13 +1310,13 @@ namespace VRageMath
         {
             elementsList.Clear();
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
                 BoundingBox bbox = BoundingBox.CreateInvalid();
                 bbox.Include(ref line);
@@ -1331,7 +1331,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     if (node.Aabb.Intersects(bbox))
                     {
@@ -1368,16 +1368,16 @@ namespace VRageMath
             if (clear)
                 elementsList.Clear();
 
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
 
-                //int g = CountLeaves(_root);
+                //int g = CountLeaves(m_root);
 
                 while (stack.Count > 0)
                 {
@@ -1387,7 +1387,7 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     if (node.Aabb.Intersects(bbox))
                     {
@@ -1411,21 +1411,20 @@ namespace VRageMath
             }
         }
 
-        public void OverlapAllBoundingSphere<T>(ref BoundingSphere sphere, List<T> overlapElementsList, bool clear = true)
+        /**
+         * Use the tree to produce a list of clusters aproximatelly the requested size, while intersecting those with the provided bounding box.
+         */
+        public void OverlapSizeableClusters(ref BoundingBox bbox, List<BoundingBox> boundList, double minSize)
         {
-            if (clear)
-                overlapElementsList.Clear();
-
-            if (_root == NullNode)
+            if (m_root == NullNode)
                 return;
 
             using (m_rwLock.AcquireSharedUsing())
             {
                 Stack<int> stack = GetStack();
-                stack.Push(_root);
+                stack.Push(m_root);
 
-
-                //int g = CountLeaves(_root);
+                //int g = CountLeaves(m_root);
 
                 while (stack.Count > 0)
                 {
@@ -1435,7 +1434,51 @@ namespace VRageMath
                         continue;
                     }
 
-                    DynamicTreeNode node = _nodes[nodeId];
+                    DynamicTreeNode node = m_nodes[nodeId];
+
+                    if (node.Aabb.Intersects(bbox))
+                    {
+                        if (node.IsLeaf() || node.Aabb.Size.Max() <= minSize)
+                        {
+                            boundList.Add(node.Aabb);
+                        }
+                        else
+                        {
+                            stack.Push(node.Child1);
+                            stack.Push(node.Child2);
+                        }
+                    }
+                }
+
+                PushStack(stack);
+            }
+        }
+
+        public void OverlapAllBoundingSphere<T>(ref BoundingSphere sphere, List<T> overlapElementsList, bool clear = true)
+        {
+            if (clear)
+                overlapElementsList.Clear();
+
+            if (m_root == NullNode)
+                return;
+
+            using (m_rwLock.AcquireSharedUsing())
+            {
+                Stack<int> stack = GetStack();
+                stack.Push(m_root);
+
+
+                //int g = CountLeaves(m_root);
+
+                while (stack.Count > 0)
+                {
+                    int nodeId = stack.Pop();
+                    if (nodeId == NullNode)
+                    {
+                        continue;
+                    }
+
+                    DynamicTreeNode node = m_nodes[nodeId];
 
                     if (node.Aabb.Intersects(sphere))
                     {
@@ -1481,25 +1524,40 @@ namespace VRageMath
             }
         }
 
+        public void GetAllNodeBounds(List<BoundingBox> boxsList)
+        {
+            using (m_rwLock.AcquireSharedUsing())
+            {
+                for (int i = 0, j = 0; i < m_nodeCapacity && j < m_nodeCount; ++i)
+                {
+                    if (m_nodes[i].Height != -1)
+                    {
+                        j++;
+                        boxsList.Add(m_nodes[i].Aabb);
+                    }
+                }
+            }
+        }
+
         private void ResetNodes()
         {
             _leafElementCache.Clear();
 
-            _root = NullNode;
+            m_root = NullNode;
 
-            _nodeCount = 0;
-            _insertionCount = 0;
+            m_nodeCount = 0;
+            m_insertionCount = 0;
 
             // Build a linked list for the free list.
-            for (int i = 0; i < _nodeCapacity - 1; ++i)
+            for (int i = 0; i < m_nodeCapacity - 1; ++i)
             {
-                _nodes[i].ParentOrNext = i + 1;
-                _nodes[i].Height = 1;
-                _nodes[i].UserData = null;
+                m_nodes[i].ParentOrNext = i + 1;
+                m_nodes[i].Height = 1;
+                m_nodes[i].UserData = null;
             }
-            _nodes[_nodeCapacity - 1].ParentOrNext = NullNode;
-            _nodes[_nodeCapacity - 1].Height = 1;
-            _freeList = 0;
+            m_nodes[m_nodeCapacity - 1].ParentOrNext = NullNode;
+            m_nodes[m_nodeCapacity - 1].Height = 1;
+            m_freeList = 0;
         }
 
         public void Clear()

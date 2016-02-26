@@ -59,6 +59,7 @@ namespace VRageRender.Effects
 
         readonly EffectHandle m_positionToLefBottomOffset;
 
+        readonly EffectHandle m_hasAtmosphere;
 
         public readonly MyEffectComponentVoxelVertex VoxelVertex;
 
@@ -83,6 +84,8 @@ namespace VRageRender.Effects
             m_sunSpecularColor = m_D3DEffect.GetParameter(null, "LightSpecularColor");
 
             m_positionToLefBottomOffset = m_D3DEffect.GetParameter(null, "PositionToLefBottomOffset");
+
+            m_hasAtmosphere = m_D3DEffect.GetParameter(null, "HasAtmosphere");
 
             VoxelVertex = new MyEffectComponentVoxelVertex(m_D3DEffect);
         }
@@ -145,5 +148,9 @@ namespace VRageRender.Effects
             m_D3DEffect.SetValue(m_positionToLefBottomOffset, offset);
         }
 
+        public void SetHasAtmosphere(bool hasAtmosphere)
+        {
+            m_D3DEffect.SetValue(m_hasAtmosphere, hasAtmosphere);
+        }
     }
 }

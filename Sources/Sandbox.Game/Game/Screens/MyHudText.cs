@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.Common;
 using Sandbox.Graphics.GUI;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
 

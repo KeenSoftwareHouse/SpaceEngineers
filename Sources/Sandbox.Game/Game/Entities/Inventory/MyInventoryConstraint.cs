@@ -8,6 +8,7 @@ using Sandbox.Common.ObjectBuilders;
 
 using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;

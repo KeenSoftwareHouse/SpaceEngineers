@@ -23,8 +23,10 @@ namespace VRageRender
 
         //  Distance to camera, for sorting
         public float DistanceSquared;
+
         public float Size;
         public float Reflectivity;
+        public float AlphaCutout;
 
 
         public bool EnableColorize = false;

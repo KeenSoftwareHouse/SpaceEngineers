@@ -3,8 +3,10 @@ using Sandbox.Game.World;
 using System;
 using System.Diagnostics;
 using VRage;
+using VRage.Game;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 using VRageRender.Lights;
 
 namespace Sandbox.Game.Lights
@@ -59,7 +61,7 @@ namespace Sandbox.Game.Lights
         #endregion
 
         #region Fields
-        private uint m_renderObjectID = 0xFFFFFFFF;
+        private uint m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
         private bool m_propertiesDirty;
         private bool m_positionDirty;
         private bool m_spotParamsDirty;
@@ -724,7 +726,7 @@ namespace Sandbox.Game.Lights
         public void Clear()
         {
             VRageRender.MyRenderProxy.RemoveRenderObject(RenderObjectID);
-            m_renderObjectID = 0xFFFFFFFF;
+            m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
         }
 
         public void MarkPositionDirty()

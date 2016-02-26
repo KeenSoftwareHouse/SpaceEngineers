@@ -115,7 +115,7 @@ namespace VRageRender
                     if (msg == null)
                         continue;
 
-                    if ((filter == null || filter(msg.MessageType)) && msg.MessageClass != MyRenderMessageType.Draw)
+                    if ((filter == null || filter(msg.MessageType)) && msg.MessageClass != MyRenderMessageType.Draw && msg.MessageClass != MyRenderMessageType.DebugDraw)
                     {
                         processCtr++;
                         ProcessMessage(msg);

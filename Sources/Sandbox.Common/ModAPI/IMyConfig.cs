@@ -2,6 +2,7 @@
 using VRage;
 using VRage.Serialization;
 using VRageRender;
+using VRage.Utils;
 
 namespace Sandbox.ModAPI
 {
@@ -26,12 +27,12 @@ namespace Sandbox.ModAPI
         MyLanguagesEnum Language { get; }
         bool MemoryLimits { get; }
         bool MinimalHud { get; }
-        bool? MultithreadedRendering { get; }
         float MusicVolume { get; }
         bool NeedShowTutorialQuestion { get; }
         int RefreshRate { get; }
         bool RenderInterpolation { get; }
         MyRenderQualityEnum? RenderQuality { get; }
+        MyGraphicsRenderer GraphicsRenderer { get; }
         bool RotationHints { get; }
         int? ScreenHeight { get; }
         int? ScreenWidth { get; }
@@ -42,5 +43,6 @@ namespace Sandbox.ModAPI
         bool VerticalSync { get; }
         int VideoAdapter { get; }
         MyWindowModeEnum WindowMode { get; }
+        bool CaptureMouse { get; }
     }
 }

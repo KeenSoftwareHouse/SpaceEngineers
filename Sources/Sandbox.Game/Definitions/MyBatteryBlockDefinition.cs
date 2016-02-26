@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 
 namespace Sandbox.Definitions
@@ -8,6 +10,7 @@ namespace Sandbox.Definitions
     public class MyBatteryBlockDefinition : MyPowerProducerDefinition
     {
         public float MaxStoredPower;
+        public float InitialStoredPowerRatio;
 	    public MyStringHash ResourceSinkGroup;
         public float RequiredPowerInput;
 	    public bool AdaptibleInput;
@@ -21,6 +24,7 @@ namespace Sandbox.Definitions
 		        return;
 
             MaxStoredPower = batteryBlockBuilder.MaxStoredPower;
+            InitialStoredPowerRatio = batteryBlockBuilder.InitialStoredPowerRatio;
 	        ResourceSinkGroup = MyStringHash.GetOrCompute(batteryBlockBuilder.ResourceSinkGroup);
             RequiredPowerInput = batteryBlockBuilder.RequiredPowerInput;
 	        AdaptibleInput = batteryBlockBuilder.AdaptibleInput;

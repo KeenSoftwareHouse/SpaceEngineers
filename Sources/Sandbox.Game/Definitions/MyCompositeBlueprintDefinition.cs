@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 namespace Sandbox.Definitions
 {
@@ -95,13 +97,13 @@ namespace Sandbox.Definitions
         {
             int insertAt = 0;
             Item oldItem = new Item();
-            for (insertAt = 0; insertAt < items.Count(); ++insertAt)
+            for (insertAt = 0; insertAt < items.Count; ++insertAt)
             {
                 oldItem = items[insertAt];
                 if (oldItem.Id == toAdd.Id) break;
             }
 
-            if (insertAt >= items.Count())
+            if (insertAt >= items.Count)
             {
                 items.Add(toAdd);
             }
@@ -118,7 +120,7 @@ namespace Sandbox.Definitions
             for (int i = 0; i < m_blueprints.Length; ++i)
             {
                 int added = m_blueprints[i].GetBlueprints(blueprints);
-                int count = blueprints.Count();
+                int count = blueprints.Count;
                 for (int j = count - 1; j >= count - added; --j)
                 {
                     ProductionInfo info = blueprints[j];

@@ -197,6 +197,14 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        public static void Unload()
+        {
+            foreach (var control in m_controls)
+                foreach (var ccontrol in control.Value.Controls)
+                    ccontrol.TargetBlocks = new MyTerminalBlock[0];
+        }
+
+
         private static void RemoveBaseClass(Type baseClass, BlockData resultList)
         {
             BlockData baseList;

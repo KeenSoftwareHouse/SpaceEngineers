@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,5 +36,14 @@ namespace VRage.Groups
         /// Returns true if the given link between parent and child exists, you can set child to null to find it by linkId.
         /// </summary>
         public abstract bool LinkExists(long linkId, TNode parentNode, TNode childNode = null);
+
+        /// <summary>
+        /// Allocates!!
+        /// Returns list of nodes datas in group
+        /// </summary>
+        /// <param name="nodeInGroup"></param>
+        /// <returns></returns>
+        public abstract List<TNode> GetGroupNodes(TNode nodeInGroup);
+        public abstract void GetGroupNodes(TNode nodeInGroup, List<TNode> result);
     }
 }

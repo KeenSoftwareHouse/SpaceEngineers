@@ -1,23 +1,16 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 
-namespace Sandbox.Common
-{    public enum MyRelationsBetweenFactions
+namespace VRage.Game
+{
+    public enum MyRelationsBetweenFactions
     {
         Neutral,
         Enemies
     }
-}
 
-
-namespace Sandbox.Common.ObjectBuilders
-{
     public enum MyOwnershipShareModeEnum
     {
         None,

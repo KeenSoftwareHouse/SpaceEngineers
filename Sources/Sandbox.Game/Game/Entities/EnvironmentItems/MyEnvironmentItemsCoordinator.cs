@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Library.Utils;
 using VRage.Utils;
 
@@ -66,7 +68,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             
             if (m_transferTime.HasValue)
             {
-                m_transferTime = m_transferTime.Value - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_transferTime = m_transferTime.Value - VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (m_transferTime < 0)
                 {
                     FinalizeTransfers();

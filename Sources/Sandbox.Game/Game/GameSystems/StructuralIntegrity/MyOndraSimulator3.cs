@@ -11,7 +11,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Components;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -394,7 +396,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             if (impact < 0)
                 return;
 
-            if (m_grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
+            if (m_grid.GridSizeEnum == MyCubeSize.Large)
             {
             }
 

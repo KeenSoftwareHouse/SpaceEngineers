@@ -45,7 +45,7 @@ namespace VRageRender
             }
             #endregion
 
-            var meshVertexInput = MyVertexInputLayout.Empty();
+            var meshVertexInput = MyVertexInputLayout.Empty;
             LodDescriptors = null;
             MyRenderMeshInfo result = new MyRenderMeshInfo();
 

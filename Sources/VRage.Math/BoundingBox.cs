@@ -45,6 +45,12 @@ namespace VRageMath
             this.Max = bbd.Max;
         }
 
+        public BoundingBox(BoundingBoxI bbd)
+        {
+            this.Min = bbd.Min;
+            this.Max = bbd.Max;
+        }
+
         public BoxCornerEnumerator Corners
         {
             get { return new BoxCornerEnumerator(Min, Max); }
@@ -448,6 +454,26 @@ namespace VRageMath
         public Vector3 HalfExtents
         {
             get { return (Max - Min) / 2; }
+        }
+
+        public Vector3 Extents
+        {
+            get { return Max - Min; }
+        }
+
+        public float Width
+        {
+            get { return Max.X - Min.X; }
+        }
+
+        public float Height
+        {
+            get { return Max.Y - Min.Y; }
+        }
+
+        public float Depth
+        {
+            get { return Max.Z - Min.Z; }
         }
 
         /// <summary>
@@ -894,7 +920,8 @@ namespace VRageMath
 
             for (int i = 0; i < 8; i++)
             {
-                Vector3 vctTransformed = Vector3.Transform(temporaryCorners[i], worldMatrix);
+                Vector3 vctTransformed;
+                Vector3.Transform(ref temporaryCorners[i], ref worldMatrix, out vctTransformed);
                 oobb = oobb.Include(ref vctTransformed);
             }
 
@@ -1129,5 +1156,13 @@ namespace VRageMath
         public static readonly ComparerType Comparer = new ComparerType();
 
         #endregion
+
+        public void Scale(Vector3 scale)
+        {
+            Vector3 center = Center;
+            Vector3 scaled = HalfExtents * scale;
+            Min = center - scaled;
+            Max = center + scaled;
+        }
     }
 }

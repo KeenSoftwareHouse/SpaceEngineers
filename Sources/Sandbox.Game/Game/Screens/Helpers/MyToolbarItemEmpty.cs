@@ -7,6 +7,8 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders;
+using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Screens.Helpers
 {

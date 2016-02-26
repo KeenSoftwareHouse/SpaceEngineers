@@ -9,6 +9,7 @@ using VRage;
 using VRage.Library.Utils;
 using VRage.Stats;
 using VRageMath;
+using VRageRender.Resources;
 
 namespace VRageRender
 {
@@ -52,6 +53,37 @@ namespace VRageRender
                         }
                         pos = new Vector2(MyRender11.ViewportResolution.X - m_rightColumnWidth, 0);
                     }
+
+                    /* Add info about render buffers */
+                    m_tmpDrawText.Append("Hardware Buffers (count/bytes):\n");
+
+                    MyBufferStats stats, total = new MyBufferStats();
+
+                    MyHwBuffers.GetConstantBufferStats(out stats);
+                    m_tmpDrawText.AppendFormat("   Constant: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
+                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
+
+                    MyHwBuffers.GetVertexBufferStats(out stats);
+                    m_tmpDrawText.AppendFormat("   Vertex: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
+                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
+
+                    MyHwBuffers.GetIndexBufferStats(out stats);
+                    m_tmpDrawText.AppendFormat("   Index: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
+                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
+
+                    MyHwBuffers.GetStructuredBufferStats(out stats);
+                    m_tmpDrawText.AppendFormat("   Structured: {0:N0}/{1:N0}\n", stats.TotalBuffers, stats.TotalBytes);
+                    total.TotalBytes += stats.TotalBytes; total.TotalBuffers += stats.TotalBuffers;
+
+                    m_tmpDrawText.AppendFormat("   Total: {0:N0}/{1:N0}\n", total.TotalBuffers, total.TotalBytes);
+
+
+                    m_tmpDrawText.Append("Textures:\n");
+                    MyTextureUsageReport report = MyTextures.GetReport();
+
+                    m_tmpDrawText.AppendFormat("   Total: {0}\n", report.TexturesTotal);
+                    m_tmpDrawText.AppendFormat("   Loaded: {0}\n", report.TexturesLoaded);
+                    m_tmpDrawText.AppendFormat("   Memory: {0:N0}\n", report.TotalTextureMemory);
 
                     MySpritesRenderer.DrawText(pos, m_tmpDrawText, color, scale);
                 }

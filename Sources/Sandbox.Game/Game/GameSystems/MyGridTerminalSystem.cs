@@ -73,8 +73,11 @@ namespace Sandbox.Game.GameSystems
                     }
                     else //change came from gui, we clear group and add all blocks that came in
                         g.Blocks.Clear();
-                    foreach (var b in group.Blocks)
+                    foreach (var b in group.Blocks) { 
+                        if (g.Blocks.Contains(b)) 
+                            continue;
                         g.Blocks.Add(b);
+                    }
                     group = g;
                     modified = true;
                     break;
@@ -120,7 +123,7 @@ namespace Sandbox.Game.GameSystems
             if (!removed)
                 BlockGroups.Remove(group);
 
-            if (GroupRemoved != null)
+            if (GroupRemoved != null && group.CubeGrid == null)
                 GroupRemoved(group);
         }
 

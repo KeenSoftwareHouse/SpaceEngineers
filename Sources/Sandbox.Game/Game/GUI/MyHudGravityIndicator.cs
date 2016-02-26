@@ -2,6 +2,7 @@
 
 using Sandbox.Game.Entities;
 using System;
+using VRage.Game.Entity;
 
 
 #endregion

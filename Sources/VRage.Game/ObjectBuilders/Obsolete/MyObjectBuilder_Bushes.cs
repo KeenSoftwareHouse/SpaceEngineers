@@ -1,8 +1,7 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     // This class is obsolete and for backward compatibility only! Use MyObjectBuilder_DestroyableItems instead!
     [ProtoContract]

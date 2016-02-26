@@ -17,7 +17,7 @@ namespace Sandbox.Game.Entities.Character
         {
             Calm,
             Heated,
-            Dead,
+            NoBreath,  // changed name from former Dead because it is used in other situations as well
         }
         static MySoundPair BREATH_CALM = new MySoundPair("PlayVocBreath1L");
         static MySoundPair BREATH_HEAVY = new MySoundPair("PlayVocBreath2L");
@@ -30,7 +30,7 @@ namespace Sandbox.Game.Entities.Character
 
         public MyCharacterBreath(MyCharacter character)
         {
-            CurrentState = State.Calm;
+            CurrentState = State.NoBreath;
             m_character = character;
         }
 
@@ -46,7 +46,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     m_state = value;
                     m_lastChange = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(2);
-                    if (m_state == State.Dead)
+                    if (m_state == State.NoBreath)
                         m_healthOverride = MyTimeSpan.Zero;
                 }
             }
@@ -62,12 +62,14 @@ namespace Sandbox.Game.Entities.Character
 
         private void SetHealth(float health)
         {
-            if (health<20)
+            if (health <= 0)
+                CurrentState = State.NoBreath;
+            else if (health < 20)
                 //play heavy breath indefinitely
                 m_healthOverride = MyTimeSpan.MaxValue;
-            else
-            if (health<100)
+            else if (health < 100)
                 m_healthOverride = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(300 / (health - 19.99));
+            
             Update(true);
         }
 
@@ -75,10 +77,13 @@ namespace Sandbox.Game.Entities.Character
         {
             if (!Sandbox.Game.World.MySession.Static.Settings.RealisticSound)
                 return;
-            if(CurrentState == State.Dead)
+            if (CurrentState == State.NoBreath)
             {
-                if (m_sound != null && m_sound.IsPlaying)
+                if (m_sound != null)
+                {
                     m_sound.Stop();
+                    m_sound = null;
+                }
                 return;
             }
 
@@ -109,7 +114,14 @@ namespace Sandbox.Game.Entities.Character
                 m_sound = effect.OutputSound;
             }
             else
+            {
+                if (m_sound != null)
+                {
+                    m_sound.Stop(true);
+                }
+
                 m_sound = MyAudio.Static.PlaySound(soundId, null, MySoundDimensions.D2);
+            }
         }
 
         public void Close()

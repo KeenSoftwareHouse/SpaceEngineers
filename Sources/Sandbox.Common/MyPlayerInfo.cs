@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game;
 
 namespace Sandbox.Common
 {
@@ -29,14 +30,14 @@ namespace Sandbox.Common
 
         #region Implicit conversions
 
-        public static implicit operator MyFactionMember(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_FactionMember v)
+        public static implicit operator MyFactionMember(MyObjectBuilder_FactionMember v)
         {
             return new MyFactionMember(v.PlayerId, v.IsLeader, v.IsFounder);
         }
 
-        public static implicit operator Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_FactionMember(MyFactionMember v)
+        public static implicit operator MyObjectBuilder_FactionMember(MyFactionMember v)
         {
-            return new Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_FactionMember() { PlayerId = v.PlayerId, IsLeader = v.IsLeader, IsFounder = v.IsFounder };
+            return new MyObjectBuilder_FactionMember() { PlayerId = v.PlayerId, IsLeader = v.IsLeader, IsFounder = v.IsFounder };
         }
 
         #endregion

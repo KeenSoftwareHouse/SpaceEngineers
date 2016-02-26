@@ -18,6 +18,8 @@ using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using Sandbox.Game.GameSystems;
 using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.Collections;
+using VRage.Utils;
 
 
 namespace Sandbox.Game.World.Generator
@@ -44,19 +46,5 @@ namespace Sandbox.Game.World.Generator
         {
             return m_material;
         }
-
-        public virtual void ReadMaterialRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod, float lodVoxelSizeHalf)
-        {
-            target.BlockFillMaterial(writeOffset, writeOffset + (maxInLod - minInLod), m_material.Index);
-        }
-
-        public virtual bool SpawnsFlora()
-        {
-            return m_material.SpawnsFlora;
-        }
-
-
-        public virtual bool ProvidesOcclusionHint { get { return false; } }
     }
-
 }

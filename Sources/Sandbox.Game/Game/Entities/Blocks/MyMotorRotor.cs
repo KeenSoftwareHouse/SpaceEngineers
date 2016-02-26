@@ -1,5 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
+using VRage.Game;
+using VRage.Game.Models;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -10,7 +12,6 @@ namespace Sandbox.Game.Entities.Cube
         public Vector3 DummyPosLoc { get; private set; }
 
         private MyMotorBase m_statorBlock;
-        private long m_statorBlockId;
 
         public MyMotorBase Stator { get { return m_statorBlock; } }
 
@@ -25,7 +26,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private void LoadDummies()
         {
-            var finalModel = Engine.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
+            var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
             foreach (var dummy in finalModel.Dummies)
             {
                 if (dummy.Key.ToLower().Contains("wheel"))
@@ -51,22 +52,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (m_statorBlock != null)
             {
-                m_statorBlock.Detach();
+                var statorBlock = m_statorBlock;          
+                statorBlock.Detach();
+                statorBlock.SyncDetach();
             }
             base.OnUnregisteredFromGridSystems();
         }
-
-        public override void OnRemovedByCubeBuilder()
-        {
-            if (m_statorBlock != null)
-            {
-                var tmpStatorBlock = m_statorBlock;
-                m_statorBlock.Detach(); // This will call our detach and set m_statorBlock to null
-                if (Sync.IsServer)
-                    tmpStatorBlock.CubeGrid.RemoveBlock(tmpStatorBlock.SlimBlock, updatePhysics: true);
-            }
-            base.OnRemovedByCubeBuilder();
-        }
-
     }
 }

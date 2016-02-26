@@ -10,11 +10,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.ModAPI;
 using VRage.Trace;
 using VRageMath;
 using VRageRender;
+using VRage.Game.Entity;
+using VRage;
+using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
@@ -26,7 +29,7 @@ namespace Sandbox.Game.Entities
         private object m_locker = new object();
 
         protected bool m_oldEmissiveState = false;
-        protected float m_gravityAcceleration = MyGravityProviderSystem.G;
+        protected readonly Sync<float> m_gravityAcceleration;
         protected HashSet<IMyEntity> m_containedEntities = new HashSet<IMyEntity>();
 
         public float GravityAcceleration
@@ -36,9 +39,7 @@ namespace Sandbox.Game.Entities
             {
                 if (m_gravityAcceleration != value)
                 {
-                    m_gravityAcceleration = value;
-					ResourceSink.Update();
-                    RaisePropertiesChanged();
+                    m_gravityAcceleration.Value = value;
                 }
             }
         }
@@ -52,33 +53,35 @@ namespace Sandbox.Game.Entities
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
+            InitializeSinkComponent();
             base.Init(objectBuilder, cubeGrid);
             if (CubeGrid.CreatePhysics)
             {
-                MyGravityProviderSystem.AddGravityGenerator(this);
-
             	// Put on my fake, because it does performance issues
                 if (MyFakes.ENABLE_GRAVITY_PHANTOM)
                 {
                         var shape = CreateFieldShape();
                         Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_KINEMATIC);
                         Physics.IsPhantom = true;
-                        Physics.CreateFromCollisionObject(shape, PositionComp.LocalVolume.Center, WorldMatrix, null, Sandbox.Engine.Physics.MyPhysics.GravityPhantomLayer);
+                        Physics.CreateFromCollisionObject(shape, PositionComp.LocalVolume.Center, WorldMatrix, null, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.GravityPhantomLayer);
                         shape.Base.RemoveReference();
                         Physics.Enabled = IsWorking;
                 }
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
                 SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
+                ResourceSink.Update();
             }
-			InitializeSinkComponent();
+            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_baseIdleSound.Init("BlockGravityGen");
+			
         }
 
 	    protected abstract void InitializeSinkComponent();
 
         protected void UpdateFieldShape()
         {
-            if (MyFakes.ENABLE_GRAVITY_PHANTOM)
+            if (MyFakes.ENABLE_GRAVITY_PHANTOM && Physics != null)
             {
                 var shape = CreateFieldShape();
                 Physics.RigidBody.SetShape(shape);
@@ -102,16 +105,27 @@ namespace Sandbox.Game.Entities
         public MyGravityGeneratorBase()
             : base()
         {
-            m_baseIdleSound.Init("BlockGravityGen");
+            m_gravityAcceleration.ValueChanged += (x) => AccelerationChanged();
+        }
+
+        void AccelerationChanged()
+        {
+            ResourceSink.Update();
         }
 
         public override void OnAddedToScene(object source)
         {
             base.OnAddedToScene(source);
+            MyGravityProviderSystem.AddGravityGenerator(this);
             UpdateEmissivity();
 
 			if(ResourceSink != null)
 				ResourceSink.Update();
+        }
+        public override void OnRemovedFromScene(object source)
+        {
+            MyGravityProviderSystem.RemoveGravityGenerator(this);
+            base.OnRemovedFromScene(source);
         }
 
         public override void OnBuildSuccess(long builtBy)
@@ -157,12 +171,6 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-        }
-
-        protected override void Closing()
-        {
-            MyGravityProviderSystem.RemoveGravityGenerator(this);
-            base.Closing();
         }
 
         protected override void OnEnabledChanged()

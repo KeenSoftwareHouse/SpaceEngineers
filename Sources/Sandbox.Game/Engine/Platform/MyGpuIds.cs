@@ -36,8 +36,9 @@ namespace Sandbox.Engine.Platform
             0x0102, 0x0106, 0x0112, 0x0116, 0x0122, 0x0126, 0x010A,
 
             // Intel seventh generation
+            0x0152, // Intel HD 4000
             0x0162, // Intel HD Graphics, low-end Ivy Bridge CPU
-            //0x0166, // Intel HD Graphics 2500, low-end Ivy Bridge CPU (this should be supported, because it's probably HD 4000)
+            0x0166, // Intel HD Graphics 2500/4000
             0x0402, // Intel HD Graphics, low-end Haswell CPU
         };
 

@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using VRageMath;
 using VRageRender;
@@ -1354,6 +1355,16 @@ namespace VRage.Utils
             if (location == null)
                 location = new T();
             return location;
+        }
+
+        public static void InterlockedMax(ref long storage, long value)
+        {
+            long localMax = Interlocked.Read(ref storage);
+            while (value > localMax)
+            {
+                Interlocked.CompareExchange(ref storage, value, localMax);
+                localMax = Interlocked.Read(ref storage);
+            }
         }
     }
 }

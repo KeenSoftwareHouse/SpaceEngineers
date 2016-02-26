@@ -5,12 +5,12 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageSetLightShadowIgnore : IMyRenderMessage
+    public class MyRenderMessageSetLightShadowIgnore : MyRenderMessageBase
     {
         public uint ID;
         public uint ID2;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.SetLightShadowIgnore; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetLightShadowIgnore; } }
     }
 }

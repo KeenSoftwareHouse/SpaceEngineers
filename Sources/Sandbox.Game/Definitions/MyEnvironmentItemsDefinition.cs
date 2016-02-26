@@ -8,6 +8,8 @@ using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using System;
+using VRage.Game;
+using VRage.Game.Definitions;
 
 
 namespace Sandbox.Definitions
@@ -131,6 +133,15 @@ namespace Sandbox.Definitions
             if (m_definitionList.Count == 0) return null;
 
             float value = MyRandom.Instance.Next(0, 65536) / 65536.0f;
+
+            return GetItemDefinition(m_definitionList[Intervals.BinaryIntervalSearch(value)]);
+        }
+
+        public MyEnvironmentItemDefinition GetRandomItemDefinition(MyRandom instance)
+        {
+            if (m_definitionList.Count == 0) return null;
+
+            float value = instance.Next(0, 65536) / 65536.0f;
 
             return GetItemDefinition(m_definitionList[Intervals.BinaryIntervalSearch(value)]);
         }

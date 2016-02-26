@@ -16,6 +16,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Localization;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.Gui
@@ -165,8 +166,8 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                 buttonType: MyMessageBoxButtonsType.OK,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
-                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextCannotDeleteGroup)
+                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextCannotDeleteGroup)
                 ));
             }
             else
@@ -200,8 +201,8 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.OK,
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
-                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextCannotCreateGroup)
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextCannotCreateGroup)
                     ));
             }
             else
@@ -453,17 +454,17 @@ namespace Sandbox.Game.Gui
             m_blockNameLabel.Text = "";
             m_groupName.Text = "";
 
-            if (m_currentGroups.Count() == 1)
+            if (m_currentGroups.Count == 1)
             {
                 m_blockNameLabel.Text = m_currentGroups[0].Name.ToString();
                 m_groupName.Text = m_blockNameLabel.Text;
             }
 
-            if (CurrentBlocks.Count() > 0)
+            if (CurrentBlocks.Count > 0)
             {
                 CurrentBlocks.Sort(MyTerminalComparer.Static);
 
-                if (CurrentBlocks.Count() == 1)
+                if (CurrentBlocks.Count == 1)
                     m_blockNameLabel.Text = CurrentBlocks[0].CustomName.ToString();
 
                 m_blockControl = new MyGuiControlGenericFunctionalBlock(CurrentBlocks.ToArray());

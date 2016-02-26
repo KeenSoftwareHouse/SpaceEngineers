@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element msdata:IsDataSet="true" name="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
-                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
-              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
-              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -124,66 +124,8 @@
   <data name="Afterburner" xml:space="preserve">
     <value>Šprint</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
-    <value>Ste si istý, že chcete odísť?</value>
-  </data>
-  <data name="AssignControlKeyboard" xml:space="preserve">
-    <value>Stlačte akúkoľvek klávesu</value>
-  </data>
-  <data name="AssignControlMouse" xml:space="preserve">
-    <value>Prosím stlačte akékoľvek tlačidlo myši</value>
-  </data>
-  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
-    <value>Zvuk</value>
-  </data>
-  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
-    <value>Nastavenie zvuku</value>
-  </data>
-  <data name="Cancel" xml:space="preserve">
-    <value>Zrušiť</value>
-  </data>
-  <data name="CanNotAssignControl" xml:space="preserve">
-    <value>NEMÔŽEM PRIRADIŤ OVLÁDANIE</value>
-  </data>
-  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
-    <value>Pokračovať v poslednej</value>
-  </data>
-  <data name="ControlAlreadyAssigned" xml:space="preserve">
-    <value>{0} už je priradené k {1}.
-Odstrániť pôvodné nastavenie?</value>
-  </data>
-  <data name="ControlIsNotValid" xml:space="preserve">
-    <value>Stlačená klávesa nemôže byť priradená.</value>
-  </data>
-  <data name="ScreenCaptionControls" xml:space="preserve">
-    <value>Nastavenia</value>
-  </data>
-  <data name="ScreenMenuButtonCredits" xml:space="preserve">
-    <value>Autori</value>
-  </data>
-  <data name="KeysDelete" xml:space="preserve">
-    <value>Zmazať</value>
-  </data>
-  <data name="KeysDown" xml:space="preserve">
-    <value>Dole</value>
-  </data>
-  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
-    <value>Chcete zachovať tieto nastavenia? Ostáva {0} sekúnd.</value>
-  </data>
   <data name="DisplayName_Block_Drill" xml:space="preserve">
     <value>Vŕtačka</value>
-  </data>
-  <data name="KeysEnd" xml:space="preserve">
-    <value>Koniec</value>
-  </data>
-  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
-    <value>Návrat do hlavného menu</value>
-  </data>
-  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
-    <value>Návrat do Windows</value>
-  </data>
-  <data name="FieldOfView" xml:space="preserve">
-    <value>Zorné pole</value>
   </data>
   <data name="ControlName_FirePrimaryWeapon" xml:space="preserve">
     <value>Použiť nástroj / Paľba zo zbrane</value>
@@ -191,176 +133,11 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="ControlName_FireSecondaryWeapon" xml:space="preserve">
     <value>Sekundárny mód</value>
   </data>
-  <data name="ScreenOptionsButtonGame" xml:space="preserve">
-    <value>Hra</value>
-  </data>
-  <data name="ScreenCaptionGameOptions" xml:space="preserve">
-    <value>Herné nastavenia</value>
-  </data>
-  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
-    <value>Gamepad</value>
-  </data>
-  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
-    <value>Analóg</value>
-  </data>
-  <data name="GameVolume" xml:space="preserve">
-    <value>Hlasitosť zvuku</value>
-  </data>
-  <data name="ControlTypeGeneral" xml:space="preserve">
-    <value>Všeobecné</value>
-  </data>
-  <data name="HardwareCursor" xml:space="preserve">
-    <value>Hardvérový kurzor</value>
-  </data>
   <data name="ControlName_ToggleHeadlights" xml:space="preserve">
     <value>Svetlá zapnúť / vypnúť</value>
   </data>
-  <data name="ControlName_Help" xml:space="preserve">
-    <value>Pomoc</value>
-  </data>
-  <data name="KeysHome" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="KeysInsert" xml:space="preserve">
-    <value>Insert</value>
-  </data>
   <data name="Inventory" xml:space="preserve">
     <value>Inventár</value>
-  </data>
-  <data name="InvertMouseX" xml:space="preserve">
-    <value>Prevrátiť os X na myši</value>
-  </data>
-  <data name="InvertMouseY" xml:space="preserve">
-    <value>Prevrátiť os Y na myši</value>
-  </data>
-  <data name="Joystick" xml:space="preserve">
-    <value>Joystick alebo gamepad</value>
-  </data>
-  <data name="JoystickButtonLeft" xml:space="preserve">
-    <value>JD vľavo</value>
-  </data>
-  <data name="JoystickButtonRight" xml:space="preserve">
-    <value>JD vpravo</value>
-  </data>
-  <data name="JoystickButtonUp" xml:space="preserve">
-    <value>JD hore</value>
-  </data>
-  <data name="JoystickButtonDown" xml:space="preserve">
-    <value>JD dolu</value>
-  </data>
-  <data name="JoystickDeadzone" xml:space="preserve">
-    <value>Šírka mŕtvej zóny joysticku</value>
-  </data>
-  <data name="JoystickExponent" xml:space="preserve">
-    <value>Zrýchlenie joysticku</value>
-  </data>
-  <data name="JoystickSensitivity" xml:space="preserve">
-    <value>Citlivosť joysticku</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
-    <value>Klávesnica </value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Jazyk</value>
-  </data>
-  <data name="KeysLeft" xml:space="preserve">
-    <value>Vľavo</value>
-  </data>
-  <data name="KeysLeftAlt" xml:space="preserve">
-    <value>Ľavý Alt</value>
-  </data>
-  <data name="KeysLeftControl" xml:space="preserve">
-    <value>Ľavý Ctrl</value>
-  </data>
-  <data name="LeftMouseButton" xml:space="preserve">
-    <value>L tlačidlo myši</value>
-  </data>
-  <data name="KeysLeftShift" xml:space="preserve">
-    <value>Ľavý Shit</value>
-  </data>
-  <data name="LoadScreenButtonLoad" xml:space="preserve">
-    <value>Načítať</value>
-  </data>
-  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
-    <value>NAČÍTAM ... PROSÍM O STRPENIE</value>
-  </data>
-  <data name="MessageBoxCaptionError" xml:space="preserve">
-    <value>CHYBA</value>
-  </data>
-  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
-    <value>PROSÍM POTVRĎ</value>
-  </data>
-  <data name="MessageBoxCaptionExit" xml:space="preserve">
-    <value>KONIEC</value>
-  </data>
-  <data name="MiddleMouseButton" xml:space="preserve">
-    <value>Stredné tlačidlo myši</value>
-  </data>
-  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
-    <value>Myš</value>
-  </data>
-  <data name="MouseSensitivity" xml:space="preserve">
-    <value>Citlivosť myši</value>
-  </data>
-  <data name="MouseXButton1" xml:space="preserve">
-    <value>MXB1</value>
-  </data>
-  <data name="MouseXButton2" xml:space="preserve">
-    <value>MXB2</value>
-  </data>
-  <data name="ControlTypeNavigation" xml:space="preserve">
-    <value>Navigácia</value>
-  </data>
-  <data name="ScreenCaptionNewWorld" xml:space="preserve">
-    <value>Nový svet</value>
-  </data>
-  <data name="No" xml:space="preserve">
-    <value>Nie</value>
-  </data>
-  <data name="KeysNumPad0" xml:space="preserve">
-    <value>Num 0</value>
-  </data>
-  <data name="KeysNumPad1" xml:space="preserve">
-    <value>Num 1</value>
-  </data>
-  <data name="KeysNumPad2" xml:space="preserve">
-    <value>Num 2</value>
-  </data>
-  <data name="KeysNumPad3" xml:space="preserve">
-    <value>Num 3</value>
-  </data>
-  <data name="KeysNumPad4" xml:space="preserve">
-    <value>Num 4</value>
-  </data>
-  <data name="KeysNumPad5" xml:space="preserve">
-    <value>Num 5</value>
-  </data>
-  <data name="KeysNumPad6" xml:space="preserve">
-    <value>Num 6</value>
-  </data>
-  <data name="KeysNumPad7" xml:space="preserve">
-    <value>Num 7</value>
-  </data>
-  <data name="KeysNumPad8" xml:space="preserve">
-    <value>Num 8</value>
-  </data>
-  <data name="KeysNumPad9" xml:space="preserve">
-    <value>Num 9</value>
-  </data>
-  <data name="Ok" xml:space="preserve">
-    <value>OK</value>
-  </data>
-  <data name="ScreenCaptionOptions" xml:space="preserve">
-    <value>Nastavenia</value>
-  </data>
-  <data name="KeysPageDown" xml:space="preserve">
-    <value>PgDown</value>
-  </data>
-  <data name="KeysPageUp" xml:space="preserve">
-    <value>PgUp</value>
-  </data>
-  <data name="RecommendedAspectRatio" xml:space="preserve">
-    <value>Odporúčaný pomer: {0}</value>
   </data>
   <data name="RenderQuality" xml:space="preserve">
     <value>Kvalita renderovania</value>
@@ -373,24 +150,6 @@ Odstrániť pôvodné nastavenie?</value>
   </data>
   <data name="RenderQualityNormal" xml:space="preserve">
     <value>Normálna</value>
-  </data>
-  <data name="Revert" xml:space="preserve">
-    <value>Pôvodné</value>
-  </data>
-  <data name="KeysRight" xml:space="preserve">
-    <value>Vpravo</value>
-  </data>
-  <data name="KeysRightAlt" xml:space="preserve">
-    <value>Pravý Alt</value>
-  </data>
-  <data name="KeysRightControl" xml:space="preserve">
-    <value>Pravý Ctrl</value>
-  </data>
-  <data name="RightMouseButton" xml:space="preserve">
-    <value>Pravé tlačidlo myši</value>
-  </data>
-  <data name="KeysRightShift" xml:space="preserve">
-    <value>Pravý Shift</value>
   </data>
   <data name="ControlName_RollLeft" xml:space="preserve">
     <value>Točiť vľavo okolo osi (loď / jetpack)</value>
@@ -410,188 +169,14 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="ControlName_RotationUp" xml:space="preserve">
     <value>Otočit hore</value>
   </data>
-  <data name="SelectControl" xml:space="preserve">
-    <value>VYBRAŤ OVLÁDANIE</value>
-  </data>
-  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
-    <value>PLÁNOVANÁ ODSTÁVKA SERVERU</value>
-  </data>
-  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
-    <value>Ospravedlňujeme sa, ale zvolené nastavenia nie sú vašim hardvérom podporované.</value>
-  </data>
-  <data name="KeysSpace" xml:space="preserve">
-    <value>Medzerník</value>
-  </data>
-  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
-    <value>Spúšťam hru ... prosím o strpenie</value>
-  </data>
-  <data name="ControlName_StrafeLeft" xml:space="preserve">
-    <value>Krok vľavo</value>
-  </data>
-  <data name="ControlName_StrafeRight" xml:space="preserve">
-    <value>Krok vpravo</value>
-  </data>
-  <data name="ControlTypeSystems1" xml:space="preserve">
-    <value>Systémy 1</value>
-  </data>
-  <data name="ControlTypeSystems2" xml:space="preserve">
-    <value>Systémy 2</value>
-  </data>
-  <data name="KeysTab" xml:space="preserve">
-    <value>Tab</value>
-  </data>
-  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
-    <value>Spustenie prehliadača zlyhalo.</value>
-  </data>
-  <data name="UnknownControl_None" xml:space="preserve">
-    <value>žiaden</value>
-  </data>
-  <data name="KeysUp" xml:space="preserve">
-    <value>Hore</value>
-  </data>
-  <data name="ControlName_UseOrInteract" xml:space="preserve">
-    <value>Použiť / interakcia</value>
-  </data>
-  <data name="VerticalSync" xml:space="preserve">
-    <value>Vertikálna synchronizácia</value>
-  </data>
   <data name="ScreenOptionsButtonVideo" xml:space="preserve">
     <value>Video</value>
-  </data>
-  <data name="VideoMode" xml:space="preserve">
-    <value>Grafický mód</value>
   </data>
   <data name="ScreenCaptionVideoOptions" xml:space="preserve">
     <value>Nastavenia grafiky</value>
   </data>
-  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
-    <value>Nástroje / zbrane</value>
-  </data>
-  <data name="Yes" xml:space="preserve">
-    <value>Áno</value>
-  </data>
-  <data name="Disabled" xml:space="preserve">
-    <value>Vypnuté</value>
-  </data>
-  <data name="JoystickRotationXpos" xml:space="preserve">
-    <value>JRX+</value>
-  </data>
-  <data name="JoystickRotationYpos" xml:space="preserve">
-    <value>JRY+</value>
-  </data>
-  <data name="JoystickRotationZpos" xml:space="preserve">
-    <value>JRZ+</value>
-  </data>
-  <data name="JoystickSlider1pos" xml:space="preserve">
-    <value>JS1+</value>
-  </data>
-  <data name="JoystickSlider2pos" xml:space="preserve">
-    <value>JS2+</value>
-  </data>
-  <data name="JoystickRotationXneg" xml:space="preserve">
-    <value>JRX-</value>
-  </data>
-  <data name="JoystickRotationYneg" xml:space="preserve">
-    <value>JRY-</value>
-  </data>
-  <data name="JoystickRotationZneg" xml:space="preserve">
-    <value>JRZ-</value>
-  </data>
-  <data name="JoystickSlider1neg" xml:space="preserve">
-    <value>JS1-</value>
-  </data>
-  <data name="JoystickSlider2neg" xml:space="preserve">
-    <value>JS2-</value>
-  </data>
-  <data name="KeysDecimal" xml:space="preserve">
-    <value>Num .</value>
-  </data>
-  <data name="KeysBackslash" xml:space="preserve">
-    <value>\</value>
-  </data>
-  <data name="KeysComma" xml:space="preserve">
-    <value>,</value>
-  </data>
-  <data name="KeysMinus" xml:space="preserve">
-    <value>-</value>
-  </data>
-  <data name="KeysOpenBracket" xml:space="preserve">
-    <value>[</value>
-  </data>
-  <data name="KeysCloseBracket" xml:space="preserve">
-    <value>]</value>
-  </data>
-  <data name="KeysPeriod" xml:space="preserve">
-    <value>.</value>
-  </data>
-  <data name="KeysPipe" xml:space="preserve">
-    <value>|</value>
-  </data>
-  <data name="KeysPlus" xml:space="preserve">
-    <value>+</value>
-  </data>
-  <data name="KeysQuestion" xml:space="preserve">
-    <value>/</value>
-  </data>
-  <data name="KeysQuotes" xml:space="preserve">
-    <value>"</value>
-  </data>
-  <data name="KeysSemicolon" xml:space="preserve">
-    <value>:</value>
-  </data>
-  <data name="KeysTilde" xml:space="preserve">
-    <value>~</value>
-  </data>
-  <data name="KeysMultiply" xml:space="preserve">
-    <value>Num *</value>
-  </data>
-  <data name="KeysDivide" xml:space="preserve">
-    <value>Num /</value>
-  </data>
-  <data name="KeysAdd" xml:space="preserve">
-    <value>Num +</value>
-  </data>
-  <data name="KeysSubtract" xml:space="preserve">
-    <value>Num -</value>
-  </data>
-  <data name="KeysCapsLock" xml:space="preserve">
-    <value>Caps Lock</value>
-  </data>
-  <data name="KeysEnter" xml:space="preserve">
-    <value>Enter</value>
-  </data>
-  <data name="KeysBackspace" xml:space="preserve">
-    <value>Backspace</value>
-  </data>
-  <data name="ApplyingPleaseWait" xml:space="preserve">
-    <value>Aplikujem zmeny ... prosím o strpenie</value>
-  </data>
-  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
-    <value>Bol si zabitý</value>
-  </data>
-  <data name="MusicVolume" xml:space="preserve">
-    <value>Hlasitosť hudby</value>
-  </data>
-  <data name="VideoAdapter" xml:space="preserve">
-    <value>Grafický adaptér</value>
-  </data>
-  <data name="DefaultFOV" xml:space="preserve">
-    <value>Pôvodné: {0:F1}</value>
-  </data>
-  <data name="WorldLoaded" xml:space="preserve">
-    <value>Svet {0} načítaný</value>
-  </data>
   <data name="Chat_screen" xml:space="preserve">
     <value>Konverzácia</value>
-  </data>
-  <data name="ControlName_Screenshot" xml:space="preserve">
-    <value>Snímka obrazovky</value>
-  </data>
-  <data name="ControlName_PreviousColor" xml:space="preserve">
-    <value>Predchádzajúca farba alebo kamera</value>
-  </data>
-  <data name="ControlName_NextColor" xml:space="preserve">
-    <value>Ďalšia farba alebo kamera</value>
   </data>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminál / Inventár</value>
@@ -599,23 +184,14 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Zvárací agregát</value>
   </data>
-  <data name="WorldSaved" xml:space="preserve">
-    <value>Svet {0} bol uložený</value>
-  </data>
   <data name="AngleGrinderPrimaryAction" xml:space="preserve">
     <value>Stlačením {0} cieľ rozoberiete</value>
   </data>
   <data name="WelderPrimaryActionBuild" xml:space="preserve">
     <value>Stlačením {0} cieľ zvaríte</value>
   </data>
-  <data name="Blueprints" xml:space="preserve">
-    <value>Schémy</value>
-  </data>
   <data name="ControlPanel" xml:space="preserve">
     <value>Ovládací panel</value>
-  </data>
-  <data name="Factions" xml:space="preserve">
-    <value>Frakcie</value>
   </data>
   <data name="DisplayName_Block_Assembler" xml:space="preserve">
     <value>Montážna linka</value>
@@ -891,23 +467,11 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="HelpScreen_FactionColor_White" xml:space="preserve">
     <value>Biela</value>
   </data>
-  <data name="BlueprintMaterials" xml:space="preserve">
-    <value>Materiály k schéme</value>
-  </data>
-  <data name="ProductionQueue" xml:space="preserve">
-    <value>Poradie produkcie</value>
-  </data>
   <data name="Reactor" xml:space="preserve">
     <value>Reaktor</value>
   </data>
-  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
-    <value>Zmeniť nastavenia</value>
-  </data>
   <data name="WorldSettings_AutoHealing" xml:space="preserve">
     <value>Auto-uzdravovanie</value>
-  </data>
-  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
-    <value>Vlastný svet</value>
   </data>
   <data name="WorldSettings_Description" xml:space="preserve">
     <value>Popis</value>
@@ -924,12 +488,6 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="WorldSettings_EnvironmentHostilitySafe" xml:space="preserve">
     <value>Bezpečné</value>
   </data>
-  <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Name is too long (max 128 characters allowed)</value>
-  </data>
-  <data name="ErrorNameTooShort" xml:space="preserve">
-    <value>Meno je príliš krátke (minimálne 5 znakov)</value>
-  </data>
   <data name="WorldSettings_FriendlyFire" xml:space="preserve">
     <value>Priateľská paľba</value>
   </data>
@@ -939,35 +497,11 @@ Odstrániť pôvodné nastavenie?</value>
   <data name="WorldSettings_GameMode" xml:space="preserve">
     <value>Herný mód</value>
   </data>
-  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
-    <value>Prežitie</value>
-  </data>
   <data name="WorldSettings_GameSurvivalTimes10" xml:space="preserve">
     <value>Realizmus x10</value>
   </data>
-  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
-    <value>Pripojiť k svetu</value>
-  </data>
-  <data name="Name" xml:space="preserve">
-    <value>Názov</value>
-  </data>
-  <data name="WorldSettings_OnlineMode" xml:space="preserve">
-    <value>Online mód</value>
-  </data>
-  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
-    <value>Offline</value>
-  </data>
-  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
-    <value>Súkromné/ý</value>
-  </data>
-  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
-    <value>Verejné/ý</value>
-  </data>
   <data name="WorldSettings_Password" xml:space="preserve">
     <value>Heslo</value>
-  </data>
-  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
-    <value>Rýchly štart</value>
   </data>
   <data name="WorldSettings_SoundInSpace" xml:space="preserve">
     <value>Zvuk vo vesmíre</value>
@@ -1000,9 +534,6 @@ y si no hay ninguna en una nueva nave en los limites del sector.
 Supervivencia x3: Igual a "Supervivencia" pero 3x más capacidad de inventario.
 Supervivencia x10: Igual a "Supervivencia" pero 10x más capacidad de inventario</value>
   </data>
-  <data name="ToolTipWorldSettingsName" xml:space="preserve">
-    <value>Meno musí mať od {0} do {1} na alfanumerickej klávesnici</value>
-  </data>
   <data name="ToolTipWorldSettingsOnlineMode" xml:space="preserve">
     <value>Visibilidad de tu partida
 Offline: El juego se ejecuta en modo offline y no necesita de conexión a internet
@@ -1016,18 +547,6 @@ Public: Cualquier usuarioi de Steam puede unirse</value>
   <data name="ToolTipWorldSettingsSoundInSpace" xml:space="preserve">
     <value>Vo vesmíre nie je zvuk. Zapnite pre simulovanie zvukových podmienok ako na Zemi (aj keď to nie je realistické). Vypnite pre realistický mód, kde počujete zvuky, ktoré počuje len vaša postava.</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
-    <value>Ste si istý, že chcete zmazať '{0}'?</value>
-  </data>
-  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
-    <value>Načítať svet</value>
-  </data>
-  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
-    <value>Uložiť ako</value>
-  </data>
-  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
-    <value>Kreatívny</value>
-  </data>
   <data name="WorldSettings_Scenario" xml:space="preserve">
     <value>Scenár</value>
   </data>
@@ -1037,146 +556,14 @@ Public: Cualquier usuarioi de Steam puede unirse</value>
   <data name="DisplayName_Scenario_Survival" xml:space="preserve">
     <value>Samotár</value>
   </data>
-  <data name="PlayerCharacter" xml:space="preserve">
-    <value>Postava hráča</value>
-  </data>
-  <data name="WorldSettings_AutoSave" xml:space="preserve">
-    <value>Automatické ukladanie</value>
-  </data>
-  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
-    <value>Auto-guardado guarda el estado de tu mundo cada {0} minutos o cuando salgas de la partida</value>
-  </data>
-  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
-    <value>Chcete uložiť Váš postup?</value>
-  </data>
-  <data name="SaveWorld" xml:space="preserve">
-    <value>Uložiť svet</value>
-  </data>
-  <data name="ScreenMenuButtonSave" xml:space="preserve">
-    <value>Uložiť</value>
-  </data>
-  <data name="SavingPleaseWait" xml:space="preserve">
-    <value>Ukladám ... prosím o strpenie</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>Pokročilé</value>
-  </data>
-  <data name="AdvancedControls" xml:space="preserve">
-    <value>Pokročilé nastavenia</value>
-  </data>
-  <data name="ControlName_Backward" xml:space="preserve">
-    <value>Späť</value>
-  </data>
-  <data name="BasicControls" xml:space="preserve">
-    <value>Základné ovládanie</value>
-  </data>
-  <data name="Close" xml:space="preserve">
-    <value>Zavrieť</value>
-  </data>
-  <data name="ControlName_DownOrCrouch" xml:space="preserve">
-    <value>Dole alebo prikrčiť</value>
-  </data>
-  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
-    <value>Pohľad prvej / tretej osoby</value>
-  </data>
-  <data name="ControlName_Forward" xml:space="preserve">
-    <value>Dopredu</value>
-  </data>
-  <data name="NextPage" xml:space="preserve">
-    <value>Ďalšia stránka</value>
-  </data>
-  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
-    <value>Stlačte {0} pre pomoc a návod</value>
-  </data>
-  <data name="PreviousPage" xml:space="preserve">
-    <value>Predošlá strana</value>
-  </data>
-  <data name="ShowControlsHints" xml:space="preserve">
-    <value>Zobraziť nápovedu k ovládaniu</value>
-  </data>
-  <data name="SteamGuide" xml:space="preserve">
-    <value>Návody</value>
-  </data>
-  <data name="ControlName_UpOrJump" xml:space="preserve">
-    <value>Hore alebo skok</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
-    <value>Vertikálna rotácia bloku -</value>
-  </data>
-  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
-    <value>Vertikálna rotácia bloku +</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
-    <value>Horizontálna rotácia bloku -</value>
-  </data>
-  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
-    <value>Horizontálna rotácia bloku +</value>
-  </data>
-  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
-    <value>Skrútenie bloku -</value>
-  </data>
-  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
-    <value>Skrútenie bloku +</value>
-  </data>
-  <data name="ControlName_Slot0" xml:space="preserve">
-    <value>Odložiť vybavenie</value>
-  </data>
-  <data name="ControlName_Slot1" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 1</value>
-  </data>
-  <data name="ControlName_Slot2" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 2</value>
-  </data>
-  <data name="ControlName_Slot3" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 3</value>
-  </data>
-  <data name="ControlName_Slot4" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 4</value>
-  </data>
-  <data name="ControlName_Slot5" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 5</value>
-  </data>
-  <data name="ControlName_Slot6" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 6</value>
-  </data>
-  <data name="ControlName_Slot7" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 7</value>
-  </data>
-  <data name="ControlName_Slot8" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 8</value>
-  </data>
-  <data name="ControlName_Slot9" xml:space="preserve">
-    <value>Vybaviť sa predmetom zo slotu 9</value>
-  </data>
   <data name="ControlName_ReactorsOnOff" xml:space="preserve">
     <value>Reaktory zapnúť / vypnúť</value>
   </data>
   <data name="DisplayName_Scenario_EmptyWorld" xml:space="preserve">
     <value>Prázdny svet</value>
   </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
-    <value>Ste si istý, že chcete rýchle načítanie?</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
-    <value>Ste si istý, že chcete rýchle uloženie?</value>
-  </data>
-  <data name="ControlName_ToolbarConfig" xml:space="preserve">
-    <value>Nastavenie panela nástrojov</value>
-  </data>
-  <data name="ControlName_HoldToLookAround" xml:space="preserve">
-    <value>Držať pre rozhliadanie sa</value>
-  </data>
-  <data name="ControlName_HoldToSprint" xml:space="preserve">
-    <value>Držať pre beh</value>
-  </data>
   <data name="ControlName_Jetpack" xml:space="preserve">
     <value>Jetpack Zap / Vyp</value>
-  </data>
-  <data name="LoadingPleaseWait" xml:space="preserve">
-    <value>Načítavam ... prosím o strpenie</value>
-  </data>
-  <data name="NoPlaceToCreateGrid" xml:space="preserve">
-    <value>Tu nie je miesto pre vytvorenie nového bloku. Nájdite prázdne miesto.</value>
   </data>
   <data name="NotEnoughMaterial" xml:space="preserve">
     <value>Nemáte dostatok materiálu pre vytvorenie nového bloku. Je potrebný aspoň jeden oceľový plát.</value>
@@ -1186,28 +573,6 @@ Public: Cualquier usuarioi de Steam puede unirse</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
     <value>Dopravník</value>
-  </data>
-  <data name="ControlName_HudOnOff" xml:space="preserve">
-    <value>HUD zapnúť / vypnúť</value>
-  </data>
-  <data name="ScreenCubeBuilderHint" xml:space="preserve">
-    <value>Nápoveda: Pretiahnite ikonu do panela nástrojov a aktivujte numerickým klávesom</value>
-  </data>
-  <data name="Saved" xml:space="preserve">
-    <value>Uložené</value>
-  </data>
-  <data name="HideWeapon" xml:space="preserve">
-    <value>Skryť zbraň</value>
-  </data>
-  <data name="Thrust" xml:space="preserve">
-    <value>Ťah</value>
-  </data>
-  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
-    <value>Jeden zo súborov sveta / uložený súbor je poškodený a nemožno ho načítať.
-Pozri log súbor.</value>
-  </data>
-  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
-    <value>Súbor sveta je poškodený a nemôže byť načítaný.</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminál</value>
@@ -1638,52 +1003,11 @@ Pozri log súbor.</value>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>Bez gravitácie</value>
   </data>
-  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
-    <value>Vytvor nový svet s vlastnými nastaveniami</value>
-  </data>
   <data name="ToolTipNewWorldQuickstart" xml:space="preserve">
     <value>Vytvor nový svet s pôvodnými nastaveniami: 
 Typ hry: Kreatívny mód 
 Scenár: Ľahký Štart 1 
 Auto-Save: Zapnutý</value>
-  </data>
-  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
-    <value>Vyššia kvalita rendrovania znamená lepšie vizuálne vlastnosti, vyššiu dohľadnosť a viac špeciálnych efektov - ale je náročnejšia na výkon PC (CPU a GPU).
-Ak hra nebeží plynulo, znížte kvalitu zobrazenia.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
-    <value>Zvoľ grafický adaptér a/alebo monitor</value>
-  </data>
-  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
-    <value>Vyberte rozlíšenie obrazovky. Odporúčame používať pomer kompatibilný s monitorom.
-Ak hra nebeží plynulo, znížte rozlíšenie obrazovky.</value>
-  </data>
-  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
-    <value>HW kurzor myši je nezávislý od počtu herných snímkov. Odporúčame ho zapnúť.</value>
-  </data>
-  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
-    <value>Hra sa zosynchronizuje s obnovovacou frekvenciou monitoru. Odporúčame to vypnúť.</value>
-  </data>
-  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
-    <value>Rozsah horizontálneho zorného poľa</value>
-  </data>
-  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
-    <value>Ukáž nápovedu ovládania na obrazovke počas hry</value>
-  </data>
-  <data name="WorldNotSaved" xml:space="preserve">
-    <value>Svet {0} sa nepodarilo uložiť.</value>
-  </data>
-  <data name="NotificationMemoryOverload" xml:space="preserve">
-    <value>Nedostatok pamäte pre pridanie nových objektov</value>
-  </data>
-  <data name="BetterGCIsAvailable" xml:space="preserve">
-    <value>We have detected a better graphics card in your computer than the one the game currently runs on. Please check your NVIDIA/AMD Control Panel settings.</value>
-  </data>
-  <data name="MessageBoxCaptionWarning" xml:space="preserve">
-    <value>VAROVANIE</value>
-  </data>
-  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
-    <value>This will open {0} in your internet browser. The game will keep running. Do you want to continue?</value>
   </data>
   <data name="HudInfoCrouching" xml:space="preserve">
     <value>Krčiť sa</value>
@@ -1757,48 +1081,6 @@ Ak hra nebeží plynulo, znížte rozlíšenie obrazovky.</value>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
     <value>Chcete začať pozretím úvodného videa? Pamätajte: vždy sa môžete vrátiť späť kliknutím na "Návody" z obrazovky "Pomoc" (stlačte F1).</value>
   </data>
-  <data name="Loaded" xml:space="preserve">
-    <value>Načítaný</value>
-  </data>
-  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
-    <value>Zatiaľ nemáte žiaden uložený svet. Začnite vytvorením nového sveta.</value>
-  </data>
-  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
-    <value>Video návod</value>
-  </data>
-  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
-    <value>Uložiť zmeny pred ukončením?</value>
-  </data>
-  <data name="ErrorNameAlreadyExists" xml:space="preserve">
-    <value>Meno je už používané. Zvoľte si prosím iné.</value>
-  </data>
-  <data name="NotificationBuildingFormat" xml:space="preserve">
-    <value>Stlačte {0} pre umiestnenie kocky</value>
-  </data>
-  <data name="NotificationColorFormat" xml:space="preserve">
-    <value>Stlačte {0} alebo {1} pre zmenu farby. Držte {2} pre aplikovanie zmeny. Držte {3} alebo {4} pre zväčšenie štetca.</value>
-  </data>
-  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
-    <value>Nápovedu môžete vypnúť v herných nastaveniach.</value>
-  </data>
-  <data name="NotificationHudHideFormat" xml:space="preserve">
-    <value>Stlačte {0} pre skrytie/ukázanie HUD</value>
-  </data>
-  <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>Stlačte {0}, {1}, {2}, {3}, {4}, {5} pre otáčanie</value>
-  </data>
-  <data name="NotificationScreenFormat" xml:space="preserve">
-    <value>Stlačte {0} pre nastavenie panela nástrojov alebo vytvorenie nových objektov.</value>
-  </data>
-  <data name="NotificationSlotEquipFormat" xml:space="preserve">
-    <value>Stlačte {0}, {1}, {2}, ... pre vybavenie sa predmetom z daného slotu</value>
-  </data>
-  <data name="NotificationToolDisabled" xml:space="preserve">
-    <value>Tento nástroj/zbraň je vypnutá</value>
-  </data>
-  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Stlačte {0} pre pridanie bloku, stlačte {1} pre odstránenie bloku. Držte {2} pre rýchle stavanie</value>
-  </data>
   <data name="ControlDescHoldToColor" xml:space="preserve">
     <value>Podržte pre nafarbenie bloku (kreatívny mód)</value>
   </data>
@@ -1808,23 +1090,8 @@ Ak hra nebeží plynulo, znížte rozlíšenie obrazovky.</value>
   <data name="ControlDescMediumBrush" xml:space="preserve">
     <value>Stredný farbiaci štetec (kreatívny mód)</value>
   </data>
-  <data name="ControlDescQuickLoad" xml:space="preserve">
-    <value>Rýchle načítanie</value>
-  </data>
-  <data name="ControlDescQuickSave" xml:space="preserve">
-    <value>Rýchle uloženie</value>
-  </data>
   <data name="ControlDescZoom" xml:space="preserve">
     <value>Priblíženie z pohľadu tretej osoby</value>
-  </data>
-  <data name="MouseWheel" xml:space="preserve">
-    <value>Koliesko myši</value>
-  </data>
-  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Obsah tabulky</value>
-  </data>
-  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
-    <value>Kreatívny mód</value>
   </data>
   <data name="ScreenCubeBuilderNewLargeShip" xml:space="preserve">
     <value>Nová veľká loď</value>
@@ -1834,15 +1101,6 @@ Ak hra nebeží plynulo, znížte rozlíšenie obrazovky.</value>
   </data>
   <data name="ScreenCubeBuilderNewStation" xml:space="preserve">
     <value>Nová stanica</value>
-  </data>
-  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
-    <value>Nastaviť panel nástrojov (priradiť stavebné bloky, nástroje a zbrane)</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
-    <value>Panel nástrojov</value>
-  </data>
-  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
-    <value>Nastavenie panela nástrojov</value>
   </data>
   <data name="HudEnergyGroupCharging" xml:space="preserve">
     <value>Nabíjanie</value>
@@ -1868,46 +1126,10 @@ Ak hra nebeží plynulo, znížte rozlíšenie obrazovky.</value>
   <data name="HudEnergyGroupUtility" xml:space="preserve">
     <value>Užitočnosť</value>
   </data>
-  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
-    <value>Steam Overlay je vypnutý</value>
-  </data>
   <data name="SteamOverlayDisabledText" xml:space="preserve">
     <value>Prosím povoľte Steam Overlay v Steam klientovi: choďte do Nastavení, Ingame záložka, Povoliť Steam
 Community In-game a v Steam Library, Space Engineers, Vlastnosti, Povoliť Steam
 Community In-game</value>
-  </data>
-  <data name="LoadScreenButtonPublish" xml:space="preserve">
-    <value>Zverejniť</value>
-  </data>
-  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
-    <value>Zverejnenie je hotové. Ak máte Steam Overlay zapnutý, stránka sa otvorí a môžete editovať vlastnosti ako názov, popis alebo viditeľnosť (pôvodné nastavenie je na "verejný")</value>
-  </data>
-  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
-    <value>Zverejnenie na Steam Workshop zlyhalo</value>
-  </data>
-  <data name="MessageBoxTextModPublished" xml:space="preserve">
-    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
-  </data>
-  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
-    <value>Failed to publish on Steam Workshop</value>
-  </data>
-  <data name="ProgressTextPublishingWorld" xml:space="preserve">
-    <value>Uverejňujem...prosím čakajte.</value>
-  </data>
-  <data name="ProgressTextUploadingWorld" xml:space="preserve">
-    <value>Nahrávam...prosím čakajte.</value>
-  </data>
-  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
-    <value>Podporované svety</value>
-  </data>
-  <data name="ProgressTextCreatingWorld" xml:space="preserve">
-    <value>Vytváram svet...prosím čakajte.</value>
-  </data>
-  <data name="ScreenCaptionWorkshop" xml:space="preserve">
-    <value>Načítaj podporovaný svet</value>
-  </data>
-  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
-    <value>Odporúčané</value>
   </data>
   <data name="MessageBoxTextRecommend" xml:space="preserve">
     <value>Ak vás baví hra Space Engineers, odporučte ju svojim priateľom na Steame na nasledujúcej stránke.
@@ -1915,52 +1137,6 @@ Odporúčania pomáhajú rozrastaniu komunity. Ďakujeme!</value>
   </data>
   <data name="MessageBoxCaptionRecommend" xml:space="preserve">
     <value>Odporučiť Space Engineers</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
-    <value>SVET UVEREJNENÝ</value>
-  </data>
-  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
-    <value>UVEREJNENIE SVETA ZLYHALO</value>
-  </data>
-  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
-    <value>MÓD UVEREJNENÝ</value>
-  </data>
-  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
-    <value>UVEREJNENIE MÓDU ZLYHALO</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
-    <value>Skopíruj a náčítaj</value>
-  </data>
-  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
-    <value>Uverejnenie vybratého sveta na Steam Workshope</value>
-  </data>
-  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
-    <value>Zoznam svetov podporovaných na Steam Workshope</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
-    <value>UVEREJNIŤ SVET</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>AKTUALIZOVAŤ SVET</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
-    <value>Ste si istý, že chcete nahrať a uverejniť vybratý svet na Steam Workshop?</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
-    <value>Ste si istý, že chcete nahrať a prepísať vybratý svet na Steam Workshope?</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
-    <value>UVEREJNIŤ MÓD</value>
-  </data>
-  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
-    <value>AKTUALIZUJ MÓD</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
-    <value>Are you sure you want to upload and publish selected mod on Steam Workshop?
-Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
-  </data>
-  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
-    <value>Are you sure you want to upload and overwrite selected mod on Steam Workshop?</value>
   </data>
   <data name="NotificationHintLeaveCockpit" xml:space="preserve">
     <value>Stlač {0} pre opustenie kabíny</value>
@@ -1989,12 +1165,6 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
     <value>{0} nie je dostupné pre {1}</value>
   </data>
-  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
-    <value>Prehľadať Workshop</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
-    <value>Obnoviť</value>
-  </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Uhlová brúska</value>
   </data>
@@ -2009,12 +1179,6 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   </data>
   <data name="NotificationArgWelder" xml:space="preserve">
     <value>Zváračka</value>
-  </data>
-  <data name="NotificationNoWeaponSelected" xml:space="preserve">
-    <value>Žiadna zbraň</value>
-  </data>
-  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
-    <value>Prepni na zbraň '{0}'</value>
   </data>
   <data name="NotificationHintPressToClimbUpDown" xml:space="preserve">
     <value>Stlač {0} alebo {1} pre šplhanie hore a dole</value>
@@ -2043,39 +1207,6 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Tlmiče</value>
   </data>
-  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
-    <value>Inerciálne tlmiče - vypnuté</value>
-  </data>
-  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
-    <value>Inerciálne tlmiče - zapnuté</value>
-  </data>
-  <data name="LoadScreenButtonDelete" xml:space="preserve">
-    <value>Zmazať</value>
-  </data>
-  <data name="ScreenCaptionEditSettings" xml:space="preserve">
-    <value>Zmeň nastavenia</value>
-  </data>
-  <data name="ScreenCaptionSaveAs" xml:space="preserve">
-    <value>Uložiť ako</value>
-  </data>
-  <data name="ScreenMenuButtonHelp" xml:space="preserve">
-    <value>Pomoc</value>
-  </data>
-  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
-    <value>Načítať svet</value>
-  </data>
-  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
-    <value>Nový svet</value>
-  </data>
-  <data name="ScreenMenuButtonOptions" xml:space="preserve">
-    <value>Možnosti</value>
-  </data>
-  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
-    <value>Vlastný svet</value>
-  </data>
-  <data name="ScreenOptionsButtonControls" xml:space="preserve">
-    <value>Ovládanie</value>
-  </data>
   <data name="HudInfoNameLandingGear" xml:space="preserve">
     <value>Podvozok:</value>
   </data>
@@ -2084,39 +1215,6 @@ Note that by submitting this item, you agree to the workshop terms of service (s
   </data>
   <data name="HudInfoNameLocked" xml:space="preserve">
     <value>Uzamknuté:</value>
-  </data>
-  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
-    <value>RESETOVAŤ OVLÁDANIE</value>
-  </data>
-  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
-    <value>Naozaj chcete resetovať ovládanie na pôvodné hodnoty?</value>
-  </data>
-  <data name="ScreenshotFailed" xml:space="preserve">
-    <value>Snímka obrazovky sa nepodarila</value>
-  </data>
-  <data name="ScreenshotSaved" xml:space="preserve">
-    <value>Snímka {0} uložená</value>
-  </data>
-  <data name="ExportToObjComplete" xml:space="preserve">
-    <value>Exportované: {0}</value>
-  </data>
-  <data name="ExportToObjFailed" xml:space="preserve">
-    <value>Export do obj súboru zlyhalo</value>
-  </data>
-  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
-    <value>Otvoriť vo Workshope</value>
-  </data>
-  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
-    <value>Otvoriť Steam Overlay s Workshopom</value>
-  </data>
-  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
-    <value>Stiahnuť vybraný svet do počítača a načítať ho</value>
-  </data>
-  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
-    <value>Otvoriť vybraný svet v Steam Workshope</value>
-  </data>
-  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
-    <value>Obnoviť zoznam odoberaných svetov.</value>
   </data>
   <data name="ControlName_LandingGear" xml:space="preserve">
     <value>Podvozok / zberač farieb</value>
@@ -2162,29 +1260,8 @@ Note that by submitting this item, you agree to the workshop terms of service (s
 Hmotnosť: {1} kg
 Objem: {2} L</value>
   </data>
-  <data name="SettingSymmetryX" xml:space="preserve">
-    <value>Plocha symetrie X: {0} nastav, {1} reset</value>
-  </data>
-  <data name="SettingSymmetryXOffset" xml:space="preserve">
-    <value>Plocha symetrie X (zarovnaj): {0} nastav, {1} reset</value>
-  </data>
-  <data name="SettingSymmetryY" xml:space="preserve">
-    <value>Plocha symetrie Y: {0} nastav, {1} reset</value>
-  </data>
-  <data name="SettingSymmetryYOffset" xml:space="preserve">
-    <value>Plocha symetrie Y (zarovnaj): {0} nastav, {1} reset</value>
-  </data>
-  <data name="SettingSymmetryZ" xml:space="preserve">
-    <value>Plocha symetrie Z: {0} nastav, {1} reset</value>
-  </data>
-  <data name="SettingSymmetryZOffset" xml:space="preserve">
-    <value>Plocha symetrie Z (zarovnaj): {0} nastav, {1} reset</value>
-  </data>
   <data name="ControlName_InertialDampeners" xml:space="preserve">
     <value>Inerciálne tlmiče</value>
-  </data>
-  <data name="NotificationPickupObject" xml:space="preserve">
-    <value>Stlač {0} pre zobratie {1}</value>
   </data>
   <data name="ControlName_UseSymmetry" xml:space="preserve">
     <value>Použiť symetriu</value>
@@ -2192,65 +1269,14 @@ Objem: {2} L</value>
   <data name="DisplayName_Block_Beacon" xml:space="preserve">
     <value>Maják</value>
   </data>
-  <data name="CubeBuilderPasteNotification" xml:space="preserve">
-    <value>Stlač LMB alebo Ctrl+V pre prilepenie objektu</value>
-  </data>
-  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
-    <value>Nastala chyba pri pridávaní jedného alebo viac objektov. Pozri log súbor pre viac detailov.</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
-    <value>Ste si istý, že chcete zmazať vybraný object? (kópia sa uloží do clipboardu)</value>
-  </data>
-  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
-    <value>Dosiahnutý limit pre pamať počas nahrávania sveta a niektoré objekty neboli nahraté. Ak si použil Large World fix a hra bola aktualizovaná, mal by byť vypnutý.</value>
-  </data>
-  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
-    <value>Klávesnica 2</value>
-  </data>
-  <data name="DialogTextDownloadingWorld" xml:space="preserve">
-    <value>Sťahovanie sveta: {0}%</value>
-  </data>
-  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
-    <value>Sťahovanie sveta zlyhalo!</value>
-  </data>
-  <data name="DialogTextJoiningWorld" xml:space="preserve">
-    <value>Pripájam k svetu</value>
-  </data>
-  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
-    <value>Pripojenie k svetu zlyhalo, dôvod: {0}</value>
-  </data>
-  <data name="GpuUnderMinimumNotification" xml:space="preserve">
-    <value>Vaša grafická karta nedostahuje minimálnych parametrov, čo môže mať za následok zasekávanie a zamŕzanie hry. Ďakujeme za pochopenie.</value>
-  </data>
   <data name="ToolTipItemFilter_AnyOre" xml:space="preserve">
     <value>Akýkoľvek druh rudy</value>
   </data>
   <data name="ToolTipItemFilter_UraniumIngot" xml:space="preserve">
     <value>Uránová tehlička</value>
   </data>
-  <data name="ShowRotationHints" xml:space="preserve">
-    <value>Ukáž nápovedu rotácie</value>
-  </data>
-  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
-    <value>Ukáž nápovedu rotácie HUD pri stavbe</value>
-  </data>
   <data name="DisplayName_Block_Rotor" xml:space="preserve">
     <value>Motor</value>
-  </data>
-  <data name="UnknownControl_Unassigned" xml:space="preserve">
-    <value>[nepriradené]</value>
-  </data>
-  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
-    <value>Staviteľský mód</value>
-  </data>
-  <data name="ScreenOptionsGame_Line" xml:space="preserve">
-    <value>Línia</value>
-  </data>
-  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
-    <value>Rovina</value>
-  </data>
-  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
-    <value>Samostatný blok</value>
   </data>
   <data name="BlockPropertyTitle_MotorTorque" xml:space="preserve">
     <value>Točivý moment</value>
@@ -2346,9 +1372,6 @@ Objem: {2} L</value>
   <data name="BlockPropertyDescription_MotorVelocity" xml:space="preserve">
     <value>Target velocity of the rotor; the rotor will accelerate until the target velocity is reached.</value>
   </data>
-  <data name="ControlName_Suicide" xml:space="preserve">
-    <value>Samovražda</value>
-  </data>
   <data name="DisplayName_Item_Girder" xml:space="preserve">
     <value>Nosník</value>
   </data>
@@ -2408,14 +1431,8 @@ Objem: {2} L</value>
   <data name="BlockPropertyDescription_LightIntensity" xml:space="preserve">
     <value>Intenzita svetla</value>
   </data>
-  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
-    <value>Multiplayer nemôže byť spustený, chyba: {0}</value>
-  </data>
   <data name="NotificationHintPressToOpenDoor" xml:space="preserve">
     <value>Stlač {0} pre otvorenie dverí</value>
-  </data>
-  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
-    <value>Objekt je používaný niekým iným</value>
   </data>
   <data name="SwitchText_Off" xml:space="preserve">
     <value>Off</value>
@@ -2425,113 +1442,20 @@ Objem: {2} L</value>
     <value>On</value>
     <comment>On/Off buttons in terminal. Don't translate or keep it short if you have to!!!</comment>
   </data>
-  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
-    <value>Hry priateľov</value>
-  </data>
-  <data name="ScreenCaptionPlayers" xml:space="preserve">
-    <value>Hráči</value>
-  </data>
-  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
-    <value>Priatelia</value>
-  </data>
-  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
-    <value>Súkromný</value>
-  </data>
-  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
-    <value>Verejný</value>
-  </data>
-  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
-    <value>Hosťovač</value>
-  </data>
-  <data name="ScreenPlayers_Invite" xml:space="preserve">
-    <value>Pozvať</value>
-  </data>
-  <data name="ScreenPlayers_Kick" xml:space="preserve">
-    <value>Vykopnúť</value>
-  </data>
-  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
-    <value>Meno hráča</value>
-  </data>
-  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
-    <value>Hra už neexistuje.</value>
-  </data>
-  <data name="MessageBoxCaptionKicked" xml:space="preserve">
-    <value>VYKOPNUTÝ</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
-    <value>Bol ste vyhodený zo servera jeho majiteľom.</value>
-  </data>
-  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
-    <value>Priatelia</value>
-  </data>
-  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
-    <value>Si si istý, že chceš znovupripojiť do prebiehajúcej hry?</value>
-  </data>
-  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
-    <value>Si v offline móde, multiplayer je nedostupný. Treba zmeniť nastavenia v hlavnom menu.</value>
-  </data>
-  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
-    <value>Steam is offline. Please run Steam in normal mode or restart Steam if the problem persists</value>
-  </data>
   <data name="ToolTipWorldSettingsEnableCopyPaste" xml:space="preserve">
     <value>Copy-paste povolí vytvoriť novú loď alebo stanicu priamo zo schránky</value>
   </data>
   <data name="WorldSettings_EnableCopyPaste" xml:space="preserve">
     <value>Povoliť copy/paste</value>
   </data>
-  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
-    <value>Kompatibilné verzie</value>
-  </data>
-  <data name="MaxPlayers" xml:space="preserve">
-    <value>Maximum hráčov</value>
-  </data>
-  <data name="DialogWaitingForWorldData" xml:space="preserve">
-    <value>Čakanie na dáta sveta</value>
-  </data>
-  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
-    <value>Spojenie so serverom zlyhalo: {0}</value>
-  </data>
-  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
-    <value>Pripojovanie na server</value>
-  </data>
-  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
-    <value>Čakanie na odpoveď servera</value>
-  </data>
-  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
-    <value>Vybraná hra je viac limitované než pôvodná. Znamená to, že inventára môže byť zmenšený a stratíš veci! Si si istý, že chceš zmeniť hru?</value>
-  </data>
-  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
-    <value>Svety priatelov</value>
-  </data>
-  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
-    <value>Verejné svety</value>
-  </data>
-  <data name="ControlName_CubeColorChange" xml:space="preserve">
-    <value>Zmeniť farbu bloku</value>
-  </data>
   <data name="WorldSettings_EnableWeapons" xml:space="preserve">
     <value>Zbrane povolené</value>
-  </data>
-  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
-    <value>Táto zbraň je vypnutá v nastaveniach</value>
-  </data>
-  <data name="ControlDescPlayersList" xml:space="preserve">
-    <value>Ukáž hráčov (len multiplayer)</value>
-  </data>
-  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
-    <value>Hráči</value>
   </data>
   <data name="AssemblerState_NotWorking" xml:space="preserve">
     <value>Assembelr je poškodený alebo rozobratý</value>
   </data>
   <data name="DisplayName_Block_Passage" xml:space="preserve">
     <value>Pasáž</value>
-  </data>
-  <data name="ItemDamagedDescription" xml:space="preserve">
-    <value>(Poškodený)</value>
-  </data>
-  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
-    <value>Server neodpovedá</value>
   </data>
   <data name="BlockPropertyDescription_GravityAcceleration" xml:space="preserve">
     <value>Gravitačná akcelerácia generátora.</value>
@@ -2563,44 +1487,17 @@ Objem: {2} L</value>
   <data name="NotificationHintPressToRechargeInMedicalRoom" xml:space="preserve">
     <value>Drž {0} pre doplnenie a uzdravenie</value>
   </data>
-  <data name="UnsupportedAspectRatio" xml:space="preserve">
-    <value>Nepodporovaný formát</value>
-  </data>
-  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
-    <value>K hre sa smú pripojiť iba priatelia</value>
-  </data>
-  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
-    <value>Popis sveta</value>
-  </data>
-  <data name="CompressSaveGames" xml:space="preserve">
-    <value>Stlač uložené hry</value>
-  </data>
-  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
-    <value>Uložené hry by mali byť komprimované na ušetrenie miesta na disku.</value>
-  </data>
-  <data name="Headbob" xml:space="preserve">
-    <value>Vypnúť headbob</value>
-  </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Ak povolené, každý hráč uvidí meno iného hráča nad hlavou</value>
   </data>
   <data name="WorldSettings_ShowPlayerNamesOnHud" xml:space="preserve">
     <value>Ukáž mená hráčov</value>
   </data>
-  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
-    <value>Ukáž mená hráčov</value>
-  </data>
-  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
-    <value>Ukáž mená hráčov nad ich hlavami. Musí byť povolené v nastaveniach.</value>
-  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Pustiť vec</value>
   </data>
   <data name="NotificationSuitEnergyLow" xml:space="preserve">
     <value>Varovanie: Eneria skafandra je nízka. Podporné systémy života môžu zlyhať.</value>
-  </data>
-  <data name="NotificationInventoryFull" xml:space="preserve">
-    <value>Inventár je plný</value>
   </data>
   <data name="NotificationSuitEnergyCritical" xml:space="preserve">
     <value>Varovanie: Energia skafandra kritická. Zlyhanie podporných systémov nevyhnuteľné.</value>
@@ -2612,17 +1509,11 @@ Objem: {2} L</value>
     <value>Numero máximo de objetospequeños flotando en el espacio (mineral, ingotes, componentes) 
 Advertencia - valores más altos de 64 pueden afectar el rendimiento significativamente</value>
   </data>
-  <data name="OutOfAmmo" xml:space="preserve">
-    <value>{0} minula sa munícia</value>
-  </data>
   <data name="ToolTipItemFilter_Missile200mm" xml:space="preserve">
     <value>Raketa 200 mm</value>
   </data>
   <data name="ToolTipItemFilter_NATO_25x184mm" xml:space="preserve">
     <value>NATO 25x184 mm</value>
-  </data>
-  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
-    <value>Treba {0} pre postavenie {1}</value>
   </data>
   <data name="DisplayName_Scenario_Asteroids" xml:space="preserve">
     <value>Asteroidy</value>
@@ -2660,21 +1551,6 @@ Extremo: 16 asteroides grandes, 80 asteroides pequeños - sólo 64bits</value>
   <data name="BlockPropertyTitle_OreDetectorRange" xml:space="preserve">
     <value>Dosah</value>
   </data>
-  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Herný mód</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
-    <value>Hráči</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
-    <value>Užívateľské meno</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
-    <value>Svet</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
-    <value>Veľkosť sveta</value>
-  </data>
   <data name="ToolTipItemFilter_AssembledItems" xml:space="preserve">
     <value>Hocijaká vec postavená v assembleri</value>
   </data>
@@ -2711,9 +1587,6 @@ Extremo: 16 asteroides grandes, 80 asteroides pequeños - sólo 64bits</value>
   <data name="Description_Scenario_LoneSurvivor" xml:space="preserve">
     <value>Štart na opustenom asteroide, na platforme bez lodí, začínaš od nuly</value>
   </data>
-  <data name="MessageBoxTextSuicide" xml:space="preserve">
-    <value>Si si istý, že chceš spáchať samovraždu?</value>
-  </data>
   <data name="DisplayName_Scenario_CrashedRedShip" xml:space="preserve">
     <value>Stroskotaná červená loď</value>
   </data>
@@ -2728,15 +1601,6 @@ Extremo: 16 asteroides grandes, 80 asteroides pequeños - sólo 64bits</value>
   </data>
   <data name="DisplayName_Item_Scrap" xml:space="preserve">
     <value>Šrot</value>
-  </data>
-  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
-    <value>Hostiteľ serveru opustil hru</value>
-  </data>
-  <data name="NotificationRespawn" xml:space="preserve">
-    <value>Si mŕtvy. Ožiješ o {0} sek.</value>
-  </data>
-  <data name="HudBlockInfo_Required" xml:space="preserve">
-    <value>Požadované</value>
   </data>
   <data name="HudBlockInfo_LargeShip_Station" xml:space="preserve">
     <value>Veľká loď / stanica</value>
@@ -2855,17 +1719,6 @@ Extremo: 16 asteroides grandes, 80 asteroides pequeños - sólo 64bits</value>
   <data name="ToolTipTerminalProduction_RepeatMode" xml:space="preserve">
     <value>Povoliť alebo Nepovoliť mód opakovania</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
-    <value>Veľkosť inventára {0}x
-Efektivita asembleru {1}x
-Rýchlosť rafinérie {2}x</value>
-  </data>
-  <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Player connected: {0}</value>
-  </data>
-  <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Player disconnected: {0}</value>
-  </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>Poškodenie trysky</value>
   </data>
@@ -2878,29 +1731,17 @@ Rýchlosť rafinérie {2}x</value>
   <data name="WorldSettings_EnableCargoShips" xml:space="preserve">
     <value>Nákladné lode</value>
   </data>
-  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Server beží na inej verzií hry, vaša verzia {0}, server {1}</value>
-  </data>
   <data name="WorldSettings_EnvironmentHostilityCataclysmUnreal" xml:space="preserve">
     <value>Armageddon (nerealistické)</value>
   </data>
   <data name="FirstApril2014" xml:space="preserve">
     <value>1. Apríl! Nikomu to nehovor!</value>
   </data>
-  <data name="ShowCrosshair" xml:space="preserve">
-    <value>Ukáž zameriavací kríž</value>
-  </data>
-  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
-    <value>Zameriavací kríž by mal byť viditeľný</value>
-  </data>
   <data name="DisplayName_Block_VirtualMass" xml:space="preserve">
     <value>Umelá hmotnosť</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
     <value>Kontrolná stanica</value>
-  </data>
-  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
-    <value>Hra sa ukladá.</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Zberateľ</value>
@@ -2947,12 +1788,6 @@ Rýchlosť rafinérie {2}x</value>
   <data name="DisplayName_Block_Window3x3Flat" xml:space="preserve">
     <value>Okno 3x3 Ploché</value>
   </data>
-  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
-    <value>* Lokalizované komunitou.</value>
-  </data>
-  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
-    <value>Klikni pre viac informácií</value>
-  </data>
   <data name="ControlDescSingleAllMode" xml:space="preserve">
     <value>Jediná / Všetky zbrane mód (kokpit)</value>
   </data>
@@ -2983,14 +1818,8 @@ Rýchlosť rafinérie {2}x</value>
   <data name="DisplayName_Block_Window3x3FlatInv" xml:space="preserve">
     <value>Okno 3x3 Ploché otočené</value>
   </data>
-  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
-    <value>Nedostupné priame spojenie.</value>
-  </data>
   <data name="Multiplayer_LastMsg" xml:space="preserve">
     <value>Žiadna správa nebola prijatá od servera počas posledných {0} sekúnd.</value>
-  </data>
-  <data name="Multiplayer_NoConnection" xml:space="preserve">
-    <value>Žiadne spojenie so serverom.</value>
   </data>
   <data name="NotificationHintSwitchWeaponMode" xml:space="preserve">
     <value>Stisnite {0} pre zmenu medzi jedinou / všetky módmi zbraní</value>
@@ -3001,9 +1830,6 @@ Rýchlosť rafinérie {2}x</value>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
   </data>
-  <data name="GamePaused" xml:space="preserve">
-    <value>Hra pauznutá</value>
-  </data>
   <data name="DisplayName_Block_Wheel1x1" xml:space="preserve">
     <value>Koliesko 1x1</value>
   </data>
@@ -3012,9 +1838,6 @@ Rýchlosť rafinérie {2}x</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Koliesko 5x5</value>
-  </data>
-  <data name="ControlDescPauseGame" xml:space="preserve">
-    <value>Pauza (iba offline)</value>
   </data>
   <data name="DisplayName_Block_ShipGrinder" xml:space="preserve">
     <value>Rozomielač</value>
@@ -3028,18 +1851,8 @@ Rýchlosť rafinérie {2}x</value>
   <data name="DisplayName_Block_Decoy" xml:space="preserve">
     <value>Návnada</value>
   </data>
-  <data name="ControlName_PauseGame" xml:space="preserve">
-    <value>Pauza hry</value>
-  </data>
-  <data name="KeysPause" xml:space="preserve">
-    <value>Pauza</value>
-    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
-  </data>
   <data name="TerminalButton_GroupSave" xml:space="preserve">
     <value>Uložiť</value>
-  </data>
-  <data name="NotificationWeaponNotWorking" xml:space="preserve">
-    <value>{0} Nefunguje</value>
   </data>
   <data name="BlockActionTitle_Lock" xml:space="preserve">
     <value>Zamknúť</value>
@@ -3101,12 +1914,6 @@ Rýchlosť rafinérie {2}x</value>
   <data name="BlockPropertyTitle_LargeTurretTargetMoving" xml:space="preserve">
     <value>Zamerať na pohyblivé ciele</value>
   </data>
-  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
-    <value>Pridať množstvo</value>
-  </data>
-  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
-    <value>Nastaviť hodnotu</value>
-  </data>
   <data name="DialogText_RunArgument" xml:space="preserve">
     <value>Argument</value>
   </data>
@@ -3134,12 +1941,6 @@ Rýchlosť rafinérie {2}x</value>
   <data name="NotificationFuelNo" xml:space="preserve">
     <value>Bez paliva</value>
   </data>
-  <data name="NotificationHealthCritical" xml:space="preserve">
-    <value>Zdravie kritické. Vyhľadaj zdravotnú pomoc.</value>
-  </data>
-  <data name="NotificationHealthLow" xml:space="preserve">
-    <value>Málo zdravia.</value>
-  </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
     <value>Hrozba meteorického roja.</value>
   </data>
@@ -3163,12 +1964,6 @@ Rýchlosť rafinérie {2}x</value>
   </data>
   <data name="NotificationHintPressToOpenInventoryConnector" xml:space="preserve">
     <value>Stlač {0} pre otvorenie inventára</value>
-  </data>
-  <data name="MultiplayerError_DifferentData" xml:space="preserve">
-    <value>Tento server má iné herné dáta ako váš klient</value>
-  </data>
-  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
-    <value>Hry s * majú nekompatibilné herné dáta</value>
   </data>
   <data name="TerminalTab_Info" xml:space="preserve">
     <value>Info</value>
@@ -3209,108 +2004,17 @@ Rýchlosť rafinérie {2}x</value>
   <data name="TerminalTab_Info_TrianglesTooltip" xml:space="preserve">
     <value>Číslo trojuholníkov pre vykreslovanie. Technická informácia. Väčšie čísla ovlivňujú výkon.</value>
   </data>
-  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
-    <value>Herný Admin</value>
-  </data>
-  <data name="MultiplayerJoinServers" xml:space="preserve">
-    <value>Iba dedikované</value>
-  </data>
-  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
-    <value>Užívateľ pripojený</value>
-  </data>
-  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
-    <value>You are not in group {0}. Do you want to visit group web page?</value>
-  </data>
-  <data name="MultiplayerErrorServerFull" xml:space="preserve">
-    <value>Server plný</value>
-  </data>
-  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
-    <value>Steam servery vypnuté alebo servery neexistujú</value>
-  </data>
-  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
-    <value>Neplatný tiket</value>
-  </data>
-  <data name="MultiplayerJoinLANServers" xml:space="preserve">
-    <value>Iba LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
-    <value>Priatelia</value>
-  </data>
-  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
-    <value>LAN</value>
-  </data>
-  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
-    <value>Hry</value>
-  </data>
-  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
-    <value>Servery</value>
-  </data>
-  <data name="JoinGame_Title" xml:space="preserve">
-    <value>Pripoj sa k svetu</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
-    <value>Ping</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
-    <value>Server</value>
-  </data>
-  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
-    <value>Logged in elsewhere</value>
-  </data>
-  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
-    <value>Nemáš licenciu alebo licencia vypršala</value>
-  </data>
-  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
-    <value>Tiket sa používa</value>
-  </data>
-  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
-    <value>Tiket zrušený</value>
-  </data>
-  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
-    <value>Užívateľ nepripojený</value>
-  </data>
-  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
-    <value>VAC zakázané</value>
-  </data>
-  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
-    <value>VAC kotrola vypršala</value>
-  </data>
-  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
-    <value>Povolené skupiny</value>
-  </data>
   <data name="DisplayName_Block_MergeBlock" xml:space="preserve">
     <value>Spájací blok</value>
   </data>
-  <data name="NewsDownloadingFailed" xml:space="preserve">
-    <value>Sťahovanie noviniek zlyhalo</value>
-  </data>
-  <data name="MessageBoxCaptionInfo" xml:space="preserve">
-    <value>Info</value>
-  </data>
   <data name="NewVersionAvailable" xml:space="preserve">
     <value>Nová verzia Space Enginners je dostupná!</value>
-  </data>
-  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
-    <value>Server Group ID is invalid, server administrator should set proper group ID in server config
-(or zero to disable group checking)</value>
-  </data>
-  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
-    <value>Zoznam lokálnych dedikovaných serverov</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
-    <value>Zoznam hráčmi vytvorených hier</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
-    <value>Zoznam internetových dedikovaných serverov</value>
   </data>
   <data name="ToolTipWorldSettingsEnableSpectator" xml:space="preserve">
     <value>Povoľ diváka vo svete</value>
   </data>
   <data name="WorldSettings_EnableSpectator" xml:space="preserve">
     <value>Povoľ diváka</value>
-  </data>
-  <data name="PlayerCharacterColor" xml:space="preserve">
-    <value>Farba hráča</value>
   </data>
   <data name="PlayerCharacterColorBlack" xml:space="preserve">
     <value>Čierna</value>
@@ -3333,9 +2037,6 @@ Rýchlosť rafinérie {2}x</value>
   <data name="PlayerCharacterColorYellow" xml:space="preserve">
     <value>Žltá</value>
   </data>
-  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
-    <value>Press {0} to change your appearance</value>
-  </data>
   <data name="TerminalControlPanel_Cockpit_ControlThrusters" xml:space="preserve">
     <value>Control thrusters</value>
   </data>
@@ -3351,59 +2052,20 @@ Rýchlosť rafinérie {2}x</value>
   <data name="TerminalTab_Info_Rotors" xml:space="preserve">
     <value>Rotory:</value>
   </data>
-  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
-    <value>Window mód</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
-    <value>Celá obrazovka</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
-    <value>Okno na celú obrazovku</value>
-  </data>
-  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
-    <value>Okno</value>
-  </data>
   <data name="BlockPropertyTitle_BreakForce" xml:space="preserve">
     <value>Break Force</value>
   </data>
   <data name="BlockPropertyTitle_LandGearAutoLock" xml:space="preserve">
     <value>Autouzamknutie</value>
   </data>
-  <data name="SpectatorControls" xml:space="preserve">
-    <value>Ovládanie diváka</value>
-  </data>
   <data name="SpectatorControls_None_Desc" xml:space="preserve">
     <value>Get back into controlled character / cockpit</value>
-  </data>
-  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Spectator with fixed view vector to controlled object</value>
   </data>
   <data name="SpectatorControls_Free_Desc" xml:space="preserve">
     <value>Free spectator. You can still shoot and do actions with controlled object</value>
   </data>
   <data name="SpectatorControls_Static_Desc" xml:space="preserve">
     <value>Static spectator. You control character / cockpit, but camera is static</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
-    <value>Na tomto serveri máš zákaz</value>
-  </data>
-  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
-    <value>Máš BAN na serveri. Otvoriť profil admin?</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
-    <value>You have been banned on this server by its admin.</value>
-  </data>
-  <data name="ScreenPlayers_Ban" xml:space="preserve">
-    <value>Zakázať</value>
-  </data>
-  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
-    <value>Vráť sa do hernej oblasti</value>
-  </data>
-  <data name="NotificationLeavingWorld" xml:space="preserve">
-    <value>Warning: You will die in {0:F1} meters!</value>
-  </data>
-  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
-    <value>Pokročilé nastavenia sweta</value>
   </data>
   <data name="WorldSettings_Advanced" xml:space="preserve">
     <value>Pokročilé</value>
@@ -3459,59 +2121,14 @@ Rýchlosť rafinérie {2}x</value>
   <data name="TerminalTab_Factions_CreateFactionTagToolTip" xml:space="preserve">
     <value>Faction tag (3 letters must be inserted)</value>
   </data>
-  <data name="Spectator" xml:space="preserve">
-    <value>Divák</value>
-  </data>
-  <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta divák</value>
-  </data>
-  <data name="SpectatorControls_Free" xml:space="preserve">
-    <value>Voľný divák</value>
-  </data>
-  <data name="SpectatorControls_None" xml:space="preserve">
-    <value>Kontrola hráča</value>
-  </data>
-  <data name="SpectatorControls_Static" xml:space="preserve">
-    <value>Statický divák</value>
-  </data>
   <data name="TerminalTab_Info_ShowMassCenter" xml:space="preserve">
     <value>Ukáž stred hmoty</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
-    <value>Daný názov už existuje</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
     <value>Faction tag must be exactly 3 characters long</value>
   </data>
-  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Given faction tag already exists</value>
-  </data>
-  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>Faction name must be at least 4 characters long</value>
-  </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>You must leave your faction before creating new one</value>
-  </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Uprav</value>
-  </data>
-  <data name="Kick" xml:space="preserve">
-    <value>Vykopni</value>
-  </data>
-  <data name="Leader" xml:space="preserve">
-    <value>Vodca</value>
-  </data>
-  <data name="Member" xml:space="preserve">
-    <value>Člen</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
-    <value>Are you sure that you want to kick player '{0}' from your faction?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
-    <value>Are you sure that you want to leave faction '{0}'?</value>
-  </data>
-  <data name="Promote" xml:space="preserve">
-    <value>Povýš</value>
   </data>
   <data name="ToolTipWorldSettingsRemoveTrash" xml:space="preserve">
     <value>If checked, ships that are considered to be trash will be removed to make the game run faster.
@@ -3524,41 +2141,14 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   <data name="WorldSettings_RemoveTrash" xml:space="preserve">
     <value>Trash auto-removal</value>
   </data>
-  <data name="Demote" xml:space="preserve">
-    <value>Demote</value>
-  </data>
-  <data name="AccessDenied" xml:space="preserve">
-    <value>Prístup zamietnutý</value>
-  </data>
-  <data name="Founder" xml:space="preserve">
-    <value>Zakladateľ</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
   <data name="TerminalTab_Factions_Private" xml:space="preserve">
     <value>Private info (visible to members only):</value>
-  </data>
-  <data name="Accept" xml:space="preserve">
-    <value>Akceptuj</value>
   </data>
   <data name="Terminal_BlockAccessDenied" xml:space="preserve">
     <value>(prístup zamietnutý)</value>
   </data>
-  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
-    <value>Are you sure that you want to accept player '{0}' to your faction?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
-    <value>Are you sure that you want demote '{0}' to member?</value>
-  </data>
-  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
-    <value>Are you sure that you want promote '{0}' to leader?</value>
-  </data>
   <data name="TerminalTab_Factions_EditFaction" xml:space="preserve">
     <value>Uprav skupinu</value>
-  </data>
-  <data name="Applicant" xml:space="preserve">
-    <value>Uchádzač</value>
   </data>
   <data name="NotificationRespawnShipDelete" xml:space="preserve">
     <value>Temporary ship. It will get removed after you leave the game or spawn in a new one.</value>
@@ -3568,9 +2158,6 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   </data>
   <data name="WorldSettings_RespawnShipDelete" xml:space="preserve">
     <value>Zmaž znovuzrodenú loď</value>
-  </data>
-  <data name="Tag" xml:space="preserve">
-    <value>Tag</value>
   </data>
   <data name="TerminalTab_Factions_PendingPeace" xml:space="preserve">
     <value>Táto skupina ponúka mier tvojej skupine</value>
@@ -3635,18 +2222,6 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   </data>
   <data name="ToolTipWorldSettingsResetOwnership" xml:space="preserve">
     <value>Resetuj vlastníkov blokov na nikoho</value>
-  </data>
-  <data name="SessionDeleteFailed" xml:space="preserve">
-    <value>Zmazanie sedenia zlyhalo</value>
-  </data>
-  <data name="Medicals_Title" xml:space="preserve">
-    <value>Nemocničné izby</value>
-  </data>
-  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
-    <value>Si si istý, že chceš zmeniť majiteľa na {0}?</value>
-  </data>
-  <data name="Respawn" xml:space="preserve">
-    <value>Znovuzrodenie</value>
   </data>
   <data name="BatteryBlock" xml:space="preserve">
     <value>Batéria</value>
@@ -3728,9 +2303,6 @@ uncontrolled, without a medbay and far enough from all players so that they can 
   <data name="Terminal_ShowOnHUDToolTip" xml:space="preserve">
     <value>Treba mať pripojenú aktívnu anténu.</value>
   </data>
-  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
-    <value>Rovnaké herné data</value>
-  </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
     <value>Prijmi mier</value>
   </data>
@@ -3740,39 +2312,6 @@ Respawn?</value>
   </data>
   <data name="RespawnShip" xml:space="preserve">
     <value>Obnoviť loď</value>
-  </data>
-  <data name="Refresh" xml:space="preserve">
-    <value>Obnoviť</value>
-  </data>
-  <data name="PlayerInfo_Dead" xml:space="preserve">
-    <value>mrtvý</value>
-  </data>
-  <data name="ScreenMods_ActiveMods" xml:space="preserve">
-    <value>Aktívne módy</value>
-  </data>
-  <data name="ScreenMods_AvailableMods" xml:space="preserve">
-    <value>Dostupné módy</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
-    <value>Deaktivuj mód</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
-    <value>Deaktivuj všetky módy</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
-    <value>Aktivuj mód</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
-    <value>Aktivuj všetky módy</value>
-  </data>
-  <data name="WorldSettings_Mods" xml:space="preserve">
-    <value>Módy</value>
-  </data>
-  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
-    <value>Otvoriť vybraný mód v Steam Workshope</value>
-  </data>
-  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
-    <value>Obnoviť zoznam odoberaných módov.</value>
   </data>
   <data name="Factions_EnemyFaction" xml:space="preserve">
     <value>Nepriateľská skupina</value>
@@ -3801,17 +2340,8 @@ Respawn?</value>
   <data name="ScreenTerminal_Infinite" xml:space="preserve">
     <value>Nekonečný</value>
   </data>
-  <data name="JoinGame_SearchLabel" xml:space="preserve">
-    <value>Hľadaj hru</value>
-  </data>
-  <data name="JoinGame_SearchTooltip" xml:space="preserve">
-    <value>At least 3 characters must be inserted to start searching</value>
-  </data>
   <data name="WorldSettings_ClientCanSave" xml:space="preserve">
     <value>Klienti môžu ukladať</value>
-  </data>
-  <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Sťahujú sa módy ... prosím čakaj</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Propulsion" xml:space="preserve">
     <value>If the wheel is propelled.</value>
@@ -3824,9 +2354,6 @@ Respawn?</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
     <value>Riadenie</value>
-  </data>
-  <data name="NotificationClientCannotSave" xml:space="preserve">
-    <value>Ukladanie klientom je vypnuté na serveri</value>
   </data>
   <data name="BlockPropertyDescription_Motor_Friction" xml:space="preserve">
     <value>Regulates wheel friction by changing pressure in the tire.</value>
@@ -3845,18 +2372,6 @@ Respawn?</value>
   </data>
   <data name="NotificationWheelNotPlaced" xml:space="preserve">
     <value>Koleso nemožno umiestniť.</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
-    <value>Presuň mód dole</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
-    <value>Presuň mód nahor</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
-    <value>Presuň mód naspod</value>
-  </data>
-  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
-    <value>Presuň mód úplne nahor</value>
   </data>
   <data name="Factions_YourBlock" xml:space="preserve">
     <value>Tvoj blok (žiadna skupina)</value>
@@ -3918,12 +2433,6 @@ Respawn?</value>
   <data name="BlockPropertyTitle_Velocity" xml:space="preserve">
     <value>Rýchlosť</value>
   </data>
-  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
-    <value>You cannot create group with blocks you don't have access rights to.</value>
-  </data>
-  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
-    <value>Nemožno zmazať skupinu blokov ku ktorým nemáš prístup.</value>
-  </data>
   <data name="HudInfoNameNumberOfBatteries" xml:space="preserve">
     <value>Počet používaných batérii</value>
   </data>
@@ -3984,12 +2493,6 @@ Respawn?</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Thrust override</value>
   </data>
-  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>You have been kicked from the faction.</value>
-  </data>
-  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>You have been accepted to faction.</value>
-  </data>
   <data name="BlockAction_Switch" xml:space="preserve">
     <value>Prepnúť</value>
   </data>
@@ -4032,12 +2535,6 @@ Respawn?</value>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
     <value>Yaw override</value>
   </data>
-  <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Predchádzajúci panel nástrojov</value>
-  </data>
-  <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Ďalší panel nástrojov</value>
-  </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
     <value>Aktuálna poloha:</value>
   </data>
@@ -4052,33 +2549,6 @@ Respawn?</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
     <value>Animácia mávania</value>
-  </data>
-  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>Downloading mods has failed! Please check mods in world settings.</value>
-  </data>
-  <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Checking for mod updates ... please wait.</value>
-  </data>
-  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Enable debug draw</value>
-  </data>
-  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Načítava sa zoznam chýb:</value>
-  </data>
-  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
-    <value>Model dummies</value>
-  </data>
-  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Spojiť časti</value>
-  </data>
-  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>Źiadne chyby pri načítaní</value>
-  </data>
-  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Physics primitives</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
     <value>Ukáž názov lode</value>
@@ -4104,53 +2574,14 @@ Respawn?</value>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
     <value>Malá loď</value>
   </data>
-  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Otvor v novom okne</value>
-  </data>
-  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Načítať textúry</value>
-  </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
     <value>Priamy prístup</value>
-  </data>
-  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Local mods are not allowed in multiplayer. Use workshop mods instead.</value>
-  </data>
-  <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Lokálny mod</value>
-  </data>
-  <data name="ScreenMods_MissingDetails" xml:space="preserve">
-    <value>Nemožno získať údaje o móde zo Steamu</value>
-  </data>
-  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Chýbajúci lokálny mod</value>
-  </data>
-  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Mod Workshopu</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
     <value>Neznámy</value>
   </data>
-  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Načitať modely</value>
-  </data>
-  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Skopíruj záznam do schránky</value>
-  </data>
-  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Warning: All ships will be removed in {0:F1} meters!</value>
-  </data>
-  <data name="PlayerCharacterModel" xml:space="preserve">
-    <value>Model hráča</value>
-  </data>
-  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
-    <value>Mody</value>
-  </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
     <value>Press {0} to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>Press {0} to use {1}</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
     <value>Radius of the gravity field</value>
@@ -4183,41 +2614,14 @@ Respawn?</value>
     <value>Definition for {0} contains computer, but the block's TypeId is not a terminal block. This means that the block can be owned, but the ownership cannot be changed via terminal.
 Hint: Try setting the TypeId to any block that is in the terminal - the simplest case being just TerminalBlock</value>
   </data>
-  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Select server to show mod list</value>
-  </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
     <value>Panel s tlačidlami</value>
-  </data>
-  <data name="ScreenMods_SearchLabel" xml:space="preserve">
-    <value>Hladať</value>
-  </data>
-  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Could not get mod list from the server</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
     <value>Skafander</value>
   </data>
-  <data name="HudWarnings" xml:space="preserve">
-    <value>Varovania HUD</value>
-  </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
     <value>{0} identity was added</value>
-  </data>
-  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>This world can not be loaded. It has been created in newer version of the game.</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
-  </data>
-  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Export clipboard to file</value>
-  </data>
-  <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Save ships from clipboard to file</value>
-  </data>
-  <data name="AddNewNPC" xml:space="preserve">
-    <value>Add New Enemy Identity</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Komponenty</value>
@@ -4228,35 +2632,11 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
     <value>Malé bloky</value>
   </data>
-  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
-    <value>Nástroje</value>
-  </data>
-  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Vybrať tagy</value>
-  </data>
-  <data name="WorkshopTag_Animation" xml:space="preserve">
-    <value>Animácia</value>
-  </data>
-  <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Bloky</value>
-  </data>
-  <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Postava</value>
-  </data>
-  <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Iné</value>
-  </data>
-  <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
-  </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>Pohľad</value>
   </data>
   <data name="DisplayName_Block_Camera" xml:space="preserve">
     <value>Kamera</value>
-  </data>
-  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Could not update because you are not the owner of this mod.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
     <value>Error loading original game content, cannot load file:
@@ -4269,20 +2649,11 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
     <value>Vysielanie použitím antén</value>
   </data>
-  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Some mods were not loaded because of errors. See log file for details or run the game in single player to access the mod debug screen.</value>
-  </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
     <value>Any item accepted by {0}</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
     <value>Any item produced by {0}</value>
-  </data>
-  <data name="RenderIterpolation" xml:space="preserve">
-    <value>Vykresliť interpoláciu</value>
-  </data>
-  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Reduces stuttering and makes game smoother.</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
     <value>Produkcia</value>
@@ -4292,9 +2663,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
     <value>Press {0} to exit camera view</value>
-  </data>
-  <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Balík pre mody</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
     <value>Arc furnace</value>
@@ -4407,9 +2775,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
     <value>Objav stanice</value>
   </data>
-  <data name="CustomText" xml:space="preserve">
-    <value>{0}</value>
-  </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
     <value>Ukáž dosah gravitácie</value>
   </data>
@@ -4442,12 +2807,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
     <value>Čas do spustenia:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Tabs of tools and objects:</value>
-  </data>
-  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
-    <value>Hladať:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
     <value>Nabíjateľný raketomet</value>
@@ -4554,9 +2913,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
     <value>Default x 50</value>
   </data>
-  <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Move pasted object</value>
-  </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
     <value>Cooldowns disabled</value>
   </data>
@@ -4568,21 +2924,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
     <value>Bloky kokpitu</value>
-  </data>
-  <data name="WorkshopTag_Script" xml:space="preserve">
-    <value>Skript</value>
-  </data>
-  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>Some blocks in the pasted grid are not available in this world</value>
-  </data>
-  <data name="ConvertingObjs" xml:space="preserve">
-    <value>Koncertuje modely. Prosím, čakajte.</value>
-  </data>
-  <data name="ConvertToObjDone" xml:space="preserve">
-    <value>Všetky modely skonvertované.</value>
-  </data>
-  <data name="ExportingToObj" xml:space="preserve">
-    <value>Exportuje modely. Prosím, čakajte.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
     <value>Bloky pre energiu</value>
@@ -4599,17 +2940,11 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
     <value>OBnov objekt</value>
   </data>
-  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?</value>
-  </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
     <value>Asteroidy</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Veci</value>
-  </data>
-  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
-    <value>V tomto svete nie je vec dostupná</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroid" xml:space="preserve">
     <value>Asteroid</value>
@@ -4625,9 +2960,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
     <value>Koop mód</value>
-  </data>
-  <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Pomoc ostatným</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
     <value>Ammo Assembler</value>
@@ -4716,12 +3048,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
     <value>Neplatné množstvo</value>
   </data>
-  <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Umiestňovanie objektov do sveta. Prosím vydržte.</value>
-  </data>
-  <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Systémy 3</value>
-  </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
     <value>Enable or disable cooperative mode</value>
   </data>
@@ -4740,9 +3066,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Vyber typ asteroidu</value>
   </data>
-  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>Switched to weapon: {0}</value>
-  </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
     <value>Any ammo magazine accepted by {0}</value>
   </data>
@@ -4751,24 +3074,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
     <value>Pripojiť</value>
-  </data>
-  <data name="Thrust_Back" xml:space="preserve">
-    <value>Naspäť</value>
-  </data>
-  <data name="Thrust_Down" xml:space="preserve">
-    <value>Dole</value>
-  </data>
-  <data name="Thrust_Forward" xml:space="preserve">
-    <value>Vpred</value>
-  </data>
-  <data name="Thrust_Left" xml:space="preserve">
-    <value>Vľavo</value>
-  </data>
-  <data name="Thrust_Right" xml:space="preserve">
-    <value>Vpravo</value>
-  </data>
-  <data name="Thrust_Up" xml:space="preserve">
-    <value>Nahor</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
     <value>Iný hráč používa túto loď!</value>
@@ -4806,14 +3111,8 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
     <value>Multiple grids are not supported. Only the largest grid will be used.</value>
   </data>
-  <data name="SelectBlueprint" xml:space="preserve">
-    <value>Vybrať</value>
-  </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Show grid pivot</value>
-  </data>
-  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
     <value>Palec nahor</value>
@@ -4832,9 +3131,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Steel Catwalk Two Sides</value>
-  </data>
-  <data name="AvailableBlueprints" xml:space="preserve">
-    <value>Dostupné schémy</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
     <value>Keep Projection</value>
@@ -4884,18 +3180,6 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
     <value>Sphere</value>
   </data>
-  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
-    <value>Radius</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
-    <value>Width</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
-    <value>Depth</value>
-  </data>
-  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
-    <value>Height</value>
-  </data>
   <data name="ToolTipWorldSettingsLimitWorldSize" xml:space="preserve">
     <value>When set, the game area is limited to a cube with a side length set to the chosen size.
 All objects that leave the game area will be removed from the game.
@@ -4919,9 +3203,6 @@ Characters leaving the game area will be killed.</value>
   <data name="WorldSettings_WorldSizeCustom" xml:space="preserve">
     <value>Custom</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
-    <value>Distance</value>
-  </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
     <value>Loop time</value>
   </data>
@@ -4937,26 +3218,11 @@ Characters leaving the game area will be killed.</value>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
     <value>Loop timer: </value>
   </data>
-  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Brush Settings</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Transparency</value>
-  </data>
-  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Shape Settings</value>
-  </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
     <value>Terrain auto level</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
     <value>Capsule</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Length</value>
-  </data>
-  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
-    <value>Radius</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
     <value>Alert 1</value>
@@ -4991,32 +3257,8 @@ Characters leaving the game area will be killed.</value>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Run</value>
   </data>
-  <data name="ExportToObjModded" xml:space="preserve">
-    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
-  </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Ramp</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Snap to voxel grid</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Area</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Choose axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y axis</value>
-  </data>
-  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z axis</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Material</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
     <value>Infinite: High density</value>
@@ -5124,7 +3366,7 @@ Characters leaving the game area will be killed.</value>
     <value>Enter new name</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
-    <value/>
+    <value />
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
     <value>Do you want to publish this script?</value>
@@ -5180,26 +3422,11 @@ Characters leaving the game area will be killed.</value>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
     <value>Ownership of programmable block changed. Please recompile program.</value>
   </data>
-  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>New message in {0} faction chat</value>
-  </data>
-  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>New global chat message</value>
-  </data>
-  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>New message from {0}</value>
-  </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Broadcast-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
     <value>Comms</value>
-  </data>
-  <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Description is too long (max 8000 characters allowed)</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Popis</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
     <value>View distance</value>
@@ -5268,9 +3495,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
-  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Select categories</value>
-  </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
     <value>Description</value>
   </data>
@@ -5313,9 +3537,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
     <value>Warning: illegal data. Modifications will not be saved.</value>
   </data>
-  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>View distance: {0}m</value>
-  </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Only faction members can use faction-to-faction communications</value>
   </data>
@@ -5343,9 +3564,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
     <value>Current</value>
   </data>
-  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Project to voxel</value>
-  </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
     <value>Edit private text</value>
   </data>
@@ -5363,15 +3581,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
     <value>Shoot once</value>
-  </data>
-  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Next voxel material</value>
-  </data>
-  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Previous voxel material</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
     <value>Only owner</value>
@@ -5391,15 +3600,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
     <value>Access type</value>
   </data>
-  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Are you sure you want to replace this blueprint with clipboard?</value>
-  </data>
-  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Replace</value>
-  </data>
-  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Text panel is read-only</value>
-  </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
     <value>Generated Blocks</value>
   </data>
@@ -5418,17 +3618,8 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
     <value>Enable tools shake</value>
   </data>
-  <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Text is too long. Do you want to truncate it?</value>
-  </data>
-  <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Export model</value>
-  </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
     <value>Text is too long. It won't be saved.</value>
-  </data>
-  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Show bounding box</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
     <value>Console</value>
@@ -5559,19 +3750,6 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
     <value>Round Armor Slope</value>
   </data>
-  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
-Do you want to continue?</value>
-  </data>
-  <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Press {0} to rotate the block</value>
-  </data>
-  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} or {1} to toggle compound building</value>
-  </data>
-  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Press {0} to toggle dynamic building</value>
-  </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
     <value>Heavy Armor Round Corner</value>
   </data>
@@ -5580,9 +3758,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
     <value>Heavy Armor Round Slope</value>
-  </data>
-  <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Switch walk</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
     <value>Connected to </value>
@@ -5598,21 +3773,6 @@ Do you want to continue?</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
     <value>Searching for a laser at GPS coordinates </value>
-  </data>
-  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>The list of favorite servers</value>
-  </data>
-  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Favorites</value>
-  </data>
-  <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>History</value>
-  </data>
-  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>The list of friends servers</value>
-  </data>
-  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>The list of previously visited servers</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
     <value>Light Armor Corner 2x1x1</value>
@@ -5649,12 +3809,6 @@ Do you want to continue?</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
     <value>Light Armor Slope 3x1x1 Smooth</value>
-  </data>
-  <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Add server to favorites</value>
-  </data>
-  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Remove server from favorites</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Light Armor Corner 2x1x1 Base</value>
@@ -5746,15 +3900,6 @@ Do you want to continue?</value>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
     <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
   </data>
-  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>Press {0} to open voxel hand settings</value>
-  </data>
-  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} or {1} to change voxel material</value>
-  </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>These receivers are in radio range and can report their position.
 Their current state and target is in parenthesis:
@@ -5775,18 +3920,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Copy target's current or last known position into clipboard</value>
-  </data>
-  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
-  </data>
-  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
-  </data>
-  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
-  </data>
-  <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
     <value>Blacklist</value>
@@ -5823,9 +3956,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
     <value>Remove</value>
-  </data>
-  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
     <value>Small Conveyor Sorter</value>
@@ -5947,9 +4077,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
-  </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
   </data>
@@ -5989,9 +4116,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationNoHelmetVariation" xml:space="preserve">
     <value>Cannot remove helmet on this suit.</value>
   </data>
-  <data name="ReportBug" xml:space="preserve">
-    <value>Report a Bug</value>
-  </data>
   <data name="HudInfoHelmet" xml:space="preserve">
     <value>Helmet</value>
   </data>
@@ -6028,15 +4152,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
-  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
-    <value>Next toolbar item</value>
-  </data>
-  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
-    <value>Previous toolbar item</value>
-  </data>
-  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
-    <value>Tools / Weapons 2</value>
-  </data>
   <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
     <value>Oxygen Output: </value>
   </data>
@@ -6045,12 +4160,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="WorldSettings_Encounters" xml:space="preserve">
     <value>Random encounters</value>
-  </data>
-  <data name="ControlName_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="ScreenControlMenu_Title" xml:space="preserve">
-    <value>Control menu</value>
   </data>
   <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
     <value>Show distance for enemy antennas</value>
@@ -6064,9 +4173,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ScreenButtonBattle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="ControlName_ControlMenu" xml:space="preserve">
-    <value>Open control menu</value>
-  </data>
   <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
     <value>Cryo Chamber</value>
   </data>
@@ -6075,21 +4181,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemValue_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ControlMenuItemValue_On" xml:space="preserve">
-    <value>On</value>
-  </data>
-  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
-    <value>Camera mode</value>
-  </data>
-  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
-    <value>FPP</value>
-  </data>
-  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
-    <value>TPP</value>
   </data>
   <data name="ControlName_MissionSettings" xml:space="preserve">
     <value>Scenario Settings</value>
@@ -6157,32 +4248,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
-  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
-    <value>Suicide</value>
-  </data>
-  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
-    <value>Quick load / reconnect</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
-    <value>Show color picker</value>
-  </data>
   <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
     <value>Show terminal</value>
-  </data>
-  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
-    <value>Show toolbar screen</value>
-  </data>
-  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
-    <value>Toggle HUD</value>
-  </data>
-  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
-    <value>Pause game</value>
-  </data>
-  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
-    <value>Feature is not available yet</value>
-  </data>
-  <data name="NotificationMaximumNumberBots" xml:space="preserve">
-    <value>Maximum number of bots has been reached</value>
   </data>
   <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
     <value>Effectiveness Module</value>
@@ -6196,38 +4263,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Battle" xml:space="preserve">
     <value>Battle</value>
   </data>
-  <data name="Hud_BuildMode" xml:space="preserve">
-    <value>Build mode</value>
-  </data>
-  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} to toggle compound building</value>
-  </data>
   <data name="BlockActionTitle_Extend" xml:space="preserve">
     <value>Extend</value>
   </data>
   <data name="BlockActionTitle_Retract" xml:space="preserve">
     <value>Retract</value>
-  </data>
-  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
-    <value>Press {0} to access control menu</value>
-  </data>
-  <data name="NotificationJoystickMenus" xml:space="preserve">
-    <value>In order to show help or modify toolbar, open control menu</value>
-  </data>
-  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
-    <value>Press {0} or {1} to select toolbar slots</value>
-  </data>
-  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
-    <value>Press {0} to add block, press {1} to remove block</value>
-  </data>
-  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} to change voxel material</value>
-  </data>
-  <data name="Notification_GameplayOptions" xml:space="preserve">
-    <value>Press {0} to change Gameplay options</value>
-  </data>
-  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
-    <value>Change appearance</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
     <value>Access control menu to open control panel of {0}</value>
@@ -6246,18 +4286,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
-  </data>
-  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
-    <value>Access control menu to open inventory of {0}</value>
-  </data>
-  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
-    <value>Press {0} to enter build mode</value>
-  </data>
-  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
-    <value>Joining battle lobby</value>
-  </data>
-  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
-    <value>Joining battle lobby failed, reason: {0}</value>
   </data>
   <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
     <value>Press {0} to enter cryo chamber</value>
@@ -6310,92 +4338,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
   </data>
-  <data name="WorldSettings_Physics" xml:space="preserve">
-    <value>Physics</value>
-  </data>
-  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
-    <value>Fast</value>
-  </data>
-  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
-    <value>Precise</value>
-  </data>
-  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
-    <value>Higher settings improve simulation BUT directly affects performance.</value>
-  </data>
-  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
-    <value>Graphics options</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
-    <value>Anisotropic filtering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
-    <value>Off</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
-    <value>Anti-aliasing</value>
-  </data>
-  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
-    <value>None</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
-    <value>Foliage details</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
-    <value>Disabled</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
-  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
-    <value>Multi-threaded rendering</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
-    <value>Quality preset</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
-    <value>Medium</value>
-  </data>
   <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
     <value>Renderer</value>
   </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
     <value>Shadow map resolution</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
-    <value>Texture quality</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
-    <value>Medium</value>
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
@@ -6408,12 +4355,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationStationRotation" xml:space="preserve">
     <value>Station rotation mode</value>
-  </data>
-  <data name="ControlName_VoiceChat" xml:space="preserve">
-    <value>Push-to-talk voice chat</value>
-  </data>
-  <data name="EnableVoiceChat" xml:space="preserve">
-    <value>Enable voice chat</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>

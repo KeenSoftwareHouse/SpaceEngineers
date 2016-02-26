@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities.Cube
             gridEntityId = grid.EntityId;
 
             //Finds max blocks within owners: Slow!
-            foreach (var block in grid.GetFatBlocks<MyCubeBlock>())
+            foreach (var block in grid.GetFatBlocks())
             {
                 var blockOwner = block.OwnerId;
 
@@ -80,15 +80,15 @@ namespace Sandbox.Game.Entities.Cube
                     BigOwners.Add(key);
 
             //Small owners are just the keys (which always should have non-empty value)
-            if (SmallOwners.Contains(MySession.LocalPlayerId))
-                MySession.LocalHumanPlayer.RemoveGrid(gridEntityId);
+            if (SmallOwners.Contains(MySession.Static.LocalPlayerId))
+                MySession.Static.LocalHumanPlayer.RemoveGrid(gridEntityId);
 
             SmallOwners.Clear();
             foreach (var key in PlayerOwnedBlocks.Keys)
             {
                 SmallOwners.Add(key);
-                if (key == MySession.LocalPlayerId)
-                    MySession.LocalHumanPlayer.AddGrid(gridEntityId);
+                if (key == MySession.Static.LocalPlayerId)
+                    MySession.Static.LocalHumanPlayer.AddGrid(gridEntityId);
             }
         }
 

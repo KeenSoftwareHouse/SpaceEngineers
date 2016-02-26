@@ -2,6 +2,8 @@
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Game;
+using VRage.Game.Definitions;
 using VRage.Utils;
 using VRageMath;
 

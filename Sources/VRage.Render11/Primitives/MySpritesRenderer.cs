@@ -15,6 +15,7 @@ using VRageMath.PackedVector;
 using VRage;
 using VRage.Utils;
 using System.Diagnostics;
+using System;
 
 namespace VRageRender
 {
@@ -77,8 +78,8 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_vs = MyShaders.CreateVs("sprite.hlsl", "vs");
-            m_ps = MyShaders.CreatePs("sprite.hlsl", "ps");
+            m_vs = MyShaders.CreateVs("sprite.hlsl");
+            m_ps = MyShaders.CreatePs("sprite.hlsl");
 
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(
                 new MyVertexInputComponent(MyVertexInputComponentType.CUSTOM_HALF4_0, MyVertexInputComponentFreq.PER_INSTANCE),
@@ -229,28 +230,28 @@ namespace VRageRender
         }
 
         // viewport, render target
-        internal static void Draw(RenderTargetView rtv, MyViewport viewport)
+        internal unsafe static void Draw(RenderTargetView rtv, MyViewport viewport)
         {
             if (StackTop().m_internalBatch.Texture != null && StackTop().m_internalBatch.Count > 0)
                 StackTop().m_internalBatch.Commit();
             StackTop().m_internalBatch = new MySpritesBatch();
 
-            RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
 
             RC.SetIL(m_inputLayout);
             //RC.SetupScreenViewport();
-            RC.Context.Rasterizer.SetViewport(viewport.OffsetX, viewport.OffsetY, viewport.Width, viewport.Height);
+            RC.DeviceContext.Rasterizer.SetViewport(viewport.OffsetX, viewport.OffsetY, viewport.Width, viewport.Height);
 
             RC.SetVS(m_vs);
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.GetObjectCB(64));
             RC.SetPS(m_ps);
-            RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
 
             //RC.BindDepthRT(null, DepthStencilAccess.DepthReadOnly, MyRender11.Backbuffer);
             // to reset state
             RC.BindDepthRT(null, DepthStencilAccess.DepthReadOnly, null);
-            RC.Context.OutputMerger.SetRenderTargets(rtv);
+            RC.DeviceContext.OutputMerger.SetRenderTargets(rtv);
             
             RC.SetBS(MyRender11.BlendGui);
 
@@ -260,12 +261,14 @@ namespace VRageRender
             var mapping = MyMapping.MapDiscard(m_VB.Buffer);
             for (int i = 0; i < StackTop().m_instances.Count; i++)
             {
-                mapping.stream.Write(StackTop().m_instances[i]);
+                var helper = StackTop().m_instances[i];
+                mapping.WriteAndPosition(ref helper);
             }
             mapping.Unmap();
 
             mapping = MyMapping.MapDiscard(MyCommon.GetObjectCB(64));
-            mapping.stream.Write(new Vector2(viewport.Width, viewport.Height));
+            var viewportSize = new Vector2(viewport.Width, viewport.Height);
+            mapping.WriteAndPosition(ref viewportSize);
             mapping.Unmap();
 
             foreach (var batch in StackTop().m_batches)
@@ -275,7 +278,7 @@ namespace VRageRender
                     RC.SetRS(MyRender11.m_scissorTestRasterizerState);
 
                     var scissor = batch.ScissorRectangle.Value;
-                    RC.Context.Rasterizer.SetScissorRectangle((int)scissor.X, (int)scissor.Y, (int)(scissor.X + scissor.Width), (int)(scissor.Y + scissor.Height));
+                    RC.DeviceContext.Rasterizer.SetScissorRectangle((int)scissor.X, (int)scissor.Y, (int)(scissor.X + scissor.Width), (int)(scissor.Y + scissor.Height));
                 }
                 else
                 {
@@ -283,7 +286,7 @@ namespace VRageRender
                 }
 
                 RC.BindRawSRV(0, batch.Texture);
-                RC.Context.DrawInstanced(4, batch.Count, 0, batch.Start);
+                RC.DeviceContext.DrawInstanced(4, batch.Count, 0, batch.Start);
             }
 
             RC.SetBS(null);

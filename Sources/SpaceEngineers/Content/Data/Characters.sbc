@@ -3,7 +3,7 @@
   <Characters>    
     <Character>
       <Id>
-        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Default_Astronaut</SubtypeId>
       </Id>
 
@@ -15,14 +15,13 @@
       <RightGlare>GlareHeadlight</RightGlare>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
-      <Stats>SpaceCharacterStats</Stats>
 	  
   	  <!-- ENABLED COMPONENTS -->
 	  <EnabledComponents>RagdollComponent InventorySpawnComponent</EnabledComponents>
 
       <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
       <InventorySpawnContainerId>
-        <TypeId>EntityBase</TypeId>
+        <TypeId>InventoryBagEntity</TypeId>
         <SubtypeId>AstronautBackpack</SubtypeId>
       </InventorySpawnContainerId>
       <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
@@ -46,6 +45,8 @@
 		<MaxCrouchWalkSpeed>2</MaxCrouchWalkSpeed>
 		<MaxCrouchBackwalkSpeed>2</MaxCrouchBackwalkSpeed>
 		<MaxCrouchStrafingSpeed>2</MaxCrouchStrafingSpeed>
+		
+		<JumpForce>2.5</JumpForce>
 
 		<!-- <CharacterHeadSize>0.45</CharacterHeadSize>
 		<CharacterHeadHeight>0.25</CharacterHeadHeight>
@@ -70,6 +71,12 @@
 	  <BendMultiplier3rd>-0.4</BendMultiplier3rd>
       <LeftLightBone>LeftLightDummy</LeftLightBone>
       <RightLightBone>RightLightDummy</RightLightBone>
+      <LightOffset>
+        <X>0.0</X>
+        <Y>0.0</Y>
+        <Z>-0.3</Z>
+      </LightOffset>
+
 
       <MaterialsDisabledIn1st>
         <Material>Head</Material>
@@ -77,9 +84,9 @@
         <Material>Astronaut_glass</Material>
       </MaterialsDisabledIn1st>
       <OxygenConsumption>0.063</OxygenConsumption>
+      <OxygenConsumptionMultiplier>1</OxygenConsumptionMultiplier>
       <PressureLevelForLowDamage>0.5</PressureLevelForLowDamage>
       <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
-      <OxygenCapacity>60</OxygenCapacity>
       <NeedsOxygen>false</NeedsOxygen>
       <HelmetVariation>Engineer_suit_no_helmet</HelmetVariation>
 
@@ -91,6 +98,14 @@
           </Id>
           <MaxCapacity>125</MaxCapacity>
           <Throughput>1000</Throughput>
+        </Resource>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Oxygen</SubtypeId>
+          </Id>
+          <Throughput>1000</Throughput>
+          <MaxCapacity>60</MaxCapacity>
         </Resource>
       </SuitResourceStorage>
 
@@ -114,7 +129,7 @@
           <SlowdownFactor>3</SlowdownFactor>
           <MinPowerConsumption>0.000000001</MinPowerConsumption>
           <MaxPowerConsumption>0.0001</MaxPowerConsumption>
-          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          <ConsumptionFactorPerG>250</ConsumptionFactorPerG>
           
           <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
           <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
@@ -329,11 +344,28 @@
         <Mapping Name="UseCubePlacerFingers" AnimationSubtypeName="UseCubePlacerFingers" />
         <Mapping Name="passengerseat_small" AnimationSubtypeName="passengerseat_small" />
       </AnimationMappings>
+      
+      <!-- SOUND DEFINITION -->
+      <JumpSoundName>PlayJump</JumpSoundName>
+
+      <JetpackIdleSoundName>PlayJet</JetpackIdleSoundName>
+      <JetpackRunSoundName>PlayJetRun</JetpackRunSoundName>
+
+      <CrouchDownSoundName>PlayCrouchDwn</CrouchDownSoundName>
+      <CrouchUpSoundName>PlayCrouchUp</CrouchUpSoundName>
+
+      <PainSoundName>PlayVocPain</PainSoundName>
+      <DeathSoundName>PlayVocDeath</DeathSoundName>
+
+      <IronsightActSoundName>PlayIronSightActivate</IronsightActSoundName>
+      <IronsightDeactSoundName>PlayIronSightDeactivate</IronsightDeactSoundName>
+
+      <FastFlySoundName>ShipWindSpeed</FastFlySoundName>
     </Character>
 
     <Character>
       <Id>
-        <TypeId>MyObjectBuilder_CharacterDefinition</TypeId>
+        <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Engineer_suit_no_helmet</SubtypeId>
       </Id>
       
@@ -346,6 +378,12 @@
       <LeftLightBone></LeftLightBone>
       <RightLightBone></RightLightBone>
       <LightGlareSize>0.02</LightGlareSize>
+      <LightOffset>
+        <X>0.0</X>
+        <Y>0.0</Y>
+        <Z>-0.3</Z>
+      </LightOffset>
+
       <Skeleton>Humanoid</Skeleton>
 
 	  <!-- ENABLED COMPONENTS -->
@@ -353,15 +391,13 @@
       
       <EnableSpawnInventoryAsContainer>true</EnableSpawnInventoryAsContainer>
       <InventorySpawnContainerId>
-        <TypeId>EntityBase</TypeId>
+        <TypeId>InventoryBagEntity</TypeId>
         <SubtypeId>AstronautBackpack</SubtypeId>
       </InventorySpawnContainerId>
       <SpawnInventoryOnBodyRemoval>true</SpawnInventoryOnBodyRemoval>
       <LootingTime>30</LootingTime>
 
 
-      <Stats>SpaceCharacterStats</Stats>
-				
 		<!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>
 
@@ -379,6 +415,8 @@
 		<MaxCrouchWalkSpeed>2</MaxCrouchWalkSpeed>
 		<MaxCrouchBackwalkSpeed>2</MaxCrouchBackwalkSpeed>
 		<MaxCrouchStrafingSpeed>2</MaxCrouchStrafingSpeed>
+
+		<JumpForce>2.5</JumpForce>
 
 		<!--<CharacterHeadSize>0.45</CharacterHeadSize>
 		<CharacterHeadHeight>0.25</CharacterHeadHeight>
@@ -408,9 +446,9 @@
         <Material>Spacesuit_hood</Material>
       </MaterialsDisabledIn1st>
       <OxygenConsumption>0.063</OxygenConsumption>
+      <OxygenConsumptionMultiplier>1</OxygenConsumptionMultiplier>
       <PressureLevelForLowDamage>0.5</PressureLevelForLowDamage>
       <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
-      <OxygenCapacity>60</OxygenCapacity>
       <NeedsOxygen>true</NeedsOxygen>
       <HelmetVariation>Default_Astronaut</HelmetVariation>
 
@@ -422,6 +460,14 @@
           </Id>
           <MaxCapacity>125</MaxCapacity>
           <Throughput>1000</Throughput>
+        </Resource>
+        <Resource>
+          <Id>
+            <TypeId>GasProperties</TypeId>
+            <SubtypeId>Oxygen</SubtypeId>
+          </Id>
+          <Throughput>1000</Throughput>
+          <MaxCapacity>60</MaxCapacity>
         </Resource>
       </SuitResourceStorage>
 
@@ -446,7 +492,7 @@
           <SlowdownFactor>3</SlowdownFactor>
           <MinPowerConsumption>0.000000001</MinPowerConsumption>
           <MaxPowerConsumption>0.0001</MaxPowerConsumption>
-          <ConsumptionFactorPerG>600</ConsumptionFactorPerG>
+          <ConsumptionFactorPerG>250</ConsumptionFactorPerG>
           
           <MinPlanetaryInfluence>0</MinPlanetaryInfluence>
           <MaxPlanetaryInfluence>1</MaxPlanetaryInfluence>
@@ -473,7 +519,7 @@
             <Y>0.4090196</Y>
             <Z>0.6505882</Z>
             <W>0.75</W>
-          </FlameFullColor>
+      </FlameFullColor>
           <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
           <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
           <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>
@@ -661,6 +707,21 @@
         <Mapping Name="UseCubePlacerFingers" AnimationSubtypeName="UseCubePlacerFingers" />
         <Mapping Name="passengerseat_small" AnimationSubtypeName="passengerseat_small" />
       </AnimationMappings>
+
+      <!-- SOUND DEFINITION -->
+      <JumpSoundName>PlayJump</JumpSoundName>
+
+      <JetpackIdleSoundName>PlayJet</JetpackIdleSoundName>
+      <JetpackRunSoundName>PlayJetRun</JetpackRunSoundName>
+
+      <CrouchDownSoundName>PlayCrouchDwn</CrouchDownSoundName>
+      <CrouchUpSoundName>PlayCrouchUp</CrouchUpSoundName>
+
+      <PainSoundName>PlayVocPain</PainSoundName>
+      <DeathSoundName>PlayVocDeath</DeathSoundName>
+
+      <IronsightActSoundName>PlayIronSightActivate</IronsightActSoundName>
+      <IronsightDeactSoundName>PlayIronSightDeactivate</IronsightDeactSoundName>
     </Character>
 
   </Characters>

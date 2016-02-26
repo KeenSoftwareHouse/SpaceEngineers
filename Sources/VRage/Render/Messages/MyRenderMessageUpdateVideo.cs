@@ -5,11 +5,11 @@ using System.Text;
 
 namespace VRageRender
 {
-    public class MyRenderMessageUpdateVideo : IMyRenderMessage
+    public class MyRenderMessageUpdateVideo : MyRenderMessageBase
     {
         public uint ID;
 
-        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateVideo; } }
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateVideo; } }
     }
 }

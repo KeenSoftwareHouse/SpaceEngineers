@@ -1,10 +1,7 @@
-﻿using SharpDX;
+﻿using System.Diagnostics;
+using SharpDX;
 using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using SharpDX.Direct3D;
 using VRageMath;
 using VRageRender.Resources;
 
@@ -23,39 +20,40 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_buildHistogram = MyShaders.CreateCs("histogram.hlsl", "build_histogram", MyShaderHelpers.FormatMacros("NUMTHREADS 8"));
-            m_drawHistogram = MyShaders.CreatePs("data_visualization.hlsl", "display_histogram");
-            m_drawTonemapping = MyShaders.CreatePs("data_visualization.hlsl", "display_tonemapping");
+            m_buildHistogram = MyShaders.CreateCs("histogram.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8) });
+            m_drawHistogram = MyShaders.CreatePs("data_visualization_histogram.hlsl");
+            m_drawTonemapping = MyShaders.CreatePs("data_visualization_tonemapping.hlsl");
 
             m_histogram = MyRwTextures.CreateUav1D(513, SharpDX.DXGI.Format.R32_UInt, "histogram");
         }
 
         internal static void CreateHistogram(ShaderResourceView texture, Vector2I resolution, int samples)
         {
-            RC.Context.ClearUnorderedAccessView(m_histogram.Uav, Int4.Zero);
-            RC.Context.ComputeShader.Set(m_buildHistogram);
-            RC.Context.ComputeShader.SetShaderResource(0, texture);
-            RC.Context.ComputeShader.SetUnorderedAccessView(0, m_histogram.Uav);
+            RC.DeviceContext.ClearUnorderedAccessView(m_histogram.Uav, Int4.Zero);
+            RC.DeviceContext.ComputeShader.Set(m_buildHistogram);
+            RC.DeviceContext.ComputeShader.SetShaderResource(0, texture);
+            RC.DeviceContext.ComputeShader.SetUnorderedAccessView(0, m_histogram.Uav);
 
-            var mapping = MyMapping.MapDiscard(MyCommon.GetObjectCB(16));
-            mapping.stream.Write((uint)resolution.X);
-            mapping.stream.Write((uint)resolution.Y);
+            var buffer = MyCommon.GetObjectCB(16);
+            var mapping = MyMapping.MapDiscard(buffer);
+            mapping.WriteAndPosition(ref resolution.X);
+            mapping.WriteAndPosition(ref resolution.Y);
             mapping.Unmap();
             RC.CSSetCB(1, MyCommon.GetObjectCB(16));
 
-            RC.Context.Dispatch((resolution.X + m_numthreads - 1) / m_numthreads, (resolution.Y + m_numthreads - 1) / m_numthreads, 1);
+            RC.DeviceContext.Dispatch((resolution.X + m_numthreads - 1) / m_numthreads, (resolution.Y + m_numthreads - 1) / m_numthreads, 1);
 
-            RC.Context.ComputeShader.Set(null);
+            RC.DeviceContext.ComputeShader.Set(null);
         }
 
         internal static void DisplayHistogram(RenderTargetView rtv, ShaderResourceView avgLumSrv)
         {
-            RC.Context.PixelShader.SetShaderResources(0, m_histogram.ShaderView, avgLumSrv);
-            RC.Context.PixelShader.Set(m_drawHistogram);
-            RC.Context.OutputMerger.SetRenderTargets(rtv);
+            RC.DeviceContext.PixelShader.SetShaderResources(0, m_histogram.ShaderView, avgLumSrv);
+            RC.DeviceContext.PixelShader.Set(m_drawHistogram);
+            RC.DeviceContext.OutputMerger.SetRenderTargets(rtv);
             MyScreenPass.DrawFullscreenQuad(new MyViewport(64, 64, 512, 64));
 
-            RC.Context.PixelShader.Set(m_drawTonemapping);
+            RC.DeviceContext.PixelShader.Set(m_drawTonemapping);
             MyScreenPass.DrawFullscreenQuad(new MyViewport(64, 128, 512, 64));
         }
     }

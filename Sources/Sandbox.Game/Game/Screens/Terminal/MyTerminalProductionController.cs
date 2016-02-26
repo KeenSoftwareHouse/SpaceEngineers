@@ -15,6 +15,8 @@ using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -298,8 +300,14 @@ namespace Sandbox.Game.Gui
             m_selectedAssembler.QueueChanged -= assembler_QueueChanged;
             m_selectedAssembler.CurrentProgressChanged -= assembler_CurrentProgressChanged;
             m_selectedAssembler.CurrentStateChanged -= assembler_CurrentStateChanged;
-            assembler.InputInventory.ContentsChanged -= InputInventory_ContentsChanged;
-            m_selectedAssembler.OutputInventory.ContentsChanged -= OutputInventory_ContentsChanged;
+            if (assembler.InputInventory != null) // can be null on unload and close
+            {
+                assembler.InputInventory.ContentsChanged -= InputInventory_ContentsChanged;
+            }
+            if (m_selectedAssembler.OutputInventory != null)
+            {
+                m_selectedAssembler.OutputInventory.ContentsChanged -= OutputInventory_ContentsChanged;
+            }
         }
 
         internal void Close()
@@ -749,7 +757,11 @@ namespace Sandbox.Game.Gui
             if (CurrentAssemblerMode == AssemblerMode.Assembling)
                 return;
 
-            var item = (MyPhysicalInventoryItem)control.GetItemAt(args.ItemIndex).UserData;
+            var gridItem = control.GetItemAt(args.ItemIndex);
+            if (gridItem == null)
+                return;
+            var item = (MyPhysicalInventoryItem)gridItem.UserData;
+            
             var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(item.Content.GetId());
             if (blueprint != null)
             {
@@ -768,7 +780,7 @@ namespace Sandbox.Game.Gui
                 return;
 
             if (args.Button == MySharedButtonsEnum.Secondary)
-                m_selectedAssembler.RemoveQueueItemRequest(args.ItemIndex);
+                m_selectedAssembler.RemoveQueueItemRequest(args.ItemIndex, 1);
         }
 
         void queueGrid_ItemDragged(MyGuiControlGrid control, MyGuiControlGrid.EventArgs args)

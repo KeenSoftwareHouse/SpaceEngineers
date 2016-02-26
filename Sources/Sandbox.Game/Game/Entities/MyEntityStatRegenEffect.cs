@@ -67,7 +67,7 @@ namespace Sandbox.Game.Entities
 			m_interval = builder.Interval;
 			m_maxRegenRatio = builder.MaxRegenRatio;
 			m_minRegenRatio = builder.MinRegenRatio;
-			m_duration = builder.Duration - builder.AliveTime;
+			m_duration = builder.Duration - (builder.AliveTime / 1000);
 
             ResetRegenTime();
 		}
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Entities
             IncreaseByRemainingValue();
 		}
 
-		public virtual void Update()
+		public virtual void Update(float regenAmountMultiplier = 1.0f)
 		{
 			if (m_interval <= 0)
 				return;
@@ -103,7 +103,7 @@ namespace Sandbox.Game.Entities
 			while(MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastRegenTime >= 0 || durationFlag)
 			{
 				if (m_amount > 0 && m_parentStat.Value < m_parentStat.MaxValue * m_maxRegenRatio)
-					m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount, m_parentStat.Value, m_parentStat.MaxValue * m_maxRegenRatio);
+					m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount * regenAmountMultiplier, m_parentStat.Value, m_parentStat.MaxValue * m_maxRegenRatio);
 				else if (m_amount < 0 && m_parentStat.Value > Math.Max(m_parentStat.MinValue, m_parentStat.MaxValue * m_minRegenRatio))
 					m_parentStat.Value = MathHelper.Clamp(m_parentStat.Value + m_amount, Math.Max(m_parentStat.MaxValue * m_minRegenRatio, m_parentStat.MinValue), m_parentStat.Value);
 				m_lastRegenTime += (int)Math.Round(m_interval * 1000.0f);

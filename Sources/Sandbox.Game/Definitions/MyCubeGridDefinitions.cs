@@ -6,6 +6,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 using VRageMath;
 using System.Diagnostics;
+using VRage.Game;
 
 #endregion Using
 

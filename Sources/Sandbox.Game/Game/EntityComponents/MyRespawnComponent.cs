@@ -1,15 +1,15 @@
-﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
-using VRage.Components;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRageMath;
 
-namespace VRage.Components
+namespace VRage.Game.Components
 {
     [MyComponentBuilder(typeof(MyObjectBuilder_RespawnComponent))]
     public class MyRespawnComponent : MyEntityComponentBase

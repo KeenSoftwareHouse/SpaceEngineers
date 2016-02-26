@@ -4,6 +4,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,9 +18,11 @@ using VRageMath;
 namespace Sandbox.Game.World.Generator
 {
     internal delegate void MyCompositeShapeGeneratorDelegate(int seed, float size, out MyCompositeShapeGeneratedData data);
-
+    
     internal static class MyCompositeShapes
     {
+        public const float PLANET_SCALE_FACTOR = 1.2f;
+
         private static readonly List<MyVoxelMaterialDefinition> m_surfaceMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_depositMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_coreMaterials = new List<MyVoxelMaterialDefinition>();
@@ -39,7 +42,7 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(0, seed, size, out data);
         }
-
+       
         //Added ice material
         private static void Generator1(int seed, float size, out MyCompositeShapeGeneratedData data)
         {
@@ -50,6 +53,7 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(2, seed, size, out data);
         }
+
         private static MyVoxelMaterialDefinition GetMaterialByName(String name)
         {
             foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())

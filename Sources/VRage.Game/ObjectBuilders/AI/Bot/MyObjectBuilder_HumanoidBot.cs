@@ -1,11 +1,11 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game.ObjectBuilders.AI.Bot
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_HumanoidBot : MyObjectBuilder_Bot
+    public class MyObjectBuilder_HumanoidBot : MyObjectBuilder_AgentBot
     {
     }
 }
