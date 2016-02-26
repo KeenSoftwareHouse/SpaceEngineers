@@ -21,18 +21,11 @@ namespace Sandbox.Game.Weapons
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallMissileLauncherReload))]
     class MySmallMissileLauncherReload : MySmallMissileLauncher, IMySmallMissileLauncherReload
     {
+        const int NUM_ROCKETS_TO_COOLDOWN = 4;
         const int COOLDOWN_TIME_MILISECONDS = 5000;
         int m_numRocketsShot = 0;
 
         private static readonly MyHudNotification MISSILE_RELOAD_NOTIFICATION = new MyHudNotification( MySpaceTexts.MissileLauncherReloadingNotification, COOLDOWN_TIME_MILISECONDS, level: MyNotificationLevel.Important);
-
-        private int BurstFireRate
-        {
-            get
-            {
-                return this.GunBase.BurstFireRate;
-            }
-        }
 
         static MySmallMissileLauncherReload()
         {
@@ -47,11 +40,11 @@ namespace Sandbox.Game.Weapons
         override public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             //small reloadable launcher have cooldown 
-            if ((BurstFireRate == m_numRocketsShot) && (COOLDOWN_TIME_MILISECONDS > MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot))
+            if ((NUM_ROCKETS_TO_COOLDOWN == m_numRocketsShot) && (COOLDOWN_TIME_MILISECONDS > MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot))
             {
                 return;
             }
-            if (BurstFireRate == m_numRocketsShot)
+            if (NUM_ROCKETS_TO_COOLDOWN == m_numRocketsShot)
             {
                 m_numRocketsShot = 0;
             }
@@ -59,7 +52,7 @@ namespace Sandbox.Game.Weapons
 
             base.Shoot(action, direction, gunAction);
 
-            if (m_numRocketsShot == BurstFireRate)
+            if (m_numRocketsShot == NUM_ROCKETS_TO_COOLDOWN)
             {
                 MyHud.Notifications.Add(MISSILE_RELOAD_NOTIFICATION);
             }
