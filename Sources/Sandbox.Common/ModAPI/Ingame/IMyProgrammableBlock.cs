@@ -29,8 +29,8 @@ namespace Sandbox.ModAPI.Ingame
 
         /// <summary>
         /// Provides access to the public storage of this programmable block. This storage
-        /// is a JToken for easy access.
+        /// is a JObject for easy access. 
         /// </summary>
-        JToken PublicStorage { get; set; }
+        JObject PublicStorage { get; }
     }
 }
