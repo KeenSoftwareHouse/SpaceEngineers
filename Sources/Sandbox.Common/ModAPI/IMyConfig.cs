@@ -31,6 +31,7 @@ namespace Sandbox.ModAPI
         int RefreshRate { get; }
         bool RenderInterpolation { get; }
         MyRenderQualityEnum? RenderQuality { get; }
+        MyGraphicsRenderer GraphicsRenderer { get; }
         bool RotationHints { get; }
         int? ScreenHeight { get; }
         int? ScreenWidth { get; }
