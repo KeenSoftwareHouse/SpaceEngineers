@@ -354,7 +354,7 @@ namespace VRage.Game
 
             foreach (IMyConstProperty property in m_properties)
             {
-                if (property.Name == "Rotation" || property.Name == "AxisScale" || property.Name == "AxisScale")
+                if (property.Name == "Rotation" || property.Name == "AxisScale")
                     continue;
 
                 property.Deserialize(reader);
