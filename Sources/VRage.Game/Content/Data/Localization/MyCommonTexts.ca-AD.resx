@@ -1,0 +1,2172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
+    <value>Esteu segur que voleu sortir?</value>
+  </data>
+  <data name="AssignControlKeyboard" xml:space="preserve">
+    <value>Premeu una tecla, si us plau</value>
+  </data>
+  <data name="AssignControlMouse" xml:space="preserve">
+    <value>Feu clic amb un botó del ratolí, si us plau</value>
+  </data>
+  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
+    <value>Àudio</value>
+  </data>
+  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
+    <value>Opcions d'àudio</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel·la</value>
+  </data>
+  <data name="CanNotAssignControl" xml:space="preserve">
+    <value>NO PUC ASSIGNAR CONTROL</value>
+  </data>
+  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="ControlAlreadyAssigned" xml:space="preserve">
+    <value>{0} ja està assignat a {1}.
+Esborrar el control original?</value>
+  </data>
+  <data name="ControlIsNotValid" xml:space="preserve">
+    <value>La tecla premuda pot ser que no s'assigni als controls.</value>
+  </data>
+  <data name="ScreenCaptionControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="ScreenMenuButtonCredits" xml:space="preserve">
+    <value>Crèdits</value>
+  </data>
+  <data name="KeysDelete" xml:space="preserve">
+    <value>Esborra</value>
+  </data>
+  <data name="KeysDown" xml:space="preserve">
+    <value>Avall</value>
+  </data>
+  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
+    <value>Voleu conservar aquesta configuració? Falten {0} segons.</value>
+  </data>
+  <data name="KeysEnd" xml:space="preserve">
+    <value>Finalitzar</value>
+  </data>
+  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
+    <value>Menú principal</value>
+  </data>
+  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
+    <value>Surt a Windows</value>
+  </data>
+  <data name="FieldOfView" xml:space="preserve">
+    <value>Camp de visió</value>
+  </data>
+  <data name="ScreenOptionsButtonGame" xml:space="preserve">
+    <value>Joc</value>
+  </data>
+  <data name="ScreenCaptionGameOptions" xml:space="preserve">
+    <value>Opcions del Joc</value>
+  </data>
+  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
+    <value>Gamepad</value>
+  </data>
+  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
+    <value>Analògic</value>
+  </data>
+  <data name="GameVolume" xml:space="preserve">
+    <value>Volum del so</value>
+  </data>
+  <data name="ControlTypeGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="HardwareCursor" xml:space="preserve">
+    <value>Cursor de maquinari</value>
+  </data>
+  <data name="ControlName_Help" xml:space="preserve">
+    <value>Ajuda</value>
+  </data>
+  <data name="KeysHome" xml:space="preserve">
+    <value>Inici</value>
+  </data>
+  <data name="KeysInsert" xml:space="preserve">
+    <value>Inserta</value>
+  </data>
+  <data name="InvertMouseX" xml:space="preserve">
+    <value>Inverteix l'eix X del ratolí</value>
+  </data>
+  <data name="InvertMouseY" xml:space="preserve">
+    <value>Inverteix l'eix Y del ratolí</value>
+  </data>
+  <data name="Joystick" xml:space="preserve">
+    <value>Comandament o gamepad</value>
+  </data>
+  <data name="JoystickButtonLeft" xml:space="preserve">
+    <value>JDLeft</value>
+  </data>
+  <data name="JoystickButtonRight" xml:space="preserve">
+    <value>JDRight</value>
+  </data>
+  <data name="JoystickButtonUp" xml:space="preserve">
+    <value>JDUp</value>
+  </data>
+  <data name="JoystickButtonDown" xml:space="preserve">
+    <value>JDDown</value>
+  </data>
+  <data name="JoystickDeadzone" xml:space="preserve">
+    <value>Amplada de la zona morta del comandament</value>
+  </data>
+  <data name="JoystickExponent" xml:space="preserve">
+    <value>Precisió gradual del comandament</value>
+  </data>
+  <data name="JoystickSensitivity" xml:space="preserve">
+    <value>Sensibilitat del comandament</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
+    <value>Teclat</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="KeysLeft" xml:space="preserve">
+    <value>Esquerra</value>
+  </data>
+  <data name="KeysLeftAlt" xml:space="preserve">
+    <value>Alt Esquerra</value>
+  </data>
+  <data name="KeysLeftControl" xml:space="preserve">
+    <value>Ctrl Esquerra</value>
+  </data>
+  <data name="LeftMouseButton" xml:space="preserve">
+    <value>LMB</value>
+  </data>
+  <data name="KeysLeftShift" xml:space="preserve">
+    <value>Shift Esquerra</value>
+  </data>
+  <data name="LoadScreenButtonLoad" xml:space="preserve">
+    <value>Carrega</value>
+  </data>
+  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
+    <value>CARREGANT ... ESPEREU SI US PLAU</value>
+  </data>
+  <data name="MessageBoxCaptionError" xml:space="preserve">
+    <value>ERROR</value>
+  </data>
+  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
+    <value>CONFIRMEU, SI US PLAU</value>
+  </data>
+  <data name="MessageBoxCaptionExit" xml:space="preserve">
+    <value>SORTIR</value>
+  </data>
+  <data name="MiddleMouseButton" xml:space="preserve">
+    <value>Botó Central del Ratolí</value>
+  </data>
+  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
+    <value>Ratolí</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Sensibilitat del ratolí</value>
+  </data>
+  <data name="MouseXButton1" xml:space="preserve">
+    <value>MXB1</value>
+  </data>
+  <data name="MouseXButton2" xml:space="preserve">
+    <value>MXB2</value>
+  </data>
+  <data name="ControlTypeNavigation" xml:space="preserve">
+    <value>Navegació</value>
+  </data>
+  <data name="ScreenCaptionNewWorld" xml:space="preserve">
+    <value>Nou Món</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="KeysNumPad0" xml:space="preserve">
+    <value>Núm 0</value>
+  </data>
+  <data name="KeysNumPad1" xml:space="preserve">
+    <value>Núm 1</value>
+  </data>
+  <data name="KeysNumPad2" xml:space="preserve">
+    <value>Núm 2</value>
+  </data>
+  <data name="KeysNumPad3" xml:space="preserve">
+    <value>Núm 3</value>
+  </data>
+  <data name="KeysNumPad4" xml:space="preserve">
+    <value>Núm 4</value>
+  </data>
+  <data name="KeysNumPad5" xml:space="preserve">
+    <value>Núm 5</value>
+  </data>
+  <data name="KeysNumPad6" xml:space="preserve">
+    <value>Núm 6</value>
+  </data>
+  <data name="KeysNumPad7" xml:space="preserve">
+    <value>Núm 7</value>
+  </data>
+  <data name="KeysNumPad8" xml:space="preserve">
+    <value>Núm 8</value>
+  </data>
+  <data name="KeysNumPad9" xml:space="preserve">
+    <value>Núm 9</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>D'acord</value>
+  </data>
+  <data name="ScreenCaptionOptions" xml:space="preserve">
+    <value>Opcions</value>
+  </data>
+  <data name="KeysPageDown" xml:space="preserve">
+    <value>AvPàg</value>
+  </data>
+  <data name="KeysPageUp" xml:space="preserve">
+    <value>RePàg</value>
+  </data>
+  <data name="RecommendedAspectRatio" xml:space="preserve">
+    <value>Relació d'aspecte recomanada: {0}</value>
+  </data>
+  <data name="Revert" xml:space="preserve">
+    <value>Per defecte</value>
+  </data>
+  <data name="KeysRight" xml:space="preserve">
+    <value>Dreta</value>
+  </data>
+  <data name="KeysRightAlt" xml:space="preserve">
+    <value>Alt dreta</value>
+  </data>
+  <data name="KeysRightControl" xml:space="preserve">
+    <value>Ctrl dreta</value>
+  </data>
+  <data name="RightMouseButton" xml:space="preserve">
+    <value>RMB</value>
+  </data>
+  <data name="KeysRightShift" xml:space="preserve">
+    <value>Shift dreta</value>
+  </data>
+  <data name="SelectControl" xml:space="preserve">
+    <value>SELECCIONEU CONTROL</value>
+  </data>
+  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
+    <value>APAGADA PROGRAMADA DEL SERVIDOR</value>
+  </data>
+  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
+    <value>Ho sentim, però la configuració que heu triat no està suportada pel vostre maquinari.</value>
+  </data>
+  <data name="KeysSpace" xml:space="preserve">
+    <value>Espai</value>
+  </data>
+  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
+    <value>Iniciant al partida... espereu si us plau.</value>
+  </data>
+  <data name="ControlName_StrafeLeft" xml:space="preserve">
+    <value>Desplaça a l'esquerra</value>
+  </data>
+  <data name="ControlName_StrafeRight" xml:space="preserve">
+    <value>Desplaça a la dreta</value>
+  </data>
+  <data name="ControlTypeSystems1" xml:space="preserve">
+    <value>Sistemes 1</value>
+  </data>
+  <data name="ControlTypeSystems2" xml:space="preserve">
+    <value>Sistemes 2</value>
+  </data>
+  <data name="KeysTab" xml:space="preserve">
+    <value>Tabulador</value>
+  </data>
+  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
+    <value>No s'ha pogut iniciar el navegador.</value>
+  </data>
+  <data name="UnknownControl_None" xml:space="preserve">
+    <value>cap</value>
+  </data>
+  <data name="KeysUp" xml:space="preserve">
+    <value>Amunt</value>
+  </data>
+  <data name="ControlName_UseOrInteract" xml:space="preserve">
+    <value>Utilitzar / Interactuar</value>
+  </data>
+  <data name="VerticalSync" xml:space="preserve">
+    <value>Sincronització vertical</value>
+  </data>
+  <data name="VideoMode" xml:space="preserve">
+    <value>Mode de vídeo</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
+    <value>Eines / Armes</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Desactivat</value>
+  </data>
+  <data name="JoystickRotationXpos" xml:space="preserve">
+    <value>JRX+</value>
+  </data>
+  <data name="JoystickRotationYpos" xml:space="preserve">
+    <value>JRY+</value>
+  </data>
+  <data name="JoystickRotationZpos" xml:space="preserve">
+    <value>JRZ+</value>
+  </data>
+  <data name="JoystickSlider1pos" xml:space="preserve">
+    <value>JS1+</value>
+  </data>
+  <data name="JoystickSlider2pos" xml:space="preserve">
+    <value>JS2+</value>
+  </data>
+  <data name="JoystickRotationXneg" xml:space="preserve">
+    <value>JRX-</value>
+  </data>
+  <data name="JoystickRotationYneg" xml:space="preserve">
+    <value>JRY-</value>
+  </data>
+  <data name="JoystickRotationZneg" xml:space="preserve">
+    <value>JRZ-</value>
+  </data>
+  <data name="JoystickSlider1neg" xml:space="preserve">
+    <value>JS1-</value>
+  </data>
+  <data name="JoystickSlider2neg" xml:space="preserve">
+    <value>JS2-</value>
+  </data>
+  <data name="KeysDecimal" xml:space="preserve">
+    <value>Núm .</value>
+  </data>
+  <data name="KeysBackslash" xml:space="preserve">
+    <value>Barra invertida</value>
+  </data>
+  <data name="KeysComma" xml:space="preserve">
+    <value>Coma</value>
+  </data>
+  <data name="KeysMinus" xml:space="preserve">
+    <value>Menys</value>
+  </data>
+  <data name="KeysOpenBracket" xml:space="preserve">
+    <value>[</value>
+  </data>
+  <data name="KeysCloseBracket" xml:space="preserve">
+    <value>]</value>
+  </data>
+  <data name="KeysPeriod" xml:space="preserve">
+    <value>Punt</value>
+  </data>
+  <data name="KeysPipe" xml:space="preserve">
+    <value>Tub</value>
+  </data>
+  <data name="KeysPlus" xml:space="preserve">
+    <value>Més</value>
+  </data>
+  <data name="KeysQuestion" xml:space="preserve">
+    <value>Barra</value>
+  </data>
+  <data name="KeysQuotes" xml:space="preserve">
+    <value>Cita</value>
+  </data>
+  <data name="KeysSemicolon" xml:space="preserve">
+    <value>Coma</value>
+  </data>
+  <data name="KeysTilde" xml:space="preserve">
+    <value>~</value>
+  </data>
+  <data name="KeysMultiply" xml:space="preserve">
+    <value>Núm *</value>
+  </data>
+  <data name="KeysDivide" xml:space="preserve">
+    <value>Num /</value>
+  </data>
+  <data name="KeysAdd" xml:space="preserve">
+    <value>Núm +</value>
+  </data>
+  <data name="KeysSubtract" xml:space="preserve">
+    <value>Núm -</value>
+  </data>
+  <data name="KeysCapsLock" xml:space="preserve">
+    <value>Bloqueig de Majúscules</value>
+  </data>
+  <data name="KeysEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="KeysBackspace" xml:space="preserve">
+    <value>Retrocès</value>
+  </data>
+  <data name="ApplyingPleaseWait" xml:space="preserve">
+    <value>Aplicant canvis... espereu-vos</value>
+  </data>
+  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
+    <value>Sou mort</value>
+  </data>
+  <data name="MusicVolume" xml:space="preserve">
+    <value>Volum de la música</value>
+  </data>
+  <data name="VideoAdapter" xml:space="preserve">
+    <value>Controladora de vídeo</value>
+  </data>
+  <data name="DefaultFOV" xml:space="preserve">
+    <value>Per defecte: {0:F1}</value>
+  </data>
+  <data name="WorldLoaded" xml:space="preserve">
+    <value>Món {0} carregat</value>
+  </data>
+  <data name="ControlName_Screenshot" xml:space="preserve">
+    <value>Captura de pantalla</value>
+  </data>
+  <data name="ControlName_PreviousColor" xml:space="preserve">
+    <value>Color o Càmera anterior</value>
+  </data>
+  <data name="ControlName_NextColor" xml:space="preserve">
+    <value>Següent Color o Càmera</value>
+  </data>
+  <data name="WorldSaved" xml:space="preserve">
+    <value>Món '{0}' desat</value>
+  </data>
+  <data name="Blueprints" xml:space="preserve">
+    <value>Plànols</value>
+  </data>
+  <data name="Factions" xml:space="preserve">
+    <value>Faccions</value>
+  </data>
+  <data name="BlueprintMaterials" xml:space="preserve">
+    <value>Materials dels plànols</value>
+  </data>
+  <data name="ProductionQueue" xml:space="preserve">
+    <value>Cua de producció</value>
+  </data>
+  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
+    <value>Edita la Configuració</value>
+  </data>
+  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
+    <value>Món Personalitzat</value>
+  </data>
+  <data name="ErrorNameTooLong" xml:space="preserve">
+    <value>El nom és massa llarg (màxim permès: 128 dígits)</value>
+  </data>
+  <data name="ErrorNameTooShort" xml:space="preserve">
+    <value>El nom és massa curt (mínim 5 caràcters)</value>
+  </data>
+  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
+    <value>Supervivència</value>
+  </data>
+  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
+    <value>Multijugador</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="WorldSettings_OnlineMode" xml:space="preserve">
+    <value>Mode en línia</value>
+  </data>
+  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
+    <value>Desconnectat</value>
+  </data>
+  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
+    <value>Públic</value>
+  </data>
+  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
+    <value>Inici ràpid</value>
+  </data>
+  <data name="ToolTipWorldSettingsName" xml:space="preserve">
+    <value>El nom ha de ser de {0} a {1} caracters alfanunmèrics</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
+    <value>Esteu segur que voleu esborrar '{0}'?</value>
+  </data>
+  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
+    <value>Carrega Món</value>
+  </data>
+  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
+    <value>Anomena i desa</value>
+  </data>
+  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
+    <value>Creatiu</value>
+  </data>
+  <data name="PlayerCharacter" xml:space="preserve">
+    <value>Personatge</value>
+  </data>
+  <data name="WorldSettings_AutoSave" xml:space="preserve">
+    <value>Desa automàticament</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
+    <value>Desa automàticament desa l'estat del vostre Món cada {0} minuts o quan sortiu de la partida</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
+    <value>Voleu desar el vostre progrés?</value>
+  </data>
+  <data name="SaveWorld" xml:space="preserve">
+    <value>Desa el Món</value>
+  </data>
+  <data name="ScreenMenuButtonSave" xml:space="preserve">
+    <value>Desa</value>
+  </data>
+  <data name="SavingPleaseWait" xml:space="preserve">
+    <value>Desant ... espereu-vos si us plau</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avançat</value>
+  </data>
+  <data name="AdvancedControls" xml:space="preserve">
+    <value>Controls avançats</value>
+  </data>
+  <data name="ControlName_Backward" xml:space="preserve">
+    <value>Cap enrere</value>
+  </data>
+  <data name="BasicControls" xml:space="preserve">
+    <value>Controls bàsics</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Tanca</value>
+  </data>
+  <data name="ControlName_DownOrCrouch" xml:space="preserve">
+    <value>Avall o Ajupir-se</value>
+  </data>
+  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
+    <value>Primer persona / Tercera persona</value>
+  </data>
+  <data name="ControlName_Forward" xml:space="preserve">
+    <value>Endavant</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Pàgina següent</value>
+  </data>
+  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
+    <value>Premeu {0} per ajuda i tutorials</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Pàgina anterior</value>
+  </data>
+  <data name="ShowControlsHints" xml:space="preserve">
+    <value>Mostra els consells dels controls</value>
+  </data>
+  <data name="SteamGuide" xml:space="preserve">
+    <value>Tutorials</value>
+  </data>
+  <data name="ControlName_UpOrJump" xml:space="preserve">
+    <value>Amunt o Saltar</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
+    <value>Rota bloc verticalment -</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
+    <value>Rota bloc verticalment +</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
+    <value>Rota bloc horitzontalment -</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
+    <value>Rota bloc horitzontalment +</value>
+  </data>
+  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
+    <value>Rota bloc girant-lo -</value>
+  </data>
+  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
+    <value>Rota bloc girant-lo +</value>
+  </data>
+  <data name="ControlName_Slot0" xml:space="preserve">
+    <value>Treure</value>
+  </data>
+  <data name="ControlName_Slot1" xml:space="preserve">
+    <value>Equipa objecte del solc 1</value>
+  </data>
+  <data name="ControlName_Slot2" xml:space="preserve">
+    <value>Equipa objecte del solc 2</value>
+  </data>
+  <data name="ControlName_Slot3" xml:space="preserve">
+    <value>Equipa objecte del solc 3</value>
+  </data>
+  <data name="ControlName_Slot4" xml:space="preserve">
+    <value>Equipa objecte del solc 4</value>
+  </data>
+  <data name="ControlName_Slot5" xml:space="preserve">
+    <value>Equipa objecte del solc 5</value>
+  </data>
+  <data name="ControlName_Slot6" xml:space="preserve">
+    <value>Equipa objecte del solc 6</value>
+  </data>
+  <data name="ControlName_Slot7" xml:space="preserve">
+    <value>Equipa objecte del solc 7</value>
+  </data>
+  <data name="ControlName_Slot8" xml:space="preserve">
+    <value>Equipa objecte del solc 8</value>
+  </data>
+  <data name="ControlName_Slot9" xml:space="preserve">
+    <value>Equipa objecte del solc 9</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
+    <value>Esteu segur de que voleu fer una càrrega ràpida?</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
+    <value>Esteu segur de que voleu desar de manera ràpida?</value>
+  </data>
+  <data name="ControlName_ToolbarConfig" xml:space="preserve">
+    <value>Configuració de la barra d'eines</value>
+  </data>
+  <data name="ControlName_HoldToLookAround" xml:space="preserve">
+    <value>Mantingueu premut per mirar al voltant</value>
+  </data>
+  <data name="ControlName_HoldToSprint" xml:space="preserve">
+    <value>Mantingueu premut per córrer</value>
+  </data>
+  <data name="LoadingPleaseWait" xml:space="preserve">
+    <value>Carregant ... espereu, si us plau</value>
+  </data>
+  <data name="NoPlaceToCreateGrid" xml:space="preserve">
+    <value>No hi ha lloc per crear un nou bloc. Posicioneu-vos a un espai buit.</value>
+  </data>
+  <data name="ControlName_HudOnOff" xml:space="preserve">
+    <value>HUD activat / desactivat</value>
+  </data>
+  <data name="ScreenCubeBuilderHint" xml:space="preserve">
+    <value>Consell: Arrossegueu una icona a un solc de la barra d'eines i activeu-la amb una tecla numèrica</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Desat</value>
+  </data>
+  <data name="HideWeapon" xml:space="preserve">
+    <value>Amaga arma</value>
+  </data>
+  <data name="Thrust" xml:space="preserve">
+    <value>Propulsor</value>
+  </data>
+  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
+    <value>Un dels móns/fitxers desats s'ha corromput i no pot ser carregat.
+Visualitzeu el registre de successos per a obtenir més detalls.</value>
+  </data>
+  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
+    <value>El fitxer de món està corromput i no es por carregar.</value>
+  </data>
+  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
+    <value>Crea un nou Món amb configuració personalitzada</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
+    <value>Una qualitat de representació més alta comporta millors gràfics, millor visualització a grans distàncies i més
+efectes especials; tanmateix, això demana al vostre ordinador un major rendiment (CPU i GPU).
+Si el joc no s'executa suaument, disminuïu-la.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
+    <value>Trieu una tarja gràfica i/o un monitor</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
+    <value>Seleccioneu la resolució de la pantalla. Recomanem utilitzar una relació d'aspecte compatible amb la vostra pantalla.
+Si el joc no s'executa suaument, disminuïu la vostra resolució de pantalla.</value>
+  </data>
+  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
+    <value>El cursor de maquinari del ratolí és independent de la velocitat de quadres del joc. Us recomanem activar-ho.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
+    <value>El joc se sincronitzarà amb la freqüència d'actualització de la pantalla. Us recomanem desactivar-ho.</value>
+  </data>
+  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
+    <value>Angle del camp de visió horitzontal</value>
+  </data>
+  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
+    <value>Mostra ajuda dels controls en pantalla durant la partida</value>
+  </data>
+  <data name="WorldNotSaved" xml:space="preserve">
+    <value>El món '{0}' no s'ha pogut desar. Això pot ser degut a una falta de memòria a l'hora d'escriure els fitxers. Hi ha possibilitat de perdre els progressos fets si seguiu en aquest món. Podeu comprovar el registre de successos per trobar més informació sobre què ha pogut causar aquest error.</value>
+  </data>
+  <data name="NotificationMemoryOverload" xml:space="preserve">
+    <value>No hi ha prou memòria per afegir nous objectes</value>
+  </data>
+  <data name="BetterGCIsAvailable" xml:space="preserve">
+    <value>Hem detectat una tarja gràfica millor a la que esteu fent servir per jugar. Si us plau, comproveu la configuració del Tauler de Control NVIDIA/AMD.</value>
+  </data>
+  <data name="MessageBoxCaptionWarning" xml:space="preserve">
+    <value>ALERTA</value>
+  </data>
+  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
+    <value>S'obrirà {0} al vostre navegador. El joc seguirà executant-se. Voleu continuar?</value>
+  </data>
+  <data name="Loaded" xml:space="preserve">
+    <value>Carregat</value>
+  </data>
+  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
+    <value>Encara no hi ha móns desats. Comenceu creant un nou món, si us plau.</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
+    <value>Vídeo Tutorial</value>
+  </data>
+  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
+    <value>Desar els canvis abans de sortir?</value>
+  </data>
+  <data name="ErrorNameAlreadyExists" xml:space="preserve">
+    <value>El nom ja està en ús. Trieu-ne un de diferent, si us plau.</value>
+  </data>
+  <data name="NotificationBuildingFormat" xml:space="preserve">
+    <value>Premeu {0} per col·locar el cub</value>
+  </data>
+  <data name="NotificationColorFormat" xml:space="preserve">
+    <value>Premeu {0} o {1} per canviar el color. Manteniu premut {2} per aplicar el color. Manteniu premut {3} o {4} per incrementar la mida del pinzell.</value>
+  </data>
+  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
+    <value>Podeu ocultar aquestes ajudes a Opcions del Joc</value>
+  </data>
+  <data name="NotificationHudHideFormat" xml:space="preserve">
+    <value>Premeu {0} per ocultar/mostrar el HUD</value>
+  </data>
+  <data name="NotificationRotationFormat" xml:space="preserve">
+    <value>Premeu {0}, {1}, {2}, {3}, {4}, {5} per rotar</value>
+  </data>
+  <data name="NotificationScreenFormat" xml:space="preserve">
+    <value>Premeu {0} per configurar la barra d'eines o crear nous objectes</value>
+  </data>
+  <data name="NotificationSlotEquipFormat" xml:space="preserve">
+    <value>Premeu {0}, {1}, {2}, ... per equipar des del solc</value>
+  </data>
+  <data name="NotificationToolDisabled" xml:space="preserve">
+    <value>Aquesta eina/arma està deshabilitada</value>
+  </data>
+  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Premeu {0} per afegir un bloc, premeu {1} per esborrar-lo. Mantingueu premut {2} per construir ràpidament.</value>
+  </data>
+  <data name="ControlDescQuickLoad" xml:space="preserve">
+    <value>Càrrega Ràpida</value>
+  </data>
+  <data name="ControlDescQuickSave" xml:space="preserve">
+    <value>Desament ràpid</value>
+  </data>
+  <data name="MouseWheel" xml:space="preserve">
+    <value>Roda del ratolí</value>
+  </data>
+  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
+    <value>Contingut:</value>
+  </data>
+  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
+    <value>Mode creatiu</value>
+  </data>
+  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
+    <value>Configureu la vostra barra d'eines (assigneu blocs de construcció, eines i armes)</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
+    <value>Barra d'eines</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
+    <value>Configuració de la barra d'eines</value>
+  </data>
+  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
+    <value>El Steam Overlay està desactivat</value>
+  </data>
+  <data name="LoadScreenButtonPublish" xml:space="preserve">
+    <value>Publica</value>
+  </data>
+  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
+    <value>La publicació ha estat completada. Si teniu activat el Steam Overlay s'obrirà una pàgina on podreu editar atributs com el títol, la descripció o la visibilitat (per defecte és pública).</value>
+  </data>
+  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
+    <value>Error al publicar al Steam Workshop</value>
+  </data>
+  <data name="MessageBoxTextModPublished" xml:space="preserve">
+    <value>La publicació ha estat completada correctament. Si teniu activat l'Steam Overlay s'obrirà una pàgina on hi podreu editar diversos detalls com el títol, la descripció o la visibilitat (per defecte és pública).</value>
+  </data>
+  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
+    <value>La publicació a l'Steam Workshop ha fallat</value>
+  </data>
+  <data name="ProgressTextPublishingWorld" xml:space="preserve">
+    <value>Publicant ... espereu si us plau.</value>
+  </data>
+  <data name="ProgressTextUploadingWorld" xml:space="preserve">
+    <value>Carregant ... espereu si us plau.</value>
+  </data>
+  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ProgressTextCreatingWorld" xml:space="preserve">
+    <value>Creant món ... espereu si us plau.</value>
+  </data>
+  <data name="ScreenCaptionWorkshop" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
+    <value>Recomana</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
+    <value>MÓN PULICAT</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
+    <value>LA PUBLICACIÓ DEL MÓN HA FALLAT</value>
+  </data>
+  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
+    <value>MOD PUBLICAT</value>
+  </data>
+  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
+    <value>LA PUBLICACIÓ DEL MOD HA FALLAT</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
+    <value>Copia i Carrega</value>
+  </data>
+  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
+    <value>Publica el món seleccionat al Steam Workshop</value>
+  </data>
+  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
+    <value>Mireu una llista de móns subscrits al Steam Workshop</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
+    <value>PUBLICA MÓN</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>ACTUALITZA MÓN</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
+    <value>Esteu segur de que voleu carregar i publicar el món seleccionat al Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>Esteu segur de que voleu carregar i sobreescriure el món seleccionat al Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
+    <value>PUBLICA MOD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
+    <value>ACTUALITZA MOD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
+    <value>Esteu segur que voleu carregar i publicar el mod seleccionat a l'Steam Workshop?
+En carregar-ho esteu d'acord amb els termes del servei del Workshop (veieu http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
+    <value>Esteu segur que voleu carregar i sobreescriure el mod seleccionat a l'Steam Workshop?</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
+    <value>Mostra el Workshop</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
+    <value>Refresca</value>
+  </data>
+  <data name="NotificationNoWeaponSelected" xml:space="preserve">
+    <value>Cap arma seleccionada</value>
+  </data>
+  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
+    <value>Canvia a arma de tipus '{0}'</value>
+  </data>
+  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
+    <value>Amortidors OFF</value>
+  </data>
+  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
+    <value>Amortidors ON</value>
+  </data>
+  <data name="LoadScreenButtonDelete" xml:space="preserve">
+    <value>Suprimeix </value>
+  </data>
+  <data name="ScreenCaptionEditSettings" xml:space="preserve">
+    <value>Edita la Configuració</value>
+  </data>
+  <data name="ScreenCaptionSaveAs" xml:space="preserve">
+    <value>Anomena i desa</value>
+  </data>
+  <data name="ScreenMenuButtonHelp" xml:space="preserve">
+    <value>Ajuda</value>
+  </data>
+  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
+    <value>Carrega Món</value>
+  </data>
+  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
+    <value>Nou Món</value>
+  </data>
+  <data name="ScreenMenuButtonOptions" xml:space="preserve">
+    <value>Opcions</value>
+  </data>
+  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
+    <value>Món Personalitzat</value>
+  </data>
+  <data name="ScreenOptionsButtonControls" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
+    <value>REAJUSTA CONTROLS</value>
+  </data>
+  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
+    <value>Esteu segur que voleu restablir els controls a com venien per defecte?</value>
+  </data>
+  <data name="ScreenshotFailed" xml:space="preserve">
+    <value>La captura de pantalla ha fallat</value>
+  </data>
+  <data name="ScreenshotSaved" xml:space="preserve">
+    <value>Captura de pantalla {0} desda</value>
+  </data>
+  <data name="ExportToObjComplete" xml:space="preserve">
+    <value>Exportat a: {0}</value>
+  </data>
+  <data name="ExportToObjFailed" xml:space="preserve">
+    <value>Exportació al fitxer obj completada</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
+    <value>Obre al Workshop</value>
+  </data>
+  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
+    <value>Obre el Steam Overlay amb la pantalla del Workshop</value>
+  </data>
+  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
+    <value>Descarrega el món seleccionat al meu ordinador i carrega</value>
+  </data>
+  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
+    <value>Obre el món seleccionat al Workshop Steam Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
+    <value>Refresca la llista de móns subscrits</value>
+  </data>
+  <data name="SettingSymmetryX" xml:space="preserve">
+    <value>Pla de simetria X: {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="SettingSymmetryXOffset" xml:space="preserve">
+    <value>Pla de simetria X (inclinat): {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="SettingSymmetryY" xml:space="preserve">
+    <value>Pla de simetria Y: {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="SettingSymmetryYOffset" xml:space="preserve">
+    <value>Pla de simetria Y (inclinat): {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="SettingSymmetryZ" xml:space="preserve">
+    <value>Pla de simetria Z: {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="SettingSymmetryZOffset" xml:space="preserve">
+    <value>Pla de simetria Z (inclinat): {0} per activar, {1} per restablir</value>
+  </data>
+  <data name="NotificationPickupObject" xml:space="preserve">
+    <value>Premeu {0} per recollir {1}</value>
+  </data>
+  <data name="CubeBuilderPasteNotification" xml:space="preserve">
+    <value>Premeu LMB o Ctrl+V per enganxar un objecte</value>
+  </data>
+  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
+    <value>Ha ocorregut un error mentre s'afegien un o més objectes. Visualitzeu el registre de successos per a obtenir més detalls.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
+    <value>Esteu segur que voleu esborrar l'objecte seleccionat? (S'emmagatzemarà una còpia al porta-retalls)</value>
+  </data>
+  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
+    <value>Ha estat assolit el límit de memòria mentre es carregava el món i alguns objectes no han estat afegits. Si esteu fent servir el pedaç "Gran Món" i heu actualitzat el joc recentment, poden haver estat desactivats.</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
+    <value>Teclat 2</value>
+  </data>
+  <data name="DialogTextDownloadingWorld" xml:space="preserve">
+    <value>Descarregant món: {0}%</value>
+  </data>
+  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
+    <value>La descàrrega del món ha fallat!</value>
+  </data>
+  <data name="DialogTextJoiningWorld" xml:space="preserve">
+    <value>Entrant al món</value>
+  </data>
+  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
+    <value>L'entrada al món ha fallat, motiu: {0}</value>
+  </data>
+  <data name="GpuUnderMinimumNotification" xml:space="preserve">
+    <value>Hem detectat que la vostra controladora gràfica no arriba als requeriments mínims i això pot provocar problemes de rendiment o bloquejos. Gràcies per la vostra comprensió.</value>
+  </data>
+  <data name="ShowRotationHints" xml:space="preserve">
+    <value>Mostra consells de rotació</value>
+  </data>
+  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
+    <value>Mostra ajuda de rotació al construir</value>
+  </data>
+  <data name="UnknownControl_Unassigned" xml:space="preserve">
+    <value>[sense assignar]</value>
+  </data>
+  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
+    <value>Mode de construcció</value>
+  </data>
+  <data name="ScreenOptionsGame_Line" xml:space="preserve">
+    <value>Línia</value>
+  </data>
+  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
+    <value>Pla</value>
+  </data>
+  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
+    <value>Bloc únic</value>
+  </data>
+  <data name="ControlName_Suicide" xml:space="preserve">
+    <value>Suïcidar-se</value>
+  </data>
+  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
+    <value>No es pot iniciar el servidor de Multi-jugador, error: {0}</value>
+  </data>
+  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
+    <value>L'objecte està sent utilitzat per algú altre</value>
+  </data>
+  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
+    <value>Partides dels amics</value>
+  </data>
+  <data name="ScreenCaptionPlayers" xml:space="preserve">
+    <value>Jugadors</value>
+  </data>
+  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
+    <value>Amics</value>
+  </data>
+  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
+    <value>Públic</value>
+  </data>
+  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
+    <value>Propietari de la partida</value>
+  </data>
+  <data name="ScreenPlayers_Invite" xml:space="preserve">
+    <value>Convida</value>
+  </data>
+  <data name="ScreenPlayers_Kick" xml:space="preserve">
+    <value>Expulsa</value>
+  </data>
+  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
+    <value>Nom del jugador</value>
+  </data>
+  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
+    <value>La partida ja no existeix</value>
+  </data>
+  <data name="MessageBoxCaptionKicked" xml:space="preserve">
+    <value>EXPULSAT</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
+    <value>El propietari de la partida us ha expulsat.</value>
+  </data>
+  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
+    <value>Amics</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
+    <value>Esteu segur que voleu reconnectar a la partida multijugador actual?</value>
+  </data>
+  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
+    <value>Esteu en mode fora de línia i el multijugador està desactivat. Heu de canviar la configuració des del menú principal.</value>
+  </data>
+  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
+    <value>L'Steam està desconnectat. Si us plau executeu l'Steam en mode normal o reinicieu l'Steam si el problema persisteix.</value>
+  </data>
+  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
+    <value>Versions compatibles</value>
+  </data>
+  <data name="MaxPlayers" xml:space="preserve">
+    <value>Jugadors màxims</value>
+  </data>
+  <data name="DialogWaitingForWorldData" xml:space="preserve">
+    <value>Esperant dades del Món</value>
+  </data>
+  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
+    <value>Ha fallat la connexió al servidor: {0}</value>
+  </data>
+  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
+    <value>Connectant al servidor</value>
+  </data>
+  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
+    <value>Esperant al servidor per respondre</value>
+  </data>
+  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
+    <value>El tipus de partida seleccionada està més limitada que la original. Això vol dir que el vostre inventari pot ser dividit i podríeu perdre alguns objectes! Esteu segur que voleu canviar el tipus de partida?</value>
+  </data>
+  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
+    <value>Móns amics</value>
+  </data>
+  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
+    <value>Móns públics</value>
+  </data>
+  <data name="ControlName_CubeColorChange" xml:space="preserve">
+    <value>Canvia el color del bloc</value>
+  </data>
+  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
+    <value>Aquesta arma està desactivada a la configuració del món</value>
+  </data>
+  <data name="ControlDescPlayersList" xml:space="preserve">
+    <value>Mostra jugadors (només multijugador)</value>
+  </data>
+  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
+    <value>Jugadors</value>
+  </data>
+  <data name="ItemDamagedDescription" xml:space="preserve">
+    <value>(Danyat)</value>
+  </data>
+  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
+    <value>El servidor no respon</value>
+  </data>
+  <data name="UnsupportedAspectRatio" xml:space="preserve">
+    <value>Relació d'aspecte no suportada</value>
+  </data>
+  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
+    <value>Només els amics poden unir-se a aquesta partida</value>
+  </data>
+  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
+    <value>Una descripció del món</value>
+  </data>
+  <data name="CompressSaveGames" xml:space="preserve">
+    <value>Comprimeix els jocs desats</value>
+  </data>
+  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
+    <value>Les partides desades han de ser comprimides al disc per estalviar espai</value>
+  </data>
+  <data name="Headbob" xml:space="preserve">
+    <value>Desactiva moviment del coll</value>
+  </data>
+  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
+    <value>Mostra noms jugadors</value>
+  </data>
+  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
+    <value>Mostra els noms dels jugadors sobre els seus personatges. Aquesta característica s'ha d'activar també a la configuració del Món.</value>
+  </data>
+  <data name="NotificationInventoryFull" xml:space="preserve">
+    <value>L'inventari està ple</value>
+  </data>
+  <data name="OutOfAmmo" xml:space="preserve">
+    <value>{0} no té munició</value>
+  </data>
+  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
+    <value>Necessiteu {0} per construir {1}</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
+    <value>Mode de Joc</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
+    <value>Jugadors</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
+    <value>Nom d'usuari</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
+    <value>Món</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
+    <value>Mida del món</value>
+  </data>
+  <data name="MessageBoxTextSuicide" xml:space="preserve">
+    <value>Esteu segur de que voleu suïcidar-vos?</value>
+  </data>
+  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
+    <value>El host del servidor ha deixat el joc</value>
+  </data>
+  <data name="NotificationRespawn" xml:space="preserve">
+    <value>Heu mort. Reapareixereu en {0} segons</value>
+  </data>
+  <data name="HudBlockInfo_Required" xml:space="preserve">
+    <value>Requerit</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
+    <value>Mida inventari {0}x
+Eficiència assemblador {1}x
+Velocitat refineria {2}x</value>
+  </data>
+  <data name="NotificationClientConnected" xml:space="preserve">
+    <value>Jugador connectat: {0}</value>
+  </data>
+  <data name="NotificationClientDisconnected" xml:space="preserve">
+    <value>Jugador desconnectat: {0}</value>
+  </data>
+  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
+    <value>El servidor té una versió diferent del joc, la vostra versió {0}, la versió del servidor {1}</value>
+  </data>
+  <data name="ShowCrosshair" xml:space="preserve">
+    <value>Mostra punt de mira</value>
+  </data>
+  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
+    <value>Si el punt de mira ha de ser visible</value>
+  </data>
+  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
+    <value>La partida ja s'està desant.</value>
+  </data>
+  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
+    <value>* Traduït per la comunitat.</value>
+  </data>
+  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
+    <value>Feu clic per a més informació</value>
+  </data>
+  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
+    <value>No hi ha connexió directa disponible.</value>
+  </data>
+  <data name="Multiplayer_NoConnection" xml:space="preserve">
+    <value>No hi ha connexió amb el servidor.</value>
+  </data>
+  <data name="GamePaused" xml:space="preserve">
+    <value>Partida pausada</value>
+  </data>
+  <data name="ControlDescPauseGame" xml:space="preserve">
+    <value>Pausa la partida (només fora de línia)</value>
+  </data>
+  <data name="ControlName_PauseGame" xml:space="preserve">
+    <value>Pausa la partida</value>
+  </data>
+  <data name="KeysPause" xml:space="preserve">
+    <value>Pausa</value>
+    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
+  </data>
+  <data name="NotificationWeaponNotWorking" xml:space="preserve">
+    <value>{0} no funciona</value>
+  </data>
+  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
+    <value>Total a afegir</value>
+  </data>
+  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
+    <value>Valor a establir</value>
+  </data>
+  <data name="NotificationHealthCritical" xml:space="preserve">
+    <value>Salut crítica. Cerqueu atenció mèdica immediatament.</value>
+  </data>
+  <data name="NotificationHealthLow" xml:space="preserve">
+    <value>Salut baixa.</value>
+  </data>
+  <data name="MultiplayerError_DifferentData" xml:space="preserve">
+    <value>Aquest servidor té unes dades de la partida diferents a la del vostre client</value>
+  </data>
+  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
+    <value>Les partides marcades amb un * tenen dades incompatibles</value>
+  </data>
+  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
+    <value>Admin. de la partida</value>
+  </data>
+  <data name="MultiplayerJoinServers" xml:space="preserve">
+    <value>Només dedicat</value>
+  </data>
+  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
+    <value>L'usuari ja s'ha unit</value>
+  </data>
+  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
+    <value>No sou al grup {0}. Voleu visitar el lloc web del grup?</value>
+  </data>
+  <data name="MultiplayerErrorServerFull" xml:space="preserve">
+    <value>El servidor és ple</value>
+  </data>
+  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
+    <value>Servidors de l'Steam fora de línia o grup de servidors no existent</value>
+  </data>
+  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
+    <value>Ticket invàlid</value>
+  </data>
+  <data name="MultiplayerJoinLANServers" xml:space="preserve">
+    <value>Només Xarxa Local</value>
+  </data>
+  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
+    <value>Amics</value>
+  </data>
+  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
+    <value>Xarxa Local</value>
+  </data>
+  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
+    <value>Partides</value>
+  </data>
+  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
+    <value>Servidors</value>
+  </data>
+  <data name="JoinGame_Title" xml:space="preserve">
+    <value>Uneix-te al món</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
+    <value>Servidor</value>
+  </data>
+  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
+    <value>Connectat en un altre lloc</value>
+  </data>
+  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
+    <value>Sense llicència o llicència caducada</value>
+  </data>
+  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
+    <value>El ticket ja està sent utilitzat</value>
+  </data>
+  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
+    <value>Ticket cancel·lat</value>
+  </data>
+  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
+    <value>Usuari no connectat</value>
+  </data>
+  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
+    <value>VAC bandejat</value>
+  </data>
+  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
+    <value>La comprovació VAC ha sobrepassat el temps d'espera</value>
+  </data>
+  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
+    <value>Grups permesos</value>
+  </data>
+  <data name="NewsDownloadingFailed" xml:space="preserve">
+    <value>La descàrrega de notícies ha fallat</value>
+  </data>
+  <data name="MessageBoxCaptionInfo" xml:space="preserve">
+    <value>INFO</value>
+  </data>
+  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
+    <value>L'identificador del Servidor de Grup no és vàlid, l'administrador del servidor ha d'establir correctament l'identificador de grup a la configuració del servidor
+(o posar-ho a zero per desactivar la comprovació del grup)</value>
+  </data>
+  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
+    <value>La llista de servidors locals dedicats</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
+    <value>La llista de partides creades per jugadors</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
+    <value>La llista de servidors dedicats a internet</value>
+  </data>
+  <data name="PlayerCharacterColor" xml:space="preserve">
+    <value>Color del jugador</value>
+  </data>
+  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
+    <value>Premeu {0} per canviar la vostra aparença</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
+    <value>Mode de finestra</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
+    <value>Pantalla completa</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
+    <value>Finestra a pantalla completa</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
+    <value>Finestra</value>
+  </data>
+  <data name="SpectatorControls" xml:space="preserve">
+    <value>Controls de l'espectador</value>
+  </data>
+  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
+    <value>Espectador amb vista de vector corregida a l'objecte controlat</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
+    <value>Esteu bandejat d'aquest servidor</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
+    <value>Esteu bandejat d'aquest servidor.
+Voleu obrir el perfil d'administrador?</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
+    <value>Heu estat bandejat d'aquest servidor pel seu administrador.</value>
+  </data>
+  <data name="ScreenPlayers_Ban" xml:space="preserve">
+    <value>Bandeig</value>
+  </data>
+  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
+    <value>Retorna a l'àrea del joc!</value>
+  </data>
+  <data name="NotificationLeavingWorld" xml:space="preserve">
+    <value>Alerta: Morireu d'aquí a {0:F1} metres!</value>
+  </data>
+  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
+    <value>Configuració avançada del món</value>
+  </data>
+  <data name="Spectator" xml:space="preserve">
+    <value>Espectador</value>
+  </data>
+  <data name="SpectatorControls_Delta" xml:space="preserve">
+    <value>Espectador Delta</value>
+  </data>
+  <data name="SpectatorControls_Free" xml:space="preserve">
+    <value>Espectador lliure</value>
+  </data>
+  <data name="SpectatorControls_None" xml:space="preserve">
+    <value>Control del jugador</value>
+  </data>
+  <data name="SpectatorControls_Static" xml:space="preserve">
+    <value>Espectador estàtic</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
+    <value>Aquest nom de facció ja existeix</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
+    <value>Aquest TAG de facció ja existeix</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
+    <value>El nom de la facció ha de tenir almenys 4 caracters</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edita</value>
+  </data>
+  <data name="Kick" xml:space="preserve">
+    <value>Expulsa</value>
+  </data>
+  <data name="Leader" xml:space="preserve">
+    <value>Líder</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Membre</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
+    <value>Esteu segur de que voleu expulsar al jugador '{0}' de la vostra facció?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
+    <value>Esteu segur que voleu abandonar la facció '{0}'?</value>
+  </data>
+  <data name="Promote" xml:space="preserve">
+    <value>Promou</value>
+  </data>
+  <data name="Demote" xml:space="preserve">
+    <value>Degrada</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Accés denegat</value>
+  </data>
+  <data name="Founder" xml:space="preserve">
+    <value>Fundador</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Estat</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accepta</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
+    <value>Esteu segur que voleu acceptar al jugador '{0}' a la vostra facció?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
+    <value>Esteu segur que voleu degradar a '{0}' a membre?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
+    <value>Esteu segur que voleu promocionar a '{0}' a líder?</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Sol·licitant</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Etiqueta</value>
+  </data>
+  <data name="SessionDeleteFailed" xml:space="preserve">
+    <value>La supressió de la sessió ha fallat</value>
+  </data>
+  <data name="Medicals_Title" xml:space="preserve">
+    <value>Sales mèdiques</value>
+  </data>
+  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
+    <value>Esteu segur que voleu canviar el propietari a {0}?</value>
+  </data>
+  <data name="Respawn" xml:space="preserve">
+    <value>Reaparèixer</value>
+  </data>
+  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
+    <value>Les matexies dades del joc</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Actualitza</value>
+  </data>
+  <data name="PlayerInfo_Dead" xml:space="preserve">
+    <value>mort</value>
+  </data>
+  <data name="ScreenMods_ActiveMods" xml:space="preserve">
+    <value>Mods actius</value>
+  </data>
+  <data name="ScreenMods_AvailableMods" xml:space="preserve">
+    <value>Mods disponibles</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
+    <value>Desactiva mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
+    <value>Desactiva tots els mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
+    <value>Activa mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
+    <value>Activa tots els mods</value>
+  </data>
+  <data name="WorldSettings_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
+    <value>Obre el mod seleccionat al Workshop Steam Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
+    <value>Actualitza la llista de mods subscrits</value>
+  </data>
+  <data name="JoinGame_SearchLabel" xml:space="preserve">
+    <value>Cerca partida</value>
+  </data>
+  <data name="JoinGame_SearchTooltip" xml:space="preserve">
+    <value>Per iniciar la cerca es necessiten almenys 3 caracters</value>
+  </data>
+  <data name="ProgressTextDownloadingMods" xml:space="preserve">
+    <value>Descarregant mods... espereu, si us plau.</value>
+  </data>
+  <data name="NotificationClientCannotSave" xml:space="preserve">
+    <value>Aquest servidor no permet que el client pugui desar</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
+    <value>Mou mod avall</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
+    <value>Mou mod amunt</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
+    <value>Mou mod abaix de tot</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
+    <value>Mou mod a dalt de tot</value>
+  </data>
+  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
+    <value>No podeu crear un grup amb blocs als que no hi teniu permís d'accés.</value>
+  </data>
+  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
+    <value>No podeu esborrar un grup amb blocs als que no hi teniu permís d'accés.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
+    <value>Heu estat expulsat de la facció.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
+    <value>Heu estat acceptat a la facció.</value>
+  </data>
+  <data name="ControlName_ToolbarDown" xml:space="preserve">
+    <value>Barra d'eines anterior</value>
+  </data>
+  <data name="ControlName_ToolbarUp" xml:space="preserve">
+    <value>Barra d'eines posterior</value>
+  </data>
+  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
+    <value>La descàrrega dels mods ha fallat! Si us plau comproveu els mods en la configuració del món.</value>
+  </data>
+  <data name="ProgressTextCheckingMods" xml:space="preserve">
+    <value>Comprovant actualitzacions dels mods... espereu, si us plau.</value>
+  </data>
+  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
+    <value>Depuració draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
+    <value>Activa la depuració draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
+    <value>Carregant registre d'errors:</value>
+  </data>
+  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
+    <value>Model de maniquí</value>
+  </data>
+  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
+    <value>Punts de muntatge</value>
+  </data>
+  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
+    <value>No hi ha errors de càrrega</value>
+  </data>
+  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
+    <value>Primitives físiques</value>
+  </data>
+  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
+    <value>Obre en una nova finestra</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
+    <value>Recarrega textures</value>
+  </data>
+  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
+    <value>Els mods locals no estan permesos a multijugador. Enlloc d'aquests feu servir els del Workshop.</value>
+  </data>
+  <data name="ScreenMods_LocalMod" xml:space="preserve">
+    <value>Mod local</value>
+  </data>
+  <data name="ScreenMods_MissingDetails" xml:space="preserve">
+    <value>No es poden carregar els detalls del mod des de Steam</value>
+  </data>
+  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
+    <value>Falta mod local</value>
+  </data>
+  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
+    <value>Mod del Workshop</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
+    <value>Recarrega models</value>
+  </data>
+  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
+    <value>Copia el registre al portaretalls</value>
+  </data>
+  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
+    <value>Alerta: Totes les naus en {0:F1} metres seran esborrades!</value>
+  </data>
+  <data name="PlayerCharacterModel" xml:space="preserve">
+    <value>Model del jugador</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="NotificationHintPressToUse" xml:space="preserve">
+    <value>Premeu {0} per fer servir {1}</value>
+  </data>
+  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
+    <value>Seleccioneu un servidor per mostrar la llista de mods</value>
+  </data>
+  <data name="ScreenMods_SearchLabel" xml:space="preserve">
+    <value>Cerca</value>
+  </data>
+  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
+    <value>No es pot obtenir la llista de mods del servidor</value>
+  </data>
+  <data name="HudWarnings" xml:space="preserve">
+    <value>Alertes al HUD</value>
+  </data>
+  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
+    <value>Aquest món no es pot carregar. Ha estat creat en una versió més recent del joc.</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
+    <value>Aquest objecte del Workshop no sembla que us pertanyi. Assegureu-vos que heu entrat al joc amb el compte correcte.</value>
+  </data>
+  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
+    <value>Exporta portaretalls a un fitxer</value>
+  </data>
+  <data name="ToolTipSaveShip" xml:space="preserve">
+    <value>Desa una nau del portaretalls a un fitxer</value>
+  </data>
+  <data name="AddNewNPC" xml:space="preserve">
+    <value>Afegeix nova identitat enemiga</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Eines</value>
+  </data>
+  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
+    <value>Seleccioneu etiquetes</value>
+  </data>
+  <data name="WorkshopTag_Animation" xml:space="preserve">
+    <value>Animació</value>
+  </data>
+  <data name="WorkshopTag_Block" xml:space="preserve">
+    <value>Bloc</value>
+  </data>
+  <data name="WorkshopTag_Character" xml:space="preserve">
+    <value>Personatge</value>
+  </data>
+  <data name="WorkshopTag_Other" xml:space="preserve">
+    <value>Altres</value>
+  </data>
+  <data name="WorkshopTag_Skybox" xml:space="preserve">
+    <value>Fons espacial</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
+    <value>No es pot actualitzar perquè no sou el propietari d'aquest mod.</value>
+  </data>
+  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
+    <value>Alguns mods no han estat carregats perquè contenien errors. Mireu el registre per obtenir-ne els detalls o executeu la partida en un sol jugador per accedir a la pantalla de depuració del mod.</value>
+  </data>
+  <data name="RenderIterpolation" xml:space="preserve">
+    <value>Interpolació del render</value>
+  </data>
+  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
+    <value>Redueix els salts i fa que el joc vagi més fi.</value>
+  </data>
+  <data name="WorkshopTag_ModPack" xml:space="preserve">
+    <value>Modpack</value>
+  </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
+    <value>Pestanyes d'eines i objectes:</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
+    <value>Cerca:</value>
+  </data>
+  <data name="ControlDescCopyPasteMove" xml:space="preserve">
+    <value>Mou l'objecte enganxat</value>
+  </data>
+  <data name="WorkshopTag_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
+    <value>Alguns blocs enganxats no estan disponibles en aquest món</value>
+  </data>
+  <data name="ConvertingObjs" xml:space="preserve">
+    <value>Convertint models. Espereu-vos si us plau.</value>
+  </data>
+  <data name="ConvertToObjDone" xml:space="preserve">
+    <value>S'han convertit tots els models.</value>
+  </data>
+  <data name="ExportingToObj" xml:space="preserve">
+    <value>Exportant model. Espereu-vos si us plau.</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
+    <value>La nau enganxada conté alguns blocs que no estan disponibles en aquest món. Aquests blocs no s'enganxaran, això pot provocar que la nau se separi. Voleu enganxar la nau igualment?</value>
+  </data>
+  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
+    <value>L'objecte no està disponible en aquest món</value>
+  </data>
+  <data name="ShipWelder_HelpOthers" xml:space="preserve">
+    <value>Ajuda als altres</value>
+  </data>
+  <data name="PlacingObjectsToScene" xml:space="preserve">
+    <value>Col·locant objectes al món. Espereu-vos, si us plau.</value>
+  </data>
+  <data name="ControlTypeSystems3" xml:space="preserve">
+    <value>Sistemes 3</value>
+  </data>
+  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
+    <value>Canvia a arma: {0}</value>
+  </data>
+  <data name="Thrust_Back" xml:space="preserve">
+    <value>Cap enrere</value>
+  </data>
+  <data name="Thrust_Down" xml:space="preserve">
+    <value>Avall</value>
+  </data>
+  <data name="Thrust_Forward" xml:space="preserve">
+    <value>Endavant</value>
+  </data>
+  <data name="Thrust_Left" xml:space="preserve">
+    <value>Esquerra</value>
+  </data>
+  <data name="Thrust_Right" xml:space="preserve">
+    <value>Dreta</value>
+  </data>
+  <data name="Thrust_Up" xml:space="preserve">
+    <value>Amunt</value>
+  </data>
+  <data name="SelectBlueprint" xml:space="preserve">
+    <value>Selecciona</value>
+  </data>
+  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
+    <value>Facepalm</value>
+  </data>
+  <data name="AvailableBlueprints" xml:space="preserve">
+    <value>Plànols disponibles</value>
+  </data>
+  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
+    <value>Radi</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
+    <value>Amplada</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
+    <value>Profunditat</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
+    <value>Alçada</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
+    <value>Distància</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
+    <value>Configuració del pinzell</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
+    <value>Transparència</value>
+  </data>
+  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
+    <value>Configuració de la forma</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
+    <value>Longitud</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
+    <value>Radi</value>
+  </data>
+  <data name="ExportToObjModded" xml:space="preserve">
+    <value>Aquest model conté blocs amb mods. Només es poden exportar el models amb blocs originals.</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
+    <value>Ajustament a la grilla del voxel</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
+    <value>Àrea</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
+    <value>Trieu eix</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
+    <value>Eix X</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
+    <value>Eix Y</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
+    <value>Eix Z</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
+    <value>Nou missatge al xat de la facció {0}</value>
+  </data>
+  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
+    <value>Nou missatge de xat global</value>
+  </data>
+  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
+    <value>Nou missatge de {0}</value>
+  </data>
+  <data name="ErrorDescriptionTooLong" xml:space="preserve">
+    <value>La descripció és massa llarga (màxim permès: 8000 dígits)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Descripció</value>
+  </data>
+  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
+    <value>Seleccioneu categories</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
+    <value>Veure distància: {0}m</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
+    <value>Projecta al voxel</value>
+  </data>
+  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
+    <value>Següent material del voxel</value>
+  </data>
+  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
+    <value>Obre configuració manual del voxel</value>
+  </data>
+  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
+    <value>Anterior material del voxel</value>
+  </data>
+  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
+    <value>Esteu segur que voleu reemplaçar aquest plànol amb el del porta-retalls?</value>
+  </data>
+  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
+    <value>Reemplaça</value>
+  </data>
+  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
+    <value>El panell de text és de només lectura</value>
+  </data>
+  <data name="MessageBoxTextTooLongText" xml:space="preserve">
+    <value>El text és massa llarg. Voleu dividir-lo?</value>
+  </data>
+  <data name="ControlDescExportModel" xml:space="preserve">
+    <value>Exporta model</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
+    <value>Mostra quadre delimitador</value>
+  </data>
+  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
+    <value>Això obrirà {0} al vostre navegador d'internet, perquè Steam Overlay està desactivat o no ha pogut obrir-se. El joc seguirà executant-se.
+Voleu continuar?</value>
+  </data>
+  <data name="NotificationRotationFormatCombined" xml:space="preserve">
+    <value>Prem {0} per rotar el bloc</value>
+  </data>
+  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
+    <value>Premeu {0} o {1} per saltar a la composició d'edifici</value>
+  </data>
+  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
+    <value>Premeu {0} o {1} per saltar a l'edifici dinàmic</value>
+  </data>
+  <data name="ControlName_SwitchWalk" xml:space="preserve">
+    <value>Canviar a caminar</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
+    <value>La llista de servidors preferits</value>
+  </data>
+  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
+    <value>Favorits</value>
+  </data>
+  <data name="JoinGame_TabTitle_History" xml:space="preserve">
+    <value>Història</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
+    <value>La llista de servidors d'amistats</value>
+  </data>
+  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
+    <value>La llista de servidors prèviament visitats</value>
+  </data>
+  <data name="JoinGame_Favorites_Add" xml:space="preserve">
+    <value>Afegir servidor als favorits</value>
+  </data>
+  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
+    <value>Eliminar servidor dels favorits</value>
+  </data>
+  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
+    <value>Obre configuració manual del voxel</value>
+  </data>
+  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
+    <value>Prem {0} per obrir la configuració manual del voxel</value>
+  </data>
+  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
+    <value>Premeu {0} o {1} per canviar el material del voxel</value>
+  </data>
+  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
+    <value>Activa el depurat dels bots</value>
+  </data>
+  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
+    <value>Següent bot</value>
+  </data>
+  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
+    <value>Bot anterior</value>
+  </data>
+  <data name="BotSettingsScreen_Title" xml:space="preserve">
+    <value>Ajusts dels bots</value>
+  </data>
+  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
+    <value>Ajusts dels bots</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+</root>

@@ -1,0 +1,51 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#
+string appName = "Common Localization Generator Template";
+string version = "1.0.0.0";
+
+string path = this.Host.ResolvePath("");
+string resxFilePath = "..\\VRage.Game\\Content\\Data\\Localization\\MyCommonTexts.resx";
+XDocument document = XDocument.Parse(File.ReadAllText(Path.Combine(path, resxFilePath)));
+var data = document.Element("root").Elements("data");
+// data = data.OrderBy(x => x.Attribute("name").Value);
+
+#>
+using System.Text;
+using VRage.Utils;
+
+// This file has been generated. Do not edit it.
+
+    [System.CodeDom.Compiler.GeneratedCode("<#= appName #>", "<#= version #>")]
+    public static class MyCommonTexts
+    {
+        public static readonly MyStringId Blank = default(MyStringId);
+<#
+foreach(var entry in data)
+{
+    var name = entry.Attribute("name").Value;
+    var value = entry.Element("value").Value;
+    if (true)
+    {
+#>
+
+        ///<summary>
+        ///<#=value.Replace("\n", " ").Replace("\r", " ")#>
+        ///</summary>
+<#
+    }
+#>
+        public static readonly MyStringId <#=name#> = MyStringId.GetOrCompute("<#=name#>");
+<#
+}
+#>
+    }

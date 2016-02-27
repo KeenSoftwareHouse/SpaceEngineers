@@ -16,9 +16,6 @@ namespace VRage.Game
 
             [XmlAttribute]
             public string ShootSoundName;
-
-            [XmlAttribute]
-            public int BurstFireRate = 4;
         }
 
         [ProtoContract]

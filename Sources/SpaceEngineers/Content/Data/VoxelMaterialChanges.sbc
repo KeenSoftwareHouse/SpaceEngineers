@@ -1,0 +1,672 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <VoxelMaterialChangesDefinition>
+    <VoxelChanges>
+      <!-- GROUPS -->
+      <Groups>
+        <Group GroupId="SnowStones">
+          <Items>
+            <Item SubtypeId="SnowCoverageIronCore" Chance="0.40" />     
+          </Items>
+        </Group>
+        <Group GroupId="Stones">
+          <Items>
+            <Item SubtypeId="StoneCoverageIronCore" Chance="0.40" />
+          </Items>
+        </Group>
+        <Group GroupId="ForestlandsStones">
+          <Items>
+            <Item SubtypeId="StoneCoverageIronCore" Chance="1" />
+          </Items>
+        </Group>
+        <Group GroupId="IcelandStones">
+          <Items>
+            <Item SubtypeId="SnowCoverageIronCore" Chance="1" />
+          </Items>
+        </Group>
+      </Groups>
+
+    
+      
+      <!-- MODIFIERS -->
+      <Modifiers>
+        <Modifier ModifierId="snow01">
+          <Options>
+            <Option Chance="0.40">
+              <!-- No change -->
+            </Option>
+            <Option Chance="0.30">
+              <Changes>
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.20">
+              <Changes>
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.10">
+              <Changes>
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+                <Change From="Snow" To="Silver_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+          <Modifier ModifierId="EarthSnowArea">
+            <Options>
+              <Option Chance="0.25">                
+                <!-- No change -->
+              </Option>
+              <Option Chance="0.25">
+                <Changes>
+                  <Change From="Iron_01" To="Nickel_01" />
+                  <Change From="Iron_02" To="Nickel_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.25">
+                <Changes>
+                  <Change From="Iron_01" To="Silicon_01" />
+                  <Change From="Iron_02" To="Silicon_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.03">
+                <Changes>
+                  <Change From="Iron_01" To="Uraninite_01" />
+                  <Change From="Iron_02" To="Uraninite_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.03">
+                <Changes>
+                  <Change From="Iron_01" To="Gold_01" />
+                  <Change From="Iron_02" To="Gold_01" />
+                </Changes>
+              </Option>              
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Cobalt_01" />
+                  <Change From="Iron_02" To="Cobalt_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Silver_01" />
+                  <Change From="Iron_02" To="Silver_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Magnesium_01" />
+                  <Change From="Iron_02" To="Magnesium_01" />
+                </Changes>
+              </Option>
+            </Options>
+          </Modifier>
+          <Modifier ModifierId="EarthForestArea">
+            <Options>
+              <Option Chance="0.25">
+                <!-- No change -->
+              </Option>
+              <Option Chance="0.25">
+                <Changes>
+                  <Change From="Iron_01" To="Nickel_01" />
+                  <Change From="Iron_02" To="Nickel_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.25">
+                <Changes>
+                  <Change From="Iron_01" To="Silicon_01" />
+                  <Change From="Iron_02" To="Silicon_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.03">
+                <Changes>
+                  <Change From="Iron_01" To="Uraninite_01" />
+                  <Change From="Iron_02" To="Uraninite_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.03">
+                <Changes>
+                  <Change From="Iron_01" To="Gold_01" />
+                  <Change From="Iron_02" To="Gold_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Cobalt_01" />
+                  <Change From="Iron_02" To="Cobalt_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Silver_01" />
+                  <Change From="Iron_02" To="Silver_01" />
+                </Changes>
+              </Option>
+              <Option Chance="0.1">
+                <Changes>
+                  <Change From="Iron_01" To="Magnesium_01" />
+                  <Change From="Iron_02" To="Magnesium_01" />
+                </Changes>
+              </Option>
+            </Options>
+          </Modifier>
+        <Modifier ModifierId="EarthDesertArea">
+          <Options>
+            <Option Chance="0.25">
+              <Changes>
+                 <Change From="Stone" To="DesertRocks" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="DesertRocks" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>            
+        </Modifier>
+        <Modifier ModifierId="Mars">
+          <Options>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+        <Modifier ModifierId="Moon">
+          <Options>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+              </Changes>  
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.33">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MoonRocks" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+        <Modifier ModifierId="Europa">
+          <Options>
+            <Option Chance="0.15">
+              <Changes>
+              <Change From="Stone" To="Ice" />
+              </Changes>
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.33">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="Ice" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>            
+        </Modifier>
+        <Modifier ModifierId="Titan">
+          <Options>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+              </Changes>
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.15">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.33">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Platinum_01" />
+                <Change From="Iron_02" To="Platinum_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="MarsRocks" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+        
+        <Modifier ModifierId="AlienDesertArea">
+          <Options>
+            <Option Chance="0.25">
+                <Changes>
+                  <Change From="Stone" To="AlienRockyMountain" />
+                </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+          </Modifier>
+        <Modifier ModifierId="AlienIcelandArea">
+          <Options>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Snow" To="AlienSnow" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>            
+        </Modifier>
+        <Modifier ModifierId="AlienForestArea">
+          <Options>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Stone" To="AlienRockyMountain" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Nickel_01" />
+                <Change From="Iron_02" To="Nickel_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.25">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silicon_01" />
+                <Change From="Iron_02" To="Silicon_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Uraninite_01" />
+                <Change From="Iron_02" To="Uraninite_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.03">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Gold_01" />
+                <Change From="Iron_02" To="Gold_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Silver_01" />
+                <Change From="Iron_02" To="Silver_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.1">
+              <Changes>
+                <Change From="Snow" To="AlienSnow" />
+                <Change From="Stone" To="AlienRockyMountain" />
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+        <Modifier ModifierId="grass01">
+          <Options>
+          <Option Chance="0.40">
+            <!-- No change -->
+          </Option>
+            <Option Chance="0.30">
+              <Changes>
+                <Change From="Iron_01" To="Cobalt_01" />
+                <Change From="Iron_02" To="Cobalt_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.20">
+              <Changes>
+                <Change From="Iron_01" To="Ice_01" />
+                <Change From="Iron_02" To="Ice_01" />
+              </Changes>
+            </Option>
+            <Option Chance="0.10">
+              <Changes>
+                <Change From="Iron_01" To="Magnesium_01" />
+                <Change From="Iron_02" To="Magnesium_01" />
+              </Changes>
+            </Option>
+          </Options>
+        </Modifier>
+      </Modifiers>
+     </VoxelChanges>
+  </VoxelMaterialChangesDefinition>
+</Definitions>

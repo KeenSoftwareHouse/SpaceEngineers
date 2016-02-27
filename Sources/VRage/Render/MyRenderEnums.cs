@@ -137,13 +137,6 @@ namespace VRageRender
         LOW = 3
     }
 
-    public enum MyGraphicsRenderer
-    {
-        NONE,
-        DX9,
-        DX11
-    }
-
     public enum MyRenderModuleEnum
     {
         Cockpit,
