@@ -10,12 +10,12 @@ namespace Sandbox.ModAPI.Ingame
         bool UseConveyorSystem { get; }
 
         /// <summary>
-        /// Current output of solar panel in kW
+        /// Current output of reactor in Megawatts
         /// </summary>
         float CurrentOutput { get; }
 
         /// <summary>
-        /// Maximum output of solar panel in kW
+        /// Maximum output of reactor in Megawatts
         /// </summary>
         float MaxOutput { get; }
     }
