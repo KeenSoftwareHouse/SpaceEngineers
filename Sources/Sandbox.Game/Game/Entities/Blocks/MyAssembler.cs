@@ -998,11 +998,13 @@ namespace Sandbox.Game.Entities.Cube
             }
             return null;
         }
+
         string BlueprintName(MyBlueprintDefinitionBase blueprint)
         {
             string[] val = blueprint.Id.ToString().Split(new char[] { '_' });
             return val[val.Length - 1];
         }
+
         MyBlueprintDefinitionBase ComponentByName(string name)
         {
             var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
@@ -1013,10 +1015,12 @@ namespace Sandbox.Game.Entities.Cube
             }
             return null;
         }
+
         string ComponentName(MyBlueprintDefinitionBase component)//For understandability
         {
             return BlueprintName(component);
         }
+
         MyBlueprintDefinitionBase ToolByName(string name)
         {
             var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
@@ -1027,32 +1031,42 @@ namespace Sandbox.Game.Entities.Cube
             }
             return null;
         }
+
         string ToolName(MyBlueprintDefinitionBase component)//For understandability
         {
             return BlueprintName(component);
         }
-        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.GetComponentList()
+
+        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.ComponentList
         {
-            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
-            MyBlueprintClassDefinition definition = blueprintClasses[2];
-            List<string> v = new List<string>();
-            foreach (MyBlueprintDefinitionBase blueprint in definition)
+            get
             {
-                v.Add(ComponentName(blueprint));
+                var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+                MyBlueprintClassDefinition definition = blueprintClasses[2];
+                List<string> v = new List<string>();
+                foreach (MyBlueprintDefinitionBase blueprint in definition)
+                {
+                    v.Add(ComponentName(blueprint));
+                }
+                return v;
             }
-            return v;
         }
-        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.GetToolList()
+
+        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.ToolList
         {
-            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
-            MyBlueprintClassDefinition definition = blueprintClasses[3];
-            List<string> v = new List<string>();
-            foreach (MyBlueprintDefinitionBase blueprint in definition)
+            get
             {
-                v.Add(ToolName(blueprint));
+                var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+                MyBlueprintClassDefinition definition = blueprintClasses[3];
+                List<string> v = new List<string>();
+                foreach (MyBlueprintDefinitionBase blueprint in definition)
+                {
+                    v.Add(ComponentName(blueprint));
+                }
+                return v;
             }
-            return v;
         }
+
         List<string> Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintList(bool isBigShip)
         {
             var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
@@ -1067,6 +1081,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             return val;
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintComponents(bool isBigShip, string blueprint, List<string> components, List<long> count)
         {
             MyBlueprintDefinitionBase bp = BlueprintByName(isBigShip, blueprint);
@@ -1080,18 +1095,22 @@ namespace Sandbox.Game.Entities.Cube
             }
             return components.Count > 0;
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintResources(bool isBigShip, string blueprint, List<string> resources, List<long> quantities)
         {
             return GetBlueprintResources(BlueprintByName(isBigShip, blueprint), resources, quantities);
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetComponentResources(string component, List<string> resources, List<long> quantities)
         {
             return GetBlueprintResources(ComponentByName(component), resources, quantities);
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetToolResources(string component, List<string> resources, List<long> quantities)
         {
             return GetBlueprintResources(ToolByName(component), resources, quantities);
         }
+
         bool GetBlueprintResources(MyBlueprintDefinitionBase blueprint, List<string> resources, List<long> quantities)
         {
             if (blueprint == null) return false;
@@ -1103,6 +1122,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             return resources.Count > 0;
         }
+
         void Sandbox.ModAPI.Ingame.IMyAssembler.GetResources(List<string> resources, List<long> quantities)
         {
             Dictionary<string, long> dict = new Dictionary<string, long>();
@@ -1140,6 +1160,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (quantities != null) quantities.Add(dict[key]);
             }
         }
+
         void Sandbox.ModAPI.Ingame.IMyAssembler.GetAvailableResources(List<string> resources, List<long> quantities)
         {
             List<string> resource = new List<string>();
@@ -1219,14 +1240,17 @@ namespace Sandbox.Game.Entities.Cube
                 if (quantities != null) quantities.Add(dict[key]);
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeComponent(string component, long count, List<string> resources, List<long> quantities)
         {
             return CanMakeBlueprint(ComponentByName(component), count, resources, quantities);
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeTool(string component, long count, List<string> resources, List<long> quantities)
         {
             return CanMakeBlueprint(ToolByName(component), count, resources, quantities);
         }
+
         bool CanMakeBlueprint(MyBlueprintDefinitionBase blueprint, long count, List<string> resources, List<long> quantities)
         {
             if (resources == null) resources = new List<string>();
@@ -1278,39 +1302,49 @@ namespace Sandbox.Game.Entities.Cube
             }
             return !hasNeg;
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeBlueprint(bool isBigShip, string blueprint, long count, List<string> resources, List<long> quantities)
         {
             return CanMakeBlueprint(BlueprintByName(isBigShip, blueprint), count, resources, quantities);
         }
-        int Sandbox.ModAPI.Ingame.IMyAssembler.GetProductionTime()
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.CurrentProductionTime
         {
-            var firstQueueItem = TryGetFirstQueueItem();
-            if (!firstQueueItem.HasValue)
+            get
             {
-                return 0;
+                var firstQueueItem = TryGetFirstQueueItem();
+                if (!firstQueueItem.HasValue)
+                {
+                    return 0;
+                }
+                var currentBlueprint = firstQueueItem.Value.Blueprint;
+                return (int)(CurrentProgress * calculateBlueprintProductionTime(currentBlueprint));
             }
-            var currentBlueprint = firstQueueItem.Value.Blueprint;
-            return (int)(CurrentProgress * calculateBlueprintProductionTime(currentBlueprint));
         }
+
         int Sandbox.ModAPI.Ingame.IMyAssembler.GetProductionTime(string component)
         {
             MyBlueprintDefinitionBase blueprint = ComponentByName(component);
             if (blueprint == null) blueprint = ToolByName(component);
             return (int)calculateBlueprintProductionTime(blueprint);
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.IsRepeating(bool assemblyMode)
         {
             return assemblyMode ? m_repeatAssembleEnabled : m_repeatDisassembleEnabled;
         }
+
         void Sandbox.ModAPI.Ingame.IMyAssembler.ToggleRepeat(bool assemblyMode, bool repeatMode)
         {
             RequestDisassembleEnabled(!assemblyMode);
             RequestRepeatEnabled(repeatMode);
         }
+
         void Sandbox.ModAPI.Ingame.IMyAssembler.ToggleAssembly(bool assemblyMode)
         {
             RequestDisassembleEnabled(!assemblyMode);
         }
+
         void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue(bool assemblyMode)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1325,6 +1359,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_otherQueue.Clear();
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1336,6 +1371,7 @@ namespace Sandbox.Game.Entities.Cube
                 return RemoveQueueItem(slot, count, m_otherQueue);
             }
         }
+
         bool RemoveQueueItem(int slot, long count, List<QueueItem> queue)
         {
             if (slot >= queue.Count) return false;
@@ -1355,6 +1391,7 @@ namespace Sandbox.Game.Entities.Cube
                 return true;
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(string component, long count = -1, bool assemblyMode = true)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1366,6 +1403,7 @@ namespace Sandbox.Game.Entities.Cube
                 return RemoveQueueItem(component, count, m_otherQueue);
             }
         }
+
         bool RemoveQueueItem(string blueprint, long count, List<QueueItem> queue)
         {
             for (int i = 0; i < queue.Count; i++)
@@ -1391,6 +1429,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             return count <= 0;
         }
+
         protected virtual void InsertAQueueItem(int idx, MyBlueprintDefinitionBase blueprint, MyFixedPoint amount, List<QueueItem> m_otherQueue)
         {
             Debug.Assert(idx <= m_otherQueue.Count);
@@ -1432,6 +1471,7 @@ namespace Sandbox.Game.Entities.Cube
                 OnQueueChanged();
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueBlueprint(bool isBigShip, string blueprint, long count = 1, bool assemblyMode = true)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1443,6 +1483,7 @@ namespace Sandbox.Game.Entities.Cube
                 return EnqueueBlueprint(BlueprintByName(isBigShip, blueprint), count, m_otherQueue);
             }
         }
+
         bool EnqueueBlueprint(MyBlueprintDefinitionBase blueprint, long amount, List<QueueItem> queue)
         {
             MyFixedPoint count = (MyFixedPoint)0;
@@ -1455,6 +1496,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             return true;
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueComponent(string component, long count = 1, bool assemblyMode = true)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1466,6 +1508,7 @@ namespace Sandbox.Game.Entities.Cube
                 return EnqueueBlueprint(ComponentByName(component), count, m_otherQueue);
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueTool(string component, long count = 1, bool assemblyMode = true)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1477,6 +1520,7 @@ namespace Sandbox.Game.Entities.Cube
                 return EnqueueBlueprint(ToolByName(component), count, m_otherQueue);
             }
         }
+
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetQueue(bool assemblyMode, List<string> components, List<long> counts)
         {
             if (assemblyMode != DisassembleEnabled)
@@ -1488,6 +1532,7 @@ namespace Sandbox.Game.Entities.Cube
                 return GetQueue(m_otherQueue, components, counts);
             }
         }
+
         bool GetQueue(List<QueueItem> queue, List<string> components, List<long> counts)
         {
             foreach (QueueItem i in queue)

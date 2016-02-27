@@ -11,11 +11,11 @@ namespace Sandbox.ModAPI.Ingame
         /**
          * Lists all components assembleable through the 3rd tab in the production menu
          */
-        List<string> GetComponentList();
+        List<string> ComponentList { get; }
         /**
          * Lists all tools assembleable through the 4th tab in the production menu.  This is the hand tools tab!
          */
-        List<string> GetToolList();
+        List<string> ToolList { get; }
         /**
          * Lists all blueprints assembleable through the 1st or 2nd tabs in the production menu- first is big ships, second is not.  This includes things like armor blocks.
          */
@@ -73,7 +73,7 @@ namespace Sandbox.ModAPI.Ingame
         /**
          * Returns the amount of time, in milliseconds, that the assembler has spent processing the current item.
          */
-        int GetProductionTime();
+        int CurrentProductionTime { get; }
         /**
          * Returns the amount of time, in milliseconds, that the assembler will take to produce 1 of the specified COMPONENT OR TOOL.
          */
