@@ -431,6 +431,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public float CurrentOutput
+        {
+            get
+            {
+                return SourceComp.CurrentOutput;
+            }
+        }
+
+        public float MaxOutput
+        {
+            get
+            {
+                return m_reactorDefinition.MaxPowerOutput;
+            }
+        }
+
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
