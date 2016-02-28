@@ -1347,49 +1347,12 @@ namespace Sandbox.Game.Entities.Cube
 
         void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue(bool assemblyMode)
         {
-            if (assemblyMode != DisassembleEnabled)
-            {
-                //Same assembly mode
-                m_queue.Clear();
-                OnQueueChanged();
-            }
-            else
-            {
-                //Opposite assembly mode
-                m_otherQueue.Clear();
-            }
+            ClearAQueueRequest(assemblyMode);
         }
 
-        bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true)
+        void Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true)
         {
-            if (assemblyMode != DisassembleEnabled)
-            {
-                return RemoveQueueItem(slot, count, m_queue);
-            }
-            else
-            {
-                return RemoveQueueItem(slot, count, m_otherQueue);
-            }
-        }
-
-        bool RemoveQueueItem(int slot, long count, List<QueueItem> queue)
-        {
-            if (slot >= queue.Count) return false;
-            if (slot < 0) return false;
-            QueueItem item = queue[slot];
-            if (count < 0 || item.Amount.RawValue <= count * 1000000)
-            {
-                //Remove all of them
-                queue.RemoveAt(slot);
-                return true;
-            }
-            else
-            {
-                item.Amount.RawValue -= count * 1000000;
-                queue[slot] = item;
-                OnQueueChanged();
-                return true;
-            }
+            RemoveAQueueItemRequest(slot, (MyFixedPoint)(int)count, assemblyMode);
         }
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(string component, long count = -1, bool assemblyMode = true)
@@ -1406,24 +1369,20 @@ namespace Sandbox.Game.Entities.Cube
 
         bool RemoveQueueItem(string blueprint, long count, List<QueueItem> queue)
         {
-            for (int i = 0; i < queue.Count; i++)
+            for (int i = queue.Count-1; i < queue.Count; i--)
             {
                 QueueItem item = queue[i];
                 if (BlueprintName(item.Blueprint)!=blueprint) continue;
                 if (count < 0 || item.Amount.RawValue <= count * 1000000)
                 {
                     count -= item.Amount.RawValue / 1000000;
-                    queue.RemoveAt(i);
-                    OnQueueChanged();
-                    i--;
+                    RemoveAQueueItemRequest(i, (MyFixedPoint)(int)count, (queue==m_queue)!=DisassembleEnabled);
                     continue;
                 }
                 else
                 {
-                    item.Amount.RawValue -= count * 1000000;
+                    RemoveAQueueItemRequest(i, (MyFixedPoint)(int)count, (queue == m_queue) != DisassembleEnabled);
                     count = 0;
-                    queue[i] = item;
-                    OnQueueChanged();
                     return true;
                 }
             }
@@ -1474,17 +1433,10 @@ namespace Sandbox.Game.Entities.Cube
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueBlueprint(bool isBigShip, string blueprint, long count = 1, bool assemblyMode = true)
         {
-            if (assemblyMode != DisassembleEnabled)
-            {
-                return EnqueueBlueprint(BlueprintByName(isBigShip, blueprint), count, m_queue);
-            }
-            else
-            {
-                return EnqueueBlueprint(BlueprintByName(isBigShip, blueprint), count, m_otherQueue);
-            }
+            return EnqueueBlueprint(BlueprintByName(isBigShip, blueprint), count, assemblyMode);
         }
 
-        bool EnqueueBlueprint(MyBlueprintDefinitionBase blueprint, long amount, List<QueueItem> queue)
+        bool EnqueueBlueprint(MyBlueprintDefinitionBase blueprint, long amount, bool assemblyMode)
         {
             MyFixedPoint count = (MyFixedPoint)0;
             count.RawValue = amount * 1000000;
@@ -1492,33 +1444,19 @@ namespace Sandbox.Game.Entities.Cube
             blueprint.GetBlueprints(bps);
             foreach (MyBlueprintDefinitionBase.ProductionInfo info in bps)
             {
-                InsertAQueueItem(-1, info.Blueprint, count * info.Amount, queue);
+                AddAQueueItemRequest(info.Blueprint, (MyFixedPoint)(count * info.Amount), assemblyMode);
             }
             return true;
         }
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueComponent(string component, long count = 1, bool assemblyMode = true)
         {
-            if (assemblyMode != DisassembleEnabled)
-            {
-                return EnqueueBlueprint(ComponentByName(component), count, m_queue);
-            }
-            else
-            {
-                return EnqueueBlueprint(ComponentByName(component), count, m_otherQueue);
-            }
+            return EnqueueBlueprint(ComponentByName(component), count, assemblyMode);
         }
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueTool(string component, long count = 1, bool assemblyMode = true)
         {
-            if (assemblyMode != DisassembleEnabled)
-            {
-                return EnqueueBlueprint(ToolByName(component), count, m_queue);
-            }
-            else
-            {
-                return EnqueueBlueprint(ToolByName(component), count, m_otherQueue);
-            }
+            return EnqueueBlueprint(ToolByName(component), count, assemblyMode);
         }
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.GetQueue(bool assemblyMode, List<string> components, List<long> counts)
@@ -1541,6 +1479,163 @@ namespace Sandbox.Game.Entities.Cube
                 counts.Add(i.Amount.RawValue / 1000000);
             }
             return true;
+        }
+
+        List<QueueItem> AssemblyQueue
+        {
+            get { return DisassembleEnabled ? m_otherQueue : m_queue; }
+        }
+
+        List<QueueItem> DisassemblyQueue
+        {
+            get { return DisassembleEnabled ? m_otherQueue : m_queue; }
+        }
+
+        List<QueueItem> GetQueue(bool assemblyMode)
+        {
+            return assemblyMode ? AssemblyQueue : DisassemblyQueue;
+        }
+
+        /// <summary>
+        /// Sends request to server to add item to assembly or disassembly queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="blueprint"></param>
+        /// <param name="ammount"></param>
+        /// <param name="idx">idx - index to insert (-1 = last).</param>
+        public void AddAQueueItemRequest(MyBlueprintDefinitionBase blueprint, MyFixedPoint ammount, bool assemblyMode, int idx = -1)
+        {
+
+            SerializableDefinitionId serializableId = blueprint.Id;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddAQueueItemRequest, idx, serializableId, ammount, assemblyMode);
+
+        }
+
+        [Event, Reliable, Server]
+        private void OnAddAQueueItemRequest(int idx, SerializableDefinitionId defId, MyFixedPoint ammount, bool assemblyMode)
+        {
+            var blueprint = MyDefinitionManager.Static.GetBlueprintDefinition(defId);
+            Debug.Assert(blueprint != null, "Blueprint not present in the dictionary.");
+            if (blueprint != null)
+            {
+                this.InsertAQueueItem(idx, blueprint, ammount, GetQueue(assemblyMode));
+                MyMultiplayer.RaiseEvent(this, x => x.OnAddAQueueItemSuccess, idx, defId, ammount, assemblyMode);
+
+            }
+        }
+
+        [Event, Reliable, Broadcast]
+        private void OnAddAQueueItemSuccess(int idx, SerializableDefinitionId defId, MyFixedPoint ammount, bool assemblyMode)
+        {
+            this.InsertAQueueItem(idx, MyDefinitionManager.Static.GetBlueprintDefinition(defId), ammount, GetQueue(assemblyMode));
+        }
+
+        [Event, Reliable, Server]
+        protected void ClearAQueueRequest(bool assemblyMode)
+        {
+            List<QueueItem> queue = GetQueue(assemblyMode);
+            for (int i = queue.Count - 1; i >= 0; i--)
+            {
+                if (!RemoveAQueueItemTests(i, queue))
+                    continue;
+
+                MyFixedPoint ammount = 1;
+                MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItem, i, ammount, 0f, assemblyMode);
+            }
+        }
+
+        /// <summary>
+        /// Sends request to server to remove item from assembly or disassembly queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <param name="amount"></param>
+        /// <param name="progress"></param>
+        public void RemoveAQueueItemRequest(int idx, MyFixedPoint amount, bool assemblyMode, float progress = 0f)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItemRequest, idx, amount, progress, assemblyMode);
+        }
+
+        [Event, Reliable, Server]
+        private void OnRemoveAQueueItemRequest(int idx, MyFixedPoint amount, float progress, bool assemblyMode)
+        {
+            List<QueueItem> queue = GetQueue(assemblyMode);
+            if (!RemoveAQueueItemTests(idx, queue))
+                return;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItem, idx, amount, progress, assemblyMode);
+
+        }
+
+        private bool RemoveAQueueItemTests(int idx, List<QueueItem> queue)
+        {
+            Debug.Assert(idx != -2, "No longer supported.");
+
+            if (!queue.IsValidIndex(idx) && idx != -1)
+            {
+                MySandboxGame.Log.WriteLine("Invalid queue index in the remove item message!");
+                return false;
+            }
+
+            return true;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnRemoveAQueueItem(int idx, MyFixedPoint amount, float progress, bool assemblyMode)
+        {
+            if (idx >= 0)
+                this.RemoveAQueueItem(idx, GetQueue(assemblyMode));
+            else
+                this.RemoveAFirstQueueItem(amount, GetQueue(assemblyMode), progress);
+        }
+
+        protected override void RemoveAFirstQueueItem(MyFixedPoint amount, List<QueueItem> queue, float progress = 0f)
+        {
+            CurrentProgress = progress;
+            //    Debug.Assert(m_queue.IsValidIndex(0), "Index out of bounds.");
+
+            if (!queue.IsValidIndex(0))
+                return;
+
+            QueueItem queueItem = queue[0];
+            amount = MathHelper.Clamp(amount, 0, queueItem.Amount);
+
+            // Cannot use RemoveQueueItem() because it calls UpdateProduction(), which may
+            // in turn call RemoveFinishedQueueItem().
+            queueItem.Amount -= amount;
+            queue[0] = queueItem;
+
+            Debug.Assert(queueItem.Amount >= 0, "Amount of queue item went below 0");
+            if (queueItem.Amount <= 0)
+            {
+                //possibly not needed?
+                var ass = this as MyAssembler;
+                if (ass != null)
+                {
+                    ass.CurrentProgress = 0f;
+                }
+                queue.RemoveAt(0);
+            }
+
+            UpdatePower();
+
+            OnQueueChanged();
+        }
+
+        protected override void RemoveAQueueItem(int itemIdx, List<QueueItem> queue)
+        {
+            if (itemIdx == 0)
+                CurrentProgress = 0f;
+            if (itemIdx >= queue.Count)
+            {
+                Debug.Fail("Index out of bounds!");
+                VRage.Utils.MyLog.Default.WriteLine("Production block.RemoveQueueItem: Index out of bounds!");
+                return;
+            }
+            queue.RemoveAt(itemIdx);
+
+            UpdatePower();
+
+            OnQueueChanged();
         }
     }
 }

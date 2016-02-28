@@ -97,7 +97,7 @@ namespace Sandbox.ModAPI.Ingame
         ///<remarks>
         ///Removes up to count items from the specified slot of the specified assembly/disassembly queue.  If count is -1, all items are removed, as if the slot had been right-clicked.
         ///</remarks>
-        bool RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true);
+        void RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true);
         ///<remarks>
         ///Removes up to count of the specified item from the specified assembly/disassembly queue, STARTING AT THE FIRST (CURRENT) INDEX.
         ///If count is -1, all items are removed, as if all slots containing the item were right-clicked.
