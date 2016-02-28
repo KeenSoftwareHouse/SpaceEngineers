@@ -1782,9 +1782,11 @@ namespace Sandbox.Game.Entities.Blocks
         void ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)
         {
             string[] files = System.IO.Directory.GetFiles(Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints"), searchPattern);
-            
-            var index = MyRandom.Instance.Next() % files.Length;
-            LoadBlueprint(files[index]);
+            if (files.Length > 0)
+            {
+                var index = MyRandom.Instance.Next() % files.Length;
+                LoadBlueprint(files[index]);
+            }
         }
         void ModAPI.Ingame.IMyProjector.LoadBlueprint(string path)
         {
