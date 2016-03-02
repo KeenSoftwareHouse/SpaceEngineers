@@ -983,6 +983,659 @@ namespace Sandbox.Game.Entities.Cube
                 if (Sync.IsServer)
                     OutputInventory.ContentsChanged -= OutputInventory_ContentsChanged;
             }
-        }     
+        }
+
+        MyBlueprintDefinitionBase BlueprintByName(bool isBigShip, string name)
+        {
+            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+            MyBlueprintClassDefinition bigShip = blueprintClasses[0];
+            MyBlueprintClassDefinition smallShip = blueprintClasses[1];
+            MyBlueprintClassDefinition mine = smallShip;
+            if (isBigShip) { mine = bigShip; }
+            foreach (MyBlueprintDefinitionBase blueprint in mine)
+            {
+                if (BlueprintName(blueprint) == name) { return blueprint; }
+            }
+            return null;
+        }
+
+        string BlueprintName(MyBlueprintDefinitionBase blueprint)
+        {
+            string[] val = blueprint.Id.ToString().Split(new char[] { '_' });
+            return val[val.Length - 1];
+        }
+
+        MyBlueprintDefinitionBase ComponentByName(string name)
+        {
+            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+            MyBlueprintClassDefinition definition = blueprintClasses[2];
+            foreach (MyBlueprintDefinitionBase blueprint in definition)
+            {
+                if (BlueprintName(blueprint) == name) { return blueprint; }
+            }
+            return null;
+        }
+
+        string ComponentName(MyBlueprintDefinitionBase component)//For understandability
+        {
+            return BlueprintName(component);
+        }
+
+        MyBlueprintDefinitionBase ToolByName(string name)
+        {
+            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+            MyBlueprintClassDefinition definition = blueprintClasses[3];
+            foreach (MyBlueprintDefinitionBase blueprint in definition)
+            {
+                if (BlueprintName(blueprint) == name) { return blueprint; }
+            }
+            return null;
+        }
+
+        string ToolName(MyBlueprintDefinitionBase component)//For understandability
+        {
+            return BlueprintName(component);
+        }
+
+        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.ComponentList
+        {
+            get
+            {
+                var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+                MyBlueprintClassDefinition definition = blueprintClasses[2];
+                List<string> v = new List<string>();
+                foreach (MyBlueprintDefinitionBase blueprint in definition)
+                {
+                    v.Add(ComponentName(blueprint));
+                }
+                return v;
+            }
+        }
+
+        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.ToolList
+        {
+            get
+            {
+                var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+                MyBlueprintClassDefinition definition = blueprintClasses[3];
+                List<string> v = new List<string>();
+                foreach (MyBlueprintDefinitionBase blueprint in definition)
+                {
+                    v.Add(ComponentName(blueprint));
+                }
+                return v;
+            }
+        }
+
+        List<string> Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintList(bool isBigShip)
+        {
+            var blueprintClasses = (BlockDefinition as MyProductionBlockDefinition).BlueprintClasses;
+            MyBlueprintClassDefinition bigShip = blueprintClasses[0];
+            MyBlueprintClassDefinition smallShip = blueprintClasses[1];
+            MyBlueprintClassDefinition mine = smallShip;
+            if (isBigShip) { mine = bigShip; }
+            List<string> val = new List<string>();
+            foreach (MyBlueprintDefinitionBase blueprint in mine)
+            {
+                val.Add(BlueprintName(blueprint));
+            }
+            return val;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintComponents(bool isBigShip, string blueprint, List<string> components, List<long> count)
+        {
+            MyBlueprintDefinitionBase bp = BlueprintByName(isBigShip, blueprint);
+            if (bp == null) return false;
+            List<MyBlueprintDefinitionBase.ProductionInfo> productionInfo = new List<MyBlueprintDefinitionBase.ProductionInfo>();
+            bp.GetBlueprints(productionInfo);
+            foreach (var info in productionInfo)
+            {
+                components.Add(ComponentName(info.Blueprint));
+                if (count != null) count.Add(info.Amount.RawValue / 1000000);
+            }
+            return components.Count > 0;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.GetBlueprintResources(bool isBigShip, string blueprint, List<string> resources, List<long> quantities)
+        {
+            return GetBlueprintResources(BlueprintByName(isBigShip, blueprint), resources, quantities);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.GetComponentResources(string component, List<string> resources, List<long> quantities)
+        {
+            return GetBlueprintResources(ComponentByName(component), resources, quantities);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.GetToolResources(string component, List<string> resources, List<long> quantities)
+        {
+            return GetBlueprintResources(ToolByName(component), resources, quantities);
+        }
+
+        bool GetBlueprintResources(MyBlueprintDefinitionBase blueprint, List<string> resources, List<long> quantities)
+        {
+            if (blueprint == null) return false;
+            MyBlueprintDefinitionBase.Item[] reqs = blueprint.Prerequisites;
+            foreach (var item in reqs)
+            {
+                resources.Add(item.Id.ToString());
+                if (quantities != null) quantities.Add(item.Amount.RawValue);
+            }
+            return resources.Count > 0;
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.GetResources(List<string> resources, List<long> quantities)
+        {
+            Dictionary<string, long> dict = new Dictionary<string, long>();
+            GetCoveyorInventoryOwners();
+            foreach (MyEntity inventoryOwner in m_inventoryOwners)
+            {
+                if (inventoryOwner != null)
+                {
+                    IMyAssembler assembler = inventoryOwner as IMyAssembler;
+                    for (int i = 0; i < inventoryOwner.InventoryCount; i++)
+                    {
+                        //Items waiting to be used by another assembler are NOT counted
+                        if (assembler != null && assembler != this && i == 1 && assembler.DisassembleEnabled) continue;
+                        if (assembler != null && assembler != this && i == 0 && !assembler.DisassembleEnabled) continue;
+                        MyInventory inventory = inventoryOwner.GetInventory(i);
+                        List<MyPhysicalInventoryItem> items = inventory.GetItems();
+                        foreach (MyPhysicalInventoryItem item in items)
+                        {
+                            if (item.Content.GetId().TypeId.ToString() == "Ingot" || item.Content.GetId().TypeId.ToString() == "Component")
+                            {
+                                string id = item.Content.GetId().ToString();
+                                if (!dict.ContainsKey(id))
+                                {
+                                    dict[id] = 0;
+                                }
+                                dict[id] += item.Amount.RawValue;
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (string key in dict.Keys)
+            {
+                resources.Add(key);
+                if (quantities != null) quantities.Add(dict[key]);
+            }
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.GetAvailableResources(List<string> resources, List<long> quantities)
+        {
+            List<string> resource = new List<string>();
+            List<long> counts = new List<long>();
+            Dictionary<string, long> dict = new Dictionary<string, long>();
+            GetCoveyorInventoryOwners();
+            foreach (MyEntity inventoryOwner in m_inventoryOwners)
+            {
+                if (inventoryOwner != null)
+                {
+                    IMyAssembler assembler = inventoryOwner as IMyAssembler;
+                    for (int i = 0; i < inventoryOwner.InventoryCount; i++)
+                    {
+                        //Items waiting to be used by another assembler are NOT counted
+                        if (assembler != null && assembler != this && i == 1 && assembler.DisassembleEnabled) continue;
+                        if (assembler != null && assembler != this && i == 0 && !assembler.DisassembleEnabled) continue;
+                        MyInventory inventory = inventoryOwner.GetInventory(i);
+                        List<MyPhysicalInventoryItem> items = inventory.GetItems();
+                        foreach (MyPhysicalInventoryItem item in items)
+                        {
+                            if (item.Content != null && item.Content.GetId() != null && (item.Content.GetId().TypeId != typeof(MyObjectBuilder_Ingot) || item.Content.GetId().TypeId != typeof(MyObjectBuilder_Component)))
+                            {
+                                string id = item.Content.GetId().ToString();
+                                if (!dict.ContainsKey(id))
+                                {
+                                    dict[id] = 0;
+                                }
+                                dict[id] += item.Amount.RawValue;
+                            }
+                        }
+                    }
+                    if (assembler != null)
+                    {
+                        for (int i = 0; i < 2; i++)
+                        {
+                            List<QueueItem> queue = i == 0 ? m_queue : m_otherQueue;
+                            foreach (QueueItem qitem in queue)
+                            {
+                                if (qitem.Blueprint != null)
+                                {
+                                    MyBlueprintDefinitionBase blueprint = qitem.Blueprint;
+                                    MyBlueprintDefinitionBase.Item[] items = blueprint.Prerequisites;
+                                    if (!assembler.DisassembleEnabled == (i == 0)) items = blueprint.Results;
+                                    foreach (var item in items)
+                                    {
+                                        string id = item.Id.ToString();
+                                        if (!dict.ContainsKey(id))
+                                        {
+                                            dict[id] = 0;
+                                        }
+                                        MyFixedPoint amount = item.Amount;
+                                        if (assembler.DisassembleEnabled) amount *= (MyFixedPoint)(1.0 / MySession.Static.AssemblerEfficiencyMultiplier);
+                                        dict[id] += amount.RawValue;
+                                    }
+                                    if (!assembler.DisassembleEnabled == (i == 0)) items = blueprint.Prerequisites;
+                                    else items = blueprint.Results;
+                                    foreach (var item in items)
+                                    {
+                                        string id = item.Id.ToString();
+                                        if (!dict.ContainsKey(id))
+                                        {
+                                            dict[id] = 0;
+                                        }
+                                        MyFixedPoint amount = item.Amount;
+                                        if (!assembler.DisassembleEnabled) amount *= (MyFixedPoint)(1.0 / MySession.Static.AssemblerEfficiencyMultiplier);
+                                        dict[id] -= amount.RawValue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (string key in dict.Keys)
+            {
+                resources.Add(key);
+                if (quantities != null) quantities.Add(dict[key]);
+            }
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeComponent(string component, long count, List<string> resources, List<long> quantities)
+        {
+            return CanMakeBlueprint(ComponentByName(component), count, resources, quantities);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeTool(string component, long count, List<string> resources, List<long> quantities)
+        {
+            return CanMakeBlueprint(ToolByName(component), count, resources, quantities);
+        }
+
+        bool CanMakeBlueprint(MyBlueprintDefinitionBase blueprint, long count, List<string> resources, List<long> quantities)
+        {
+            if (resources == null) resources = new List<string>();
+            if (quantities == null) quantities = new List<long>();
+            ((IMyAssembler)this).GetAvailableResources(resources, quantities);
+            if (blueprint == null || count < 1) return false;
+            Dictionary<string, long> dict = new Dictionary<string, long>();
+            for (int i = 0; i < resources.Count; i++)
+            {
+                dict[resources[i]] = quantities[i];
+            }
+            resources.Clear();
+            quantities.Clear();
+            GetBlueprintResources(blueprint, resources, quantities);
+            if (resources.Count < 1) return false;
+            bool hasNeg = false;
+            for (int i = 0; i < resources.Count; i++)
+            {
+                if (!dict.ContainsKey(resources[i]))
+                {
+                    dict[resources[i]] = 0;
+                }
+                dict[resources[i]] -= (quantities[i] * count * (MyFixedPoint)(1 / MySession.Static.AssemblerEfficiencyMultiplier)).RawValue / 1000000;
+                if (dict[resources[i]] == 0)
+                {
+                    dict.Remove(resources[i]);
+                }
+                else if (dict[resources[i]] < 0)
+                {
+                    hasNeg = true;
+                }
+            }
+            resources.Clear();
+            quantities.Clear();
+            foreach (string s in dict.Keys)
+            {
+                if (dict[s] > 0 && hasNeg)
+                {
+                    continue;
+                }
+                else if (hasNeg)
+                {
+                    resources.Add(s);
+                    quantities.Add(-dict[s]);
+                    continue;
+                }
+                resources.Add(s);
+                quantities.Add(dict[s]);
+            }
+            return !hasNeg;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.CanMakeBlueprint(bool isBigShip, string blueprint, long count, List<string> resources, List<long> quantities)
+        {
+            return CanMakeBlueprint(BlueprintByName(isBigShip, blueprint), count, resources, quantities);
+        }
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.CurrentProductionTime
+        {
+            get
+            {
+                var firstQueueItem = TryGetFirstQueueItem();
+                if (!firstQueueItem.HasValue)
+                {
+                    return 0;
+                }
+                var currentBlueprint = firstQueueItem.Value.Blueprint;
+                return (int)(CurrentProgress * calculateBlueprintProductionTime(currentBlueprint));
+            }
+        }
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.GetProductionTime(string component)
+        {
+            MyBlueprintDefinitionBase blueprint = ComponentByName(component);
+            if (blueprint == null) blueprint = ToolByName(component);
+            return (int)calculateBlueprintProductionTime(blueprint);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.IsRepeating(bool assemblyMode)
+        {
+            return assemblyMode ? m_repeatAssembleEnabled : m_repeatDisassembleEnabled;
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ToggleRepeat(bool assemblyMode, bool repeatMode)
+        {
+            RequestDisassembleEnabled(!assemblyMode);
+            RequestRepeatEnabled(repeatMode);
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ToggleAssembly(bool assemblyMode)
+        {
+            RequestDisassembleEnabled(!assemblyMode);
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue(bool assemblyMode)
+        {
+            ClearAQueueRequest(assemblyMode);
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(int slot, long count = -1, bool assemblyMode = true)
+        {
+            RemoveAQueueItemRequest(slot, (MyFixedPoint)(int)count, assemblyMode);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(string component, long count = -1, bool assemblyMode = true)
+        {
+            if (assemblyMode != DisassembleEnabled)
+            {
+                return RemoveQueueItem(component, count, m_queue);
+            }
+            else
+            {
+                return RemoveQueueItem(component, count, m_otherQueue);
+            }
+        }
+
+        bool RemoveQueueItem(string blueprint, long count, List<QueueItem> queue)
+        {
+            for (int i = queue.Count-1; i < queue.Count; i--)
+            {
+                QueueItem item = queue[i];
+                if (BlueprintName(item.Blueprint)!=blueprint) continue;
+                if (count < 0 || item.Amount.RawValue <= count * 1000000)
+                {
+                    count -= item.Amount.RawValue / 1000000;
+                    RemoveAQueueItemRequest(i, (MyFixedPoint)(int)count, (queue==m_queue)!=DisassembleEnabled);
+                    continue;
+                }
+                else
+                {
+                    RemoveAQueueItemRequest(i, (MyFixedPoint)(int)count, (queue == m_queue) != DisassembleEnabled);
+                    count = 0;
+                    return true;
+                }
+            }
+            return count <= 0;
+        }
+
+        protected virtual void InsertAQueueItem(int idx, MyBlueprintDefinitionBase blueprint, MyFixedPoint amount, List<QueueItem> m_otherQueue)
+        {
+            Debug.Assert(idx <= m_otherQueue.Count);
+            Debug.Assert(CanUseBlueprint(blueprint));
+            Debug.Assert(amount > 0);
+
+            QueueItem item = new QueueItem();
+            item.Amount = amount;
+            item.Blueprint = blueprint;
+
+            if (CanUseBlueprint(item.Blueprint))
+            {
+                if (m_otherQueue.IsValidIndex(idx) && m_otherQueue[idx].Blueprint == item.Blueprint)
+                {
+                    // Increase amount if there is same kind of item at this index.
+                    item.Amount += m_otherQueue[idx].Amount;
+                    item.ItemId = m_otherQueue[idx].ItemId;
+                    m_otherQueue[idx] = item;
+                }
+                else if (m_otherQueue.Count > 0 && (idx >= m_otherQueue.Count || idx == -1) && m_otherQueue[m_otherQueue.Count - 1].Blueprint == item.Blueprint)
+                {
+                    // Add to the last item in the queue if it is the same.
+                    item.Amount += m_otherQueue[m_otherQueue.Count - 1].Amount;
+                    item.ItemId = m_otherQueue[m_otherQueue.Count - 1].ItemId;
+                    m_otherQueue[m_otherQueue.Count - 1] = item;
+                }
+                else
+                {
+                    if (idx == -1)
+                        idx = m_otherQueue.Count;
+
+                    // Put new item into the queue with given amount and type.
+                    item.ItemId = NextItemId;
+                    m_otherQueue.Insert(idx, item);
+                }
+
+                UpdatePower();
+
+                OnQueueChanged();
+            }
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueBlueprint(bool isBigShip, string blueprint, long count = 1, bool assemblyMode = true)
+        {
+            return EnqueueBlueprint(BlueprintByName(isBigShip, blueprint), count, assemblyMode);
+        }
+
+        bool EnqueueBlueprint(MyBlueprintDefinitionBase blueprint, long amount, bool assemblyMode)
+        {
+            MyFixedPoint count = (MyFixedPoint)0;
+            count.RawValue = amount * 1000000;
+            List<MyBlueprintDefinitionBase.ProductionInfo> bps = new List<MyBlueprintDefinitionBase.ProductionInfo>();
+            blueprint.GetBlueprints(bps);
+            foreach (MyBlueprintDefinitionBase.ProductionInfo info in bps)
+            {
+                AddAQueueItemRequest(info.Blueprint, (MyFixedPoint)(count * info.Amount), assemblyMode);
+            }
+            return true;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueComponent(string component, long count = 1, bool assemblyMode = true)
+        {
+            return EnqueueBlueprint(ComponentByName(component), count, assemblyMode);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.EnqueueTool(string component, long count = 1, bool assemblyMode = true)
+        {
+            return EnqueueBlueprint(ToolByName(component), count, assemblyMode);
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.GetQueue(bool assemblyMode, List<string> components, List<long> counts)
+        {
+            if (assemblyMode != DisassembleEnabled)
+            {
+                return GetQueue(m_queue, components, counts);
+            }
+            else
+            {
+                return GetQueue(m_otherQueue, components, counts);
+            }
+        }
+
+        bool GetQueue(List<QueueItem> queue, List<string> components, List<long> counts)
+        {
+            foreach (QueueItem i in queue)
+            {
+                components.Add(BlueprintName(i.Blueprint));
+                counts.Add(i.Amount.RawValue / 1000000);
+            }
+            return true;
+        }
+
+        List<QueueItem> AssemblyQueue
+        {
+            get { return DisassembleEnabled ? m_otherQueue : m_queue; }
+        }
+
+        List<QueueItem> DisassemblyQueue
+        {
+            get { return DisassembleEnabled ? m_otherQueue : m_queue; }
+        }
+
+        List<QueueItem> GetQueue(bool assemblyMode)
+        {
+            return assemblyMode ? AssemblyQueue : DisassemblyQueue;
+        }
+
+        /// <summary>
+        /// Sends request to server to add item to assembly or disassembly queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="blueprint"></param>
+        /// <param name="ammount"></param>
+        /// <param name="idx">idx - index to insert (-1 = last).</param>
+        public void AddAQueueItemRequest(MyBlueprintDefinitionBase blueprint, MyFixedPoint ammount, bool assemblyMode, int idx = -1)
+        {
+
+            SerializableDefinitionId serializableId = blueprint.Id;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddAQueueItemRequest, idx, serializableId, ammount, assemblyMode);
+
+        }
+
+        [Event, Reliable, Server]
+        private void OnAddAQueueItemRequest(int idx, SerializableDefinitionId defId, MyFixedPoint ammount, bool assemblyMode)
+        {
+            var blueprint = MyDefinitionManager.Static.GetBlueprintDefinition(defId);
+            Debug.Assert(blueprint != null, "Blueprint not present in the dictionary.");
+            if (blueprint != null)
+            {
+                this.InsertAQueueItem(idx, blueprint, ammount, GetQueue(assemblyMode));
+                MyMultiplayer.RaiseEvent(this, x => x.OnAddAQueueItemSuccess, idx, defId, ammount, assemblyMode);
+
+            }
+        }
+
+        [Event, Reliable, Broadcast]
+        private void OnAddAQueueItemSuccess(int idx, SerializableDefinitionId defId, MyFixedPoint ammount, bool assemblyMode)
+        {
+            this.InsertAQueueItem(idx, MyDefinitionManager.Static.GetBlueprintDefinition(defId), ammount, GetQueue(assemblyMode));
+        }
+
+        [Event, Reliable, Server]
+        protected void ClearAQueueRequest(bool assemblyMode)
+        {
+            List<QueueItem> queue = GetQueue(assemblyMode);
+            for (int i = queue.Count - 1; i >= 0; i--)
+            {
+                if (!RemoveAQueueItemTests(i, queue))
+                    continue;
+
+                MyFixedPoint ammount = 1;
+                MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItem, i, ammount, 0f, assemblyMode);
+            }
+        }
+
+        /// <summary>
+        /// Sends request to server to remove item from assembly or disassembly queue. (Can be also called on server. In that case it will be local)
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <param name="amount"></param>
+        /// <param name="progress"></param>
+        public void RemoveAQueueItemRequest(int idx, MyFixedPoint amount, bool assemblyMode, float progress = 0f)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItemRequest, idx, amount, progress, assemblyMode);
+        }
+
+        [Event, Reliable, Server]
+        private void OnRemoveAQueueItemRequest(int idx, MyFixedPoint amount, float progress, bool assemblyMode)
+        {
+            List<QueueItem> queue = GetQueue(assemblyMode);
+            if (!RemoveAQueueItemTests(idx, queue))
+                return;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveAQueueItem, idx, amount, progress, assemblyMode);
+
+        }
+
+        private bool RemoveAQueueItemTests(int idx, List<QueueItem> queue)
+        {
+            Debug.Assert(idx != -2, "No longer supported.");
+
+            if (!queue.IsValidIndex(idx) && idx != -1)
+            {
+                MySandboxGame.Log.WriteLine("Invalid queue index in the remove item message!");
+                return false;
+            }
+
+            return true;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void OnRemoveAQueueItem(int idx, MyFixedPoint amount, float progress, bool assemblyMode)
+        {
+            if (idx >= 0)
+                this.RemoveAQueueItem(idx, GetQueue(assemblyMode));
+            else
+                this.RemoveAFirstQueueItem(amount, GetQueue(assemblyMode), progress);
+        }
+
+        protected override void RemoveAFirstQueueItem(MyFixedPoint amount, List<QueueItem> queue, float progress = 0f)
+        {
+            CurrentProgress = progress;
+            //    Debug.Assert(m_queue.IsValidIndex(0), "Index out of bounds.");
+
+            if (!queue.IsValidIndex(0))
+                return;
+
+            QueueItem queueItem = queue[0];
+            amount = MathHelper.Clamp(amount, 0, queueItem.Amount);
+
+            // Cannot use RemoveQueueItem() because it calls UpdateProduction(), which may
+            // in turn call RemoveFinishedQueueItem().
+            queueItem.Amount -= amount;
+            queue[0] = queueItem;
+
+            Debug.Assert(queueItem.Amount >= 0, "Amount of queue item went below 0");
+            if (queueItem.Amount <= 0)
+            {
+                //possibly not needed?
+                var ass = this as MyAssembler;
+                if (ass != null)
+                {
+                    ass.CurrentProgress = 0f;
+                }
+                queue.RemoveAt(0);
+            }
+
+            UpdatePower();
+
+            OnQueueChanged();
+        }
+
+        protected override void RemoveAQueueItem(int itemIdx, List<QueueItem> queue)
+        {
+            if (itemIdx == 0)
+                CurrentProgress = 0f;
+            if (itemIdx >= queue.Count)
+            {
+                Debug.Fail("Index out of bounds!");
+                VRage.Utils.MyLog.Default.WriteLine("Production block.RemoveQueueItem: Index out of bounds!");
+                return;
+            }
+            queue.RemoveAt(itemIdx);
+
+            UpdatePower();
+
+            OnQueueChanged();
+        }
     }
 }
