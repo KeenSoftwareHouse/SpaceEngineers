@@ -315,7 +315,7 @@ namespace Sandbox.Game.Gui
             return DefaultValueGetter(block);
         }
 
-        public override float GetMininum(TBlock block)
+        public override float GetMinimum(TBlock block)
         {
             return Denormalizer(block, 0);
         }

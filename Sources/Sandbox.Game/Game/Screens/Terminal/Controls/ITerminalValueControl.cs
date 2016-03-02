@@ -16,7 +16,9 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         void SetValue(TBlock block, TValue value);
 
         TValue GetDefaultValue(TBlock block);
+        [Obsolete("Use GetMinimum instead")]
         TValue GetMininum(TBlock block);
+        TValue GetMinimum(TBlock block);
         TValue GetMaximum(TBlock block);
 
         void Serialize(BitStream stream, TBlock block);
