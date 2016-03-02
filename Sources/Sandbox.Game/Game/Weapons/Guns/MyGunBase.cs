@@ -79,6 +79,7 @@ namespace Sandbox.Game.Weapons
         public bool HasAmmoMagazines { get { return m_weaponProperties.WeaponDefinition.HasAmmoMagazines(); } }
         public bool IsAmmoProjectile { get { return m_weaponProperties.IsAmmoProjectile; } }
         public bool IsAmmoMissile { get { return m_weaponProperties.IsAmmoMissile; } }
+        public int BurstFireRate { get { return WeaponProperties.CurrentBurstFireRate; } }
 
         public bool HasDummies { get { return m_dummiesByAmmoType.Count > 0; } }
         public MatrixD WorldMatrix
