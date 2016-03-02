@@ -157,5 +157,21 @@ namespace Sandbox.Game.Entities.Blocks
                 m_soundEmitter.StopSound(true);
             base.StopDamageEffect();
         }
+
+        public float CurrentOutput
+        {
+            get
+            {
+                return SourceComp.CurrentOutput;
+            }
+        }
+
+        public float MaxOutput
+        {
+            get
+            {
+                return SourceComp.MaxOutput;
+            }
+        }
     }
 }
