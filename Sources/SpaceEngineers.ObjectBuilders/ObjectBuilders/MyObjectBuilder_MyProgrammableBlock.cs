@@ -19,6 +19,10 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
+        public string PublicStorage = null;
+
+        [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)]
         public string DefaultRunArgument = null;
     }
 }

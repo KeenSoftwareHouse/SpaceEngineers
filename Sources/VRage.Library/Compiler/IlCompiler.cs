@@ -41,7 +41,7 @@ namespace VRage.Compiler
 
         static IlCompiler()
         {
-            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll", "VRage.Game.dll", "System.Core.dll", "System.dll", "SpaceEngineers.ObjectBuilders.dll" /*, "Microsoft.CSharp.dll" */});
+            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll", "VRage.Game.dll", "System.Core.dll", "System.dll", "SpaceEngineers.ObjectBuilders.dll", "Newtonsoft.Json.dll" /*, "Microsoft.CSharp.dll" */});
             Options.GenerateInMemory = true;
             //Options.IncludeDebugInformation = true;
         }

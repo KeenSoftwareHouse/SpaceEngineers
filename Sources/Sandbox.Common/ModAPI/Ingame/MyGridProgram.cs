@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -60,7 +62,13 @@ namespace Sandbox.ModAPI.Ingame
         public virtual TimeSpan ElapsedTime { get; protected set; }
 
         /// <summary>
-        ///     Allows you to store data between game sessions.
+        ///     Allows you to store data between game sessions. If you just need a string, just set it as a string.
+        ///     All you need to get it back is to cast this value into a string. If you need more advanced functionality,
+        ///     see http://www.newtonsoft.com/json
+        /// <example>
+        ///     this.Storage = "My Value";
+        ///     var storedValue = (string)this.Storage;
+        /// </example>
         /// </summary>
         public virtual string Storage
         {

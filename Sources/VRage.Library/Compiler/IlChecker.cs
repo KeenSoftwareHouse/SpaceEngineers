@@ -16,6 +16,10 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.Object), null);
             AllowedOperands.Add(typeof(System.IDisposable), null);
 
+            AllowNamespaceOfTypeCommon(typeof(Newtonsoft.Json.JsonConvert));
+            AllowNamespaceOfTypeCommon(typeof(Newtonsoft.Json.Linq.JToken));
+            AllowNamespaceOfTypeCommon(typeof(Newtonsoft.Json.Converters.BinaryConverter));
+            AllowNamespaceOfTypeCommon(typeof(Newtonsoft.Json.Serialization.JsonContract));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.IEnumerator));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.IEnumerable<>));
             AllowNamespaceOfTypeCommon(typeof(System.Collections.Generic.HashSet<>));

@@ -90,6 +90,10 @@
     <Reference Include="InfinarioSDK">
       <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\NewtonSoft\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
@@ -495,7 +499,7 @@
     <Compile Include="Game\GameSystems\CoordinateSystem\MyLocalCoordSys.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.cs">
       <SubType>Form</SubType>
-    </Compile>
+    </Compile>    
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.Designer.cs">
       <DependentUpon>LiveWatch.cs</DependentUpon>
     </Compile>

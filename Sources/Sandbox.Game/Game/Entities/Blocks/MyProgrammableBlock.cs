@@ -12,6 +12,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Sandbox.Definitions;
 using VRage.Compiler;
 using VRageMath;
@@ -98,6 +100,7 @@ namespace Sandbox.Game.Entities.Blocks
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
         private new MySyncProgrammableBlock SyncObject;
+        private JObject m_publicStorage = new JObject();
 
         public string TerminalRunArgument
         {
@@ -124,6 +127,11 @@ namespace Sandbox.Game.Entities.Blocks
             if (result == ScriptTerminationReason.InstructionOverflow)
                 throw new ScriptOutOfRangeException();
             return result == ScriptTerminationReason.None;
+        }
+
+        public JObject PublicStorage
+        {
+            get { return this.m_publicStorage; }
         }
 
         public ulong UserId
@@ -442,6 +450,23 @@ namespace Sandbox.Game.Entities.Blocks
             m_storageData = programmableBlockBuilder.Storage;
             this.m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
 
+            m_publicStorage.RemoveAll();
+            if (!string.IsNullOrWhiteSpace(programmableBlockBuilder.PublicStorage))
+            {
+                try
+                {
+                    var parsedObject = JObject.Parse(programmableBlockBuilder.PublicStorage);
+                    foreach (var property in parsedObject.Properties())
+                    {
+                        m_publicStorage[property.Name] = property.Value;
+                    }
+                }
+                catch
+                {
+                    // We ignore any parsing errors, because if they happen the storage is corrupted anyway.
+                }
+            }
+
             this.SyncObject = new MySyncProgrammableBlock(this);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 	    	
@@ -488,6 +513,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
             objectBuilder.Program = this.m_programData;
             objectBuilder.DefaultRunArgument = this.m_terminalRunArgument;
+            objectBuilder.PublicStorage = this.m_publicStorage.ToString(Formatting.None);
             if (m_instance != null)
             {
                 objectBuilder.Storage = m_instance.Storage;
