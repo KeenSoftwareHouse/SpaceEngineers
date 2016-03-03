@@ -43,7 +43,7 @@ namespace SpaceEngineers.Game
                 {
                     Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis,
                     SearchHalfExtentsDeltaRatio = -0.1f,
-                    SearchHalfExtentsDeltaAbsolute = -0.13f, //this is value at whitch you can place new small ship and is ok for wheels too
+                    SearchHalfExtentsDeltaAbsolute = -0.13f, //this is value at which you can place new small ship and is ok for wheels too
                     Penetration = new MyGridPlacementSettings.GroundPenetration()
                     {
                         Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
