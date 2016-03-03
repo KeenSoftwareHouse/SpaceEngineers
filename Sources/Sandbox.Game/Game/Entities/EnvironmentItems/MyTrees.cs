@@ -150,7 +150,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (MyPerGameSettings.Destruction && VRage.Game.Models.MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes != null)
                 {
                     if (itemDefinition.FallSound != null && itemDefinition.FallSound.Length > 0)
-                        CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier, new MySoundPair(itemDefinition.FallSound));
+                        CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier, itemDefinition.FallSound);
                     else
                         CreateBreakableShape(itemDefinition, ref itemData, ref hitWorldPosition, hitNormal, forceMultiplier);
                 }
@@ -207,7 +207,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             return null;
         }
 
-        private void CreateBreakableShape(MyEnvironmentItemDefinition itemDefinition, ref MyEnvironmentItemData itemData, ref Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier, MySoundPair fallSound = null)
+        private void CreateBreakableShape(MyEnvironmentItemDefinition itemDefinition, ref MyEnvironmentItemData itemData, ref Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier, string fallSound = "")
         {
             var breakableShape = VRage.Game.Models.MyModels.GetModelOnlyData(itemDefinition.Model).HavokBreakableShapes[0].Clone();
             MatrixD world = itemData.Transform.TransformMatrix;
@@ -268,7 +268,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         }
 
         public static void CreateFracturePiece(MyEnvironmentItemDefinition itemDefinition, HkdBreakableShape oldBreakableShape, MatrixD worldMatrix, Vector3 hitNormal, List<HkdShapeInstanceInfo> shapeList,
-            float forceMultiplier, bool canContainFixedChildren, MySoundPair fallSound = null)
+            float forceMultiplier, bool canContainFixedChildren, string fallSound = "")
         {
             bool containsFixedChildren = false;
             if (canContainFixedChildren)
@@ -310,7 +310,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 ApplyImpulseToTreeFracture(ref worldMatrix, ref hitNormal, shapeList, ref compound, fp, forceMultiplier);
                 fp.Physics.ForceActivate();
-                if(fallSound != null)
+                if(fallSound.Length > 0)
                     fp.StartFallSound(fallSound);
             }
         }

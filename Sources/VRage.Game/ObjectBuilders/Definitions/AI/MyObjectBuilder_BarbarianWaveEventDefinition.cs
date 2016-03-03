@@ -7,11 +7,10 @@ using System.Xml.Serialization;
 using VRage.Game;
 using VRage.ObjectBuilders;
 
-namespace Medieval.ObjectBuilders.Definitions
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    [System.Xml.Serialization.XmlSerializerAssembly("MedievalEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_BarbarianWaveEventDefinition : MyObjectBuilder_GlobalEventDefinition
     {
         [ProtoContract]

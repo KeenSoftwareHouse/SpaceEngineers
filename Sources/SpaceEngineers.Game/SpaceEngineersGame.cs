@@ -35,7 +35,11 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.EnablePregeneratedAsteroidHack = true;
             MySandboxGame.ConfigDedicated = new MyConfigDedicated<MyObjectBuilder_SessionSettings>("SpaceEngineers-Dedicated.cfg");
             MyPerGameSettings.ShowObfuscationStatus = false;
-            MyPerGameSettings.UseVolumeLimiter = true;
+
+            //limiters
+            MyPerGameSettings.UseVolumeLimiter = false;
+            MyPerGameSettings.UseSameSoundLimiter = true;
+            MyPerGameSettings.SameSoundLimiterCount = 3;
 
             MyPerGameSettings.CreationSettings = new MyPlacementSettings()
             {

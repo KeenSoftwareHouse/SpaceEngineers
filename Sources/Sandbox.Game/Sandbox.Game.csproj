@@ -450,6 +450,7 @@
     <Compile Include="Game\Entities\Character\Components\MyInventorySpawnComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterJetpackComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterOxygenComponent.cs" />
+    <Compile Include="Game\Multiplayer\MySyncDamage.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysicalDynamicGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysics.Destruction.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeGridMultiBlockInfo.cs" />
@@ -487,6 +488,7 @@
     <Compile Include="Game\EntityComponents\MyTimerComponentDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyUpdateTriggerComponent.cs" />
     <Compile Include="Game\EntityComponents\MyUseObjectsComponentDefinition.cs" />
+    <Compile Include="Game\EntityComponents\Renders\MyRenderComponentExtensions.cs" />
     <Compile Include="Game\EntityComponents\Systems\MyTimerComponentSystem.cs" />
     <Compile Include="Game\Extensions\MyEntityContainerEventExtensions.cs" />
     <Compile Include="Game\GameSystems\CoordinateSystem\MyCoordinateSystem.cs" />
@@ -512,7 +514,6 @@
     <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.IntersectRay.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.IntersectBB.cs" />
     <Compile Include="Game\GUI\MyHudPickedUpItems.cs" />
-    <Compile Include="Game\Multiplayer\MySyncHandTool.cs" />
     <Compile Include="Game\Replication\MyCharacterNetState.cs" />
     <Compile Include="Game\Replication\MyCraftingComponentReplicable.cs" />
     <Compile Include="Game\Replication\MyEntityPhysicsStateGroupWithSupport.cs" />
@@ -581,7 +582,6 @@
     <Compile Include="Game\EntityComponents\MyFracturePiecePositionComponent.cs" />
     <Compile Include="Game\Extensions\VoxelBaseExtensions.cs" />
     <Compile Include="Game\GameSystems\MyCubeBlockDecayScript.cs" />
-    <Compile Include="Game\Multiplayer\MySyncRadioBroadcaster.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyRenderDebugInputComponent.cs" />
     <Compile Include="Game\MyModelObj .cs" />
     <Compile Include="Game\EntityComponents\MyRespawnComponent.cs" />
@@ -833,13 +833,10 @@
     <Compile Include="Game\Multiplayer\MyGpsCollection.cs" />
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
-    <Compile Include="Game\Multiplayer\MySyncManipulationTool.cs" />
-    <Compile Include="Game\Multiplayer\MySyncMissionTriggers.cs" />
     <Compile Include="Game\Multiplayer\MySyncScenario.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />
     <Compile Include="Game\Multiplayer\MyClientCollection.cs" />
     <Compile Include="Game\Multiplayer\MySyncGridThrustState.cs" />
-    <Compile Include="Game\Multiplayer\MySyncHelper.cs" />
     <Compile Include="Game\Multiplayer\MySyncTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\MyRadioReceiver.cs" />
     <Compile Include="Game\Entities\Blocks\MyRealWheel.cs" />
@@ -854,7 +851,6 @@
     <Compile Include="Game\GameSystems\MyGridWheelSystem.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\MyHonzaInputComponent.cs" />
     <Compile Include="Game\Multiplayer\MyFactionCollection.cs" />
-    <Compile Include="Game\Multiplayer\MySyncThrower.cs" />
     <Compile Include="Game\Multiplayer\MyToolbarCollection.cs" />
     <Compile Include="Game\MyCredits.cs" />
     <Compile Include="Game\MyControlsSpace.cs" />
@@ -913,7 +909,6 @@
     <Compile Include="Game\Screens\Helpers\MyGridColorHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenText.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMods.cs" />
-    <Compile Include="Game\Multiplayer\MySyncMissiles.cs" />
     <Compile Include="Game\Screens\Helpers\MyGuiControlNews.cs" />
     <Compile Include="Game\Screens\MyGuiScreenAdvancedWorldSettings.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.LAN.cs" />
@@ -1085,7 +1080,6 @@
     <Compile Include="Game\GameSystems\Electricity\IMyRechargeSocketOwner.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyTestersDebugInputComponent.cs" />
     <Compile Include="Game\GUI\MyHudNameValueData.cs" />
-    <Compile Include="Game\Multiplayer\MySyncFloatingObjects.cs" />
     <Compile Include="Game\Multiplayer\MyNetworkTimer.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyTomasDebugInputComponent.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugHandItemShoot.cs" />
@@ -1100,7 +1094,6 @@
     <Compile Include="Game\Screens\MyGuiScreenChat.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBlockFactory.cs" />
     <Compile Include="Game\Screens\Helpers\MyGuiControlInventoryOwner.cs" />
-    <Compile Include="Game\Multiplayer\MySyncBattery.cs" />
     <Compile Include="Engine\Multiplayer\MyDownloadWorldResult.cs" />
     <Compile Include="Engine\Multiplayer\MyLagQueue.cs" />
     <Compile Include="Engine\Multiplayer\MyMultiplayer.cs" />
@@ -1194,7 +1187,6 @@
     <Compile Include="Game\GUI\DebugInputComponents\MyDebugComponent.cs" />
     <Compile Include="Game\GUI\MyHud.cs" />
     <Compile Include="Game\Multiplayer\MyEntitySerializer.cs" />
-    <Compile Include="Game\Multiplayer\MySyncExplosion.cs" />
     <Compile Include="Game\Multiplayer\MySyncControllableEntity.cs" />
     <Compile Include="Game\Multiplayer\MySyncCharacter.cs" />
     <Compile Include="Game\Multiplayer\MySyncGrid.cs" />
@@ -1418,10 +1410,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MedievalEngineers.ObjectBuilders\MedievalEngineers.ObjectBuilders.csproj">
-      <Project>{9e11ca22-11b8-42b1-acda-3747a3b2bdbd}</Project>
-      <Name>MedievalEngineers.ObjectBuilders</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
       <Name>Sandbox.Common</Name>

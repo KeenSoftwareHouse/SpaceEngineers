@@ -574,7 +574,7 @@ namespace Sandbox.Game.Weapons
 
         internal void StartShootSound(MyEntity3DSoundEmitter soundEmitter)
         {
-            if (ShootSound != null)
+            if (ShootSound != null && soundEmitter != null)
             {
                 if (soundEmitter.IsPlaying)
                 {
@@ -588,7 +588,7 @@ namespace Sandbox.Game.Weapons
 
         internal void StartNoAmmoSound(MyEntity3DSoundEmitter soundEmitter)
         {
-            if (NoAmmoSound != null)
+            if (NoAmmoSound != null && soundEmitter != null)
             {
                 soundEmitter.StopSound(true);
                 soundEmitter.PlaySingleSound(NoAmmoSound, true);

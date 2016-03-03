@@ -1,5 +1,4 @@
-﻿using Medieval.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities.EnvironmentItems;
 using System.Collections.Generic;

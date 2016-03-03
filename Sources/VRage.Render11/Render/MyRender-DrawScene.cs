@@ -3,6 +3,7 @@ using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using VRage;
 using VRage.Utils;
 using VRageMath;
@@ -611,6 +612,113 @@ namespace VRageRender
         {
             SaveResourceToFile(res, m_screenshot.Value.SavePath, m_screenshot.Value.Format);
             m_screenshot = null;
+        }
+
+        private static MyBindableResource m_lastScreenDataResource = null;
+        private static Stream m_lastDataStream = null;
+
+        private unsafe static byte[] GetScreenData(Vector2I resolution, byte[] screenData = null)
+        {
+            const uint headerPadding = 256; // Need to allocate some space for the bitmap headers
+            const uint bytesPerPixel = 4;
+            uint imageSizeInBytes = (uint)(resolution.Size() * bytesPerPixel);
+            uint dataSizeInBytes = imageSizeInBytes + headerPadding;
+
+            byte[] returnData = null;
+            if(screenData == null)
+                screenData = new byte[imageSizeInBytes];
+            else if(screenData.Length != imageSizeInBytes)
+            {
+                Debug.Fail("Preallocated buffer for GetScreenData incorrect size: " + imageSizeInBytes.ToString() + " expected, " + screenData.Length * bytesPerPixel + " received");
+                return returnData;
+            }
+
+            MyBindableResource imageSource = Backbuffer;
+            if (imageSource == null)
+                return returnData;
+
+            if(imageSizeInBytes > int.MaxValue)
+            {
+                Debug.Fail("Image size too large to read!");
+                return returnData;
+            }
+
+            MyBindableResource imageResource = imageSource;
+            if (resolution.X != imageResource.GetSize().X || resolution.Y != imageResource.GetSize().Y)
+            {
+                imageResource = m_lastScreenDataResource;
+                if (imageResource == null || (imageResource.GetSize().X != resolution.X || imageResource.GetSize().Y != resolution.Y))
+                {
+                    if (m_lastScreenDataResource != null && m_lastScreenDataResource != Backbuffer)
+                    {
+                        m_lastScreenDataResource.Release();
+                    }
+                    m_lastScreenDataResource = null;
+
+                    imageResource = new MyRenderTarget(resolution.X, resolution.Y, MyRender11Constants.DX11_BACKBUFFER_FORMAT, 0, 0);
+                }
+
+                MyCopyToRT.Run(imageResource, imageSource, new MyViewport(resolution));
+            }
+
+            m_lastScreenDataResource = imageResource;
+
+            Stream dataStream = m_lastDataStream;
+            if (m_lastDataStream == null || m_lastDataStream.Length != dataSizeInBytes)
+            {
+                if (m_lastDataStream != null)
+                {
+                    m_lastDataStream.Dispose();
+                    m_lastDataStream = null;
+                }
+                dataStream = new DataStream((int)dataSizeInBytes, true, true);
+            }
+
+            m_lastDataStream = dataStream;
+
+            Resource.ToStream(MyRenderContext.Immediate.DeviceContext, imageResource.m_resource, ImageFileFormat.Bmp, dataStream);
+
+            if (!(dataStream.CanRead && dataStream.CanSeek))
+            {
+                Debug.Fail("Screen data stream does not support the necessary operations to get the data");
+                return returnData;
+            }
+
+            fixed (byte* dataPointer = screenData)
+            {
+                GetBmpDataFromStream(dataStream, dataPointer, imageSizeInBytes);
+            }
+
+            returnData = screenData;
+
+            if (m_lastDataStream != null)
+                m_lastDataStream.Seek(0, SeekOrigin.Begin);
+
+            return returnData;
+        }
+
+        // TODO: Still probably needs some more work to read the pixel array properly in case of non 4-byte aligned rows
+        private unsafe static void GetBmpDataFromStream(Stream dataStream, byte* dataPointer, uint imageSizeInBytes)
+        {
+            // Start reading from the position of the pixel array offset information in the bitmap header
+            const int startOffset = 10;
+            dataStream.Seek(startOffset, SeekOrigin.Begin);
+
+            int pixelArrayOffset = dataStream.ReadInt32();
+
+            // Read in some data from the dib header
+            int dibHeaderSize = dataStream.ReadInt32();
+            int bitmapWidth = dataStream.ReadInt32();
+            int bitmapHeight = dataStream.ReadInt32();
+            int colorPlaneCount = dataStream.ReadInt16();
+            int bitsPerPixel = dataStream.ReadInt16();
+
+            Debug.Assert(colorPlaneCount == 1);
+
+            // Everything ok, time to read the actual pixel data
+            //dataStream.Seek(pixelArrayOffset, SeekOrigin.Begin);
+
+            dataStream.ReadNoAlloc(dataPointer, pixelArrayOffset, (int)imageSizeInBytes);
         }
     }
 }

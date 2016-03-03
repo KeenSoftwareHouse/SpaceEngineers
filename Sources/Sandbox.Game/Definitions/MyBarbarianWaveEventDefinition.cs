@@ -7,7 +7,6 @@ using System.Text;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ObjectBuilders;
 using VRage.Game.ObjectBuilders.AI.Bot;
-using Medieval.ObjectBuilders.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
 

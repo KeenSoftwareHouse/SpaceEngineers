@@ -3,6 +3,7 @@ using ProtoBuf;
 using VRageMath;
 using VRage.Data;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace VRage.Game
 {
@@ -20,6 +21,11 @@ namespace VRage.Game
         [ModdableContentFile("mwm")]
         public string Model = @"Models\Components\Sphere.mwm";
 
+        [ProtoMember]
+        [ModdableContentFile("mwm")]
+        [XmlArrayItem("Model")]
+        public string[] Models = null;
+
         [ProtoMember, DefaultValue(null)]
         public string IconSymbol = null;
         public bool ShouldSerializeIconSymbol() { return IconSymbol != null; }
@@ -29,6 +35,9 @@ namespace VRage.Game
 
         [ProtoMember]
         public string PhysicalMaterial;
+
+        [ProtoMember]
+        public string VoxelMaterial;
 
         [ProtoMember, DefaultValue(true)]
         public bool CanSpawnFromScreen = true;

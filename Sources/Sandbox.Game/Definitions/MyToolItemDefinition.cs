@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Utils;
+using VRage.Game.Gui;
 
 namespace Sandbox.Definitions
 {
@@ -42,6 +43,8 @@ namespace Sandbox.Definitions
         public float HitDuration;
         public string HitSound;
         public float CustomShapeRadius;
+
+        public MyHudTexturesEnum Crosshair;
 
         public MyToolHitCondition[] HitConditions;
 
@@ -109,6 +112,8 @@ namespace Sandbox.Definitions
                     actionDef.HitDuration = sourceActions[i].HitDuration;
                     actionDef.HitSound = sourceActions[i].HitSound;
                     actionDef.CustomShapeRadius = sourceActions[i].CustomShapeRadius;
+
+                    actionDef.Crosshair = sourceActions[i].Crosshair;
 
                     if (sourceActions[i].HitConditions != null)
                     {

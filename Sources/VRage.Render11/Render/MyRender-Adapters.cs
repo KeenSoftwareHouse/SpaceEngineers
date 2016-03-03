@@ -421,7 +421,11 @@ namespace VRageRender
             return adaptersList.ToArray();
         }
 
-        public unsafe static MyAdapterInfo[] GetAdaptersList()
+        public static void ResetAdaptersList()
+        {
+            m_adapterInfoList = null;
+        }
+        public static MyAdapterInfo[] GetAdaptersList()
         {
             if (m_adapterInfoList == null)
             {

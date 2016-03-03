@@ -97,7 +97,7 @@ namespace VRage.Audio.X3DAudio
             }
         }
 
-        public void Apply3D(SourceVoice voice, Listener listener, Emitter emitter, int srcChannels, int dstChannels, CalculateFlags flags, float maxDistance, float frequencyRatio)
+        public float Apply3D(SourceVoice voice, Listener listener, Emitter emitter, int srcChannels, int dstChannels, CalculateFlags flags, float maxDistance, float frequencyRatio, bool silent)
         {
             unsafe
             {
@@ -118,7 +118,11 @@ namespace VRage.Audio.X3DAudio
                 if (emitter.InnerRadius == 0f)
                 {
                     // approximated decay by distance
-                    float decay = MathHelper.Clamp(1f - settings.EmitterToListenerDistance / maxDistance, 0f, 1f);
+                    float decay;
+                    if (silent)
+                        decay = 0f;
+                    else
+                        decay = MathHelper.Clamp(1f - settings.EmitterToListenerDistance / maxDistance, 0f, 1f);
                     for (int i = 0; i < matrixCoefficientCount; i++)
                     {
                         matrixCoefficients[i] *= decay;
@@ -127,6 +131,7 @@ namespace VRage.Audio.X3DAudio
 
                 voice.SetOutputMatrix(null, settings.SrcChannelCount, settings.DstChannelCount, matrixCoefficients);
                 voice.SetFrequencyRatio(frequencyRatio * settings.DopplerFactor);
+                return settings.EmitterToListenerDistance;
             }
         }
     }

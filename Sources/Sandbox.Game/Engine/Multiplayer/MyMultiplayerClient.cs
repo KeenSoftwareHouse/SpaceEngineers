@@ -427,7 +427,6 @@ namespace Sandbox.Engine.Multiplayer
 
         void MyMultiplayerClient_ClientJoined(ulong user)
         {
-            Debug.Assert(!m_members.Contains(user));
             if (m_members.Contains(user)) return;
 
             m_members.Add(user);

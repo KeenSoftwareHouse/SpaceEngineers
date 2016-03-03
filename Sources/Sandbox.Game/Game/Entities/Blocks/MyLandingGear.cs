@@ -665,7 +665,11 @@ namespace Sandbox.Game.Entities.Cube
 
             if (state.MasterToSlave.HasValue && state.GearPivotPosition.HasValue && state.OtherPivot.HasValue)
             {
-                WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
+                //hack for floating objects (they can be on different position on server and client and have scale !!!)
+                if ((body is MyFloatingObject) == false)
+                {
+                    WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
+                }
 
                 Attach(body, state.GearPivotPosition.Value, state.OtherPivot.Value.Matrix);
             }
@@ -873,7 +877,11 @@ namespace Sandbox.Game.Entities.Cube
 
         void PhysicsChanged(IMyEntity entity)
         {
-            if (entity.Physics == null)
+            if (entity is MyVoxelBase && entity.Physics == null)
+            {
+                //temporary fix by Gregory for the Landing gears do not want to lock bug. This should be check further though
+            }
+            else if (entity.Physics == null)
             {
                 Detach();
             }
@@ -1015,8 +1023,12 @@ namespace Sandbox.Game.Entities.Cube
                     if (MyEntities.TryGetEntityById(state.OtherEntityId.Value, out otherEntity))
                     {
                         if (Sync.IsServer == false)
-                        {
-                            this.CubeGrid.WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, otherEntity.WorldMatrix);
+                        { 
+                            //hack for floating objects (they can be on different position on server and client and have scale !!!)
+                            if ((otherEntity is MyFloatingObject) == false)
+                            {
+                                this.CubeGrid.WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, otherEntity.WorldMatrix);
+                            }
                             Attach(otherEntity, state.GearPivotPosition.Value, state.OtherPivot.Value.Matrix);
                         }
                     }

@@ -142,6 +142,8 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.Nullable<>), null);
             AllowedOperands.Add(typeof(StringComparer), null);
             AllowedOperands.Add(typeof(System.IComparable<>), null);
+
+            AllowedOperands.Add(typeof(System.BitConverter), null);     // Useful for serializing custom messages/data in non-xml format
         }
 
         public static void AllowNamespaceOfTypeModAPI(Type type)

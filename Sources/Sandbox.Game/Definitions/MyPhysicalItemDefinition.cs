@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
+using System.Diagnostics;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Definitions;
@@ -16,9 +17,11 @@ namespace Sandbox.Definitions
         public Vector3 Size; // in meters
         public float Mass; // in Kg
         public string Model;
+        public string[] Models;
         public MyStringId? IconSymbol;
         public float Volume; // in m3
         public MyStringHash PhysicalMaterial;
+        public MyStringHash VoxelMaterial;
         public bool CanSpawnFromScreen;
         public bool RotateOnSpawnX = false;
         public bool RotateOnSpawnY = false;
@@ -37,6 +40,14 @@ namespace Sandbox.Definitions
             }
         }
 
+        public bool HasModelVariants
+        {
+            get
+            {
+                return Models != null && Models.Length > 0;
+            }
+        }
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -46,12 +57,14 @@ namespace Sandbox.Definitions
             this.Size = ob.Size;
             this.Mass = ob.Mass;
             this.Model = ob.Model;
+            this.Models = ob.Models;
             this.Volume = ob.Volume.HasValue? ob.Volume.Value / 1000f : ob.Size.Volume;
             if (string.IsNullOrEmpty(ob.IconSymbol))
                 this.IconSymbol = null;
             else
                 this.IconSymbol = MyStringId.GetOrCompute(ob.IconSymbol);
             PhysicalMaterial = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
+            VoxelMaterial = MyStringHash.GetOrCompute(ob.VoxelMaterial);
             CanSpawnFromScreen = ob.CanSpawnFromScreen;
             RotateOnSpawnX = ob.RotateOnSpawnX;
             RotateOnSpawnY = ob.RotateOnSpawnY;

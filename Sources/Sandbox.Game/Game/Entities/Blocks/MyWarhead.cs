@@ -503,7 +503,7 @@ namespace Sandbox.Game.Entities.Cube
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
+                    MySyncDamage.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
             {

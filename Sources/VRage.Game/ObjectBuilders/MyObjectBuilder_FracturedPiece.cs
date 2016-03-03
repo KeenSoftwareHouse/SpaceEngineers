@@ -1,15 +1,13 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
 using System.Collections.Generic;
 using System.ComponentModel;
 using VRage;
 using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    [System.Xml.Serialization.XmlSerializerAssembly("MedievalEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_FracturedPiece : MyObjectBuilder_EntityBase
     {
         [ProtoContract]

@@ -402,6 +402,19 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public float CurrentOutput
+        {
+            get { if (SourceComp != null) return SourceComp.CurrentOutput; return 0; }
+        }
+
+        public float MaxOutput
+        {
+            get
+            {
+                return m_reactorDefinition.MaxPowerOutput;
+            }
+        }
+
         #region IMyInventoryOwner implementation
 
         int IMyInventoryOwner.InventoryCount
@@ -428,22 +441,6 @@ namespace Sandbox.Game.Entities
             set
             {
                 UseConveyorSystem = value;
-            }
-        }
-
-        public float CurrentOutput
-        {
-            get
-            {
-                return SourceComp.CurrentOutput;
-            }
-        }
-
-        public float MaxOutput
-        {
-            get
-            {
-                return m_reactorDefinition.MaxPowerOutput;
             }
         }
 

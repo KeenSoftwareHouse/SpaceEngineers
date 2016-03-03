@@ -35,8 +35,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.Game", "..\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Game", "..\VRage.Game\VRage.Game.csproj", "{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedievalEngineers.ObjectBuilders", "..\MedievalEngineers.ObjectBuilders\MedievalEngineers.ObjectBuilders.csproj", "{9E11CA22-11B8-42B1-ACDA-3747A3B2BDBD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.ObjectBuilders", "..\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj", "{E48FEB99-6814-4947-8035-8C2B4066DD9B}"
 EndProject
 Global

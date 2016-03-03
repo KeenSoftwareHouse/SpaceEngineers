@@ -1,5 +1,4 @@
 ﻿using Havok;
-using Medieval.Definitions;
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;

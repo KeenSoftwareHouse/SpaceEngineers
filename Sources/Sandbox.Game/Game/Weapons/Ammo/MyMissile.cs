@@ -317,7 +317,7 @@ namespace Sandbox.Game.Weapons
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
+                    MySyncDamage.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
             {

@@ -52,6 +52,7 @@ namespace VRage.Game
         public float RotationSpeed;
         public float Thickness;
         public ParticleFlags Flags;
+        public float ColorIntensity;
 
         public MyAnimatedPropertyFloat PivotDistance = null;
         public MyAnimatedPropertyVector3 PivotRotation = null;
@@ -339,6 +340,7 @@ namespace VRage.Game
             billboard.EnableColorize = false;
 
             billboard.Color = color * alpha * m_generation.GetEffect().UserColorMultiplier;
+            billboard.ColorIntensity = ColorIntensity;
 
             MyTransparentGeometry.EndParticleProfilingBlock();
 

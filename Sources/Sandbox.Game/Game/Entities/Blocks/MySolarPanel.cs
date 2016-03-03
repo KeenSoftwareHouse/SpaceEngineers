@@ -158,20 +158,18 @@ namespace Sandbox.Game.Entities.Blocks
             base.StopDamageEffect();
         }
 
+#region IMySolarPanel interface
+
         public float CurrentOutput
         {
-            get
-            {
-                return SourceComp.CurrentOutput;
-            }
+            get { if (SourceComp != null) return SourceComp.CurrentOutput; return 0; }
         }
 
         public float MaxOutput
         {
-            get
-            {
-                return SourceComp.MaxOutput;
-            }
+            get { if (SourceComp != null) return SourceComp.MaxOutput; return 0; }
         }
+
+#endregion
     }
 }

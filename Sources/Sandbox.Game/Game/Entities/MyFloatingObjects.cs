@@ -96,7 +96,6 @@ namespace Sandbox.Game.Entities
         static List<MyFloatingObject> m_synchronizedFloatingObjects = new List<MyFloatingObject>();
         static List<MyFloatingObject> m_floatingObjectsToSyncCreate = new List<MyFloatingObject>();
         static MyFloatingObjectsSynchronizationComparer m_synchronizationComparer = new MyFloatingObjectsSynchronizationComparer();
-        static MySyncFloatingObjects SyncObject;
         static List<MyFloatingObject> m_highPriority = new List<MyFloatingObject>();
         static List<MyFloatingObject> m_normalPriority = new List<MyFloatingObject>();
         static List<MyFloatingObject> m_lowPriority = new List<MyFloatingObject>();
@@ -137,7 +136,6 @@ namespace Sandbox.Game.Entities
             Debug.Assert(m_instance == null);
             m_instance = this;
 
-            SyncObject = new MySyncFloatingObjects(this);
             m_measurementTime = new Stopwatch();
             m_measurementTime.Start();
         }
@@ -266,7 +264,8 @@ namespace Sandbox.Game.Entities
             {
                 m_tmpEntities.Add(removedObject.EntityId);
             }
-            SyncObject.SendMakeUnstable(m_tmpEntities);
+
+            MyMultiplayer.RaiseStaticEvent(s => MyFloatingObjects.MakeUnstable, m_tmpEntities);
             m_tmpEntities.Clear();
             m_stableObjectsServer.ExceptWith(m_removedStableObjectsServer);
             m_stableObjectsServer.UnionWith(m_futureStableObjectsServer);
@@ -450,6 +449,10 @@ namespace Sandbox.Game.Entities
 
             var floatingBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
             floatingBuilder.Item = item.GetObjectBuilder();
+
+            var itemDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
+            floatingBuilder.ModelVariant = itemDefinition.HasModelVariants ? MyUtils.GetRandomInt(itemDefinition.Models.Length) : 0;
+
             floatingBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
             return floatingBuilder;
         }
@@ -691,7 +694,9 @@ namespace Sandbox.Game.Entities
         #endregion
 
         #region Stability
-        public void MakeUnstable(List<long> entities)
+
+        [Event, Server, Broadcast]
+        private static void MakeUnstable(List<long> entities)
         {
             MyFloatingObject floatingObj;
             foreach (var entityId in entities)
@@ -702,6 +707,7 @@ namespace Sandbox.Game.Entities
                 m_stableObjectsClient.Remove(floatingObj);
             }
         }
+
         #endregion
 
         /// <summary>

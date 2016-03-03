@@ -5,6 +5,9 @@ using VRageMath;
 
 namespace VRage.Game.ObjectBuilders
 {
+    /// <summary>
+    /// Base class of all object builders of animation tree nodes.
+    /// </summary>
 	[ProtoContract]
 	[MyObjectBuilderDefinition]
     public class MyObjectBuilder_AnimationTreeNode : MyObjectBuilder_Base
@@ -16,21 +19,38 @@ namespace VRage.Game.ObjectBuilders
         public Vector2I? EdPos;
 	}
 
+    /// <summary>
+    /// Root node of the whole animation tree. Supports storing of orphaned nodes.
+    /// </summary>
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AnimationTree : MyObjectBuilder_AnimationTreeNode
     {
-        // Root node of animation tree
+        // Link to first functional node of animation tree.
         [ProtoMember]
         public MyObjectBuilder_AnimationTreeNode Child;
+
+        // Orphan nodes (not connected to root). Storing them because of editing of animation tree,
+        // allowing artists to prepare a node structure which they can use later.
+        [ProtoMember]
+        public MyObjectBuilder_AnimationTreeNode[] Orphans;
     }
 
+    /// <summary>
+    /// Track node, storing information about track and playing settings.
+    /// </summary>
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AnimationTreeNodeTrack : MyObjectBuilder_AnimationTreeNode
     {
         /// <summary>
-        /// Name of used track (animation).
+        /// Path to MWM file.
+        /// </summary>
+        [ProtoMember]
+        public string PathToModel;
+
+        /// <summary>
+        /// Name of used track (animation) in MWM file.
         /// </summary>
         [ProtoMember]
         public string AnimationName;
@@ -42,25 +62,37 @@ namespace VRage.Game.ObjectBuilders
         public bool Loop = true;
 
         /// <summary>
-        /// Playing speed.
+        /// Playing speed multiplier.
         /// </summary>
         [ProtoMember]
         public double Speed = 1.0f;
+
+        /// <summary>
+        /// Interpolate between keyframes. If false, track will be played frame by frame.
+        /// </summary>
+        [ProtoMember]
+        public bool Interpolate = true;
     }
 
+    /// <summary>
+    /// Helper struct: parameter mapping.
+    /// </summary>
+    [ProtoContract]
+    public struct MyParameterAnimTreeNodeMapping
+    {
+        [ProtoMember]
+        public float Param;  // parameter binding
+        [ProtoMember]
+        public MyObjectBuilder_AnimationTreeNode Node; // link to child node
+    }
+
+    /// <summary>
+    /// Linear mixing node. Maps child nodes on 1D axis, interpolates according to parameter value.
+    /// </summary>
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AnimationTreeNodeMix1D : MyObjectBuilder_AnimationTreeNode
     {
-        [ProtoContract]
-        public struct MyParameterNodeMapping
-        {
-            [ProtoMember]
-            public float Param;  // parameter binding
-            [ProtoMember]
-            public MyObjectBuilder_AnimationTreeNode Node; // link to child node
-        }
-
         /// <summary>
         /// Name of parameter controlling blending inside this node.
         /// </summary>
@@ -72,6 +104,32 @@ namespace VRage.Game.ObjectBuilders
         /// </summary>
         [ProtoMember]
         [XmlElement("Child")]
-        public MyParameterNodeMapping[] Children = null;
+        public MyParameterAnimTreeNodeMapping[] Children = null;
+    }
+
+    /// <summary>
+    /// Additive node. Child nodes are base node + additive node.
+    /// </summary>
+    [ProtoContract]
+    [MyObjectBuilderDefinition]
+    public class MyObjectBuilder_AnimationTreeNodeAdd: MyObjectBuilder_AnimationTreeNode
+    {
+        /// <summary>
+        /// Name of parameter controlling blending inside this node.
+        /// </summary>
+        [ProtoMember]
+        public string ParameterName;
+
+        /// <summary>
+        /// Child node, base "layer".
+        /// </summary>
+        [ProtoMember]
+        public MyParameterAnimTreeNodeMapping BaseNode;
+
+        /// <summary>
+        /// Child node, additive "layer".
+        /// </summary>
+        [ProtoMember]
+        public MyParameterAnimTreeNodeMapping AddNode;
     }
 }

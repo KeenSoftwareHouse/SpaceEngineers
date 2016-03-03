@@ -355,7 +355,6 @@ namespace Sandbox.Game.Gui
                  MyDebugDrawSettings.ENABLE_DEBUG_DRAW = !MyDebugDrawSettings.ENABLE_DEBUG_DRAW;
                  if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
                  {
-                     MyStructuralIntegrity.Enabled = true;
                      MyDebugDrawSettings.DEBUG_DRAW_STRUCTURAL_INTEGRITY = true;
                      DEBUG_DRAW_PATHS = true;
                      DEBUG_DRAW_TENSIONS = false;
@@ -397,7 +396,6 @@ namespace Sandbox.Game.Gui
                  MyDebugDrawSettings.ENABLE_DEBUG_DRAW = !MyDebugDrawSettings.ENABLE_DEBUG_DRAW;
                  if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
                  {
-                     MyStructuralIntegrity.Enabled = true;
                      MyDebugDrawSettings.DEBUG_DRAW_STRUCTURAL_INTEGRITY = true;
                      DEBUG_DRAW_PATHS = false;
                      DEBUG_DRAW_TENSIONS = true;

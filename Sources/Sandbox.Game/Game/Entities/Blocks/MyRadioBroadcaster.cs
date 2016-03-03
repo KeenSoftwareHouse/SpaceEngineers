@@ -16,14 +16,12 @@ namespace Sandbox.Game.Entities.Cube
 {
     class MyRadioBroadcaster : MyDataBroadcaster
     {
-        public MySyncRadioBroadcaster SyncObject;
         public Action OnBroadcastRadiusChanged;
         
         float m_broadcastRadius;
 
         public MyRadioBroadcaster(float broadcastRadius = 100)
         {
-            SyncObject = new MySyncRadioBroadcaster(this);
             m_broadcastRadius = broadcastRadius;
         }
 

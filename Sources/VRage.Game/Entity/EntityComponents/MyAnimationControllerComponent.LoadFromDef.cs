@@ -197,26 +197,28 @@ namespace VRage.Game.Components
         // Initialize animation tree of the state machine node.
         private static VRage.Animations.MyAnimationTreeNode InitNodeAnimationTree(VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNode objBuilderNode)
         {
-            // ------- SM node track -------
+            // ------- tree node track -------
             var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
             if (objBuilderNodeTrack != null)
             {
                 var nodeTrack = new VRage.Animations.AnimationNodes.MyAnimationTreeNodeTrack();
-                MyAnimationDefinition animationDefinition;
-                if (TryGetAnimationDefinition(objBuilderNodeTrack.AnimationName, out animationDefinition))
+                MyModel modelAnimation = MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel);
+                if (modelAnimation != null)
                 {
-                    MyModel modelAnimation = MyModels.GetModelOnlyAnimationData(animationDefinition.AnimationModel);
-                    if (modelAnimation != null && animationDefinition.ClipIndex < modelAnimation.Animations.Clips.Count)
+                    VRage.Animations.MyAnimationClip selectedClip = modelAnimation.Animations.Clips.FirstOrDefault(clipItem => clipItem.Name == objBuilderNodeTrack.AnimationName);
+                    if (selectedClip == null)
                     {
-                        VRage.Animations.MyAnimationClip clip = modelAnimation.Animations.Clips[animationDefinition.ClipIndex];
-                        nodeTrack.SetClip(clip);
-                        nodeTrack.Loop = objBuilderNodeTrack.Loop;
-                        nodeTrack.Speed = objBuilderNodeTrack.Speed;
+                        Debug.Fail("File '" + objBuilderNodeTrack.PathToModel + "' does not contain animation clip '" 
+                            + objBuilderNodeTrack.AnimationName + "'.");
                     }
+                    nodeTrack.SetClip(selectedClip);
+                    nodeTrack.Loop = objBuilderNodeTrack.Loop;
+                    nodeTrack.Speed = objBuilderNodeTrack.Speed;
+                    nodeTrack.Interpolate = objBuilderNodeTrack.Interpolate;
                 }
                 return nodeTrack;
             }
-            // -----------------------------
+            // ------ tree node mix -----------------------
             var objBuilderNodeMix1D = objBuilderNode as MyObjectBuilder_AnimationTreeNodeMix1D;
             if (objBuilderNodeMix1D != null)
             {
@@ -236,6 +238,12 @@ namespace VRage.Game.Components
                 }
                 nodeMix1D.ParameterName = MyStringId.GetOrCompute(objBuilderNodeMix1D.ParameterName);
                 return nodeMix1D;
+            }
+            // ------ tree node add -----------------------
+            var objBuilderNodeAdd = objBuilderNode as MyObjectBuilder_AnimationTreeNodeAdd;
+            if (objBuilderNodeAdd != null)
+            {
+                Debug.Fail("Addition node: currently unsupported type of animation tree node.");
             }
             return null;
         }

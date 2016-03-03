@@ -192,17 +192,17 @@ namespace Sandbox.Game.Gui
 
             // CH: To show the clients correctly, we would need to know, whether the game is a dedicated-server-hosted game.
             // We don't know that, so I just show all clients with players
-            foreach (var player in Sync.Players.GetAllPlayers())
+            foreach (var player in Sync.Players.GetOnlinePlayers())
             {
-                if (player.SerialId != 0) continue;
+                if (player.Id.SerialId != 0) continue;
 
                 for (int i = 0; i < m_playersTable.RowsCount; ++i)
                 {
                     var row = m_playersTable.GetRow(i);
-                    if (row.UserData is ulong && (ulong)row.UserData == player.SteamId) continue;
+                    if (row.UserData is ulong && (ulong)row.UserData == player.Id.SteamId) continue;
                 }
 
-                AddPlayer(player.SteamId);
+                AddPlayer(player.Id.SteamId);
             }
 
             m_inviteButton.ButtonClicked += inviteButton_ButtonClicked;

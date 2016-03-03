@@ -485,7 +485,7 @@ namespace Sandbox.Game.Entities
             {
                 if (hasPower && m_playIdleSound && m_soundEmitter.IsPlaying == false && m_soundEmitter.Plays2D == false)
                     m_soundEmitter.PlaySound(m_baseIdleSound, true);
-                else if (hasPower == false && m_soundEmitter.IsPlaying)
+                else if (IsWorking == false && m_soundEmitter.IsPlaying)
                     m_soundEmitter.StopSound(true);
             }
 

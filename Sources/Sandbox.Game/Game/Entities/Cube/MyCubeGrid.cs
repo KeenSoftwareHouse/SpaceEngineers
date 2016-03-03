@@ -6038,10 +6038,6 @@ namespace Sandbox.Game.Entities
                         continue; //it is possible to have marked for close block there but not closed
                     blocks.Add(fb);
 
-                    // CH: Testing code to catch a crash:
-                    if (fb.Closed) MyLog.Default.WriteLine("Block was Closed in MyCubeGrid.QuerySphere!");
-                    if (fb.Hierarchy == null) MyLog.Default.WriteLine("Hierarchy null in Block in MyCubeGrid.QuerySphere!");
-
                     foreach (var child in fb.Hierarchy.Children)
                     {
                         var entity = (MyEntity)child.Entity;
@@ -6075,25 +6071,19 @@ namespace Sandbox.Game.Entities
                 foreach (var fb in m_fatBlocks)
                 {
                     Debug.Assert(!fb.Closed);
+                    if (fb.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
+                        continue; //it is possible to have marked for close block there but not closed
                     blockBB.Min = fb.Min - halfGridSize;
                     blockBB.Max = fb.Max + halfGridSize;
                     if (localSphere.Intersects(blockBB))
                     {
                         blocks.Add(fb);
 
-                        // CH: Testing code to catch a crash:
-                        if (fb.Hierarchy == null)
+                        foreach (var child in fb.Hierarchy.Children)
                         {
-                            MyLog.Default.WriteLine("Hierarchy null in Block in MyCubeGrid.QuerySphere!");
-                        }
-                        else
-                        {
-                            foreach (var child in fb.Hierarchy.Children)
-                            {
-                                var entity = (MyEntity)child.Entity;
-                                if (entity != null)
-                                    blocks.Add(entity);
-                            }
+                            var entity = (MyEntity)child.Entity;
+                            if (entity != null)
+                                blocks.Add(entity);
                         }
                     }
                 }
@@ -6114,6 +6104,8 @@ namespace Sandbox.Game.Entities
                 if (m_cubes.TryGetValue(pos, out block) && block.CubeBlock.FatBlock != null)
                 {
                     Debug.Assert(!block.CubeBlock.FatBlock.Closed);
+                    if (block.CubeBlock.FatBlock.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
+                        continue; //it is possible to have marked for close block there but not closed
                     if (m_tmpQueryCubeBlocks.Contains(block.CubeBlock.FatBlock))
                         continue;
 
@@ -6123,10 +6115,6 @@ namespace Sandbox.Game.Entities
                     {
                         blocks.Add(block.CubeBlock.FatBlock);
                         m_tmpQueryCubeBlocks.Add(block.CubeBlock.FatBlock);
-
-                        // CH: Testing code to catch a crash:
-                        if (block.CubeBlock.FatBlock.Closed) MyLog.Default.WriteLine("FatBlock was Closed in MyCubeGrid.QuerySphere!");
-                        if (block.CubeBlock.FatBlock.Hierarchy == null) MyLog.Default.WriteLine("Hierarchy was null in FatBlock in MyCubeGrid.QuerySphere!");
 
                         foreach (var child in block.CubeBlock.FatBlock.Hierarchy.Children)
                         {
@@ -7959,7 +7947,7 @@ namespace Sandbox.Game.Entities
 
         public void RequestConversionToShip()
         {
-            MyMultiplayer.RaiseEvent(this, x => x.RequestConversionToShip);
+            MyMultiplayer.RaiseEvent(this, x => x.OnConvertedToShipRequest);
         }
 
         [Event, Reliable, Server]

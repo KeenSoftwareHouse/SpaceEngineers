@@ -27,10 +27,12 @@ namespace VRage.Animations
         /// <summary>
         /// An Keyframe extends rotation and translation of the bone by specifying time of the event.
         /// </summary>
+        /// Beware, this class is used also in MWM builder and changing it to struct may cause problems during MWM generation.
         public class Keyframe : BoneState
         {
             public double Time = 0;                             // The keyframe time
             public double InvTimeDiff;                          // Inverted time difference = 1.0f / (currentKey.Time - previousKey.Time)
+                                                                // InvTimeDiff is not stored in the MWM file, it is computed during loading.
         }
 
         /// <summary>
