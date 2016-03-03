@@ -4,24 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Game;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
     public partial class MySlimBlock : IMySlimBlock
     {
-        IMyCubeBlock IMySlimBlock.FatBlock
+        ModAPI.Ingame.IMyCubeBlock ModAPI.Ingame.IMySlimBlock.FatBlock
         {
             get { return FatBlock; }
-        }
-
-        Sandbox.ModAPI.Ingame.IMyCubeBlock Sandbox.ModAPI.Ingame.IMySlimBlock.FatBlock
-        {
-            get { return FatBlock; }
-        }
-
-        float IMySlimBlock.AccumulatedDamage
-        {
-            get { return AccumulatedDamage; }
         }
 
         void IMySlimBlock.AddNeighbours()
@@ -32,16 +23,6 @@ namespace Sandbox.Game.Entities.Cube
         void IMySlimBlock.ApplyAccumulatedDamage(bool addDirtyParts)
         {
             ApplyAccumulatedDamage(addDirtyParts);
-        }
-
-        float IMySlimBlock.BuildIntegrity
-        {
-            get { return BuildIntegrity; }
-        }
-
-        float IMySlimBlock.BuildLevelRatio
-        {
-            get { return BuildLevelRatio; }
         }
 
         string IMySlimBlock.CalculateCurrentModel(out VRageMath.Matrix orientation)
@@ -64,16 +45,6 @@ namespace Sandbox.Game.Entities.Cube
             ComputeWorldCenter(out worldCenter);
         }
 
-        float IMySlimBlock.CurrentDamage
-        {
-            get { return CurrentDamage; }
-        }
-
-        float IMySlimBlock.DamageRatio
-        {
-            get { return DamageRatio; }
-        }
-
         void IMySlimBlock.FixBones(float oldDamage, float maxAllowedBoneMovement)
         {
             FixBones(oldDamage, maxAllowedBoneMovement);
@@ -89,19 +60,9 @@ namespace Sandbox.Game.Entities.Cube
             return GetCopyObjectBuilder();
         }
 
-        void IMySlimBlock.GetMissingComponents(Dictionary<string, int> addToDictionary)
-        {
-            GetMissingComponents(addToDictionary);
-        }
-
         MyObjectBuilder_CubeBlock IMySlimBlock.GetObjectBuilder()
         {
             return GetObjectBuilder();
-        }
-
-        bool IMySlimBlock.HasDeformation
-        {
-            get { return HasDeformation; }
         }
 
         void IMySlimBlock.InitOrientation(ref VRageMath.Vector3I forward, ref VRageMath.Vector3I up)
@@ -119,35 +80,6 @@ namespace Sandbox.Game.Entities.Cube
             InitOrientation(orientation);
         }
 
-        bool IMySlimBlock.IsDestroyed
-        {
-            get { return IsDestroyed; }
-        }
-
-        bool IMySlimBlock.IsFullIntegrity
-        {
-            get { return IsFullIntegrity; }
-        }
-
-        bool IMySlimBlock.IsFullyDismounted
-        {
-            get { return IsFullyDismounted; }
-        }
-
-        float IMySlimBlock.MaxDeformation
-        {
-            get { return MaxDeformation; }
-        }
-
-        float IMySlimBlock.MaxIntegrity
-        {
-            get { return MaxIntegrity; }
-        }
-
-        float IMySlimBlock.Mass
-        {
-            get { return GetMass();  }
-        }
         void IMySlimBlock.RemoveNeighbours()
         {
             RemoveNeighbours();
@@ -156,11 +88,6 @@ namespace Sandbox.Game.Entities.Cube
         void IMySlimBlock.SetToConstructionSite()
         {
             SetToConstructionSite();
-        }
-
-        bool IMySlimBlock.ShowParts
-        {
-            get { return ShowParts; }
         }
 
         void IMySlimBlock.SpawnConstructionStockpile()
@@ -176,21 +103,6 @@ namespace Sandbox.Game.Entities.Cube
         void IMySlimBlock.SpawnFirstItemInConstructionStockpile()
         {
             SpawnFirstItemInConstructionStockpile();
-        }
-
-        bool IMySlimBlock.StockpileAllocated
-        {
-            get { return StockpileAllocated; }
-        }
-
-        bool IMySlimBlock.StockpileEmpty
-        {
-            get { return StockpileEmpty; }
-        }
-
-        void IMySlimBlock.UpdateVisual()
-        {
-            UpdateVisual();
         }
 
         float ModAPI.Ingame.IMySlimBlock.AccumulatedDamage
@@ -278,7 +190,6 @@ namespace Sandbox.Game.Entities.Cube
             UpdateVisual();
         }
 
-
         VRageMath.Vector3I IMySlimBlock.Position
         {
             get
@@ -291,21 +202,21 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-
         VRageMath.Vector3I ModAPI.Ingame.IMySlimBlock.Position
         {
             get { return Position; }
         }
 
-        Sandbox.ModAPI.Ingame.IMyCubeGrid ModAPI.Ingame.IMySlimBlock.CubeGrid
+        ModAPI.Ingame.IMyCubeGrid ModAPI.Ingame.IMySlimBlock.CubeGrid
         {
             get { return CubeGrid; }
         }
 
-        Sandbox.ModAPI.IMyCubeGrid ModAPI.IMySlimBlock.CubeGrid
+        MyDefinitionId ModAPI.Ingame.IMySlimBlock.BlockDefinition
         {
-            get { return CubeGrid; }
-        }        
+            get { return BlockDefinition.Id; }
+        }
+
         VRageMath.Vector3 IMySlimBlock.GetColorMask()
         {
             return ColorMaskHSV;

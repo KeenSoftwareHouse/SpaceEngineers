@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Game;
 using VRageMath;
 namespace Sandbox.ModAPI.Ingame
 {
@@ -30,5 +31,6 @@ namespace Sandbox.ModAPI.Ingame
         void UpdateVisual();
         Vector3I Position { get; }
         IMyCubeGrid CubeGrid { get; }
+        MyDefinitionId BlockDefinition { get; }
     }
 }
