@@ -497,7 +497,9 @@
     <Compile Include="Game\Extensions\MyEntityContainerEventExtensions.cs" />
     <Compile Include="Game\GameSystems\CoordinateSystem\MyCoordinateSystem.cs" />
     <Compile Include="Game\GameSystems\CoordinateSystem\MyLocalCoordSys.cs" />
-    <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.cs">
+      <SubType>Form</SubType>
+    </Compile>    
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.Designer.cs">
       <DependentUpon>LiveWatch.cs</DependentUpon>
     </Compile>

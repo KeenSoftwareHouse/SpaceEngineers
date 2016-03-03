@@ -151,7 +151,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyProgram.cs" />
+    <Compile Include="MyProgram.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
