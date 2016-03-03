@@ -3083,7 +3083,7 @@ namespace Sandbox.Game.Entities
         {
             var controllingPlayer = Sync.Players.GetControllingPlayer(builder);
 
-            if (MyCubeBuilder.Static.canBuild == false || controllingPlayer.IsLocalPlayer == false) return false;
+            if (MyCubeBuilder.Static.canBuild == false ||(controllingPlayer  != null && controllingPlayer.IsLocalPlayer == false)) return false;
      
             if (controllingPlayer == null || controllingPlayer.IsRemotePlayer)
             {

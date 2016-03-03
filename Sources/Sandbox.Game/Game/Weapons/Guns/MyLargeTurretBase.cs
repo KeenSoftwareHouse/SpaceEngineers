@@ -1067,11 +1067,11 @@ namespace Sandbox.Game.Weapons
 
                 if (m_status == MyLargeShipGunStatus.MyWeaponStatus_Shooting)
                 {
-                    m_canStopShooting = (m_barrel.StartShooting() && m_soundEmitter.Loop);
+                    m_canStopShooting = (m_barrel.StartShooting() && m_soundEmitter != null && m_soundEmitter.Loop);
                 }
                 else if (m_status != MyLargeShipGunStatus.MyWeaponStatus_ShootDelaying)
                 {
-                    if (m_canStopShooting || ((m_soundEmitter.Sound != null) && m_soundEmitter.Sound.IsPlaying && m_soundEmitter.Loop))
+                    if (m_canStopShooting || (m_soundEmitter != null && m_soundEmitter.Sound != null && m_soundEmitter.Sound.IsPlaying && m_soundEmitter.Loop))
                     {
                         m_barrel.StopShooting();
                         m_canStopShooting = false;
@@ -1081,7 +1081,7 @@ namespace Sandbox.Game.Weapons
             else
             {
                 m_status = MyLargeShipGunStatus.MyWeaponStatus_Searching;
-                if (m_canStopShooting || ((m_soundEmitter.Sound != null) && m_soundEmitter.Sound.IsPlaying && m_soundEmitter.Loop))
+                if (m_canStopShooting || (m_soundEmitter != null && m_soundEmitter.Sound != null && m_soundEmitter.Sound.IsPlaying && m_soundEmitter.Loop))
                 {
                     m_barrel.StopShooting();
                     m_canStopShooting = false;
@@ -1099,7 +1099,7 @@ namespace Sandbox.Game.Weapons
                 m_barrel.StopShooting();
                 m_canStopShooting = false;
             }
-            if (m_soundEmitterForRotation.Sound != null && m_soundEmitterForRotation.IsPlaying)
+            if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.Sound != null && m_soundEmitterForRotation.IsPlaying)
                 m_soundEmitterForRotation.StopSound(true);
         }
 
@@ -1544,7 +1544,7 @@ namespace Sandbox.Game.Weapons
 
         private void PlayAimingSound()
         {
-            if (m_soundEmitter != null && m_soundEmitterForRotation.IsPlaying == false)
+            if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.IsPlaying == false)
                 m_soundEmitterForRotation.PlaySingleSound(m_rotatingCueEnum, true);
         }
 
@@ -1566,7 +1566,7 @@ namespace Sandbox.Game.Weapons
 
         internal void StopAimingSound()
         {
-            if (m_soundEmitter != null && m_soundEmitterForRotation.SoundId == m_rotatingCueEnum.SoundId)
+            if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.SoundId == m_rotatingCueEnum.SoundId)
                 m_soundEmitterForRotation.StopSound(false);
         }
 
@@ -2675,6 +2675,8 @@ namespace Sandbox.Game.Weapons
 
         private void OnStopAI()
         {
+            if (m_soundEmitter == null)
+                return;
             if (m_soundEmitter.IsPlaying)
                 m_soundEmitter.StopSound(true);
             if (m_soundEmitterForRotation.IsPlaying)

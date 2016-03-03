@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities
         NoContactDamage = 2,
     }
 
-    public class MyCubeGridGroups : IMySceneComponent
+    public partial class MyCubeGridGroups : IMySceneComponent
     {
         public static MyCubeGridGroups Static;
 

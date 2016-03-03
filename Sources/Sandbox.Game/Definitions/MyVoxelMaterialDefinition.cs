@@ -5,7 +5,6 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Utils;
 using VRage.Utils;
 using VRage;
-using Medieval.ObjectBuilders.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
 

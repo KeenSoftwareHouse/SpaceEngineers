@@ -6,7 +6,7 @@ namespace Sandbox.Common.ObjectBuilders
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    [System.Xml.Serialization.XmlSerializerAssembly("MedievalEngineers.ObjectBuilders.XmlSerializers")]
+    [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_Ladder : MyObjectBuilder_CubeBlock
     {
     }

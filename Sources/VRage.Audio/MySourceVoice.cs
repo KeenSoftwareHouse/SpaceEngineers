@@ -33,6 +33,7 @@ namespace VRage.Audio
         static private readonly object theLock = new Object();
         private bool m_valid;
         private bool m_buffered;
+        public float distanceToListener = float.MaxValue;
 
         public SourceVoice Voice { get { return m_voice; } }
         public MyCueId CueEnum { get { return m_cueId; } }
@@ -47,6 +48,7 @@ namespace VRage.Audio
             set { m_frequencyRatio = value; }
         }
         public float Volume { get { return IsValid ? Voice.Volume : 0; } }
+        public bool Silent = false;
         public bool IsBuffered { get { return m_buffered; } }
 
         public MySourceVoice(XAudio2 device, WaveFormat sourceFormat)

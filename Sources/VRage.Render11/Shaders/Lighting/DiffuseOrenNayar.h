@@ -4,7 +4,7 @@
 #include <Math/math.h>
 #include <Lighting/Utils.h>
 
-// gloss -> 1 gives lambertian diffuse
+// g -> 1 gives lambertian diffuse
 float3 DiffuseLightOrenNayar(float nl, float nv, float3 albedo, float gloss)
 {
     float r2 = remap_gloss(gloss);

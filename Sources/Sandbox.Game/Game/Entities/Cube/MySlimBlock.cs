@@ -24,9 +24,13 @@ using VRageMath;
 using Sandbox.Engine.Models;
 using VRage.Game.Entity;
 using VRage.Game;
+using ProtoBuf;
+using Sandbox.Engine.Multiplayer;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Cube
 {
+    [StaticEventOwner]
     [MyCubeBlockType(typeof(MyObjectBuilder_CubeBlock))]
     public partial class MySlimBlock : IMyDestroyableObject
     {
@@ -1081,7 +1085,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 Debug.Assert(Sync.IsServer);
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo, attackerId);
+                    DoDamageSynced(this, damage, damageType, hitInfo, attackerId);
             }
             else
                 this.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
@@ -2282,6 +2286,79 @@ namespace Sandbox.Game.Entities.Cube
             Vector3 modelOffset;
             Vector3.TransformNormal(ref BlockDefinition.ModelOffset, ref localMatrix, out modelOffset);
             localMatrix.Translation += modelOffset;
+        }
+
+        static void DoDamageSynced(MySlimBlock block, float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
+        {
+            var msg = new DoDamageSlimBlockMsg();
+            msg.GridEntityId = block.CubeGrid.EntityId;
+            msg.Position = block.Position;
+            msg.Damage = damage;
+            msg.HitInfo = hitInfo;
+            msg.AttackerEntityId = attackerId;
+            msg.CompoundBlockId = 0xFFFFFFFF;
+
+            // Get compound block id
+            var blockOnPosition = block.CubeGrid.GetCubeBlock(block.Position);
+            if (blockOnPosition != null && block != blockOnPosition && blockOnPosition.FatBlock is MyCompoundCubeBlock)
+            {
+                MyCompoundCubeBlock compound = blockOnPosition.FatBlock as MyCompoundCubeBlock;
+                ushort? compoundBlockId = compound.GetBlockId(block);
+                if (compoundBlockId != null)
+                    msg.CompoundBlockId = compoundBlockId.Value;
+            }
+
+            block.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
+            MyMultiplayer.RaiseStaticEvent(s => MySlimBlock.DoDamageSlimBlock, msg);
+        }
+
+        [Event, Reliable, Broadcast]
+        static void DoDamageSlimBlock(DoDamageSlimBlockMsg msg)
+        {
+            Debug.Assert(!Sync.IsServer);
+
+            MyCubeGrid grid;
+            if (!MyEntities.TryGetEntityById<MyCubeGrid>(msg.GridEntityId, out grid))
+                return;
+
+            var block = grid.GetCubeBlock(msg.Position);
+            if (block == null)
+                return;
+
+            if (msg.CompoundBlockId != 0xFFFFFFFF && block.FatBlock is MyCompoundCubeBlock)
+            {
+                var compound = block.FatBlock as MyCompoundCubeBlock;
+                var blockInCompound = compound.GetBlock((ushort)msg.CompoundBlockId);
+                if (blockInCompound != null)
+                    block = blockInCompound;
+            }
+
+            block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo, attackerId: msg.AttackerEntityId);
+        }
+
+        [ProtoContract]
+        struct DoDamageSlimBlockMsg
+        {
+            [ProtoMember]
+            public long GridEntityId;
+
+            [ProtoMember]
+            public Vector3I Position;
+
+            [ProtoMember]
+            public float Damage;
+
+            [ProtoMember]
+            public MyStringHash Type;
+
+            [ProtoMember]
+            public MyHitInfo? HitInfo;
+
+            [ProtoMember]
+            public long AttackerEntityId;
+
+            [ProtoMember]
+            public uint CompoundBlockId;
         }
     }
 }

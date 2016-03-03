@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using VRage.Game.Gui;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game
@@ -93,6 +94,9 @@ namespace VRage.Game
             
             [ProtoMember, DefaultValue(0f)]
             public float CustomShapeRadius;
+
+            [ProtoMember]
+            public MyHudTexturesEnum Crosshair = MyHudTexturesEnum.crosshair;
              
             [XmlArrayItem("HitCondition")]
             [ProtoMember, DefaultValue(null)]

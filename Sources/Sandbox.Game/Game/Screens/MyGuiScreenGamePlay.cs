@@ -181,6 +181,8 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Log.IncreaseIndent();
 
             base.UnloadContent();
+            if (MyAudio.Static != null)
+                MyAudio.Static.ReloadData();
 
             //  Do GC collect as last step. Reason is that after we loaded new level, a lot of garbage is created and we want to clear it now and not wait until GC decides so.
             GC.Collect();

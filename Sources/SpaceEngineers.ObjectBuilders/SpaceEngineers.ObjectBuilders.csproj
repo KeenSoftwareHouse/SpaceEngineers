@@ -160,6 +160,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_InteriorLight.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_InteriorTurret.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_JumpDrive.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Ladder.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_LandingGear.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_LargeGatlingTurret.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_LargeMissileTurret.cs" />

@@ -1,7 +1,6 @@
 ﻿using SharpDX.Multimedia;
 using SharpDX.XAudio2;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using VRage.Collections;
 
@@ -17,6 +16,10 @@ namespace VRage.Audio
         MyConcurrentQueue<MySourceVoice> m_availableVoices;
         List<MySourceVoice> m_fadingOutVoices;
         public event AudioEngineChanged OnAudioEngineChanged;
+
+        public bool useSameSoundLimiter = false;
+        public int sameSoundlimiterCount = 3;
+
         int m_currentCount;
         private const int MAX_COUNT = 32;
 #if DEBUG
@@ -27,6 +30,8 @@ namespace VRage.Audio
         public WaveFormat WaveFormat { get { return m_waveFormat; } }
         private List<MySourceVoice> m_voiceBuffer = new List<MySourceVoice>();
         private List<MySourceVoice> m_voiceBuffer2 = new List<MySourceVoice>();
+        private List<MySourceVoice> m_voicesToRemove = new List<MySourceVoice>();
+        private List<MySourceVoice> m_distancedVoices = new List<MySourceVoice>();
 
         public MySourceVoicePool(XAudio2 audioEngine, WaveFormat waveformat, MyCueBank owner)
         {
@@ -83,10 +88,10 @@ namespace VRage.Audio
         {
             if (m_owner == null || m_audioEngine == null)
                 return;
+            int i;
             if (m_owner.DisablePooling)
             {
                 MySourceVoice voice;
-                int i;
                 for (i = 0; i < m_voiceBuffer2.Count; i++)
                 {
                     m_voiceBuffer2[i].Dispose();
@@ -101,6 +106,8 @@ namespace VRage.Audio
                     }
             }
             int id = 0;
+
+            //fading out
             while (id < m_fadingOutVoices.Count)
             {
                 MySourceVoice voice = m_fadingOutVoices[id];
@@ -124,6 +131,58 @@ namespace VRage.Audio
                 }
 
                 ++id;
+            }
+
+            //check for invalid voices
+            m_voicesToRemove.Clear();
+            foreach (MySourceVoice voice in m_allVoices)
+            {
+                if (voice.IsValid == false)
+                    m_voicesToRemove.Add(voice);
+            }
+
+            //remove invalid voices
+            while (m_voicesToRemove.Count > 0)
+            {
+                m_allVoices.Remove(m_voicesToRemove[0]);
+                m_voicesToRemove.RemoveAt(0);
+            }
+
+            //silent sounds playing in large number (sameSoundLimiterCount)
+            if (useSameSoundLimiter)
+            {
+                //add remaining voices to distance and sort them
+                m_distancedVoices.Clear();
+                foreach (MySourceVoice voice in m_allVoices)
+                {
+                    m_distancedVoices.Add(voice);
+                }
+                m_distancedVoices.Sort(delegate(MySourceVoice x, MySourceVoice y)
+                {
+                    return x.distanceToListener.CompareTo(y.distanceToListener);
+                });
+
+                //silent or un-silent voices
+                MyCueId currentCueId;
+                int j;
+                while (m_distancedVoices.Count > 0)
+                {
+                    currentCueId = m_distancedVoices[0].CueEnum;
+                    i = 0;
+                    for (j = 0; j < m_distancedVoices.Count; j++)
+                    {
+                        if (m_distancedVoices[j].CueEnum.Equals(currentCueId))
+                        {
+                            i++;
+                            if (i > sameSoundlimiterCount)
+                                m_distancedVoices[j].Silent = true;
+                            else
+                                m_distancedVoices[j].Silent = false;
+                            m_distancedVoices.RemoveAt(j);
+                            j--;
+                        }
+                    }
+                }
             }
         }
 

@@ -79,7 +79,6 @@
     <Compile Include="ObjectBuilders\Block\MyObjectBuilder_SwitchBlock.cs" />
     <Compile Include="ObjectBuilders\Block\MyObjectBuilder_TorsionSpringBlock.cs" />
     <Compile Include="ObjectBuilders\Block\MyObjectBuilder_WheelBlock.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelsBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CrossbowItemDefinition.cs" />
@@ -92,13 +91,9 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TorsionSpringBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_BattleAreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Crossbow.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_HandTorch.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_Ladder.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Magnifier.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MedievalSessionSettings.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_Rope.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MedievalProjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

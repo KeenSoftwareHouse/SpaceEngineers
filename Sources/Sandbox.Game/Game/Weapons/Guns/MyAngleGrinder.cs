@@ -30,10 +30,10 @@ namespace Sandbox.Game.Weapons
     [MyEntityType(typeof(MyObjectBuilder_AngleGrinder))]
     class MyAngleGrinder : MyEngineerToolBase
     {
-        private MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayGrindIdle");
-        private MySoundPair actualSound = new MySoundPair("ToolPlayGrindMetal");
-        private MyStringHash source = MyStringHash.GetOrCompute("Grinder");
-        private MyStringHash metal = MyStringHash.GetOrCompute("Metal");
+        private MySoundPair m_idleSound = new MySoundPair("ToolPlayGrindIdle");
+        private MySoundPair m_actualSound = new MySoundPair("ToolPlayGrindMetal");
+        private MyStringHash m_source = MyStringHash.GetOrCompute("Grinder");
+        private MyStringHash m_metal = MyStringHash.GetOrCompute("Metal");
 
         static readonly float GRINDER_AMOUNT_PER_SECOND = 2f;
         static readonly float GRINDER_MAX_SPEED_RPM = 500f;
@@ -78,6 +78,19 @@ namespace Sandbox.Game.Weapons
 
             PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)objectBuilder.Clone();
             PhysicalObject.GunEntity.EntityId = this.EntityId;
+
+            foreach (ToolSound toolSound in m_handItemDef.ToolSounds)
+            {
+                if (toolSound.type == null || toolSound.subtype == null || toolSound.sound == null)
+                    continue;
+                if (toolSound.type.Equals("Main"))
+                {
+                    if (toolSound.subtype.Equals("Idle"))
+                        m_idleSound = new MySoundPair(toolSound.sound);
+                    if (toolSound.subtype.Equals("Soundset"))
+                        m_source = MyStringHash.GetOrCompute(toolSound.sound);
+                }
+            }
         }
 
         float GrinderAmount
@@ -179,7 +192,7 @@ namespace Sandbox.Game.Weapons
         private void Grind()
         {
             var block = GetTargetBlock();
-            MyStringHash target = metal;
+            MyStringHash target = m_metal;
             if (block != null && (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode) || block.CubeGrid.BlocksDestructionEnabled))
             {
                 float hackMultiplier = 1.0f;
@@ -234,13 +247,13 @@ namespace Sandbox.Game.Weapons
 
             if (block != null || targetDestroyable != null)
             {
-                actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, source, target);
+                m_actualSound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_source, target);
             }
         }
 
         protected override void StartLoopSound(bool effect)
         {
-            MySoundPair cueEnum = effect ? actualSound : IDLE_SOUND;
+            MySoundPair cueEnum = effect ? m_actualSound : m_idleSound;
             if (m_soundEmitter.Sound != null && m_soundEmitter.Sound.IsPlaying)
                 m_soundEmitter.PlaySingleSound(cueEnum, true, false);
             else

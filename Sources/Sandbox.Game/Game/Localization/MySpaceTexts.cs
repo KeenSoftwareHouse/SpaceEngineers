@@ -5260,7 +5260,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ProgrammableBlock_Exception_NoMain = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NoMain");
 
         ///<summary>
-        ///Script execution terminated, script is too complex. Please edit and rebuilt script.
+        ///Script execution terminated, script is too complex. Please edit and rebuild script.
         ///</summary>
         public static readonly MyStringId ProgrammableBlock_Exception_TooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_TooComplex");
 
@@ -8648,5 +8648,10 @@ namespace Sandbox.Game.Localization
         ///Safety lock speed
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_WeldSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_WeldSpeed");
+
+        ///<summary>
+        ///Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_NestedTooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NestedTooComplex");
     }
 }

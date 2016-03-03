@@ -879,20 +879,24 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void OnStartProducing()
         {
-            m_soundEmitter.PlaySound(m_processSound, true);
+            if(m_soundEmitter != null)
+                m_soundEmitter.PlaySound(m_processSound, true);
             var handle = StartedProducing;
             if (handle != null) handle();
         }
 
         protected void OnStopProducing()
         {
-            if (IsWorking)
+            if (m_soundEmitter != null)
             {
-                m_soundEmitter.StopSound(false);
-                m_soundEmitter.PlaySound(m_baseIdleSound, false, true);
+                if (IsWorking)
+                {
+                    m_soundEmitter.StopSound(false);
+                    m_soundEmitter.PlaySound(m_baseIdleSound, false, true);
+                }
+                else
+                    m_soundEmitter.StopSound(false);
             }
-            else
-                m_soundEmitter.StopSound(false);
             var handle = StoppedProducing;
             if (handle != null) handle();
         }

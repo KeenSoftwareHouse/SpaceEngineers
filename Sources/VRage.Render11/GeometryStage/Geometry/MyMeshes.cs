@@ -481,6 +481,7 @@ namespace VRageRender
     struct MyMeshSection
     {
         internal MeshId Mesh;
+        internal int Lod;
         internal int Section;
 
         #region Equals
@@ -494,7 +495,7 @@ namespace VRageRender
 
             public int GetHashCode(MyMeshSection section)
             {
-                return section.Mesh.GetHashCode() << 16 | section.Section;
+                return section.Mesh.GetHashCode() << 20 | section.Lod << 10 | section.Section;
             }
         }
         public static readonly MyMeshSectionComparerType Comparer = new MyMeshSectionComparerType();
@@ -644,14 +645,14 @@ namespace VRageRender
             return PartIndex.TryGetValue(new MyMeshPart { Mesh = mesh, Lod = lod, Part = part }, out partId);
         }
 
-        internal static MeshSectionId GetMeshSection(MeshId mesh, int section)
+        internal static MeshSectionId GetMeshSection(MeshId mesh, int lod, int section)
         {
-            return SectionIndex[new MyMeshSection { Mesh = mesh, Section = section }];
+            return SectionIndex[new MyMeshSection { Mesh = mesh, Lod = lod, Section = section }];
         }
 
-        internal static bool TryGetMeshSection(MeshId mesh, int section, out MeshSectionId sectionId)
+        internal static bool TryGetMeshSection(MeshId mesh, int lod, int section, out MeshSectionId sectionId)
         {
-            return SectionIndex.TryGetValue(new MyMeshSection { Mesh = mesh, Section = section }, out sectionId);
+            return SectionIndex.TryGetValue(new MyMeshSection { Mesh = mesh, Lod = lod, Section = section }, out sectionId);
         }
 
         internal static VoxelPartId GetVoxelPart(MeshId mesh, int part)
@@ -832,12 +833,12 @@ namespace VRageRender
             return id;
         }
 
-        static MeshSectionId NewMeshSection(MeshId mesh, int section)
+        static MeshSectionId NewMeshSection(MeshId mesh, int lod, int section)
         {
             var id = new MeshSectionId { Index = Sections.Allocate() };
             Sections.Data[id.Index] = new MyMeshSectionInfo1 { };
 
-            SectionIndex[new MyMeshSection { Mesh = mesh, Section = section }] = id;
+            SectionIndex[new MyMeshSection { Mesh = mesh, Lod = lod, Section = section }] = id;
 
             return id;
         }
@@ -1316,13 +1317,13 @@ namespace VRageRender
             return lod;
         }
 
-        static void StoreMeshSections(MeshId mesh, ref MyMeshSectionInfo1[] sections)
+        static void StoreLodMeshSections(MeshId mesh, int lodIndex, ref MyMeshSectionInfo1[] sections)
         {
             if (sections != null)
             {
                 for (int i = 0; i < sections.Length; i++)
                 {
-                    var sectionId = NewMeshSection(mesh, i);
+                    var sectionId = NewMeshSection(mesh, lodIndex, i);
                     Sections.Data[sectionId.Index] = sections[i];
                 }
             }
@@ -2033,7 +2034,7 @@ namespace VRageRender
             MeshInfos.Data[id.Index].FileExists = true;
 
             StoreLodMeshWithParts(id, 0, ref meshMainLod, ref parts);
-            StoreMeshSections(id, ref sections);
+            StoreLodMeshSections(id, 0, ref sections);
 
             int modelLods = 1;
 
@@ -2053,7 +2054,8 @@ namespace VRageRender
                 };
 
                 MyMeshPartInfo1[] lodParts;
-                bool lodOk = LoadMwm(ref lodMesh, out lodParts, out sections);
+                MyMeshSectionInfo1[] lodSections;
+                bool lodOk = LoadMwm(ref lodMesh, out lodParts, out lodSections);
                 if (lodOk)
                 {
                     //lodMesh.FileName = ERROR_MODEL_PATH;
@@ -2062,6 +2064,7 @@ namespace VRageRender
                     //    Debug.Fail("error model missing");
                     //}
                     StoreLodMeshWithParts(id, modelLods, ref lodMesh, ref lodParts);
+                    StoreLodMeshSections(id, modelLods, ref lodSections);
                     modelLods++;
                 }
             }

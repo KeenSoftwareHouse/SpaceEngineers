@@ -381,10 +381,21 @@ namespace Sandbox.Game.Gui
                         {
                             MyMultiplayer.Static.Dispose();
                         }
-                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                            messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                            messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
-                            buttonType: MyMessageBoxButtonsType.OK));
+
+                        if (MySteam.IsOnline)
+                        {
+                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                                messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
+                                buttonType: MyMessageBoxButtonsType.OK));
+                        }
+                        else
+                        {
+                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                          messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                                                          messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailedSteamOffline),
+                                                          buttonType: MyMessageBoxButtonsType.OK));
+                        }
                     }
                     MyLog.Default.WriteLine("LoadSession() - End");
                 },
@@ -569,7 +580,10 @@ namespace Sandbox.Game.Gui
                 else
                 {
                     MyLog.Default.WriteLine(MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed).ToString());
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+
+                    if (MySteam.IsOnline)
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                         messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                         messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
                         buttonType: MyMessageBoxButtonsType.OK, callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
@@ -577,6 +591,15 @@ namespace Sandbox.Game.Gui
                             if (MyFakes.QUICK_LAUNCH != null)
                                 MyGuiScreenMainMenu.ReturnToMainMenu();
                         }));
+                    }
+                    else
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                      messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                                                      messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailedSteamOffline),
+                                                      buttonType: MyMessageBoxButtonsType.OK));
+                    }
+                   
                 }
                 MyLog.Default.WriteLine("LoadSession() - End");
             });

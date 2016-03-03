@@ -93,5 +93,53 @@ namespace VRage.Game.ObjectBuilders
         [ProtoMember]
         [XmlElement("Condition")]
         public MyObjectBuilder_AnimationSMCondition[] Conditions;
+
+        // ---------- helper methods --------------
+
+        /// <summary>
+        /// Create deep copy of this conjuction of conditions.
+        /// </summary>
+        /// <returns></returns>
+        public MyObjectBuilder_AnimationSMConditionsConjunction DeepCopy()
+        {
+            var rtnInstance = new MyObjectBuilder_AnimationSMConditionsConjunction();
+            if (Conditions != null)
+            {
+                rtnInstance.Conditions = new MyObjectBuilder_AnimationSMCondition[Conditions.Length];
+                for (int i = 0; i < Conditions.Length; i++)
+                {
+                    rtnInstance.Conditions[i] = new MyObjectBuilder_AnimationSMCondition
+                    {
+                        Operation = Conditions[i].Operation,
+                        ValueLeft = Conditions[i].ValueLeft,
+                        ValueRight = Conditions[i].ValueRight
+                    };
+                }
+            }
+            else
+            {
+                rtnInstance.Conditions = null;
+            }
+            return rtnInstance;
+        }
+
+        // Convert to printable version.
+        public override string ToString()
+        {
+            if (Conditions == null || Conditions.Length == 0)
+                return "[no content, false]";
+            bool first = true;
+            StringBuilder stringBuilder = new StringBuilder(512);
+            stringBuilder.Append("[");
+            foreach (var condition in Conditions)
+            {
+                if (!first)
+                    stringBuilder.Append(" AND ");
+                stringBuilder.Append(condition.ToString());
+                first = false;
+            }
+            stringBuilder.Append("]");
+            return stringBuilder.ToString();
+        }
     }
 }

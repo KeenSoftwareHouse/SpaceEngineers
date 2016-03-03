@@ -18,10 +18,22 @@ namespace VRage.Compiler
 
     public class IlInjector
     {
+        static InstructionCounterHandle m_instructionCounterHandle = new InstructionCounterHandle();
         static int m_numInstructions = 0;
         static int m_numMaxInstructions = 0;
 
-        public static void RestartCountingInstructions(int maxInstructions)
+        public static bool IsWithinRunBlock()
+        {
+            return m_instructionCounterHandle.Depth > 0;
+        }
+
+        public static IDisposable BeginRunBlock(int maxInstructions, int maxMethodCalls)
+        {
+            m_instructionCounterHandle.AddRef(maxInstructions, maxMethodCalls);
+            return m_instructionCounterHandle;
+        }
+
+        private static void RestartCountingInstructions(int maxInstructions)
         {
             m_numInstructions = 0;
             m_numMaxInstructions = maxInstructions;
@@ -39,7 +51,7 @@ namespace VRage.Compiler
 		static int m_numMethodCalls = 0;
 		static int m_numMaxMethodCalls= 0;
 
-		public static void RestartCountingMethods(int maxMethodCalls)
+		private static void RestartCountingMethods(int maxMethodCalls)
 		{
 			m_numMethodCalls = 0;
 			m_numMaxMethodCalls = maxMethodCalls;
@@ -649,6 +661,34 @@ namespace VRage.Compiler
             }
             // Generate the exact field reference
             generator.Emit(code, field);
+        }
+
+        private class InstructionCounterHandle : IDisposable
+        {
+            int m_runDepth;
+
+            public int Depth { get { return m_runDepth; } }
+
+            public void AddRef(int maxInstructions, int maxMethodCount)
+            {
+                this.m_runDepth++;
+                if (this.m_runDepth == 1)
+                {
+                    // Only the outermost call in a nested set is allowed to change
+                    // the max number of instructions and method calls. Any subsequent
+                    // script runs must follow the original limits.
+                    RestartCountingInstructions(maxInstructions);
+                    RestartCountingMethods(maxMethodCount);
+                }
+            }
+
+            public void Dispose()
+            {
+                if (this.m_runDepth > 0)
+                {
+                    this.m_runDepth--;
+                }
+            }
         }
     }
 }

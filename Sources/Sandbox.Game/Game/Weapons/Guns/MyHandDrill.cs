@@ -168,7 +168,20 @@ namespace Sandbox.Game.Weapons
                 MyStringHash.GetOrCompute("Utility"), 
                 MyEnergyConstants.REQUIRED_INPUT_HAND_DRILL,
                 () => m_tryingToDrill ? SinkComp.MaxRequiredInput : 0f);
-	        SinkComp = sinkComp;
+            SinkComp = sinkComp;
+
+            foreach (ToolSound toolSound in definition.ToolSounds)
+            {
+                if (toolSound.type == null || toolSound.subtype == null || toolSound.sound == null)
+                    continue;
+                if (toolSound.type.Equals("Main"))
+                {
+                    if (toolSound.subtype.Equals("Idle"))
+                        m_drillBase.m_idleSoundLoop = new MySoundPair(toolSound.sound);
+                    if (toolSound.subtype.Equals("Soundset"))
+                        m_drillBase.m_drillMaterial = MyStringHash.GetOrCompute(toolSound.sound);
+                }
+            }
         }
 
         public bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)

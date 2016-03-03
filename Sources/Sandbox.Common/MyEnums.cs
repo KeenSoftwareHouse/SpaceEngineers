@@ -12,7 +12,6 @@ namespace Sandbox.Common
     {
         NEW_SANDBOX,
         LAST_SANDBOX,
-        SCENARIO_QUICKSTART
     }
 
 

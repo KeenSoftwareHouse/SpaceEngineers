@@ -506,7 +506,7 @@ namespace Sandbox.Game.Entities
                 if (sync)
                 {
                     if (Sync.IsServer)
-                        MySyncHelper.DoDamageSynced(Entity, damage, damageType, attackerId);
+                        MySyncDamage.DoDamageSynced(Entity, damage, damageType, attackerId);
                 }
                 else
                 {

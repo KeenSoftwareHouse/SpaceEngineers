@@ -184,7 +184,10 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void cubeGrid_OnPhysicsChanged(MyEntity obj)
         {
-            Reattach();
+            if (Sync.IsServer)
+            {
+                Reattach();
+            }
         }
 
         void OnWeldedEntityIdChanged()
@@ -372,7 +375,7 @@ namespace Sandbox.Game.Entities.Cube
             m_constraint = null;
             m_rotorGrid = null;
             if (m_rotorBlock != null)
-                m_rotorBlock.Detach();
+                m_rotorBlock.Detach(m_welded || m_isWelding);
             m_rotorBlock = null;
 
             UpdateText();
@@ -427,7 +430,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_constraint != null)
                 {
-                    Detach(true);
+                    Detach();
                 }
             }
             else if (m_rotorBlockId.Value.OtherEntityId == 0) // Find anything to attach (only on server)
@@ -439,7 +442,7 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         if (m_constraint != null)
                         {
-                            Detach(true);
+                            Detach();
                         }
 
                         MatrixD masterToSlave = rotor.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
@@ -451,7 +454,7 @@ namespace Sandbox.Game.Entities.Cube
             else if ((false == m_welded &&(m_rotorBlock == null || m_rotorBlock.EntityId != m_rotorBlockId.Value.OtherEntityId)) ||
                      (m_welded && m_weldedRotorBlockId != m_rotorBlockId.Value.OtherEntityId)) // Attached to something else or nothing
             {
-                Detach(true);
+                Detach();
                 MyMotorRotor rotor;
                 bool attached = false;
                 if (MyEntities.TryGetEntityById<MyMotorRotor>(m_rotorBlockId.Value.OtherEntityId.Value, out rotor) && !rotor.MarkedForClose && rotor.CubeGrid.InScene)
@@ -540,16 +543,25 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        public void Reattach()
+        public void Reattach(bool force = false)
         {
-            if (m_rotorBlock == null || m_rotorBlock.Closed || m_welded || m_isWelding)
+            if (m_rotorBlock == null || m_rotorBlock.Closed)
+            {
                 return;
+            }
+
+            if(force == false && (m_welded || m_isWelding))
+            {
+                return;
+            }
 
             var rotor = m_rotorBlock;
-            bool detached = Detach(updateGroup: false);
-            if (CubeGrid.MarkedForClose || rotor.MarkedForClose)
+            bool detached = Detach(force);
+            if (MarkedForClose || Closed || rotor.MarkedForClose || rotor.Closed || CubeGrid.MarkedForClose || CubeGrid.Closed)
+            {
                 return;
-            bool attached = Attach(rotor, updateGroup: false);
+            }
+            bool attached = Attach(rotor, force);
             //Debug.Assert(detached && attached);
             if(!rotor.MarkedForClose && rotor.CubeGrid.Physics != null)
                 rotor.CubeGrid.Physics.ForceActivate();
@@ -664,11 +676,50 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 m_weldedRotorBlockId = null;
-                m_welded = false;
+              
                 MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_rotorGrid);
+        
                 Attach(m_rotorBlock,false);
-
+                m_welded = false;
                 m_isWelding = false;
+            }
+        }
+
+        protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
+        {
+            OnGridSplit();
+        }
+
+        public void OnGridSplit()
+        {
+            if (m_welded && m_isWelding == false)
+            {
+                UnweldGroup();
+            }
+            else
+            {
+                Reattach(true);
+            }
+        }
+
+        public override void OnUnregisteredFromGridSystems()
+        {
+            base.OnUnregisteredFromGridSystems();
+
+            if (Sync.IsServer)
+            {
+                CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
+            }
+        }
+
+
+        public override void OnRegisteredToGridSystems()
+        {
+            base.OnRegisteredToGridSystems();
+
+            if (Sync.IsServer)
+            {
+                CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
             }
         }
     }

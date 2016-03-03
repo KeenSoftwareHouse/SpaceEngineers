@@ -2549,6 +2549,11 @@ using VRage.Utils;
         public static readonly MyStringId DialogTextDownloadModsFailed = MyStringId.GetOrCompute("DialogTextDownloadModsFailed");
 
         ///<summary>
+        ///Steam is offline. Please try to change world settings to offline and load the world again.
+        ///</summary>
+        public static readonly MyStringId DialogTextDownloadModsFailedSteamOffline = MyStringId.GetOrCompute("DialogTextDownloadModsFailedSteamOffline");
+
+        ///<summary>
         ///Checking for mod updates ... please wait.
         ///</summary>
         public static readonly MyStringId ProgressTextCheckingMods = MyStringId.GetOrCompute("ProgressTextCheckingMods");

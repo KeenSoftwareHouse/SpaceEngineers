@@ -1063,7 +1063,7 @@ namespace Sandbox.Game.Entities
 
         private void ResetWaypoint()
         {
-            MyMultiplayer.RaiseEvent(this, x => OnResetWaypoint);
+            MyMultiplayer.RaiseEvent(this, x => x.OnResetWaypoint);
             if(Sync.IsServer == false)
             {
                 OnResetWaypoint();

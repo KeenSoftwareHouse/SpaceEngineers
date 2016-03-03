@@ -9,7 +9,7 @@ using VRageMath;
 
 namespace VRage.Input
 {
-    public class MyNullInput : IMyInput
+    public partial class MyNullInput : IMyInput
     {
         private MyControl m_nullControl = new MyControl(
             controlId: default(MyStringId),

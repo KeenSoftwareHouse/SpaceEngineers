@@ -91,7 +91,7 @@ namespace Sandbox.Game.Entities
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
             UseDamageSystem = false;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
             SyncType = SyncHelpers.Compose(this);
             m_fallSoundShouldPlay.Value = false;
             m_fallSoundString.Value = "";
@@ -480,13 +480,14 @@ namespace Sandbox.Game.Entities
         private void SetFallSound()
         {
             m_fallSound = new MySoundPair(m_fallSoundString.Value);
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
-        public void StartFallSound(MySoundPair sound)
+        public void StartFallSound(string sound)
         {
             m_groundContact = false;
             m_obstacleContact = false;
-            m_fallSoundString.Value = sound.ToString();
+            m_fallSoundString.Value = sound;
             m_soundStart = DateTime.UtcNow;
             m_fallSoundShouldPlay.Value = true;
             if (m_contactSet == false && (MySandboxGame.IsDedicated || MyMultiplayer.Static == null || MyMultiplayer.Static.IsServer))

@@ -542,6 +542,7 @@ namespace Sandbox.Game.Entities
 
         public override void OnRemovedFromScene(object source)
         {
+            StopDamageEffect();
             base.OnRemovedFromScene(source);
         }
 

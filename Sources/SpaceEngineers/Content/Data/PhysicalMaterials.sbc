@@ -18,6 +18,12 @@
 				<SubtypeId>Ship</SubtypeId>
 			</Id>
 		</PhysicalMaterial>
+    <PhysicalMaterial>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Wheel</SubtypeId>
+      </Id>
+    </PhysicalMaterial>
 		<PhysicalMaterial>
 			<Id>
 				<TypeId>PhysicalMaterialDefinition</TypeId>

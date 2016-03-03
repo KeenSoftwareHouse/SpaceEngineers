@@ -349,7 +349,7 @@ namespace Sandbox.Game.Gui
         {
             var itemId = m_physicalItemDefinitions[(int)m_physicalObjectCombobox.GetSelectedKey()].Id;
 
-            MyFixedPoint amount = (MyFixedPoint)(float)m_amount;
+            MyFixedPoint amount = (MyFixedPoint)(decimal)m_amount;
 
             var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
 

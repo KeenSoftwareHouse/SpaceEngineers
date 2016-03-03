@@ -86,6 +86,11 @@ namespace Sandbox.ModAPI
 
         public static IMyPrefabManager PrefabManager;
 
+        /// <summary>
+        /// IMyInput allows accessing direct input device states
+        /// </summary>
+        public static VRage.ModAPI.IMyInput Input;
+
         // Storage for property Entities.
         private static IMyEntities m_entitiesStorage;
         // Storage for property Session.
@@ -116,6 +121,7 @@ namespace Sandbox.ModAPI
             Parallel = null;
             Multiplayer = null;
             PrefabManager = null;
+            Input = null;
         }
     }
 }

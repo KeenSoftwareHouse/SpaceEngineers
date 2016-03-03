@@ -41,39 +41,46 @@ namespace VRageRender
                 m_blurConstantBuffer = MyHwBuffers.CreateConstantsBuffer(sizeof(BlurConstants));
         }
 
-        private static int GetShaderKey(MyBlurDensityFunctionType densityFunctionType, int maxOffset)
+        private static int GetShaderKey(MyBlurDensityFunctionType densityFunctionType, int maxOffset, bool copyOnStencilFail, bool useDepthDiscard)
         {
-            return ((int)densityFunctionType + 1) << 16 + maxOffset;
+            return  (copyOnStencilFail ? 1 : 0) << 31 |
+                    (useDepthDiscard ? 1 : 0) << 30 |
+                    (((int)densityFunctionType + 1) << 15) |
+                    (maxOffset);
         }
 
-        private static int InitShadersForOffset(MyBlurDensityFunctionType densityFunctionType, int maxOffset)
+        private static int InitShaders(MyBlurDensityFunctionType densityFunctionType, int maxOffset, bool copyOnStencilFail, float depthDiscardThreshold)
         {
-            int shaderKey = GetShaderKey(densityFunctionType, maxOffset);
+            bool useDepthDiscard = depthDiscardThreshold > 0;
+            int shaderKey = GetShaderKey(densityFunctionType, maxOffset, copyOnStencilFail, useDepthDiscard);
 
             if(!m_blurShaders.ContainsKey(shaderKey))
             {
-                var macrosHorizontal = new[] {new ShaderMacro("HORIZONTAL_PASS", null), new ShaderMacro("MAX_OFFSET", maxOffset), new ShaderMacro("DENSITY_FUNCTION", (int)densityFunctionType)};
-                var macrosVertical = new[] { new ShaderMacro("VERTICAL_PASS", null), new ShaderMacro("MAX_OFFSET", maxOffset), new ShaderMacro("DENSITY_FUNCTION", (int)densityFunctionType) };
+                ShaderMacro copyMacro = new ShaderMacro(copyOnStencilFail ? "COPY_ON_STENCIL_FAIL" : "", 1);
+
+                ShaderMacro depthMacro = new ShaderMacro(useDepthDiscard ? "DEPTH_DISCARD_THRESHOLD" : "", useDepthDiscard ? depthDiscardThreshold : 1);
+
+                var macrosHorizontal = new[] { new ShaderMacro("HORIZONTAL_PASS", null), new ShaderMacro("MAX_OFFSET", maxOffset), new ShaderMacro("DENSITY_FUNCTION", (int)densityFunctionType), copyMacro, depthMacro };
+                var macrosVertical = new[] { new ShaderMacro("VERTICAL_PASS", null), new ShaderMacro("MAX_OFFSET", maxOffset), new ShaderMacro("DENSITY_FUNCTION", (int)densityFunctionType), copyMacro, depthMacro };
                 var shaderPair = MyTuple.Create(MyShaders.CreatePs("blur.hlsl", macrosHorizontal), MyShaders.CreatePs("blur.hlsl", macrosVertical));
                 m_blurShaders.Add(shaderKey, shaderPair);
             }
             return shaderKey;
         }
 
-        internal static void Run(MyBindableResource destinationResource, MyBindableResource intermediateResource, MyBindableResource resourceToBlur,
-                                 int maxOffset = 5, MyBlurDensityFunctionType densityFunctionType = MyBlurDensityFunctionType.Gaussian, float weightParameter = 1.5f,
-                                 DepthStencilState depthStencilState = null, int stencilRef = 0x0, MyViewport? viewport = null)
+        internal static void Run(MyBindableResource destinationResource, MyBindableResource intermediateResource, MyBindableResource resourceToBlur)
         {
             var initialResourceView = resourceToBlur as IShaderResourceBindable;
             var intermediateResourceView = intermediateResource as IShaderResourceBindable;
             var intermediateTarget = intermediateResource as IRenderTargetBindable;
             var destinationTarget = destinationResource as IRenderTargetBindable;
-            Run(destinationTarget.RTV, intermediateTarget.RTV, intermediateResourceView.SRV, initialResourceView.SRV, maxOffset, densityFunctionType, weightParameter, depthStencilState, stencilRef, viewport);
+            Run(destinationTarget.RTV, intermediateTarget.RTV, intermediateResourceView.SRV, initialResourceView.SRV);
         }
 
         internal static void Run(RenderTargetView renderTarget, RenderTargetView intermediateRenderTarget, ShaderResourceView intermediateResourceView, ShaderResourceView initialResourceView,
                                  int maxOffset = 5, MyBlurDensityFunctionType densityFunctionType = MyBlurDensityFunctionType.Gaussian, float WeightParameter = 1.5f,
-                                DepthStencilState depthStencilState = null, int stencilRef = 0x0, MyViewport? viewport = null)
+                                 DepthStencilState depthStencilState = null, int stencilRef = 0x0, bool copyOnStencilFail = false,
+                                 float depthDiscardThreshold = 0.0f, MyViewport? viewport = null)
         {
             ProfilerShort.Begin("MyBlur.Run");
             MyGpuProfiler.IC_BeginBlock("MyBlur.Run");
@@ -82,7 +89,7 @@ namespace VRageRender
             Debug.Assert(intermediateRenderTarget != null);
             Debug.Assert(renderTarget != null);
 
-            int shaderKey = InitShadersForOffset(densityFunctionType, maxOffset);
+            int shaderKey = InitShaders(densityFunctionType, maxOffset, copyOnStencilFail, depthDiscardThreshold);
 
             RC.DeviceContext.PixelShader.SetConstantBuffer(5, m_blurConstantBuffer);
 
@@ -100,8 +107,9 @@ namespace VRageRender
 
             RC.DeviceContext.OutputMerger.SetTargets(intermediateRenderTarget);
             RC.SetDS(depthStencilState, stencilRef);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, initialResourceView);
+            RC.DeviceContext.PixelShader.SetShaderResource(0, MyGBuffer.Main.DepthStencil.m_SRV_depth);
             RC.DeviceContext.PixelShader.SetShaderResource(4, MyGBuffer.Main.DepthStencil.m_SRV_stencil);
+            RC.DeviceContext.PixelShader.SetShaderResource(5, initialResourceView);
             RC.SetPS(m_blurShaders[shaderKey].Item1);
             MyScreenPass.DrawFullscreenQuad(viewport);
 
@@ -109,8 +117,9 @@ namespace VRageRender
             MyRender11.DeviceContext.ClearRenderTargetView(renderTarget, Color4.White);
             RC.DeviceContext.OutputMerger.SetTargets(renderTarget);
             RC.SetDS(depthStencilState, stencilRef);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, intermediateResourceView);
+            RC.DeviceContext.PixelShader.SetShaderResource(0, MyGBuffer.Main.DepthStencil.m_SRV_depth);
             RC.DeviceContext.PixelShader.SetShaderResource(4, MyGBuffer.Main.DepthStencil.m_SRV_stencil);
+            RC.DeviceContext.PixelShader.SetShaderResource(5, intermediateResourceView);
             RC.SetPS(m_blurShaders[shaderKey].Item2);
             MyScreenPass.DrawFullscreenQuad(viewport);
 

@@ -116,6 +116,13 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        /// <summary>
+        /// Adds a temporary sprite to the list of sprites that make up the crosshair
+        /// </summary>
+        /// <param name="spriteEnum">Texture of the sprite to use</param>
+        /// <param name="spriteId">An id that will be checked to prevent adding the same sprite twice</param>
+        /// <param name="timeout">Time the sprite will be visible (includes fadeout time)</param>
+        /// <param name="fadeTime">For how long should the sprite fade out when it disappears</param>
         public void AddTemporarySprite(MyHudTexturesEnum spriteEnum, MyStringId spriteId, int timeout = 2000, int fadeTime = 1000, Color? color = null, float size = 0.02f)
         {
             SpriteInfo sprite = new SpriteInfo();

@@ -21,7 +21,6 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using System.Reflection;
-using Sandbox.Game.Weapons.Ammo;
 using Sandbox.Common;
 using System.Text;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;

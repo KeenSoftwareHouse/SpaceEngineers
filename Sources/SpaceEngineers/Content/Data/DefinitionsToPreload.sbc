@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Definition xsi:type="MyObjectBuilder_DefinitionsToPreload">
+  	<Id>
+	  <TypeId>MyObjectBuilder_DefinitionsToPreload</TypeId>
+	  <SubtypeId>ToPreload</SubtypeId>
+    </Id>
+    <DefinitionFiles>
+    	<File>
+    		<Name>Fonts.sbc</Name>
+		</File>
+    	<File>
+    		<Name>Screens.sbc</Name>
+    	</File>
+    	<File>
+    		<Name>Audio.sbc</Name>
+    		<!-- Default Value -->
+    		<LoadOnDedicated>false</LoadOnDedicated>
+    	</File>
+    </DefinitionFiles>
+  </Definition>
+</Definitions>
