@@ -81,13 +81,13 @@ namespace Sandbox.Game.Components
 						float angle = 1 - Math.Abs(Vector3.Dot(MyUtils.Normalize(MySector.MainCamera.Position - flamePosition), flameDirection));
 						float alphaCone = (1 - (float)Math.Pow(1 - angle, 30)) * 0.5f;
 						//  We move polyline particle backward, because we are stretching ball texture and it doesn't look good if stretched. This will hide it.
-						MyTransparentGeometry.AddLineBillboard(m_thrust.FlameLengthMaterial, m_thrust.ThrustColor * alphaCone, flamePosition - flameDirection * length * 0.25f,
+						MyTransparentGeometry.AddLineBillboard(m_thrust.FlameLengthMaterial, m_thrust.m_thrustColor.Value * alphaCone, flamePosition - flameDirection * length * 0.25f,
 							GetRenderObjectID(), ref worldToLocal, flameDirection, length, thickness);
 
 					}
 
 					if (radius > 0)
-						MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.ThrustColor, flamePosition, GetRenderObjectID(), ref worldToLocal, radius, 0);
+                        MyTransparentGeometry.AddPointBillboard(m_thrust.FlamePointMaterial, m_thrust.m_thrustColor, flamePosition, GetRenderObjectID(), ref worldToLocal, radius, 0);
 
                     if (m_thrust.ThrustLengthRand > MyMathConstants.EPSILON && m_landingEffectUpdateCounter-- <= 0)
 					{

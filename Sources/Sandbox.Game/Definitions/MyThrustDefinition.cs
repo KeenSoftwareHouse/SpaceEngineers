@@ -44,6 +44,8 @@ namespace Sandbox.Definitions
         public float PropellerDeceleration;
         public float PropellerMaxDistance;
 
+        public bool EnableFlameColoring;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -68,7 +70,7 @@ namespace Sandbox.Definitions
             FlameVisibilityDistance = thrustBuilder.FlameVisibilityDistance;
             FlameGlareSize = thrustBuilder.FlameGlareSize;
             FlameGlareQuerySize = thrustBuilder.FlameGlareQuerySize;
-
+			
             MinPlanetaryInfluence = thrustBuilder.MinPlanetaryInfluence;
             MaxPlanetaryInfluence = thrustBuilder.MaxPlanetaryInfluence;
             EffectivenessAtMinInfluence = thrustBuilder.EffectivenessAtMinInfluence;
@@ -83,6 +85,8 @@ namespace Sandbox.Definitions
             PropellerAcceleration = thrustBuilder.PropellerAccelerationTime;
             PropellerDeceleration = thrustBuilder.PropellerDecelerationTime;
             PropellerMaxDistance = thrustBuilder.PropellerMaxVisibleDistance;
+
+            EnableFlameColoring = thrustBuilder.EnableFlameColoring;
         }
     }
 }

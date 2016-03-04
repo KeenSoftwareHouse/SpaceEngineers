@@ -157,7 +157,7 @@ namespace Sandbox.Graphics.GUI
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var position = GetPositionAbsoluteTopRight();
-            var size = new Vector2(m_BSlider.Size.X, m_textLabel.Size.Y);
+            var size = m_textLabel.GetTextSize();
             MyGuiManager.DrawSpriteBatch(
                 MyGuiConstants.BLANK_TEXTURE,
                 position,
