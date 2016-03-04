@@ -34,6 +34,8 @@ using VRage.Game;
 using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using Sandbox.Engine.Multiplayer;
+using VRage.Network;
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -56,25 +58,7 @@ namespace Sandbox.Game.Entities
         private MyEntityThrustComponent m_thrustComponent;
 
         MyLight m_light;
-
-        Color m_thrustColor;
-        public Color ThrustColor 
-        { 
-            get 
-            {
-                return m_thrustColor; 
-            }
-            set
-            {
-                if (m_thrustColor != value)
-                {
-                    m_thrustColor = value;
-                    RaisePropertiesChanged();
-                }
-            }
-        }
-
-        private new MySyncThruster SyncObject;
+        public Sync<Color> m_thrustColor;
 
         // values for consistency between frames when game is paused
         public float ThrustRadiusRand;
@@ -108,7 +92,6 @@ namespace Sandbox.Game.Entities
         public Vector3 ThrustForce { get { return -ThrustForwardVector * (BlockDefinition.ForceMagnitude * m_thrustMultiplier); } }
 
         public Vector3I ThrustForwardVector { get { return Base6Directions.GetIntVector(Orientation.Forward); } }
-		public Vector4 ThrustColor { get; private set; }
 
         private readonly List<MyPhysics.HitInfo> m_gridRayCastLst;
         private readonly List<HkBodyCollision> m_flameCollisionsList;
@@ -131,6 +114,7 @@ namespace Sandbox.Game.Entities
         }
 
         public event Action<float> ThrustOverrideChanged;
+        public event Action<Color> ThrustColorChanged;
 
         protected override bool CheckIsWorking()
         {
@@ -148,10 +132,10 @@ namespace Sandbox.Game.Entities
 
         public void UpdateThrustColor()
         {
-            if(m_thrustDefinition.EnableFlameColoring)
-                m_thrustColor = Color.Lerp(m_thrustColor, m_thrustColor, CurrentStrength / MyConstants.MAX_THRUST);
+            if(BlockDefinition.EnableFlameColoring)
+                m_thrustColor.Value = Color.Lerp(m_thrustColor, m_thrustColor, CurrentStrength / MyConstants.MAX_THRUST);
             else
-                m_thrustColor = Color.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
+                m_thrustColor.Value = Color.Lerp(BlockDefinition.FlameIdleColor, BlockDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
 
             Light.Color = m_thrustColor;
         }
@@ -233,11 +217,31 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(thrustOverride);
 
             var thrustFlameColor = new MyTerminalControlColor<MyThrust>("Color", MyStringId.GetOrCompute("Flame Color"));
-            thrustFlameColor.Getter = (x) => x.ThrustColor;
-            thrustFlameColor.Setter = (x, v) => x.SyncObject.SendChangeFlameColorRequest(v);
-            thrustFlameColor.Enabled = (x) => x.m_thrustDefinition.EnableFlameColoring;
-            thrustFlameColor.Visible = (x) => x.m_thrustDefinition.EnableFlameColoring;
+            thrustFlameColor.Getter = (x) => x.m_thrustColor;
+            thrustFlameColor.Setter = (x, v) =>
+            {
+                x.SendChangeFlameColorRequest(v, x.OwnerId);
+                x.RaisePropertiesChanged();
+            };
+            thrustFlameColor.Enabled = (x) => x.BlockDefinition.EnableFlameColoring;
+            thrustFlameColor.Visible = (x) => x.BlockDefinition.EnableFlameColoring;
             MyTerminalControlFactory.AddControl(thrustFlameColor);
+        }
+
+        public void SendChangeFlameColorRequest(Color v, long owner)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.ChangeFlameColorRequest, v, owner);
+        }
+
+        [Event, Reliable, Server]
+        void ChangeFlameColorRequest(Color v, long owner)
+        {
+            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(owner);
+
+            if (relation.IsFriendly())
+            {
+                m_thrustColor.Value = v;
+            }
         }
 
         public MyThrust()
@@ -250,6 +254,13 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentThrust();
             AddDebugRenderComponent(new MyDebugRenderComponentThrust(this));
             m_thrustOverride.ValueChanged += (x) => ThrustOverrideValueChanged();
+            m_thrustColor.ValueChanged += (x) => ThrustColorValueChanged();
+        }
+
+        private void ThrustColorValueChanged()
+        {
+            if (ThrustOverrideChanged != null)
+                ThrustOverrideChanged(ThrustOverride);
         }
 
         private void ThrustOverrideValueChanged()
@@ -264,13 +275,13 @@ namespace Sandbox.Game.Entities
             builder.ThrustOverride = ThrustOverride;
 
             //only save Color for Thrusters with Flame Coloring enabled
-            if (m_thrustDefinition.EnableFlameColoring)
+            if (BlockDefinition.EnableFlameColoring)
             {
-                var col = ThrustColor.ToVector4();
-                builder.FlameColorR = col.X;
-                builder.FlameColorG = col.Y;
-                builder.FlameColorB = col.Z;
-                builder.FlameColorA = col.W;
+                var col = m_thrustColor.Value;
+                builder.FlameColorR = col.R;
+                builder.FlameColorG = col.G;
+                builder.FlameColorB = col.B;
+                builder.FlameColorA = col.A;
             }
 
             return builder;
@@ -307,21 +318,17 @@ namespace Sandbox.Game.Entities
 
             base.Init(objectBuilder, cubeGrid);
 
-        
-
             var builder = (MyObjectBuilder_Thrust)objectBuilder;
 
-            Vector4 color = (m_thrustDefinition.EnableFlameColoring && builder.FlameColorA != 0f) ? new Vector4(builder.FlameColorR, builder.FlameColorG, builder.FlameColorB, builder.FlameColorA) : m_thrustDefinition.FlameIdleColor;
-            m_thrustColor = Color.FromNonPremultiplied(color);
+            Vector4 color = (BlockDefinition.EnableFlameColoring && builder.FlameColorA != 0f) ? new Vector4(builder.FlameColorR, builder.FlameColorG, builder.FlameColorB, builder.FlameColorA) : BlockDefinition.FlameIdleColor;
+            m_thrustColor.Value = Color.FromNonPremultiplied(color);
 
             m_thrustOverride.Value = (builder.ThrustOverride * 100f) / BlockDefinition.ForceMagnitude;
 
             LoadDummies();
 
             InitLight();
-            
-            SyncObject = new MySyncThruster(this);
-
+          
             UpdateDetailedInfo();
         }
 
@@ -331,7 +338,7 @@ namespace Sandbox.Game.Entities
             m_light.ReflectorDirection = WorldMatrix.Forward;
             m_light.ReflectorUp = WorldMatrix.Up;
             m_light.ReflectorRange = 1;
-            m_light.Color = ThrustColor;
+            m_light.Color = m_thrustColor.Value;
             m_light.GlareMaterial = BlockDefinition.FlameGlareMaterial;
             m_light.GlareQuerySize = BlockDefinition.FlameGlareQuerySize;
 
