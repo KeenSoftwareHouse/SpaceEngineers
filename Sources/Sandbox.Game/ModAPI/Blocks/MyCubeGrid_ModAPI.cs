@@ -259,5 +259,135 @@ namespace Sandbox.Game.Entities
             }
             return null;
         }
+
+        ModAPI.Ingame.IMyPhysics ModAPI.Ingame.IMyCubeGrid.Physics
+        {
+            get
+            {
+                if (Physics == null)
+                    return null;
+
+                return new GridPhysics(this);
+            }
+        }
+    }
+
+    internal class GridPhysics : ModAPI.Ingame.IMyPhysics
+    {
+        private MyCubeGrid grid;
+        private MyGridPhysics physics;
+
+        public GridPhysics(MyCubeGrid grid)
+        {
+            this.grid = grid;
+            this.physics = grid.Physics;
+        }
+
+        public double Mass
+        {
+            get
+            {
+                return grid.Physics.Mass;
+            }
+        }
+
+        public Vector3D CenterOfMassLocal
+        {
+            get
+            {
+                return Vector3D.Transform(physics.CenterOfMassWorld, grid.PositionComp.WorldMatrixNormalizedInv);
+            }
+        }
+
+        public Vector3D CenterOfMassWorld
+        {
+            get
+            {
+                return physics.CenterOfMassWorld;
+            }
+        }
+
+        public Vector3D MomentOfInertiaLocal
+        {
+            get
+            {
+                var inverseInertia = physics.RigidBody.InverseInertiaTensor;
+                return new Vector3D(1 / inverseInertia.M11, 1 / inverseInertia.M22, 1 / inverseInertia.M33);
+            }
+        }
+
+        public Vector3D MomentOfInertiaWorld
+        {
+            get
+            {
+                var inverseInertia = physics.RigidBody.InverseInertiaTensor;
+                var inertia = new Vector3D(1 / inverseInertia.M11, 1 / inverseInertia.M22, 1 / inverseInertia.M33);
+                return Vector3D.TransformNormal(inertia, grid.PositionComp.WorldMatrix);
+            }
+        }
+
+        public Vector3D LinearVelocityLocal
+        {
+            get
+            {
+                return Vector3D.TransformNormal(physics.LinearVelocity, grid.PositionComp.WorldMatrixNormalizedInv);
+            }
+        }
+
+        public Vector3D LinearVelocityWorld
+        {
+            get
+            {
+                return physics.LinearVelocity;
+            }
+        }
+
+        public Vector3D AngularVelocityLocal
+        {
+            get
+            {
+                return Vector3D.TransformNormal(physics.AngularVelocity, grid.PositionComp.WorldMatrixNormalizedInv);
+            }
+        }
+
+        public Vector3D AngularVelocityWorld
+        {
+            get
+            {
+                return physics.AngularVelocity;
+            }
+        }
+
+        public Vector3D LinearAccelerationLocal
+        {
+            get
+            {
+                return Vector3D.TransformNormal(physics.LinearAcceleration, grid.PositionComp.WorldMatrixNormalizedInv);
+            }
+        }
+
+        public Vector3D LinearAccelerationWorld
+        {
+            get
+            {
+                return physics.LinearAcceleration;
+            }
+        }
+
+        public Vector3D AngularAccelerationLocal
+        {
+            get
+            {
+                return Vector3D.TransformNormal(physics.AngularAcceleration, grid.PositionComp.WorldMatrixNormalizedInv);
+            }
+        }
+
+        public Vector3D AngularAccelerationWorld
+        {
+            get
+            {
+                return physics.AngularAcceleration;
+            }
+        }
     }
 }

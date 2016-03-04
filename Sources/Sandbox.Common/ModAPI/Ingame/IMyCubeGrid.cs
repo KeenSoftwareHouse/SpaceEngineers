@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.ModAPI;
+
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
@@ -55,5 +56,7 @@ namespace Sandbox.ModAPI.Ingame
         /// Converts world coordinates to grid space cell coordinates
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
+
+        new IMyPhysics Physics { get; }
     }
 }
