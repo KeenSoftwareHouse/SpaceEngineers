@@ -259,112 +259,134 @@ namespace Sandbox.Game.Entities
             }
             return null;
         }
-        
 
-        double Sandbox.ModAPI.Ingame.IMyCubeGrid.Mass
+        ModAPI.Ingame.IMyPhysics ModAPI.Ingame.IMyCubeGrid.Physics
         {
             get
             {
-                return Physics.Mass;
+                if (Physics == null)
+                    return null;
+
+                return new GridPhysics(this);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.CenterOfMassGrid
+    }
+
+    internal class GridPhysics : ModAPI.Ingame.IMyPhysics
+    {
+        private MyCubeGrid grid;
+        private MyGridPhysics physics;
+
+        public GridPhysics(MyCubeGrid grid)
+        {
+            this.grid = grid;
+            this.physics = grid.Physics;
+        }
+
+        public double Mass
         {
             get
             {
-                return Vector3D.Transform(Physics.CenterOfMassWorld, PositionComp.WorldMatrixNormalizedInv);
+                return grid.Physics.Mass;
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.CenterOfMassWorld
+
+        public Vector3D CenterOfMassLocal
         {
             get
             {
-                return Physics.CenterOfMassWorld;
+                return Vector3D.Transform(physics.CenterOfMassWorld, grid.PositionComp.WorldMatrixNormalizedInv);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.MomentOfInertiaGrid
+
+        public Vector3D CenterOfMassWorld
         {
             get
             {
-                var inverseInertia = Physics.RigidBody.InverseInertiaTensor;
+                return physics.CenterOfMassWorld;
+            }
+        }
+
+        public Vector3D MomentOfInertiaLocal
+        {
+            get
+            {
+                var inverseInertia = physics.RigidBody.InverseInertiaTensor;
                 return new Vector3D(1 / inverseInertia.M11, 1 / inverseInertia.M22, 1 / inverseInertia.M33);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.MomentOfInertiaWorld
+
+        public Vector3D MomentOfInertiaWorld
         {
             get
             {
-                var inverseInertia = Physics.RigidBody.InverseInertiaTensor;
+                var inverseInertia = physics.RigidBody.InverseInertiaTensor;
                 var inertia = new Vector3D(1 / inverseInertia.M11, 1 / inverseInertia.M22, 1 / inverseInertia.M33);
-                return Vector3D.TransformNormal(inertia, PositionComp.WorldMatrix);
+                return Vector3D.TransformNormal(inertia, grid.PositionComp.WorldMatrix);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearVelocityGrid
+
+        public Vector3D LinearVelocityLocal
         {
             get
             {
-                return Vector3D.TransformNormal(Physics.LinearVelocity, PositionComp.WorldMatrixNormalizedInv);
+                return Vector3D.TransformNormal(physics.LinearVelocity, grid.PositionComp.WorldMatrixNormalizedInv);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearVelocityWorld
+
+        public Vector3D LinearVelocityWorld
         {
             get
             {
-                return Physics.LinearVelocity;
+                return physics.LinearVelocity;
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularVelocityGrid
+
+        public Vector3D AngularVelocityLocal
         {
             get
             {
-                return Vector3D.TransformNormal(Physics.AngularVelocity, PositionComp.WorldMatrixNormalizedInv);
+                return Vector3D.TransformNormal(physics.AngularVelocity, grid.PositionComp.WorldMatrixNormalizedInv);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularVelocityWorld
+
+        public Vector3D AngularVelocityWorld
         {
             get
             {
-                return Physics.AngularVelocity;
+                return physics.AngularVelocity;
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearAccelerationGrid
+
+        public Vector3D LinearAccelerationLocal
         {
             get
             {
-                return Vector3D.TransformNormal(Physics.LinearAcceleration, PositionComp.WorldMatrixNormalizedInv);
+                return Vector3D.TransformNormal(physics.LinearAcceleration, grid.PositionComp.WorldMatrixNormalizedInv);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearAccelerationWorld
+
+        public Vector3D LinearAccelerationWorld
         {
             get
             {
-                return Physics.LinearAcceleration;
+                return physics.LinearAcceleration;
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularAccelerationGrid
+
+        public Vector3D AngularAccelerationLocal
         {
             get
             {
-                return Vector3D.TransformNormal(Physics.AngularAcceleration, PositionComp.WorldMatrixNormalizedInv);
+                return Vector3D.TransformNormal(physics.AngularAcceleration, grid.PositionComp.WorldMatrixNormalizedInv);
             }
         }
-        
-        Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularAccelerationWorld
+
+        public Vector3D AngularAccelerationWorld
         {
             get
             {
-                return Physics.AngularAcceleration;
+                return physics.AngularAcceleration;
             }
         }
     }

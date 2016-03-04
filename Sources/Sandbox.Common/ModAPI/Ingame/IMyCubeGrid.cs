@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.ModAPI;
+
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
@@ -56,69 +57,6 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
 
-        /// <summary>
-        /// Total grid mass, in kg, including inventory. Does not include subgrids
-        /// </summary>
-        double Mass { get; }
-
-        /// <summary>
-        /// Center of mass, relative to the grid. Does not take into account subgrids
-        /// </summary>
-        VRageMath.Vector3D CenterOfMassGrid { get; }
-
-        /// <summary>
-        /// Center of mass, in world coordinates. Does not take into account subgrids
-        /// </summary>
-        VRageMath.Vector3D CenterOfMassWorld { get; }
-
-        /// <summary>
-        /// Moment of inertia, in kg * m^2, relative to the grid. Does not take into account subgrids
-        /// </summary>
-        VRageMath.Vector3D MomentOfInertiaGrid { get; }
-
-        /// <summary>
-        /// Moment of inertia, in kg * m^2, relative to the world. Does not take into account subgrids
-        /// </summary>
-        VRageMath.Vector3D MomentOfInertiaWorld { get; }
-
-        /// <summary>
-        /// Linear velocity, relative to the grid, in m/s
-        /// </summary>
-        VRageMath.Vector3D LinearVelocityGrid { get; }
-
-        /// <summary>
-        /// Linear velocity, relative to the world, in m/s
-        /// </summary>
-        VRageMath.Vector3D LinearVelocityWorld { get; }
-
-        /// <summary>
-        /// Angular velocity, relative to the grid, in rad/s
-        /// </summary>
-        VRageMath.Vector3D AngularVelocityGrid { get; }
-
-        /// <summary>
-        /// Angular velocity, relative to the world, in rad/s
-        /// </summary>
-        VRageMath.Vector3D AngularVelocityWorld { get; }
-
-        /// <summary>
-        /// Linear acceleration, relative to the grid, in m/s^2
-        /// </summary>
-        VRageMath.Vector3D LinearAccelerationGrid { get; }
-
-        /// <summary>
-        /// Linear acceleration, relative to the world, in m/s^2
-        /// </summary>
-        VRageMath.Vector3D LinearAccelerationWorld { get; }
-
-        /// <summary>
-        /// Angular acceleration, relative to the grid, in rad/s^2
-        /// </summary>
-        VRageMath.Vector3D AngularAccelerationGrid { get; }
-        
-        /// <summary>
-        /// Angular acceleration, relative to the world, in rad/s^2
-        /// </summary>
-        VRageMath.Vector3D AngularAccelerationWorld { get; }
+        new IMyPhysics Physics { get; }
     }
 }
