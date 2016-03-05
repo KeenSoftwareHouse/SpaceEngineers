@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-
+﻿using Havok;
 using Sandbox.Common.ObjectBuilders;
-using VRageMath;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
-using Havok;
-using Sandbox.Engine.Physics;
-using Sandbox.Game.Multiplayer;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Gui;
-using Sandbox.Definitions;
 using Sandbox.Game.Localization;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.Components;
-using VRage.Components;
-using VRage.ModAPI;
-using VRage.Utils;
-using VRage.Game.Entity;
-using VRage.Network;
-using Sandbox.Engine.Multiplayer;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using VRage;
 using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage.ModAPI;
+using VRage.Network;
+using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
