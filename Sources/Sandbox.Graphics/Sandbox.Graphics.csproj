@@ -66,10 +66,20 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JpnKanaConversion">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio International Pack\Japanese Kana Converter Library\JpnKanaConversion.dll</HintPath>
+    </Reference>
+    <Reference Include="JpnKanaConvHelper">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio International Pack\Japanese Kana Converter Library\JpnKanaConvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SharpDX, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Gui\IMyGuiControlsOwner.cs">

@@ -4,12 +4,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Microsoft.International.Converters;
+
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+
 
 //  Textbox GUI control. Supports MaxLength.
 //  Supports horisontaly scrollable texts - if text is longer than textbox width, the text will scroll from left to right.
@@ -31,7 +38,92 @@ namespace Sandbox.Graphics.GUI
         Debug
     }
 
-    [MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
+	class MyIMEControl
+	{
+		static MyIMEControl static_ime;
+		public static MyIMEControl Static
+		{
+			get { return static_ime; }
+		}
+
+		static MyIMEControl()
+		{
+			static_ime = new MyIMEControl();
+		}
+
+
+
+		public MyIMEControl()
+		{
+			buf = "";
+			s = 0;
+		}
+
+		string buf;
+		int s;
+
+		public void Changed(MyGuiControlTextbox refBox)
+		{
+			StringBuilder sb = new StringBuilder();
+			refBox.GetText(sb);
+			buf = sb.ToString();
+		}
+
+		public void Entered(MyGuiControlTextbox refBox)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append(Convert(buf, 1));
+			refBox.SetText(sb);
+		}
+
+
+		public void ReConvert()
+		{
+		}
+
+		public void VChanged(object s,bool iv)
+		{
+		}
+
+
+		string Convert(string buf,int start)
+		{
+			string ans = buf;
+			IFELanguage ifelang = null;
+			try
+			{
+				ifelang = Activator.CreateInstance(Type.GetTypeFromProgID("MSIME.Japan")) as IFELanguage;
+				string subBuf = ans;
+				string rsubBuf = KanaConverter.RomajiToHiragana(subBuf);
+				string rrSubBuf = rsubBuf;
+				//ifelang.GetPhonetic(rsubBuf, start, -1, out rrSubBuf);
+				ans = ans.Replace(subBuf , rrSubBuf);
+			}
+			finally
+			{
+				if(ifelang != null)
+					ifelang.Close();
+			}
+			return ans;
+		}
+
+
+	}
+
+	[ComImport]
+	[Guid("019F7152-E6DB-11d0-83C3-00C04FDDB82E")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IFELanguage
+	{
+		int Open();
+		int Close();
+		int GetJMorphResult(uint dwRequest, uint dwCMode, int cwchInput, [MarshalAs(UnmanagedType.LPWStr)] string pwchInput, IntPtr pfCInfo, out object ppResult);
+		int GetConversionModeCaps(ref uint pdwCaps);
+		int GetPhonetic([MarshalAs(UnmanagedType.BStr)] string @string, int start, int length, [MarshalAs(UnmanagedType.BStr)] out string result);
+		int GetConversion([MarshalAs(UnmanagedType.BStr)] string @string, int start, int length, [MarshalAs(UnmanagedType.BStr)] out string result);
+	}
+
+	[MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
     public class MyGuiControlTextbox : MyGuiControlBase
     {
         #region Styles and static data
@@ -220,10 +312,11 @@ namespace Sandbox.Graphics.GUI
         #region Events
         public event Action<MyGuiControlTextbox> TextChanged;
         public event Action<MyGuiControlTextbox> EnterPressed;
-        #endregion
+		#endregion
 
-        #region Construction and serialization
-        public MyGuiControlTextbox() : this(position: null) { }
+
+		#region Construction and serialization
+		public MyGuiControlTextbox() : this(position: null) { }
 
         public MyGuiControlTextbox(
             Vector2? position            = null,
@@ -248,6 +341,13 @@ namespace Sandbox.Graphics.GUI
             m_visualStyle           = visualStyle;
             RefreshVisualStyle();
             m_slidingWindowOffset = 0f;
+
+			#region Adds
+				TextChanged += MyIMEControl.Static.Changed;
+				EnterPressed += MyIMEControl.Static.Entered;
+				VisibleChanged += MyIMEControl.Static.VChanged;
+			#endregion
+
         }
 
         public override void Init(MyObjectBuilder_GuiControlBase objectBuilder)

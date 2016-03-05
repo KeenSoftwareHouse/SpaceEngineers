@@ -121,9 +121,11 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
@@ -137,6 +139,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -332,9 +335,21 @@
       <Project>{9f620aab-5008-4d91-8d8f-8be6cf26f926}</Project>
       <Name>SpaceEngineers.Game</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj">
+      <Project>{e48feb99-6814-4947-8035-8c2b4066dd9b}</Project>
+      <Name>SpaceEngineers.ObjectBuilders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Audio\VRage.Audio.csproj">
+      <Project>{f77d0a49-f011-4e8a-80c8-cbe1842bf2d4}</Project>
+      <Name>VRage.Audio</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
       <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
       <Name>VRage.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
+      <Name>VRage.Input</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
@@ -385,7 +400,26 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="imjpdictapiLib">
+      <Guid>{2518E514-EBE3-4284-BCB6-E77FA7D84882}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="SearchIntegrationExeLib">
+      <Guid>{A68752EA-F302-48A4-B898-E437C6EAC39A}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>

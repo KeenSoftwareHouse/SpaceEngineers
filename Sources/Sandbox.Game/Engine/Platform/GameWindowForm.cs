@@ -152,13 +152,7 @@ namespace Sandbox.Engine.Platform
 			char input = e.KeyChar;
 			using (m_bufferedCharsLock.AcquireExclusiveUsing())
 			{
-				if(ImeModeBase == ImeMode.Off)
-					m_bufferedChars.Add(input);
-
-				if(ImeModeBase == ImeMode.On)
-				{
-
-				}
+				m_bufferedChars.Add(input);
 			}
 			base.OnKeyPress(e);
 		}
