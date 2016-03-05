@@ -99,12 +99,12 @@ namespace VRage.Audio
                 }
                 else
                 {
-                    if (MyAudio.OnSoundError != null)
-                    {
-                        var msg = string.Format("Unable to find audio file: '{0}', '{1}'", cue.SubtypeId.ToString(), waveFilename);
-                        MyAudio.OnSoundError(cue, msg);
-                    }
-                    result = false;
+					if (MyAudio.OnSoundError != null)
+					{
+						var msg = string.Format("Unable to find audio file: '{0}', '{1}'", cue.SubtypeId.ToString(), waveFilename);
+						MyAudio.OnSoundError(cue, msg);
+					}
+					result = false;
                 }
             }
             return result;

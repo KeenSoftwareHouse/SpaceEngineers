@@ -2696,8 +2696,8 @@ namespace Sandbox.Definitions
             if (!conditionResult)
             {
                 var msg = string.Format(messageFormat, identifier.ToString());
-                if (failOnDebug)
-                    Debug.Fail(msg);
+                //if (failOnDebug)
+                //    Debug.Fail(msg);
                 MySandboxGame.Log.WriteLine(msg);
             }
         }

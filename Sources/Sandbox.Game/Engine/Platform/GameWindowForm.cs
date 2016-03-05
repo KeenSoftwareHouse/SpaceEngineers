@@ -139,26 +139,38 @@ namespace Sandbox.Engine.Platform
             if (m.Msg == (int)WinApi.WM.SYSKEYDOWN)
                 return;
 
-            if (m.Msg == (int)WinApi.WM.CHAR)
-            {
-                char input = (char)m.WParam;
-                using (m_bufferedCharsLock.AcquireExclusiveUsing())
-                {
-                    m_bufferedChars.Add(input);
-                }
-                return;
-            }
-
-            if (m.Msg == (int)WinApi.WM.MOUSEMOVE)
-            {
-                m_mousePosition.X = unchecked((short)(long)m.LParam);
-                m_mousePosition.Y = unchecked((short)((long)m.LParam >> 16));
-            }
-
             base.WndProc(ref m);
         }
 
-        public bool PreFilterMessage(ref Message m)
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			base.OnKeyDown(e);
+		}
+
+		protected override void OnKeyPress(KeyPressEventArgs e)
+		{
+			char input = e.KeyChar;
+			using (m_bufferedCharsLock.AcquireExclusiveUsing())
+			{
+				if(ImeModeBase == ImeMode.Off)
+					m_bufferedChars.Add(input);
+
+				if(ImeModeBase == ImeMode.On)
+				{
+
+				}
+			}
+			base.OnKeyPress(e);
+		}
+
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			m_mousePosition.X = e.X;
+			m_mousePosition.Y = e.Y;
+			base.OnMouseMove(e);
+		}
+
+		public bool PreFilterMessage(ref Message m)
         {
             if (m.Msg == (int)WinApi.WM.MOUSEMOVE)
             {
@@ -197,7 +209,8 @@ namespace Sandbox.Engine.Platform
 
             if (m.Msg == (int)WinApi.WM.KEYDOWN)
             {
-                return true;
+                //return true;
+                return false;
             }
 
             if (m.Msg == (int)WinApi.WM.SYSCOMMAND)
