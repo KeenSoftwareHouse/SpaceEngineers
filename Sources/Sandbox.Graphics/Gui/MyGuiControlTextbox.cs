@@ -26,14 +26,20 @@ namespace MyIME
 		{
 			get { return static_ime; }
 		}
-		public static void IMEStart()
+		public static void IMEStart(string refText,int defPos)
 		{
 			MyIMESystem.MyIME.IMEStart();
+			static_ime.bText = new StringBuilder();
+			static_ime.rText = new StringBuilder(refText);
+			static_ime.RPos = defPos;
+			static_ime.IMEPos = 0;
 			static_ime.Act = true;
+			static_ime.nocomp = true;
 		}
 		public static void IMEEnd()
 		{
 			static_ime.Act = false;
+			static_ime.nocomp = false;
 			MyIMESystem.MyIME.IMEEnd();
 		}
 		static MyIMEControl()
@@ -45,29 +51,131 @@ namespace MyIME
 		public MyIMEControl()
 		{
 			act = false;
+			bText = new StringBuilder();
+			IMEPos = 0;
 		}
 
-		bool act;
-
-		string bText;
-		public bool Act{get;set;}
-		public string Text
+		#region feilds
+		bool act,nocomp;
+		StringBuilder bText, rText;
+		string tText
 		{
 			get
 			{
-				return Convert(bText);
+				return bText.ToString();
+			}
+			set
+			{
+				bText.Clear();
+				bText.Append(value);
+				if (nocomp && bText.Length > 0)
+					bText.Replace('ん', 'n', bText.Length - 1, 1);
 			}
 		}
+		int IMEPos, RPos;
+		#endregion
 
+		#region Action
+		int IMELength
+		{ get{return bText.Length;}}
+		public bool Act{get;set;}
+		public StringBuilder Text
+		{
+			get
+			{
+				StringBuilder ans = new StringBuilder(rText.ToString());
+				ans.Insert(RPos, tText);
+				return ans;
+			}
+		}
 		public void Press(char t)
 		{
-			bText += t;
+			switch (t)
+			{
+				case '\b':
+					{
+						try
+						{
+							bText.Remove(IMEPos - 1, 1);
+						}
+						catch
+						{
+							if(bText.Length != 0)
+								bText.Remove(bText.Length - 1, 1);
+						}
+						tText = PreConvert(tText);
+						Move(IMEPos - 1);
+					}
+					break;
+				case 'n':
+					{
+						try
+						{
+							bText.Insert(IMEPos + 1, t);
+						}
+						catch
+						{
+							bText.Append(t);
+						}
+						tText = PreConvert(tText);
+						Move(IMEPos + 1);
+						nocomp = !nocomp;
+					}
+					break;
+				default:
+					{
+						nocomp = true;
+						try
+						{
+							bText.Insert(IMEPos + 1, t);
+						}
+						catch
+						{
+							bText.Append(t);
+						}
+						tText = PreConvert(tText);
+						Move(IMEPos + 1);
+					}
+					break;
+			}
 		}
+		public int Pos
+		{
+			set
+			{
+				Move(value - RPos);
+			}
+			get
+			{
+				return RPos + IMEPos;
+			}
+		}
+		void Reflush()
+		{
+			static_ime.bText = new StringBuilder();
+			static_ime.rText = new StringBuilder(Text.ToString());
+			static_ime.RPos += IMEPos;
+			static_ime.IMEPos = 0;
+		}
+		void Move(int Pos)
+		{
+			if (-1 < Pos && Pos < IMELength)
+				IMEPos = Pos;
+			else if (Pos >= IMELength)
+				IMEPos = IMELength;
+			else if (Pos <= -1)
+				IMEPos = -1;
+		}
+		#endregion
 
 		#region ConvertMethod
 		string Convert(string buf)
 		{
 			return MyIMESystem.MyIME.RToJ(buf);
+		}
+		string PreConvert(string buf)
+		{
+			return MyIMESystem.MyIME.RToH(buf);
 		}
 		#endregion
 
@@ -612,17 +720,28 @@ namespace Sandbox.Graphics.GUI
                 {
                     if (character == BACKSPACE)
                     {
-                        if (m_selection.Length == 0)
-                            ApplyBackspace();
-                        else
-                            m_selection.EraseText(this);
+						if (MyIMEControl.Static.Act)
+						{
+							MyIMEControl.Static.Pos = CarriagePositionIndex;
+							MyIMEControl.Static.Press(character);
+							SetText(MyIMEControl.Static.Text);
+							CarriagePositionIndex = MyIMEControl.Static.Pos;
+						}
+						else
+						{
+							if (m_selection.Length == 0)
+								ApplyBackspace();
+							else
+								m_selection.EraseText(this);
+						}
                         
+
                         textChanged = true;
                     }
 
 					if(character == '\u000f')
 					{
-						MyIMEControl.IMEStart();
+						MyIMEControl.IMEStart(Text,CarriagePositionIndex);
 					}
 					if(character == '\u000e')
 					{
@@ -638,8 +757,10 @@ namespace Sandbox.Graphics.GUI
 						InsertChar(character);
 					else
 					{
+						MyIMEControl.Static.Pos = CarriagePositionIndex;
 						MyIMEControl.Static.Press(character);
-						Text = MyIMEControl.Static.Text;
+						SetText(MyIMEControl.Static.Text);
+						CarriagePositionIndex = MyIMEControl.Static.Pos;
 					}
 
                     textChanged = true;

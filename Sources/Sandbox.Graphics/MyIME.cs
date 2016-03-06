@@ -26,9 +26,12 @@ namespace MyIMESystem
 		public static string RToJ(string r,int s)
 		{
 			string h = KanaConverter.RomajiToHiragana(r), j = "";
-			//string h = r, j = "";
 			fel.GetConversion(h, 1, -1, out j);
 			return j;
+		}
+		public static string RToH(string r)
+		{
+			return KanaConverter.RomajiToHiragana(r);
 		}
     }
 
