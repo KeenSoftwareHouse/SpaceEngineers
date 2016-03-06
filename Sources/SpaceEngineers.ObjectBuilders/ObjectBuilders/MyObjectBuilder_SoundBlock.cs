@@ -21,6 +21,9 @@ namespace Sandbox.Common.ObjectBuilders
         public string CueName = null;
 
         [ProtoMember]
+        public string SelectedCategory = null;
+
+        [ProtoMember]
         public float LoopPeriod = 1f;
 
         [ProtoMember]

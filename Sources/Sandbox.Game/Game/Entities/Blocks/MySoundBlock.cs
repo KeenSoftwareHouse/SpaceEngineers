@@ -38,6 +38,7 @@ namespace Sandbox.Game.Entities.Blocks
         private readonly Sync<float> m_volume;
         private readonly Sync<MyCueId> m_cueId;
         private readonly Sync<float> m_loopPeriod;
+        private readonly Sync<string> m_selectedCategory;
         private MySoundPair m_soundPair;
         private bool m_isLoopable;
         private MyEntity3DSoundEmitter[] m_soundEmitters;
@@ -111,6 +112,18 @@ namespace Sandbox.Game.Entities.Blocks
             get { return !CueId.IsNull; }
         }
 
+        public string SelectedCategory
+        {
+            get
+            {
+                return m_selectedCategory;
+            }
+            set
+            {
+                m_selectedCategory.Value = value;
+            }
+        }
+
         #endregion
 
         #region Init & object builder
@@ -157,6 +170,11 @@ namespace Sandbox.Game.Entities.Blocks
             m_loopableTimeSlider.EnableActions();
             MyTerminalControlFactory.AddControl(m_loopableTimeSlider);
 
+            var soundCategoryList = new MyTerminalControlListbox<MySoundBlock>("Categories", MyStringId.GetOrCompute("Sound Categories"), MySpaceTexts.Blank);
+            soundCategoryList.ListContent = (x, list1, list2) => x.FillCategoryListContent(list1, list2);
+            soundCategoryList.ItemSelected = (x, y) => x.SelectCategory(y, true);
+            MyTerminalControlFactory.AddControl(soundCategoryList);
+
             var soundsList = new MyTerminalControlListbox<MySoundBlock>("SoundsList", MySpaceTexts.BlockPropertyTitle_SoundBlockSoundList, MySpaceTexts.Blank);
             soundsList.ListContent = (x, list1, list2) => x.FillListContent(list1, list2);
             soundsList.ItemSelected = (x, y) => x.SelectSound(y, true);
@@ -178,7 +196,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_volume.ValueChanged += (x) => VolumeChanged();
             m_soundRadius.ValueChanged += (x) => RadiusChanged();
             m_cueId.ValueChanged += (x) => SelectionChanged();
-
+            m_selectedCategory.ValueChanged += (x) => SelectedCategoryChanged();
         }
 
         void SelectionChanged()
@@ -233,6 +251,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_willStartSound = true;
             }
+            SelectedCategory = builder.SelectedCategory;
             InitCue(builder.CueName);
 	 
             ResourceSink.Update();
@@ -275,6 +294,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             ob.Volume = Volume;
             ob.Range = Range;
+            ob.SelectedCategory = SelectedCategory;
             ob.CueName = CueId.ToString();
             ob.LoopPeriod = LoopPeriod;
 
@@ -354,6 +374,17 @@ namespace Sandbox.Game.Entities.Blocks
             CueId = cueId;        
         }
 
+        public void SelectCategory(List<MyGuiControlListbox.Item> selectedCategory, bool sync)
+        {
+            var category = selectedCategory[0].Text.ToString();
+            SelectCategory(category, sync);
+        }
+
+        public void SelectCategory(string category, bool sync)
+        {
+            SelectedCategory = category;
+        }
+
         //public void SelectSound(int cueId, bool sync)
         //{
         //    SelectSound(MyStringId.TryGet(cueId), sync);
@@ -387,21 +418,64 @@ namespace Sandbox.Game.Entities.Blocks
 
         #region Methods - terminal helpers
 
+        private int GetCategoryId()
+        {
+            if (string.IsNullOrEmpty(SelectedCategory))
+                return 0;
+
+            var soundCategories = MyDefinitionManager.Static.GetSoundCategoryDefinitions();
+            for(int i = 0; i < soundCategories.Count; i++)
+            {
+                // try Displayname first, use SubtypeName as fallback
+                if (!string.IsNullOrEmpty(soundCategories[i].DisplayNameString))
+                {
+                    if (soundCategories[i].DisplayNameString.Equals(SelectedCategory))
+                        return i;
+                }
+                else if (soundCategories[i].Id.SubtypeName.Equals(SelectedCategory))
+                    return i;
+            }
+
+            return 0;
+        }
+
         private void FillListContent(ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems)
         {
-            foreach (var soundCategory in MyDefinitionManager.Static.GetSoundCategoryDefinitions())
+            var soundCategory = MyDefinitionManager.Static.GetSoundCategoryDefinitions()[GetCategoryId()];
+            
+            foreach (var sound in soundCategory.Sounds)
             {
-                foreach (var sound in soundCategory.Sounds)
-                {
-                    m_helperSB.Clear().Append(sound.SoundText);
-                    var stringId = MySoundPair.GetCueId(sound.SoundId);
+                m_helperSB.Clear().Append(sound.SoundText);
+                var stringId = MySoundPair.GetCueId(sound.SoundId);
                     
-                    var item = new MyGuiControlListbox.Item(text: m_helperSB, userData: stringId);
+                var item = new MyGuiControlListbox.Item(text: m_helperSB, userData: stringId);
 
-                    listBoxContent.Add(item);
-                    if (stringId == CueId)
-                        listBoxSelectedItems.Add(item);
-                }
+                listBoxContent.Add(item);
+                if (stringId == CueId)
+                    listBoxSelectedItems.Add(item);
+            }
+        }
+
+        private void FillCategoryListContent(ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems)
+        {
+            var soundCategories = MyDefinitionManager.Static.GetSoundCategoryDefinitions();
+
+            for (int i = 0; i < soundCategories.Count; i++)
+            {
+                m_helperSB.Clear();
+
+                // use Subtype if no Displayname exists
+                if (string.IsNullOrEmpty(soundCategories[i].DisplayNameString))
+                    m_helperSB.Append(soundCategories[i].Id.SubtypeName);
+                else // otherwise use Displayname
+                    m_helperSB.Append(soundCategories[i].DisplayNameString);
+
+                var item = new MyGuiControlListbox.Item(text: m_helperSB);
+
+                listBoxContent.Add(item);
+
+                if (item.Text.Equals(SelectedCategory))
+                    listBoxSelectedItems.Add(item);
             }
         }
 
