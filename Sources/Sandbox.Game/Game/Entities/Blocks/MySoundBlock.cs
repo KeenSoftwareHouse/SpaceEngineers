@@ -196,7 +196,6 @@ namespace Sandbox.Game.Entities.Blocks
             m_volume.ValueChanged += (x) => VolumeChanged();
             m_soundRadius.ValueChanged += (x) => RadiusChanged();
             m_cueId.ValueChanged += (x) => SelectionChanged();
-            m_selectedCategory.ValueChanged += (x) => SelectedCategoryChanged();
         }
 
         void SelectionChanged()
