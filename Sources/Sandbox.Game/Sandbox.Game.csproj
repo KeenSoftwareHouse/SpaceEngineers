@@ -90,6 +90,12 @@
     <Reference Include="InfinarioSDK">
       <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
     </Reference>
+    <Reference Include="JpnKanaConversion">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio International Pack\Japanese Kana Converter Library\JpnKanaConversion.dll</HintPath>
+    </Reference>
+    <Reference Include="JpnKanaConvHelper">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio International Pack\Japanese Kana Converter Library\JpnKanaConvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
@@ -130,6 +136,9 @@
     <Reference Include="VRage.Native">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\VRage.Native\release\$(Platform)\VRage.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="YomiAutoCompletion">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio International Pack\Japanese Yomi Auto-Completion Library\Library\YomiAutoCompletion.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

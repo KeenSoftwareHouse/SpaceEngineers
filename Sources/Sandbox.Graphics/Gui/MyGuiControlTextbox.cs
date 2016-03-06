@@ -8,15 +8,72 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using Microsoft.International.Converters;
+using MyIME;
+using MyIMESystem;
 
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
 
+namespace MyIME
+{
+	public class MyIMEControl
+	{
+		#region statics
+		static MyIMEControl static_ime;
+		public static MyIMEControl Static
+		{
+			get { return static_ime; }
+		}
+		public static void IMEStart()
+		{
+			MyIMESystem.MyIME.IMEStart();
+			static_ime.Act = true;
+		}
+		public static void IMEEnd()
+		{
+			static_ime.Act = false;
+			MyIMESystem.MyIME.IMEEnd();
+		}
+		static MyIMEControl()
+		{
+			static_ime = new MyIMEControl();
+		}
+		#endregion
+
+		public MyIMEControl()
+		{
+			act = false;
+		}
+
+		bool act;
+
+		string bText;
+		public bool Act{get;set;}
+		public string Text
+		{
+			get
+			{
+				return Convert(bText);
+			}
+		}
+
+		public void Press(char t)
+		{
+			bText += t;
+		}
+
+		#region ConvertMethod
+		string Convert(string buf)
+		{
+			return MyIMESystem.MyIME.RToJ(buf);
+		}
+		#endregion
+
+	}
+
+}
 
 //  Textbox GUI control. Supports MaxLength.
 //  Supports horisontaly scrollable texts - if text is longer than textbox width, the text will scroll from left to right.
@@ -37,91 +94,6 @@ namespace Sandbox.Graphics.GUI
         Default,
         Debug
     }
-
-	class MyIMEControl
-	{
-		static MyIMEControl static_ime;
-		public static MyIMEControl Static
-		{
-			get { return static_ime; }
-		}
-
-		static MyIMEControl()
-		{
-			static_ime = new MyIMEControl();
-		}
-
-
-
-		public MyIMEControl()
-		{
-			buf = "";
-			s = 0;
-		}
-
-		string buf;
-		int s;
-
-		public void Changed(MyGuiControlTextbox refBox)
-		{
-			StringBuilder sb = new StringBuilder();
-			refBox.GetText(sb);
-			buf = sb.ToString();
-		}
-
-		public void Entered(MyGuiControlTextbox refBox)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.Append(Convert(buf, 1));
-			refBox.SetText(sb);
-		}
-
-
-		public void ReConvert()
-		{
-		}
-
-		public void VChanged(object s,bool iv)
-		{
-		}
-
-
-		string Convert(string buf,int start)
-		{
-			string ans = buf;
-			IFELanguage ifelang = null;
-			try
-			{
-				ifelang = Activator.CreateInstance(Type.GetTypeFromProgID("MSIME.Japan")) as IFELanguage;
-				string subBuf = ans;
-				string rsubBuf = KanaConverter.RomajiToHiragana(subBuf);
-				string rrSubBuf = rsubBuf;
-				//ifelang.GetPhonetic(rsubBuf, start, -1, out rrSubBuf);
-				ans = ans.Replace(subBuf , rrSubBuf);
-			}
-			finally
-			{
-				if(ifelang != null)
-					ifelang.Close();
-			}
-			return ans;
-		}
-
-
-	}
-
-	[ComImport]
-	[Guid("019F7152-E6DB-11d0-83C3-00C04FDDB82E")]
-	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-	public interface IFELanguage
-	{
-		int Open();
-		int Close();
-		int GetJMorphResult(uint dwRequest, uint dwCMode, int cwchInput, [MarshalAs(UnmanagedType.LPWStr)] string pwchInput, IntPtr pfCInfo, out object ppResult);
-		int GetConversionModeCaps(ref uint pdwCaps);
-		int GetPhonetic([MarshalAs(UnmanagedType.BStr)] string @string, int start, int length, [MarshalAs(UnmanagedType.BStr)] out string result);
-		int GetConversion([MarshalAs(UnmanagedType.BStr)] string @string, int start, int length, [MarshalAs(UnmanagedType.BStr)] out string result);
-	}
 
 	[MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
     public class MyGuiControlTextbox : MyGuiControlBase
@@ -260,7 +232,7 @@ namespace Sandbox.Graphics.GUI
         private StyleDefinition m_styleDef;
         private static MyKeyThrottler m_keyThrottler;
 
-        protected int CarriagePositionIndex
+        public int CarriagePositionIndex
         {
             get { return m_carriagePositionIndex; }
             private set
@@ -341,12 +313,6 @@ namespace Sandbox.Graphics.GUI
             m_visualStyle           = visualStyle;
             RefreshVisualStyle();
             m_slidingWindowOffset = 0f;
-
-			#region Adds
-				TextChanged += MyIMEControl.Static.Changed;
-				EnterPressed += MyIMEControl.Static.Entered;
-				VisibleChanged += MyIMEControl.Static.VChanged;
-			#endregion
 
         }
 
@@ -653,13 +619,29 @@ namespace Sandbox.Graphics.GUI
                         
                         textChanged = true;
                     }
+
+					if(character == '\u000f')
+					{
+						MyIMEControl.IMEStart();
+					}
+					if(character == '\u000e')
+					{
+						MyIMEControl.IMEEnd();
+					}
                 }
                 else
                 {
                     if (m_selection.Length > 0)
                         m_selection.EraseText(this);
 
-                    InsertChar(character);
+					if(!MyIMEControl.Static.Act)
+						InsertChar(character);
+					else
+					{
+						MyIMEControl.Static.Press(character);
+						Text = MyIMEControl.Static.Text;
+					}
+
                     textChanged = true;
                 }
             }

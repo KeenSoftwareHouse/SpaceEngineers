@@ -15,6 +15,9 @@ using System.Diagnostics;
 using VRageRender;
 using VRage.Utils;
 
+
+using MyIME;
+
 namespace Sandbox.Engine.Platform
 {
     /// <summary>
@@ -144,6 +147,14 @@ namespace Sandbox.Engine.Platform
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
+			if(e.KeyCode == Keys.IMEConvert)
+			{
+				m_bufferedChars.Add('\u000f');
+			}
+			if(e.KeyCode == Keys.IMENonconvert)
+			{
+				m_bufferedChars.Add('\u000e');
+			}
 			base.OnKeyDown(e);
 		}
 
