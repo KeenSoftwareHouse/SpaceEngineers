@@ -78,6 +78,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_GATLING_TURRETS = true;
         public static bool ENABLE_MISSILE_TURRETS = true;
         public static bool ENABLE_INTERIOR_TURRETS = true;
+        public static bool ENABLE_GENERIC_TURRETS = true;
 
         public static bool ENABLE_DAMAGED_COMPONENTS = false;
 

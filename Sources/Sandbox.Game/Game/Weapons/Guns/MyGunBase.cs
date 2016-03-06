@@ -465,6 +465,8 @@ namespace Sandbox.Game.Weapons
                 return new MyDefinitionId(typeof(MyObjectBuilder_WeaponDefinition), "LargeMissileTurret");
             else if (typeId == typeof(MyObjectBuilder_InteriorTurret))
                 return new MyDefinitionId(typeof(MyObjectBuilder_WeaponDefinition), "LargeInteriorTurret");
+            else if (typeId == typeof(MyObjectBuilder_LargeGenericTurret))
+                return new MyDefinitionId(typeof(MyObjectBuilder_WeaponDefinition), "LargeGenericTurret");
             else if (typeId == typeof(MyObjectBuilder_SmallMissileLauncher)
                 || typeId == typeof(MyObjectBuilder_SmallMissileLauncherReload))
                 return new MyDefinitionId(typeof(MyObjectBuilder_WeaponDefinition), "SmallMissileLauncher");

@@ -954,6 +954,7 @@
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlListbox.cs" />
     <Compile Include="Game\VoiceChat\IMyVoiceChatLogic.cs" />
     <Compile Include="Game\VoiceChat\MyVoiceChatSessionComponent.cs" />
+    <Compile Include="Game\Weapons\Guns\MyLargeGenericTurret.cs" />
     <Compile Include="Game\Weapons\Guns\MyUserControllableGun.cs" />
     <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicFactory.cs" />
     <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicFireFly.cs" />

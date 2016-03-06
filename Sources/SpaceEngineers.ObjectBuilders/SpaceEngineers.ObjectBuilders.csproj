@@ -153,6 +153,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Drill.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GasTank.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_LargeGenericTurret.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGenerator.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGeneratorSphere.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Gyro.cs" />
