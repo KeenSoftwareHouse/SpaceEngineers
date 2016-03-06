@@ -155,6 +155,10 @@ namespace Sandbox.Engine.Platform
 			{
 				m_bufferedChars.Add('\u000e');
 			}
+			if(e.KeyCode == Keys.Return)
+			{
+				m_bufferedChars.Add('\n');
+			}
 			base.OnKeyDown(e);
 		}
 

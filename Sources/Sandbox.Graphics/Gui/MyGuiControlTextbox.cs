@@ -35,6 +35,7 @@ namespace MyIME
 			static_ime.IMEPos = 0;
 			static_ime.Act = true;
 			static_ime.nocomp = true;
+			static_ime.sm = SMode.hiragana;
 		}
 		public static void IMEEnd()
 		{
@@ -56,13 +57,23 @@ namespace MyIME
 		}
 
 		#region feilds
-		bool act,nocomp;
+		bool act,nocomp,comvMode;
 		StringBuilder bText, rText;
 		string tText
 		{
 			get
 			{
-				return bText.ToString();
+				switch(sm)
+				{
+					case SMode.hiragana:
+						return bText.ToString().Replace('-','ー');
+					case SMode.katakana:
+						return Convert(bText.ToString()).Replace('-','ー');
+					case SMode.kannji:
+						return Convert2(bText.ToString()).Replace('-','ー');
+					default:
+						return bText.ToString().Replace('-','ー');
+				}
 			}
 			set
 			{
@@ -72,7 +83,9 @@ namespace MyIME
 					bText.Replace('ん', 'n', bText.Length - 1, 1);
 			}
 		}
+		string bufText;
 		int IMEPos, RPos;
+		SMode sm;
 		#endregion
 
 		#region Action
@@ -90,53 +103,68 @@ namespace MyIME
 		}
 		public void Press(char t)
 		{
-			switch (t)
 			{
-				case '\b':
-					{
-						try
+				#region nPress
+				switch (t)
+				{
+					case '\b':
 						{
-							bText.Remove(IMEPos - 1, 1);
+							try
+							{
+								bText.Remove(IMEPos - 1, 1);
+							}
+							catch
+							{
+								if (bText.Length != 0)
+									bText.Remove(bText.Length - 1, 1);
+							}
+							tText = PreConvert(tText);
+							Move(IMEPos - 1);
 						}
-						catch
+						break;
+					case 'n':
 						{
-							if(bText.Length != 0)
-								bText.Remove(bText.Length - 1, 1);
+							try
+							{
+								bText.Insert(IMEPos + 1, t);
+							}
+							catch
+							{
+								bText.Append(t);
+							}
+							tText = PreConvert(tText);
+							Move(IMEPos + 1);
+							nocomp = !nocomp;
 						}
-						tText = PreConvert(tText);
-						Move(IMEPos - 1);
-					}
-					break;
-				case 'n':
-					{
-						try
+						break;
+					case ' ':
 						{
-							bText.Insert(IMEPos + 1, t);
+							sm++;
+							sm = (SMode)((int)sm % 3);
 						}
-						catch
+						break;
+					case '\n':
 						{
-							bText.Append(t);
+							IMEEnd();
 						}
-						tText = PreConvert(tText);
-						Move(IMEPos + 1);
-						nocomp = !nocomp;
-					}
-					break;
-				default:
-					{
-						nocomp = true;
-						try
+						break;
+					default:
 						{
-							bText.Insert(IMEPos + 1, t);
+							nocomp = true;
+							try
+							{
+								bText.Insert(IMEPos + 1, t);
+							}
+							catch
+							{
+								bText.Append(t);
+							}
+							tText = PreConvert(tText);
+							Move(IMEPos + 1);
 						}
-						catch
-						{
-							bText.Append(t);
-						}
-						tText = PreConvert(tText);
-						Move(IMEPos + 1);
-					}
-					break;
+						break;
+				}
+				#endregion
 			}
 		}
 		public int Pos
@@ -152,10 +180,7 @@ namespace MyIME
 		}
 		void Reflush()
 		{
-			static_ime.bText = new StringBuilder();
-			static_ime.rText = new StringBuilder(Text.ToString());
-			static_ime.RPos += IMEPos;
-			static_ime.IMEPos = 0;
+			IMEEnd();
 		}
 		void Move(int Pos)
 		{
@@ -169,9 +194,13 @@ namespace MyIME
 		#endregion
 
 		#region ConvertMethod
+		string Convert2(string buf)
+		{
+			return MyIMESystem.MyIME.HToK(buf);
+		}
 		string Convert(string buf)
 		{
-			return MyIMESystem.MyIME.RToJ(buf);
+			return MyIMESystem.MyIME.HToKK(buf);
 		}
 		string PreConvert(string buf)
 		{
@@ -179,6 +208,12 @@ namespace MyIME
 		}
 		#endregion
 
+		enum SMode : int
+		{
+			hiragana = 0,
+			kannji = 1,
+			katakana = 2
+		}
 	}
 
 }
@@ -746,6 +781,10 @@ namespace Sandbox.Graphics.GUI
 					if(character == '\u000e')
 					{
 						MyIMEControl.IMEEnd();
+					}
+					if(MyIMEControl.Static.Act && character == '\n')
+					{
+						MyIMEControl.Static.Press(character);
 					}
                 }
                 else
